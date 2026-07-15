@@ -83,6 +83,7 @@ import {
 
 import {
   auditStatus,
+  latestFindings,
   renderAuditReport,
   resolveSource,
 } from "../auditor-artifacts.mjs";
@@ -92,6 +93,7 @@ import {
   renderSocReport,
   resolveSource as socResolveSource,
 } from "../soc-artifacts.mjs";
+import { runtimeDataPath } from "../lib.mjs";
 
 const USAGE = `Usage:
   node scripts/bridge/run-investigation.mjs --scenario <scenario.json> [--model <m>] [--out-dir <dir>]
@@ -545,9 +547,9 @@ function computeCaseReport(root, caseSlug) {
  * Returns:
  *   { ok, phase, findingCounts, checksRecorded, allFindingsSourced, error? }
  *
- * allFindingsSourced is true when every finding in the findings.jsonl has a
- * non-empty source field (evidence-gated at record time, so this is a post-hoc
- * confirmation check).
+ * allFindingsSourced is true when every latest finding snapshot has resolving
+ * original evidence and every Resolved snapshot has resolving verification
+ * evidence. The helper gates both at write time; this is a post-hoc check.
  */
 function computeAuditDiskStatus(root, auditSlug) {
   try {
@@ -557,14 +559,14 @@ function computeAuditDiskStatus(root, auditSlug) {
     // ledger to catch findings that slipped through, e.g. via the trailing-newline
     // off-by-one). Presence alone is not sufficient; we call resolveSource() so that a
     // non-empty but unresolvable source string is also rejected.
-    const findingsPath = path.join(root, "_data", "audits", auditSlug, "findings.jsonl");
-    const checksDir = path.join(root, "_data", "audits", auditSlug, "checks");
+    const findingsPath = runtimeDataPath(root, "audits", auditSlug, "findings.jsonl");
+    const checksDir = runtimeDataPath(root, "audits", auditSlug, "checks");
     let allFindingsSourced = true;
     try {
       if (fs.existsSync(findingsPath)) {
         const lines = fs.readFileSync(findingsPath, "utf8").trim().split("\n").filter(Boolean);
-        for (const line of lines) {
-          const f = JSON.parse(line);
+        const findings = latestFindings(lines.map((line) => JSON.parse(line)));
+        for (const f of findings) {
           if (!f.source || String(f.source).trim() === "") {
             allFindingsSourced = false;
             break;
@@ -573,6 +575,16 @@ function computeAuditDiskStatus(root, auditSlug) {
           if (!resolved.resolves) {
             allFindingsSourced = false;
             break;
+          }
+          if (f.status === "Resolved") {
+            const verification = resolveSource(root, checksDir, f.verificationSource);
+            if (
+              !verification.resolves ||
+              (verification.type !== "file-line" && verification.type !== "check")
+            ) {
+              allFindingsSourced = false;
+              break;
+            }
           }
         }
       }
@@ -616,8 +628,8 @@ function computeAuditReport(root, auditSlug) {
 function computeSocDiskStatus(root, reviewSlug) {
   try {
     const status = socStatus({ root, reviewSlug });
-    const findingsPath = path.join(root, "_data", "soc-reviews", reviewSlug, "findings.jsonl");
-    const evidenceDir = path.join(root, "_data", "soc-reviews", reviewSlug, "evidence");
+    const findingsPath = runtimeDataPath(root, "soc-reviews", reviewSlug, "findings.jsonl");
+    const evidenceDir = runtimeDataPath(root, "soc-reviews", reviewSlug, "evidence");
     let allFindingsSourced = true;
     try {
       if (fs.existsSync(findingsPath)) {
@@ -721,7 +733,7 @@ function main() {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const outDir = args.outDir
     ? path.resolve(args.outDir)
-    : path.join(root, "_data", "bridge-runs", `${scenario.id}-${stamp}`);
+    : runtimeDataPath(root, "bridge-runs", `${scenario.id}-${stamp}`);
   fs.mkdirSync(outDir, { recursive: true });
 
   // Optional permission lock — installed for the whole run, restored in finally.
@@ -852,7 +864,7 @@ function main() {
     catch { return null; }
   })();
   const digest = buildRunDigest({ scenario, role, model, turns, disk, evaluation, overallPass, repoCommit, scenarioHash, preFindingCount });
-  const digestsDir = path.join(root, "_data", "bridge-digests");
+  const digestsDir = runtimeDataPath(root, "bridge-digests");
   fs.mkdirSync(digestsDir, { recursive: true });
   fs.writeFileSync(path.join(digestsDir, `${path.basename(outDir)}.json`), `${JSON.stringify(digest, null, 2)}\n`);
   const runQuality = renderRunQuality(digest);

@@ -1,0 +1,39 @@
+# Candidate remediation for the unsafe provenance evaluation fixture. This is
+# inert evaluator input, not the repository's executable checker.
+
+import configparser
+import yaml
+from yaml.nodes import MappingNode, ScalarNode
+
+TRACKED_PROVENANCE_ROOTS = {"vendor/zscaler-help", "vendor/zscaler-api-specs"}
+
+
+def parse_pins(text):
+    document = yaml.compose(text)
+    pins = []
+    seen_fields = set()
+    for key_node, value_node in document.value:
+        if isinstance(key_node, ScalarNode) and key_node.value == "verified-against":
+            if key_node.value in seen_fields:
+                raise ValueError("duplicate top-level verified-against field")
+            seen_fields.add(key_node.value)
+            if not isinstance(value_node, MappingNode):
+                raise TypeError("verified-against must be a mapping")
+            seen_paths = set()
+            for path_node, sha_node in value_node.value:
+                if path_node.value in seen_paths:
+                    raise ValueError("duplicate verified-against key")
+                seen_paths.add(path_node.value)
+                pins.append((path_node.value, sha_node.value))
+    return pins
+
+
+def valid_source_roots(gitmodules_text):
+    parser = configparser.ConfigParser()
+    parser.read_string(gitmodules_text)
+    declared_submodules = {
+        parser.get(section, "path")
+        for section in parser.sections()
+        if section.startswith('submodule "') and parser.has_option(section, "path")
+    }
+    return declared_submodules | TRACKED_PROVENANCE_ROOTS

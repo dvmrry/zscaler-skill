@@ -40,6 +40,10 @@ ROUTING_DOCS = [
     AGENTS_ROOT / "README.md",
 ]
 
+PORTABLE_SKILL_INVENTORY_DOC = REPO_ROOT / "AGENTS.md"
+PORTABLE_SKILL_INVENTORY_START = "<!-- portable-skill-inventory:start -->"
+PORTABLE_SKILL_INVENTORY_END = "<!-- portable-skill-inventory:end -->"
+
 RUNTIME_ADAPTER_DIRS = [
     REPO_ROOT / ".claude" / "commands",
     REPO_ROOT / ".devin" / "workflows",
@@ -54,13 +58,6 @@ RUNTIME_SKILL_PREFIXES = {
     REPO_ROOT / ".devin" / "skills": "devin-",
     REPO_ROOT / ".claude" / "skills": "claude-",
 }
-
-EXPECTED_PORTABLE_SKILL_WORKFLOWS = {
-    "zscaler-investigator": AGENTS_ROOT / "investigator" / "workflow.md",
-    "zscaler-soc": AGENTS_ROOT / "soc" / "workflow.md",
-    "zscaler-skill-setup": AGENTS_ROOT / "setup" / "workflow.md",
-}
-
 
 @dataclass
 class Finding:
@@ -87,6 +84,34 @@ def parse_frontmatter(path: Path) -> tuple[dict[str, Any], str] | None:
     return data, text[match.end() :]
 
 
+def expected_portable_skill_workflows(findings: list[Finding]) -> dict[str, Path]:
+    """Derive portable Codex entrypoints from canonical workflow metadata."""
+    expected: dict[str, Path] = {}
+    for workflow in sorted(AGENTS_ROOT.glob("*/workflow.md")):
+        parsed = parse_frontmatter(workflow)
+        if parsed is None:
+            findings.append(Finding("error", workflow, "missing or invalid YAML frontmatter"))
+            continue
+        frontmatter, _ = parsed
+        runtimes = frontmatter.get("known-runtimes") or []
+        if "codex" not in runtimes:
+            continue
+
+        role = frontmatter.get("role")
+        workflow_id = frontmatter.get("id")
+        if not isinstance(role, str) or not isinstance(workflow_id, str):
+            findings.append(Finding("error", workflow, "Codex workflow must declare role and id"))
+            continue
+        if role == "zscaler":
+            skill_name = "zscaler"
+        elif role == "setup":
+            skill_name = workflow_id
+        else:
+            skill_name = f"zscaler-{role}"
+        expected[skill_name] = workflow
+    return expected
+
+
 def skill_files() -> list[Path]:
     if not SKILLS_ROOT.exists():
         return []
@@ -105,7 +130,12 @@ def resolve_skill_path(skill_file: Path, target: str) -> Path:
     return (skill_file.parent / target).resolve()
 
 
-def check_skill(skill_file: Path, findings: list[Finding], allow_smoke_tests: bool) -> str | None:
+def check_skill(
+    skill_file: Path,
+    findings: list[Finding],
+    allow_smoke_tests: bool,
+    expected_workflows: dict[str, Path],
+) -> str | None:
     parsed = parse_frontmatter(skill_file)
     if parsed is None:
         findings.append(Finding("error", skill_file, "missing or invalid YAML frontmatter"))
@@ -158,7 +188,7 @@ def check_skill(skill_file: Path, findings: list[Finding], allow_smoke_tests: bo
             )
         )
 
-    expected_workflow = EXPECTED_PORTABLE_SKILL_WORKFLOWS.get(name)
+    expected_workflow = expected_workflows.get(name)
     if expected_workflow and expected_workflow not in agent_targets:
         findings.append(
             Finding(
@@ -177,6 +207,54 @@ def check_skill(skill_file: Path, findings: list[Finding], allow_smoke_tests: bo
         findings.append(Finding("warning", skill_file, "skill should state canonical-vs-runtime policy"))
 
     return name
+
+
+def check_expected_portable_skills(
+    skill_names: list[str], expected_workflows: dict[str, Path], findings: list[Finding]
+) -> None:
+    for skill_name in sorted(set(expected_workflows) - set(skill_names)):
+        findings.append(
+            Finding(
+                "error",
+                SKILLS_ROOT / skill_name / "SKILL.md",
+                f"missing portable skill for Codex workflow {rel(expected_workflows[skill_name])}",
+            )
+        )
+
+
+def check_portable_skill_inventory(expected_workflows: dict[str, Path], findings: list[Finding]) -> None:
+    """Require AGENTS.md to enumerate exactly the metadata-derived Codex loaders."""
+    path = PORTABLE_SKILL_INVENTORY_DOC
+    if not path.exists():
+        findings.append(Finding("error", path, "authoritative portable-skill inventory does not exist"))
+        return
+
+    text = path.read_text(encoding="utf-8")
+    start_count = text.count(PORTABLE_SKILL_INVENTORY_START)
+    end_count = text.count(PORTABLE_SKILL_INVENTORY_END)
+    if start_count != 1 or end_count != 1:
+        findings.append(
+            Finding(
+                "error",
+                path,
+                "must contain exactly one bounded portable-skill inventory",
+            )
+        )
+        return
+
+    start = text.index(PORTABLE_SKILL_INVENTORY_START) + len(PORTABLE_SKILL_INVENTORY_START)
+    try:
+        end = text.index(PORTABLE_SKILL_INVENTORY_END, start)
+    except ValueError:
+        findings.append(Finding("error", path, "portable-skill inventory markers are out of order"))
+        return
+    inventory = set(BACKTICK_PATH_RE.findall(text[start:end]))
+    expected = set(expected_workflows)
+
+    for skill_name in sorted(expected - inventory):
+        findings.append(Finding("error", path, f"portable-skill inventory is missing '{skill_name}'"))
+    for skill_name in sorted(inventory - expected):
+        findings.append(Finding("error", path, f"portable-skill inventory has stale entry '{skill_name}'"))
 
 
 def check_routing_docs(skill_names: list[str], findings: list[Finding]) -> None:
@@ -332,16 +410,19 @@ def main() -> int:
     args = parser.parse_args()
 
     findings: list[Finding] = []
+    expected_workflows = expected_portable_skill_workflows(findings)
     skills = skill_files()
     if not skills:
         findings.append(Finding("error", SKILLS_ROOT, "no portable Agent Skills found"))
 
     skill_names: list[str] = []
     for skill_file in skills:
-        name = check_skill(skill_file, findings, args.allow_smoke_tests)
+        name = check_skill(skill_file, findings, args.allow_smoke_tests, expected_workflows)
         if name:
             skill_names.append(name)
 
+    check_expected_portable_skills(skill_names, expected_workflows, findings)
+    check_portable_skill_inventory(expected_workflows, findings)
     check_routing_docs(skill_names, findings)
     check_runtime_adapters(findings, args.strict_adapters)
     check_pointer_targets(findings)

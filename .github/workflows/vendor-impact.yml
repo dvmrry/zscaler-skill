@@ -14,6 +14,8 @@ on:
 jobs:
   summarize:
     runs-on: ubuntu-latest
+    env:
+      ZSCALER_SKILL_RUNTIME_CONFIG: ${{ vars.ZSCALER_SKILL_RUNTIME_CONFIG }}
     permissions:
       contents: read
       issues: write
@@ -27,7 +29,13 @@ jobs:
         run: git submodule update --init --recursive
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v8.3.0
+        uses: astral-sh/setup-uv@v8.3.2
+
+      - name: Resolve runtime artifact paths
+        id: runtime_paths
+        run: |
+          echo "summary_path=$(node scripts/runtime-data-path.mjs schemas vendor-impact-summary.md)" >> "$GITHUB_OUTPUT"
+          echo "asymmetry_path=$(node scripts/runtime-data-path.mjs schemas asymmetry-candidates.md)" >> "$GITHUB_OUTPUT"
 
       - name: Generate vendor impact summary
         env:
@@ -36,33 +44,35 @@ jobs:
           ./scripts/vendor-impact-summary.py \
             --base "$BASE_SHA" \
             --head HEAD \
-            --output _data/schemas/vendor-impact-summary.md
-          cat _data/schemas/vendor-impact-summary.md >> "$GITHUB_STEP_SUMMARY"
+            --output "${{ steps.runtime_paths.outputs.summary_path }}"
+          cat "${{ steps.runtime_paths.outputs.summary_path }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Generate asymmetry candidates
         run: ./scripts/find-asymmetries.py
 
       - name: Verify impact artifact paths
         run: |
-          test -f _data/schemas/vendor-impact-summary.md
-          test -f _data/schemas/asymmetry-candidates.md
+          test -f "${{ steps.runtime_paths.outputs.summary_path }}"
+          test -f "${{ steps.runtime_paths.outputs.asymmetry_path }}"
 
       - name: Upload impact artifacts
         uses: actions/upload-artifact@v7
         with:
           name: vendor-impact
           path: |
-            _data/schemas/vendor-impact-summary.md
-            _data/schemas/asymmetry-candidates.md
+            ${{ steps.runtime_paths.outputs.summary_path }}
+            ${{ steps.runtime_paths.outputs.asymmetry_path }}
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v9
+        env:
+          SUMMARY_PATH: ${{ steps.runtime_paths.outputs.summary_path }}
         with:
           script: |
             const fs = require('fs');
             const marker = '<!-- vendor-impact-summary -->';
-            const body = marker + '\n' + fs.readFileSync('_data/schemas/vendor-impact-summary.md', 'utf8');
+            const body = marker + '\n' + fs.readFileSync(process.env.SUMMARY_PATH, 'utf8');
             const {owner, repo} = context.repo;
             const issue_number = context.issue.number;
             const comments = await github.paginate(github.rest.issues.listComments, {

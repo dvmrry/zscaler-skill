@@ -1,0 +1,38 @@
+# Candidate remediation for the unsafe auto-tag evaluation fixture. This is
+# inert fixture data, not an active GitHub Actions workflow.
+
+name: Auto tag VERSION
+
+on:
+  push:
+    branches: [main]
+    paths: [VERSION]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Reconcile tag and release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(tr -d '[:space:]' < VERSION)"
+          tag="v${version}"
+          release_commit="$(git log -n 1 --format=%H -- VERSION)"
+          if ! git rev-parse --verify --quiet "refs/tags/${tag}"; then
+            git tag -a "${tag}" "${release_commit}" -m "Release ${tag}"
+            git push origin "refs/tags/${tag}"
+          fi
+          if ! gh release view "${tag}" >/dev/null 2>&1; then
+            gh release create "${tag}" --verify-tag --generate-notes
+          fi

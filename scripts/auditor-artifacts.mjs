@@ -13,7 +13,7 @@
  * shared-utility extraction is discoverable.
  *
  * Audit lifecycle is intentionally lighter than the investigator:
- *   open -> record findings -> report
+ *   open -> record findings -> update findings -> report
  * No turn ledger, no hypothesis chain.
  */
 import fs from "node:fs";
@@ -49,7 +49,7 @@ export const REQUIRED_INTAKE_MARKERS = ["Status:", "Blocking Issues:"];
 
 // Canonical findings table header (the register.md derives from findings.jsonl; must match here).
 export const REGISTER_TABLE_HEADER =
-  "| ID | Description | Source | Severity | Status | Remediation | Notes |";
+  "| ID | Description | Source | Severity | Status | Remediation | Verification | Notes |";
 
 // Valid severity values per methodology.md.
 const VALID_SEVERITIES = new Set(["Critical", "High", "Medium", "Low", "Info"]);
@@ -63,6 +63,7 @@ const STRONG_SOURCE_REQUIRED_SEVERITIES = new Set(["Critical", "High"]);
 const SUPPORTED_OPERATIONS = [
   "open-audit",
   "record-finding",
+  "update-finding",
   "record-check-output",
   "render-audit-report",
   "audit-status",
@@ -72,6 +73,7 @@ const SUPPORTED_OPERATIONS = [
 const SUPPORTED_OPTIONS = {
   "open-audit": ["--root", "--audit-slug", "--scope-json", "--force"],
   "record-finding": ["--root", "--audit-slug", "--finding-json"],
+  "update-finding": ["--root", "--audit-slug", "--finding-json"],
   "record-check-output": ["--root", "--audit-slug", "--check-name", "--output-file", "--exit-code"],
   "render-audit-report": ["--root", "--audit-slug"],
   "audit-status": ["--root", "--audit-slug"],
@@ -132,6 +134,21 @@ function readJsonl(filePath) {
 /** Append one JSON value (as a JSONL line) to a file. */
 function appendJsonl(filePath, value) {
   fs.appendFileSync(filePath, `${JSON.stringify(value)}\n`, "utf8");
+}
+
+/**
+ * Collapse the append-only finding history to the latest snapshot per stable ID.
+ * The first appearance of an ID determines register order; later revisions replace
+ * that row without inflating finding counts.
+ */
+export function latestFindings(records) {
+  const order = [];
+  const latestById = new Map();
+  for (const record of records) {
+    if (!latestById.has(record.findingId)) order.push(record.findingId);
+    latestById.set(record.findingId, record);
+  }
+  return order.map((findingId) => latestById.get(findingId));
 }
 
 // ── Audit path helpers ────────────────────────────────────────────────────────
@@ -246,7 +263,7 @@ function renderRegister(findings) {
   lines.push("# Audit Register");
   lines.push("");
   lines.push(REGISTER_TABLE_HEADER);
-  lines.push("|---|---|---|---|---|---|---|");
+  lines.push("|---|---|---|---|---|---|---|---|");
   for (const f of findings) {
     const cells = [
       f.findingId,
@@ -255,6 +272,7 @@ function renderRegister(findings) {
       f.severity,
       f.status,
       f.remediation || "",
+      f.verificationSource || "",
       f.notes || "",
     ].map((v) => String(v ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim());
     lines.push(`| ${cells.join(" | ")} |`);
@@ -270,6 +288,7 @@ function usage(exitCode = 0) {
   out.write(`Usage:
   node scripts/auditor-artifacts.mjs open-audit --root <repo> --audit-slug <slug> --scope-json <file> [--force]
   node scripts/auditor-artifacts.mjs record-finding --root <repo> --audit-slug <slug> --finding-json <file>
+  node scripts/auditor-artifacts.mjs update-finding --root <repo> --audit-slug <slug> --finding-json <file>
   node scripts/auditor-artifacts.mjs record-check-output --root <repo> --audit-slug <slug> --check-name <name> --output-file <path> [--exit-code <n>]
   node scripts/auditor-artifacts.mjs render-audit-report --root <repo> --audit-slug <slug>
   node scripts/auditor-artifacts.mjs audit-status --root <repo> --audit-slug <slug>
@@ -326,8 +345,10 @@ function parseArgs(argv) {
 /**
  * Open a new audit.
  *
- * scope JSON shape: { workingDir?, scope: {paths?:[], topic?}, description, checksRun:[] }
+ * scope JSON shape:
+ *   { workingDir?, mode?, base?, head?, scope: {paths?:[], topic?}, description, checksRun:[] }
  * Required: at least one path in scope.paths OR scope.topic, and description.
+ * Diff mode also requires explicit base and head boundaries.
  *
  * Writes:
  *   audit-intake.md   (Status:/Blocking Issues: grep-able markers)
@@ -371,6 +392,17 @@ export function openAudit(args) {
 
   const checksRun = Array.isArray(scope.checksRun) ? scope.checksRun : [];
   const workingDir = String(scope.workingDir || "").trim();
+  const mode = String(scope.mode || "reference").trim();
+  if (mode !== "reference" && mode !== "diff") {
+    throw new Error("scope.mode must be reference or diff");
+  }
+  const base = String(scope.base || "").trim();
+  const head = String(scope.head || "").trim();
+  if (mode === "diff" && (!base || !head)) {
+    throw new Error(
+      "diff-mode scope must include non-empty base and head boundaries (for a working tree, use base HEAD and head working-tree)",
+    );
+  }
   const timestamp = new Date().toISOString();
 
   const paths = auditPaths(root, args.auditSlug);
@@ -406,6 +438,9 @@ Audit Intake JSON: ${paths.auditIntakeJsonPath}
 Register: ${paths.registerPath}
 Findings: ${paths.findingsPath}
 Working Directory: ${workingDir || "(not set)"}
+Mode: ${mode}
+Base: ${base || "(not applicable)"}
+Head: ${head || "(not applicable)"}
 Created At: ${timestamp}
 
 ## Scope
@@ -424,6 +459,9 @@ ${checksRun.length === 0 ? "- (none at open time)" : checksRun.map((c) => `- ${c
     auditSlug: args.auditSlug,
     auditDir: paths.auditDir,
     workingDir,
+    mode,
+    base,
+    head,
     scope: scopeObj,
     description,
     checksRun,
@@ -464,7 +502,7 @@ ${checksRun.length === 0 ? "- (none at open time)" : checksRun.map((c) => `- ${c
  * Record a validated finding into findings.jsonl and re-derive register.md.
  *
  * Finding JSON shape (per methodology.md declared-records):
- *   { findingId, description, source, severity, status, remediation?, notes? }
+ *   { findingId, description, source, severity, status, remediation?, verificationSource?, notes? }
  *
  * Evidence gate:
  *   - source must resolve (see resolveSource).
@@ -522,6 +560,12 @@ export function recordFinding(args) {
   }
 
   const remediation = String(finding.remediation || "").trim();
+  const verificationSource = String(finding.verificationSource || "").trim();
+  if (status === "Resolved" && !verificationSource) {
+    throw new Error(
+      "finding.verificationSource is required when status is Resolved. Cite a resolving file:line or recorded check that proves the finding is closed.",
+    );
+  }
   const notes = String(finding.notes || "").trim();
 
   // Check for duplicate findingId.
@@ -538,6 +582,14 @@ export function recordFinding(args) {
   // Evidence gate: validate the source.
   fs.mkdirSync(paths.checksDir, { recursive: true });
   validateFindingSource(root, paths.checksDir, { findingId, source, severity, status });
+  if (verificationSource) {
+    validateFindingSource(root, paths.checksDir, {
+      findingId,
+      source: verificationSource,
+      severity,
+      status,
+    });
+  }
 
   const normalizedFinding = {
     findingId,
@@ -546,7 +598,9 @@ export function recordFinding(args) {
     severity,
     status,
     remediation,
+    verificationSource,
     notes,
+    revision: 1,
     recordedAt: new Date().toISOString(),
   };
 
@@ -554,8 +608,8 @@ export function recordFinding(args) {
   appendJsonl(paths.findingsPath, normalizedFinding);
 
   // Re-derive register.md from findings.jsonl (never hand-appended).
-  const allFindings = readJsonl(paths.findingsPath);
-  atomicWriteFile(paths.registerPath, renderRegister(allFindings));
+  const currentFindings = latestFindings(readJsonl(paths.findingsPath));
+  atomicWriteFile(paths.registerPath, renderRegister(currentFindings));
 
   return {
     status: "ok",
@@ -564,7 +618,118 @@ export function recordFinding(args) {
     findingId,
     findingsPath: paths.findingsPath,
     registerPath: paths.registerPath,
-    findingCount: allFindings.length,
+    findingCount: currentFindings.length,
+  };
+}
+
+// ── update-finding ────────────────────────────────────────────────────────────
+
+/**
+ * Append a revised snapshot for an existing stable finding ID.
+ *
+ * Update JSON shape:
+ *   { findingId, status, remediation?, verificationSource?, notes? }
+ *
+ * Description, source, and severity remain immutable so closure cannot silently
+ * rewrite the original claim. A Resolved update requires a strong, resolving
+ * verification source distinct from the original evidence field.
+ */
+export function updateFinding(args) {
+  const root = resolveRepoRoot(args.root);
+  const paths = auditPaths(root, args.auditSlug);
+
+  if (!fs.existsSync(paths.auditIntakePath)) {
+    throw new Error(
+      `audit does not exist: ${args.auditSlug}. Run open-audit first.`,
+    );
+  }
+  if (!fs.existsSync(paths.findingsPath)) {
+    throw new Error(
+      `audit has no findings to update: ${args.auditSlug}. Run record-finding first.`,
+    );
+  }
+
+  if (!args.findingJson) throw new Error("--finding-json is required");
+  const findingJsonPath = path.isAbsolute(args.findingJson)
+    ? args.findingJson
+    : safeRepoPath(root, args.findingJson);
+  let update;
+  try {
+    update = JSON.parse(fs.readFileSync(findingJsonPath, "utf8"));
+  } catch (err) {
+    throw new Error(`failed to read finding update JSON: ${err.message}`);
+  }
+  if (!update || typeof update !== "object" || Array.isArray(update)) {
+    throw new Error("finding update JSON must be an object");
+  }
+
+  const findingId = String(update.findingId || "").trim();
+  if (!findingId) throw new Error("findingUpdate.findingId is required");
+
+  const history = readJsonl(paths.findingsPath);
+  const currentFindings = latestFindings(history);
+  const current = currentFindings.find((finding) => finding.findingId === findingId);
+  if (!current) {
+    throw new Error(
+      `unknown findingId: ${findingId}. Record the finding before attempting to update it.`,
+    );
+  }
+
+  const status = String(update.status || "").trim();
+  if (!VALID_STATUSES.has(status)) {
+    throw new Error(
+      `findingUpdate.status must be one of: ${[...VALID_STATUSES].join(", ")}. Got: ${status}`,
+    );
+  }
+
+  const verificationSource = String(update.verificationSource || "").trim();
+  if (status === "Resolved" && !verificationSource) {
+    throw new Error(
+      "findingUpdate.verificationSource is required when status is Resolved. Cite a resolving file:line or recorded check that proves the original failure no longer holds.",
+    );
+  }
+
+  fs.mkdirSync(paths.checksDir, { recursive: true });
+  if (verificationSource) {
+    validateFindingSource(root, paths.checksDir, {
+      findingId,
+      source: verificationSource,
+      severity: current.severity,
+      status,
+    });
+  }
+
+  const hasRemediation = Object.prototype.hasOwnProperty.call(update, "remediation");
+  const hasNotes = Object.prototype.hasOwnProperty.call(update, "notes");
+  const normalizedFinding = {
+    ...current,
+    status,
+    remediation: hasRemediation
+      ? String(update.remediation || "").trim()
+      : String(current.remediation || "").trim(),
+    verificationSource,
+    notes: hasNotes
+      ? String(update.notes || "").trim()
+      : String(current.notes || "").trim(),
+    revision: Number.isInteger(current.revision) ? current.revision + 1 : 2,
+    updatedAt: new Date().toISOString(),
+  };
+
+  appendJsonl(paths.findingsPath, normalizedFinding);
+
+  const updatedFindings = latestFindings(readJsonl(paths.findingsPath));
+  atomicWriteFile(paths.registerPath, renderRegister(updatedFindings));
+
+  return {
+    status: "ok",
+    operation: "update-finding",
+    auditSlug: args.auditSlug,
+    findingId,
+    findingStatus: status,
+    revision: normalizedFinding.revision,
+    findingsPath: paths.findingsPath,
+    registerPath: paths.registerPath,
+    findingCount: updatedFindings.length,
   };
 }
 
@@ -665,7 +830,7 @@ export function renderAuditReport({ root, auditSlug }) {
   let findings = [];
   if (fs.existsSync(paths.findingsPath)) {
     try {
-      findings = readJsonl(paths.findingsPath);
+      findings = latestFindings(readJsonl(paths.findingsPath));
     } catch (err) {
       throw new Error(`Failed to read findings.jsonl for ${auditSlug}: ${err.message}`);
     }
@@ -681,6 +846,11 @@ export function renderAuditReport({ root, auditSlug }) {
   lines.push("## Scope");
   lines.push("");
   if (intakeJson.description) lines.push(`**Description:** ${intakeJson.description}`);
+  lines.push(`**Mode:** ${intakeJson.mode || "reference"}`);
+  if (intakeJson.mode === "diff") {
+    lines.push(`**Base:** ${intakeJson.base}`);
+    lines.push(`**Head:** ${intakeJson.head}`);
+  }
   const scopeObj = intakeJson.scope || {};
   if (scopeObj.topic) lines.push(`**Topic:** ${scopeObj.topic}`);
   if (Array.isArray(scopeObj.paths) && scopeObj.paths.length > 0) {
@@ -719,6 +889,7 @@ export function renderAuditReport({ root, auditSlug }) {
       lines.push(`- **Source:** ${f.source}`);
       lines.push(`- **Status:** ${f.status}`);
       if (f.remediation) lines.push(`- **Remediation:** ${f.remediation}`);
+      if (f.verificationSource) lines.push(`- **Verification:** ${f.verificationSource}`);
       if (f.notes) lines.push(`- **Notes:** ${f.notes}`);
       lines.push("");
     }
@@ -756,7 +927,8 @@ export function renderAuditReport({ root, auditSlug }) {
  * phase values:
  *   "no-audit"    — audit does not exist
  *   "open"        — audit exists, no findings yet
- *   "has-findings" — audit exists with at least one finding
+ *   "has-findings" — audit exists with at least one Open finding
+ *   "complete"     — audit exists and every finding has a non-Open status
  */
 export function auditStatus({ root, auditSlug }) {
   const resolvedRoot = resolveRepoRoot(root);
@@ -812,7 +984,7 @@ export function auditStatus({ root, auditSlug }) {
 
   if (fs.existsSync(paths.findingsPath)) {
     try {
-      const findings = readJsonl(paths.findingsPath);
+      const findings = latestFindings(readJsonl(paths.findingsPath));
       total = findings.length;
       for (const f of findings) {
         bySeverity[f.severity] = (bySeverity[f.severity] || 0) + 1;
@@ -825,7 +997,7 @@ export function auditStatus({ root, auditSlug }) {
 
   const checksRecorded = Array.isArray(intakeJson && intakeJson.checksRun) ? intakeJson.checksRun : [];
 
-  const phase = total > 0 ? "has-findings" : "open";
+  const phase = total === 0 ? "open" : (byStatus.Open || 0) > 0 ? "has-findings" : "complete";
 
   const nextCommands = [];
   const nextActions = [];
@@ -840,9 +1012,12 @@ export function auditStatus({ root, auditSlug }) {
     nextActions.push(
       "Call record_finding with an evidence-backed finding object.",
     );
-  } else {
+  } else if (phase === "has-findings") {
     nextCommands.push(
       `${baseCmd} render-audit-report ${rootFlag} ${slugFlag}`,
+    );
+    nextCommands.push(
+      `${baseCmd} update-finding ${rootFlag} ${slugFlag} --finding-json <path-to-finding-update-json>`,
     );
     nextCommands.push(
       `${baseCmd} record-finding ${rootFlag} ${slugFlag} --finding-json <path-to-finding-json>`,
@@ -851,7 +1026,23 @@ export function auditStatus({ root, auditSlug }) {
       "Call render_audit_report to produce the final artifact-derived answer.",
     );
     nextActions.push(
+      "Call update_finding to revise an existing finding after verification or disposition.",
+    );
+    nextActions.push(
       "Call record_finding to add another evidence-backed finding before rendering.",
+    );
+  } else {
+    nextCommands.push(
+      `${baseCmd} render-audit-report ${rootFlag} ${slugFlag}`,
+    );
+    nextCommands.push(
+      `${baseCmd} update-finding ${rootFlag} ${slugFlag} --finding-json <path-to-finding-update-json>`,
+    );
+    nextActions.push(
+      "Call render_audit_report to produce the final artifact-derived answer.",
+    );
+    nextActions.push(
+      "Call update_finding if new evidence changes a finding disposition.",
     );
   }
 
@@ -896,6 +1087,11 @@ function main() {
     }
     if (args.command === "record-finding") {
       const result = recordFinding(args);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      return;
+    }
+    if (args.command === "update-finding") {
+      const result = updateFinding(args);
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       return;
     }

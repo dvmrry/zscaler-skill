@@ -3,14 +3,14 @@ product: zpa
 topic: "zpa-app-connector"
 title: "ZPA App Connector — VM architecture, groups, provisioning keys, software updates"
 content-type: reasoning
-last-verified: "2026-06-14"
+last-verified: "2026-07-09"
 confidence: high
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: 6ff5bc97d02e1e1b4c564e2f0a8986edc730e03f
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/terraform-aws-zpa-app-connector-modules: ce13da584021ae4005ff4e7b9c56eb9d1dce9e71
-  vendor/terraform-azurerm-zpa-app-connector-modules: 4b9faa39bdf06a7aaec8729d7966e9e8f0d9fc03
+  vendor/terraform-aws-zpa-app-connector-modules: a866e4988f002d0b50dcc0db10c06e46db4bf0e7
+  vendor/terraform-azurerm-zpa-app-connector-modules: a03b6651d45b80b774661b19acb8ae3954694aa5
 sources:
   - "https://help.zscaler.com/zpa/about-connectors"
   - "vendor/zscaler-help/about-app-connectors.md"
@@ -80,7 +80,7 @@ Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/abou
 - **Typically deployed in the DMZ** or on a network segment that can reach both the internal applications AND the ZPA cloud.
 - **Always active in groups** — multiple App Connectors in the same group are all active simultaneously. No active/passive. ZPA picks the closest one per request based on user location + connector-to-app latency.
 - **App Connectors never communicate with each other.** Each is independent, enrolled separately.
-- **Enrollment via provisioning key + TLS client cert.** Provisioning key is the shared-secret; the App Connector generates its own cert signed by a Zscaler-managed CA during enrollment.
+- **Two enrollment paths.** Provisioning-key enrollment uses a shared secret and results in a TLS client certificate; current AWS and Azure reference modules default to OAuth2 user-code enrollment and retain provisioning keys as a supported alternative.
 - **Software updates are scheduled** at the group level with a 4-hour rolling window — one-at-a-time, not all at once, so the group stays available during upgrades.
 
 ## Mechanics
@@ -107,15 +107,15 @@ Source: `vendor/zscaler-help/zpa-about-connector-groups.md`; `vendor/zscaler-hel
 
 App Connector Groups are the policy, upgrade, and capacity unit. Per *About App Connector Groups*:
 
-- **Every App Connector belongs to exactly one group.** Provisioning key determines group assignment at enrollment time.
+- **Every App Connector belongs to exactly one group.** A provisioning key determines group assignment for the classic flow; the OAuth2 flow supplies connector `user_codes` to the target group with the `Connector` enrollment certificate.
 - **ZPA Application Segments reference Server Groups, which reference App Connector Groups.** The indirection is intentional — the same App Connector Group can serve many segments.
 - **Scheduled upgrade windows** apply at the group level (see below). The Terraform module defaults to `SUNDAY` at `66600` seconds (18:30 UTC) (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:39-49`).
 - **DNS query type** defaults to `IPV4_IPV6`; valid values are `IPV4_IPV6`, `IPV4`, `IPV6` (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:72-85`).
-- **Version profile** defaults to `override_version_profile=true`, `version_profile_id=0` (Default track) (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf:51-70`).
-- **SDK version metadata** can appear as a nested `version` object on App Connector Group responses. The Python SDK model includes version profile name/id plus `sargeVersion`, `childVersion`, and `latestPlatform` fields. Treat these as connector software/version-track metadata, not group membership.
+- **Version profile defaults changed.** Both current reference modules default `override_version_profile` to `false`. Azure sends profile ID `0`; AWS sends `0` when override is disabled and resolves the tenant's `Default` profile only when override is enabled without an explicit ID. Existing configurations that relied on the older override-enabled defaults can show a plan diff after a module update. (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`.)
+- **SDK group and connector telemetry is richer than the older model.** Current Python models include group enrollment/private-cloud fields plus connector creation, broker-connect, enrollment, OS/Sarge upgrade, platform, and read-only/managed-state metadata. Treat these as observed runtime and version-track fields, not group membership or proof of health by themselves.
 - **Ansible onboarding convenience:** the ZPA Ansible App Connector Group module can resolve the default enrollment certificate named `Connector` when `enrollment_cert_id` is omitted, and can verify OAuth `user_codes` after create/update. Treat the resolved enrollment certificate ID and user-code verification result as automation evidence; group creation alone is not proof that connectors enrolled successfully.
 - **Latitude/longitude coordinates** on the group tell ZPA where the group is physically, for nearest-connector selection.
-- **`city_country` is API-derived in the AWS Terraform module.** The AWS App Connector Group module now passes a `city_country` input but ignores post-create changes because the ZPA API derives the returned value from latitude/longitude while the provider schema marks the field optional rather than computed. Treat a plan that wants to reset an empty `city_country` back to `""` as API/provider readback drift, not an operator-visible group change.
+- **`city_country` is a normal optional input in the current modules.** The current AWS module no longer masks post-create changes with `ignore_changes`. Review a plan diff instead of automatically dismissing it as API-derived readback drift.
 - **`-el8` version tracks** and `ip_anchor_type` enum fields surface in the SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/`) — relevant when auditing group config.
 
 Groups are the unit at which upgrades are orchestrated: when a new App Connector version is available, ZPA picks one connector in the group at random, upgrades it (restart + re-enroll), picks the next, and so on. The group stays available throughout because only one connector is down at a time.
@@ -160,7 +160,7 @@ A literal copy of this error in a support ticket narrows diagnosis to "key is wr
 
 **Provisioning key validation asymmetry between AWS and Azure Terraform modules.** The AWS App Connector Terraform module hard-validates `provisioning_key_association_type` to `CONNECTOR_GRP` only — the validation block rejects any other value at plan time (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf:26-36`). The Azure module accepts both `CONNECTOR_GRP` and `SERVICE_EDGE_GRP` (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf:29-40`). Practical consequence: a `SERVICE_EDGE_GRP` key cannot be created via the AWS module — operators must use the ZPA API directly or the raw `zscaler/terraform-provider-zpa` resource. The same key *can* be created via the Azure module. Operators who are scripting provisioning key creation cross-cloud should branch on the target cloud or use the API layer uniformly.
 
-**App Connectors enroll two ways: provisioning key or OAuth2 user code.** Alongside the long-standing provisioning-key shared secret, ZPA App Connector Groups accept OAuth2 `user_codes` for enrollment. The AWS Terraform module still defaults to the provisioning-key path (which it hard-validates to `CONNECTOR_GRP`) but now also wires up `user_codes`. The two paths are not interchangeable within a single flow — pick one per group.
+**App Connectors enroll two ways: provisioning key or OAuth2 user code.** Alongside the long-standing provisioning-key shared secret, ZPA App Connector Groups accept OAuth2 `user_codes` for enrollment. The current AWS and Azure Terraform reference modules expose `onboarding_method`, default it to `oauth`, and retain `provisioning_key` as the secondary path. AWS relays OAuth2 codes through SSM Parameter Store; Azure uses Key Vault with the VM's managed identity. Pick one method per deployment. Staying on, or returning to, provisioning-key onboarding is supported at the module level; this is not a one-way module migration.
 
 #### SDK field shape and Python-vs-Go divergence
 

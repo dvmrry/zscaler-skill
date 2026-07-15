@@ -18,6 +18,7 @@ import test from "node:test";
 import {
   openAudit,
   recordFinding,
+  updateFinding,
   recordCheckOutput,
   renderAuditReport,
   auditStatus,
@@ -49,15 +50,19 @@ function tempRepo() {
   return root;
 }
 
-function makeScope({ topic, paths: scopePaths, description } = {}) {
+function makeScope({ topic, paths: scopePaths, description, mode, base, head } = {}) {
   const scope = {};
   if (scopePaths !== undefined) scope.paths = scopePaths;
   if (topic !== undefined) scope.topic = topic;
-  return {
+  const result = {
     description: description || "Test audit scope",
     scope,
     checksRun: [],
   };
+  if (mode !== undefined) result.mode = mode;
+  if (base !== undefined) result.base = base;
+  if (head !== undefined) result.head = head;
+  return result;
 }
 
 function writeJson(filePath, value) {
@@ -191,6 +196,49 @@ test("open-audit: --force overwrites existing artifacts", () => {
   const result2 = openAudit({ root, auditSlug: "force-test", scopeJson: scopeFile, force: true });
 
   assert.equal(result2.status, "pass");
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("open-audit: diff mode persists exact base and head boundaries", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({
+    paths: ["references/zpa/index.md"],
+    mode: "diff",
+    base: "abc123",
+    head: "def456",
+  }));
+
+  const result = openAudit({ root, auditSlug: "diff-boundary-test", scopeJson: scopeFile });
+  const intakeJson = JSON.parse(fs.readFileSync(result.auditIntakeJsonPath, "utf8"));
+  assert.equal(intakeJson.mode, "diff");
+  assert.equal(intakeJson.base, "abc123");
+  assert.equal(intakeJson.head, "def456");
+  const intakeMd = fs.readFileSync(result.auditIntakePath, "utf8");
+  assert.match(intakeMd, /^Mode: diff$/m);
+  assert.match(intakeMd, /^Base: abc123$/m);
+  assert.match(intakeMd, /^Head: def456$/m);
+
+  const report = renderAuditReport({ root, auditSlug: "diff-boundary-test" });
+  assert.match(report, /\*\*Mode:\*\* diff/);
+  assert.match(report, /\*\*Base:\*\* abc123/);
+  assert.match(report, /\*\*Head:\*\* def456/);
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("open-audit: diff mode rejects an unresolved base/head boundary", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({
+    paths: ["references/zpa/index.md"],
+    mode: "diff",
+    base: "HEAD",
+  }));
+
+  assert.throws(
+    () => openAudit({ root, auditSlug: "diff-missing-head", scopeJson: scopeFile }),
+    /diff-mode scope must include non-empty base and head/,
+  );
 
   fs.rmSync(root, { recursive: true, force: true });
 });
@@ -562,6 +610,133 @@ test("record-finding: duplicate findingId is rejected", () => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+// ── update-finding append-only closure ───────────────────────────────────────
+
+test("update-finding: resolves the stable ID without inflating finding counts", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
+  const opened = openAudit({ root, auditSlug: "closure-test", scopeJson: scopeFile });
+
+  const findingFile = writeFindingFile(root, {
+    findingId: "AUD-DIFF-001",
+    description: "Boundary case is not covered",
+    source: "references/zpa/index.md:2",
+    severity: "High",
+    status: "Open",
+    remediation: "Add the missing boundary case",
+  });
+  recordFinding({ root, auditSlug: "closure-test", findingJson: findingFile });
+
+  const updateFile = writeFindingFile(root, {
+    findingId: "AUD-DIFF-001",
+    status: "Resolved",
+    verificationSource: "references/zpa/index.md:4",
+    notes: "Replayed the original failure and checked the adjacent boundary.",
+  });
+  const updated = updateFinding({ root, auditSlug: "closure-test", findingJson: updateFile });
+
+  assert.equal(updated.findingId, "AUD-DIFF-001");
+  assert.equal(updated.findingStatus, "Resolved");
+  assert.equal(updated.revision, 2);
+  assert.equal(updated.findingCount, 1);
+
+  const history = fs.readFileSync(opened.findingsPath, "utf8").trim().split("\n");
+  assert.equal(history.length, 2, "append-only history should retain both revisions");
+
+  const status = auditStatus({ root, auditSlug: "closure-test" });
+  assert.equal(status.phase, "complete");
+  assert.equal(status.findingCounts.total, 1);
+  assert.equal(status.findingCounts.byStatus.Open, undefined);
+  assert.equal(status.findingCounts.byStatus.Resolved, 1);
+
+  const report = renderAuditReport({ root, auditSlug: "closure-test" });
+  assert.match(report, /\*\*Status:\*\* Resolved/);
+  assert.match(report, /\*\*Verification:\*\* references\/zpa\/index\.md:4/);
+  assert.equal((report.match(/\*\*AUD-DIFF-001\*\*/g) || []).length, 1);
+
+  const register = fs.readFileSync(opened.registerPath, "utf8");
+  assert.equal((register.match(/AUD-DIFF-001/g) || []).length, 1);
+  assert.match(register, /Resolved/);
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("update-finding: rejects Resolved without a verification source", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
+  openAudit({ root, auditSlug: "closure-no-proof", scopeJson: scopeFile });
+  const findingFile = writeFindingFile(root, {
+    findingId: "AUD-001",
+    description: "Finding awaiting proof",
+    source: "references/zpa/index.md:2",
+    severity: "Medium",
+    status: "Open",
+  });
+  recordFinding({ root, auditSlug: "closure-no-proof", findingJson: findingFile });
+  const updateFile = writeFindingFile(root, {
+    findingId: "AUD-001",
+    status: "Resolved",
+  });
+
+  assert.throws(
+    () => updateFinding({ root, auditSlug: "closure-no-proof", findingJson: updateFile }),
+    /verificationSource is required.*Resolved/,
+  );
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("update-finding: rejects weak cross-file verification for Resolved", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
+  openAudit({ root, auditSlug: "closure-weak-proof", scopeJson: scopeFile });
+  const findingFile = writeFindingFile(root, {
+    findingId: "AUD-001",
+    description: "Finding awaiting strong proof",
+    source: "references/zpa/index.md:2",
+    severity: "Low",
+    status: "Open",
+  });
+  recordFinding({ root, auditSlug: "closure-weak-proof", findingJson: findingFile });
+  const updateFile = writeFindingFile(root, {
+    findingId: "AUD-001",
+    status: "Resolved",
+    verificationSource: "references/zpa/index.md + agents/auditor/prompt.md",
+  });
+
+  assert.throws(
+    () => updateFinding({ root, auditSlug: "closure-weak-proof", findingJson: updateFile }),
+    /cross-file reference alone is too weak/,
+  );
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("update-finding: rejects unknown stable IDs", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
+  openAudit({ root, auditSlug: "closure-unknown-id", scopeJson: scopeFile });
+  const findingFile = writeFindingFile(root, {
+    findingId: "AUD-001",
+    description: "Known finding",
+    source: "references/zpa/index.md:2",
+    severity: "Low",
+    status: "Open",
+  });
+  recordFinding({ root, auditSlug: "closure-unknown-id", findingJson: findingFile });
+  const updateFile = writeFindingFile(root, {
+    findingId: "AUD-999",
+    status: "Acknowledged",
+  });
+
+  assert.throws(
+    () => updateFinding({ root, auditSlug: "closure-unknown-id", findingJson: updateFile }),
+    /unknown findingId: AUD-999/,
+  );
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
 // ── record-check-output ───────────────────────────────────────────────────────
 
 test("record-check-output: stores output and registers check name", () => {
@@ -622,12 +797,33 @@ test("record-finding: REJECT Resolved status with only cross-file source", () =>
     severity: "Low",
     status: "Resolved",
     remediation: "Already fixed",
+    verificationSource: "references/zpa/index.md:2",
   });
 
   assert.throws(
     () => recordFinding({ root, auditSlug: "resolved-crossfile-test", findingJson: findingFile }),
     /cross-file.*too weak|cross-file reference alone/,
     "should reject Resolved status with only cross-file source",
+  );
+
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("record-finding: REJECT initial Resolved status without closure evidence", () => {
+  const root = tempRepo();
+  const scopeFile = writeScopeFile(root, makeScope({ paths: ["references/zpa/index.md"] }));
+  openAudit({ root, auditSlug: "resolved-no-verification", scopeJson: scopeFile });
+  const findingFile = writeFindingFile(root, {
+    findingId: "F1",
+    description: "Resolved without independent closure proof",
+    source: "references/zpa/index.md:2",
+    severity: "Low",
+    status: "Resolved",
+  });
+
+  assert.throws(
+    () => recordFinding({ root, auditSlug: "resolved-no-verification", findingJson: findingFile }),
+    /verificationSource is required.*Resolved/,
   );
 
   fs.rmSync(root, { recursive: true, force: true });
@@ -708,6 +904,7 @@ test("capabilities: returns all supported operations including audit-status", ()
   assert.ok(Array.isArray(cap.supported), "supported should be an array");
   assert.ok(cap.supported.includes("open-audit"), "should support open-audit");
   assert.ok(cap.supported.includes("record-finding"), "should support record-finding");
+  assert.ok(cap.supported.includes("update-finding"), "should support update-finding");
   assert.ok(cap.supported.includes("record-check-output"), "should support record-check-output");
   assert.ok(cap.supported.includes("render-audit-report"), "should support render-audit-report");
   assert.ok(cap.supported.includes("audit-status"), "should support audit-status");

@@ -2,7 +2,7 @@
 topic: "runtime-adapters"
 title: "Runtime adapters and portable skills"
 content-type: reference
-last-verified: "2026-06-12"
+last-verified: "2026-07-10"
 confidence: high
 source-tier: practice
 sources:
@@ -252,17 +252,19 @@ apply to the CLI:
 ## Auditor MCP server (`zscaler-auditor`)
 
 The auditor role has a parallel MCP server at `scripts/auditor-mcp-server.mjs`.
-It exposes the lighter audit lifecycle (open -> record findings -> report) as
-named MCP tools, with the same three load-bearing properties as the investigator:
-evidence-gated records, answer-from-artifact, and fabrication-resistant errors.
+It exposes the lighter audit lifecycle (open -> record findings -> verify/update
+findings -> report) as named MCP tools, with the same three load-bearing
+properties as the investigator: evidence-gated records, answer-from-artifact,
+and fabrication-resistant errors.
 
 ### Auditor tools
 
 | Tool | Read-only | Description |
 |---|---|---|
-| `audit_status` | yes | Read-only doctor: phase, finding counts, checks recorded, nextCommands/nextActions |
-| `open_audit` | no | Create audit intake (scope + description) |
+| `audit_status` | yes | Read-only doctor: phase (`no-audit`, `open`, `has-findings`, or `complete`), finding counts, checks, next actions |
+| `open_audit` | no | Create audit intake; diff mode requires persisted base and head boundaries |
 | `record_finding` | no | Record an evidence-gated finding into findings.jsonl, re-derive register.md |
+| `update_finding` | no | Append a revised snapshot for a stable finding ID; Resolved requires strong verification evidence |
 | `record_check_output` | no | Store a CI/check script's output as evidence under `checks/<name>.txt` |
 | `render_audit_report` | yes | Render artifact-derived report — the final answer surface |
 | `helper_capabilities` | yes | Version and supported operations |
@@ -279,7 +281,8 @@ Three per-audit resource templates via `resources/templates/list`:
 
 **Answer-from-artifact rule**: the final answer is produced by `render_audit_report`
 (tool) or by reading `auditor://audit/{slug}/report` (resource) — not by model
-narration. Every finding and its source comes from on-disk `findings.jsonl`.
+narration. Every finding and its source comes from the latest snapshot for each
+stable ID in append-only `findings.jsonl`.
 Missing-audit resource reads return `-32002` for all three kinds.
 
 ### Auditor prompt
@@ -320,6 +323,17 @@ Every finding must carry a resolving source. Source types:
 `check:<name>` source — cross-file existence alone is too weak for
 high-severity assertions. Violations produce isError responses naming the
 exact repair.
+
+`update_finding` preserves the original description, source, and severity. A
+`Resolved` update must add `verificationSource` as a resolving `path:line` or
+`check:<name>`; the helper appends a new revision and renders only the latest
+snapshot, so closure history remains auditable without double-counting the
+finding.
+
+Diff-mode `open_audit` calls must include `mode: "diff"` plus non-empty `base`
+and `head` values. These boundaries are stored in `audit-intake.json` and
+rendered in the report so a later reviewer can distinguish the reviewed change
+set from ambient repository state.
 
 **No force over MCP.** `force` is rejected at dispatch with an actionable
 repair message pointing to the CLI path.

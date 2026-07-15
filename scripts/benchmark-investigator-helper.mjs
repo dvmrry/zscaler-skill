@@ -10,6 +10,7 @@ import {
   initializeTurnLedger,
   openCase,
 } from "./investigator-artifacts.mjs";
+import { runtimeDataPath } from "./lib.mjs";
 
 const DEFAULT_CONFIGS = [
   { name: "small", priorTurns: 5, runs: 10 },
@@ -294,7 +295,7 @@ function doImport(root, caseSlug, index) {
 }
 
 function readPendingTurn(root, caseSlug) {
-  const statePath = path.join(root, "_data/cases", caseSlug, "workflow/02-turn-state.json");
+  const statePath = runtimeDataPath(root, "cases", caseSlug, "workflow", "02-turn-state.json");
   const state = JSON.parse(fs.readFileSync(statePath, "utf8"));
   if (!state.pendingTurn) throw new Error(`No pending turn for ${caseSlug}`);
   return state.pendingTurn;

@@ -13,7 +13,9 @@ import {
   normalizeAllowedRoots,
   normalizeRuntimeDataTracking,
   readJsonObject,
+  RUNTIME_CONFIG_ENV,
   runtimeDataMountSettings,
+  SETUP_CONFIG_ENV,
 } from "./lib.mjs";
 
 function tempDir(prefix) {
@@ -201,6 +203,112 @@ test("runtimeDataMountSettings lets ignored setup config override layout only", 
   assert.equal(settings.tracking, "ignored");
 });
 
+test("runtimeDataMountSettings lets a downstream runtime config replace the root config", () => {
+  const root = tempDir("zskill-lib-runtime-selected-");
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    JSON.stringify({ runtimeData: { mountPath: "root-data", tracking: "ignored" } }),
+    "utf8",
+  );
+  fs.mkdirSync(path.join(root, "deployments"));
+  fs.writeFileSync(
+    path.join(root, "deployments", "private.json"),
+    JSON.stringify({ runtimeData: { mountPath: "selected-data", tracking: "tracked" } }),
+    "utf8",
+  );
+
+  const settings = runtimeDataMountSettings(root, {
+    env: { [RUNTIME_CONFIG_ENV]: "deployments/private.json" },
+  });
+
+  assert.equal(settings.mountPath, "selected-data");
+  assert.equal(settings.tracking, "tracked");
+  assert.equal(settings.runtimeConfigSelectedBy, RUNTIME_CONFIG_ENV);
+});
+
+test("runtimeDataMountSettings keeps explicit paths above environment selectors", () => {
+  const root = tempDir("zskill-lib-runtime-explicit-");
+  fs.writeFileSync(
+    path.join(root, "env.json"),
+    JSON.stringify({ runtimeData: { mountPath: "env-data" } }),
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(root, "explicit.json"),
+    JSON.stringify({ runtimeData: { mountPath: "explicit-data" } }),
+    "utf8",
+  );
+
+  const settings = runtimeDataMountSettings(root, {
+    env: { [RUNTIME_CONFIG_ENV]: "env.json" },
+    runtimeConfigPath: "explicit.json",
+  });
+
+  assert.equal(settings.mountPath, "explicit-data");
+  assert.equal(settings.runtimeConfigSelectedBy, "option");
+});
+
+test("runtimeDataMountSettings lets a selected local setup config override shared layout", () => {
+  const root = tempDir("zskill-lib-setup-selected-");
+  fs.writeFileSync(
+    path.join(root, "runtime.json"),
+    JSON.stringify({ runtimeData: { mountPath: "shared-data", tracking: "tracked" } }),
+    "utf8",
+  );
+  fs.writeFileSync(
+    path.join(root, "local.json"),
+    JSON.stringify({ runtimeData: { mountPath: "workstation-data", tracking: "ignored" } }),
+    "utf8",
+  );
+
+  const settings = runtimeDataMountSettings(root, {
+    env: {
+      [RUNTIME_CONFIG_ENV]: "runtime.json",
+      [SETUP_CONFIG_ENV]: "local.json",
+    },
+  });
+
+  assert.equal(settings.mountPath, "workstation-data");
+  assert.equal(settings.tracking, "ignored");
+  assert.equal(settings.setupConfigSelectedBy, SETUP_CONFIG_ENV);
+});
+
+test("runtimeDataMountSettings fails loudly for selected missing configs", () => {
+  const root = tempDir("zskill-lib-runtime-missing-");
+  assert.throws(
+    () => runtimeDataMountSettings(root, {
+      env: { [RUNTIME_CONFIG_ENV]: "missing.json" },
+    }),
+    /selects a missing file/,
+  );
+  assert.throws(
+    () => runtimeDataMountSettings(root, {
+      env: { [SETUP_CONFIG_ENV]: "missing-local.json" },
+    }),
+    /selects a missing file/,
+  );
+});
+
+test("runtimeDataMountSettings rejects relative config traversal", () => {
+  const root = tempDir("zskill-lib-runtime-traversal-");
+  assert.throws(
+    () => runtimeDataMountSettings(root, {
+      env: { [RUNTIME_CONFIG_ENV]: "../outside.json" },
+    }),
+    /relative config path must stay inside the repo/,
+  );
+});
+
+test("runtimeDataMountSettings rejects a non-object runtimeData section", () => {
+  const root = tempDir("zskill-lib-runtime-shape-");
+  fs.writeFileSync(
+    path.join(root, "zscaler-skill-runtime.json"),
+    JSON.stringify({ runtimeData: [] }),
+    "utf8",
+  );
+  assert.throws(() => runtimeDataMountSettings(root), /runtimeData must be a JSON object/);
+});
+
 test("normalizeAllowedRoots keeps valid _data roots and strips trailing slashes", () => {
   assert.deepEqual(
     normalizeAllowedRoots(["_data/cases/", "_data/schemas", "_data/iac"]),
@@ -210,13 +318,13 @@ test("normalizeAllowedRoots keeps valid _data roots and strips trailing slashes"
 
 test("normalizeAllowedRoots supports a configured runtime mount", () => {
   assert.deepEqual(
-    normalizeAllowedRoots(["tenant-data/cases/", "tenant-data/schemas"], "tenant-data"),
+    normalizeAllowedRoots(["cases/", "tenant-data/schemas"], "tenant-data"),
     ["tenant-data/cases", "tenant-data/schemas"],
   );
 });
 
-test("normalizeAllowedRoots rejects absolute, traversal, and non-_data roots", () => {
-  for (const bad of [["/etc"], ["_data/../secret"], ["cases"], ["_data/cases/../../etc"]]) {
+test("normalizeAllowedRoots rejects absolute, traversal, and unsupported roots", () => {
+  for (const bad of [["/etc"], ["_data/../secret"], ["logs"], ["_data/cases/../../etc"]]) {
     assert.throws(() => normalizeAllowedRoots(bad), /allowed root/i);
   }
 });

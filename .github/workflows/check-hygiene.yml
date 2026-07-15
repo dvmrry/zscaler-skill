@@ -6,6 +6,7 @@ name: Doc hygiene
 #   - check-doc-links.py:        HTML link / asset path resolution in docs/**
 #   - check-citation-density.py: reference source-anchor coverage and Source: audit
 #   - check-workflow-metadata.mjs: workflow metadata and adapter-reference check
+#   - check-verified-against.py:   verified source pins and paths are valid; SHAs resolve in initialized submodules
 #   - check-capability-registry.mjs: role-routing registry contract
 #   - node --test:            stdlib helper regressions for investigator gates
 #                             and _data setup/data-contract helpers
@@ -45,6 +46,7 @@ on:
       - '.gitignore'
       - 'vendor/**'
       - 'README.md'
+      - 'zscaler-skill-runtime.json'
       - 'PLAN.md'
       - 'IMPROVEMENTS.md'
       - 'scripts/**'
@@ -55,6 +57,9 @@ on:
       - 'CHANGELOG.md'
       - 'VERSION'
       - '.release-please-manifest.json'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'release-please-config.json'
   push:
     branches: [main]
     paths:
@@ -71,6 +76,7 @@ on:
       - '.gitignore'
       - 'vendor/**'
       - 'README.md'
+      - 'zscaler-skill-runtime.json'
       - 'PLAN.md'
       - 'IMPROVEMENTS.md'
       - 'scripts/**'
@@ -81,6 +87,9 @@ on:
       - 'CHANGELOG.md'
       - 'VERSION'
       - '.release-please-manifest.json'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'release-please-config.json'
   schedule:
     # Mondays 13:00 UTC — aligns with issue-watch + Renovate cadence
     - cron: '0 13 * * 1'
@@ -93,6 +102,9 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          # check-release-state.mjs compares VERSION with all repository tags.
+          fetch-depth: 0
 
       - name: Initialize submodules
         # Vendor submodules are referenced by ref-doc citations
@@ -104,7 +116,7 @@ jobs:
       - name: Set up uv
         # setup-uv does not ship a `v8` major-version tag — only specific
         # versions (v8.0.0, v8.1.0, ...). Pin to a concrete version.
-        uses: astral-sh/setup-uv@v8.3.0
+        uses: astral-sh/setup-uv@v8.3.2
 
       - name: Run hygiene checks
         run: ./scripts/check-hygiene.py
@@ -119,6 +131,12 @@ jobs:
 
       - name: Check workflow metadata
         run: node scripts/check-workflow-metadata.mjs
+
+      - name: Check release metadata agreement
+        run: node scripts/check-release-state.mjs
+
+      - name: Check verified-against provenance
+        run: ./scripts/check-verified-against.py
 
       - name: Run Node helper regression tests
         run: node --test scripts/*.test.mjs scripts/bridge/*.test.mjs

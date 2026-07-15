@@ -30,12 +30,18 @@ For Zscaler questions:
 - @zscaler-skill-setup — _data mount, runtime-data mount, set up the _data, repair the _data, check-data-contract, overlay submission
 
 <!-- capability-routing:end -->
-- Portable Agent Skills (`zscaler-investigator`, `zscaler-soc`,
-  `zscaler-skill-setup`) under `.agents/skills/` are
-  open-standard loaders for the canonical workflows; prefer the slash commands above for direct
-  invocation.
+<!-- portable-skill-inventory:start -->
+- Portable Agent Skill inventory: `zscaler`, `zscaler-architect`, `zscaler-auditor`,
+  `zscaler-investigator`, `zscaler-researcher`, `zscaler-retro`,
+  `zscaler-skill-setup`, `zscaler-soc`.
+<!-- portable-skill-inventory:end -->
+- These skills are open-standard loaders under `.agents/skills/` for the
+  canonical workflows; prefer the slash commands above for direct invocation.
 - Load only the files needed for the current question.
-- Tenant-specific truth lives in `_data/snapshot/` and `_data/iac/`.
+- Tenant-specific truth lives under the configured runtime-data mount
+  (`_data/snapshot/` and `_data/iac/` by default). Resolve a downstream selector
+  or root config with `node scripts/runtime-data-path.mjs` before substituting
+  paths in commands.
 - Do not read `vendor/` unless the loaded prompt or current question
   specifically requires it.
 

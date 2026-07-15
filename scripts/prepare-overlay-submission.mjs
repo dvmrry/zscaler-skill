@@ -16,7 +16,6 @@ import {
   readRuntimeDataConfigs,
   runGit,
   runtimeDataMountSettings,
-  SETUP_CONFIG_FILE,
   toPosix,
 } from "./lib.mjs";
 
@@ -24,18 +23,26 @@ const DEFAULT_OVERLAY_ROOTS = ["cases", "schemas", "iac"];
 const DEFAULT_BRANCH_PREFIX = "artifact-submission/";
 const MAX_SCAN_BYTES = 5 * 1024 * 1024;
 
+function configSection(config, key, label) {
+  const value = config[key];
+  if (value === undefined || value === null) return {};
+  if (typeof value === "object" && !Array.isArray(value)) return value;
+  throw new Error(`${label}.${key} must be a JSON object`);
+}
+
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/prepare-overlay-submission.mjs [--root <repo-root>] [--config <json>] [--mount-path <path>] [--repo-url <git-url-or-local-path>] [--default-branch <branch>] [--branch-prefix <prefix>] [--artifact <path>]... [--case-path <path>] [--approve] [--dry-run]
+  node scripts/prepare-overlay-submission.mjs [--root <repo-root>] [--runtime-config <json>] [--config <setup-json>] [--mount-path <path>] [--repo-url <git-url-or-local-path>] [--default-branch <branch>] [--branch-prefix <prefix>] [--artifact <path>]... [--case-path <path>] [--approve] [--dry-run]
 
 Validates selected runtime artifacts and prepares a submission branch in the
 configured overlay repository. The helper never pushes by default.
 
 If --config is omitted, ./zscaler-skill-setup.json is used when it exists.
-The config may contain overlaySubmission.repoUrl, defaultBranch, branchPrefix,
-allowedRoots, and requireExplicitApproval. Defaults to the configured runtime
-data mount (_data in public upstream) unless --mount-path says otherwise.
+Shared overlaySubmission policy may live in the selected runtime config; the
+private repoUrl must live in setup config or --repo-url. Defaults to the
+configured runtime data mount (_data in public upstream) unless --mount-path
+says otherwise.
 `);
   process.exit(exitCode);
 }
@@ -55,6 +62,7 @@ function parseArgs(argv) {
     mountPath: null,
     repoUrl: null,
     root: scriptRoot(),
+    runtimeConfig: null,
   };
 
   for (let i = 2; i < argv.length; i += 1) {
@@ -79,7 +87,10 @@ function parseArgs(argv) {
       continue;
     }
     if (arg === "--config") {
-      args.config = argv[i + 1] || "";
+      if (!argv[i + 1] || argv[i + 1].startsWith("--")) {
+        throw new Error("--config requires a value");
+      }
+      args.config = argv[i + 1];
       i += 1;
       continue;
     }
@@ -90,6 +101,14 @@ function parseArgs(argv) {
     }
     if (arg === "--repo-url") {
       args.repoUrl = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
+    if (arg === "--runtime-config") {
+      if (!argv[i + 1] || argv[i + 1].startsWith("--")) {
+        throw new Error("--runtime-config requires a value");
+      }
+      args.runtimeConfig = argv[i + 1];
       i += 1;
       continue;
     }
@@ -106,22 +125,40 @@ function parseArgs(argv) {
     throw new Error(`Unknown argument: ${arg}`);
   }
 
-  const configPath = args.config
-    ? path.resolve(args.root, args.config)
-    : path.join(args.root, SETUP_CONFIG_FILE);
-  const { setupConfig: config } = readRuntimeDataConfigs(args.root, configPath);
-  const overlay = config.overlaySubmission || {};
+  const configPath = args.config || null;
+  const runtimeConfigPath = args.runtimeConfig || null;
+  const configs = readRuntimeDataConfigs(args.root, {
+    runtimeConfigPath,
+    setupConfigPath: configPath,
+  });
+  const runtimeOverlay = configSection(
+    configs.runtimeConfig,
+    "overlaySubmission",
+    configs.runtimeConfigPath,
+  );
+  if (Object.prototype.hasOwnProperty.call(runtimeOverlay, "repoUrl")) {
+    throw new Error(
+      `${configs.runtimeConfigPath}: overlaySubmission.repoUrl is private bootstrap data; keep it in setup config or pass --repo-url`,
+    );
+  }
+  const setupOverlay = configSection(
+    configs.setupConfig,
+    "overlaySubmission",
+    configs.setupConfigPath,
+  );
+  const overlay = { ...runtimeOverlay, ...setupOverlay };
   const configValue = (value) => typeof value === "string" ? expandConfigString(value) : value;
   const mountPath = runtimeDataMountSettings(args.root, {
-    configPath,
     mountPath: args.mountPath,
+    runtimeConfigPath,
+    setupConfigPath: configPath,
   }).mountPath;
 
   return {
     approve: args.approve,
     artifacts: args.artifacts.filter(Boolean),
     branchPrefix: args.branchPrefix ?? configValue(overlay.branchPrefix) ?? DEFAULT_BRANCH_PREFIX,
-    configPath: fs.existsSync(configPath) ? configPath : null,
+    configPath: fs.existsSync(configs.setupConfigPath) ? configs.setupConfigPath : null,
     defaultBranch: args.defaultBranch ?? configValue(overlay.defaultBranch) ?? "main",
     dryRun: args.dryRun,
     mountPath,
@@ -129,6 +166,7 @@ function parseArgs(argv) {
     repoUrl: args.repoUrl ?? configValue(overlay.repoUrl) ?? null,
     requireExplicitApproval: overlay.requireExplicitApproval !== false,
     root: args.root,
+    runtimeConfigPath: configs.runtimeConfigPath,
     allowedRoots: Array.isArray(overlay.allowedRoots) && overlay.allowedRoots.length
       ? expandConfigObject(overlay.allowedRoots)
       : DEFAULT_OVERLAY_ROOTS.map((root) => `${mountPath}/${root}`),

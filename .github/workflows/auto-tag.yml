@@ -3,22 +3,9 @@ name: Auto tag
 on:
   push:
     branches: [main]
+    paths:
+      - VERSION
   workflow_dispatch:
-    inputs:
-      bump:
-        description: "Version component to bump"
-        required: true
-        default: patch
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-      create_release:
-        description: "Create a GitHub release for the new tag"
-        required: true
-        default: true
-        type: boolean
 
 permissions:
   contents: write
@@ -37,80 +24,73 @@ jobs:
 
       - name: Create next version tag
         id: tag
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          DISPATCH_BUMP: ${{ github.event.inputs.bump }}
         run: |
           set -euo pipefail
 
-          git fetch --force --tags origin
+          git fetch --force --tags origin +refs/heads/main:refs/remotes/origin/main
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Manual releases must be dispatched from the main branch, not ${GITHUB_REF}."
+            exit 1
+          fi
 
-          if git tag --points-at "$GITHUB_SHA" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "HEAD already has a version tag; nothing to do."
+          node scripts/check-release-state.mjs
+
+          version="$(tr -d '[:space:]' < VERSION)"
+          next="v${version}"
+          release_commit="$(node scripts/check-release-state.mjs --release-commit)"
+          release_version="$(git show "${release_commit}:VERSION" | tr -d '[:space:]')"
+          if [[ "$release_version" != "$version" ]]; then
+            echo "::error::Derived release commit ${release_commit} has VERSION ${release_version}, expected ${version}."
+            exit 1
+          fi
+
+          echo "tag=${next}" >> "$GITHUB_OUTPUT"
+          echo "release_commit=${release_commit}" >> "$GITHUB_OUTPUT"
+
+          if ! git merge-base --is-ancestor "$release_commit" refs/remotes/origin/main; then
+            echo "::error::Derived release commit ${release_commit} is not reachable from origin/main."
+            exit 1
+          fi
+
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$release_commit" != "$GITHUB_SHA" ]]; then
+            echo "::error::VERSION ${version} was introduced by ${release_commit}, but this push ends at ${GITHUB_SHA}. Run this workflow manually from main to repair the release."
+            exit 1
+          fi
+
+          if git rev-parse -q --verify "refs/tags/${next}" >/dev/null; then
+            tagged_commit="$(git rev-parse "refs/tags/${next}^{commit}")"
+            if [[ "$tagged_commit" != "$release_commit" ]]; then
+              echo "::error::${next} points to ${tagged_commit}, not release commit ${release_commit}."
+              exit 1
+            fi
+
+            echo "${next} already points to release commit ${release_commit}."
             echo "created=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          latest="$(
-            git tag --list 'v[0-9]*.[0-9]*.[0-9]*' \
-              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
-              | sort -V \
-              | tail -n 1
-          )" || true
-          if [[ -z "${latest}" ]]; then
-            latest="v0.0.0"
-          fi
-
-          version="${latest#v}"
-          IFS=. read -r major minor patch <<< "$version"
-
-          bump="patch"
-          if [[ "$EVENT_NAME" == "workflow_dispatch" && -n "${DISPATCH_BUMP:-}" ]]; then
-            bump="$DISPATCH_BUMP"
-          fi
-
-          case "$bump" in
-            major)
-              major=$((major + 1))
-              minor=0
-              patch=0
-              ;;
-            minor)
-              minor=$((minor + 1))
-              patch=0
-              ;;
-            patch)
-              patch=$((patch + 1))
-              ;;
-            *)
-              echo "Unsupported bump value: $bump" >&2
-              exit 1
-              ;;
-          esac
-
-          next="v${major}.${minor}.${patch}"
-          while git rev-parse -q --verify "refs/tags/${next}" >/dev/null; do
-            patch=$((patch + 1))
-            next="v${major}.${minor}.${patch}"
-          done
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$next" "$GITHUB_SHA" -m "Release $next"
+          git tag -a "$next" "$release_commit" -m "Release $next"
           git push origin "refs/tags/${next}"
 
           echo "created=true" >> "$GITHUB_OUTPUT"
-          echo "tag=${next}" >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub release
-        if: steps.tag.outputs.created == 'true' && (github.event_name == 'push' || github.event.inputs.create_release == 'true')
+      - name: Ensure GitHub release exists
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.tag.outputs.tag }}
+          RELEASE_COMMIT: ${{ steps.tag.outputs.release_commit }}
         run: |
           set -euo pipefail
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub release ${TAG} already exists."
+            exit 0
+          fi
+
           gh release create "$TAG" \
             --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" \
+            --target "$RELEASE_COMMIT" \
             --title "$TAG" \
             --generate-notes

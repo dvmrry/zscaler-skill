@@ -4,6 +4,30 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.13.22](https://github.com/dvmrry/zscaler-skill/compare/v0.13.21...v0.13.22) (2026-07-09)
+
+### Bug Fixes
+
+- Make `VERSION` the release tag source and fail CI when release metadata disagrees.
+
+### Documentation
+
+- Complete portable runtime discovery and refresh stale onboarding and project-state guidance.
+
+## [0.13.21](https://github.com/dvmrry/zscaler-skill/compare/v0.13.5...v0.13.21) (2026-07-09)
+
+### Features
+
+- Add deterministic setup checks, capability routing, MCP conformance gates, and richer workflow artifact status.
+
+### Documentation
+
+- Refresh Tier 1 and Tier 2 reference coverage, generated OneAPI contracts, runtime-data mounting, and weekly upstream maintenance guidance.
+
+### Maintenance
+
+- Update pinned upstream SDK, provider, module, and contract sources through `v0.13.21`.
+
 ## [0.13.5](https://github.com/dvmrry/zscaler-skill/compare/v0.13.4...v0.13.5) (2026-06-16)
 
 

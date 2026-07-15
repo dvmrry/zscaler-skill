@@ -36,11 +36,11 @@ use the read-only `zscalerctl` CLI for tenant reads.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-helper-command-refs.mjs` (scans tracked docs for stale investigator-artifacts.mjs, auditor-artifacts.mjs, and soc-artifacts.mjs command tokens), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.py`, `find-asymmetries.py` |
-| **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `setup-data-mount.mjs`, `prepare-overlay-submission.mjs` |
+| **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-verified-against.py` (validates all source-pin mappings, paths, and SHA syntax plus locally available submodule commit objects), `check-helper-command-refs.mjs` (scans tracked docs for stale investigator-artifacts.mjs, auditor-artifacts.mjs, and soc-artifacts.mjs command tokens), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.py`, `find-asymmetries.py` |
+| **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `runtime-data-path.mjs`, `setup-data-mount.mjs`, `prepare-overlay-submission.mjs` |
 | **Eval suite** | `run-evals.py`, `benchmark-investigator-helper.mjs` |
-| **Reasoning helpers** | `agent_patterns.py` (lib), `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` (exports `renderCaseReport` — artifact-derived report, no free narrative), `investigator-mcp-server.mjs` (MCP stdio transport for the helper gates; registered in `.mcp.json`; exposes resources `investigator://case/{slug}/report\|journal\|status` and prompts `investigate`/`resume-case`), `investigator-mcp-server.test.mjs` (node:test suite for the MCP server), `check-mcp-conformance.mjs` (in-process JSON-RPC conformance gate; wired into `check-fast.mjs`; degrades gracefully if official inspector unavailable), `auditor-artifacts.mjs` (deterministic helper for the auditor role; exports `openAudit`, `recordFinding`, `recordCheckOutput`, `renderAuditReport`, `auditStatus`, `capabilities`; evidence-gated findings with file:line, cross-file, and recorded-check source types; standalone zero-dependency), `auditor-mcp-server.mjs` (MCP stdio transport for the auditor helper gates; registered in `.mcp.json` and `.devin/config.json`; exposes resources `auditor://audit/{slug}/report\|register\|status` and prompt `audit`; conformant from the start — annotations, outputSchema, structuredContent, -32602 for unknown tools), `auditor-artifacts.test.mjs` (node:test suite for the auditor helper), `auditor-mcp-server.test.mjs` (node:test suite for the auditor MCP server), `soc-artifacts.mjs` (deterministic helper for the SOC role; exports `openReview`, `recordEvidence`, `recordFinding`, `renderSocReport`, `socStatus`, `resolveSource`, `capabilities`; evidence-gated findings with file:line, cross-file, and evidence:<name> source types; SOC-specific framework-not-evidence guard that rejects CWE/OWASP/NIST/MITRE/ATT&CK/CISA tags as standalone source; standalone zero-dependency), `soc-mcp-server.mjs` (MCP stdio transport for the SOC helper gates; registered in `.mcp.json` and `.devin/config.json`; exposes resources `soc://review/{slug}/report\|register\|status` and prompt `soc-review`; conformant from the start — annotations, outputSchema on soc_status, structuredContent, -32602 for unknown tools/prompts), `soc-artifacts.test.mjs` (node:test suite for the SOC helper), `soc-mcp-server.test.mjs` (node:test suite for the SOC MCP server), `agents/soc/mcp-entrypoint.md` (SOC role entrypoint served by the MCP prompt; carries gated workflow, framework-not-evidence rule, status-first recovery, and answer-from-artifact discipline) |
-| **Bridge harness (LOCAL-ONLY)** | `bridge/run-investigation.mjs` — drives the `devin` CLI through a multi-turn scripted investigation or audit and independently verifies the artifact state via this repo's own helper exports (`caseStatus`/`renderCaseReport` for role `investigator`; `auditStatus`/`renderAuditReport` for role `auditor`; `socStatus`/`renderSocReport` for role `soc`); **needs `devin` auth + network, not run in CI** and deliberately not wired into `check-fast.mjs`. Scenarios under `bridge/scenarios/` (including `auditor-fabrication.json` for the auditor role; `soc-fabrication.json` for the SOC role); pure-logic fixtures in `bridge/run-investigation.test.mjs` (no `devin` spawn). See `bridge/README.md`. |
+| **Reasoning helpers** | `agent_patterns.py` (lib), `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` (exports `renderCaseReport` — artifact-derived report, no free narrative), `investigator-mcp-server.mjs` (MCP stdio transport for the helper gates; registered in `.mcp.json`; exposes resources `investigator://case/{slug}/report\|journal\|status` and prompts `investigate`/`resume-case`), `investigator-mcp-server.test.mjs` (node:test suite for the MCP server), `check-mcp-conformance.mjs` (in-process JSON-RPC conformance gate; wired into `check-fast.mjs`; degrades gracefully if official inspector unavailable), `auditor-artifacts.mjs` (deterministic helper for the auditor role; exports `openAudit`, `recordFinding`, `updateFinding`, `recordCheckOutput`, `renderAuditReport`, `auditStatus`, `capabilities`; evidence-gated findings and append-only stable-ID closure with verified `Resolved` updates; standalone zero-dependency), `auditor-mcp-server.mjs` (MCP stdio transport for the auditor helper gates; registered in `.mcp.json` and `.devin/config.json`; exposes resources `auditor://audit/{slug}/report\|register\|status` and prompt `audit`; conformant from the start — annotations, outputSchema, structuredContent, -32602 for unknown tools), `auditor-artifacts.test.mjs` (node:test suite for the auditor helper), `auditor-mcp-server.test.mjs` (node:test suite for the auditor MCP server), `soc-artifacts.mjs` (deterministic helper for the SOC role; exports `openReview`, `recordEvidence`, `recordFinding`, `renderSocReport`, `socStatus`, `resolveSource`, `capabilities`; evidence-gated findings with file:line, cross-file, and evidence:<name> source types; SOC-specific framework-not-evidence guard that rejects CWE/OWASP/NIST/MITRE/ATT&CK/CISA tags as standalone source; standalone zero-dependency), `soc-mcp-server.mjs` (MCP stdio transport for the SOC helper gates; registered in `.mcp.json` and `.devin/config.json`; exposes resources `soc://review/{slug}/report\|register\|status` and prompt `soc-review`; conformant from the start — annotations, outputSchema on soc_status, structuredContent, -32602 for unknown tools/prompts), `soc-artifacts.test.mjs` (node:test suite for the SOC helper), `soc-mcp-server.test.mjs` (node:test suite for the SOC MCP server), `agents/soc/mcp-entrypoint.md` (SOC role entrypoint served by the MCP prompt; carries gated workflow, framework-not-evidence rule, status-first recovery, and answer-from-artifact discipline) |
+| **Bridge harness (LOCAL-ONLY)** | `bridge/run-investigation.mjs` — drives the `devin` CLI through a multi-turn scripted investigation or audit and independently verifies the artifact state via this repo's own helper exports (`caseStatus`/`renderCaseReport` for role `investigator`; `auditStatus`/`renderAuditReport` for role `auditor`; `socStatus`/`renderSocReport` for role `soc`); **needs `devin` auth + network, not run in CI** and deliberately not wired into `check-fast.mjs`. Scenarios under `bridge/scenarios/` include auditor fabrication resistance, auditor diff readiness, and SOC fabrication resistance; pure-logic fixtures in `bridge/run-investigation.test.mjs` require no `devin` spawn. See `bridge/README.md`. |
 | **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `convert-pdf-sources.sh`, `splunk-query.sh` (stub) |
 | **Build** | `render-skill-pdf.py` |
 
@@ -115,9 +115,28 @@ tracked `zscaler-skill-runtime.json`:
 node scripts/check-data-contract.mjs
 ```
 
+Resolve the effective mount or a contained path for scripts and workflows:
+
+```bash
+node scripts/runtime-data-path.mjs
+node scripts/runtime-data-path.mjs schemas hygiene-digest.md
+node scripts/runtime-data-path.mjs --json
+```
+
+Output is repository-relative by default. `--absolute` emits an absolute path,
+and traversal outside the configured mount is rejected.
+
 If `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
 `runtimeData.mountPath`, the checker reads that automatically. You can also
 pass `--mount-path <path>`.
+
+A downstream installation may select another committed runtime config with
+`ZSCALER_SKILL_RUNTIME_CONFIG=<path>` or `--runtime-config <path>`. A local
+setup config may be selected with `ZSCALER_SKILL_SETUP_CONFIG=<path>` or
+`--config <path>`. Explicit flags win over environment selectors. Explicit
+mount/tracking values then override setup config, which overrides runtime
+config, which overrides defaults. Selected configs replace the root file and
+fail loudly when missing, malformed, or structurally invalid.
 
 To create the runtime data mount from a user-supplied data source:
 
@@ -186,6 +205,10 @@ for obvious secret material, creates a branch in a temporary overlay checkout,
 commits the selected files, and prints the next `git push` command. It does not
 push by default. Configure the overlay target in local
 `zscaler-skill-setup.json` under `overlaySubmission`, or pass `--repo-url`.
+Non-secret overlay policy (`allowedRoots`, `defaultBranch`, `branchPrefix`, and
+approval requirements) may be committed under `overlaySubmission` in the
+selected runtime config. Keep `repoUrl` in the ignored setup config; the helper
+rejects repository URLs in committed runtime configs.
 The overlay repository is treated as the runtime-data content root, so runtime
 paths are copied without the mount prefix (`_data/cases/foo` or
 `tenant-data/cases/foo` → `cases/foo`). If `runtimeData.mountPath` is set, the

@@ -19,11 +19,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md"
 verified-against:
-  - sdk: "zscaler-sdk-python"
-    version: "1.9.31"
-    commit: "b3c3645"
-  - sdk: "zscaler-sdk-go"
-    commit: "fe52adc"
+  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
 author-status: draft
 ---
 
