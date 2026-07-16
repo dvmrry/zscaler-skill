@@ -3,14 +3,17 @@ product: zia
 topic: "workload-groups"
 title: "ZIA Workload Groups — policy-scoping primitive (sourced from SDK / TF; help portal gap)"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-07-16"
+verified-against:
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go"
   - "vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/workload_groups.py"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/workload_groups.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py"
+  - "vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/terraform-provider-zia/zia/resource_zia_workload_groups.go"
   - "vendor/terraform-provider-zia/zia/data_source_zia_workload_groups.go"
@@ -189,11 +192,14 @@ param** on `/workloadGroups`. To resolve a group by name you list all groups and
 filter locally. The Go SDK's `GetByName` does exactly this — it calls
 `common.ReadAllPages` then filters in Go with `strings.EqualFold`
 (`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:85-97`),
-which also makes the match **case-insensitive**. The MCP server's own tool
-docstring corroborates the behavior, stating "the ZIA list endpoint does not
-expose a server-side `name` filter, so projection like `[?name=='…'].id` is the
-supported path"
-(`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/workload_groups.py:36-40,53-54`).
+which also makes the match **case-insensitive**. MCP v0.13.1 accepts only `page`
+and `page_size`, forwards those pagination keys, and exposes no `query` argument
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py:22-24,81-100`).
+MCP callers therefore need to page/list and filter the returned rows locally.
+The current lookup workflow still recommends
+`zia_list_workload_groups(query="[?name=='...']")`
+(`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:55,176`),
+which is skill drift against the executable tool.
 
 TF `zia_workload_groups` resource: supports create, read, update, delete, and
 import by either numeric ID or name. Changes trigger `ZIA_ACTIVATION` if the
@@ -216,14 +222,14 @@ All five use the shared `setIdNameSchemaCustom(255, ...)` helper
 ID+name set with `MaxItems: 255`. The SDK URL Filtering model also carries
 `workloadGroups` (`url_filtering.py`); the Python SDK reformat list includes it.
 
-> **Source divergence — TF/SDK wire 5, MCP names 4.** The MCP server's
-> workload-group tool docstring enumerates only **four** carrier rule types —
+> **Source divergence — TF/SDK wire 5, MCP workflow names 4.** The MCP
+> rule-target workflow enumerates only **four** carrier rule types —
 > Cloud Firewall, URL Filtering, SSL Inspection, Web DLP — and **omits Traffic
 > Capture**
-> (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/workload_groups.py:6-9,48-49`).
+> (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:45-57,109-125`).
 > The TF provider wires `workload_groups` onto all five (the table above). This
-> is an MCP **under-count**, not a capability contradiction: the authoritative
-> set is **5** (TF/SDK > MCP commentary in the source hierarchy).
+> is an MCP workflow **under-count**, not a capability contradiction: the
+> authoritative set is **5** (TF/SDK > workflow commentary in the source hierarchy).
 
 Forwarding Control rules do **not** carry `workload_groups` in the TF source.
 Bandwidth Control, Cloud App Control, and other rule types were not observed

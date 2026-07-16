@@ -3,15 +3,15 @@ product: zbi
 topic: "zbi-index"
 title: "ZBI (Zero Trust Browser / Cloud Browser Isolation) reference hub"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
   vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: mixed
 sources:
@@ -34,7 +34,8 @@ sources:
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule_v2.go"
   - "vendor/ziacloud-ansible/plugins/modules/zia_cloud_browser_isolation_profile_info.py"
   - "vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -60,7 +61,7 @@ Important namespace caveat: the current Python SDK's `client.zbi` service is exp
 
 ## Topics
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-help/zpa-about-isolation-policy.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go`; `vendor/terraform-provider-zpa/zpa/provider.go`; `vendor/ziacloud-ansible/plugins/modules/zia_cloud_browser_isolation_profile_info.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-help/zpa-about-isolation-policy.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go`; `vendor/terraform-provider-zpa/zpa/provider.go`; `vendor/ziacloud-ansible/plugins/modules/zia_cloud_browser_isolation_profile_info.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 | Topic | File | Status |
 |---|---|---|

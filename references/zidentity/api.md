@@ -3,7 +3,9 @@ product: zidentity
 topic: "zidentity-api"
 title: "ZIdentity API — endpoint catalog, API clients, and auth flow"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-16"
+verified-against:
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: mixed
 sources:
@@ -15,7 +17,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-go/zscaler/zid/services/"
   - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zid/"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/"
+  - "vendor/zscaler-mcp-server/docs/guides/toolsets.md"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
 author-status: draft
 ---
 
@@ -45,9 +49,9 @@ ZIdentity exposes four top-level feature categories via its API (Tier A — vend
 | **Groups** | Group CRUD; member management | Full CRUD | Full CRUD | Read-only (5 tools) |
 | **Resource Servers** | Introspect available API resources and scopes | Read-only | Read-only | Not available |
 
-The MCP server only implements a read-only slice of ZIdentity: `users` + `groups` (the `zid/` tools directory contains only `vendor/zscaler-mcp-server/zscaler_mcp/tools/zid/groups.py` and `vendor/zscaler-mcp-server/zscaler_mcp/tools/zid/users.py`; the `ZIDService` registers ten read tools and declares `self.write_tools = []  # ZIdentity has no write operations` — `vendor/zscaler-mcp-server/zscaler_mcp/services.py:2465`, `:2518`). There are no MCP tools for API clients, resource servers, or entitlements. The practical consequence: **the only programmatic path to manage API clients is the Python SDK `api_client` service** — Go has no `api-clients` package and the MCP server exposes no such tool.
+The MCP server implements a read-only slice of ZIdentity: five group tools and five user tools (`vendor/zscaler-mcp-server/docs/guides/toolsets.md:105-110`), with all ten marked read-only in the complete generated catalog (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`). The only product tool modules under `src/zscaler_mcp/tools/zid/` are `groups.py` and `users.py` (alongside `__init__.py` and `_shared.py`), and the catalog lists no API-client, resource-server, or entitlement tool. Therefore, the only captured SDK/MCP convenience surface for API-client management is Python `client.zid.api_client`; Go has no dedicated `api-clients` package and MCP exposes no such tool. Raw REST remains a programmatic option.
 
-Source: `vendor/zscaler-mcp-server/zscaler_mcp/tools/zid/groups.py`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zid/users.py`; `vendor/zscaler-mcp-server/zscaler_mcp/services.py:2465`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:46`.
+Source: `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/groups.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/users.py`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:105-110`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:46`.
 
 Each category has a corresponding base path (shown in the **Python** `/ziam`-prefixed form; the Go SDK omits the `/ziam` prefix — see base-path divergence at the top of this doc):
 
@@ -292,7 +296,7 @@ Rate limit specifics for ZIdentity endpoints are not documented in available SDK
 
 | Service | Python | Go | MCP server | Gap |
 |---|---|---|---|---|
-| `api_client` | Full CRUD + secret lifecycle | None identified | None | Python-only — the sole programmatic path for API clients |
+| `api_client` | Full CRUD + secret lifecycle | None identified | None | Only captured SDK convenience surface; raw REST remains possible |
 | `groups` | Full CRUD + membership management | Full CRUD + membership management (`GetUsers` + `AddUserToGroup`/`AddUserListToGroup`/`ReplaceUserListInGroup`/`DeleteUserFromGroup`) | Read-only (5 tools) | SDKs functionally equivalent; MCP read-only |
 | `users` | Full CRUD + `list_user_group_details` | Full CRUD + `GetGroupsByUser` | Read-only (5 tools) | SDKs functionally equivalent; MCP read-only |
 | `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | Same (read-only) | None | SDK parity, both read-only |

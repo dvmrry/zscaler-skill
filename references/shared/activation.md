@@ -3,10 +3,10 @@ product: shared
 topic: "activation-lifecycle"
 title: "Activation gates — ZIA + CBC have them, others don't"
 content-type: reference
-last-verified: "2026-05-17"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
-  vendor/zscaler-mcp-server: 25eccadd1d476bb90cb415c468197ec0a802c8fa
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: doc
 sources:
@@ -18,12 +18,18 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
   - "vendor/zscaler-mcp-server/commands/troubleshoot-user.md"
   - "vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/activation.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/list_devices.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/registry.py"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
 author-status: draft
 ---
 
 # Activation gates — ZIA + CBC have them, others don't
 
-**Two products in the OneAPI suite have an activation gate**: ZIA and Cloud & Branch Connector (CBC / ZTW). Their config changes are **staged** in pending state until explicitly activated. The other five products — ZPA, ZDX, ZIdentity, ZCC, BI — apply changes on write with no activation step.
+**Two products in the captured OneAPI activation documentation have an activation gate**: ZIA and Cloud & Branch Connector (CBC / ZTW). Their configuration changes are **staged** in pending state until explicitly activated. Other products either apply supported writes immediately or expose read-only/read-heavy surfaces; absence of an activation gate does not mean a product has no write operations.
 
 This asymmetry is the #1 source of "why doesn't my rule change work?" confusion in cross-product automation. Always check activation status early in any ZIA or CBC troubleshooting flow.
 
@@ -36,7 +42,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscal
 | **ZIA** | Yes | `GET /zia/api/v1/status` | `POST /zia/api/v1/status/activate` | The original activation gate |
 | **CBC (ZTW)** | Yes | `GET /ztw/api/v1/ecAdminActivateStatus` | `POST /ztw/api/v1/ecAdminActivateStatus/activate` | Plus `POST /ztw/api/v1/ecAdminActivateStatus/forceActivate` for stuck activations |
 | ZPA | No | — | — | Propagates on write |
-| ZDX | No | — | — | Read-only API; configuration is portal-only |
+| ZDX | No | — | — | Read-heavy; current MCP can start/delete deep traces and score analyses, and those diagnostic-session writes have no separate activation step (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:319-355`) |
 | ZIdentity | No | — | — | Identity changes apply on write |
 | ZCC | No | — | — | Profile/policy changes apply on write |
 | BI | No | — | — | Reporting-only; no traffic-affecting config |
@@ -131,9 +137,9 @@ x-zscaler-mode: read-only
 
 Both `x-zscaler-mode: read-only` and `STATE_READONLY` are reliable discriminators — distinguish maintenance-window 403 from authorization 403. Scripts should treat read-only-mode 403 as transient and retry with backoff; treat plain 403 (no header, no `STATE_READONLY` code) as an authorization issue requiring config fix.
 
-## Troubleshooting pattern (from MCP server)
+## Troubleshooting pattern
 
-Source: `vendor/zscaler-help/legacy-activation.md`; `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
+Source: `vendor/zscaler-help/legacy-activation.md`; `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/activation.py`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md`.
 
 When a tenant reports "I changed the rule and it's not taking effect," make activation status an early check for ZIA and CBC. Before blaming rule order, policy evaluation, or SSL bypass:
 
@@ -142,6 +148,14 @@ When a tenant reports "I changed the rule and it's not taking effect," make acti
 3. If `PENDING` — changes are staged but not live. Activation hasn't been triggered (or failed).
 4. If the tenant uses Terraform: check whether `zia_activation_status` / `ztc_activation_status` was applied after the last policy change.
 5. If the tenant uses direct console / API: confirm the admin clicked "Activate" or called the activate endpoint.
+
+The current MCP source directly implements ZIA status and activation tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/activation.py:32-62`), and its bundled cross-product workflow calls `zia_get_activation_status` (`vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md:260-266`). MCP v0.13.1 does not expose a corresponding ZTW/CBC activation tool, so the CBC branch above is grounded in the captured Help/API contract rather than in MCP tool coverage.
+
+### Bundled MCP workflow drift
+
+The legacy command and cross-product skill still exist in v0.13.1, but they are not fully aligned with the rewritten Pydantic tool schemas. Both pass a nonexistent `search` argument to `zcc_list_devices` and `zdx_list_devices` (`vendor/zscaler-mcp-server/commands/troubleshoot-user.md:24-41`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md:47-49`, `:89-99`), while the current ZCC input uses `username` and the ZDX input uses `emails`, `user_ids`, MAC/IP, and scope filters (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/list_devices.py:24-39`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:27-58`). The new guided ZDX prompt repeats the invalid `search` call and asks `zdx_get_device` for health fields that its curated output does not return (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:68-73`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:85-103`, `:153-185`). Treat the activation-status step as verified, but resolve current tool inputs and outputs from `src/zscaler_mcp/tools/` rather than copying the bundled workflow verbatim.
+
+The generated tool catalog carries one more migration artifact: its contributor note still says to edit the removed `zscaler_mcp/services.py` catalog (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:7`). In v0.13.1, tools self-register through `@tool` and the central registry explicitly says it is populated at import time instead of from a hand-maintained list (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/registry.py:1-8`, `:127-128`). Treat the generated tables as the inventory view, but use the co-located `src/zscaler_mcp/tools/` definitions as the source for tool descriptions and schemas.
 
 ## Failure modes
 
@@ -155,11 +169,11 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscal
 
 Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
 
-These five products propagate on write — no activation step. ZPA's TF provider deliberately doesn't ship a `zpa_activation_status` resource (no equivalent exists). The same goes for ZDX (read-only), ZIdentity (identity changes), ZCC (profile/policy), and BI (reporting).
+These products do not use the ZIA/CBC activation pattern. ZPA's Terraform provider does not ship a `zpa_activation_status` resource. ZIdentity and ZCC changes apply on write, while BI is reporting-oriented. ZDX is read-heavy rather than strictly read-only: MCP v0.13.1 includes four gated diagnostic-session writes (`zdx_start_deeptrace`, `zdx_delete_deeptrace`, `zdx_start_analysis`, and `zdx_delete_analysis`) with no separate activation call (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:319-355`).
 
 If a user reports "rule didn't take effect," **branch the activation check by product**:
 - ZIA / CBC → check activation status first.
-- Anything else → skip activation; jump straight to rule-order / condition-evaluation / cache-staleness.
+- Products without a documented activation gate → skip activation and move to the product's own rule-order, condition-evaluation, propagation, or session-state checks.
 
 ## Cross-links
 

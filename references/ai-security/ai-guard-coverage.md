@@ -3,7 +3,7 @@ product: ai-guard
 topic: coverage
 title: "AI Guard public-source coverage manifest"
 content-type: reference
-last-verified: "2026-07-15"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
@@ -11,11 +11,12 @@ verified-against:
   vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/terraform-provider-ztc: 766a6c1e0be3266203a3cea4b5255ab4a6f26695
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-terraform-skills: b5d2c5ef0aa3d583ee79e949a9072352af71265b
 confidence: high
 source-tier: mixed
 sources:
+  - "vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md"
   - ".gitmodules"
   - "vendor/README.md"
   - "vendor/zscaler-help/ai-guard-help-index.md"
@@ -77,7 +78,7 @@ Do not extend that sentence to private roadmap features, unpublished tenant enti
 
 Source: `.gitmodules`; `vendor/README.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`; `vendor/zscaler-sdk-go`; `vendor/terraform-provider-zia`; `vendor/terraform-provider-zpa`; `vendor/terraform-provider-ztc`; `vendor/zscaler-mcp-server`; `vendor/zscaler-terraform-skills`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md`; `vendor/zscaler-help/understanding-workflows-workflow-automation.md`; `vendor/zscaler-help/what-workflow-automation.md`.
 
-This pass checked the captured public Help tree, the Python SDK policy-detection surface, public `zguard-ai-integrations` examples, the reconstructed Automate snapshot, and the vendored Go SDK, Terraform providers, Terraform skills, MCP server, Postman API specs, and local Automation Hub captures available in this repository. The positive AI Guard programmable surface now has two layers: Python SDK / DaaS policy detection plus integration examples, and a documented Automate admin-plane contract with 45 operations (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`). No Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure for that admin-plane contract was found in the captured source classes. Treat that as a client-wrapper gap, not as proof about private or future surfaces; see [`./api-divergences.md`](./api-divergences.md#automate-admin-plane-contract-vs-client-surfaces).
+This pass checked the captured public Help tree, the Python SDK policy-detection surface, public `zguard-ai-integrations` examples, the reconstructed Automate snapshot, and the vendored Go SDK, Terraform providers, Terraform skills, MCP server, Postman API specs, and local Automation Hub captures available in this repository. The positive AI Guard programmable surface now has two layers: Python SDK / DaaS policy detection plus integration examples, and a documented Automate admin-plane contract with 45 operations (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`). No Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure for that admin-plane contract was found in the captured source classes. MCP can govern AI applications through adjacent ZIA Cloud App Control rules—including the `AI_ML` category and apps such as ChatGPT—but that is ZIA traffic-policy enforcement, not an AI Guard service or AI Guard API wrapper (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:3-22`, `:85`). Treat the missing admin-plane wrappers as a client-coverage gap, not as proof about private or future surfaces; see [`./api-divergences.md`](./api-divergences.md#automate-admin-plane-contract-vs-client-surfaces).
 
 ## Help article coverage
 

@@ -3,7 +3,7 @@ product: business-insights
 topic: overview
 title: "Business Insights - SaaS usage analytics, workplace utilization, and ZBI API scope"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
@@ -12,7 +12,7 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: mixed
@@ -25,7 +25,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py"
   - "vendor/zscaler-sdk-python/zscaler/zbi/reports.py"
   - "vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zins/common.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/_common.py"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -48,7 +48,7 @@ The capture says Zscaler can discover usage of more than 30K apps and then show 
 | Python SDK | `client.zbi` is a Business Insights REST service. It exposes `custom_apps`, `report_configs`, and `reports` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`, `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-51`). |
 | Terraform | No product-specific Business Insights resource or data source found in this audit pass. |
 | Ansible | No product-specific Business Insights module found in this audit pass. |
-| MCP | MCP exposes read-only Z-Insights analytics tools that refer to Z-Insights / Business Insights licensing; this is separate from the `client.zbi` REST custom-app/report-config surface (`vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md:1`, `:18`, `vendor/zscaler-mcp-server/zscaler_mcp/tools/zins/common.py:444-447`). |
+| MCP | MCP exposes read-only Z-Insights analytics tools that refer to Z-Insights / Business Insights licensing; this is separate from the `client.zbi` REST custom-app/report-config surface (`vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md:1`, `:18`, `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/_common.py:277-282`). |
 | Postman | The OneAPI Postman collection has a "Zscaler Business Insights" folder with custom-app and report-configuration endpoints under `{{ZBIBaseUrl}}/api/v1/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:134314-134343`, `:134506-134535`, `:134807-134837`, `:134999-135015`, `:135164-135176`, `:136039-136056`). |
 | Help captures | Product overview, architecture/data-source, prerequisites, and discovery-scale claims are captured in `bi-what-zscaler-business-insights.md` (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:8`, `:40-58`). |
 

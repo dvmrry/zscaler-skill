@@ -3,7 +3,7 @@ product: soc-workbench
 topic: overview
 title: "SOC Workbench - threat prioritization and incident-response workspace"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
@@ -12,12 +12,13 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/soc-what-zscaler-soc-workbench.md"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
 author-status: draft
 ---
 
@@ -52,7 +53,7 @@ The source uses "Outegrations" for outbound integrations and names Jira and Serv
 | Python SDK | No product-specific SOC Workbench service found in this audit pass. |
 | Terraform | No product-specific SOC Workbench resource or data source found in this audit pass. |
 | Ansible | No product-specific SOC Workbench module found in this audit pass. |
-| MCP | No product-specific SOC Workbench tool found in this audit pass. |
+| MCP | No product-specific SOC Workbench tool found in this audit pass. Z-Insights cyber-incident analytics are adjacent aggregate reporting, not SOC Workbench incident ingestion/triage or report-export coverage (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:435-456`). |
 | Postman | No SOC Workbench endpoint family found in the audited Postman collection. |
 | Help captures | Product overview, connector list, outegration list, core concepts, and report-export capability are captured (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:10`, `:27-35`, `:46-62`). |
 

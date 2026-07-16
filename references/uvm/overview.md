@@ -3,7 +3,7 @@ product: uvm
 topic: overview
 title: "Unified Vulnerability Management - AnySource ingestion and audit-scoped API surface"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
@@ -12,13 +12,14 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/uvm-anysource-connector.md"
   - "vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
 author-status: draft
 ---
 
@@ -46,7 +47,7 @@ The marketing capture describes prebuilt and custom dashboards, dynamically upda
 | Python SDK | No product-specific UVM service found in this audit pass. |
 | Terraform | No product-specific UVM resource or data source found in this audit pass. |
 | Ansible | No product-specific UVM module found in this audit pass. |
-| MCP | No product-specific UVM tool found in this audit pass. |
+| MCP | No product-specific UVM tool found in this audit pass. EASM findings and ZMS resource/protection-status tools are adjacent exposure and workload-security surfaces, not UVM AnySource ingestion, vulnerability correlation, or remediation workflows (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:419-431`, `:460-485`). |
 | Postman | No UVM endpoint family found in the audited Postman collection. |
 | Help captures | AnySource ingestion methods, partial vendor connector examples, recommended fields, SecOps context, marketing positioning, reporting, and workflow claims are captured (`vendor/zscaler-help/uvm-anysource-connector.md:8-78`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:16-47`). |
 

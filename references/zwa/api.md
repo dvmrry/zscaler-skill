@@ -3,7 +3,7 @@ product: zwa
 topic: "zwa-api"
 title: "ZWA API - incident search, evidence URL, audit logs, auth split"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
@@ -11,7 +11,7 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: high
 source-tier: code
@@ -33,6 +33,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go"
   - "vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py"
 author-status: draft
@@ -140,9 +142,9 @@ See [`./audit-logs.md`](./audit-logs.md) for the dedicated audit-log model and o
 
 ## Non-surfaces from this pass
 
-Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py`.
+Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md`.
 
-- **MCP:** no ZWA Workflow Automation tool was found in the inspected MCP server source. This is an audit-scoped absence from `vendor/zscaler-mcp-server`, not a claim about future/private tooling.
+- **MCP:** no ZWA Workflow Automation tool was found in the inspected MCP server source. Current discovery imports every module under `src/zscaler_mcp/tools`, and the generated service inventory has no ZWA family (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py:1-35`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:11-22`). This is an audit-scoped absence, not a claim about future/private tooling.
 - **Postman:** no ZWA Workflow Automation surface was found in the inspected OneAPI Postman collection. The collection contains a "DLP Incident Receiver" group, but it is under ZIA ICAP/DLP Incident Receiver configuration (`vendor/zscaler-api-specs/oneapi-postman-collection.json:1928-1955`).
 - **Terraform/Ansible:** ZIA DLP Incident Receiver read surfaces exist (`vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go:10`, `:51-64`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py:31`, `:119-124`), but this pass did not find Terraform or Ansible ZWA Workflow Automation incident lifecycle, audit-log, workflow-template, or workflow-mapping resources/modules.
 

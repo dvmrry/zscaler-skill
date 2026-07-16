@@ -3,7 +3,7 @@ product: zscaler-cellular
 topic: overview
 title: "Zscaler Cellular - SIM and Cellular Edge forwarding into ZTE"
 content-type: reference
-last-verified: "2026-07-08"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
   vendor/zscaler-sdk-python: 1a994d0447a4aa5da19471111954cfca2cda3acb
@@ -11,7 +11,7 @@ verified-against:
   vendor/terraform-provider-zpa: dcf12469a9a8f648be0691c74e9816fc94ec7ddc
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 82d3ff7de6e5939c258e4019db43f138e36c2a7c
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -19,15 +19,25 @@ source-tier: mixed
 sources:
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
   - "vendor/zscaler-help/zscaler-cellular-marketing.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
+  - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
+  - "vendor/zscaler-mcp-server/docs/guides/toolsets.md"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/client.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py"
 author-status: draft
 ---
 
 # Zscaler Cellular - SIM and Cellular Edge forwarding into ZTE
 
-This began as a thin Tier-C reference, but the current audited source set now includes a captured Automate ZCell contract plus a Python SDK `client.zcell` namespace. Treat it as a documented API + Python surface with no Terraform/Ansible/MCP/Go coverage found in this repository.
+This began as a thin Tier-C reference, but the current source set now includes a captured Automate ZCell contract, a Python SDK `client.zcell` namespace, and a read-only MCP layer. Treat it as a documented API + Python SDK + MCP-read surface; the prior audit found no Terraform, Ansible, or Go SDK ZCell family.
 
 ## Source-family sweep
 
@@ -37,7 +47,7 @@ This began as a thin Tier-C reference, but the current audited source set now in
 | Python SDK | `client.zcell` is a OneAPI-only service and exposes nine subclients for anomaly policy, audit data, customer data, customer regions, network events, SIM analytics, SIM handling, SIM location groups, and tags (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`). |
 | Terraform | No Zscaler Cellular resources or data sources found in the audited ZIA or ZPA providers. |
 | Ansible | No Zscaler Cellular modules found in the audited ZIA or ZPA collections. |
-| MCP | No Zscaler Cellular tools found in the audited MCP server. |
+| MCP | v0.13.1 exposes 20 read-only tools across nine API-aligned toolsets plus three guided prompts (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`; prompt registrations at `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-27`, `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-26`, and `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-27`). |
 | Automate contract | 36 ZCell operations captured across nine families (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:28`; `vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:14`). |
 | Help | Zscaler Cellular is covered by Cellular Help and marketing captures; Help describes two products, Zscaler SIM and Zscaler Cellular Edge (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`). |
 
@@ -55,13 +65,14 @@ The marketing capture lists Zscaler Cellular Service and Zscaler Cellular Partne
 
 ## Programmability posture
 
-ZCell has a documented API surface and a Python SDK wrapper. The contract covers anomaly policies, audit search/metadata, customer data, customer regions, network events, SIM analytics, SIM actions/search/details, SIM location groups, and tags (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-14`, `:1506-1518`, `:1956-2079`, `:2430-2583`, `:2812-2824`, `:3280-3713`, `:3801-5594`, `:5673-6458`). The Python SDK exposes the same product as `client.zcell`; its README states that ZCell uses OneAPI OAuth2 credentials and a separate `zcellCustomerId` / `ZCELL_CUSTOMER_ID` value for `/customers/{id}` scoping (`vendor/zscaler-sdk-python/README.md:385-402`).
+ZCell has a documented API surface, a Python SDK wrapper, and a read-only MCP layer. The contract covers anomaly policies, audit search/metadata, customer data, customer regions, network events, SIM analytics, SIM actions/search/details, SIM location groups, and tags (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-14`, `:1506-1518`, `:1956-2079`, `:2430-2583`, `:2812-2824`, `:3280-3713`, `:3801-5594`, `:5673-6458`). The Python SDK exposes the same product as `client.zcell`; its README states that ZCell uses OneAPI OAuth2 credentials and a separate `zcellCustomerId` / `ZCELL_CUSTOMER_ID` value for `/customers/{id}` scoping (`vendor/zscaler-sdk-python/README.md:385-402`). MCP enforces that separate customer ID at client construction and does not ask callers to pass it into each tool (`vendor/zscaler-mcp-server/src/zscaler_mcp/client.py:24-40`, `:48-98`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:17-19`).
 
-No Terraform, Ansible, MCP, or Go SDK ZCell family was found in the audited source set. Do not infer Terraform manageability or cross-client parity from the contract alone.
+MCP covers SIM inventory/detail, analytics, location-group reads, anomaly reads, customer/region reads, audit, network events, and tags. It does not expose the contract/SDK mutation or export operations: anomaly-policy management, customer/region updates, SIM download/tag/lock/status/eSIM actions, location-group management, or tag creation (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; SDK gap sources summarized in [`./api.md`](./api.md#mcp-v0131-surface)). The Help portal's management scope is broader still, including SIM/eSIM activation, anomaly policies, and location-group management (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67`). Do not infer Terraform manageability, full client parity, or live entitlement from the presence of MCP tool registrations.
 
 ## Open questions
 
-- `zscaler-cellular-01`: The contract and Python SDK resolve the broad API/SDK-surface part of the old question, but tenant entitlement, live backend acceptance, and exact ZIA/ZPA policy-object mapping for IP/IMEI/IMSI identifiers remain open. See [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
+- `zscaler-cellular-01`: The contract, Python SDK, and MCP read layer resolve the broad surface question, but tenant entitlement, live backend acceptance, and exact ZIA/ZPA policy-object mapping for IP/IMEI/IMSI identifiers remain open. See [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
+- MCP request/response divergences for anomaly violations, SIM pagination, and audit filters are tracked in [`./api.md`](./api.md#mcp-v0131-divergences-and-test-boundary) and clarifications `zscaler-cellular-02`–`zscaler-cellular-04`.
 
 ## Cross-links
 

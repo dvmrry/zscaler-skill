@@ -3,12 +3,12 @@ product: zpa
 topic: "privileged-remote-access"
 title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
-last-verified: "2026-07-15"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zpacloud-ansible: 52cabe8c40a9fa7b882e9c5dcb21652b4896591a
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: medium
 source-tier: mixed
 sources:
@@ -22,7 +22,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_portal.py"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/app_segments_pra.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_pra.py"
   - "vendor/zscaler-mcp-server/skills/zpa/application_segment-pra-onboard/SKILL.md"
 author-status: draft
 ---
