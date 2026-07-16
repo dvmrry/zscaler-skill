@@ -14,6 +14,7 @@ const REQUIRED_LAYOUT = [
   { path: "scripts", type: "directory" },
 ];
 const DEFAULT_VENDOR_SPOT_CHECKS = 3;
+const DOCTOR_PROFILES = new Set(["full", "references"]);
 
 function defaultRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -22,12 +23,13 @@ function defaultRoot() {
 function usage(exitCode = 0) {
   const out = exitCode === 0 ? process.stdout : process.stderr;
   out.write(`Usage:
-  node scripts/doctor.mjs [--json]
+  node scripts/doctor.mjs [--json] [--profile full|references]
 
 Runs a local setup health check against the skill install this script belongs
 to, and prints the next command or doc pointer for anything missing. An absent
 runtime-data mount is optional (skip); a present-but-invalid one fails. No
-network calls are made.
+network calls are made. The references profile checks only Node, repository
+layout, and vendor submodules.
 `);
   process.exit(exitCode);
 }
@@ -35,6 +37,7 @@ network calls are made.
 function parseArgs(argv) {
   const args = {
     json: false,
+    profile: "full",
     root: defaultRoot(),
   };
 
@@ -43,6 +46,18 @@ function parseArgs(argv) {
     if (arg === "--help" || arg === "-h") usage(0);
     if (arg === "--json") {
       args.json = true;
+      continue;
+    }
+    if (arg === "--profile") {
+      const profile = argv[i + 1];
+      if (!profile || profile.startsWith("--")) {
+        throw new Error("--profile requires one of: full, references");
+      }
+      if (!DOCTOR_PROFILES.has(profile)) {
+        throw new Error(`Unknown doctor profile: ${profile}`);
+      }
+      args.profile = profile;
+      i += 1;
       continue;
     }
     throw new Error(`Unknown argument: ${arg}`);
@@ -316,10 +331,20 @@ function checkZscalerCtl(env = process.env, platform = process.platform) {
 
 function runChecks(options = {}) {
   const root = path.resolve(options.root || defaultRoot());
-  return [
+  const profile = options.profile || "full";
+  if (!DOCTOR_PROFILES.has(profile)) {
+    throw new Error(`Unknown doctor profile: ${profile}`);
+  }
+
+  const referenceChecks = [
     checkNodeVersion(options.nodeVersion || process.versions.node),
     checkRepoLayout(root),
     checkVendorSubmodules(root),
+  ];
+  if (profile === "references") return referenceChecks;
+
+  return [
+    ...referenceChecks,
     checkGitHooksPath(root),
     checkDataRuntimeMount(root),
     checkZscalerCtl(options.env || process.env, options.platform || process.platform),
@@ -359,7 +384,7 @@ function formatTextReport(checks) {
 function main() {
   try {
     const args = parseArgs(process.argv);
-    const checks = runChecks({ root: args.root });
+    const checks = runChecks({ root: args.root, profile: args.profile });
     process.stdout.write(args.json ? formatJsonReport(checks) : formatTextReport(checks));
     process.exit(exitCodeForChecks(checks));
   } catch (error) {

@@ -36,6 +36,11 @@ const CHECKS = [
     args: ["scripts/check-workflow-metadata.mjs"],
   },
   {
+    name: "workflow eval shapes",
+    command: "./scripts/check-workflow-evals.py",
+    args: [],
+  },
+  {
     name: "portable Agent Skill contracts",
     command: "./scripts/check-agent-skills.py",
     args: [],
@@ -63,9 +68,9 @@ const CHECKS = [
   { name: "capability registry", command: "node", args: ["scripts/check-capability-registry.mjs"] },
   { name: "AGENTS routing block", command: "node", args: ["scripts/gen-capability-routing.mjs", "--check"] },
   {
-    name: "diff whitespace",
-    command: "git",
-    args: ["diff", "--check"],
+    name: "worktree whitespace",
+    command: "node",
+    args: ["scripts/check-worktree-whitespace.mjs"],
   },
 ];
 

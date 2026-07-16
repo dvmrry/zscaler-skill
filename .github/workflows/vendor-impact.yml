@@ -7,7 +7,7 @@ on:
       - 'vendor/**'
       - 'scripts/check-vendor-drift.py'
       - 'scripts/find-asymmetries.py'
-      - 'scripts/vendor-impact-summary.py'
+      - 'scripts/vendor-impact-summary.mjs'
       - '.github/workflows/vendor-impact.yml'
   workflow_dispatch:
 
@@ -41,7 +41,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
         run: |
-          ./scripts/vendor-impact-summary.py \
+          node scripts/vendor-impact-summary.mjs \
             --base "$BASE_SHA" \
             --head HEAD \
             --output "${{ steps.runtime_paths.outputs.summary_path }}"
