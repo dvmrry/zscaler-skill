@@ -3,7 +3,7 @@ role: researcher
 artifact: grounding
 title: "Researcher grounding - efficient source extraction discipline"
 content-type: prompt
-last-verified: "2026-05-18"
+last-verified: "2026-07-15"
 confidence: high
 source-tier: practice
 sources:
@@ -118,4 +118,7 @@ interesting. Ask before expanding the scope boundary.
 
 ## Verification discipline
 
-The writer may only use the extraction report. The verifier checks the diff against that report and spot-checks citations. If verification finds a wrong citation, fix or redo before committing.
+The writer may only use the extraction report. The verifier checks the diff
+against that report and spot-checks citations. Commit is available only after a
+PASS verdict with no Wrong citation, Missing citation, or Inferred-as-fact
+findings; otherwise fix or redo before committing.

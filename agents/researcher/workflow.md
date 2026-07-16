@@ -4,7 +4,7 @@ title: Zscaler Researcher
 role: researcher
 artifact: workflow
 content-type: reference
-last-verified: "2026-05-18"
+last-verified: "2026-07-15"
 confidence: medium
 sources:
   - agents/researcher/prompt.md
