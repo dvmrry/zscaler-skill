@@ -3,7 +3,7 @@ role: researcher
 artifact: verifier
 title: "Researcher verifier contract"
 content-type: prompt
-last-verified: "2026-06-18"
+last-verified: "2026-07-15"
 confidence: high
 source-tier: practice
 sources:
@@ -76,8 +76,9 @@ Check these regression patterns:
 
 ## Output
 
-Punch list of findings, grouped by severity. Each finding names the location in
-the modified file plus a one-line description.
+Punch list of findings, grouped by severity. Give every finding a stable ID in
+the form `V-001`, `V-002`, and so on. Each finding names the location in the
+modified file plus a one-line description.
 
 Severity legend:
 
@@ -86,13 +87,20 @@ Severity legend:
 - **Inferred-as-fact** - plausible but only implied by source
 - **Polish** - wording inconsistency, cross-link nit, frontmatter drift
 
+After the punch list, output a count line in this exact order:
+
+`Counts: Wrong citation=<n>; Missing citation=<n>; Inferred-as-fact=<n>; Polish=<n>`
+
 If clean, output: `All claims backed by the structured input - no findings.`
 
 End with a one-line verdict: **PASS** / **NEEDS REVIEW** / **FAIL**.
 
-- **PASS**: zero Wrong citation findings, and no more than two minor
-  Missing citation or Inferred-as-fact findings
-- **NEEDS REVIEW**: one or more Missing citation / Inferred-as-fact findings
-  worth a human look, or more than two Polish findings
+- **PASS**: zero Wrong citation, Missing citation, and Inferred-as-fact
+  findings, with no more than two Polish findings
+- **NEEDS REVIEW**: zero Wrong citation findings, with one to three Missing
+  citation / Inferred-as-fact findings, or more than two Polish findings
 - **FAIL**: any Wrong citation finding, or more than three Missing citation /
   Inferred-as-fact findings
+
+Apply the thresholds in severity order: FAIL first, then NEEDS REVIEW, then
+PASS. Grounding findings are never "minor" for PASS purposes.

@@ -1,9 +1,10 @@
 ---
 role: researcher
 artifact: prompt
+eval-shape: researcher-verification-gate
 title: "Researcher - citation-backed reference expansion workflow"
 content-type: prompt
-last-verified: "2026-05-18"
+last-verified: "2026-07-15"
 confidence: high
 source-tier: practice
 sources:
@@ -186,6 +187,12 @@ Run a read-only verification pass:
   - **Polish** - wording, cross-link, or consistency issue
 - Do not edit during verification
 
+Require stable verifier finding IDs (`V-001`, `V-002`, and so on), finding
+counts, and the final verifier verdict. A PASS verdict requires zero Wrong
+citation, Missing citation, and Inferred-as-fact findings. Do not downgrade a
+grounding gap to "minor" in order to pass. Commit is available only when the
+verifier verdict is PASS.
+
 ### 3c - Output
 
 #### Step 3 - Write and verify
@@ -194,25 +201,32 @@ Run a read-only verification pass:
 
 **Verifier punch list:** `<findings>`
 
+**Verifier verdict:** `<PASS | NEEDS REVIEW | FAIL>`
+
 **Checkpoint 3 - awaiting user**
 
-- `commit` - run hygiene and commit the changes
+- `commit` - available only when the verifier verdict is **PASS**; run hygiene
+  and commit the changes
 - `fix: <verifier-finding-id>` - apply targeted fix
 - `redo: <writer-pass-with-changes>` - re-run writer with adjustments
 - `abort` - discard changes
 
-Halt. On `commit`, run `./scripts/check-hygiene.py`,
+Halt. If the verdict is NEEDS REVIEW or FAIL, omit `commit` from the checkpoint
+menu and require `fix:`, `redo:`, or `abort`. On `commit`, first confirm that
+the recorded verifier verdict is PASS, then run `./scripts/check-hygiene.py`,
 `./scripts/check-citations.sh`, and `./scripts/check-orphans.py`, then surface
 any findings. If reference files changed, also refresh or compare citation
 inventory according to the repo's current citation-inventory workflow. If gates
 pass, generate a commit message that names sections changed, citations added,
 Open Items routed, and contradictions resolved.
 
-If verification found any Wrong citation finding, do not commit until it is fixed or the user explicitly redirects.
+If verification found any Wrong citation, Missing citation, or Inferred-as-fact
+finding, do not commit until it is fixed and the verifier returns PASS.
 
 ## Failure handling
 
 - If extraction finds no relevant content, say so and ask whether to expand scope, re-scope, or abort.
-- If verification finds a Wrong citation, stop and ask for `fix:` or `redo:`.
+- If verification returns NEEDS REVIEW or FAIL, stop and ask for `fix:`,
+  `redo:`, or `abort`.
 - If the user reply is ambiguous at a checkpoint, ask for clarification.
 - If hygiene fails, surface the failures and do not commit.

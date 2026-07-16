@@ -11,6 +11,7 @@ import {
   exitCodeForChecks,
   formatJsonReport,
   parseArgs,
+  runChecks,
   versionAtLeast,
 } from "./doctor.mjs";
 
@@ -142,5 +143,46 @@ test("next commands embed the repo root so they are cwd-safe", () => {
 
 test("parseArgs rejects the removed --root flag and unknown arguments", () => {
   assert.throws(() => parseArgs(["node", "doctor.mjs", "--root", "/tmp"]), /Unknown argument: --root/);
-  assert.deepEqual(parseArgs(["node", "doctor.mjs", "--json"]).json, true);
+  const parsed = parseArgs(["node", "doctor.mjs", "--json"]);
+  assert.equal(parsed.json, true);
+  assert.equal(parsed.profile, "full");
+});
+
+test("parseArgs accepts only supported doctor profiles", () => {
+  assert.equal(
+    parseArgs(["node", "doctor.mjs", "--profile", "references"]).profile,
+    "references",
+  );
+  assert.throws(
+    () => parseArgs(["node", "doctor.mjs", "--profile"]),
+    /--profile requires one of: full, references/,
+  );
+  assert.throws(
+    () => parseArgs(["node", "doctor.mjs", "--profile", "tenant"]),
+    /Unknown doctor profile: tenant/,
+  );
+});
+
+test("references profile skips local runtime and hook checks", () => {
+  const root = tempDir();
+  makeLayout(root);
+  fs.writeFileSync(
+    path.join(root, ".gitmodules"),
+    '[submodule "vendor/example"]\n\tpath = vendor/example\n\turl = https://example.invalid/vendor.git\n',
+    "utf8",
+  );
+  fs.mkdirSync(path.join(root, "vendor/example"), { recursive: true });
+  fs.writeFileSync(path.join(root, "vendor/example/README.md"), "present\n", "utf8");
+
+  const checks = runChecks({ root, profile: "references", nodeVersion: "20.0.0" });
+  assert.deepEqual(checks.map((check) => check.name), [
+    "Node version",
+    "Repo layout",
+    "Vendor submodules",
+  ]);
+  assert.equal(exitCodeForChecks(checks), 0);
+});
+
+test("runChecks rejects unknown profiles", () => {
+  assert.throws(() => runChecks({ profile: "tenant" }), /Unknown doctor profile: tenant/);
 });

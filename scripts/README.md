@@ -8,6 +8,8 @@ Common local checks:
 
 ```bash
 node scripts/check-fast.mjs
+node scripts/doctor.mjs --profile references
+node scripts/check-vendor-refresh.mjs --base origin/main
 ./scripts/check-hygiene.py
 ./scripts/check-orphans.py
 ./scripts/run-evals.py list
@@ -36,7 +38,7 @@ use the read-only `zscalerctl` CLI for tenant reads.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-verified-against.py` (validates all source-pin mappings, paths, and SHA syntax plus locally available submodule commit objects), `check-helper-command-refs.mjs` (scans tracked docs for stale investigator-artifacts.mjs, auditor-artifacts.mjs, and soc-artifacts.mjs command tokens), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.py`, `find-asymmetries.py` |
+| **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-vendor-refresh.mjs` (one-command reference preflight, worktree impact report, and fast gate), `check-worktree-whitespace.mjs` (checks unstaged, staged, and untracked files), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-verified-against.py` (validates all source-pin mappings, paths, and SHA syntax plus locally available submodule commit objects), `check-helper-command-refs.mjs` (scans tracked docs for stale investigator-artifacts.mjs, auditor-artifacts.mjs, and soc-artifacts.mjs command tokens), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.mjs` (committed-ref or worktree vendor bump summary with MCP review lenses), `find-asymmetries.py` |
 | **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `runtime-data-path.mjs`, `setup-data-mount.mjs`, `prepare-overlay-submission.mjs` |
 | **Eval suite** | `run-evals.py`, `benchmark-investigator-helper.mjs` |
 | **Reasoning helpers** | `agent_patterns.py` (lib), `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` (exports `renderCaseReport` — artifact-derived report, no free narrative), `investigator-mcp-server.mjs` (MCP stdio transport for the helper gates; registered in `.mcp.json`; exposes resources `investigator://case/{slug}/report\|journal\|status` and prompts `investigate`/`resume-case`), `investigator-mcp-server.test.mjs` (node:test suite for the MCP server), `check-mcp-conformance.mjs` (in-process JSON-RPC conformance gate; wired into `check-fast.mjs`; degrades gracefully if official inspector unavailable), `auditor-artifacts.mjs` (deterministic helper for the auditor role; exports `openAudit`, `recordFinding`, `updateFinding`, `recordCheckOutput`, `renderAuditReport`, `auditStatus`, `capabilities`; evidence-gated findings and append-only stable-ID closure with verified `Resolved` updates; standalone zero-dependency), `auditor-mcp-server.mjs` (MCP stdio transport for the auditor helper gates; registered in `.mcp.json` and `.devin/config.json`; exposes resources `auditor://audit/{slug}/report\|register\|status` and prompt `audit`; conformant from the start — annotations, outputSchema, structuredContent, -32602 for unknown tools), `auditor-artifacts.test.mjs` (node:test suite for the auditor helper), `auditor-mcp-server.test.mjs` (node:test suite for the auditor MCP server), `soc-artifacts.mjs` (deterministic helper for the SOC role; exports `openReview`, `recordEvidence`, `recordFinding`, `renderSocReport`, `socStatus`, `resolveSource`, `capabilities`; evidence-gated findings with file:line, cross-file, and evidence:<name> source types; SOC-specific framework-not-evidence guard that rejects CWE/OWASP/NIST/MITRE/ATT&CK/CISA tags as standalone source; standalone zero-dependency), `soc-mcp-server.mjs` (MCP stdio transport for the SOC helper gates; registered in `.mcp.json` and `.devin/config.json`; exposes resources `soc://review/{slug}/report\|register\|status` and prompt `soc-review`; conformant from the start — annotations, outputSchema on soc_status, structuredContent, -32602 for unknown tools/prompts), `soc-artifacts.test.mjs` (node:test suite for the SOC helper), `soc-mcp-server.test.mjs` (node:test suite for the SOC MCP server), `agents/soc/mcp-entrypoint.md` (SOC role entrypoint served by the MCP prompt; carries gated workflow, framework-not-evidence rule, status-first recovery, and answer-from-artifact discipline) |
@@ -86,9 +88,49 @@ node scripts/check-fast.mjs
 
 It runs independent cheap checks in parallel and prints buffered output only
 for failures, so local validation does not become a wall of interleaved logs.
-The current fast gate covers workflow metadata, citation links, and the Node
-helper test suite; it is a local acceleration path, not a replacement for the
-full CI hygiene workflow.
+The current fast gate covers release and provenance state, workflow metadata
+and eval shapes, portable-skill contracts, citation links, Node helper tests,
+MCP conformance, routing, and staged/unstaged/untracked whitespace. It is a
+local acceleration path, not a replacement for the full CI hygiene workflow.
+
+For reference-only or vendor-refresh work, use the scoped doctor before the
+fast gate:
+
+```bash
+node scripts/doctor.mjs --profile references
+```
+
+That profile checks Node, repository layout, and vendor submodule availability
+without reporting unrelated local hook, runtime-data mount, or companion-CLI
+state. The default `node scripts/doctor.mjs` remains the full installation
+doctor.
+
+Before committing a local vendor refresh, run the combined gate:
+
+```bash
+node scripts/check-vendor-refresh.mjs --base origin/main
+```
+
+It runs the reference-focused doctor, generates a worktree-aware impact summary
+in a temporary file, and runs `check-fast.mjs` as one top-level command. Pass
+`--output <path>` when the impact summary should be retained as a durable audit
+artifact. The mechanical gate stops on high-priority cited-file drift, failed
+MCP change enumeration, or MCP paths outside the review classifier; a passing
+gate still leaves the generated semantic review queue for human inspection.
+
+To generate only the same impact summary used by CI:
+
+```bash
+node scripts/vendor-impact-summary.mjs \
+  --base origin/main \
+  --worktree \
+  --output "$(node scripts/runtime-data-path.mjs schemas vendor-impact-summary.md)"
+```
+
+For an MCP pointer change, the report adds path-based review lenses for tools,
+prompts, authentication and safety, output shaping, lifecycle, shared helpers,
+documentation, and tests. These are a review queue; they do not assert that a
+changed behavior is safe or sufficiently documented.
 
 Benchmark investigator helper mechanics without involving an agent runtime:
 
