@@ -477,6 +477,46 @@ def test_mcp_update_leading_object_id_dropped_without_routing():
     assert "segmentGroupId" in f and "enabled" in f and "displayName" in f, f
 
 
+MCP_INPUT_MODEL_FIXTURE = '''
+from typing import Annotated, Any
+from pydantic import BaseModel, Field
+
+class SharedInput(BaseModel):
+    inherited_name: str
+
+class UpdateInput(SharedInput):
+    thing_id: str
+    display_label: Annotated[str, Field(alias="displayName")]
+    enabled: bool
+
+class SettingsInput(BaseModel):
+    settings: dict[str, Any]
+
+@tool(action=UPDATE, input_model=UpdateInput)
+def zia_update_modeled_thing(args: UpdateInput):
+    client = get_zscaler_client(service="zia")
+    return client.zia.things.update_thing(
+        args.thing_id,
+        **args.model_dump(exclude={"thing_id"}),
+    )
+
+@tool(action=UPDATE, input_model=SettingsInput)
+def zia_update_modeled_settings(args: SettingsInput):
+    client = get_zscaler_client(service="zia")
+    return client.zia.settings.update_settings(**args.settings)
+'''
+
+
+@case
+def test_mcp_pydantic_input_model_replaces_wrapper_arg():
+    f = extract_mcp_request_fields(MCP_INPUT_MODEL_FIXTURE, routing=set())
+    assert set(f) == {"inheritedName", "displayName", "enabled"}, f
+    assert "args" not in f, f
+    assert "thingId" not in f, ("wrapped update target ID must remain routing", f)
+    assert "settings" not in f, ("generic PUT-replace payloads remain control fields", f)
+    assert f["displayName"]["mcp_key"] == "displayName", f["displayName"]
+
+
 @case
 def test_snake_to_camel():
     assert snake_to_camel("version_profile_id") == "versionProfileId"
