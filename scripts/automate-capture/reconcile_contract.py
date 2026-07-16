@@ -714,6 +714,16 @@ _MCP_CONTROL_FIELDS = {
 }
 _MCP_BODY_NAMES = {"body", "payload"}
 _MCP_WRITE_PREFIXES = ("add", "bulk_update", "create", "replace", "set", "update")
+_MCP_REQUEST_FIELD_TOOL_PREFIXES = (
+    "zia_create_",
+    "zia_update_",
+    "zia_add_",
+    "zia_bulk_update_",
+    "zpa_create_",
+    "zpa_update_",
+    "ztw_create_",
+    "zcc_update_",
+)
 
 
 def _mcp_field_key(raw):
@@ -759,6 +769,147 @@ def _mcp_attr_chain(node):
     if isinstance(node, ast.Attribute):
         chain = _mcp_attr_chain(node.value)
         return [*chain, node.attr] if chain else None
+    return None
+
+
+def _mcp_tool_input_model(fn):
+    """Return the local name selected by ``@tool(input_model=...)``."""
+    for decorator in fn.decorator_list:
+        if not isinstance(decorator, ast.Call):
+            continue
+        chain = _mcp_attr_chain(decorator.func)
+        if not chain or chain[-1] != "tool":
+            continue
+        for keyword in decorator.keywords:
+            if keyword.arg != "input_model":
+                continue
+            model_chain = _mcp_attr_chain(keyword.value)
+            return model_chain[-1] if model_chain else None
+    return None
+
+
+def _mcp_pydantic_field_alias(node):
+    if node is None:
+        return None
+    for child in ast.walk(node):
+        if not isinstance(child, ast.Call):
+            continue
+        chain = _mcp_attr_chain(child.func)
+        if not chain or chain[-1] != "Field":
+            continue
+        aliases = {
+            keyword.arg: keyword.value.value
+            for keyword in child.keywords
+            if keyword.arg in {"alias", "validation_alias"}
+            and isinstance(keyword.value, ast.Constant)
+            and isinstance(keyword.value.value, str)
+        }
+        if "validation_alias" in aliases:
+            return aliases["validation_alias"]
+        if "alias" in aliases:
+            return aliases["alias"]
+    return None
+
+
+def _mcp_pydantic_model_fields(tree, model_name):
+    """Top-level fields exposed by a local Pydantic input model.
+
+    The v0.13.1 MCP layout wraps each tool in a single ``args`` parameter and
+    declares the real agent-facing schema through ``@tool(input_model=...)``.
+    Resolve local inheritance and string aliases without importing vendor code.
+    """
+    if not model_name:
+        return {}
+    classes = {node.name: node for node in tree.body if isinstance(node, ast.ClassDef)}
+    resolved = {}
+    visiting = set()
+
+    def collect(name):
+        if name in resolved:
+            return resolved[name]
+        cls = classes.get(name)
+        if cls is None or name in visiting:
+            return {}
+        visiting.add(name)
+        fields = {}
+        for base in cls.bases:
+            chain = _mcp_attr_chain(base)
+            if chain and chain[-1] in classes:
+                fields.update(collect(chain[-1]))
+        for stmt in cls.body:
+            if not isinstance(stmt, ast.AnnAssign) or not isinstance(stmt.target, ast.Name):
+                continue
+            raw_name = stmt.target.id
+            if raw_name.startswith("_"):
+                continue
+            alias = _mcp_pydantic_field_alias(stmt.annotation)
+            if alias is None:
+                alias = _mcp_pydantic_field_alias(stmt.value)
+            fields[raw_name] = alias or raw_name
+        visiting.remove(name)
+        resolved[name] = fields
+        return fields
+
+    return collect(model_name)
+
+
+def _mcp_model_wrapper_args(fn, model_name):
+    if not model_name:
+        return set()
+    wrappers = set()
+    args = fn.args.args
+    for arg in args:
+        if arg.annotation is None:
+            continue
+        annotation_names = {
+            chain[-1]
+            for node in ast.walk(arg.annotation)
+            if (chain := _mcp_attr_chain(node))
+        }
+        if model_name in annotation_names:
+            wrappers.add(arg.arg)
+    if not wrappers and len(args) == 1 and args[0].arg == "args":
+        wrappers.add("args")
+    return wrappers
+
+
+def _mcp_wrapper_field(node, wrappers):
+    if (
+        isinstance(node, ast.Attribute)
+        and isinstance(node.value, ast.Name)
+        and node.value.id in wrappers
+    ):
+        return node.attr
+    return None
+
+
+def _mcp_wrapped_target_id(fn, wrappers):
+    """Infer an update target ID from the first SDK write-call argument.
+
+    This is the input-model equivalent of the legacy leading ``thing_id``
+    parameter heuristic. It deliberately stops at the first non-control keyword
+    so foreign-key body fields later in the call remain part of the field surface.
+    """
+    if not wrappers:
+        return None
+    for node in ast.walk(fn):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+            continue
+        chain = _mcp_attr_chain(node.func)
+        if not chain or not chain[-1].startswith(("edit", "replace", "set", "update")):
+            continue
+        if node.args:
+            candidate = _mcp_wrapper_field(node.args[0], wrappers)
+            if candidate and candidate.endswith("_id"):
+                return candidate
+        for keyword in node.keywords:
+            if keyword.arg is None:
+                continue
+            candidate = _mcp_wrapper_field(keyword.value, wrappers) or keyword.arg
+            if candidate.endswith("_id"):
+                return candidate
+            if not _mcp_is_control_field(keyword.arg):
+                break
     return None
 
 
@@ -848,6 +999,9 @@ def extract_mcp_request_fields(src, method_names=None, routing=()):
     tree = ast.parse(src)
     fields = {}
     for name, fn in _mcp_selected_functions(tree, method_names).items():
+        input_model = _mcp_tool_input_model(fn)
+        model_fields = _mcp_pydantic_model_fields(tree, input_model)
+        wrapper_args = _mcp_model_wrapper_args(fn, input_model)
         # A tool that operates on an EXISTING object (update/get/delete/edit/set/
         # replace) takes that object's own id as its leading parameter. The contract
         # models it as the generic `:id` path param, so it is absent from `routing`
@@ -862,14 +1016,20 @@ def extract_mcp_request_fields(src, method_names=None, routing=()):
         args = fn.args.args
         if any(op in name for op in obj_ops) and args and args[0].arg.endswith("_id"):
             fn_routing.add(_mcp_field_key(args[0].arg))
+        wrapped_target = _mcp_wrapped_target_id(fn, wrapper_args)
+        if any(op in name for op in obj_ops) and wrapped_target:
+            fn_routing.add(_mcp_field_key(wrapped_target))
+            if wrapped_target in model_fields:
+                fn_routing.add(_mcp_field_key(model_fields[wrapped_target]))
         raw_keys = set()
-        if name.startswith(("zia_create_", "zia_update_", "zia_add_", "zia_bulk_update_",
-                            "zpa_create_", "zpa_update_", "ztw_create_", "zcc_update_")):
+        if name.startswith(_MCP_REQUEST_FIELD_TOOL_PREFIXES):
             raw_keys.update(
                 arg.arg
                 for arg in args
-                if not _mcp_is_control_field(arg.arg, fn_routing)
+                if arg.arg not in wrapper_args
+                and not _mcp_is_control_field(arg.arg, fn_routing)
             )
+            raw_keys.update(model_fields.values())
         raw_keys.update(_mcp_literal_body_keys(fn, fn_routing))
         if "action" in raw_keys:
             raw_keys.discard("rule_action")
