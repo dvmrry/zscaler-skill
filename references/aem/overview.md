@@ -3,7 +3,7 @@ product: aem
 topic: overview
 title: "Asset Exposure Management (AEM) - asset inventory and attack surface tracking"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
@@ -11,7 +11,7 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -19,6 +19,7 @@ source-tier: doc
 sources:
   - "vendor/zscaler-help/aem-what-zscaler-security-operations.md"
   - "vendor/zscaler-help/asset-exposure-management-caasm-marketing.md"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
 author-status: draft
 ---
 
@@ -34,7 +35,7 @@ This is a thin Tier-C reference. The refresh found sourceable Help and marketing
 | Python SDK | No AEM / Asset Exposure Management / CAASM service surface found in the audited Python SDK tree. |
 | Terraform | No AEM / Asset Exposure Management / CAASM resources or data sources found in the audited ZIA or ZPA providers. |
 | Ansible | No AEM / Asset Exposure Management / CAASM modules found in the audited ZIA or ZPA collections. |
-| MCP | No AEM / Asset Exposure Management / CAASM tools found in the audited MCP server. |
+| MCP | No AEM / Asset Exposure Management / CAASM tools found in the audited MCP server. EASM inventory and ZMS resource-protection tools are adjacent surfaces, not AEM/CAASM coverage (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:419-431`, `:460-485`). |
 | Postman | No AEM / Asset Exposure Management / CAASM endpoint family found in the audited OneAPI collection. |
 | Help | AEM is covered by the SecOps/AEM capture and CAASM marketing capture. AEM is described as one of two Zscaler SecOps applications and as collecting/managing asset data to track inventory, attack surface, policy violations, and remediation (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:10-13`). |
 

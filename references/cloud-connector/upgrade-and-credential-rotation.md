@@ -3,7 +3,9 @@ product: ztw
 topic: "upgrade-and-credential-rotation"
 title: "Cloud Connector upgrades + zsroot credential rotation — operational cadence"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-07-16"
+verified-against:
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: mixed
 sources:
@@ -16,7 +18,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/admin_users.py"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/services.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/decorator.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py"
+  - "vendor/zscaler-mcp-server/docs/guides/toolsets.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -83,7 +87,7 @@ Endpoints confirmed in `vendor/zscaler-api-specs/oneapi-postman-collection.json`
 
 To confirm or monitor the window programmatically, read `GET /ecgroup/{id}/vm/{vmId}` and inspect `buildVersion`, `lastUpgradeTime`, `upgradeStatus`, `upgradeStartTime`, `upgradeEndTime`, `upgradeDayOfWeek` (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:48-53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:111-116`).
 
-**Where this surface lives matters operationally.** These EC-group endpoints are SDK + REST API only. They are **not** exposed by the zscaler-mcp-server — its registered ZTW tools cover only account details, discovery settings, IP/network groups, admins/roles, and public-cloud info, with no EC-group tool (`vendor/zscaler-mcp-server/zscaler_mcp/services.py:2297-2321`). So "check the API/SDK" is a real operator move; "check the MCP server" is not.
+**Where this surface lives matters operationally.** zscaler-mcp-server v0.13.1 discovers self-registering `@tool` declarations by walking the tools package rather than maintaining a central `services.py` catalog (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/decorator.py:1-7`, `:33-45`, `:65-85`; `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py:1-6`, `:20-35`). Its complete generated ZTW inventory covers discovery settings, admins and roles, IP groups, network services and groups, and public-account/cloud information, but no EC-group operation (`vendor/zscaler-mcp-server/docs/guides/toolsets.md:99-103`). These EC-group endpoints therefore remain an SDK + REST API surface rather than an MCP tool surface.
 
 ### Branch Connector differences
 

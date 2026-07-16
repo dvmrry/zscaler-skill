@@ -3,7 +3,9 @@ product: zcc
 topic: "zcc-otp"
 title: "ZCC getOtp — one-time-passcode bundle per device"
 content-type: reference
-last-verified: "2026-06-14"
+last-verified: "2026-07-16"
+verified-against:
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: medium
 source-tier: code
 sources:
@@ -14,7 +16,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp_test.go"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py"
 author-status: draft
 ---
 
@@ -75,7 +77,7 @@ Of the bundle, `deception_settings_otp` / `deceptionSettingsOtp` is the only fie
 
 ### Generic `otp` field
 
-A generic `otp` field exists in the bundle alongside the operation-scoped OTPs (wire key `otp`): `vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:39`; Go: `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:20`.
+A generic `otp` field exists in the bundle alongside the operation-scoped OTPs (wire key `otp`): `vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:39`; Go: `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:20`. The current MCP view labels it a "Generic/legacy OTP field" but does not state that it mirrors any other field (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:63`).
 
 ## Python vs Go divergences
 
@@ -93,18 +95,16 @@ A generic `otp` field exists in the bundle alongside the operation-scoped OTPs (
 
 - **Not every device returns all 11 OTPs.** The Go test asserts that a successful `getOtp` may legitimately leave individual OTP fields empty, requiring only that at least one be populated: it checks `Otp` / `ExitOtp` / `LogoutOtp` / `RevertOtp` / `UninstallOtp` / `ZdpDisableOtp` / `ZdxDisableOtp` / `ZiaDisableOtp` / `ZpaDisableOtp` all `== ""` and raises `'Expected at least one non-empty OTP'` (`vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp_test.go:56-61`).
 
-- **`device_id` semantics, Python only.** Passing both `udid` and `device_id` to the Python SDK keeps `udid`: the remap only fires `if "device_id" in query_params and "udid" not in query_params` (`vendor/zscaler-sdk-python/zscaler/zcc/secrets.py:61-62`). Note this is the inverse-conditional of the precedence framing that lives in the MCP tool layer (see Open questions).
+- **`device_id` semantics, Python only.** Passing both `udid` and `device_id` to the Python SDK keeps `udid`: the remap only fires `if "device_id" in query_params and "udid" not in query_params` (`vendor/zscaler-sdk-python/zscaler/zcc/secrets.py:61-62`). The MCP input description explicitly says `udid` wins when both are present, and the implementation sends `args.udid or args.device_id`, producing the same precedence (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:21-34`, `:92-102`).
 
 ## Open questions
 
 The following appeared in surrounding tooling prose but could not be verified against SDK/API source. They are flagged unverified.
 
-- **No expiry / TTL field in source.** Neither `OtpResponse` model carries a TTL, expiry timestamp, or validity-window field (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:33-45`; `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:15-27`). The "short-lived" characterization is MCP-tool docstring prose only (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py:8`, `:60-61`, `:77-81`) — unverified product framing, not a source-backed field. (Tracked as `zcc-76` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zcc-76-otp-expiry-ttl-server-behavior).)
+- **Short-lived label, but no expiry / TTL field.** The current MCP module and output view consistently describe the OTPs as short-lived sensitive credentials (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:1-7`, `:46-47`, `:92-97`). Neither SDK `OtpResponse` model carries a TTL, expiry timestamp, or validity-window field, so the precise duration and server-side expiry behavior remain unverified (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:33-45`; `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:15-27`). (Tracked as `zcc-76` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zcc-76-otp-expiry-ttl-server-behavior).)
 
-- **No length/format/numeric-vs-alphanumeric constraint in source.** Model fields are plain `string` / `None` with no validation (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:33-45`; `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:16-26`). The example values `123456` / `654321` in the tool docstring are illustrative only (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py:93-94`).
+- **No length/format/numeric-vs-alphanumeric constraint in source.** SDK model fields are plain `string` / `None` with no validation (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:33-45`; `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:16-26`), and the current MCP output fields are unvalidated `Optional[str]` values (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:46-63`).
 
-- **OTP-to-endpoint mapping not in SDK source.** The SDK only returns the bundle; it does not wire `logout_otp` → a logout endpoint, `uninstall_otp` → an uninstall endpoint, etc. The operation-to-OTP narrative exists only as MCP tool docstring prose (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py:63-75`), which is tooling-layer description, not SDK/API behavior.
+- **OTP-to-endpoint mapping not in source.** The SDK only returns the bundle; it does not wire `logout_otp` to a logout endpoint, `uninstall_otp` to an uninstall endpoint, and so on. The MCP output descriptions label the intended operation for each value, but they likewise do not map those values to API endpoint calls (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:49-63`).
 
-- **"udid wins over device_id" precedence is the tool's framing, not the SDK's.** The MCP tool computes `{"udid": udid or device_id}` so `udid` takes precedence (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py:119`). The Python SDK's own logic is the inverse-conditional — `device_id` is used only when `udid` is absent (`vendor/zscaler-sdk-python/zscaler/zcc/secrets.py:61-62`). Both land on the same effective result, but the "udid wins" phrasing belongs to the tool layer.
-
-- **`otp` "legacy" / "mirrors one of the above" characterization not in SDK source.** The generic `otp` field is confirmed present (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:39`; Go: `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:20`), but source does not label it "legacy" or say it mirrors another field — that is MCP-tool docstring prose only (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zcc/get_otp.py:75`).
+- **Generic `otp` relationship remains unspecified.** The MCP view labels the field "Generic/legacy" (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:63`), but neither that view nor the SDK models say it mirrors any operation-scoped field (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:39`; Go: `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:20`).

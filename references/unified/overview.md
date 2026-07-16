@@ -3,7 +3,7 @@ product: unified
 topic: overview
 title: "Zscaler Experience Center - unified administration console"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
@@ -12,12 +12,15 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/unified-what-zscaler-experience-center.md"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
+  - "vendor/zscaler-mcp-server/docsrc/skills/index.rst"
+  - "vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md"
 author-status: draft
 ---
 
@@ -44,7 +47,7 @@ Key source-backed feature themes:
 | Python SDK | No standalone Experience Center / unified-console service found in this audit pass. |
 | Terraform | No standalone Experience Center / unified-console resource or data source found in this audit pass. |
 | Ansible | No standalone Experience Center / unified-console module found in this audit pass. |
-| MCP | No standalone Experience Center / unified-console tool found in this audit pass. |
+| MCP | No standalone Experience Center / unified-console tool found in this audit pass. The bundled cross-product workflow composes ZCC, ZDX, ZPA, and ZIA tools rather than exposing an Experience Center administration API (`vendor/zscaler-mcp-server/docsrc/skills/index.rst:181-191`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md:1-3`). |
 | Postman | No standalone Experience Center / unified-console endpoint family found in the audited Postman collection. |
 | Help captures | The Experience Center product framing and top-level unified-console capabilities are captured (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`, `:12-18`, `:22-25`, `:27-29`). |
 

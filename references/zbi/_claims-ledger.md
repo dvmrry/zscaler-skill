@@ -3,15 +3,15 @@ product: zbi
 topic: "zbi-claims-ledger"
 title: "ZBI claims ledger - Tier 3 first-pass refresh"
 content-type: reference
-last-verified: "2026-06-29"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
   vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: mixed
 sources:
@@ -55,8 +55,8 @@ sources:
   - "vendor/zpacloud-ansible/plugins/modules/zpa_isolation_profile_info.py"
   - "vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule.py"
   - "vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -96,7 +96,7 @@ This ledger covers the Zero Trust Browser / Cloud Browser Isolation claims chang
 | Terraform ZPA registers CBI banner, certificate, external profile, v1/v2 isolation-rule resources, and CBI/isolation-profile data sources; the external-profile and v1 isolation-rule resources call create/update/delete paths. | `api.md`, `policy-integration.md` | `vendor/terraform-provider-zpa/zpa/provider.go:157-159`, `:169`, `:172`, `:226-232`; `vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_browser_isolation_external_profile.go:262-278`, `:344-365`, `:372-378`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule.go:11`, `:14-19`, `:27-34`, `:81-84`, `:113-118`, `:191-199`, `:228-230`, `:242-249` |
 | Terraform ZPA has a separate v2 isolation-rule resource that wraps `policysetcontrollerv2`, supports `ISOLATE`/`BYPASS_ISOLATE`, validates a v2 object-type set including `CHROME_ENTERPRISE` and `CHROME_POSTURE_PROFILE`, and calls v2 create/update/delete paths. | `api.md`, `policy-integration.md` | `vendor/terraform-provider-zpa/zpa/provider.go:172`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule_v2.go:11`, `:14-19`, `:43-46`, `:97-109`, `:171`, `:258`, `:282`, `:289-304` |
 | Ansible has one ZIA read-only Cloud Browser Isolation profile-info module plus eight ZPA browser-isolation modules for banner/certificate CRUD and `_info`, CBI profile info, isolation-profile info, and v1/v2 isolation-rule management. | `api.md`, `policy-integration.md` | `vendor/ziacloud-ansible/plugins/modules/zia_cloud_browser_isolation_profile_info.py:31`, `:121-140`; `vendor/zpacloud-ansible/plugins/modules/zpa_cloud_browser_isolation_banner.py:31`, `:203-225`, `:231-233`, `:253`; `vendor/zpacloud-ansible/plugins/modules/zpa_cloud_browser_isolation_banner_info.py:31`, `:158`, `:168`, `:179`; `vendor/zpacloud-ansible/plugins/modules/zpa_cloud_browser_isolation_certificate.py:31`, `:175-193`, `:202-204`, `:219`; `vendor/zpacloud-ansible/plugins/modules/zpa_cloud_browser_isolation_certificate_info.py:31`, `:130-142`, `:153`; `vendor/zpacloud-ansible/plugins/modules/zpa_cloud_browser_isolation_profile_info.py:31`, `:230`, `:240`, `:251`; `vendor/zpacloud-ansible/plugins/modules/zpa_isolation_profile_info.py:31`, `:153-154`; `vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule.py:31`, `:275-287`, `:378-399`, `:407-409`; `vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py:31`, `:278-290`, `:379-399`, `:409-411` |
-| MCP exposes a read-only ZPA CBI profile lookup tool and ZPA isolation policy rule list/get/create/update/delete tooling; create requires `zpn_isolation_profile_id` when action is isolate. | `api.md`, `policy-integration.md` | `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py:8-19`, `:36-53`; `vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py:18-47`, `:83-108`, `:119-133`, `:136-186`, `:189-210` |
+| MCP returns a curated ZPA CBI profile list, optionally narrowed by exact name, and exposes isolation-policy rule list/get/create/update/delete tools; the create tool rejects `isolate` without `zpn_isolation_profile_id`. | `api.md`, `policy-integration.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py:28-48`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py:66-89`, `:92-122`, `:125-150`, `:153-163` |
 | The Postman collection includes ZIA Browser Isolation profile lookup, ZPA CBI banner/profile controller endpoints, and the separate ZPA mgmtconfig isolation-profile read path. | `api.md` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:774-777`, `:823-829`, `:15801-15817`, `:17106-17133`, `:19193-19209`, `:21046-21059`, `:21392-21397`, `:61255` |
 | Manual URL Filtering `Isolate` SSL/TLS Inspection prerequisite and exact failure mode are not established by the captured sources; Smart Isolation decrypt behavior is source-backed separately. | `overview.md`, `policy-integration.md`, `clarifications.md` | `OPEN QUESTION -> references/_meta/clarifications.md#zbi-01-manual-url-filter-isolate-ssl-inspection-prerequisite` |
 | Preferred usage relationship between ZPA `cbizpaprofile` and `isolationprofile` read endpoints is unresolved by SDK/Postman source alone. | `api.md`, `clarifications.md` | `OPEN QUESTION -> references/_meta/clarifications.md#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint` |

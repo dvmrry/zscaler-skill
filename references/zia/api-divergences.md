@@ -4,11 +4,11 @@ topic: "api-divergences"
 title: "ZIA API source divergences"
 content-type: reference
 confidence: medium
-last-verified: "2026-06-18"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md"
@@ -22,13 +22,13 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/common/zia_helpers.py"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/common/zia_helpers.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py"
+  - "vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go"
   - "vendor/zscaler-help/legacy-authentication-settings.md"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py"
   - "vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md"
   - "vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md"
 author-status: draft
@@ -38,7 +38,7 @@ author-status: draft
 
 The captured Automate operation contract, Go SDK, Python SDK, Terraform provider, Ansible collection, and MCP tools are independent views of the same ZIA management API, produced separately and updated at different cadences. Where they agree, confidence is high. Where they diverge, an engineer needs to know which source to trust before writing code — and the answer changes by field, endpoint, and resource type.
 
-A third signal here is the Zscaler MCP server's ZIA tools. The MCP layer carries operator-observation notes (API error strings, behavioral quirks) in its docstrings and enforces some constraints client-side. Those notes can describe real API behavior, but they are not reproducible from SDK source and are flagged accordingly. Where a claim about how ZIA behaves exists ONLY in MCP docstrings — not in either SDK — it is called out as an observation, not source-backed product behavior.
+A third signal here is the Zscaler MCP server's ZIA tools and workflow skills. Workflow notes can carry API error strings and behavioral observations that are not reproducible from SDK source; executable tools separately show which constraints are actually enforced client-side. Claims found only in the MCP workflow layer are flagged as observations pending live-tenant confirmation.
 
 This historical prose pass began with Cloud App Control (CAC), URL Filtering, SSL Inspection, and Authentication Settings. DAV-21/DAV-23 added the generated contract reconciliation and rosetta table across the Terraform-managed ZIA surface; use that generated layer for field-level required/readonly/enum coverage and use the narrative sections below for the human-readable explanations of high-value divergences.
 
@@ -100,16 +100,16 @@ Use the rosetta table as the field-level index when a section below summarizes a
 
 ---
 
-### Apps-list kwarg — wire/SDK name is `applications` (raw enum strings, not `{id}` objects)
+### Apps-list kwarg — wire/SDK name is `applications`; MCP v0.13.1 no longer maps `cloud_applications`
 
 **What each source says:**
 
 - **Python SDK:** `add_rule`/`update_rule` document the apps list as `applications` (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:244`) and pass kwargs straight through as the body (`cloudappcontrol.py:401`).
 - **Go SDK:** the struct field is `Applications []string json:"applications,omitempty"`. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:31`)
 - **Shared Python id-transform list:** `reformat_params` carries only `('application_ids','applications')`, with no plain `'applications'` entry. (`vendor/zscaler-sdk-python/zscaler/utils.py:96`)
-- **MCP layer:** surfaces the field as `cloud_applications` and maps it to `applications` internally. (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:618-621`)
+- **MCP v0.13.1 implementation:** the create/update models expose an `advanced` passthrough whose description names both `applications` and `cloud_apps`; the create path passes that dictionary to the common rule-payload builder without a `cloud_applications` rename (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:40-44,70-104,193-208`). The workflow skill still says `cloud_applications` maps internally to the SDK's `applications` kwarg (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:256`), so the skill and executable tool are out of sync.
 
-**Significance / which to trust:** The wire/SDK kwarg is `applications`, NOT `cloud_applications` — the `cloud_applications` name is an MCP-layer rename, not product behavior. Because plain `applications` is not in the `reformat_params` id-transform list, the apps list is sent as raw enum strings, not coerced into `{id}` objects.
+**Significance / which to trust:** The wire/SDK kwarg is `applications`. In MCP v0.13.1, use the executable tool's current `advanced` surface rather than relying on the workflow skill's stale `cloud_applications` mapping claim. Because plain `applications` is not in the `reformat_params` id-transform list, the apps list is sent as raw enum strings, not coerced into `{id}` objects.
 
 ---
 
@@ -178,9 +178,9 @@ Use the rosetta table as the field-level index when a section below summarizes a
 **What each source says:**
 
 - **Python SDK model:** the `SSLInspectionRules` model both deserializes and serializes a `timeWindows` field — `self.time_windows` is populated from `config["timeWindows"]` (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:121-122`) and emitted back as `"timeWindows": self.time_windows` in the request body (`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:207`). A caller can therefore set the field and the request will round-trip without error.
-- **MCP server (API behavior):** the ZIA Time Intervals tool docstring states plainly "SSL Inspection rules do **not** support `time_windows`" (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/time_intervals.py:8`). The create-ssl-inspection-rule skill states the rule type "does not support a recurring time-of-day schedule. SSL Inspection rules have no `time_windows` attribute on the API" (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:23`), "There is no `time_windows` field on this API" (`:64`), and "SSL Inspection has no `time_windows` attribute" (`:198`). The look-up-rule-targets skill marks `time_windows` as applying to "every rule type **except SSL Inspection**" because "SSL Inspection has no `time_windows` field on the API" (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:57`).
+- **MCP workflow skills (API-behavior claim):** the create-ssl-inspection-rule skill says the rule type does not support a recurring schedule and has no `time_windows` API field (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:23,62-70,198`). The look-up-rule-targets skill likewise excludes SSL Inspection from `time_windows` coverage (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:45-57,109-125`).
 
-**Significance / which to trust:** This is an SDK-model-exposes-field-but-API-ignores-it divergence — the opposite failure mode from the usual SDK-vs-SDK shape disagreement. The Python model's presence of `timeWindows` is misleading: setting it on an SSL Inspection rule does **not** produce a time-scheduled rule, because the API ignores it for this rule type. Do not rely on the SDK model surface as evidence the feature works. For time-of-day enforcement on encrypted traffic, attach the schedule to a **Cloud Firewall Filtering** rule or a **URL Filtering** rule instead (both honor `timeWindows`), letting the SSL Inspection rule govern only what is decrypted when the scheduled layer permits the traffic (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:64`). Cross-reference: `references/zia/time-intervals.md` (rule-types table caveat). The API-behavior side of this entry is sourced from MCP skill/tool documentation, not a second SDK; treat the "API ignores it" claim as documented vendor behavior pending live-tenant confirmation.
+**Significance / which to trust:** This is an SDK-model-vs-workflow divergence. The Python model proves only that `timeWindows` can be serialized; the MCP workflow skills say SSL Inspection does not support the field and direct scheduled enforcement to Cloud Firewall Filtering or URL Filtering (`vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md:62-70`). Do not treat the SDK model surface alone as proof that scheduling works. The API-behavior side is a workflow-skill observation, not a second SDK or an executable-tool validator, so live-tenant confirmation remains appropriate. Cross-reference: `references/zia/time-intervals.md`.
 
 ---
 
@@ -198,25 +198,21 @@ Use the rosetta table as the field-level index when a section below summarizes a
 
 ---
 
-## MCP-documented observations (not SDK-backed)
+## MCP workflow observations (not SDK-backed)
 
-The following describe how ZIA reportedly behaves but are asserted ONLY in MCP tool docstrings or MCP client-side enforcement — not in either SDK. Treat as operator-observation / docs claims pending live-tenant confirmation, not source-backed product behavior. They are recorded here because they document real ZIA API quirks the SDKs do not surface.
+The following describe how ZIA reportedly behaves but are asserted in MCP workflow skills rather than either SDK. Treat them as workflow/API observations pending live-tenant confirmation. Where the v0.13.1 executable tool no longer enforces or implements the workflow claim, that drift is called out explicitly.
 
 ### CAC atomic per-tuple validation (the headline observation — NOT in SDK source)
 
-The Cloud App Control atomic-validation contract — each `(rule_type, application, action)` tuple validated individually, multi-app rules failing with code `INVALID_INPUT_ARGUMENT` / message `Invalid action provided for selected applications`, the whole create rejected (not per-app), with no read-only per-app validity enumerator and a safe pattern of one rule per app — is asserted only in the MCP tool docstrings. (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:12-30` module docstring, `:294-309` list_actions caveat, `:930-948` "one rule per app") It is confirmed ABSENT from the Cloud App Control SDK source: no `INVALID_INPUT_ARGUMENT` or `Invalid action provided` string exists in `vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py`, `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py`, or `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/`. (The `INVALID_INPUT_ARGUMENT` token does appear elsewhere in the Python ZIA SDK — `vendor/zscaler-sdk-python/zscaler/zia/pac_files.py:331` — but not in CAC code.) Confidence: medium / observation. The create call itself is the only authoritative validator exposed by the vendored sources.
+The Cloud App Control create workflow says each `(rule_type, application, action)` tuple is validated individually, a mixed-validity multi-app create fails as a whole with `INVALID_INPUT_ARGUMENT` / `Invalid action provided for selected applications`, and one rule per app is the safe pattern (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:44-73,163,268-274`). This contract is a workflow-skill observation, not validation implemented by the v0.13.1 tool: the executable create path builds the supplied payload and calls the SDK directly (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:193-208`). It is also absent from the Cloud App Control SDK source. Confidence: medium / observation; the create call remains the authoritative validator.
 
 ### `availableActions` representative-app quirk
 
-The `availableActions` endpoint reportedly only returns the action list when `cloud_apps` contains a "representative" app for the category; not every app qualifies. The documented example: `rule_type=SYSTEM_AND_DEVELOPMENT` with `cloud_apps=[AZURE_DEVOPS]` returns `[]` even though the category has 11 actions, but `cloud_apps=[GITHUB]` returns the full set. (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:311-318`) The MCP tool papers over this by probing other candidate apps (`cloud_app_control.py:202-222`) and falling back to a category probe (`:463-483`). The SDK has no such note. (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34-91`) The specific count "11 actions" and the AZURE_DEVOPS/GITHUB example are unverified against source.
-
-### `rule_type` vocabulary translation — catalog tokens rejected by the endpoint
-
-The CAC/SSL-Inspection endpoints accept the canonical category enums (e.g. `WEBMAIL`, `STREAMING_MEDIA`), but the cloud-app catalog's own `parent` field uses different tokens (`WEB_MAIL`, `STREAMING`), and the endpoints reject the catalog-form tokens. Only two categories differ; all others map to themselves. `CUSTOM_CAPP` is also a valid category enum. (`vendor/zscaler-mcp-server/zscaler_mcp/common/zia_helpers.py:671-676` — `_PARENT_TO_APP_CLASS = {'STREAMING':'STREAMING_MEDIA','WEB_MAIL':'WEBMAIL'}`; `:761-778` — `canonical_app_class_for_parent` docstring: "the SSL Inspection / Cloud App Control APIs reject rule_type=STREAMING and only accept STREAMING_MEDIA"; category enum list incl `CUSTOM_CAPP` at `:681-699`) This is an MCP-helper concern, but it documents a real ZIA quirk: `rule_type=STREAMING` is rejected, `rule_type=STREAMING_MEDIA` is accepted.
+The create workflow says action discovery may be surfaced through a category "representative" app and that `actions_surfaced_via` can differ from the originally resolved app (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:150-163`). MCP v0.13.1's executable tool does not implement probing; it forwards `rule_type` and the optional `cloud_apps` list directly to the SDK (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:140-148`). The former AZURE_DEVOPS/GITHUB example, "11 actions" count, and probing algorithm have no current equivalent and are not retained as current behavior.
 
 ### 31-char CAC rule-name limit — Python docstring + MCP enforcement only; absent from Go
 
-The 31-character max on the CAC rule name is documented in the Python SDK docstrings ("Name of the rule, max 31 chars") (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:237`, `:436`, `:669`) and enforced client-side by the MCP tool, which cites the API error `Name exceeds the max length 31 characters` / `INVALID_INPUT_ARGUMENT`. (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:173` — `_CAC_NAME_MAX_LENGTH=31`; `:176-199` — raises with the API error message) The Go SDK does not mention the limit anywhere. The error-string form is a Python-docstring / MCP claim, not present in Go source.
+The 31-character max on the CAC rule name is documented in the Python SDK docstrings ("Name of the rule, max 31 chars") (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:237`, `:436`, `:669`) and repeated by the MCP create workflow with the API error `Name exceeds the max length 31 characters` / `INVALID_INPUT_ARGUMENT` (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:33,108,257-265`). MCP v0.13.1 does **not** enforce the limit client-side: `name` is an unconstrained string and the create path forwards it (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:70-73,193-208`). The Go SDK does not mention the limit. Treat the error string as a workflow/API observation, not as behavior guaranteed by the current MCP client.
 
 ### Per-category CAC action enum tables — Python docstring only, with likely copy-paste errors
 
@@ -224,14 +220,14 @@ The per-category action vocabulary (AI_ML, WEBMAIL, FILE_SHARE, STREAMING_MEDIA,
 
 ### CAC rule order semantics — first-match-wins / shadowing (MCP docstring); `order` field corroborated by SDKs
 
-The CAC policy table per `rule_type` is reportedly evaluated top-to-bottom, first-match-wins, with 1-based order (order=1 = top), so a more general rule above a specific rule shadows it. (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zia/cloud_app_control.py:76-84`) The SDKs corroborate that `order` exists as an int on the rule and "defaults to adding rule to bottom of list" when omitted (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:240`; Go `Order int json:"order"` at `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:26`), but the first-match-wins / shadowing semantics themselves are MCP-docstring claims, not stated in SDK source.
+The CAC workflow says the table is evaluated top-to-bottom, first-match-wins, and that a general rule above a specific rule shadows it (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:185-213`). MCP v0.13.1 corroborates only the numeric ordering surface: the create input describes lower values as earlier (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:82-84`), and the common helper defines 1-based order with lower values evaluated first and defaults create to 1 (`vendor/zscaler-mcp-server/src/zscaler_mcp/common/zia_helpers.py:70-94`). The SDKs also carry the `order` field, but first-match and shadowing remain workflow-skill claims rather than executable validation.
 
 ---
 
 ## Open questions
 
 - **No source enumerates per-app action validity.** The CAC action vocabulary is now captured at the contract/category level (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2174-2186`, `:2356-2362`), but which actions are individually valid for a given app is genuinely not exposed by any read path in the vendored sources; `availableActions` returns a flat category-level `List[str]` only (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`). Needs live-tenant probing to resolve. (Tracked as `zia-49` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-49-cac-per-app-action-validity).)
-- **CAC atomic-validation contract is observation-only.** The `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications" whole-create-rejection behavior and the one-rule-per-app safe pattern are in MCP docstrings only, confirmed absent from both SDKs. Confirm against a live tenant before treating as product behavior. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
-- **Representative-app quirk specifics unverified.** The "11 actions" count and the AZURE_DEVOPS->[] vs GITHUB->full-set example are MCP-docstring claims (`cloud_app_control.py:311-318`), not in any SDK; unverified against source. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
+- **CAC atomic-validation contract is observation-only.** The `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications" whole-create-rejection behavior and the one-rule-per-app pattern are in the MCP workflow skill, not the v0.13.1 executable validator, and are absent from both SDKs. Confirm against a live tenant before treating them as product behavior. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
+- **Representative-app behavior is generic and workflow-only.** The current workflow skill mentions representative-app surfacing generically, while the executable tool forwards the requested apps without probing. Specific app examples and action counts have no current MCP equivalent. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
 - **Postman / oneapi-specs not consulted for ZIA in this pass.** A Postman cross-check would raise confidence on two divergences in particular: the `availableActions` `type` field and the 31-char CAC name limit. The ZPA divergences doc uses Postman as a third source; ZIA has no such cross-check yet. *(Methodology/coverage note, not a ZIA-behavior question — not registered.)*
 - **Python `cloudAppRiskProfile` list-vs-single inconsistency not executed.** The model decodes a list (`models/cloudappcontrol.py:115-117`) but `request_format` calls `.request_format()` as a single object (`:220`). This is a code-shape observation; it was not run to confirm it actually raises at runtime. (Tracked as `zia-54` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-54-python-cloudappriskprofile-list-vs-single-shape).)

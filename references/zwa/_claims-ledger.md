@@ -3,7 +3,7 @@ product: zwa
 topic: "zwa-claims-ledger"
 title: "ZWA claims ledger - Tier 3 first-pass refresh"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
@@ -11,7 +11,7 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: high
 source-tier: mixed
@@ -37,6 +37,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go"
   - "vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py"
 author-status: draft
@@ -81,7 +83,7 @@ This ledger covers the Workflow Automation claims changed or explicitly guarded 
 | Go audit logs expose `customeraudit.GetCustomerAudit`, POST `/dlp/v1/customer/audit`, and fields including action, module, resource, changedAt, changedBy, oldRowJson, newRowJson, and changeNote. | `audit-logs.md`, `api.md` | `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:12-47` |
 | Go shared `CommonDLPIncidentFiltering` uses `fields` and `timeRange`; `PaginationParams` uses `page`, `pageSize`, and `pageId`. | `audit-logs.md`, `api.md` | `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:148-178` |
 | Go shared paging default is 1000, while Python DLP/audit docstrings and legacy help document max page size 100; runtime max remains unverified here. | `audit-logs.md`, `api.md` | `vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go:13`, `:190-203`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:55-60`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1407-1412` |
-| No MCP Workflow Automation/ZWA tool was found in the inspected MCP server source. | `index.md`, `api.md` | `UNSUPPORTED / audit-scoped absence -> rg -n -i "workflow automation|\\bzwa\\b|dlp_incident|dlp incident|customeraudit" vendor/zscaler-mcp-server` |
+| No MCP Workflow Automation/ZWA tool was found in the inspected MCP server source. | `index.md`, `api.md` | AUDIT-SCOPED ABSENCE: registry discovery imports every current tool module (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py:1-35`), and the generated service inventory contains no ZWA family (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:11-22`); the 2026-07-16 re-check found no ZWA/DLP-incident/customer-audit tool or prompt under `src/zscaler_mcp/tools` or `src/zscaler_mcp/prompts/catalog`. |
 | No ZWA Workflow Automation Postman surface was found in the OneAPI Postman collection; the lone "DLP Incident Receiver" hit is under ZIA ICAP/DLP Incident Receiver config. | `index.md`, `api.md` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:1928-1955`; `UNSUPPORTED / audit-scoped absence -> rg -n -i "workflow automation|ZWA|dlp incident|dlp_incident|customeraudit" vendor/zscaler-api-specs` |
 | Terraform and Ansible hits are ZIA DLP Incident Receiver read surfaces, not ZWA Workflow Automation incident lifecycle/configuration surfaces. | `index.md`, `api.md` | `vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go:10`, `:51-64`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py:31`, `:119-124`; `UNSUPPORTED / audit-scoped absence -> rg -n -i "workflow automation|\\bzwa\\b|zsworkflow|customeraudit|customer/audit" vendor/terraform-provider-* vendor/*ansible*` |
 | No SDK/MCP/Postman/Terraform/Ansible source in this pass exposes workflow template, workflow mapping, or custom workflow create/update/delete/list operations. | `api.md`, `overview.md` | `OPEN QUESTION -> references/_meta/clarifications.md#zwa-01-workflow-configuration-programmability` |

@@ -3,18 +3,22 @@ product: easm
 topic: easm-findings
 title: "ZEASM Findings — field table, drill-down levels, and scoring-field caveats"
 content-type: reference
-last-verified: "2026-06-14"
+last-verified: "2026-07-16"
+verified-against:
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zeasm/findings.py"
   - "vendor/zscaler-sdk-python/zscaler/zeasm/models/findings.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py"
+  - "vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md"
 author-status: draft
 ---
 
 # ZEASM Findings — field table, drill-down levels, and scoring-field caveats
 
-> Python-SDK-only surface — the Go SDK has no EASM module (see [`overview.md`](overview.md)), so there is no Go field column to diverge against. Several finding fields are declared by attribute name only, with no value enumeration or docstring in source; those allowed-value sets are recorded as unverified under [Open questions](#open-questions), not guessed.
+> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.13.1 now wraps the Python client with four read-only finding tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:183-209`, `:212-283`). There is no Go field column to compare. Several finding fields are declared by attribute name only, with no value enumeration or docstring in source; those allowed-value sets are recorded as unverified under [Open questions](#open-questions), not guessed.
 
 ## Endpoint
 
@@ -71,7 +75,7 @@ Both evidence and scan-output return the **same** model — `CommonFindings` —
 
 ## MCP tool note — argument naming
 
-The MCP finding tools take `org_id=` as the scoping argument (`vendor/zscaler-mcp-server/zscaler_mcp/tools/easm/findings.py:53-56`), matching the SDK signatures. The product SKILL.md examples use `organization_id=` (`vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md:57-69,89,256`); that SKILL.md is illustrative narrative and its argument names do not match the real signatures.
+The registered MCP finding tools expose `org_id` in their Pydantic input schemas, matching the SDK parameter name (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:32-38`, `:41-51`, `:183-191`, `:212-220`, `:242-251`, `:274-283`; SDK signatures at `vendor/zscaler-sdk-python/zscaler/zeasm/findings.py:39`, `:99`, `:149`, `:203`). The product SKILL.md examples use `organization_id`, which does not match the registered MCP input schema (`vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md:57-69`, `:89`, `:256`).
 
 ## Open questions
 

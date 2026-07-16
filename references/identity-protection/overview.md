@@ -3,7 +3,7 @@ product: identity-protection
 topic: overview
 title: "Identity Protection (ITDR) - identity risk and SecOps posture"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
@@ -11,13 +11,14 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/itdr-what-identity-protection.md"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
 author-status: draft
 ---
 
@@ -33,7 +34,7 @@ This is a thin Tier-C reference. The refresh found Identity Protection / ITDR He
 | Python SDK | No Identity Protection / ITDR product service surface found in the audited Python SDK tree. |
 | Terraform | No Identity Protection / ITDR resources or data sources found in the audited ZIA or ZPA providers. |
 | Ansible | No Identity Protection / ITDR modules found in the audited ZIA or ZPA collections. |
-| MCP | No Identity Protection / ITDR tools found in the audited MCP server. |
+| MCP | No Identity Protection / ITDR tools found in the audited MCP server. The MCP ZIdentity family is limited to user/group lookup and membership operations; it is not Identity Protection/ITDR posture or threat detection (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`). |
 | Postman | No Identity Protection / ITDR endpoint family found in the audited OneAPI collection. |
 | Help | Identity Protection is covered by the ITDR Help capture. The capture says it detects anomalous activities and provides continuous unified visibility into identity risks (`vendor/zscaler-help/itdr-what-identity-protection.md:8`). |
 

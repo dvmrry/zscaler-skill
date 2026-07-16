@@ -3,7 +3,7 @@ product: soc-workbench
 topic: "soc-workbench-claims-ledger"
 title: "SOC Workbench claims ledger - Tier 3 thin-stub refresh"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
@@ -12,7 +12,7 @@ verified-against:
   vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: doc
@@ -42,6 +42,6 @@ This ledger covers the Tier 3 thin-stub refresh for SOC Workbench. Rows either c
 | Python SDK has no product-specific SOC Workbench service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no SOC Workbench service found in `vendor/zscaler-sdk-python` during the 2026-06-16 surface sweep. |
 | Terraform has no product-specific SOC Workbench resource or data source in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no SOC Workbench resource/data-source surface found in `vendor/terraform-provider-zia` or `vendor/terraform-provider-zpa` during the 2026-06-16 surface sweep. |
 | Ansible has no product-specific SOC Workbench module in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no SOC Workbench module found in `vendor/ziacloud-ansible` or `vendor/zpacloud-ansible` during the 2026-06-16 surface sweep. |
-| MCP has no product-specific SOC Workbench tool in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no SOC Workbench tool found in `vendor/zscaler-mcp-server` during the 2026-06-16 surface sweep. |
+| MCP has no product-specific SOC Workbench tool in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no SOC Workbench tool found in `vendor/zscaler-mcp-server` during the 2026-07-16 MCP re-check. |
 | Postman has no SOC Workbench endpoint family in the audited OneAPI collection. | `overview.md` | AUDIT-SCOPED ABSENCE: no SOC Workbench endpoint family found in `vendor/zscaler-api-specs/oneapi-postman-collection.json` during the 2026-06-16 surface sweep. |
 | SOC Workbench report-export endpoint, schema, authentication scope, and response shape remain unresolved. | `overview.md`, `clarifications.md` | `OPEN QUESTION -> references/_meta/clarifications.md#soc-workbench-01-soc-workbench-report-export-api-details` |

@@ -3,7 +3,9 @@ product: zia
 topic: zia-iot-report
 title: "ZIA IoT Report — device visibility, classification, policy"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-16"
+verified-against:
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: medium
 source-tier: doc
 sources:
@@ -22,7 +24,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zins/iot.py"
   - "vendor/zscaler-sdk-python/zscaler/zins/models/inputs.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/iotreport/iotreport.go"
-  - "vendor/zscaler-mcp-server/zscaler_mcp/tools/zins/iot.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/iot.py"
 author-status: draft
 ---
 
@@ -262,7 +264,7 @@ if err is None:
 zins_get_iot_device_stats(limit=100)
 ```
 
-Returns counts and classification entries. Requires the `zins` service to be enabled; requires OneAPI credentials with the `Zscaler Insights Reader` role.
+MCP v0.13.1 accepts only `limit` (1–1000) and returns total/IoT/user/server/unclassified counts plus per-classification entries (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/iot.py:30-41,49-64`). The tool is registered against the `zins` service and calls `client.zins.iot.get_device_stats(limit=...)` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/iot.py:95-120`). The separate credential requirement remains grounded in the Analytics API guide: OneAPI credentials use the `Zscaler Insights Reader` role (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:27`).
 
 ---
 

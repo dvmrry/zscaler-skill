@@ -3,15 +3,15 @@ product: zbi
 topic: "zbi-api"
 title: "ZBI API — split Zero Trust Browser / CBI surface and Business Insights namespace caveat"
 content-type: reference
-last-verified: "2026-06-29"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
   vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
-  vendor/zscaler-mcp-server: a2162c384e1ffb68b3bf14783ea9a1a762c85ff5
+  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: code
 sources:
@@ -50,8 +50,8 @@ sources:
   - vendor/zpacloud-ansible/plugins/modules/zpa_isolation_profile_info.py
   - vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule.py
   - vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py
-  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py
-  - vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py
+  - vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py
+  - vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py
   - vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json
   - vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json
   - vendor/zscaler-api-specs/oneapi-postman-collection.json
@@ -522,8 +522,8 @@ Ansible is also present for browser isolation; do not mark it absent:
 
 MCP exposes ZPA isolation profile and policy-rule tooling:
 
-- `get_zpa_isolation_profile` is read-only and lists all CBI profiles or returns an exact-name match by calling `client.zpa.cbi_profile.list_cbi_profiles()` (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_isolation_profile.py:8-19`, `:36-53`).
-- `access_isolation_rules` can list/get/create/update/delete ZPA isolation policy rules. Create requires `zpn_isolation_profile_id` when the action is isolate (`vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/access_isolation_rules.py:18-47`, `:83-108`, `:119-133`, `:136-186`, `:189-210`).
+- `get_zpa_isolation_profile` is read-only and returns a curated list of CBI profiles, optionally narrowed by an exact-name filter; even an exact-name lookup retains the list return shape (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py:20-48`).
+- The isolation-policy tools can list, get, create, update, and delete ZPA isolation policy rules. The create tool rejects `action_type="isolate"` when `zpn_isolation_profile_id` is absent; that validation is specific to create rather than a blanket invariant asserted for every operation (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py:66-89`, `:92-122`, `:125-150`, `:153-163`).
 
 ### Postman / API specs
 

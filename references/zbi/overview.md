@@ -3,12 +3,12 @@ product: zbi
 topic: "zbi-overview"
 title: "ZBI overview — architecture, traffic flow, rendering modes"
 content-type: reasoning
-last-verified: "2026-06-16"
+last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
   vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
   vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
 confidence: high
 source-tier: mixed
 sources:
