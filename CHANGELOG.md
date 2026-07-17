@@ -4,6 +4,18 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.14.0](https://github.com/dvmrry/zscaler-skill/compare/v0.13.22...v0.14.0) (2026-07-17)
+
+
+### Features
+
+* **release:** prepare post-0.13.22 feature train ([#222](https://github.com/dvmrry/zscaler-skill/issues/222)) ([d452076](https://github.com/dvmrry/zscaler-skill/commit/d4520769933ed1f3024b03aa72f9c59bb54dfa05))
+
+
+### Documentation
+
+* add AI Guard endpoint issue context ([#212](https://github.com/dvmrry/zscaler-skill/issues/212)) ([bca135e](https://github.com/dvmrry/zscaler-skill/commit/bca135e45c3df8bae5a45b3d93eaf11634e48182))
+
 ## [0.13.22](https://github.com/dvmrry/zscaler-skill/compare/v0.13.21...v0.13.22) (2026-07-09)
 
 ### Bug Fixes
