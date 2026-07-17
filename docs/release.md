@@ -41,11 +41,18 @@ commit type and a `Release-As:` footer. Do not edit release tags by hand for
 this case; let Release Please generate the release PR, changelog, and tag from
 the marker.
 
+Before releasing a batch, compare the latest version tag with `main` and verify
+that every user-visible merge in the range is represented by a releasable
+commit or a retroactive marker. Review the generated changelog against that
+full compare range; commits omitted from Release Please's notes are still part
+of the tagged repository state.
+
 ## Release Flow
 
 1. Merge normal PRs to `main`.
-2. Dispatch `release-please.yml` when a release is desired. Release Please
-   opens or updates a release PR when releasable commits exist.
+2. Release Please opens or updates a release PR when releasable commits land on
+   `main`. Use the manual `release-please.yml` dispatch only for recovery or an
+   explicit refresh.
 3. Review the generated `VERSION`, `CHANGELOG.md`, manifest,
    `pyproject.toml`, and `uv.lock` changes.
 4. Merge the release PR after required checks pass.
