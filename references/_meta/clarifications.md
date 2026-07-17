@@ -2640,6 +2640,28 @@ ZIA audit logs include a Trace ID column, but this pass did not find source conf
 
 ---
 
+### shared-38 — ZIA VPN preSharedKey live GET population
+
+*Origin: `references/shared/secret-bearing-api-surfaces.md` § Edge cases*
+
+Static sources disagree on whether ZIA `GET /vpnCredentials[/{id}]` returns the `preSharedKey`. The Automate contract lists `preSharedKey` in the 200 `response_schema` as a non-readonly string for both the list and by-id ops (`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json` vpnCredentials GET; `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json` ops `traffic-forwarding/get-vpn-credential[s]`), and the Go SDK struct carries `PreSharedKey` with **no** "not returned on GET" comment (`vendor/zscaler-sdk-go/zscaler/zia/services/trafficforwarding/vpncredentials/vpncredentials.go:37`) — contrast the ZIA admin `Password` field, which is explicitly annotated as absent on GET. Yet the Terraform provider treats the PSK as write-only: the resource Read never sets it (`vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_vpn_credentials.go:192-198`) and the data source comments the read-back out (`vendor/terraform-provider-zia/zia/data_source_zia_traffic_forwarding_vpn_credentials.go:135`). The read contract advertises the field (Tier A on field metadata); whether a live tenant returns a populated value — and thus whether the PSK is retrievable or effectively withheld — is unverified.
+
+**Status**: open
+**Resolves with**: live ZIA read of a UFQDN/IP VPN credential, observing whether the GET body carries a non-empty `preSharedKey`
+
+---
+
+### shared-39 — ZPA shared-model secret fields live GET population
+
+*Origin: `references/shared/secret-bearing-api-surfaces.md` § Reveals (contract-documented, live population unverified)*
+
+Several ZPA resources reuse one Go struct for Create requests and Get responses, so a secret field's presence on the model does not prove the GET echoes it: ZPA `/apiKeys` `clientSecret` (`vendor/zscaler-sdk-go/zscaler/zpa/services/api_keys/api_keys.go:20` — and **no** Automate contract op was found for this endpoint to confirm the response schema); PRA credential `password`/`passphrase`/`privateKey` (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go:36,39,42`; contract `GET /credential/{id}` lists them at `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json` op `privileged-credential-management/get-credential`); and enrollment-cert `privateKey` alongside a `privateKeyPresent` boolean and encrypted blobs (`vendor/zscaler-sdk-go/zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go:35-41`; contract `GET /enrollmentCert/{id}`). The `privateKeyPresent` boolean in particular suggests the GET may return the flag instead of the raw key for Zscaler-held keys. Whether any of these three surfaces returns a populated (or masked) secret on a live read is unverified. Contrast ZPA provisioning keys, where the Terraform provider's Read demonstrably stores `resp.ProvisioningKey` — a consumer-confirmed cleartext read.
+
+**Status**: open
+**Resolves with**: live ZPA reads of an api-key, a PRA credential, and an enrollment cert with a private key present, observing whether each secret field is populated, masked, or empty on GET
+
+---
+
 ### zcc-08 — ZCC 429 response body shape
 
 *Origin: `references/zcc/api-rate-limits.md` § Open questions*
