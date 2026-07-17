@@ -144,7 +144,7 @@ The credential carries the `pre_shared_key` (PSK) for IKEv1/IKEv2 PSK-based auth
 Key SDK constraints (sourced from `traffic_vpn_credentials.py` and TF resource):
 - `type` and `fqdn`/`ip_address` are **immutable after creation** — changing either requires deleting and recreating the credential.
 - Bulk-delete endpoint caps at 100 credential IDs per call.
-- `pre_shared_key` is write-only (sensitive); not returned on read.
+- `pre_shared_key` is `Sensitive`/`ForceNew` and the Terraform provider treats it as write-only — its Read never sets it and the data source comments the read-back out. **Caveat:** the Automate contract does list `preSharedKey` in the `GET /vpnCredentials` response schema (non-readonly), so "not returned on read" is not settled — whether a live tenant populates it is unverified. See [`../shared/secret-bearing-api-surfaces.md`](../shared/secret-bearing-api-surfaces.md) § Edge cases and [clarification shared-38](../_meta/clarifications.md#shared-38-zia-vpn-presharedkey-live-get-population).
 
 ### IKE / phase details (Tier D — no Zscaler-authored IPsec capture in repo)
 

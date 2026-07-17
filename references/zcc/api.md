@@ -95,6 +95,7 @@ Implication: when a ZIA admin is added, they don't automatically appear in ZCC's
 - **`/edit` takes POST on some endpoints and PUT on others.** `webForwardingProfile/edit` uses POST; `webFailOpenPolicy/edit`, `webTrustedNetwork/edit`, and `web/policy/edit` use PUT. The SDK handles this, but hand-crafted HTTP calls need to match each endpoint's convention.
 - **List responses for `trusted_networks` are wrapped.** `/webTrustedNetwork/listByCompany` returns a body with `trustedNetworkContracts: [...]`, not a bare array.
 - **`/getOtp` is cache-prone.** End-user OTP retrieval (`GET /zcc/papi/public/v1/getOtp?udid={udid}`) can be cached by intermediate proxies / CDNs, returning a stale OTP. Workaround documented by Zscaler: append a dummy random query parameter, e.g. `?udid=...&_=<random>`. The SDK does this internally; hand-crafted HTTP calls need to apply it.
+- **`getOtp` and `getPasswords` vend secrets on GET — scope accordingly.** Both return plaintext device secrets (uninstall/logout/disable passwords and OTPs) by design, so read access to `client.zcc.secrets` is functionally the ability to disable the endpoint agent on any device. Exclude this family from least-privilege read scopes — see [`../shared/secret-bearing-api-surfaces.md`](../shared/secret-bearing-api-surfaces.md).
 
 ## v2 endpoints
 
