@@ -6,15 +6,26 @@ the skill as a whole, not any single script.
 
 ## [0.14.0](https://github.com/dvmrry/zscaler-skill/compare/v0.13.22...v0.14.0) (2026-07-17)
 
-
 ### Features
 
-* **release:** prepare post-0.13.22 feature train ([#222](https://github.com/dvmrry/zscaler-skill/issues/222)) ([d452076](https://github.com/dvmrry/zscaler-skill/commit/d4520769933ed1f3024b03aa72f9c59bb54dfa05))
+- **auditor:** add adversarial diff and release-readiness review ([#215](https://github.com/dvmrry/zscaler-skill/pull/215)) ([a767ee3](https://github.com/dvmrry/zscaler-skill/commit/a767ee30fc21ecda294312c52714e01eaba0da03))
+- **runtime-data:** make overlays downstream-configurable ([#216](https://github.com/dvmrry/zscaler-skill/pull/216)) ([acbaf1d](https://github.com/dvmrry/zscaler-skill/commit/acbaf1d55939f71d71e755accddac57ee95de4c3))
+- **mcp:** integrate v0.13.1 source layout and coverage changes ([#221](https://github.com/dvmrry/zscaler-skill/pull/221)) ([69c14d4](https://github.com/dvmrry/zscaler-skill/commit/69c14d48f522a5791e03c5b14ec88cab461a6865))
 
+### Bug Fixes
+
+- **researcher:** harden vendor refresh and verification gates ([#219](https://github.com/dvmrry/zscaler-skill/pull/219)) ([a93f971](https://github.com/dvmrry/zscaler-skill/commit/a93f97189b176a45e4c0a877b353a7ccf2ebda91))
+- **mcp:** reconcile Pydantic input models against vendor source ([#220](https://github.com/dvmrry/zscaler-skill/pull/220)) ([7f9e0a9](https://github.com/dvmrry/zscaler-skill/commit/7f9e0a9b742bf49d0613207cb3b435dee1a9da61))
 
 ### Documentation
 
-* add AI Guard endpoint issue context ([#212](https://github.com/dvmrry/zscaler-skill/issues/212)) ([bca135e](https://github.com/dvmrry/zscaler-skill/commit/bca135e45c3df8bae5a45b3d93eaf11634e48182))
+- **ai-guard:** add endpoint issue context ([#212](https://github.com/dvmrry/zscaler-skill/pull/212)) ([bca135e](https://github.com/dvmrry/zscaler-skill/commit/bca135e45c3df8bae5a45b3d93eaf11634e48182))
+
+### Maintenance
+
+- **deps:** update pinned Zscaler upstream submodules ([#213](https://github.com/dvmrry/zscaler-skill/pull/213)) ([40f681d](https://github.com/dvmrry/zscaler-skill/commit/40f681d1e1bc57d97b9c69eb584b9c2230e5a215))
+- **ci:** bump `astral-sh/setup-uv` from 8.3.0 to 8.3.2 ([#217](https://github.com/dvmrry/zscaler-skill/pull/217)) ([6cce7e3](https://github.com/dvmrry/zscaler-skill/commit/6cce7e3bbaf5e5150bcf232423dfc52cb3f6698f))
+- **release:** restore automatic release PR preparation and compare-range review ([#222](https://github.com/dvmrry/zscaler-skill/pull/222)) ([d452076](https://github.com/dvmrry/zscaler-skill/commit/d4520769933ed1f3024b03aa72f9c59bb54dfa05))
 
 ## [0.13.22](https://github.com/dvmrry/zscaler-skill/compare/v0.13.21...v0.13.22) (2026-07-09)
 
