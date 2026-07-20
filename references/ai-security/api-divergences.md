@@ -3,16 +3,18 @@ product: ai-security
 topic: "ai-guard-api-divergences"
 title: "AI Guard API and integration divergences"
 content-type: reference
-last-verified: "2026-06-21"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
+  - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py"
@@ -51,7 +53,7 @@ This page records the differences between public Help, the Python SDK, the recon
 
 ## Runtime API surface
 
-The Python SDK README lists **Zscaler AI Guard API** in the OneAPI-supported product list (`vendor/zscaler-sdk-python/README.md:256`, `vendor/zscaler-sdk-python/README.md:269`). The SDK exposes it through the `zguard` property and a narrow `ZGuardService` wrapper: `client.zguard.policy_detection` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:327`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:332`, `vendor/zscaler-sdk-python/zscaler/zaiguard/zaiguard_service.py:21`, `vendor/zscaler-sdk-python/zscaler/zaiguard/zaiguard_service.py:28`).
+The Python SDK README lists **Zscaler AI Guard API** in the OneAPI-supported product list (`vendor/zscaler-sdk-python/README.md:256-273`). The SDK exposes it through the `zguard` property and a narrow `ZGuardService` wrapper: `client.zguard.policy_detection` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:345-350`; `vendor/zscaler-sdk-python/zscaler/zaiguard/zaiguard_service.py:21-33`).
 
 The exposed methods are:
 
@@ -96,11 +98,30 @@ Do not generalize fail-open or fail-closed behavior across integrations:
 
 Source: `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md`; `vendor/zscaler-sdk-go`; `vendor/terraform-provider-zia`; `vendor/terraform-provider-zpa`; `vendor/terraform-provider-ztc`; `vendor/zscaler-mcp-server`; `vendor/zscaler-terraform-skills`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-The reconstructed Automate snapshot now exposes **45 AI Guard operations** across detection policies, detection-policy match rules, LLM applications, LLM providers, and application/provider credential objects (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; examples: detection-policy create `POST /v1/detections/policies` at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:1-14`, match-rule criteria at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:3253-3275`, and LLM application/provider credential surfaces at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:5433-5455` and `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:6470-6475`). This resolves the earlier audit-scoped absence of a documented AI Guard admin-plane API.
+The reconstructed Automate snapshot now exposes **47 AI Guard operations** across detection policies, detection-policy match rules, LLM applications, LLM providers, provider types, and application/provider credential objects (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`; operation inventory in `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json`). This resolves the earlier audit-scoped absence of a documented AI Guard admin-plane API.
+
+Two read-only provider-type discovery operations are new in this capture:
+
+| Method | Path | Contract result |
+|---|---|---|
+| `GET` | `/v1/llm-provider-types` | All supported provider types with server guidance. |
+| `GET` | `/v1/llm-provider-types/{type}` | One provider type selected by a constrained `type` path parameter. |
+
+The single-type operation constrains `type` to 23 captured identifiers, from `openai`, `anthropic`, and `azure` through Bedrock, Gemini, Copilot, MaxAI, OpenCode, Perplexity, Vertex, and `xai` variants (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7486-7533`). Its response returns `type`, `name`, `description`, and public/private `servers` guidance. Each deployment-mode entry says whether servers are accepted, which map key to use, and any fixed allowed values (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7538-7703`). Use these discovery operations before constructing an LLM provider rather than hard-coding a provider-to-server map.
+
+Do not conflate that contract with the newly captured **AI Security Public API**, which is a separate 11-operation read-only inventory/findings surface for data stores, identities, MCP servers/tools, workloads, and issues. See [`./asset-management-api.md`](./asset-management-api.md).
 
 That does **not** mean the client surfaces are caught up. The same pass still found no matching Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected client/source classes. Treat the Automate contract as the documented method/path/field surface, and treat client absence as a wrapper-coverage gap until a client source adds those operations. See [clarification ai-security-04](../_meta/clarifications.md#ai-security-04-ai-guard-admin-plane-programmability).
 
-One caveat remains on the reconstructed paths: the structural validation report flags eight AI Guard action paths with adjacent path-template fragments such as `/v1/detections/policies/{id}{disable}` and `/v1/llm-application-credentials/{id}{regenerate}` (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:23`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:29-36`). Those paths come from the embedded Docusaurus API object, but the colon/subpath form the live gateway accepts is not confirmed by static sources. Track that under [clarification ai-security-05](../_meta/clarifications.md#ai-security-05-ai-guard-adjacent-action-path-template-encoding).
+The July 20 capture resolves the earlier adjacent-template encoding defect in the published contract. Enable/disable are now `/v1/detections/policies/{id}/enable` and `/v1/detections/policies/{id}/disable`, referential checks use `/{id}/referential-check`, and credential rotation uses `/{id}/regenerate` (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`, `:1469-1481`, `:4021-4033`). Structural validation now reports zero AI Guard path issues (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`). The previous `ai-security-05` clarification is closed for the documented Automate contract; live authorization and tenant acceptance remain separate concerns.
+
+The same capture changed the enable/disable response from the prior full-policy shape to a `PolicyControlUpdateResult`: `enabled`, affected `matchRules[]` (`id`, `name`, `enabled`), `policyId`, and `updatedCount` (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:505-592`). This is documented-contract drift, not proof that older live tenants reject the previous response shape.
+
+The current LLM Application create/update/read schemas also omit `defaultPolicyId` and `applicationSettings.customerManagedKey.{kmsKeyId,kmsProviderType}`, which were present in the prior captured contract (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:135-148`). Treat this as published-schema drift only. It does not prove that the backend removed the fields, that existing stored values were deleted, or that tenant-level customer-managed-key configuration was removed.
+
+## Help provider labels vs Automate provider types
+
+The 2026 Help chronology names supported applications/providers that do not all appear in the 23-value Automate `type` enum. Examples include GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`; Automate enum at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). These may represent User-mode application labels, built-in providers that are not customer-created admin objects, or documentation/API timing differences. Static sources do not establish a one-to-one mapping; track the boundary under [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 
 ## Cross-links
 

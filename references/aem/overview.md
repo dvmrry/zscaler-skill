@@ -3,14 +3,14 @@ product: aem
 topic: overview
 title: "Asset Exposure Management (AEM) - asset inventory and attack surface tracking"
 content-type: reference
-last-verified: "2026-07-16"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
-  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
-  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
   vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6

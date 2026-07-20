@@ -3,9 +3,9 @@ product: zdx
 topic: "zdx-diagnostics-and-alerts"
 title: "ZDX Diagnostics Sessions (deeptraces) and Alerts"
 content-type: reasoning
-last-verified: "2026-07-16"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: mixed

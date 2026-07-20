@@ -3,9 +3,9 @@ product: shared
 topic: "activation-lifecycle"
 title: "Activation gates — ZIA + CBC have them, others don't"
 content-type: reference
-last-verified: "2026-07-16"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: 8d054b1fdd18bcb29722b7051dc282c0d1c86be6
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: doc

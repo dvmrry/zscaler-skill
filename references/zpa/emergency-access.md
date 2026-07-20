@@ -3,10 +3,10 @@ product: zpa
 topic: "emergency-access"
 title: "ZPA Emergency Access — time-bounded out-of-band access via Okta"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
 confidence: high
 source-tier: doc
 sources:

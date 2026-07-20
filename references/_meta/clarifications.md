@@ -96,12 +96,12 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-07-16:
-20 entries are resolved or clarified, 28 are partially resolved, and the current
+Skim this before reading the full entries. Summary refreshed 2026-07-20:
+21 entries are resolved or clarified, 28 are partially resolved, and the current
 refresh queue has expanded the open register with `zia-50`–`zia-70`,
 `zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-44`,
 `zid-01`–`zid-36`, `cloud-connector-01`–`cloud-connector-26`,
-`ai-security-01`–`ai-security-05`, `zbi-01`–`zbi-06`,
+`ai-security-01`–`ai-security-04`, `ai-security-06`–`ai-security-07`, `zbi-01`–`zbi-06`,
 `zwa-01`–`zwa-05`, Tier-C insights entries `business-insights-01`,
 `soc-workbench-01`, and `unified-01`, Tier-C risk entries
 `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, and
@@ -126,6 +126,14 @@ absent). It also opened static-evidence caveats for adjacent action-path
 encoding (`ai-security-05`, `zid-36`), ZCloudConnector default-response success
 schema handling (`cloud-connector-25`), and ZDX snapshot base-path encoding
 (`zdx-44`).
+
+The 2026-07-20 Automate refresh closed `ai-security-05`: the published AI Guard
+contract now uses slash-delimited action subpaths and passes structural path
+validation. It also narrowed `zid-36`: the malformed adjacent templates are now
+slash-delimited and structurally valid, but they still differ from Postman's
+colon-suffix action routes. The same pass opened `ai-security-07` because Help's
+User-mode and application provider labels do not map one-to-one to the
+admin-plane provider type enum in the captured static sources.
 
 The 2026-07-08 upstream-issue sweep opened `cloud-connector-26` for Cloud
 Connector traffic-forwarding rule labels: static sources show a contract field
@@ -185,7 +193,7 @@ violation-response shape, SIM-pagination routing, and audit-request contract.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-70`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-44`, `zid-01`–`zid-36`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-26`, `ai-security-01`–`ai-security-03`, `ai-security-05`–`ai-security-06`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`–`zero-trust-branch-02`, `zscaler-cellular-02`–`zscaler-cellular-04`.
+`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-70`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-44`, `zid-01`–`zid-36`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-26`, `ai-security-01`–`ai-security-03`, `ai-security-06`–`ai-security-07`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`–`zero-trust-branch-02`, `zscaler-cellular-02`–`zscaler-cellular-04`.
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -5842,7 +5850,7 @@ The authoritative full permission matrix (25+ modules × 4 levels) is explicitly
 
 *Origin: `references/zidentity/users.md` § Postman collection endpoints*
 
-The ZIdentity user action operations are corroborated across surfaces, but their URL spelling differs by source. The Postman surface uses colon-suffix verbs such as `/users/:id:resetpassword`, `/users/:id:setskipmfa`, and `/users/:id:updatepassword`, while the reconstructed Automate snapshot encodes the same actions as adjacent path templates `/users/{id}{resetpassword}`, `/users/{id}{setskipmfa}`, and `/users/{id}{updatepassword}` (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5420-5421`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5532-5533`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5946-5947`). The snapshot validation flags those adjacent templates for review (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:163-165`). Treat action existence as corroborated, but the exact live URL spelling remains open.
+The ZIdentity user action operations are corroborated across surfaces, but their URL spelling differs by source. The Postman surface uses colon-suffix verbs such as `/users/:id:resetpassword`, `/users/:id:setskipmfa`, and `/users/:id:updatepassword`, while the refreshed Automate snapshot uses slash-delimited paths `/users/{id}/resetpassword`, `/users/{id}/setskipmfa`, and `/users/{id}/updatepassword` (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `:5525`, `:5931`). This closes the earlier malformed adjacent-template concern, and the refreshed contract passes structural path validation (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:14`). Treat action existence as corroborated, but the exact slash-vs-colon live URL spelling remains open.
 
 **Status**: open
 **Resolves with**: live API trace OR vendor OpenAPI/spec clarification for ZIdentity action-route encoding
@@ -5886,21 +5894,10 @@ The public Help article gives a 15-item capability list (`vendor/zscaler-help/ai
 
 *Origin: `references/ai-security/api-divergences.md` § Automate admin-plane contract vs client surfaces*
 
-The 2026-06-16 refresh found Python SDK runtime policy detection and public DaaS integration examples, but no broad AI Guard admin-plane client wrapper, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected source classes. The 2026-06-21 Docusaurus-blob snapshot narrows that: the reconstructed Automate contract now exposes 45 AI Guard operations across detection policies, detection-policy match rules, LLM applications, LLM providers, and application/provider credentials (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; example policy create at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:1-14`). What remains open is client-wrapper availability: no captured Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure wraps that admin-plane contract yet.
+The 2026-06-16 refresh found Python SDK runtime policy detection and public DaaS integration examples, but no broad AI Guard admin-plane client wrapper, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected source classes. The 2026-07-20 Docusaurus-blob snapshot narrows that: the reconstructed Automate contract now exposes 47 AI Guard operations across detection policies, detection-policy match rules, LLM applications, LLM providers, provider types, and application/provider credentials (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`; provider-type discovery at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7486-7903`). What remains open is client-wrapper availability: no captured Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure wraps that admin-plane contract yet.
 
-**Status**: partially resolved — last updated 2026-06-21
+**Status**: partially resolved — last updated 2026-07-20
 **Resolves with**: SDK/provider/MCP/Postman source exposing AI Guard admin-plane operations, or vendor confirmation of wrapper roadmap / intended raw-API-only status
-
----
-
-### ai-security-05 — AI Guard adjacent action-path template encoding
-
-*Origin: `references/ai-security/api-divergences.md` § Automate admin-plane contract vs client surfaces*
-
-The reconstructed AI Guard contract includes eight adjacent path-template action routes, including `/v1/detections/policies/{id}{disable}`, `/v1/detections/policies/{id}{enable}`, `/v1/detections/policies/{id}{referential}-check`, and `/v1/llm-application-credentials/{id}{regenerate}`; the structural validation report flags them as `adjacent_path_templates` (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:23`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:29-36`). The normalized operation files preserve the same paths and parameter names, for example `disable` and `enable` are parsed as separate path parameters (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:488-500`, `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:738-750`). Static sources do not confirm whether the live API expects colon-suffix verbs, subresource paths, or the adjacent template spelling exactly as embedded.
-
-**Status**: open
-**Resolves with**: live API trace OR vendor OpenAPI/spec clarification for AI Guard action-route encoding
 
 ---
 
@@ -5912,6 +5909,17 @@ The captured DAS Help page uses the global host `https://api.zseclipse.net` for 
 
 **Status**: open
 **Resolves with**: live API trace across global/regional hosts OR vendor documentation / SDK update that states the preferred AI Guard DAS endpoint host
+
+---
+
+### ai-security-07 — Help provider labels vs Automate provider types
+
+*Origin: `references/ai-security/api-divergences.md` § Help provider labels vs Automate provider types*
+
+The current Automate admin-plane provider-type discovery contract exposes 23 identifiers (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). The 2026 Help chronology separately names User-mode or application support for GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io, none of which appears under those exact identifiers in the captured enum (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`). Static sources do not establish whether those labels are built-in/non-creatable providers, application-level aliases, or contract/Help timing drift.
+
+**Status**: open
+**Resolves with**: current provider-management Help article body, tenant provider-type discovery response, or vendor mapping between User-mode application labels and admin-plane provider types
 
 ---
 
@@ -6189,7 +6197,7 @@ MCP v0.13.1's generated tool catalog labels the `ztw` family "Workload Segmentat
 
 *Origin: `references/zscaler-cellular/overview.md` § Open questions*
 
-The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The captured Automate contract exposes 36 ZCell operations, the Python SDK exposes `client.zcell` as a OneAPI-only service, and MCP v0.13.1 includes 20 read-only tools across nine toolsets (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:28`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`). MCP still guesses the live token's canonical Cellular `prd` claim from three variants (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
+The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The captured Automate contract exposes 36 ZCell operations, the Python SDK exposes `client.zcell` as a OneAPI-only service, and MCP v0.13.1 includes 20 read-only tools across nine toolsets (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`). MCP still guesses the live token's canonical Cellular `prd` claim from three variants (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
 
 **Status**: partially resolved — last updated 2026-07-16
 **Resolves with**: tenant-side API capture, vendor entitlement documentation, or vendor documentation mapping Cellular IP/IMEI/IMSI identifiers to ZIA/ZPA policy objects

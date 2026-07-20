@@ -25,6 +25,11 @@ semantics.
      `sheets/automate-fields.json` and `sheets/automate-operations.json`
    - old-vs-new comparison:
      `compare-summary.{json,md}`
+     The comparison includes a **Contract Change Radar** that pairs route-key
+     renames by method/path, identifies true operation additions/removals,
+     separates route corrections, and reports per-operation field additions,
+     removals, and material metadata changes for request/response schemas.
+     Schema-class title and description churn is intentionally excluded.
 2. **Publish OpenAPI** (`build_openapi_from_blobs.py`, Python stdlib) — converts
    the decoded blobs into product-scoped OpenAPI-compatible specs while preserving
    `x-zscaler-*` provenance extensions:
@@ -37,7 +42,9 @@ semantics.
    - `vendor/zscaler-api-specs/automate-zscaler/<product>-divergences.json`
    - `vendor/zscaler-api-specs/automate-zscaler/<product>-divergences.md`
 4. **Synthesize** (`rosetta.py`, Python stdlib) — builds the cross-surface table
-   and issue-routing worklist:
+   and issue-routing worklist, and carries the latest contract-change radar into
+   the Rosetta Stone so contract-only products are visible beyond an operation
+   count:
    - `vendor/zscaler-api-specs/automate-zscaler/rosetta.{json,md}`
    - `vendor/zscaler-api-specs/automate-zscaler/issue-routing.{json,md}`
 

@@ -3,7 +3,7 @@ product: shared
 topic: "shared-policy-evaluation"
 title: "Zscaler policy evaluation — shared mental model"
 content-type: reasoning
-last-verified: "2026-04-23"
+last-verified: "2026-07-20"
 confidence: medium
 source-tier: doc
 sources:
@@ -18,6 +18,7 @@ sources:
   - "https://help.zscaler.com/zpa/configuring-defined-application-segments"
   - "vendor/zscaler-help/Configuring_Defined_Application_Segments.txt"
   - "https://help.zscaler.com/zpa/about-policies"
+  - "https://help.zscaler.com/zpa/configuring-consoles-policies"
   - "vendor/zscaler-help/About_Policies.txt"
   - "https://help.zscaler.com/zpa/configuring-access-policies"
   - "vendor/zscaler-help/Configuring_Access_Policies.txt"
@@ -133,7 +134,7 @@ Per *About Policies* p.1, ZPA applies the following policy types, each with its 
 | **Client Forwarding Policy** | Forward to Private Access (implicit) | *About Policies* p.3 |
 | **Isolation Policy** | Default isolation policy rule applies | *About Policies* p.3 |
 | **Privileged Credentials Policy** (PRA) | (not specified) | *About Policies* p.2 |
-| **Privileged Capabilities Policy** (PRA) | (not specified) | *About Policies* p.2 |
+| **Consoles Policy** (PRA; called Privileged Capabilities Policy in the captured *About Policies*) | (not specified) | *About Policies* p.2; current Consoles Policy Help |
 | **Timeout Policy** | Default timeout policy rule applies | *About Policies* p.3 |
 | **Redirection Policy** | (not specified) | *About Policies* p.2 |
 

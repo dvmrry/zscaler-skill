@@ -3,16 +3,18 @@ product: ai-guard
 topic: overview
 title: "AI Guard — runtime protection and policy enforcement for AI/LLM applications"
 content-type: reference
-last-verified: "2026-06-16"
+last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
   - "vendor/zscaler-help/ai-guard-help-index.md"
+  - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
@@ -34,6 +36,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zguard-ai-integrations/README.md"
   - "vendor/zguard-ai-integrations/github-actions/README.md"
   - "vendor/zguard-ai-integrations/github-actions/config/test-prompts.yaml"
@@ -53,7 +57,7 @@ author-status: draft
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
 
-As of the 2026-05-22 capture, this repository has captured and mapped every article visible in the public **AI Guard Help** category tree, plus the AI Guard policy-detection surface in the vendored Python SDK and the public `zscaler/zguard-ai-integrations` examples. In repo language, AI Guard is now **documented and certified for the discoverable public Help, SDK, and integration surfaces**.
+The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with the Python policy-detection SDK and public `zscaler/zguard-ai-integrations` examples. The current 2026-07-20 portal has moved to a 24-article **AI Guard for Users** tree; its index and release chronology are captured, but newly listed article bodies are not yet fully mined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Treat current Help coverage as indexed and partial rather than fully certified.
 
 This certification does not assert private roadmap features, tenant-specific entitlements, commercial packaging, unpublished admin APIs, or portal behavior not present in the captured public sources. Those remain explicit open questions rather than hidden assumptions.
 
@@ -200,7 +204,12 @@ AI Guard has an API surface:
 - **Proxy-mode provider API pathing**: Applications send provider-shaped requests to `https://proxy.zseclipse.net` using provider-specific paths such as `/v1/messages`, `/v1/chat/completions`, Bedrock model paths, Gemini `generateContent`, and Vertex paths.
 - **DaaS policy detection API**: The captured DAS Help page uses the global host `https://api.zseclipse.net` for both `POST /v1/detection/execute-policy` and `POST /v1/detection/resolve-and-execute-policy` (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:50`, `:100`, `:158`). Some SDK and integration examples still construct regional hosts such as `https://api.us1.zseclipse.net` or `https://api.{cloud}.zseclipse.net`; treat host selection as an open source divergence rather than proof that either spelling is universally accepted.
 - **Python SDK**: `zscaler.zaiguard.policy_detection.PolicyDetectionAPI` exposes `execute_policy(content, direction, policy_id=None, transaction_id=None)` and `resolve_and_execute_policy(content, direction, transaction_id=None)`. The legacy AI Guard client still defaults to `AIGUARD_CLOUD=us1`, constructs `https://api.<cloud>.zseclipse.net`, and allows `AIGUARD_OVERRIDE_URL` for an explicit host (`vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py:58`, `:75`, `:78`, `:81`).
-- **Admin/config APIs**: The reconstructed Automate snapshot exposes a documented admin-plane contract for detection policies, policy match rules, LLM applications, LLM providers, and credentials; no Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper is captured for that contract (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`).
+- **Admin/config APIs**: The reconstructed Automate snapshot exposes a documented admin-plane contract for detection policies, policy match rules, LLM applications, LLM providers, and credentials; no Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper is captured for that contract (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`).
+- **Provider-type discovery**: `GET /v1/llm-provider-types` and `GET /v1/llm-provider-types/{type}` return the supported admin-plane provider identifiers plus public/private server-key and allowed-value guidance (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7486-7703`, `:7720-7903`).
+
+The 2026 Help chronology adds an important second vocabulary layer: User-mode and application support includes labels such as GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io that are not all present in the admin-plane `type` enum (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`). Do not assume that Help application/provider labels map one-to-one to customer-creatable LLM provider types; see [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
+
+Current release-backed additions also include tenant restriction, Microsoft 365 Copilot streaming inspection, encrypted prompt allowlisting, custom RBAC, ADX/Splunk export, Codex request/response blocking, and default-provider auto-provisioning (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:9-45`). These are dated Help claims; tenant entitlement and rollout state still require tenant-side confirmation.
 
 Direction values are documented in the SDK and most integration examples as `IN` and `OUT`. The DAS/API Help page examples use `request` and `response` strings instead; accepted alias behavior is unresolved by static sources, so SDK callers should use `IN`/`OUT` and track the divergence in [`./api-divergences.md`](./api-divergences.md#direction-value-divergence) and [clarification ai-security-01](../_meta/clarifications.md#ai-security-01-ai-guard-direction-literal-aliases). Conceptually, `IN` covers user prompts, tool input, command arguments, or file content before the AI application consumes it; `OUT` covers model responses, tool output, URL checks, or response content before it is returned downstream.
 

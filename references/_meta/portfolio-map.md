@@ -3,7 +3,7 @@ product: shared
 topic: "portfolio-map"
 title: "Zscaler product portfolio map"
 content-type: reference
-last-verified: "2026-06-14"
+last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 sources:
@@ -14,6 +14,10 @@ sources:
   - "vendor/zscaler-help/security-operations-suite-marketing.md"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
+  - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
+  - "vendor/zscaler-help/zscaler-cellular-help-index.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
   - "vendor/zguard-ai-integrations/README.md"
 author-status: draft
 ---
@@ -88,10 +92,10 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 |---|---|---|---|
 | **ZBI — Cloud Browser Isolation** | Remote-browser rendering for risky / unmanaged-device scenarios. Isolation profiles, Smart Browser Isolation, ZPA Isolation Policy. Marketed as "Zero Trust Browser." | [`zbi/index.md`](../zbi/index.md) | Python `zscaler/zia/cloud_browser_isolation.py` + Go `zscaler/zpa/services/cloudbrowserisolation/*` |
 | **ZWA — Workflow Automation** | DLP incident lifecycle management. Incident triage, workflows, ticketing/notification integrations. Downstream of ZIA DLP. | [`zwa/index.md`](../zwa/index.md) | Python `zscaler/zwa/` + Go `zscaler/zwa/` |
-| **AI Guard** | Runtime prompt/response policy detection for AI and LLM applications. Broader AI Security family includes AI Guardrails and AI Red Teaming, but only AI Guard policy detection has verified SDK coverage. | [`ai-security/index.md`](../ai-security/index.md) | Python `zscaler/zaiguard/` policy detection: `/detection/execute-policy`, `/detection/resolve-and-execute-policy`. No verified Go SDK, Terraform, or broad admin-configuration API surface. |
+| **AI Guard** | Runtime prompt/response policy detection for AI and LLM applications. The current Help tree also covers User-mode architecture, quick starts, prompt allowlisting, topology, token usage, audit, and troubleshooting, though several article bodies remain uncaptured. | [`ai-security/index.md`](../ai-security/index.md) | Python `zscaler/zaiguard/` policy detection plus a captured 47-operation Automate admin contract. No verified Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper for that admin plane. |
 | **ZMS — Zscaler Microsegmentation** | East-west / workload-to-workload policy via host agents (Win/Linux); AI policy recommendations (14-day rolling telemetry); local OS enforcement (WFP / nftables). Positioned as a ZPA add-on. | [`zms/overview.md`](../zms/overview.md) · [`zms/api.md`](../zms/api.md) | Python `zscaler/zms/` **read-only** GraphQL (`client.zms.*`, `POST /zms/graphql`); no Go SDK, no Terraform. Write config portal-only. |
 | **EASM — External Attack Surface Management** | Outside-in discovery of internet-exposed assets (domains/IPs/services/certs); CISA-KEV + EPSS risk prioritization. Exposure Management suite; distinct from AEM (inside-out CAASM). | [`easm/overview.md`](../easm/overview.md) | Python `zscaler/zeasm/` **read-only** (organizations, findings, lookalike domains); no Go SDK. |
-| **ZCell — Zscaler Cellular** | SIM / Cellular Edge management surface for IoT/OT cellular connectivity: anomaly policies, SIM inventory/actions, SIM analytics, SIM location groups, tags, customer regions, audit, and network-event search. | [`zscaler-cellular/index.md`](../zscaler-cellular/index.md) · [`zscaler-cellular/api.md`](../zscaler-cellular/api.md) | Captured Automate contract with 36 operations plus Python `client.zcell.*`; no Go SDK, Terraform, Ansible, or MCP surface found. |
+| **ZCell — Zscaler Cellular** | SIM / Cellular Edge management surface for IoT/OT cellular connectivity: anomaly policies, SIM inventory/actions, SIM analytics, SIM location groups, tags, customer regions, audit, and network-event search. The current Help index exposes 21 articles; 19 bodies remain uncaptured. | [`zscaler-cellular/index.md`](../zscaler-cellular/index.md) · [`zscaler-cellular/api.md`](../zscaler-cellular/api.md) | Captured 36-operation Automate contract, Python `client.zcell.*`, and 20 read-only MCP tools with three guided prompts; no Go SDK, Terraform, or Ansible surface found. |
 
 ### Marketing-name aliases (Tier 2)
 

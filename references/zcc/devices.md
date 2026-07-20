@@ -3,12 +3,12 @@ product: zcc
 topic: "zcc-devices"
 title: "ZCC devices — inventory, lifecycle, and cleanup"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-go: "fe52adcee3dc10bbad12ea8e9f8e17a4583c655a"
-  vendor/zscaler-sdk-python: "b3c3645fd530b668c463ce5f1331cfcfc7cb4c00"
+  vendor/zscaler-sdk-go: "4371c9bab44d852526721b4b5999e2471dda5198"
+  vendor/zscaler-sdk-python: "a2a814a4dc8b9e79a5f94126d4609cd10573c94d"
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/devices.py"
