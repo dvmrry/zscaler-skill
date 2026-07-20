@@ -210,3 +210,118 @@ def test_flatten_schema_inherits_parent_readonly_and_merges_composed_constraints
     assert fields["merged.state"]["required"] is True
     assert fields["merged.state"]["readonly"] is True
     assert fields["merged.state"]["enum"] == ["ON"]
+
+
+def test_compare_products_surfaces_true_additions_route_corrections_and_body_drift():
+    existing = {
+        "aiguard": {
+            "same-route": {
+                "method": "POST",
+                "path": "/v1/policies/{id}{enable}",
+                "request_body": [],
+                "response_schema": [{"name": "id", "type": "int64", "required": True}],
+            },
+            "old-key": {
+                "method": "GET",
+                "path": "/v1/providers",
+                "request_body": [],
+                "response_schema": [],
+            },
+        }
+    }
+    rebuilt = {
+        "aiguard": {
+            "same-route": {
+                "method": "POST",
+                "path": "/v1/policies/{id}/enable",
+                "request_body": [],
+                "response_schema": [
+                    {"name": "id", "type": "string", "required": True},
+                    {"name": "updatedCount", "type": "int32", "required": True},
+                ],
+            },
+            "new-key": {
+                "method": "GET",
+                "path": "/v1/providers",
+                "request_body": [],
+                "response_schema": [],
+            },
+            "provider-types": {
+                "method": "GET",
+                "path": "/v1/provider-types",
+                "request_body": [],
+                "response_schema": [{"name": "items", "type": "array", "required": True}],
+            },
+        }
+    }
+
+    comparison = extract.compare_products(rebuilt, existing)
+    stats = comparison["products"]["aiguard"]
+
+    assert stats["matched_ops"] == 2
+    assert stats["added_operations"] == 1
+    assert stats["removed_operations"] == 0
+    assert stats["route_changed_operations"] == 1
+    assert stats["route_key_changed_operations"] == 1
+    assert stats["schema_changed_operations"] == 1
+    assert stats["response_schema_fields_added"] == 1
+    assert stats["response_schema_fields_changed"] == 1
+
+    additions = [item for item in comparison["operation_deltas"] if item["kind"] == "added"]
+    assert [(item["new_method"], item["new_path"]) for item in additions] == [
+        ("GET", "/v1/provider-types")
+    ]
+    assert extract.change_radar_console_lines(comparison) == [
+        "aiguard: ops +1 -0; routes Δ1; route-keys Δ1; schemas Δ1; "
+        "request fields +0 -0 Δ0; response fields +1 -0 Δ1"
+    ]
+    renamed = [
+        item for item in comparison["operation_deltas"]
+        if item.get("old_operation") == "old-key"
+    ][0]
+    assert renamed["change_types"] == ["route-key"]
+
+
+def test_schema_section_delta_reports_constraint_changes():
+    delta = extract.schema_section_delta(
+        [{"name": "mode", "type": "string", "required": False, "enum": ["A"]}],
+        [{"name": "mode", "type": "string", "required": True, "enum": ["A", "B"]}],
+    )
+
+    assert delta["added"] == []
+    assert delta["removed"] == []
+    assert delta["changed"] == [{
+        "field": "mode",
+        "changes": {
+            "required": {"old": False, "new": True},
+            "enum": {"old": ["A"], "new": ["A", "B"]},
+        },
+    }]
+
+
+def test_operation_delta_ignores_schema_class_name_churn():
+    existing = {
+        "op": {
+            "method": "POST",
+            "path": "/v1/items",
+            "request_body": [{"name": "name", "type": "string"}],
+            "response_schema": [{"name": "id", "type": "string"}],
+            "request_root": {"type": "object", "title": "PublicItem"},
+            "response_roots": [{"status": "201", "type": "object", "title": "PublicItem"}],
+        }
+    }
+    rebuilt = {
+        "op": {
+            "method": "POST",
+            "path": "/v1/items",
+            "request_body": [{"name": "name", "type": "string"}],
+            "response_schema": [{"name": "id", "type": "string"}],
+            "request_root": {"type": "object", "title": "Item"},
+            "response_roots": [{"status": "201", "type": "object", "title": "Item"}],
+        }
+    }
+
+    delta = extract.operation_delta("aiguard", "route-key", "op", "op", existing, rebuilt)
+
+    assert delta["change_types"] == []
+    assert delta["sections"] == {}

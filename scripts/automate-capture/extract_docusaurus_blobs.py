@@ -588,6 +588,130 @@ def op_signature(product: str, operation: dict[str, object], loose_params: bool 
     )
 
 
+SCHEMA_SECTIONS = ("path_params", "query_params", "request_body", "response_schema")
+FIELD_COMPARE_KEYS = ("type", "required", "readonly", "enum", "response_status")
+
+
+def match_operations(
+    product: str,
+    live: dict[str, dict[str, object]],
+    old: dict[str, dict[str, object]],
+) -> list[tuple[str, str | None, str | None]]:
+    """Pair old/new operations without mistaking route-key churn for API churn."""
+    pairs: list[tuple[str, str | None, str | None]] = []
+    used_live: set[str] = set()
+    used_old: set[str] = set()
+
+    for key in sorted(set(live) & set(old)):
+        pairs.append(("route-key", key, key))
+        used_live.add(key)
+        used_old.add(key)
+
+    def add_signature_matches(strategy: str, *, loose_params: bool = False) -> None:
+        live_by_sig: dict[tuple[str, str], list[str]] = defaultdict(list)
+        old_by_sig: dict[tuple[str, str], list[str]] = defaultdict(list)
+        for key, operation in live.items():
+            if key not in used_live:
+                live_by_sig[op_signature(product, operation, loose_params=loose_params)].append(key)
+        for key, operation in old.items():
+            if key not in used_old:
+                old_by_sig[op_signature(product, operation, loose_params=loose_params)].append(key)
+        for signature in sorted(set(live_by_sig) & set(old_by_sig)):
+            for old_key, live_key in zip(
+                sorted(old_by_sig[signature]), sorted(live_by_sig[signature]), strict=False
+            ):
+                if old_key in used_old or live_key in used_live:
+                    continue
+                pairs.append((strategy, old_key, live_key))
+                used_old.add(old_key)
+                used_live.add(live_key)
+
+    add_signature_matches("method-path")
+    add_signature_matches("loose-method-path", loose_params=True)
+
+    for key in sorted(set(old) - used_old):
+        pairs.append(("old-only", key, None))
+    for key in sorted(set(live) - used_live):
+        pairs.append(("new-only", None, key))
+    return pairs
+
+
+def _field_index(fields: list[dict[str, object]]) -> dict[str, dict[str, object]]:
+    return {
+        str(field["name"]): field
+        for field in fields or []
+        if isinstance(field, dict) and field.get("name")
+    }
+
+
+def schema_section_delta(
+    previous_fields: list[dict[str, object]],
+    current_fields: list[dict[str, object]],
+) -> dict[str, object]:
+    previous = _field_index(previous_fields)
+    current = _field_index(current_fields)
+    changed = []
+    for name in sorted(set(previous) & set(current)):
+        changes = {
+            key: {"old": previous[name].get(key), "new": current[name].get(key)}
+            for key in FIELD_COMPARE_KEYS
+            if previous[name].get(key) != current[name].get(key)
+        }
+        if changes:
+            changed.append({"field": name, "changes": changes})
+    return {
+        "added": sorted(set(current) - set(previous)),
+        "removed": sorted(set(previous) - set(current)),
+        "changed": changed,
+    }
+
+
+def operation_delta(
+    product: str,
+    strategy: str,
+    old_key: str | None,
+    live_key: str | None,
+    old: dict[str, dict[str, object]],
+    live: dict[str, dict[str, object]],
+) -> dict[str, object]:
+    previous = old.get(old_key or "", {})
+    current = live.get(live_key or "", {})
+    record: dict[str, object] = {
+        "product": product,
+        "kind": "added" if old_key is None else "removed" if live_key is None else "matched",
+        "match_strategy": strategy,
+        "old_operation": old_key,
+        "new_operation": live_key,
+        "old_method": previous.get("method"),
+        "new_method": current.get("method"),
+        "old_path": previous.get("path"),
+        "new_path": current.get("path"),
+        "old_source_url": previous.get("source_url"),
+        "new_source_url": current.get("source_url"),
+    }
+    if old_key is None or live_key is None:
+        record["change_types"] = [record["kind"]]
+        record["sections"] = {}
+        return record
+
+    change_types = []
+    if previous.get("method") != current.get("method") or previous.get("path") != current.get("path"):
+        change_types.append("route")
+    if old_key != live_key:
+        change_types.append("route-key")
+
+    sections = {}
+    for section in SCHEMA_SECTIONS:
+        delta = schema_section_delta(previous.get(section) or [], current.get(section) or [])
+        if delta["added"] or delta["removed"] or delta["changed"]:
+            sections[section] = delta
+    if sections:
+        change_types.append("schema")
+    record["change_types"] = change_types
+    record["sections"] = sections
+    return record
+
+
 def compare_products(
     rebuilt: dict[str, dict[str, dict[str, object]]],
     existing: dict[str, dict[str, dict[str, object]]],
@@ -595,12 +719,14 @@ def compare_products(
     products = {}
     totals = Counter()
     examples = []
+    operation_deltas = []
     for product in sorted(set(rebuilt) | set(existing)):
         live = rebuilt.get(product, {})
         old = existing.get(product, {})
         common = sorted(set(live) & set(old))
         live_only = sorted(set(live) - set(old))
         old_only = sorted(set(old) - set(live))
+        pairs = match_operations(product, live, old)
         live_sig = {op_signature(product, operation) for operation in live.values()}
         old_sig = {op_signature(product, operation) for operation in old.values()}
         live_loose_sig = {op_signature(product, operation, loose_params=True) for operation in live.values()}
@@ -618,12 +744,28 @@ def compare_products(
                 "existing_only_path_signatures": len(old_sig - live_sig),
                 "live_only_loose_path_signatures": len(live_loose_sig - old_loose_sig),
                 "existing_only_loose_path_signatures": len(old_loose_sig - live_loose_sig),
+                "matched_ops": sum(1 for _, old_key, live_key in pairs if old_key and live_key),
+                "added_operations": sum(1 for _, old_key, live_key in pairs if old_key is None and live_key),
+                "removed_operations": sum(1 for _, old_key, live_key in pairs if old_key and live_key is None),
             }
         )
-        for op in common:
-            new = live[op]
-            previous = old[op]
-            for section in ("path_params", "query_params", "request_body", "response_schema"):
+        product_deltas = []
+        for strategy, old_key, live_key in pairs:
+            delta = operation_delta(product, strategy, old_key, live_key, old, live)
+            if delta["change_types"]:
+                product_deltas.append(delta)
+                operation_deltas.append(delta)
+            if not old_key or not live_key:
+                continue
+            new = live[live_key]
+            previous = old[old_key]
+            if "route" in delta["change_types"]:
+                summary["route_changed_operations"] += 1
+            if "route-key" in delta["change_types"]:
+                summary["route_key_changed_operations"] += 1
+            if "schema" in delta["change_types"]:
+                summary["schema_changed_operations"] += 1
+            for section in SCHEMA_SECTIONS:
                 old_names = field_names(previous.get(section) or [], top_level=True)
                 new_top = field_names(new.get(section) or [], top_level=True)
                 new_flat = field_names(new.get(section) or [], top_level=False)
@@ -634,6 +776,10 @@ def compare_products(
                 summary[f"blob_{section}_nested_fields"] += len(nested)
                 summary[f"blob_{section}_new_top_vs_existing"] += len(new_top - old_names)
                 summary[f"blob_{section}_missing_top_vs_existing"] += len(old_names - new_top)
+                section_delta = delta.get("sections", {}).get(section, {})
+                summary[f"{section}_fields_added"] += len(section_delta.get("added", []))
+                summary[f"{section}_fields_removed"] += len(section_delta.get("removed", []))
+                summary[f"{section}_fields_changed"] += len(section_delta.get("changed", []))
                 if nested and len(examples) < 30:
                     old_ref_fields = [
                         {
@@ -646,7 +792,7 @@ def compare_products(
                     examples.append(
                         {
                             "product": product,
-                            "operation": op,
+                            "operation": live_key,
                             "section": section,
                             "nested_field_count": len(nested),
                             "sample_nested_fields": sorted(nested)[:20],
@@ -659,12 +805,21 @@ def compare_products(
             "existing_only_sample": old_only[:20],
             "live_only_loose_path_sample": sorted(live_loose_sig - old_loose_sig)[:20],
             "existing_only_loose_path_sample": sorted(old_loose_sig - live_loose_sig)[:20],
+            "added_operation_sample": [
+                {"method": item.get("new_method"), "path": item.get("new_path"), "operation": item.get("new_operation")}
+                for item in product_deltas if item["kind"] == "added"
+            ][:20],
+            "removed_operation_sample": [
+                {"method": item.get("old_method"), "path": item.get("old_path"), "operation": item.get("old_operation")}
+                for item in product_deltas if item["kind"] == "removed"
+            ][:20],
         }
         totals.update(summary)
     return {
         "totals": dict(totals),
         "products": products,
         "nested_examples": examples,
+        "operation_deltas": operation_deltas,
     }
 
 
@@ -804,18 +959,8 @@ def pair_delta_rows(
     for product in sorted(set(rebuilt) | set(existing)):
         live = rebuilt.get(product, {})
         old = existing.get(product, {})
-        used_live: set[str] = set()
-        used_old: set[str] = set()
 
-        def add_row(
-            strategy: str,
-            old_key: str | None,
-            live_key: str | None,
-            *,
-            product: str = product,
-            old: dict[str, dict[str, object]] = old,
-            live: dict[str, dict[str, object]] = live,
-        ) -> None:
+        for strategy, old_key, live_key in match_operations(product, live, old):
             previous = old.get(old_key or "", {})
             current = live.get(live_key or "", {})
             rows.append(
@@ -834,45 +979,6 @@ def pair_delta_rows(
                     "new_source_url": current.get("source_url"),
                 }
             )
-
-        for key in sorted(set(live) & set(old)):
-            add_row("route-key", key, key)
-            used_old.add(key)
-            used_live.add(key)
-
-        def add_signature_matches(
-            strategy: str,
-            loose_params: bool = False,
-            *,
-            product: str = product,
-            old: dict[str, dict[str, object]] = old,
-            live: dict[str, dict[str, object]] = live,
-            used_old: set[str] = used_old,
-            used_live: set[str] = used_live,
-        ) -> None:
-            live_by_sig: dict[tuple[str, str], list[str]] = defaultdict(list)
-            old_by_sig: dict[tuple[str, str], list[str]] = defaultdict(list)
-            for key, op in live.items():
-                if key not in used_live:
-                    live_by_sig[op_signature(product, op, loose_params=loose_params)].append(key)
-            for key, op in old.items():
-                if key not in used_old:
-                    old_by_sig[op_signature(product, op, loose_params=loose_params)].append(key)
-            for signature in sorted(set(live_by_sig) & set(old_by_sig)):
-                for old_key, live_key in zip(sorted(old_by_sig[signature]), sorted(live_by_sig[signature]), strict=False):
-                    if old_key in used_old or live_key in used_live:
-                        continue
-                    add_row(strategy, old_key, live_key)
-                    used_old.add(old_key)
-                    used_live.add(live_key)
-
-        add_signature_matches("method-path")
-        add_signature_matches("loose-method-path", loose_params=True)
-
-        for key in sorted(set(old) - used_old):
-            add_row("old-only", key, None)
-        for key in sorted(set(live) - used_live):
-            add_row("new-only", None, key)
     return rows
 
 
@@ -936,6 +1042,37 @@ DELTA_FIELDNAMES = [
 ]
 
 
+def change_radar_console_lines(comparison: dict[str, object]) -> list[str]:
+    lines = []
+    for product, stats in (comparison.get("products") or {}).items():
+        signal = any(
+            stats.get(key, 0)
+            for key in (
+                "added_operations",
+                "removed_operations",
+                "route_changed_operations",
+                "route_key_changed_operations",
+                "schema_changed_operations",
+            )
+        )
+        if not signal:
+            continue
+        lines.append(
+            f"{product}: ops +{stats.get('added_operations', 0)} "
+            f"-{stats.get('removed_operations', 0)}; "
+            f"routes Δ{stats.get('route_changed_operations', 0)}; "
+            f"route-keys Δ{stats.get('route_key_changed_operations', 0)}; "
+            f"schemas Δ{stats.get('schema_changed_operations', 0)}; "
+            f"request fields +{stats.get('request_body_fields_added', 0)} "
+            f"-{stats.get('request_body_fields_removed', 0)} "
+            f"Δ{stats.get('request_body_fields_changed', 0)}; "
+            f"response fields +{stats.get('response_schema_fields_added', 0)} "
+            f"-{stats.get('response_schema_fields_removed', 0)} "
+            f"Δ{stats.get('response_schema_fields_changed', 0)}"
+        )
+    return lines
+
+
 def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
     compare = report["comparison"]
     products = compare["products"]
@@ -977,6 +1114,91 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
             f"{stats.get('blob_request_body_nested_fields', 0)} | "
             f"{stats.get('blob_response_schema_nested_fields', 0)} |"
         )
+    lines.extend([
+        "",
+        "## Contract Change Radar",
+        "",
+        "Route-key renames are paired by method/path before additions and removals are counted. "
+        "Schema changes compare flattened field names plus type, required, readonly, enum, and response status metadata.",
+        "",
+        "| product | matched | added ops | removed ops | route changes | route-key changes | schema-changed ops | request +/−/Δ | response +/−/Δ |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ])
+    for product, stats in products.items():
+        request_counts = (
+            f"{stats.get('request_body_fields_added', 0)}/"
+            f"{stats.get('request_body_fields_removed', 0)}/"
+            f"{stats.get('request_body_fields_changed', 0)}"
+        )
+        response_counts = (
+            f"{stats.get('response_schema_fields_added', 0)}/"
+            f"{stats.get('response_schema_fields_removed', 0)}/"
+            f"{stats.get('response_schema_fields_changed', 0)}"
+        )
+        lines.append(
+            f"| `{product}` | {stats.get('matched_ops', 0)} | {stats.get('added_operations', 0)} | "
+            f"{stats.get('removed_operations', 0)} | {stats.get('route_changed_operations', 0)} | "
+            f"{stats.get('route_key_changed_operations', 0)} | {stats.get('schema_changed_operations', 0)} | "
+            f"{request_counts} | {response_counts} |"
+        )
+    deltas = compare.get("operation_deltas", [])
+    added = [item for item in deltas if item.get("kind") == "added"]
+    removed = [item for item in deltas if item.get("kind") == "removed"]
+    route_changes = [item for item in deltas if "route" in item.get("change_types", [])]
+    schema_changes = [item for item in deltas if "schema" in item.get("change_types", [])]
+    lines.extend(["", "### Added operations", ""])
+    if added:
+        for item in added:
+            lines.append(
+                f"- `{item['product']}` — `{item.get('new_method')} {item.get('new_path')}` "
+                f"(`{item.get('new_operation')}`)"
+            )
+    else:
+        lines.append("- None.")
+    lines.extend(["", "### Removed operations", ""])
+    if removed:
+        for item in removed:
+            lines.append(
+                f"- `{item['product']}` — `{item.get('old_method')} {item.get('old_path')}` "
+                f"(`{item.get('old_operation')}`)"
+            )
+    else:
+        lines.append("- None.")
+    lines.extend(["", "### Route corrections", ""])
+    if route_changes:
+        for item in route_changes:
+            lines.append(
+                f"- `{item['product']}` / `{item.get('new_operation')}`: "
+                f"`{item.get('old_method')} {item.get('old_path')}` → "
+                f"`{item.get('new_method')} {item.get('new_path')}`"
+            )
+    else:
+        lines.append("- None.")
+    lines.extend(["", "### Schema changes", ""])
+    if schema_changes:
+        for item in schema_changes:
+            section_parts = []
+            for section, delta in item.get("sections", {}).items():
+                section_parts.append(
+                    f"`{section}` +{len(delta.get('added', []))} "
+                    f"−{len(delta.get('removed', []))} Δ{len(delta.get('changed', []))}"
+                )
+            lines.append(
+                f"- `{item['product']}` / `{item.get('new_operation')}` — " + "; ".join(section_parts)
+            )
+            for section, delta in item.get("sections", {}).items():
+                for label, key in (("added", "added"), ("removed", "removed")):
+                    values = delta.get(key, [])
+                    if values:
+                        lines.append(f"  - `{section}` {label}: " + ", ".join(f"`{value}`" for value in values[:20]))
+                changed_fields = [entry.get("field") for entry in delta.get("changed", [])]
+                if changed_fields:
+                    lines.append(
+                        f"  - `{section}` metadata changed: "
+                        + ", ".join(f"`{value}`" for value in changed_fields[:20])
+                    )
+    else:
+        lines.append("- None.")
     lines.extend(["", "## Field Totals", ""])
     for section in ("path_params", "query_params", "request_body", "response_schema"):
         lines.append(f"### `{section}`")
@@ -1152,6 +1374,13 @@ def main() -> int:
     write_table(pair_delta_rows(rebuilt, existing), sheets_dir / "automate-deltas", DELTA_FIELDNAMES)
     print(f"decoded: {report['decoded_ops']}/{len(routes)}")
     print(f"failures: {len(failures)}")
+    radar_lines = change_radar_console_lines(comparison)
+    print("contract change radar:")
+    if radar_lines:
+        for line in radar_lines:
+            print(f"  {line}")
+    else:
+        print("  no operation, route, or schema changes")
     print(f"wrote: {args.out_dir}")
     return 1 if failures else 0
 

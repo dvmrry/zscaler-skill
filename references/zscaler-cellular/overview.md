@@ -18,6 +18,7 @@ confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
+  - "vendor/zscaler-help/zscaler-cellular-help-index.md"
   - "vendor/zscaler-help/zscaler-cellular-marketing.md"
   - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md"
@@ -48,8 +49,8 @@ This began as a thin Tier-C reference, but the current source set now includes a
 | Terraform | No Zscaler Cellular resources or data sources found in the audited ZIA or ZPA providers. |
 | Ansible | No Zscaler Cellular modules found in the audited ZIA or ZPA collections. |
 | MCP | v0.13.1 exposes 20 read-only tools across nine API-aligned toolsets plus three guided prompts (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`; prompt registrations at `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-27`, `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-26`, and `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-27`). |
-| Automate contract | 36 ZCell operations captured across nine families (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:28`; `vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:14`). |
-| Help | Zscaler Cellular is covered by Cellular Help and marketing captures; Help describes two products, Zscaler SIM and Zscaler Cellular Edge (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`). |
+| Automate contract | 36 ZCell operations captured across nine families (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:15`). |
+| Help | The live index exposes 21 articles, while only the What Is and Architecture bodies are captured. The captured body describes Zscaler SIM and Zscaler Cellular Edge; the remaining titles establish a capture backlog, not article semantics (`vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; `vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`). |
 
 ## What it is
 
@@ -73,6 +74,7 @@ MCP covers SIM inventory/detail, analytics, location-group reads, anomaly reads,
 
 - `zscaler-cellular-01`: The contract, Python SDK, and MCP read layer resolve the broad surface question, but tenant entitlement, live backend acceptance, and exact ZIA/ZPA policy-object mapping for IP/IMEI/IMSI identifiers remain open. See [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
 - MCP request/response divergences for anomaly violations, SIM pagination, and audit filters are tracked in [`./api.md`](./api.md#mcp-v0131-divergences-and-test-boundary) and clarifications `zscaler-cellular-02`–`zscaler-cellular-04`.
+- Nineteen current Help article bodies remain uncaptured across setup, deployment/credentials, SIM/eSIM lifecycle, network events, anomaly/geofence operations, and audit logs (`vendor/zscaler-help/zscaler-cellular-help-index.md:12-47`).
 
 ## Cross-links
 

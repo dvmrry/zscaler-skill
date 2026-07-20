@@ -13,6 +13,8 @@ verified-against:
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
   - "vendor/zscaler-help/ai-guard-help-index.md"
+  - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
@@ -43,7 +45,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 Entry point for **Zscaler AI Security** questions — the family of products that secures enterprise AI usage, including AI Guard (runtime guardrails), AI Guardrails (marketing/runtime-guardrails surface for AI Guard; no separate technical Help surface captured), AI Red Teaming (vulnerability assessment for customer LLM apps), AI infrastructure inventory/findings, and the broader four-pillar governance framework.
 
-Confidence is **high for AI Guard runtime detection, deployment shape, and admin-portal operating model** because every article visible in the public AI Guard Help category tree was captured on 2026-05-22, and the Python SDK policy-detection request/response surface is also vendored. The reconstructed Automate snapshot now contains two distinct programmable contracts: 47 AI Guard admin-plane operations and 11 read-only AI Security asset/findings operations (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:8-9`). Confidence remains **medium for the broader AI Security family** because AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and no dedicated SDK, Terraform, Ansible, or MCP wrapper for either captured contract is established.
+Confidence is **high for the captured AI Guard runtime API, Automate admin contract, and legacy May Help material**. The current July portal's 24-article AI Guard for Users tree is indexed and its release chronology is captured, but several newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). The reconstructed Automate snapshot contains two distinct programmable contracts: 47 AI Guard admin-plane operations and 11 read-only AI Security asset/findings operations (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9-10`). Confidence remains **medium for the current Help operating model and broader AI Security family** because the new article bodies, AI Guardrails, and AI Red Teaming are not yet covered to the same depth, and no dedicated SDK, Terraform, Ansible, or MCP wrapper for either captured contract is established.
 
 ## Topics
 
@@ -91,6 +93,8 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 - AI Red Teaming + AI Guard interlock — does Red Teaming output configure Guard rules?
 - Full AI Guard admin-configuration automation client coverage. The reconstructed Automate snapshot documents admin-plane operations, but the captured client wrappers do not yet expose them.
 - Go SDK, Terraform, MCP, Postman, and Automation Hub coverage for AI Guard admin-plane automation remains absent from the captured client/source classes even though the reconstructed Automate contract now exposes the admin-plane API surface. See [API divergences](./api-divergences.md#automate-admin-plane-contract-vs-client-surfaces).
+- Current AI Guard for Users article bodies for architecture, quick starts, prompt allowlisting, best practices, topology, token usage, audit logs, detection summary, and latency.
+- A source-backed mapping between Help's User-mode/application provider labels and the narrower Automate admin-plane provider-type enum. See [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 - Gov-cloud availability (likely deferred until commercial cloud GA stabilizes).
 
 These don't block conceptual answers; they limit operational depth.

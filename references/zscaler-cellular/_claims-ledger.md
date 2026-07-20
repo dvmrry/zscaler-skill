@@ -18,6 +18,7 @@ confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
+  - "vendor/zscaler-help/zscaler-cellular-help-index.md"
   - "vendor/zscaler-help/zscaler-cellular-marketing.md"
   - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md"
@@ -52,13 +53,14 @@ author-status: draft
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
 | Zscaler Cellular is a zero trust connectivity solution for IoT/mobile devices and includes Zscaler SIM plus Zscaler Cellular Edge. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:8` |
+| The current public ZCell Help index exposes 21 articles; only two article bodies are captured, so 19 remain a body-level coverage gap. | `index.md`, `overview.md` | `vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; `ARTICLE-BODY GAP -> references/zscaler-cellular/index.md#scope-boundary` |
 | Zscaler SIM devices connect to 4G/5G, traffic routes to Cellular Edge, and Cellular Edge forwards to ZTE for inspection and policy enforcement. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:10-15` |
 | Policy enforcement can use IP address, IMEI, or IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:26-29` |
 | Zscaler SIM is a data-only SIM for IoT devices where agents are not feasible, and can enforce policy via ZIA/ZPA based on IP/IMEI/IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:45-53` |
 | Cellular Edge forwards traffic from or to a Zscaler SIM to the ZTE and provides traffic aggregation, bidirectional control, HA, and telemetry insights. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:56-63` |
 | Cellular Admin Portal capabilities include SIM management, eSIM assignment/activation, network events, anomaly detection, SIM location groups, geofence policies, and Cellular Edge deployment/monitoring. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67` |
 | Marketing capture lists Zscaler Cellular Service and Zscaler Cellular Partner Service as two service motions. | `overview.md` | `vendor/zscaler-help/zscaler-cellular-marketing.md:26-27` |
-| ZCell now has a captured Automate API contract with 36 operations across nine families. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:28`; `vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:14`; `vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458` |
+| ZCell now has a captured Automate API contract with 36 operations across nine families. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:15`; `vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458` |
 | Python SDK exposes `client.zcell` as a OneAPI-only service with nine subclients. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103` |
 | ZCell API calls are customer-scoped with `zcellCustomerId` / `ZCELL_CUSTOMER_ID`, separate from ZPA `customerId`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/config/config_setter.py:23-28`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:159-172`; `vendor/zscaler-sdk-python/README.md:385-402` |
 | No product-specific Zscaler Cellular Go SDK, Terraform, or Ansible surface was found in the prior audited trees; those three absence claims were not re-audited during the MCP v0.13.1 refresh. | `overview.md`, `api.md` | AUDIT-SCOPED ABSENCE -> 2026-07-08 search across Go SDK, Terraform providers, and Ansible collections for ZCell / Zscaler Cellular service surfaces. |

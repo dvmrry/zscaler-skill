@@ -30,6 +30,7 @@ THIN_PRODUCTS = {
     "aiguard": "AI Guard",
     "bi": "Business Insights",
     "easm": "EASM",
+    "event-monitoring": "Event Monitoring",
     "zcell": "Zscaler Cellular",
     "zdx": "ZDX",
     "zid": "Zidentity",
@@ -287,7 +288,93 @@ def cells_for_field(resource: dict, field: str, contract_fields: dict[str, dict]
     return {surface: _finalize_cell(cells[surface]) for surface in SURFACES}
 
 
-def build_rosetta(reports: dict[str, dict], contract_fields: dict[tuple[str, str], dict[str, dict]]) -> dict:
+def _project_radar_operation(operation: dict) -> dict:
+    """Keep the Rosetta radar concise while the snapshot report retains detail."""
+    projected = {
+        key: operation[key]
+        for key in (
+            "product",
+            "kind",
+            "change_types",
+            "old_operation",
+            "new_operation",
+            "old_method",
+            "new_method",
+            "old_path",
+            "new_path",
+        )
+        if operation.get(key) is not None
+    }
+    sections = {}
+    for section, delta in (operation.get("sections") or {}).items():
+        sections[section] = {
+            "added": list(delta.get("added") or []),
+            "removed": list(delta.get("removed") or []),
+            "changed": [
+                (item.get("field") or item.get("name"))
+                if isinstance(item, dict)
+                else item
+                for item in (delta.get("changed") or [])
+            ],
+        }
+    if sections:
+        projected["sections"] = sections
+    return projected
+
+
+def build_contract_change_radar(snapshot_report: dict | None) -> dict:
+    """Project high-signal snapshot changes into the cross-surface artifact."""
+    snapshot_report = snapshot_report or {}
+    comparison = snapshot_report.get("comparison") or {}
+    deltas = comparison.get("operation_deltas") or []
+    products = []
+    for product, stats in sorted((comparison.get("products") or {}).items()):
+        changed = [
+            _project_radar_operation(item)
+            for item in deltas
+            if item.get("product") == product
+        ]
+        signal = any(
+            stats.get(key, 0)
+            for key in (
+                "added_operations",
+                "removed_operations",
+                "route_changed_operations",
+                "route_key_changed_operations",
+                "schema_changed_operations",
+            )
+        )
+        if not signal:
+            continue
+        products.append({
+            "product": product,
+            "live_operations": stats.get("live_ops", 0),
+            "previous_operations": stats.get("existing_ops", 0),
+            "matched_operations": stats.get("matched_ops", 0),
+            "added_operations": stats.get("added_operations", 0),
+            "removed_operations": stats.get("removed_operations", 0),
+            "route_changed_operations": stats.get("route_changed_operations", 0),
+            "route_key_changed_operations": stats.get("route_key_changed_operations", 0),
+            "schema_changed_operations": stats.get("schema_changed_operations", 0),
+            "request_fields_added": stats.get("request_body_fields_added", 0),
+            "request_fields_removed": stats.get("request_body_fields_removed", 0),
+            "request_fields_changed": stats.get("request_body_fields_changed", 0),
+            "response_fields_added": stats.get("response_schema_fields_added", 0),
+            "response_fields_removed": stats.get("response_schema_fields_removed", 0),
+            "response_fields_changed": stats.get("response_schema_fields_changed", 0),
+            "operations": changed,
+        })
+    return {
+        "captured_at": snapshot_report.get("captured_at"),
+        "products": products,
+    }
+
+
+def build_rosetta(
+    reports: dict[str, dict],
+    contract_fields: dict[tuple[str, str], dict[str, dict]],
+    contract_change_radar: dict | None = None,
+) -> dict:
     rows = []
     for product in sorted(reports):
         report = reports[product]
@@ -312,6 +399,7 @@ def build_rosetta(reports: dict[str, dict], contract_fields: dict[tuple[str, str
         "legend": LEGEND,
         "surfaces": list(SURFACES),
         "boundaries": build_boundaries(reports),
+        "contract_change_radar": contract_change_radar or {"captured_at": None, "products": []},
         "summary": {
             "products": len(reports),
             "resources": sum(len(report["resources"]) for report in reports.values()),
@@ -719,6 +807,67 @@ def render_rosetta_markdown(rosetta: dict) -> str:
     ]
     for marker, meaning in rosetta["legend"].items():
         out.append(f"- `{marker}` — {meaning}")
+    radar = rosetta.get("contract_change_radar") or {}
+    radar_products = radar.get("products") or []
+    if radar_products:
+        out.extend([
+            "",
+            "## Contract change radar",
+            "",
+            "This section carries true operation additions/removals, route corrections, and field-level body drift "
+            "from the latest Automate snapshot comparison into the cross-surface view.",
+            "",
+            "| product | current/previous ops | added | removed | route Δ | route-key Δ | schema Δ | request +/−/Δ | response +/−/Δ |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ])
+        for item in radar_products:
+            out.append(
+                f"| `{item['product']}` | {item['live_operations']}/{item['previous_operations']} | "
+                f"{item['added_operations']} | {item['removed_operations']} | "
+                f"{item['route_changed_operations']} | {item['route_key_changed_operations']} | "
+                f"{item['schema_changed_operations']} | "
+                f"{item['request_fields_added']}/{item['request_fields_removed']}/{item['request_fields_changed']} | "
+                f"{item['response_fields_added']}/{item['response_fields_removed']}/{item['response_fields_changed']} |"
+            )
+        for item in radar_products:
+            operations = item.get("operations") or []
+            if not operations:
+                continue
+            out.extend(["", f"### `{item['product']}` changes", ""])
+            for operation in operations:
+                kinds = operation.get("change_types") or []
+                if operation.get("kind") == "added":
+                    out.append(
+                        f"- Added: `{operation.get('new_method')} {operation.get('new_path')}` "
+                        f"(`{operation.get('new_operation')}`)."
+                    )
+                elif operation.get("kind") == "removed":
+                    out.append(
+                        f"- Removed from capture: `{operation.get('old_method')} {operation.get('old_path')}` "
+                        f"(`{operation.get('old_operation')}`)."
+                    )
+                else:
+                    if "route" in kinds:
+                        out.append(
+                            f"- Route: `{operation.get('old_method')} {operation.get('old_path')}` → "
+                            f"`{operation.get('new_method')} {operation.get('new_path')}`."
+                        )
+                    if "route-key" in kinds and "route" not in kinds:
+                        out.append(
+                            f"- Route-key rename: `{operation.get('old_operation')}` → "
+                            f"`{operation.get('new_operation')}`; method/path unchanged."
+                        )
+                    if "schema" in kinds:
+                        section_counts = []
+                        for section, delta in operation.get("sections", {}).items():
+                            section_counts.append(
+                                f"`{section}` +{len(delta.get('added', []))} "
+                                f"−{len(delta.get('removed', []))} Δ{len(delta.get('changed', []))}"
+                            )
+                        out.append(
+                            f"- Schema: `{operation.get('new_method')} {operation.get('new_path')}` — "
+                            + "; ".join(section_counts) + "."
+                        )
     out.extend(["", "## Boundaries", ""])
     out.append("- Postman: reference-only; not a constraint-bearing reconciliation leg.")
     out.append("- Contract-only products:")
@@ -809,7 +958,10 @@ def render_issue_markdown(worklist: dict) -> str:
 def build_all() -> tuple[dict, dict]:
     reports = load_reports()
     contract_fields = load_contract_fields(reports)
-    return build_rosetta(reports, contract_fields), build_issue_routing(reports, contract_fields)
+    snapshot_path = SPEC_DIR / "docusaurus-snapshot-compare-summary.json"
+    snapshot_report = _read_json(snapshot_path) if snapshot_path.exists() else {}
+    radar = build_contract_change_radar(snapshot_report)
+    return build_rosetta(reports, contract_fields, radar), build_issue_routing(reports, contract_fields)
 
 
 def main() -> None:

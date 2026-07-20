@@ -18,6 +18,7 @@ confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
+  - "vendor/zscaler-help/zscaler-cellular-help-index.md"
   - "vendor/zscaler-help/zscaler-cellular-marketing.md"
   - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
@@ -34,7 +35,9 @@ author-status: draft
 
 # Zscaler Cellular / ZCell reference hub
 
-Entry point for Zscaler Cellular questions. The source picture changed after the original Tier-C pass: the product has Help/marketing coverage for SIM and Cellular Edge architecture, a captured 36-operation Automate contract (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:28`), a Python SDK `client.zcell` namespace (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`), and the pinned MCP v0.13.1 tree includes a 20-tool read-only layer with three guided prompts (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; prompt registrations at `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-27`, `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-26`, and `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-27`). The prior audit recorded no Go SDK, Terraform, or Ansible ZCell surface; see the audit-scoped claim in [`./_claims-ledger.md`](./_claims-ledger.md).
+Entry point for Zscaler Cellular questions. The source picture changed after the original Tier-C pass: the product has Help/marketing coverage for SIM and Cellular Edge architecture, a captured 36-operation Automate contract (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`), a Python SDK `client.zcell` namespace (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`), and the pinned MCP v0.13.1 tree includes a 20-tool read-only layer with three guided prompts (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; prompt registrations at `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-27`, `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-26`, and `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-27`). The prior audit recorded no Go SDK, Terraform, or Ansible ZCell surface; see the audit-scoped claim in [`./_claims-ledger.md`](./_claims-ledger.md).
+
+The current Help index contains 21 articles spanning setup, dashboards/deployment, SIM/eSIM lifecycle, network events, anomaly/geofence management, and audit logs (`vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`). Only the What Is and Architecture bodies are captured today; the index is a coverage map, not evidence that the remaining 19 article bodies have been mined.
 
 ## Topics
 
@@ -49,3 +52,5 @@ Entry point for Zscaler Cellular questions. The source picture changed after the
 Use this hub for Zscaler SIM, Cellular Edge, ZCell API, SIM inventory/search/actions, SIM analytics, anomaly policies, tags, customer regions, and network-event search.
 
 Do not treat the captured API or registered MCP tools as proof that a tenant owns or can call every endpoint. MCP provides visibility and guided investigation, not ZCell mutation/export parity; use the SDK/API for those operations and account for the request/response divergences in [`./api.md`](./api.md#mcp-v0131-divergences-and-test-boundary). Tenant entitlement, backend acceptance, and the mapping between IP/IMEI/IMSI identifiers and ZIA/ZPA policy objects remain bounded by [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
+
+For Help-sourced operational detail beyond the two captured bodies, answer at index-level only and route the missing article to a future capture. Do not infer credential workflows, SIM-state transitions, geofence semantics, or audit fields from titles alone (`vendor/zscaler-help/zscaler-cellular-help-index.md:6`, `:12-47`).

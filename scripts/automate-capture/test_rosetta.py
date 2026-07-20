@@ -11,7 +11,13 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from rosetta import THIN_PRODUCTS, build_issue_routing, build_rosetta  # noqa: E402
+from rosetta import (  # noqa: E402
+    THIN_PRODUCTS,
+    build_contract_change_radar,
+    build_issue_routing,
+    build_rosetta,
+    render_rosetta_markdown,
+)
 
 CASES = []
 
@@ -150,6 +156,71 @@ def row_by_field(rows, field):
 @case
 def test_contract_only_registry_includes_ai_security():
     assert THIN_PRODUCTS["ai-security"] == "AI Security"
+    assert THIN_PRODUCTS["event-monitoring"] == "Event Monitoring"
+
+
+@case
+def test_contract_change_radar_is_carried_into_rosetta_markdown():
+    snapshot = {
+        "captured_at": "2026-07-20T00:00:00+00:00",
+        "comparison": {
+            "products": {
+                "aiguard": {
+                    "live_ops": 47,
+                    "existing_ops": 45,
+                    "matched_ops": 45,
+                    "added_operations": 2,
+                    "removed_operations": 0,
+                    "route_changed_operations": 1,
+                    "route_key_changed_operations": 0,
+                    "schema_changed_operations": 1,
+                    "request_body_fields_added": 0,
+                    "request_body_fields_removed": 0,
+                    "request_body_fields_changed": 0,
+                    "response_schema_fields_added": 2,
+                    "response_schema_fields_removed": 1,
+                    "response_schema_fields_changed": 1,
+                }
+            },
+            "operation_deltas": [
+                {
+                    "product": "aiguard",
+                    "kind": "added",
+                    "change_types": ["added"],
+                    "new_method": "GET",
+                    "new_path": "/v1/llm-provider-types",
+                    "new_operation": "provider-types",
+                    "sections": {},
+                },
+                {
+                    "product": "aiguard",
+                    "kind": "matched",
+                    "change_types": ["schema"],
+                    "new_method": "POST",
+                    "new_path": "/v1/policies/{id}/enable",
+                    "new_operation": "enable-policy",
+                    "sections": {
+                        "response_schema": {
+                            "added": ["updatedCount"],
+                            "removed": [],
+                            "changed": [{"field": "id", "changes": {"type": {"old": "int64", "new": "string"}}}],
+                        }
+                    },
+                },
+            ],
+        },
+    }
+
+    radar = build_contract_change_radar(snapshot)
+    rosetta = build_rosetta(FIXTURE_REPORTS, FIXTURE_CONTRACT_FIELDS, radar)
+    markdown = render_rosetta_markdown(rosetta)
+
+    assert radar["products"][0]["added_operations"] == 2
+    schema_change = radar["products"][0]["operations"][1]
+    assert schema_change["sections"]["response_schema"]["changed"] == ["id"]
+    assert "## Contract change radar" in markdown
+    assert "`GET /v1/llm-provider-types`" in markdown
+    assert "`response_schema` +1 −0 Δ1" in markdown
 
 
 @case

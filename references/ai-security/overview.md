@@ -14,6 +14,8 @@ sources:
   - "https://help.zscaler.com/ai-guard/what-ai-guard"
   - "vendor/zscaler-help/ai-guard-what-is.md"
   - "vendor/zscaler-help/ai-guard-help-index.md"
+  - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
@@ -47,7 +49,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 
 Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; help-portal docs treat individual sub-products (AI Guard, AI Guardrails, AI Red Teaming) as discrete services. This page maps the family so the skill can route a user's question to the right component before claiming depth.
 
-**Confidence is high for AI Guard runtime detection, deployment shape, and portal operating model**, because every article visible in the public AI Guard Help category tree was captured on 2026-05-22 and mapped into this repo, and the pinned Python SDK policy-detection methods/models are also captured. The reconstructed Automate snapshot now adds a documented AI Guard admin-plane contract with 47 operations plus a separate 11-operation AI Security asset/findings API (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:8-9`). **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and dedicated client wrappers for both newly captured contracts remain gaps.
+**Confidence is high for the captured AI Guard runtime API, the Automate admin contract, and the legacy May Help tree.** The current July AI Guard for Users tree contains 24 indexed articles, but several newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). The reconstructed Automate snapshot documents 47 AI Guard admin-plane operations plus a separate 11-operation AI Security asset/findings API (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9-10`). **Confidence remains medium for the current Help operating model and broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and dedicated client wrappers for both captured contracts remain gaps.
 
 ## The four pillars
 

@@ -19,6 +19,148 @@ generator: "scripts/automate-capture/rosetta.py"
 - `ro!` — readonly/computed treatment disagrees
 - `type` — contract-vs-Go primitive type drift
 
+## Contract change radar
+
+This section carries true operation additions/removals, route corrections, and field-level body drift from the latest Automate snapshot comparison into the cross-surface view.
+
+| product | current/previous ops | added | removed | route Δ | route-key Δ | schema Δ | request +/−/Δ | response +/−/Δ |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `ai-security` | 11/0 | 11 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `aiguard` | 47/45 | 2 | 0 | 8 | 0 | 18 | 0/8/2 | 14/52/5 |
+| `event-monitoring` | 15/10 | 5 | 0 | 0 | 5 | 4 | 4/0/2 | 12/0/4 |
+| `zia` | 471/471 | 0 | 0 | 0 | 0 | 6 | 0/0/0 | 0/0/0 |
+| `zid` | 31/31 | 0 | 0 | 3 | 0 | 3 | 0/0/0 | 0/0/0 |
+| `zpa` | 208/188 | 23 | 3 | 0 | 10 | 10 | 10/32/6 | 30/1250/29 |
+
+### `ai-security` changes
+
+- Added: `GET /v1/assets/datastores/{id}` (`ai-security/aisecurity/datastores/datastores-get-datastore`).
+- Added: `GET /v1/assets/datastores` (`ai-security/aisecurity/datastores/datastores-list-datastores`).
+- Added: `GET /v1/assets/identities/{id}` (`ai-security/aisecurity/identities/identities-get-identity`).
+- Added: `GET /v1/assets/identities` (`ai-security/aisecurity/identities/identities-list-identities`).
+- Added: `GET /v1/issues/{id}` (`ai-security/aisecurity/issues/issues-get-issue`).
+- Added: `GET /v1/issues` (`ai-security/aisecurity/issues/issues-list-issues`).
+- Added: `GET /v1/assets/mcpservers/{id}` (`ai-security/aisecurity/mcp-servers/mcp-servers-get-mcp-server`).
+- Added: `GET /v1/assets/mcpservers/{id}/tools` (`ai-security/aisecurity/mcp-servers/mcp-servers-get-mcp-server-tools`).
+- Added: `GET /v1/assets/mcpservers` (`ai-security/aisecurity/mcp-servers/mcp-servers-list-mcp-servers`).
+- Added: `GET /v1/assets/workloads/{id}` (`ai-security/aisecurity/workloads/workloads-get-workload`).
+- Added: `GET /v1/assets/workloads` (`ai-security/aisecurity/workloads/workloads-list-workloads`).
+
+### `aiguard` changes
+
+- Route: `POST /v1/detections/policies/{id}{disable}` → `POST /v1/detections/policies/{id}/disable`.
+- Schema: `POST /v1/detections/policies/{id}/disable` — `path_params` +0 −1 Δ0; `response_schema` +7 −16 Δ0.
+- Route: `POST /v1/detections/policies/{id}{enable}` → `POST /v1/detections/policies/{id}/enable`.
+- Schema: `POST /v1/detections/policies/{id}/enable` — `path_params` +0 −1 Δ0; `response_schema` +7 −16 Δ0.
+- Route: `GET /v1/detections/policies/{id}{referential}-check` → `GET /v1/detections/policies/{id}/referential-check`.
+- Schema: `GET /v1/detections/policies/{id}/referential-check` — `path_params` +0 −1 Δ0.
+- Route: `GET /v1/llm-application-credentials/{id}{referential}-check` → `GET /v1/llm-application-credentials/{id}/referential-check`.
+- Schema: `GET /v1/llm-application-credentials/{id}/referential-check` — `path_params` +0 −1 Δ0.
+- Route: `POST /v1/llm-application-credentials/{id}{regenerate}` → `POST /v1/llm-application-credentials/{id}/regenerate`.
+- Schema: `POST /v1/llm-application-credentials/{id}/regenerate` — `path_params` +0 −1 Δ0.
+- Schema: `POST /v1/llm-applications` — `request_body` +0 −4 Δ0; `response_schema` +0 −4 Δ0.
+- Schema: `GET /v1/llm-applications/{id}` — `response_schema` +0 −4 Δ0.
+- Schema: `GET /v1/llm-applications/name/{name}` — `response_schema` +0 −4 Δ0.
+- Schema: `GET /v1/llm-applications` — `response_schema` +0 −4 Δ0.
+- Route: `GET /v1/llm-applications/{id}{referential}-check` → `GET /v1/llm-applications/{id}/referential-check`.
+- Schema: `GET /v1/llm-applications/{id}/referential-check` — `path_params` +0 −1 Δ0.
+- Schema: `PUT /v1/llm-applications/{id}` — `request_body` +0 −4 Δ0; `response_schema` +0 −4 Δ0.
+- Route: `GET /v1/llm-provider-credentials/{id}{referential}-check` → `GET /v1/llm-provider-credentials/{id}/referential-check`.
+- Schema: `GET /v1/llm-provider-credentials/{id}/referential-check` — `path_params` +0 −1 Δ0.
+- Schema: `POST /v1/llm-providers` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1.
+- Schema: `GET /v1/llm-providers/{id}` — `response_schema` +0 −0 Δ1.
+- Schema: `GET /v1/llm-providers/name/{name}` — `response_schema` +0 −0 Δ1.
+- Schema: `GET /v1/llm-providers` — `response_schema` +0 −0 Δ1.
+- Route: `GET /v1/llm-providers/{id}{referential}-check` → `GET /v1/llm-providers/{id}/referential-check`.
+- Schema: `GET /v1/llm-providers/{id}/referential-check` — `path_params` +0 −1 Δ0.
+- Schema: `PUT /v1/llm-providers/{id}` — `request_body` +0 −0 Δ1; `response_schema` +0 −0 Δ1.
+- Added: `GET /v1/llm-provider-types/{type}` (`aiguard/llm-providers/llm-provider-type-resource-get-llm-provider-type`).
+- Added: `GET /v1/llm-provider-types` (`aiguard/llm-providers/llm-provider-type-resource-list-llm-provider-types`).
+
+### `event-monitoring` changes
+
+- Route-key rename: `event-monitoring/event-monitoring-subscriptions-handling/subscription-resource-delete-subscription` → `event-monitoring/event-monitoring-subscriptions/subscription-resource-delete-subscription`; method/path unchanged.
+- Route-key rename: `event-monitoring/event-monitoring-subscriptions-handling/subscription-resource-get-subscriptions` → `event-monitoring/event-monitoring-subscriptions/subscription-resource-get-subscriptions`; method/path unchanged.
+- Schema: `GET /subscriptions` — `response_schema` +3 −0 Δ1.
+- Route-key rename: `event-monitoring/event-monitoring-subscriptions-handling/subscription-resource-get-subscription` → `event-monitoring/event-monitoring-subscriptions/subscription-resource-get-subscription`; method/path unchanged.
+- Schema: `GET /subscriptions/{subscriptionId}` — `response_schema` +3 −0 Δ1.
+- Route-key rename: `event-monitoring/event-monitoring-subscriptions-handling/subscription-resource-create-subscription` → `event-monitoring/event-monitoring-subscriptions/subscription-resource-create-subscription`; method/path unchanged.
+- Schema: `POST /subscriptions` — `request_body` +2 −0 Δ1; `response_schema` +3 −0 Δ1.
+- Route-key rename: `event-monitoring/event-monitoring-subscriptions-handling/subscription-resource-update-subscription` → `event-monitoring/event-monitoring-subscriptions/subscription-resource-update-subscription`; method/path unchanged.
+- Schema: `PUT /subscriptions/{subscriptionId}` — `request_body` +2 −0 Δ1; `response_schema` +3 −0 Δ1.
+- Added: `GET /subscriptions/channels/email` (`event-monitoring/event-monitoring-subscriptions/subscription-resource-get-email-channel`).
+- Added: `GET /subscriptions/channels/sns` (`event-monitoring/event-monitoring-subscriptions/subscription-resource-get-sns-channel`).
+- Added: `GET /subscriptions/channels/webhook` (`event-monitoring/event-monitoring-subscriptions/subscription-resource-get-webhook-channel`).
+- Added: `GET /subscriptions/channels` (`event-monitoring/event-monitoring-subscriptions/subscription-resource-list-channels`).
+- Added: `POST /subscriptions/channels/sns/verify` (`event-monitoring/event-monitoring-subscriptions/subscription-resource-verify-sns-topic-access`).
+
+### `zia` changes
+
+- Schema: `DELETE /auditlogEntryReport` — `query_params` +1 −0 Δ0.
+- Schema: `GET /auditlogEntryReport/download` — `query_params` +1 −0 Δ0.
+- Schema: `GET /auditlogEntryReport` — `query_params` +1 −0 Δ0.
+- Schema: `DELETE /eventlogEntryReport` — `query_params` +1 −0 Δ0.
+- Schema: `GET /eventlogEntryReport/download` — `query_params` +1 −0 Δ0.
+- Schema: `GET /eventlogEntryReport` — `query_params` +1 −0 Δ0.
+
+### `zid` changes
+
+- Route: `POST /users/{id}{setskipmfa}` → `POST /users/{id}/setskipmfa`.
+- Schema: `POST /users/{id}/setskipmfa` — `path_params` +0 −1 Δ0.
+- Route: `POST /users/{id}{resetpassword}` → `POST /users/{id}/resetpassword`.
+- Schema: `POST /users/{id}/resetpassword` — `path_params` +0 −1 Δ0.
+- Route: `PUT /users/{id}{updatepassword}` → `PUT /users/{id}/updatepassword`.
+- Schema: `PUT /users/{id}/updatepassword` — `path_params` +0 −1 Δ0.
+
+### `zpa` changes
+
+- Route-key rename: `zpa/provisioning-key-management/deletes-the-provisioning-key-for-the-specified-id` → `zpa/nonce/deletes-the-provisioning-key-for-the-specified-id`; method/path unchanged.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `path_params` +0 −0 Δ3; `query_params` +1 −1 Δ0.
+- Route-key rename: `zpa/app-connector-group-management/gets-all-configured-app-connector-groups-for-the-specified-customer` → `zpa/app-connector-group/gets-all-configured-app-connector-groups-for-the-specified-customer`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ2; `response_schema` +1 −178 Δ5.
+- Route-key rename: `zpa/provisioning-key-management/gets-details-of-all-configured-provisioning-keys-for-the-specified-customer` → `zpa/nonce/gets-details-of-all-configured-provisioning-keys-for-the-specified-customer`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ2; `response_schema` +5 −17 Δ5.
+- Route-key rename: `zpa/provisioning-key-management/gets-details-of-the-provisioning-key-for-the-specified-id` → `zpa/nonce/gets-details-of-the-provisioning-key-for-the-specified-id`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `path_params` +0 −0 Δ3; `query_params` +1 −1 Δ0; `response_schema` +5 −16 Δ3.
+- Route-key rename: `zpa/private-service-edge-group-management/get-private-broker-groups` → `zpa/service-edge-group/get-private-broker-groups`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` — `path_params` +0 −0 Δ1; `query_params` +1 −1 Δ2; `response_schema` +1 −138 Δ4.
+- Route-key rename: `zpa/version-profiles/get-all-version-profiles-visibile-by-customer-id` → `zpa/version-profile/get-all-version-profiles-visibile-by-customer-id`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/visible/versionProfiles` — `path_params` +0 −0 Δ1; `query_params` +0 −3 Δ0; `response_schema` +7 −41 Δ0.
+- Route-key rename: `zpa/enrollment-certificates/get-all-signing-cert` → `zpa/signing-certificate/get-all-signing-cert`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/enrollmentCert` — `path_params` +0 −0 Δ1; `query_params` +0 −0 Δ2; `response_schema` +3 −21 Δ5.
+- Route-key rename: `zpa/log-streaming-service-lss-configuration/gets-all-lss-configurations-for-the-specified-customer` → `zpa/siem-config/gets-all-lss-configurations-for-the-specified-customer`; method/path unchanged.
+- Schema: `GET /mgmtconfig/v2/admin/customers/{customerId}/lssConfig` — `path_params` +0 −0 Δ1; `query_params` +1 −0 Δ2; `response_schema` +3 −823 Δ4.
+- Route-key rename: `zpa/provisioning-key-management/adds-a-new-provisioning-key-for-the-specified-customer` → `zpa/nonce/adds-a-new-provisioning-key-for-the-specified-customer`; method/path unchanged.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — `path_params` +0 −0 Δ2; `query_params` +1 −1 Δ0; `request_body` +5 −16 Δ3; `response_schema` +5 −16 Δ3.
+- Route-key rename: `zpa/provisioning-key-management/updates-the-provisioning-key-details-for-the-specified-id` → `zpa/nonce/updates-the-provisioning-key-details-for-the-specified-id`; method/path unchanged.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `path_params` +0 −0 Δ3; `query_params` +1 −1 Δ0; `request_body` +5 −16 Δ3.
+- Removed from capture: `POST /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` (`zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer`).
+- Removed from capture: `POST /mgmtconfig/v2/admin/customers/{customerId}/lssConfig` (`zpa/log-streaming-service-lss-configuration/add-a-new-lss-configuration-for-the-specified-customer`).
+- Removed from capture: `POST /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` (`zpa/private-service-edge-group-management/add-private-broker-group`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/browserAccessGroup` (`zpa/browser-access-group/get-browser-access-groups`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings` (`zpa/business-continuity-settings/create-business-continuity-settings`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/{id}` (`zpa/business-continuity-settings/delete-business-continuity-settings`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/certificate` (`zpa/business-continuity-settings/download-sp-certificate`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/metadata` (`zpa/business-continuity-settings/download-sp-metadata`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings` (`zpa/business-continuity-settings/get-business-continuity-settings`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/{id}` (`zpa/business-continuity-settings/get-business-continuity-settings-by-id`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/businessContinuitySettings/{id}` (`zpa/business-continuity-settings/update-business-continuity-settings`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup` (`zpa/private-cloud-controller-group/create-private-cloud-controller-group`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup/{privateCloudControllerGroupId}` (`zpa/private-cloud-controller-group/delete-private-cloud-controller-group`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup` (`zpa/private-cloud-controller-group/get-all-private-cloud-controller-groups`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup/{privateCloudControllerGroupId}` (`zpa/private-cloud-controller-group/get-private-cloud-controller-group-by-id`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/privateCloudControllerGroup/{privateCloudControllerGroupId}` (`zpa/private-cloud-controller-group/update-private-cloud-controller-group`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}` (`zpa/private-cloud-controller/delete-private-cloud-controller`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController` (`zpa/private-cloud-controller/get-all-private-cloud-controllers`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}` (`zpa/private-cloud-controller/get-private-cloud-controller-by-id`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}` (`zpa/private-cloud-controller/update-private-cloud-controller`).
+- Added: `POST /mgmtconfig/v1/admin/customers/{customerId}/privateCloud` (`zpa/site/create-site`).
+- Added: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/privateCloud/{privateCloudId}` (`zpa/site/delete-site`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloud` (`zpa/site/get-all-sites`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/privateCloud/{privateCloudId}` (`zpa/site/get-site-by-id`).
+- Added: `PUT /mgmtconfig/v1/admin/customers/{customerId}/privateCloud/{privateCloudId}` (`zpa/site/update-site`).
+- Added: `GET /mgmtconfig/v1/admin/customers/{customerId}/versionProfile` (`zpa/version-profile/get-version-profiles`).
+
 ## Boundaries
 
 - Postman: reference-only; not a constraint-bearing reconciliation leg.
@@ -27,6 +169,7 @@ generator: "scripts/automate-capture/rosetta.py"
   - `aiguard` (AI Guard): 47 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `bi` (Business Insights): 10 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `easm` (EASM): 11 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
+  - `event-monitoring` (Event Monitoring): 15 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `zcell` (Zscaler Cellular): 36 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `zdx` (ZDX): 148 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `zid` (Zidentity): 31 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
