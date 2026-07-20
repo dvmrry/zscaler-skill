@@ -123,7 +123,7 @@ def test_contract_ops_still_rejects_an_unexpected_missing_operation():
     except KeyError as exc:
         assert "zpa/things/create-thing" in str(exc), exc
     else:
-        assert False, "unexpected operation loss must remain a hard failure"
+        raise AssertionError("unexpected operation loss must remain a hard failure")
 
 
 # TF schema exercising: nested Elem (must not leak), commented-out attributes (must
