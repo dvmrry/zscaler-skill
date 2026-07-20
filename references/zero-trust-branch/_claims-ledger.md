@@ -3,14 +3,14 @@ product: zero-trust-branch
 topic: "zero-trust-branch-claims-ledger"
 title: "Zero Trust Branch claims ledger - Tier 3 misc refresh"
 content-type: reference
-last-verified: "2026-07-16"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
-  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
-  vendor/zpacloud-ansible: 84ab824d6ce5853c12add6ae3280dcfb8db273a2
+  vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
   vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
@@ -44,10 +44,10 @@ author-status: draft
 | ZTB feature list includes automatic device classification, clientless SSH/RDP/VNC access, ZIA/ZPA forwarding policies, ZTP, and `/32` endpoint subnet-mask provisioning. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.md:16-24` |
 | Deployment capture lists ZTB appliances, Zscaler Admin Console, ZTP, VMware ESXi, and ZT800 form factors. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.md:33-47` |
 | Python `client.ztb` is exposed by `oneapi_client.py`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:279-285` |
-| Python `ZTBService` says it exposes Zero Trust Branch API resources and is used via OneAPI, with legacy client helpers for standalone token-based access. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44` |
+| Python `ZTBService` says it exposes Zero Trust Branch API resources and is used via OneAPI, with legacy client helpers for standalone token-based access. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`; accessor at `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:297-303` |
 | Python `ZTBService` exposes alarms, API keys, app connector config, devices, groups, logs, policy comments, ransomware kill, sites, site-to-site VPN, and templates. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:49-135`; `vendor/zscaler-sdk-python/README.md:1757-1769` |
 | Python README says ZTB authenticates by API key, uses `POST /api/v3/api-key-auth/login`, and receives a `delegate_token`. | `overview.md` | `vendor/zscaler-sdk-python/README.md:1722-1728`; `vendor/zscaler-sdk-python/zscaler/ztb/legacy.py:68-75` |
-| Python README says ZTB is available only via `LegacyZTBClient` and OneAPI/OAuth2 is not supported for ZTB. | `overview.md`, `clarifications.md` | `vendor/zscaler-sdk-python/README.md:1751-1755` |
+| Python README says ZTB is available only via `LegacyZTBClient` and OneAPI/OAuth2 is not supported for ZTB. | `overview.md`, `clarifications.md` | `vendor/zscaler-sdk-python/README.md:1838-1842` |
 | ZTB legacy helper requires `ZTB_API_KEY` and `ZTB_CLOUD`/override URL inputs. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/legacy.py:114-132` |
 | Python Site API provides CRUD and utility operations including list/get/create/update/delete sites, app-segment operations, and cloud-site create. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/site.py:34-42`, `:48-99`, `:157-241`, `:268-354` |
 | Python API key resource exposes list, create, and revoke operations under `/ztb/api/v3`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/api_key.py:26-36`, `:42-108`, `:110-189` |

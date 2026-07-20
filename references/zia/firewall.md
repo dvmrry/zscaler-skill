@@ -3,11 +3,11 @@ product: zia
 topic: "firewall"
 title: "ZIA Firewall Control — Filtering, NAT, DNS, IPS"
 content-type: reasoning
-last-verified: "2026-07-16"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/terraform-provider-zia: 717926eb564bb21dea1f8e0c3222e6593b29f849
-  vendor/zscaler-sdk-python: 6ff5bc97d02e1e1b4c564e2f0a8986edc730e03f
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
   vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: high
 source-tier: mixed

@@ -3,12 +3,12 @@ product: ai-security
 topic: "ai-security-overview"
 title: "AI Security family — AI Guard, AI Guardrails, AI Red Teaming, governance"
 content-type: reasoning
-last-verified: "2026-06-21"
+last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
   - "https://help.zscaler.com/ai-guard/what-ai-guard"
@@ -30,6 +30,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
   - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
   - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/ai-security-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zguard-ai-integrations/README.md"
   - "https://www.zscaler.com/products-and-solutions/ai-security"
@@ -45,7 +47,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 
 Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; help-portal docs treat individual sub-products (AI Guard, AI Guardrails, AI Red Teaming) as discrete services. This page maps the family so the skill can route a user's question to the right component before claiming depth.
 
-**Confidence is high for AI Guard runtime detection, deployment shape, and portal operating model**, because every article visible in the public AI Guard Help category tree was captured on 2026-05-22 and mapped into this repo, and the pinned Python SDK policy-detection methods/models are also captured. The reconstructed Automate snapshot now adds a documented AI Guard admin-plane contract with 45 operations, but the captured Go SDK, Terraform, MCP, Postman, and Automation Hub sources still do not wrap that admin plane (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`). **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and the client-wrapper story for AI Guard admin automation is currently a gap.
+**Confidence is high for AI Guard runtime detection, deployment shape, and portal operating model**, because every article visible in the public AI Guard Help category tree was captured on 2026-05-22 and mapped into this repo, and the pinned Python SDK policy-detection methods/models are also captured. The reconstructed Automate snapshot now adds a documented AI Guard admin-plane contract with 47 operations plus a separate 11-operation AI Security asset/findings API (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:8-9`). **Confidence remains medium for the broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, and dedicated client wrappers for both newly captured contracts remain gaps.
 
 ## The four pillars
 
@@ -55,12 +57,18 @@ From the AI Security product page, Zscaler's framing covers the full enterprise-
 
 | Pillar | What it covers | Closest sub-product |
 |---|---|---|
-| **AI Asset Management** | Discovery of shadow AI apps, mapping AI models / dev tools, posture assessment across infrastructure and data pipelines. | Capability of the broader Zscaler Data Fabric + existing observability stack — no dedicated SKU surfaced. |
+| **AI Asset Management** | Discovery of shadow AI apps, mapping AI models / dev tools, posture assessment across infrastructure and data pipelines. | The new AI Security Public API exposes data stores, identities, MCP servers/tools, workloads, and cross-asset issues. Packaging and tenant entitlement remain unresolved. |
 | **Secure Access to AI Apps** | Warn / block / isolate user access to public AI apps (ChatGPT, Claude, Gemini, etc.); enforce DLP on prompts; content moderation. | Closest routing targets in this skill are **ZIA URL Filtering**, **ZIA DLP**, and **ZBI**. Treat exact product behavior as owned by those product references, not by AI Guard. |
 | **Secure AI Apps and Infrastructure** | Automated vulnerability assessment of customer-deployed LLM apps; 25+ prebuilt probes; custom risk scanning; remediation tracking. | **AI Red Teaming** (sub-product). |
 | **AI Governance** | Real-time compliance monitoring, framework alignment, audit reporting. | Spans **AI Guard** (runtime enforcement) + reporting layer. |
 
-The "Secure Access to AI Apps" pillar is where the existing skill already has coverage. The other three are new ground.
+The "Secure Access to AI Apps" pillar is where the existing skill already has deep policy coverage. AI Asset Management now has a documented read-only API surface; governance workflow and Red Teaming remain thinner.
+
+## AI Security asset inventory and findings
+
+Source: `vendor/zscaler-api-specs/automate-zscaler/ai-security-api-reference.json`; `vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json`.
+
+The current Automate snapshot adds 11 `GET` operations under `https://api.zsapi.net/aisecurity/aispm`: list/get data stores, identities, issues, MCP servers, and workloads, plus list tools for a discovered MCP server. This is the first captured programmable surface for the broader AI Security asset-management/governance pillar; it is distinct from AI Guard's prompt/response runtime and admin APIs. See [`./asset-management-api.md`](./asset-management-api.md) for the operation map, cursor semantics, enum inconsistency, and client-wrapper boundary.
 
 ## AI Guard — runtime guardrails
 

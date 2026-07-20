@@ -4,13 +4,23 @@
   "resources": [
     {
       "resource": "app_connector_group",
-      "method": "POST",
-      "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup",
-      "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup",
+      "method": "GET",
+      "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}",
+      "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}",
       "counts": {
         "contract": 39,
         "go": 41,
         "tf": 26
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/app-connector-group-management/gets-the-app-connector-group-details-for-the-specified-id",
+          "zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer"
+        ],
+        "missing_operations": [
+          "zpa/app-connector-group-management/adds-a-new-app-connector-group-for-the-specified-customer"
+        ],
+        "required_comparison": "unavailable"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -80,26 +90,7 @@
           "go": "string"
         }
       ],
-      "required_drift": [
-        {
-          "field": "latitude",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
-          "field": "location",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
-          "field": "longitude",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        }
-      ],
+      "required_drift": [],
       "readonly": [
         {
           "field": "versionProfileName",
@@ -218,16 +209,14 @@
           "update_connector_group"
         ],
         "counts": {
-          "python": 41
+          "python": 46
         },
         "presence": {
-          "contract_unmatched_in_python": [
-            "city",
-            "connectors",
-            "geoLocationId"
-          ],
+          "contract_unmatched_in_python": [],
           "python_only_vs_contract": [
             "enrollmentCertId",
+            "nameWithoutTrim",
+            "privateCloudId",
             "readOnly",
             "restrictionType",
             "version",
@@ -240,7 +229,7 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/app_connector_groups.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_connector_groups.py"
         ],
         "tools": [
           "zpa_create_app_connector_group",
@@ -254,8 +243,7 @@
           "client.zpa.app_connector_groups.delete_connector_group",
           "client.zpa.app_connector_groups.get_connector_group",
           "client.zpa.app_connector_groups.list_connector_groups",
-          "client.zpa.app_connector_groups.update_connector_group",
-          "client.zpa.enrollment_certificates.list_enrolment"
+          "client.zpa.app_connector_groups.update_connector_group"
         ],
         "counts": {
           "mcp_tools": 5,
@@ -309,6 +297,14 @@
         "contract": 12,
         "go": 12,
         "tf": 8
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/server-management/gets-the-server-details-for-the-specified-id",
+          "zpa/server-management/adds-a-new-server-for-the-specified-customer"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [],
@@ -442,7 +438,7 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/application_servers.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/application_servers.py"
         ],
         "tools": [
           "zpa_create_application_server",
@@ -485,6 +481,14 @@
         "contract": 51,
         "go": 52,
         "tf": 35
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/application-segment-management/gets-the-application-segment-details-for-the-specified-id",
+          "zpa/application-segment-management/adds-a-new-application-segment-for-the-specified-customer"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -742,9 +746,11 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/app_segments.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments.py"
         ],
         "tools": [
+          "shape_detail",
+          "shape_summary",
           "zpa_create_application_segment",
           "zpa_delete_application_segment",
           "zpa_get_application_segment",
@@ -759,34 +765,58 @@
           "client.zpa.application_segment.update_segment"
         ],
         "counts": {
-          "mcp_tools": 5,
-          "mcp_fields": 31
+          "mcp_tools": 7,
+          "mcp_fields": 9
         },
         "presence": {
           "contract_unmatched_in_mcp": [
+            "adpEnabled",
+            "apiProtectionEnabled",
             "appRecommendationId",
+            "autoAppProtectEnabled",
+            "bypassOnReauth",
+            "bypassType",
             "clientlessApps",
             "commonAppsDto",
+            "configSpace",
             "creationTime",
             "defaultIdleTimeout",
             "defaultMaxAge",
+            "doubleEncrypt",
+            "extranetEnabled",
+            "fqdnDnsCheck",
+            "healthCheckType",
+            "healthReporting",
+            "icmpAccessType",
             "id",
             "inconsistentConfigDetails",
+            "inspectTrafficWithZia",
             "inspectionApps",
+            "ipAnchored",
+            "isCnameEnabled",
             "isIncompleteDRConfig",
+            "matchStyle",
             "microtenantId",
             "microtenantName",
             "modifiedBy",
             "modifiedTime",
+            "passiveHealthEnabled",
             "praApps",
             "segmentGroupName",
+            "selectConnectorCloseToApp",
             "serverGroups",
             "sharedMicrotenantDetails",
+            "tcpKeepAlive",
+            "tcpPortRange",
             "tcpProtocols",
+            "udpPortRange",
             "udpProtocols",
+            "useInDrMode",
+            "weightedLoadBalancing",
             "zpnErId"
           ],
           "mcp_only_vs_contract": [
+            "advanced",
             "serverGroupIds"
           ]
         }
@@ -801,6 +831,14 @@
         "contract": 20,
         "go": 20,
         "tf": 6
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/certificate-management/gets-the-certificate-details-for-the-specified-id",
+          "zpa/certificate-management/adds-a-certificate-with-a-private-key-for-the-specified-customer"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [],
@@ -942,9 +980,11 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/ba_certificate.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/ba_certificate.py"
         ],
         "tools": [
+          "shape_cert_detail",
+          "shape_cert_summary",
           "zpa_create_ba_certificate",
           "zpa_delete_ba_certificate",
           "zpa_get_ba_certificate",
@@ -957,7 +997,7 @@
           "client.zpa.certificates.list_issued_certificates"
         ],
         "counts": {
-          "mcp_tools": 4,
+          "mcp_tools": 6,
           "mcp_fields": 2
         },
         "presence": {
@@ -994,6 +1034,14 @@
         "contract": 10,
         "go": 11,
         "tf": 4
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/emergency-access-management/get-emergency-access-user",
+          "zpa/emergency-access-management/add-emergency-access-user"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [],
@@ -1086,6 +1134,14 @@
         "contract": 21,
         "go": 20,
         "tf": 12
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/appprotection-control-management/get-custom-control-by-id",
+          "zpa/appprotection-control-management/create-custom-control"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -1263,6 +1319,14 @@
         "go": 21,
         "tf": 17
       },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/appprotection-profile-management/get-inspection-profile",
+          "zpa/appprotection-profile-management/add-inspection-profile"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
+      },
       "presence": {
         "contract_only_vs_go": [
           "exceptionsVersion",
@@ -1367,10 +1431,10 @@
         "field_surface": "none",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/get_app_protection_profile.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_app_protection_profile.py"
         ],
         "tools": [
-          "app_protection_profile_manager"
+          "get_zpa_app_protection_profile"
         ],
         "sdk_calls": [
           "client.zpa.app_protection.list_profiles"
@@ -1387,13 +1451,23 @@
     },
     {
       "resource": "lss_config",
-      "method": "POST",
-      "path": "/zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig",
-      "contract_path": "/mgmtconfig/v2/admin/customers/{customerId}/lssConfig",
+      "method": "GET",
+      "path": "/zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}",
+      "contract_path": "/mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}",
       "counts": {
         "contract": 6,
         "go": 5,
         "tf": 5
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/log-streaming-service-lss-configuration/gets-the-lss-configuration-details-for-the-specified-id",
+          "zpa/log-streaming-service-lss-configuration/add-a-new-lss-configuration-for-the-specified-customer"
+        ],
+        "missing_operations": [
+          "zpa/log-streaming-service-lss-configuration/add-a-new-lss-configuration-for-the-specified-customer"
+        ],
+        "required_comparison": "unavailable"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -1412,14 +1486,7 @@
           "go": "string"
         }
       ],
-      "required_drift": [
-        {
-          "field": "config",
-          "contract_required": true,
-          "tf_required": false,
-          "direction": "contract_stricter"
-        }
-      ],
+      "required_drift": [],
       "readonly": [],
       "enum": {
         "match": [],
@@ -1450,16 +1517,7 @@
             "appConnectorGroupIds"
           ]
         },
-        "required_drift": [
-          {
-            "field": "config",
-            "contract_required": true,
-            "ansible_required": false,
-            "direction": "contract_stricter",
-            "repo": "zpacloud-ansible",
-            "path": "vendor/zpacloud-ansible/plugins/modules/zpa_lss_config_controller.py"
-          }
-        ],
+        "required_drift": [],
         "enum": {
           "match": [],
           "value_conflict": [],
@@ -1498,7 +1556,7 @@
         "field_surface": "none",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/lss.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/lss.py"
         ],
         "tools": [
           "zpa_get_lss_config",
@@ -1527,6 +1585,14 @@
         "contract": 11,
         "go": 12,
         "tf": 8
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/privileged-approval-management/get-privileged-approval",
+          "zpa/privileged-approval-management/add-privileged-approval"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [],
@@ -1639,14 +1705,19 @@
           "update_approval"
         ],
         "counts": {
-          "python": 9
+          "python": 13
         },
         "presence": {
           "contract_unmatched_in_python": [
             "microtenantId",
             "modifiedBy"
           ],
-          "python_only_vs_contract": []
+          "python_only_vs_contract": [
+            "days",
+            "endTimeCron",
+            "startTimeCron",
+            "timeZone"
+          ]
         }
       },
       "mcp": {
@@ -1662,6 +1733,14 @@
         "contract": 13,
         "go": 12,
         "tf": 8
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/privileged-console-management/get-pra-console",
+          "zpa/privileged-console-management/add-pra-console"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -1802,6 +1881,14 @@
         "contract": 15,
         "go": 16,
         "tf": 10
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/privileged-credential-management/get-credential",
+          "zpa/privileged-credential-management/add-credential"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [],
@@ -1947,7 +2034,7 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/pra_credential.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/pra_credential.py"
         ],
         "tools": [
           "zpa_create_pra_credential",
@@ -1994,6 +2081,14 @@
         "contract": 21,
         "go": 31,
         "tf": 15
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/privileged-portal-management/get-pra-portal",
+          "zpa/privileged-portal-management/add"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [],
@@ -2136,7 +2231,7 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/pra_portal.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/pra_portal.py"
         ],
         "tools": [
           "zpa_create_pra_portal",
@@ -2187,6 +2282,14 @@
         "contract": 18,
         "go": 20,
         "tf": 13
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/server-group-management/gets-the-server-group-details-for-the-specified-id",
+          "zpa/server-group-management/add-a-new-server-group"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -2319,7 +2422,7 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/server_groups.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/server_groups.py"
         ],
         "tools": [
           "zpa_create_server_group",
@@ -2371,6 +2474,14 @@
         "contract": 15,
         "go": 16,
         "tf": 6
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/segment-group-management/gets-the-segment-group-details-for-the-specified-id",
+          "zpa/segment-group-management/adds-a-new-segment-group-for-the-specified-customer"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -2501,9 +2612,11 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/segment_groups.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/segment_groups.py"
         ],
         "tools": [
+          "shape_detail",
+          "shape_summary",
           "zpa_create_segment_group",
           "zpa_delete_segment_group",
           "zpa_get_segment_group",
@@ -2518,7 +2631,7 @@
           "client.zpa.segment_groups.update_group_v2"
         ],
         "counts": {
-          "mcp_tools": 5,
+          "mcp_tools": 7,
           "mcp_fields": 3
         },
         "presence": {
@@ -2546,93 +2659,72 @@
       "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey",
       "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey",
       "counts": {
-        "contract": 19,
+        "contract": 8,
         "go": 24,
         "tf": 15
       },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/nonce/gets-details-of-the-provisioning-key-for-the-specified-id",
+          "zpa/nonce/adds-a-new-provisioning-key-for-the-specified-customer"
+        ],
+        "missing_operations": [],
+        "required_comparison": "available"
+      },
       "presence": {
         "contract_only_vs_go": [
-          "exportable"
+          "cloudName",
+          "maxUsageCount",
+          "nonceAssociationType",
+          "nonceValue",
+          "scopeId"
         ],
         "go_only_vs_contract": [
           "appConnectorGroupId",
           "appConnectorGroupName",
           "associationType",
+          "creationTime",
+          "enabled",
+          "enrollmentCertId",
+          "enrollmentCertName",
+          "expirationInEpochSec",
+          "ipAcl",
+          "maxUsage",
+          "microtenantId",
+          "microtenantName",
+          "modifiedBy",
+          "modifiedTime",
+          "provisioningKey",
           "readOnly",
           "restrictionType",
+          "uiConfig",
+          "zcomponentId",
+          "zcomponentName",
           "zscalerManaged"
         ],
         "contract_unmatched_in_tf": [
-          "creationTime",
-          "enrollmentCertName",
-          "expirationInEpochSec",
-          "exportable",
-          "microtenantName",
-          "modifiedBy",
-          "modifiedTime"
+          "cloudName",
+          "maxUsageCount",
+          "nonceAssociationType",
+          "nonceValue",
+          "scopeId"
         ]
       },
       "type_drift": [
         {
-          "field": "creationTime",
-          "contract": "int32",
-          "go": "string"
-        },
-        {
-          "field": "enrollmentCertId",
-          "contract": "int64",
-          "go": "string"
-        },
-        {
-          "field": "expirationInEpochSec",
-          "contract": "int32",
-          "go": "string"
-        },
-        {
           "field": "id",
-          "contract": "int64",
-          "go": "string"
-        },
-        {
-          "field": "maxUsage",
-          "contract": "int32",
-          "go": "string"
-        },
-        {
-          "field": "microtenantId",
-          "contract": "int64",
-          "go": "string"
-        },
-        {
-          "field": "modifiedBy",
-          "contract": "int64",
-          "go": "string"
-        },
-        {
-          "field": "modifiedTime",
-          "contract": "int32",
+          "contract": "integer",
           "go": "string"
         },
         {
           "field": "usageCount",
-          "contract": "int32",
-          "go": "string"
-        },
-        {
-          "field": "zcomponentId",
-          "contract": "int64",
+          "contract": "integer",
           "go": "string"
         }
       ],
       "required_drift": [
         {
-          "field": "maxUsage",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
-          "field": "zcomponentId",
+          "field": "name",
           "contract_required": false,
           "tf_required": true,
           "direction": "tf_stricter"
@@ -2661,37 +2753,21 @@
         },
         "presence": {
           "contract_unmatched_in_ansible": [
-            "creationTime",
-            "enabled",
-            "enrollmentCertId",
-            "enrollmentCertName",
-            "expirationInEpochSec",
-            "exportable",
-            "ipAcl",
-            "microtenantName",
-            "modifiedBy",
-            "modifiedTime",
-            "provisioningKey",
-            "uiConfig",
-            "usageCount",
-            "zcomponentId",
-            "zcomponentName"
+            "cloudName",
+            "maxUsageCount",
+            "nonceAssociationType",
+            "nonceValue",
+            "scopeId",
+            "usageCount"
           ],
           "ansible_only_vs_contract": [
             "componentId",
-            "keyType"
+            "keyType",
+            "maxUsage",
+            "microtenantId"
           ]
         },
-        "required_drift": [
-          {
-            "field": "name",
-            "contract_required": true,
-            "ansible_required": false,
-            "direction": "contract_stricter",
-            "repo": "zpacloud-ansible",
-            "path": "vendor/zpacloud-ansible/plugins/modules/zpa_provisioning_key.py"
-          }
-        ],
+        "required_drift": [],
         "enum": {
           "match": [],
           "value_conflict": [],
@@ -2716,14 +2792,24 @@
         },
         "presence": {
           "contract_unmatched_in_python": [
-            "expirationInEpochSec",
-            "exportable",
-            "ipAcl",
-            "microtenantId",
-            "microtenantName",
-            "uiConfig"
+            "cloudName",
+            "maxUsageCount",
+            "nonceAssociationType",
+            "nonceValue",
+            "scopeId"
           ],
-          "python_only_vs_contract": []
+          "python_only_vs_contract": [
+            "creationTime",
+            "enabled",
+            "enrollmentCertId",
+            "enrollmentCertName",
+            "maxUsage",
+            "modifiedBy",
+            "modifiedTime",
+            "provisioningKey",
+            "zcomponentId",
+            "zcomponentName"
+          ]
         }
       },
       "mcp": {
@@ -2731,7 +2817,7 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/provisioning_key.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/provisioning_key.py"
         ],
         "tools": [
           "zpa_create_provisioning_key",
@@ -2753,40 +2839,43 @@
         },
         "presence": {
           "contract_unmatched_in_mcp": [
-            "creationTime",
-            "enabled",
-            "enrollmentCertName",
-            "expirationInEpochSec",
-            "exportable",
+            "cloudName",
             "id",
-            "ipAcl",
-            "microtenantId",
-            "microtenantName",
-            "modifiedBy",
-            "modifiedTime",
-            "provisioningKey",
-            "uiConfig",
-            "usageCount",
-            "zcomponentId",
-            "zcomponentName"
+            "maxUsageCount",
+            "nonceAssociationType",
+            "nonceValue",
+            "scopeId",
+            "usageCount"
           ],
           "mcp_only_vs_contract": [
             "componentId",
             "description",
-            "keyType"
+            "enrollmentCertId",
+            "keyType",
+            "maxUsage"
           ]
         }
       }
     },
     {
       "resource": "service_edge_group",
-      "method": "POST",
-      "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup",
-      "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup",
+      "method": "GET",
+      "path": "/zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}",
+      "contract_path": "/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}",
       "counts": {
         "contract": 33,
         "go": 41,
         "tf": 27
+      },
+      "contract_coverage": {
+        "expected_operations": [
+          "zpa/private-service-edge-group-management/get-private-broker-group",
+          "zpa/private-service-edge-group-management/add-private-broker-group"
+        ],
+        "missing_operations": [
+          "zpa/private-service-edge-group-management/add-private-broker-group"
+        ],
+        "required_comparison": "unavailable"
       },
       "presence": {
         "contract_only_vs_go": [
@@ -2857,26 +2946,7 @@
           "go": "string"
         }
       ],
-      "required_drift": [
-        {
-          "field": "latitude",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
-          "field": "location",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        },
-        {
-          "field": "longitude",
-          "contract_required": false,
-          "tf_required": true,
-          "direction": "tf_stricter"
-        }
-      ],
+      "required_drift": [],
       "readonly": [
         {
           "field": "versionProfileName",
@@ -3017,7 +3087,7 @@
         "field_surface": "present",
         "repo": "zscaler-mcp-server",
         "paths": [
-          "vendor/zscaler-mcp-server/zscaler_mcp/tools/zpa/service_edge_groups.py"
+          "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/service_edge_groups.py"
         ],
         "tools": [
           "zpa_create_service_edge_group",
@@ -3065,8 +3135,8 @@
     }
   ],
   "totals": {
-    "type_drift": 92,
-    "required_drift": 28,
+    "type_drift": 84,
+    "required_drift": 20,
     "enum_match": 15,
     "enum_value_conflict": 3,
     "enum_one_sided": 4,
@@ -3074,18 +3144,19 @@
     "readonly_disagree": 0,
     "ansible_resources": 13,
     "ansible_no_surface": 3,
-    "ansible_required_drift": 4,
+    "ansible_required_drift": 2,
     "ansible_enum_match": 6,
     "ansible_enum_value_conflict": 2,
     "ansible_enum_one_sided": 6,
     "python_resources": 16,
     "python_no_surface": 0,
-    "python_contract_unmatched": 41,
-    "python_only": 22,
+    "python_contract_unmatched": 37,
+    "python_only": 38,
     "mcp_resources": 12,
     "mcp_no_surface": 4,
     "mcp_field_resources": 10,
-    "mcp_contract_unmatched": 152,
-    "mcp_only": 14
+    "mcp_contract_unmatched": 166,
+    "mcp_only": 17,
+    "missing_contract_operations": 3
   }
 }

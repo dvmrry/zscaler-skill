@@ -2,7 +2,7 @@
 """reconcile_contract.py — diff the captured automate.zscaler.com contract against
 client surfaces and report real divergences.
 
-This is the DAV-21 payoff: the rendered contract is the vendor's actual per-operation
+This is the DAV-21 payoff: the compiled contract is the vendor's actual per-operation
 schema (required/readonly/enum). Diffing it against the client-side sources surfaces
 where they disagree — numeric-vs-string fields, required/readonly drift, enum drift,
 and coverage gaps.
@@ -1158,6 +1158,9 @@ def display_contract_path(product, path):
 ZPA_RESOURCES = [
     {"name": "app_connector_group", "group": "app-connector-group-management",
      "create": "adds-a-new-app-connector-group-for-the-specified-customer",
+     "allow_missing_contract_operations": [
+         "adds-a-new-app-connector-group-for-the-specified-customer",
+     ],
      "get": "gets-the-app-connector-group-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go", "AppConnectorGroup"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go",
@@ -1218,6 +1221,9 @@ ZPA_RESOURCES = [
                 "methods": ["list_profiles", "get_profile", "add_profile", "update_profile"]}},
     {"name": "lss_config", "group": "log-streaming-service-lss-configuration",
      "create": "add-a-new-lss-configuration-for-the-specified-customer",
+     "allow_missing_contract_operations": [
+         "add-a-new-lss-configuration-for-the-specified-customer",
+     ],
      "get": "gets-the-lss-configuration-details-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go", "LSSResource"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go",
@@ -1279,7 +1285,7 @@ ZPA_RESOURCES = [
                 "service": "vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py",
                 "methods": ["list_groups", "get_group", "add_group", "update_group"]},
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_segment_group.py"},
-    {"name": "provisioning_key", "group": "provisioning-key-management",
+    {"name": "provisioning_key", "group": "nonce",
      "create": "adds-a-new-provisioning-key-for-the-specified-customer",
      "get": "gets-details-of-the-provisioning-key-for-the-specified-id",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go", "ProvisioningKey"),
@@ -1291,6 +1297,7 @@ ZPA_RESOURCES = [
      "ansible": "vendor/zpacloud-ansible/plugins/modules/zpa_provisioning_key.py"},
     {"name": "service_edge_group", "group": "private-service-edge-group-management",
      "create": "add-private-broker-group",
+     "allow_missing_contract_operations": ["add-private-broker-group"],
      "get": "get-private-broker-group",
      "go": ("vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go", "ServiceEdgeGroup"),
      "tf": "vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go",
@@ -2217,15 +2224,21 @@ def _contract_ops(res, contracts, product):
     read_slugs = [res["get"], *res.get("extra_gets", [])]
     write_slugs = [x for x in (res.get("create"), res.get("update"), *res.get("extra_updates", [])) if x]
     op_keys = [(slug, _contract_key(product, res, slug)) for slug in read_slugs + write_slugs]
-    missing = [key for _, key in op_keys if key not in contracts]
-    if missing:
-        raise KeyError(f"missing contract operation(s) for {res['name']}: {', '.join(missing)}")
-    reads = [contracts[_contract_key(product, res, slug)] for slug in read_slugs]
-    writes = [contracts[_contract_key(product, res, slug)] for slug in write_slugs]
-    return reads, writes
+    allowed_missing = set(res.get("allow_missing_contract_operations", []))
+    missing = [(slug, key) for slug, key in op_keys if key not in contracts]
+    unexpected = [key for slug, key in missing if slug not in allowed_missing]
+    if unexpected:
+        raise KeyError(f"missing contract operation(s) for {res['name']}: {', '.join(unexpected)}")
+    reads = [contracts[key] for slug, key in op_keys[:len(read_slugs)] if key in contracts]
+    writes = [contracts[key] for slug, key in op_keys[len(read_slugs):] if key in contracts]
+    coverage = {
+        "expected_operations": [key for _, key in op_keys],
+        "missing_operations": [key for _, key in missing],
+    }
+    return reads, writes, coverage
 
 
-def reconcile_ansible(res, cfields, required_names):
+def reconcile_ansible(res, cfields, required_names, compare_required):
     if not res.get("ansible"):
         return {"surface": "none"}
 
@@ -2248,7 +2261,7 @@ def reconcile_ansible(res, cfields, required_names):
         "enum": {"match": [], "value_conflict": [], "one_sided": []},
     }
 
-    if res.get("compare_required", True) and res.get("create"):
+    if compare_required:
         for name in sorted(matched):
             contract_required = name in required_names
             ansible_required = fields[name]["required"]
@@ -2373,7 +2386,9 @@ def reconcile_mcp(res, cfields, routing=()):
 
 
 def reconcile_one(res, contracts, product="zpa"):
-    reads, writes = _contract_ops(res, contracts, product)
+    reads, writes, coverage = _contract_ops(res, contracts, product)
+    if not reads and not writes:
+        raise KeyError(f"no available contract operations for {res['name']}")
     operation = writes[0] if writes else reads[0]
     routing = {p["name"] for op in [*reads, *writes] for p in op.get("path_params", []) + op.get("query_params", [])}
     # field universe = response schema (fullest); required comes from create bodies
@@ -2388,8 +2403,14 @@ def reconcile_one(res, contracts, product="zpa"):
                 continue
             cfields.setdefault(f["name"], dict(f))
     creq = {}
-    if res.get("compare_required", True) and res.get("create"):
-        create_op = contracts[_contract_key(product, res, res["create"])]
+    create_key = _contract_key(product, res, res["create"]) if res.get("create") else None
+    compare_required = bool(
+        res.get("compare_required", True)
+        and create_key
+        and create_key in contracts
+    )
+    if compare_required:
+        create_op = contracts[create_key]
         creq = {
             f["name"]: f
             for raw in create_op.get("request_body", [])
@@ -2422,6 +2443,10 @@ def reconcile_one(res, contracts, product="zpa"):
         "path": display_contract_path(product, operation.get("path")),
         "contract_path": operation.get("path"),
         "counts": {"contract": len(cset), "go": len(goset), "tf": len(tf)},
+        "contract_coverage": {
+            **coverage,
+            "required_comparison": "available" if compare_required else "unavailable",
+        },
         "presence": {
             "contract_only_vs_go": sorted(cset - goset),
             "go_only_vs_contract": sorted(goset - cset),
@@ -2444,16 +2469,17 @@ def reconcile_one(res, contracts, product="zpa"):
     # required / readonly / enum: only where the matched TF key is an inline block, so
     # its flags are actually readable. Helper-valued keys are present but their flags
     # are unresolved -> we never claim a divergence we cannot see.
-    for name in sorted(matched_tf):
-        tff = tf_get(name)
-        if not tff["inline"]:
-            continue
-        creq_flag = name in required_names
-        if creq_flag != tff["required"]:
-            rep["required_drift"].append({
-                "field": name, "contract_required": creq_flag, "tf_required": tff["required"],
-                "direction": "tf_stricter" if tff["required"] and not creq_flag else "contract_stricter",
-            })
+    if compare_required:
+        for name in sorted(matched_tf):
+            tff = tf_get(name)
+            if not tff["inline"]:
+                continue
+            creq_flag = name in required_names
+            if creq_flag != tff["required"]:
+                rep["required_drift"].append({
+                    "field": name, "contract_required": creq_flag, "tf_required": tff["required"],
+                    "direction": "tf_stricter" if tff["required"] and not creq_flag else "contract_stricter",
+                })
 
     # readonly NARROWED: only fields the contract marks readonly; report TF treatment
     for name in sorted(matched_tf):
@@ -2475,7 +2501,7 @@ def reconcile_one(res, contracts, product="zpa"):
         else:
             rep["enum"]["one_sided"].append({"field": name, "contract": ce, "tf": te})
 
-    rep["ansible"] = reconcile_ansible(res, cfields, required_names)
+    rep["ansible"] = reconcile_ansible(res, cfields, required_names, compare_required)
     rep["python"] = reconcile_python(res, cfields)
     rep["mcp"] = reconcile_mcp(res, cfields, routing)
     return rep
@@ -2513,6 +2539,9 @@ def build_report(contracts, product="zpa"):
             len(r["mcp"].get("presence", {}).get("contract_unmatched_in_mcp", [])) for r in reports
         ),
         "mcp_only": sum(len(r["mcp"].get("presence", {}).get("mcp_only_vs_contract", [])) for r in reports),
+        "missing_contract_operations": sum(
+            len(r["contract_coverage"]["missing_operations"]) for r in reports
+        ),
     }
     report = {
         "product": product,
@@ -2543,7 +2572,7 @@ def render_markdown(report):
     out.append(f"# automate.zscaler.com contract vs Go SDK / Python SDK / Terraform / Ansible / MCP — {product_label}\n")
     out.append("> Generated by `scripts/automate-capture/reconcile_contract.py`. Do not edit by hand; "
                "re-run after re-capturing the contract or bumping the vendor submodules.\n")
-    out.append("Diffs the rendered per-operation contract "
+    out.append("Diffs the compiled per-operation contract "
                f"(`{report['contract_json']}`) against the Go SDK struct, Python SDK model/request fields, "
                "Terraform provider schema, "
                "Ansible module argument specs, "
@@ -2571,6 +2600,8 @@ def render_markdown(report):
                f"(**{t['mcp_field_resources']}** with request-field surface)")
     out.append(f"- MCP request-field presence: **{t['mcp_contract_unmatched']}** contract-unmatched / "
                f"**{t['mcp_only']}** MCP-only fields\n")
+    out.append(f"- Expected operations absent from the captured contract: "
+               f"**{t['missing_contract_operations']}**\n")
     if report.get("contract_only_groups"):
         out.append("## Contract Groups Outside Terraform Scope\n")
         out.append("Captured contract groups with no Terraform resource mapping in this report:\n")
@@ -2605,6 +2636,10 @@ def render_markdown(report):
         out.append(f"`{r['method']} {r['path']}` — "
                    f"contract {r['counts']['contract']} / Go {r['counts']['go']} / TF {r['counts']['tf']} fields / "
                    f"{ansible_label} / {python_label} / {mcp_label}\n")
+        if r["contract_coverage"]["missing_operations"]:
+            out.append("**Contract coverage gap:** expected operation(s) absent from the current capture: "
+                       f"{', '.join('`%s`' % x for x in r['contract_coverage']['missing_operations'])}. "
+                       "Required-field comparison is unavailable until a create operation is captured.\n")
         if r["type_drift"]:
             out.append("**Type drift** — contract and Go SDK disagree on the primitive field category:\n")
             for d in r["type_drift"]:

@@ -14,6 +14,7 @@ sys.path.insert(0, HERE)
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 
 from reconcile_contract import (  # noqa: E402
+    _contract_ops,
     _contract_reconcile_field,
     _mcp_package_root,
     ansible_category, build_report, contract_category, extract_ansible_argument_spec_fields,
@@ -89,6 +90,40 @@ def test_display_contract_path_preserves_product_context():
     assert display_contract_path("zcc", "/papi/public/v1/setDeviceCleanupInfo") == \
         "/zcc/papi/public/v1/setDeviceCleanupInfo"
     assert display_contract_path("zia", "/zia/api/v1/locations") == "/zia/api/v1/locations"
+
+
+@case
+def test_contract_ops_records_an_allowed_missing_operation():
+    res = {
+        "name": "thing",
+        "group": "things",
+        "get": "get-thing",
+        "create": "create-thing",
+        "allow_missing_contract_operations": ["create-thing"],
+    }
+    contracts = {
+        "zpa/things/get-thing": {"method": "GET"},
+    }
+    reads, writes, coverage = _contract_ops(res, contracts, "zpa")
+    assert reads == [{"method": "GET"}], reads
+    assert writes == [], writes
+    assert coverage["missing_operations"] == ["zpa/things/create-thing"], coverage
+
+
+@case
+def test_contract_ops_still_rejects_an_unexpected_missing_operation():
+    res = {
+        "name": "thing",
+        "group": "things",
+        "get": "get-thing",
+        "create": "create-thing",
+    }
+    try:
+        _contract_ops(res, {"zpa/things/get-thing": {"method": "GET"}}, "zpa")
+    except KeyError as exc:
+        assert "zpa/things/create-thing" in str(exc), exc
+    else:
+        assert False, "unexpected operation loss must remain a hard failure"
 
 
 # TF schema exercising: nested Elem (must not leak), commented-out attributes (must

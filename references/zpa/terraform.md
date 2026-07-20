@@ -3,12 +3,16 @@ product: zpa
 topic: "zpa-terraform"
 title: "ZPA Terraform provider — resource catalog"
 content-type: reference
-last-verified: "2026-07-09"
+last-verified: "2026-07-20"
+verified-against:
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
 confidence: medium
 source-tier: code
 sources:
   - "vendor/terraform-provider-zpa/docs/index.md"
   - "vendor/terraform-provider-zpa/README.md"
+  - "vendor/terraform-provider-zpa/docs/guides/release-notes.md"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_portal_access_rule.go"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_browser_access.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_inspection.md"
@@ -94,6 +98,14 @@ Complete listing of every Terraform resource and data source in the `zscaler/zpa
 ---
 
 ## Provider overview
+
+Provider v4.4.7 changed two operationally relevant surfaces. It added three
+portal-access capability fields—`access_uninspected_file_sandbox`,
+`upload_inspected_sandbox`, and `upload_inspected_scan`—and changed transient or
+cancelled read failures for application segments, server groups, Service Edge
+groups, and LSS configurations from provider panics into recoverable Terraform
+errors (`vendor/terraform-provider-zpa/docs/guides/release-notes.md:19-32`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_portal_access_rule.go:118-157`).
 
 ### Invocation
 
@@ -1034,13 +1046,18 @@ Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_browser_protect
 
 #### `zpa_policy_portal_access_rule`
 
-Controls capabilities within the user portal itself (approval workflows, file access).
+Controls portal-access capabilities, including approval workflows and file access.
 
 **Required:** `name`.
 
 **`action`:** `CHECK_PRIVILEGED_PORTAL_CAPABILITIES`.
 
-**Required:** `privileged_portal_capabilities` block with Boolean fields: `delete_file`, `access_uninspected_file`, `request_approvals`, `review_approvals`.
+**Optional/computed:** `privileged_portal_capabilities` block with Boolean fields:
+`delete_file`, `access_uninspected_file`, `access_uninspected_file_sandbox`,
+`request_approvals`, `review_approvals`, `upload_inspected_sandbox`, and
+`upload_inspected_scan`. The two inspected-upload fields map to the API
+capabilities `UPLOAD_INSPECTED_SANDBOX` and `UPLOAD_INSPECTED_SCAN`
+(`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_portal_access_rule.go:118-157,333-390`).
 
 **Supported `object_type` values:** `PRIVILEGE_PORTAL`, `COUNTRY_CODE`, `SAML`, `SCIM`, `SCIM_GROUP`.
 

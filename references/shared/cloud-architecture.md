@@ -3,9 +3,9 @@ product: shared
 topic: "zscaler-cloud-architecture"
 title: "Zscaler cloud architecture — Central Authority, Service Edges, BC Cloud, tunnel model"
 content-type: reasoning
-last-verified: "2026-06-16"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
 confidence: high
 source-tier: doc
 sources:

@@ -3,10 +3,10 @@ product: ai-security
 topic: "ai-guard-api-divergences"
 title: "AI Guard API and integration divergences"
 content-type: reference
-last-verified: "2026-06-21"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 confidence: medium
 source-tier: mixed
@@ -51,7 +51,7 @@ This page records the differences between public Help, the Python SDK, the recon
 
 ## Runtime API surface
 
-The Python SDK README lists **Zscaler AI Guard API** in the OneAPI-supported product list (`vendor/zscaler-sdk-python/README.md:256`, `vendor/zscaler-sdk-python/README.md:269`). The SDK exposes it through the `zguard` property and a narrow `ZGuardService` wrapper: `client.zguard.policy_detection` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:327`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:332`, `vendor/zscaler-sdk-python/zscaler/zaiguard/zaiguard_service.py:21`, `vendor/zscaler-sdk-python/zscaler/zaiguard/zaiguard_service.py:28`).
+The Python SDK README lists **Zscaler AI Guard API** in the OneAPI-supported product list (`vendor/zscaler-sdk-python/README.md:256-273`). The SDK exposes it through the `zguard` property and a narrow `ZGuardService` wrapper: `client.zguard.policy_detection` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:345-350`; `vendor/zscaler-sdk-python/zscaler/zaiguard/zaiguard_service.py:21-33`).
 
 The exposed methods are:
 
@@ -96,7 +96,9 @@ Do not generalize fail-open or fail-closed behavior across integrations:
 
 Source: `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md`; `vendor/zscaler-sdk-go`; `vendor/terraform-provider-zia`; `vendor/terraform-provider-zpa`; `vendor/terraform-provider-ztc`; `vendor/zscaler-mcp-server`; `vendor/zscaler-terraform-skills`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-The reconstructed Automate snapshot now exposes **45 AI Guard operations** across detection policies, detection-policy match rules, LLM applications, LLM providers, and application/provider credential objects (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; examples: detection-policy create `POST /v1/detections/policies` at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:1-14`, match-rule criteria at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:3253-3275`, and LLM application/provider credential surfaces at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:5433-5455` and `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:6470-6475`). This resolves the earlier audit-scoped absence of a documented AI Guard admin-plane API.
+The reconstructed Automate snapshot now exposes **47 AI Guard operations** across detection policies, detection-policy match rules, LLM applications, LLM providers, provider types, and application/provider credential objects (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:9`; operation inventory in `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json`). This resolves the earlier audit-scoped absence of a documented AI Guard admin-plane API.
+
+Do not conflate that contract with the newly captured **AI Security Public API**, which is a separate 11-operation read-only inventory/findings surface for data stores, identities, MCP servers/tools, workloads, and issues. See [`./asset-management-api.md`](./asset-management-api.md).
 
 That does **not** mean the client surfaces are caught up. The same pass still found no matching Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected client/source classes. Treat the Automate contract as the documented method/path/field surface, and treat client absence as a wrapper-coverage gap until a client source adds those operations. See [clarification ai-security-04](../_meta/clarifications.md#ai-security-04-ai-guard-admin-plane-programmability).
 

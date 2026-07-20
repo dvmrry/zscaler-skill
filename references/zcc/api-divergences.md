@@ -5,10 +5,10 @@ title: "ZCC API source divergences"
 content-type: reference
 confidence: medium
 source-tier: code
-last-verified: "2026-06-18"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 3ade7d3f013e212e975e368cf8b0c8736d58a80f
-  vendor/zscaler-sdk-python: 33b96b3f4767d3548594eafd76cb06b5ff6ed843 (v1.9.33)
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md"

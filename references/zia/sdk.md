@@ -3,10 +3,10 @@ product: zia
 topic: zia-sdk
 title: "ZIA SDK — service and method catalog"
 content-type: reference
-last-verified: "2026-05-30"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
 confidence: medium
 source-tier: code
 sources:
@@ -14,11 +14,13 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/admin_roles.py
   - vendor/zscaler-sdk-python/zscaler/zia/admin_users.py
   - vendor/zscaler-sdk-python/zscaler/zia/advanced_settings.py
+  - vendor/zscaler-sdk-python/zscaler/zia/adaptive_access_profiles.py
   - vendor/zscaler-sdk-python/zscaler/zia/alert_subscriptions.py
   - vendor/zscaler-sdk-python/zscaler/zia/apptotal.py
   - vendor/zscaler-sdk-python/zscaler/zia/atp_policy.py
   - vendor/zscaler-sdk-python/zscaler/zia/audit_logs.py
   - vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py
+  - vendor/zscaler-sdk-python/zscaler/zia/azure_integration.py
   - vendor/zscaler-sdk-python/zscaler/zia/bandwidth_classes.py
   - vendor/zscaler-sdk-python/zscaler/zia/bandwidth_control_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/browser_control_settings.py
@@ -43,6 +45,8 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/custom_file_types.py
   - vendor/zscaler-sdk-python/zscaler/zia/dedicated_ip_gateways.py
   - vendor/zscaler-sdk-python/zscaler/zia/device_management.py
+  - vendor/zscaler-sdk-python/zscaler/zia/device_groups.py
+  - vendor/zscaler-sdk-python/zscaler/zia/devices.py
   - vendor/zscaler-sdk-python/zscaler/zia/dlp_dictionary.py
   - vendor/zscaler-sdk-python/zscaler/zia/dlp_engine.py
   - vendor/zscaler-sdk-python/zscaler/zia/dlp_resources.py
@@ -57,6 +61,7 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/forwarding_control.py
   - vendor/zscaler-sdk-python/zscaler/zia/ftp_control_policy.py
   - vendor/zscaler-sdk-python/zscaler/zia/gre_tunnel.py
+  - vendor/zscaler-sdk-python/zscaler/zia/http_header_control.py
   - vendor/zscaler-sdk-python/zscaler/zia/intermediate_certificates.py
   - vendor/zscaler-sdk-python/zscaler/zia/iot_report.py
   - vendor/zscaler-sdk-python/zscaler/zia/ipv6_config.py
@@ -67,6 +72,7 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/nss_servers.py
   - vendor/zscaler-sdk-python/zscaler/zia/organization_information.py
   - vendor/zscaler-sdk-python/zscaler/zia/pac_files.py
+  - vendor/zscaler-sdk-python/zscaler/zia/partner_integrations.py
   - vendor/zscaler-sdk-python/zscaler/zia/policy_export.py
   - vendor/zscaler-sdk-python/zscaler/zia/proxies.py
   - vendor/zscaler-sdk-python/zscaler/zia/remote_assistance.py
@@ -76,8 +82,10 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/sandbox.py
   - vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/security_policy_settings.py
+  - vendor/zscaler-sdk-python/zscaler/zia/security_ueba_alerts.py
   - vendor/zscaler-sdk-python/zscaler/zia/shadow_it_report.py
   - vendor/zscaler-sdk-python/zscaler/zia/ssl_inspection_rules.py
+  - vendor/zscaler-sdk-python/zscaler/zia/smpc_instance.py
   - vendor/zscaler-sdk-python/zscaler/zia/sub_clouds.py
   - vendor/zscaler-sdk-python/zscaler/zia/system_audit.py
   - vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py
@@ -1683,6 +1691,25 @@ This is separate from the older `client.zia.browser_control_settings` accessor, 
 | `delete_gateway` | `(gw_id: int)` | DELETE `/zpaGateways/{id}`. |
 
 **Go parity:** No (ZPA Gateway is a ZIA-specific concept for routing ZIA traffic into ZPA)
+
+---
+
+### Newly added service surfaces in the current SDK pin
+
+The current Python SDK adds eight `client.zia` accessors that were absent from the previous catalog baseline (`vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:757-827`). Their exported methods are:
+
+| Accessor | Methods and scope |
+|---|---|
+| `adaptive_access_profiles` | `list_adaptive_access_profiles`; `list_adaptive_access_profiles_profiles_rules` — reads `/adaptiveAccessProfiles` and its `/profiles/rules` child. |
+| `azure_integration` | Reads/starts refresh status, reads/adds tunnel configuration, reads unconfigure status, reads/starts virtual-hub sync, lists virtual hubs, and `delete_azure` unconfigures a hub. |
+| `device_groups` | `list_device_groups`, `list_device_groups_devices`, and `list_device_groups_devices_lite`. |
+| `devices` | `list_devices`, `get_device`, and `add_device` over `/devices`. |
+| `http_header_control` | List/create/update/delete for HTTP-header action profiles and HTTP-header match profiles. URL Filtering rules can bind both profile types through `http_header_action_profile_ids` and `http_header_profile_ids`. |
+| `partner_integrations` | Lists partners, CrowdStrike allowlisted base URLs and endpoints, accepts a CrowdStrike endpoint list, adds Microsoft Defender endpoints, and fetches a sandbox MD5 report. |
+| `security_ueba_alerts` | CRUD for alert definitions; reads rule, rule-status, UEBA-rule, and webhook catalogs; CRUD for alert-rule configurations. |
+| `smpc_instance` | `list_smpc_instances` and `update_smpc_instance`. |
+
+These are SDK surfaces, not proof that every tenant is entitled to the corresponding backend. Preserve the normal tenant/role/feature checks before treating a successful client import as API availability.
 
 ---
 

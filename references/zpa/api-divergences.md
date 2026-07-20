@@ -4,10 +4,10 @@ topic: "api-divergences"
 title: "ZPA API source divergences"
 content-type: reference
 confidence: medium
-last-verified: "2026-06-18"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
@@ -15,6 +15,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md"
   - "vendor/zscaler-api-specs/automate-zscaler/rosetta.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-help/zpa-create-operation-drift-capture.md"
   - "Operator field observations from production ZPA-via-Terraform usage (not reproducible from the vendored sources)"
 author-status: draft
 ---
@@ -31,9 +32,42 @@ Operator field observations from production ZPA-via-Terraform usage add a fourth
 - Postman example response bodies beat Postman schema annotations when the two differ
 - Both SDKs use string for all ZPA IDs; Postman's `<long>` annotations are a Java/schema artifact — treat them as strings
 
-**Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, SDKs for wrapper behavior, and Postman for examples/fallback evidence (`references/_meta/verification-protocol.md:114-118`). The generated ZPA reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md:7-11`). Its current totals are 92 contract-vs-Go primitive type drifts, 28 contract-vs-Terraform required-flag drifts, 3 enum value conflicts, 4 one-sided enum constraints, and 5 readonly fields with no Terraform disagreement (`vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md:13-18`).
+**Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, SDKs for wrapper behavior, and Postman for examples/fallback evidence (`references/_meta/verification-protocol.md:114-118`). The generated ZPA reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md:7-11`). Its current totals are 84 contract-vs-Go primitive type drifts, 20 contract-vs-Terraform required-flag drifts, 3 enum value conflicts, 4 one-sided enum constraints, and 5 readonly fields with no Terraform disagreement (`vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md:13-18`).
 
-Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`), treats Postman as reference-only rather than a constraint-bearing reconciliation leg (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:22-24`), and begins the ZPA resource table at `app_connector_group` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:2003-2012`).
+Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`), treats Postman as reference-only rather than a constraint-bearing reconciliation leg (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:22-24`), and begins the ZPA resource table at `app_connector_group` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:2009-2012`).
+
+---
+
+## Automate operation-inventory drift
+
+### Three create operations are absent from Automate, but not removed from ZPA
+
+The 2026-07-20 compiled Automate inventory omits the POST operations for App
+Connector Groups, LSS configurations, and Private Service Edge Groups. Current
+Help pages still document the same methods and paths, and unauthenticated probes
+to all three endpoints reached the management service's authentication boundary
+(`401 auth.header.missing`). This supports classifying the discrepancy as an
+Automate documentation coverage gap rather than an API removal
+(`vendor/zscaler-help/zpa-create-operation-drift-capture.md`).
+
+The reconciler therefore records these three exact missing operation keys and
+continues presence, type, enum, readonly, SDK, provider, Ansible, and MCP
+comparison from the remaining read/update operations. It does **not** compare
+required fields for the affected resources because the current Automate capture
+no longer supplies their create request bodies
+(`vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md`). Any other
+missing registered operation remains a hard reconciliation failure.
+
+### Documentation groups moved without API method/path changes
+
+Provisioning Key operations moved from the Automate
+`provisioning-key-management` group to `nonce`. Several list operations also
+moved to new groups: App Connector Groups to `app-connector-group`, LSS to
+`siem-config`, Private Service Edge Groups to `service-edge-group`, enrollment
+certificates to `signing-certificate`, and version profiles to
+`version-profile`. Their method/path signatures did not change
+(`vendor/zscaler-help/zpa-create-operation-drift-capture.md`). Treat these as
+documentation-routing changes, not endpoint migrations.
 
 ---
 

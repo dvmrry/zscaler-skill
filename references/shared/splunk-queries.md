@@ -3,7 +3,7 @@ product: shared
 topic: "splunk-queries"
 title: "SPL patterns for Zscaler log questions"
 content-type: reference
-last-verified: "2026-05-06"
+last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 sources:
@@ -14,7 +14,7 @@ sources:
   - "https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference"
   - "vendor/splunk-sdk-python/README.md"
 verified-against:
-  vendor/splunk-sdk-python: d334d2da58708335def361cbbf9907844e911232
+  vendor/splunk-sdk-python: 92b45aa46360262b157896ca2df90aff2c628a43
 author-status: draft
 ---
 

@@ -3,11 +3,11 @@ product: zpa
 topic: "privileged-remote-access"
 title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
-last-verified: "2026-07-16"
+last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/zpacloud-ansible: 52cabe8c40a9fa7b882e9c5dcb21652b4896591a
-  vendor/terraform-provider-zpa: 8d7d7f3a8fc63bd428233b629eb08bce834e975c
+  vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
+  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
   vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
 confidence: medium
 source-tier: mixed
@@ -72,7 +72,10 @@ Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zsca
 
 4. **Privileged Approvals** — time-bounded access requests. Requester specifies console + start-date + duration + reason; approver reviews and grants with specified access window.
 
-5. **Privileged Capabilities Policy** — per-console capability controls: clipboard allow/deny, file-transfer direction (upload-only, download-only, bidirectional, none), session monitoring by approvers, emergency takeover. (English doc was under maintenance at capture time; re-verify specifics.)
+5. **Consoles Policy** — capability controls assigned to selected privileged
+   consoles: file upload (optionally inspected through ZIA), file download,
+   clipboard copy/paste, session recording, session sharing in Control or
+   Monitor mode, and joining live sessions.
 
 6. **Privileged Policies** (access policy rules) — gate who can request access to which console. Evaluated first-match-wins like other ZPA access policies. See [`./policy-precedence.md`](./policy-precedence.md) for evaluation semantics.
 
@@ -152,21 +155,31 @@ Relevant integration points from `references/zpa/app-segments.md`:
 
 A PRA app entry's `application_protocol` is validated against `RDP`, `SSH`, `VNC` (`resource_zpa_application_segment_pra.go:253`), and `app_types` is forced to `["SECURE_REMOTE_ACCESS"]` on every PRA app the resource builds (`resource_zpa_application_segment_pra.go:588`) — you don't set it yourself. That hardcoding is what distinguishes a PRA segment from a standard application segment at the API layer.
 
-## Capabilities policy (what users can actually do in-session)
+## Consoles Policy (what users can actually do in-session)
 
 Source: `vendor/zscaler-help/privileged-remote-access-captures.md`.
 
-**Caveat:** at capture time the English Privileged Capabilities Policy help article was under maintenance. Below is reconstructed from references in other articles — re-verify before leaning on specifics.
+The live Help page now calls this surface **Consoles Policy**. The former
+Privileged Capabilities Policy URL redirects to the current article. A policy
+assigned to selected privileged consoles can enable:
 
-Per-console controls commonly include:
+- **File Uploads**, optionally inspected inline when the ZIA integration is
+  available;
+- **File Downloads**;
+- **Clipboard Copy** from the console and **Clipboard Paste** into it;
+- **Record Sessions**;
+- **Share Sessions Mode** as Control or Monitor; and
+- **Join Sessions Mode**.
 
-- **Clipboard** — copy from remote allowed? paste to remote? bidirectional?
-- **File transfer** — upload to remote? download from remote? neither? both?
-- **Session monitoring** — can an approver join/observe a live session?
-- **Emergency takeover** — can an admin forcibly seize or terminate a session in progress?
-- **Session sharing** — can multiple users connect to the same session?
+These controls are disabled by default. Policy changes during a live session
+do not affect that session; the new settings apply when a new session starts.
+The Help article also states that recording captures screen output but excludes
+file-transfer and clipboard-transfer contents
+(`vendor/zscaler-help/privileged-remote-access-captures.md`).
 
-These are policy objects, not per-session flags — the same capability set applies to every session on a given console.
+For VNC-enabled consoles, enabling uploads or downloads requires SSH on port 22
+with the same credentials used for VNC. The connection fails when SFTP is
+disabled on the target (`vendor/zscaler-help/privileged-remote-access-captures.md`).
 
 ## Operational gotchas
 

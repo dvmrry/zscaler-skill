@@ -3,7 +3,7 @@ product: zpa
 topic: "appprotection"
 title: "ZPA AppProtection — inline WAF/IPS for ZPA-protected apps"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-07-20"
 confidence: high
 source-tier: mixed
 sources:
@@ -19,8 +19,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md"
 verified-against:
-  vendor/zscaler-sdk-python: b3c3645fd530b668c463ce5f1331cfcfc7cb4c00
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
 author-status: draft
 ---
 

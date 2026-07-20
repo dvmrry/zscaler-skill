@@ -3,9 +3,9 @@ product: zdx
 topic: "api-schemas"
 title: "ZDX API resource schemas"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: fe52adcee3dc10bbad12ea8e9f8e17a4583c655a
+  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
 confidence: high
 source-tier: code
 sources:

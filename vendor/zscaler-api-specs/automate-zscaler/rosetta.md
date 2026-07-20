@@ -23,7 +23,8 @@ generator: "scripts/automate-capture/rosetta.py"
 
 - Postman: reference-only; not a constraint-bearing reconciliation leg.
 - Contract-only products:
-  - `aiguard` (AI Guard): 45 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
+  - `ai-security` (AI Security): 11 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
+  - `aiguard` (AI Guard): 47 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `bi` (Business Insights): 10 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `easm` (EASM): 11 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `zcell` (Zscaler Cellular): 36 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
@@ -926,51 +927,51 @@ generator: "scripts/automate-capture/rosetta.py"
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `accessControl` | Access privilege of this rule based on the admin's RBA state. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `actions` | Action taken when traffic matches rule. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
+| `action` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `actions` | Action taken when traffic matches rule. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `applications` | List of cloud applications for which rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `browserEunTemplateId` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `cascadingEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `cbiProfile` | Cloud browser isolation profile info | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `cloudAppInstances` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `cloudAppRiskProfile` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cloudApplications` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `departments` | Name-ID pairs of departments for which rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `departments` | Name-ID pairs of departments for which rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | Additional information about this rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | Name-ID pairs of device groups for which rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | Name-ID pairs of device for which rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` | Name-ID pairs of device groups for which rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `devices` | Name-ID pairs of device for which rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `enforceTimeValidity` | Enforce a set a validity time period for the Web Application rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enforceTimeValidity` | Enforce a set a validity time period for the Web Application rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `eunEnabled` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `eunTemplateId` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `formSharingDomainProfiles` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `groups` | Name-ID pairs of groups for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `groups` | Name-ID pairs of groups for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Web Application Rule Id | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | Rule label for the policy | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `labels` | Rule label for the policy | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | Name-ID pairs of locations groups for which rule must be applied. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | Name-ID pairs of locations for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locationGroups` | Name-ID pairs of locations groups for which rule must be applied. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` | Name-ID pairs of locations for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` | Rule Name | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
 | `numberOfApplications` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `order` | Order of execution of rule with respect to other Web Application rules | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
 | `predefined` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `rank` | Admin rank of the admin who creates this rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `resolveCloudApps` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `ruleType` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `sharingDomainProfiles` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `sizeQuota` | Daily limit value for size up to which uploading and/or downloading of data is allowed from the Web Application Rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `sizeQuota` | Daily limit value for size up to which uploading and/or downloading of data is allowed from the Web Application Rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `state` | Rule State | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `tenancyProfileIds` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `timeQuota` | Daily limit value for time up to which uploading and/or downloading of data is allowed from the Web Application Rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `timeWindows` | Name-ID pairs of time interval during which rule must be enforced. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `timeQuota` | Daily limit value for time up to which uploading and/or downloading of data is allowed from the Web Application Rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `timeWindows` | Name-ID pairs of time interval during which rule must be enforced. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `type` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `userAgentTypes` | User Agent types on which this rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `userAgentTypes` | User Agent types on which this rule will be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `userRiskScoreLevels` | List of user risk score levels for which policy must be applied. If not set, the policy will be applied for all user risk score levels. | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
-| `users` | Name-ID pairs of users for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityEndTime` | If enforceTimeValidity is set to true, the Web Application rule ceases to be valid on this end date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityStartTime` | If enforceTimeValidity is set to true, the Web Application rule ceases to be valid on this start date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityTimeZoneId` | Validity time zone id for start and end time if rule has time based expiry | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `users` | Name-ID pairs of users for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `validityEndTime` | If enforceTimeValidity is set to true, the Web Application rule ceases to be valid on this end date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `validityStartTime` | If enforceTimeValidity is set to true, the Web Application rule ceases to be valid on this start date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `validityTimeZoneId` | Validity time zone id for start and end time if rule has time based expiry | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `custom_file_type`
 
@@ -1127,44 +1128,45 @@ generator: "scripts/automate-capture/rosetta.py"
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `accessControl` | Access privilege of this rule based on the admin's RBA state. Ignored if the request is POST or PUT. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `activeContent` | Flag to check whether a file has active content or not | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `action` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `activeContent` | Flag to check whether a file has active content or not | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `browserEunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `capturePCAP` | Enable or disable Capture PCAP Settings  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `cloudApplications` | The list of cloud applications to which the File Type Control policy rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `departments` | Name-ID pairs of departments for which the rule is applied. If not set, the rule is applied for all departments. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `cloudApplications` | The list of cloud applications to which the File Type Control policy rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `departments` | Name-ID pairs of departments for which the rule is applied. If not set, the rule is applied for all departments. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | Comments provided by the administrator | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | Name-ID pairs of device groups for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | Name-ID pairs of device for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` | Name-ID pairs of device groups for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `devices` | Name-ID pairs of device for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `fileTypeCategories` | The list of file types to which the rule applies | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `fileTypes` | This field is replaced with <b>fileTypeCategories</b>. Zscaler recommends updating your API configurations to use the <b>fileTypeCategories</b> attribute in place of fileTypes. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum≠** | ✓ |
-| `filteringAction` | Action taken when traffic matches policy. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `groups` | Name-ID pairs of groups for which the policy must be applied. If not set, the policy is applied for all groups. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `fileTypes` | This field is replaced with <b>fileTypeCategories</b>. Zscaler recommends updating your API configurations to use the <b>fileTypeCategories</b> attribute in place of fileTypes. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum≠** | **—** |
+| `filteringAction` | Action taken when traffic matches policy. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `groups` | Name-ID pairs of groups for which the policy must be applied. If not set, the policy is applied for all groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | System-generated identifier for a file type policy | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `labels` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | Admin user that last modified the rule. Ignored if the request is POST or PUT. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | Timestamp when the rule was last modified. Ignored if the request is POST or PUT.  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | Name-ID pairs of locations groups for which rule must be applied. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | Name-ID pairs of locations for which the policy must be applied. If not set, the policy is applied for all locations. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `maxSize` | Maximum file size (in KB) used for evaluation of the FTP rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `minSize` | Minimum file size (in KB) used for evaluation of the FTP rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locationGroups` | Name-ID pairs of locations groups for which rule must be applied. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` | Name-ID pairs of locations for which the policy must be applied. If not set, the policy is applied for all locations. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `maxSize` | Maximum file size (in KB) used for evaluation of the FTP rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `minSize` | Minimum file size (in KB) used for evaluation of the FTP rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` | Rule Name | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `operation` | File operation performed. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `operation` | File operation performed. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `order` | Order of policy execution with respect to other file type policies. Order N indicates N-th file type policy is evaluated. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
 | `passwordProtected` | <p>A Boolean field indicating whether the rule applies to password-protected files. This criterion is used in combination with the fileTypes criterion and is applicable only to specific file types such as 7-Zip, RAR, ZIP, ZIPx, PDF, password-protected Microsoft Office files, and other password-protected and encrypted files. So, when the passwordProtected field is set to true, only the applicable file types can be specified using the <b>fileTypes</b> field.</p><p><b>Note</b>: Traffic is evaluated against this criterion only when uploading and downloading of password-protected files is allowed at the organization level via the Security Exceptions in the Malware Protection policy.</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `protocols` | Protocol for the given rule. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
+| `protocols` | Protocol for the given rule. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
 | `rank` | Admin rank. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `resolveCloudApps` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `sizeQuota` | Size quota in KB, beyond which the policy must be applied. If not set, size quota is not enforced. Ignored if action is BLOCK. | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
+| `sizeQuota` | Size quota in KB, beyond which the policy must be applied. If not set, size quota is not enforced. Ignored if action is BLOCK. | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
 | `state` | Administrative state of the policy. This field is not applicable to the Lite API. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeQuota` | Time quota in minutes, after which the policy must be applied. If not set, no time quota is enforced. Ignored if action is BLOCK. | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
-| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `unscannable` | Flag to check whether a file is unscannable or not | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `urlCategories` | List of URL categories for which the policy must be applied. If not set, the policy is applied for all URL categories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | Name-ID pairs of users for which the policy must be applied. If not set, user criteria is not considered for policy enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaAppSegments` | List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `timeQuota` | Time quota in minutes, after which the policy must be applied. If not set, no time quota is enforced. Ignored if action is BLOCK. | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `timeWindows` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `unscannable` | Flag to check whether a file is unscannable or not | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlCategories` | List of URL categories for which the policy must be applied. If not set, the policy is applied for all URL categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `users` | Name-ID pairs of users for which the policy must be applied. If not set, user criteria is not considered for policy enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaAppSegments` | List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `firewall_dns_rule`
 
@@ -1174,52 +1176,51 @@ generator: "scripts/automate-capture/rosetta.py"
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `accessControl` | The admin’s access privilege to this rule based on the assigned role | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `action` | The action configured for the rule that must take place if the traffic matches the rule criteria, such as allowing, blocking, or redirecting the traffic. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `applicationGroups` | DNS application groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `applications` | DNS tunnels and network applications to which the rule applies | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `blockResponseCode` | When the action is selected as BLOCK_WITH_RESPONSE to block the DNS traffic and send a response code to the client, specify the response code using this field. | ✓ | ✓ | ✓ | **✓ enum1** | ✓ | ✓ |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `applicationGroups` | DNS application groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `applications` | DNS tunnels and network applications to which the rule applies | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `blockResponseCode` | When the action is selected as BLOCK_WITH_RESPONSE to block the DNS traffic and send a response code to the client, specify the response code using this field. | ✓ | ✓ | ✓ | **✓ enum1** | ✓ | **—** |
 | `capturePCAP` | A Boolean value that indicates whether packet capture (PCAP) is enabled or not | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `defaultDnsRuleNameUsed` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `defaultRule` | A Boolean field that indicates that the rule is predefined by using a true value | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `departments` | The departments to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `defaultRule` | A Boolean field that indicates that the rule is predefined by using a true value | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `departments` | The departments to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | The description of the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destAddresses` | Destination IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific destination IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `destIpCategories` | Destination IP categories to which the rule applies. If not set, the rule is not restricted to specific categories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpGroups` | Destination IP address groups for which the rule is applicable. If not set, the rule is not restricted to specific destination IPv6 address groups. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpv6Groups` | <p>Destination IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p><p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | Device groups to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `devices` | Devices to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `dnsGateway` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `dnsRuleRequestTypes` | DNS request types to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `ednsEcsObject` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `enableFullLogging` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `destAddresses` | Destination IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific destination IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `destIpCategories` | Destination IP categories to which the rule applies. If not set, the rule is not restricted to specific categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destIpGroups` | Destination IP address groups for which the rule is applicable. If not set, the rule is not restricted to specific destination IPv6 address groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destIpv6Groups` | <p>Destination IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p><p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceGroups` | Device groups to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `devices` | Devices to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `dnsGateway` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `dnsRuleRequestTypes` | DNS request types to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ednsEcsObject` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier generated for the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `isDefaultRuleName` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `isWebEunEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | The timestamp when the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | The location groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | The locations to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locationGroups` | The location groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` | The locations to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` | The name of the DNS Control rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `order` | Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and this field specifies the order of execution for the rule. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `predefined` | A Boolean value that indicates whether the rule is the Default Cloud IPS Rule or not | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `protocols` | The protocols to which the rules applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `predefined` | A Boolean value that indicates whether the rule is the Default Cloud IPS Rule or not | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `protocols` | The protocols to which the rules applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `rank` | The admin rank specified for the rule based on your assigned admin rank. Admin rank determines the rule order that can be specified for the rule. Admin rank can be configured if it is enabled in the Advanced Settings. . | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `redirectIp` | The IP address to which the traffic will be redirected to when the DNAT rule is triggered. If not set, no redirection is done to specific IP addresses. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `resCategories` | URL categories associated with resolved IP addresses to which the rule applies. If not set, the rule is not restricted to a specific URL category. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `resolveCloudApps` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `sourceCountries` | The countries of origin of traffic for which the rule is applicable. If not set, the rule is not restricted to specific source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `srcIpGroups` | Source IP address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIps` | Source IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific source IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIpv6Groups` | <p>Source IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p><p><b>Note</b> :User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `redirectIp` | The IP address to which the traffic will be redirected to when the DNAT rule is triggered. If not set, no redirection is done to specific IP addresses. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `resCategories` | URL categories associated with resolved IP addresses to which the rule applies. If not set, the rule is not restricted to a specific URL category. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sourceCountries` | The countries of origin of traffic for which the rule is applicable. If not set, the rule is not restricted to specific source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `srcIpGroups` | Source IP address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address group. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIps` | Source IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific source IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIpv6Groups` | <p>Source IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p><p><b>Note</b> :User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `state` | The state of the rule indicating whether it is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | The time intervals during which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | The users to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaIpGroup` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `timeWindows` | The time intervals during which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `users` | The users to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaIpGroup` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `firewall_filtering_rule`
 
@@ -1229,45 +1230,46 @@ generator: "scripts/automate-capture/rosetta.py"
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `accessControl` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `action` | The action the Firewall Filtering policy rule takes when packets match the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `appServiceGroups` | Application service groups on which this rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `appServices` | Application services on which this rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `defaultRule` | If set to true, the default rule is applied | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `departments` | The departments to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `appServiceGroups` | Application service groups on which this rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `appServices` | Application services on which this rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `defaultRule` | If set to true, the default rule is applied | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `departments` | The departments to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | Additional information about the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destAddresses` | List of destination IP addresses for which the rule is applicable. CIDR notation can be used for destination IP addresses. If not set, the rule is not restricted to a specific destination addresses unless specified by destCountries, destIpGroups or destIpCategories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `destIpCategories` | IP address categories of destination for which the DNAT rule is applicable. If not set, the rule is not restricted to specific destination IP categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `destIpGroups` | <p>User-defined destination IP address groups to which the rule is applied. If not set, the rule is not restricted to a specific destination IP address group.</p><p><b>Note</b>: For organizations that have enabled  IPv6, the <code>destIpv6Groups</code> field lists the IPv6 source address groups for which the rule is applicable.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpv6Groups` | <p>Destination IPv6 address groups for which the rule is applicable.  If not set, the rule is not restricted to a specific source IPv6 address group.</p><p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | **—** | ✓ | **—** | ✓ | ✓ |
-| `deviceGroups` | <p>Name-ID pairs of device groups for which the rule must be applied. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | <p>Name-ID pairs of devices for which rule must be applied. Specifies  devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p>  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enableFullLogging` |  | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
+| `destAddresses` | List of destination IP addresses for which the rule is applicable. CIDR notation can be used for destination IP addresses. If not set, the rule is not restricted to a specific destination addresses unless specified by destCountries, destIpGroups or destIpCategories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `destIpCategories` | IP address categories of destination for which the DNAT rule is applicable. If not set, the rule is not restricted to specific destination IP categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `destIpGroups` | <p>User-defined destination IP address groups to which the rule is applied. If not set, the rule is not restricted to a specific destination IP address group.</p><p><b>Note</b>: For organizations that have enabled  IPv6, the <code>destIpv6Groups</code> field lists the IPv6 source address groups for which the rule is applicable.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destIpv6Groups` | <p>Destination IPv6 address groups for which the rule is applicable.  If not set, the rule is not restricted to a specific source IPv6 address group.</p><p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | **—** | ✓ | **—** | ✓ | **—** |
+| `deviceGroups` | <p>Name-ID pairs of device groups for which the rule must be applied. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `devices` | <p>Name-ID pairs of devices for which rule must be applied. Specifies  devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p>  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enableFullLogging` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `excludeSrcCountries` | Indicates whether the countries specified in the sourceCountries field are included or excluded from the rule. A true value denotes that the specified source countries are excluded from the rule. A false value denotes that the rule is applied to the source countries if there is a match.  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `groups` | The groups to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `excludeSrcCountries` | Indicates whether the countries specified in the sourceCountries field are included or excluded from the rule. A true value denotes that the specified source countries are excluded from the rule. A false value denotes that the rule is applied to the source countries if there is a match.  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `groups` | The groups to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier for the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | Labels that are applicable to the rule. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `labels` | Labels that are applicable to the rule. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | Timestamp when the rule was last modified. Ignored if the request is POST or PUT. For GET, ignored if or the rule is current version. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | The location groups to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | The locations to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locationGroups` | The location groups to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` | The locations to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` | Name of the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nwApplicationGroups` | User-defined network service application group to which the rule is applied. If not set, the rule is not restricted to a specific network service application group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nwApplications` | User-defined network service applications to which the rule is applied. If not set, the rule is not restricted to a specific network service application. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `nwServiceGroups` | User-defined network service group to which the rule is applied. If not set, the rule is not restricted to a specific network service group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nwServices` | User-defined network services to which the rule is applied. If not set, the rule is not restricted to a specific network service. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `nwApplicationGroups` | User-defined network service application group to which the rule is applied. If not set, the rule is not restricted to a specific network service application group. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `nwApplications` | User-defined network service applications to which the rule is applied. If not set, the rule is not restricted to a specific network service application. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `nwServiceGroups` | User-defined network service group to which the rule is applied. If not set, the rule is not restricted to a specific network service group. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `nwServices` | User-defined network services to which the rule is applied. If not set, the rule is not restricted to a specific network service. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `order` | Rule order number of the Firewall Filtering policy rule | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `predefined` | If set to true, a predefined rule is applied | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `predefined` | If set to true, a predefined rule is applied | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `rank` | Admin rank of the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `sourceCountries` | The list of source countries that must be included or excluded from the rule based on the excludeSrcCountries field value. If no value is set, this field is ignored during policy evaluation and the rule is applied to all source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `sourceCountries` | The list of source countries that must be included or excluded from the rule based on the excludeSrcCountries field value. If no value is set, this field is ignored during policy evaluation and the rule is applied to all source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
 | `srcIpGroups` | <p>Source IP address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address group.</p><p><b>Note</b>: For organizations that have enabled IPv6, the <code>srcIpv6Groups</code> field lists the IPv6 source address groups for which the rule is applicable.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `srcIps` | User-defined source IP addresses for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `srcIps` | User-defined source IP addresses for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `srcIpv6Groups` | <p>Source IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p> <p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | **—** | ✓ | **—** | ✓ | **—** |
 | `state` | Determines whether the Firewall Filtering policy rule is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | The time interval in which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | The users to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `workloadGroups` | The list of preconfigured workload groups to which the policy must be applied.  and . | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `timeWindows` | The time interval in which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `users` | The users to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `workloadGroups` | The list of preconfigured workload groups to which the policy must be applied.  and . | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `zpaAppSegments` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `firewall_ips_rule`
@@ -1278,47 +1280,46 @@ generator: "scripts/automate-capture/rosetta.py"
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `accessControl` | The admin’s access privilege to this rule based on the assigned role | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `action` | The action configured for the rule that must take place if the traffic matches the rule criteria, such as allowing or blocking the traffic or bypassing the rule. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `capturePCAP` | A Boolean value that indicates whether packet capture (PCAP) is enabled or not | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `defaultRule` | A Boolean value that indicates whether the rule is the Default Cloud IPS Rule or not | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `defaultRule` | A Boolean value that indicates whether the rule is the Default Cloud IPS Rule or not | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `departments` | The departments to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | The description of the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destAddresses` | Destination IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific destination IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `destIpCategories` | Destination IP categories to which the rule applies. If not set, the rule is not restricted to specific categories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpGroups` | Destination IP address groups for which the rule is applicable. If not set, the rule is not restricted to specific destination IPv6 address groups. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpv6Groups` | <p>Destination IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p><b>Note</b> :User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | Device groups to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `devices` | Devices to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `enableFullLogging` | A Boolean value that indicates whether full logging is enabled. A true value indicates that full logging is enabled, whereas a false value indicates that aggregate logging is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destAddresses` | Destination IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific destination IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destCountries` | Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `destIpCategories` | Destination IP categories to which the rule applies. If not set, the rule is not restricted to specific categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destIpGroups` | Destination IP address groups for which the rule is applicable. If not set, the rule is not restricted to specific destination IPv6 address groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `destIpv6Groups` | <p>Destination IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p><b>Note</b> :User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceGroups` | Device groups to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `devices` | Devices to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `enableFullLogging` | A Boolean value that indicates whether full logging is enabled. A true value indicates that full logging is enabled, whereas a false value indicates that aggregate logging is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `eunTemplateId` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `fileTypes` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier generated for the rule | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
 | `isEunEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | The timestamp when the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | The location groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | The locations to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locationGroups` | The location groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` | The locations to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` | The name of the IPS Control rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nwServiceGroups` | Network service groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `nwServices` | Network services to which the rule applies | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `nwServiceGroups` | Network service groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `nwServices` | Network services to which the rule applies | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `order` | Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and this field specifies the order of execution for the rule. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `predefined` | A Boolean field that indicates that the rule is predefined by using a true value | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `protocols` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `predefined` | A Boolean field that indicates that the rule is predefined by using a true value | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `rank` | The admin rank specified for the rule based on your assigned admin rank. Admin rank determines the rule order that can be specified for the rule. Admin rank can be configured if it is enabled in the Advanced Settings. . | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `resCategories` | URL categories associated with resolved IP addresses to which the rule applies. If not set, the rule is not restricted to a specific URL category. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `sourceCountries` | The countries of origin of traffic for which the rule is applicable. If not set, the rule is not restricted to specific source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `srcIpGroups` | Source IP address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIps` | Source IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific source IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `srcIpv6Groups` | <p>Source IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p><p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `resCategories` | URL categories associated with resolved IP addresses to which the rule applies. If not set, the rule is not restricted to a specific URL category. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sourceCountries` | The countries of origin of traffic for which the rule is applicable. If not set, the rule is not restricted to specific source countries. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `srcIpGroups` | Source IP address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address group. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIps` | Source IP addresses or FQDNs to which the rule applies. If not set, the rule is not restricted to a specific source IP address. Each IP entry can be a single IP address, CIDR (e.g., 10.10.33.0/24), or an IP range (e.g., 10.10.33.1-10.10.33.10). | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `srcIpv6Groups` | <p>Source IPv6 address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IPv6 address group.</p><p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `state` | The state of the rule indicating whether it is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `threatCategories` | Advanced threat categories to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `timeWindows` | The time intervals during which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | The users to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaAppSegments` | The  to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `threatCategories` | Advanced threat categories to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `timeWindows` | The time intervals during which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `users` | The users to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaAppSegments` | The  to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `forwarding_rule`
 
@@ -1396,7 +1397,7 @@ generator: "scripts/automate-capture/rosetta.py"
 | `managedBy` | <p>SD-WAN Partner that manages the location. If a partner does not manage the location, this is set to Self.</p> | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `primaryDestVip` | The primary destination data center and virtual IP address (VIP) of the GRE tunnel | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `secondaryDestVip` | The secondary destination data center and virtual IP address (VIP) of the GRE tunnel | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sourceIp` | The source IP address of the GRE tunnel. This is typically a static IP address in the organization or SD-WAN. This IP address must be provisioned within the Zscaler service using the /staticIP endpoint. | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `sourceIp` | The source IP address of the GRE tunnel. This is typically a static IP address in the organization or SD-WAN. This IP address must be provisioned within the Zscaler service using the /staticIP endpoint. | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
 | `staticIpAddress` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `subCloud` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `subcloud` | <p>Restrict the data center virtual IP addresses (VIPs) only to those part of the subcloud</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
@@ -1437,6 +1438,7 @@ generator: "scripts/automate-capture/rosetta.py"
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `aupBlockInternetUntilAccepted` | <p>For First Time AUP Behavior, Block Internet Access. When set, all internet access (including non-HTTP traffic) is disabled until the user accepts the AUP.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `aupEnabled` | <p>Enable AUP. When set to true, AUP is enabled for the location. </p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `aupForceSslInspection` | <p>For First Time AUP Behavior, Force SSL Inspection. When set, Zscaler forces SSL Inspection in order to enforce AUP for HTTPS traffic.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1447,10 +1449,10 @@ generator: "scripts/automate-capture/rosetta.py"
 | `childCount` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `city` | <p>Geolocation of the IoT device. It displays the name-ID pair for the location ("city" : { "id":"0", "name":"string" }).</p><p>For example, "city" : { "id":"2077963", "name":"Albany, Western Australia, Australia"}.</p> | ✓ | **—** | **—** | **—** | ✓ | **—** |
 | `cookiesAndProxy` | If set to true, the <b>surrogateIPEnforcedForKnownBrowsers</b> option is enabled for all authentication methods including cookie-based, Kerberos, Basic, and Digest authentication to leverage the existing IP address-to-user mapping (acquired from surrogate IP) to authenticate users and prevent further authentication challenges for traffic originating from that source IP address. If set to false, surrogate IP for known browsers is only supported for cookie-based authentication and all other methods require authentication after each request. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `country` | Country | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `country` | Country | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
 | `defaultExtranetDns` | A Boolean value indicating that the DNS server configuration used in the extranet is the designated default DNS server | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `defaultExtranetTsPool` | A Boolean value indicating that the traffic selector specified in the extranet is the designated default traffic selector | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `description` | <p>Additional notes or information regarding the location or sub-location. The description cannot exceed 1024 characters.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `description` | <p>Additional notes or information regarding the location or sub-location. The description cannot exceed 1024 characters.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `digestAuthEnabled` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `displayTimeUnit` | <p>Display Time Unit. The time unit to display for IP Surrogate idle time to disassociation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `dnBandwidth` | Download bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1466,18 +1468,17 @@ generator: "scripts/automate-capture/rosetta.py"
 | `idleTimeInMinutes` | <p>Idle Time to Disassociation. The user mapping idle time (in minutes) is required if a Surrogate IP is enabled.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `iotDiscoveryEnabled` | <p>If this field  is  set to true, IoT discovery is enabled for this location.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `iotEnforcePolicySet` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `ipAddresses` | <p>For locations: IP addresses of the egress points that are provisioned in the Zscaler Cloud. Each entry is a single IP address (e.g., 238.10.33.9).</p> <p>For sub-locations: Egress, internal, or GRE tunnel IP addresses. Each entry is either a single IP address, CIDR (e.g., 10.10.33.0/24), or range (e.g., 10.10.33.1-10.10.33.10)).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `ipAddresses` | <p>For locations: IP addresses of the egress points that are provisioned in the Zscaler Cloud. Each entry is a single IP address (e.g., 238.10.33.9).</p> <p>For sub-locations: Egress, internal, or GRE tunnel IP addresses. Each entry is either a single IP address, CIDR (e.g., 10.10.33.0/24), or range (e.g., 10.10.33.1-10.10.33.10)).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `ipsControl` | <p>Enable IPS Control. When set to true, IPS Control is enabled for the location if Firewall is enabled.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `ipv6Dns64Prefix` | <p>(Optional) Name-ID pair of the NAT64 prefix configured as the DNS64 prefix for the location. If specified, the DNS64 prefix is used for the IP addresses that reside in this location. If not specified, a prefix is selected from the set of supported prefixes. This field is applicable only if <code>ipv6Enabled</code> is set is <code>true</code>. .</p><p>Before you can configure a DNS64 prefix, you must send a GET request to <code>/ipv6config/nat64prefix</code> to retrieve the IDs of NAT64 prefixes, which can be configured as the DNS64 prefix.</p> | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
 | `ipv6Enabled` | If set to true, IPv6 is enabled for the location and IPv6 traffic from  the location can be forwarded to the Zscaler service to enforce security policies. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `kerberosAuth` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `language` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `latitude` | <p>The value of latitude must be set to 7-digit precision after decimal point, ranging between -90 and 90 degrees.</p><p><b>Note</b>: This field is mandatory if geoOverride is set to true.</p> | ✓ | **—** | ✓ | **—** | ✓ | **—** |
-| `location` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `longitude` | <p>The value of longitude must be set to 7-digit precision after decimal point, ranging between -180 and 180 degrees.</p><p><b>Note</b>: This field is mandatory if geoOverride is set to true.</p> | ✓ | **—** | ✓ | **—** | ✓ | **—** |
 | `managedBy` | <p>SD-WAN Partner that manages the location. If a partner does not manage the location, this is set to Self.</p> | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `matchInChild` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `name` | Location Name. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `name` | Location Name. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `nonEditable` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `ofwEnabled` | <p>Enable Firewall. When set to true, Firewall is enabled for the location.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `other6SubLocation` | If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv6 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name <b>Other6</b> and it can be renamed, if required. This field is applicable only if <code>ipv6Enabled</code> is set is <code>true</code>. | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
@@ -1498,7 +1499,7 @@ generator: "scripts/automate-capture/rosetta.py"
 | `surrogateIpEnforcedForKnownBrowsers` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `surrogateRefreshTimeInMinutes` | <p>Refresh Time for re-validation of Surrogacy. The surrogate refresh time (in minutes) to re-validate the IP surrogates.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `surrogateRefreshTimeUnit` | <p>Display Refresh Time Unit. The time unit to display for refresh time for re-validation of surrogacy.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `tz` | Timezone of the location. If not specified, it defaults to GMT. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `tz` | Timezone of the location. If not specified, it defaults to GMT. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
 | `upBandwidth` | Upload bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `virtualZenClusters` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `virtualZens` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
@@ -1707,36 +1708,38 @@ generator: "scripts/automate-capture/rosetta.py"
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `accessControl` | The admin’s access privilege to this rule based on the assigned role | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `baPolicyCategories` | The threat categories to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `baRuleAction` | The action configured for the rule that must take place if the traffic matches the rule criteria | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `byThreatScore` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `action` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `baPolicyCategories` | The threat categories to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `baRuleAction` | The action configured for the rule that must take place if the traffic matches the rule criteria | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `byThreatScore` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `cbiProfile` | <p>Information about browser isolation profile. To learn more, see <a href="https://help.zscaler.com/isolation/what-isolation" target="_blank">What Is Isolation?</a> and <a href="https://help.zscaler.com/isolation/creating-zia-isolation-profile-isolation" target="_blank">Creating Isolation Profiles for ZIA</a>.</p> | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `cbiProfileId` | Unique identifier of the cloud browser isolation profiles to which the rule applies | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `defaultRule` | A Boolean value that indicates whether the rule is marked as the default rule. | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `departments` | The departments to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `departments` | The departments to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | The description of the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `deviceGroups` | The list of device groups to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `devices` | The list of devices to which the rule applies. This field specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `fileTypes` | The file types to which the rule applies | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req enum≠** | ✓ |
-| `firstTimeEnable` | A Boolean value indicating whether a First-Time Action is specifically configured for the rule. The First-Time Action takes place when users download unknown files. The action to be applied is specified using the firstTimeOperation field. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `firstTimeOperation` | The action that must take place when users download unknown files for the first time | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `fileTypes` | The file types to which the rule applies | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req enum≠** | **—** |
+| `firstTimeEnable` | A Boolean value indicating whether a First-Time Action is specifically configured for the rule. The First-Time Action takes place when users download unknown files. The action to be applied is specified using the firstTimeOperation field. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `firstTimeOperation` | The action that must take place when users download unknown files for the first time | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier generated for the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `lastModifiedTime` | The timestamp when the rule was last modified | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `locationGroups` | The location groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | The locations to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `mlActionEnabled` | A Boolean value indicating whether to enable or disable the AI Instant Verdict option to have the Zscaler service use AI analysis to instantly assign threat scores to unknown files. This option is available to use only with specific rule actions such as Quarantine and Allow and Scan for First-Time Action. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locationGroups` | The location groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` | The locations to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `mlActionEnabled` | A Boolean value indicating whether to enable or disable the AI Instant Verdict option to have the Zscaler service use AI analysis to instantly assign threat scores to unknown files. This option is available to use only with specific rule actions such as Quarantine and Allow and Scan for First-Time Action. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` | The name of the Sandbox rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `order` | Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and this field specifies the order of execution for the rule. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `protocols` | The protocols to which the rule applies | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
+| `protocols` | The protocols to which the rule applies | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
 | `rank` | The admin rank specified for the rule based on your assigned admin rank. Admin rank determines the rule order that can be specified for the rule. Admin rank can be configured if it is enabled in the Advanced Settings. . | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `state` | The state of the rule indicating whether it is enabled or disabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeWindows` | The time intervals during which the rule applies | ✓ | ✓ | **—** | **—** | **—** | ✓ |
-| `urlCategories` | The URL categories to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users` | The users to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `timeWindows` | The time intervals during which the rule applies | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `urlCategories` | The URL categories to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `users` | The users to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `zpaAppSegments` | The list of ZPA application segments to which the rule applies. This field is applicable only for the ZPA Gateway forwarding method. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `security_policy_settings`
@@ -1758,38 +1761,38 @@ generator: "scripts/automate-capture/rosetta.py"
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `accessControl` | Access privilege to this rule based on the admin's RBA | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `action` | Action taken when the traffic matches policy | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `cloudApplications` | Cloud applications for which the SSL inspection rule is applied. When this attribute is not set, it implies ANY applications. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `defaultRule` | A Boolean value that indicates whether the rule is the default rule or not | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `cloudApplications` | Cloud applications for which the SSL inspection rule is applied. When this attribute is not set, it implies ANY applications. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `defaultRule` | A Boolean value that indicates whether the rule is the default rule or not | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `departments` | Name-ID pairs of departments for which the rule is applied. If not set, rule is applied for all departments. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | Description provided by the administrator. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `destIpGroups` | User-defined destination IP address groups on which the rule is applied. If not set, rule is not restricted to specific destination IP address groups. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | Name-ID pairs of device groups for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | Name-ID pairs of devices for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `destIpGroups` | User-defined destination IP address groups on which the rule is applied. If not set, rule is not restricted to specific destination IP address groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceGroups` | Name-ID pairs of device groups for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `devices` | Name-ID pairs of devices for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `groups` | Name-ID pairs of groups for which the rule is applied. If not set, rule is applied for all groups. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `groups` | Name-ID pairs of groups for which the rule is applied. If not set, rule is applied for all groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | System generated identifier for the SSL inspection rule | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
-| `labels` | Name-ID pairs of rule labels associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `labels` | Name-ID pairs of rule labels associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | Admin user that last modified the rule. Ignore if the request is POST or PUT. For GET, ignore if the rule is for the current version. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | Timestamp when the rule was last modified. Ignore if the request is POST or PUT. For GET, ignore if the rule is for the current version. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | Name-ID pairs of locations groups for which the rule must be applied. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | Name-ID pairs of location for which the rule is applied. If not set, rule is applied for all locations. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locationGroups` | Name-ID pairs of locations groups for which the rule must be applied. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` | Name-ID pairs of location for which the rule is applied. If not set, rule is applied for all locations. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` | Rule name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `order` | Order of rule execution with respect to other SSL inspection rules. | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `platforms` | Zscaler Client Connector device platforms for which the rule must be applied. If not set, rule is applied to all device platforms | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `predefined` | A Boolean value that indicates whether the rule is a predefined SSL inspection rule or not | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `proxyGateways` | The proxy chaining gateway for which this rule is applicable. Ignore if the forwarding method is not Proxy Chaining. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `platforms` | Zscaler Client Connector device platforms for which the rule must be applied. If not set, rule is applied to all device platforms | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `predefined` | A Boolean value that indicates whether the rule is a predefined SSL inspection rule or not | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `proxyGateways` | The proxy chaining gateway for which this rule is applicable. Ignore if the forwarding method is not Proxy Chaining. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `rank` | Admin rank assigned to this rule | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `resolveCloudApps` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `roadWarriorForKerberos` | When set to true, the rule is applied to remote users that use PAC with Kerberos authentication. Otherwise, it is a don't care. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `sourceIpGroups` | User-defined source IP address groups on which the rule is applied. If not set, rule is not restricted to specific source IP address groups. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `roadWarriorForKerberos` | When set to true, the rule is applied to remote users that use PAC with Kerberos authentication. Otherwise, it is a don't care. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `sourceIpGroups` | User-defined source IP address groups on which the rule is applied. If not set, rule is not restricted to specific source IP address groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `state` | State whether it is enabled, disabled, or just set to monitoring | ✓ | ✓ | ✓ | **✓ enum1** | **—** | **—** |
 | `timeWindows` | The time intervals during which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `urlCategories` | List of URL categories for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `userAgentTypes` | User agent type list | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
-| `users` | Name-ID pairs of users for which the rule is applied. If not set, user criteria is not considered in rule enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `workloadGroups` | List of workload groups for which this rule is applicable | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `zpaAppSegments` | List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `urlCategories` | List of URL categories for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `userAgentTypes` | User agent type list | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
+| `users` | Name-ID pairs of users for which the rule is applied. If not set, user criteria is not considered in rule enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `workloadGroups` | List of workload groups for which this rule is applicable | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `zpaAppSegments` | List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `static_ip`
 
@@ -1816,20 +1819,21 @@ generator: "scripts/automate-capture/rosetta.py"
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `categoryGroup` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `configuredName` | Name of the URL category. This is only required for custom URL categories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `customCategory` | Set to true for custom URL category. Up to 48 custom URL categories can be added per organization. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `customCategory` | Set to true for custom URL category. Up to 48 custom URL categories can be added per organization. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `customIpRangesCount` | The number of custom IP address ranges associated to the URL category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `customUrlsCount` | The number of custom URLs associated to the URL category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `dbCategorizedUrls` | <p>URLs added to a custom URL category are also retained under the original parent URL category (i.e., the predefined category the URL previously belonged to). The URLs entered are covered by policies that reference the original parent URL category as well as those that reference the custom URL category. For example, if you add www.amazon.com, this URL is covered by policies that reference the custom URL category as well as policies that reference its parent URL category of "Online Shopping".</p>  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `dbCategorizedUrls` | <p>URLs added to a custom URL category are also retained under the original parent URL category (i.e., the predefined category the URL previously belonged to). The URLs entered are covered by policies that reference the original parent URL category as well as those that reference the custom URL category. For example, if you add www.amazon.com, this URL is covered by policies that reference the custom URL category as well as policies that reference its parent URL category of "Online Shopping".</p>  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | Description of the URL category. Contains tag name and needs to be localized on client side in case of predefined category (customCategory=null or =false), else it contains the user-entered description which does not have localization support. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `editable` | Value is set to false for custom URL category when due to scope user does not have edit permission | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | URL category | ✓ | ✓ | ✓ | **✓ req enum1** | **✓ req enum1** | **—** |
 | `ipRanges` | <p>Custom IP address ranges associated to a URL category. Up to 2000 custom IP address ranges and retaining parent custom IP address ranges can be added, per organization, across all categories.</p><p><b>Note</b>: This field is available only if the option to configure custom IP ranges is enabled for your organization. To enable this option, contact Zscaler Support.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `ipRangesRetainingParentCategory` | The retaining parent custom IP address ranges associated to a URL category. Up to 2000 custom IP ranges and retaining parent custom IP address ranges can be added, per organization, across all categories. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `ipRangesRetainingParentCategory` | The retaining parent custom IP address ranges associated to a URL category. Up to 2000 custom IP ranges and retaining parent custom IP address ranges can be added, per organization, across all categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `ipRangesRetainingParentCategoryCount` | The number of custom IP address ranges associated to the URL category, that also need to be retained under the original parent category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `keywords` | <p>Custom keywords associated to a URL category. Up to 2048 custom keywords can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `keywordsRetainingParentCategory` | <p>Retained custom keywords from the parent URL category that is associated to a URL category. Up to 2048 retained parent keywords can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `keywordsRetainingParentCategory` | <p>Retained custom keywords from the parent URL category that is associated to a URL category. Up to 2048 retained parent keywords can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `regexPatterns` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
 | `regexPatternsRetainingParentCategory` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
@@ -1889,49 +1893,52 @@ generator: "scripts/automate-capture/rosetta.py"
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `action` | <p>Action taken when traffic matches rule criteria.</p><p><b>Note</b>: The ISOLATE action is available only if Cloud Browser Isolation is enabled for your organization. .</p> | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ req enum≠** | ✓ |
-| `blockOverride` | When set to true, a 'BLOCK' action triggered by the rule could be overridden. If true and both overrideGroup and overrideUsers are not set, the BLOCK triggered by this rule could be overridden for any users. If blockOverride is not set, 'BLOCK' action cannot be overridden. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `blockOverride` | When set to true, a 'BLOCK' action triggered by the rule could be overridden. If true and both overrideGroup and overrideUsers are not set, the BLOCK triggered by this rule could be overridden for any users. If blockOverride is not set, 'BLOCK' action cannot be overridden. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `browserEunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `cbiProfile` | <p>The cloud browser isolation profile to which the ISOLATE action is applied in the  rules.</p><p><b>Note</b>: This parameter is required for the ISOLATE action and is not applicable to other actions.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `cbiProfileId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `cipaRule` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `ciparule` | If set to true, the CIPA Compliance rule is enabled | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
-| `departments` | Name-ID pairs of departments for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `ciparule` | If set to true, the CIPA Compliance rule is enabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `departments` | Name-ID pairs of departments for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | Additional information about the URL Filtering rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceGroups` | <p>This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `devices` | <p>Name-ID pairs of devices for which rule must be applied. Specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `deviceGroups` | <p>This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `devices` | <p>Name-ID pairs of devices for which rule must be applied. Specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `endUserNotificationUrl` | URL of end user notification page to be displayed when the rule is matched. Not applicable if either 'overrideUsers' or 'overrideGroups' is specified. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enforceTimeValidity` | Enforce a set a validity time period for the URL Filtering rule. . | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `groups` | Name-ID pairs of groups for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `endUserNotificationUrl` | URL of end user notification page to be displayed when the rule is matched. Not applicable if either 'overrideUsers' or 'overrideGroups' is specified. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `enforceTimeValidity` | Enforce a set a validity time period for the URL Filtering rule. . | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `groups` | Name-ID pairs of groups for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `httpHeaderActionProfiles` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `httpHeaderProfiles` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `id` | URL Filtering Rule ID | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `labels` | The URL Filtering rule's label. Rule labels allow you to logically group your organization's policy rules. Policy rules that are not associated with a rule label are grouped under the Untagged label. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `labels` | The URL Filtering rule's label. Rule labels allow you to logically group your organization's policy rules. Policy rules that are not associated with a rule label are grouped under the Untagged label. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | Who modified the rule last | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | When the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `locationGroups` | Name-ID pairs of the location groups to which the rule must be applied. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `locations` | Name-ID pairs of locations for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `locationGroups` | Name-ID pairs of the location groups to which the rule must be applied. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `locations` | Name-ID pairs of locations for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` | Rule Name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `order` | Order of execution of rule with respect to other URL Filtering rules | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | ✓ |
-| `overrideGroups` | Name-ID pairs of groups for which this rule can be overridden. Applicable only if blockOverride is set to 'true' and action is 'BLOCK'. If this overrideGroups is not set, 'BLOCK' action can be overridden for any group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `overrideUsers` | Name-ID pairs of users for which this rule can be overridden. Applicable only if blockOverride is set to 'true', action is 'BLOCK' and overrideGroups is not set.If this overrideUsers is not set, 'BLOCK' action can be overridden for any user. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `protocols` | Protocol criteria | ✓ | ✓ | ✓ | ✓ | **✓ req enum≠** | ✓ |
+| `overrideGroups` | Name-ID pairs of groups for which this rule can be overridden. Applicable only if blockOverride is set to 'true' and action is 'BLOCK'. If this overrideGroups is not set, 'BLOCK' action can be overridden for any group. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `overrideUsers` | Name-ID pairs of users for which this rule can be overridden. Applicable only if blockOverride is set to 'true', action is 'BLOCK' and overrideGroups is not set.If this overrideUsers is not set, 'BLOCK' action can be overridden for any user. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `protocols` | Protocol criteria | ✓ | ✓ | ✓ | ✓ | **✓ req enum≠** | **—** |
 | `rank` | Admin rank of the admin who creates this rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `requestMethods` | Request method for which the rule must be applied. If not set, rule is applied to all methods | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ |
-| `sizeQuota` | Size quota in KB beyond which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `requestMethods` | Request method for which the rule must be applied. If not set, rule is applied to all methods | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
+| `sizeQuota` | Size quota in KB beyond which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `sourceCountries` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `sourceIpGroups` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
 | `state` | Rule State | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `timeQuota` | Time quota in minutes, after which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `timeWindows` | Name-ID pairs of time interval during which rule must be enforced. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `urlCategories` | <p>List of URL categories for which rule is be applied.</p> | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
-| `urlCategories2` | <p>List of URL categories for which rule is applied.</p><p><b>Note</b>: The urlCategories and urlCategories2 parameters are connected with a logical <code>AND</code> operator so that the URL Filtering policy rules are triggered when it matches the selected categories in both the URL Categories fields. .</p> | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `userAgentTypes` |  | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
+| `timeQuota` | Time quota in minutes, after which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `timeWindows` | Name-ID pairs of time interval during which rule must be enforced. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `urlCategories` | <p>List of URL categories for which rule is be applied.</p> | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
+| `urlCategories2` | <p>List of URL categories for which rule is applied.</p><p><b>Note</b>: The urlCategories and urlCategories2 parameters are connected with a logical <code>AND</code> operator so that the URL Filtering policy rules are triggered when it matches the selected categories in both the URL Categories fields. .</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `userAgentTypes` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
 | `userRiskScoreLevels` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `users` | Name-ID pairs of users for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityEndTime` | If enforceTimeValidity is set to true, the URL Filtering rule ceases to be valid on this end date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityStartTime` | If enforceTimeValidity is set to true, the URL Filtering rule is valid starting on this date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `validityTimeZoneId` | If enforceTimeValidity is set to true, the URL Filtering rule date and time is valid based on this time zone ID.   | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `workloadGroups` | The list of preconfigured workload groups to which the policy must be applied.  and . | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `users` | Name-ID pairs of users for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `validityEndTime` | If enforceTimeValidity is set to true, the URL Filtering rule ceases to be valid on this end date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `validityStartTime` | If enforceTimeValidity is set to true, the URL Filtering rule is valid starting on this date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `validityTimeZoneId` | If enforceTimeValidity is set to true, the URL Filtering rule date and time is valid based on this time zone ID.   | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `workloadGroups` | The list of preconfigured workload groups to which the policy must be applied.  and . | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `user`
 
@@ -1967,7 +1974,7 @@ generator: "scripts/automate-capture/rosetta.py"
 | `location` | Location that is associated to this VPN credential. Non-existence means not associated to any location. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `managedBy` | <p>SD-WAN Partner that manages the location. If a partner does not manage the location, this is set to Self.</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `preSharedKey` | Pre-shared key. This is a required field for UFQDN and IP auth type. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `type` | <p>VPN authentication type (i.e., how the VPN credential is sent to the server). It is not modifiable after VpnCredential is created.</p><p> <b>Note:</b> Zscaler no longer supports adding a new XAUTH VPN  credential, but existing entries can be edited or deleted using the  respective endpoints.</p> | ✓ | ✓ | ✓ | **✓ req enum≠** | **✓ enum≠** | ✓ |
+| `type` | <p>VPN authentication type (i.e., how the VPN credential is sent to the server). It is not modifiable after VpnCredential is created.</p><p> <b>Note:</b> Zscaler no longer supports adding a new XAUTH VPN  credential, but existing entries can be edited or deleted using the  respective endpoints.</p> | ✓ | ✓ | ✓ | **✓ req enum≠** | **✓ enum≠** | **—** |
 | `updatePsk` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 
 ### `workload_group`
@@ -2005,15 +2012,15 @@ generator: "scripts/automate-capture/rosetta.py"
 
 ### `app_connector_group`
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup`
+`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup/{appConnectorGroupId}`
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `city` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `city` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `cityCountry` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `connectorGroupType` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `connectorIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `connectors` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
+| `connectors` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `countryCode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `dcHostingInfo` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
@@ -2022,22 +2029,23 @@ generator: "scripts/automate-capture/rosetta.py"
 | `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `enrollmentCertId` |  | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
 | `enrollmentCertName` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `geoLocationId` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
+| `geoLocationId` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `ipAcl` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `latitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `location` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `longitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `latitude` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `location` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `longitude` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `lssAppConnectorGroup` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `nameWithoutTrim` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `nameWithoutTrim` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `npAssistantGroup` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `overrideVersionProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `praEnabled` | praEnabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `privateCloudId` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `serverGroupIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
@@ -2066,64 +2074,65 @@ generator: "scripts/automate-capture/rosetta.py"
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `adpEnabled` | adpEnabled | ✓ | ✓ | ✓ | **—** | ✓ | ✓ |
-| `apiProtectionEnabled` | apiProtectionEnabled | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `adpEnabled` | adpEnabled | ✓ | ✓ | ✓ | **—** | ✓ | **—** |
+| `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `apiProtectionEnabled` | apiProtectionEnabled | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `appRecommendationId` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `applicationGroup` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `applications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `autoAppProtectEnabled` | autoAppProtectEnabled | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `bypassOnReauth` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `bypassType` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `autoAppProtectEnabled` | autoAppProtectEnabled | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `bypassOnReauth` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `bypassType` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `clientlessApps` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `commonAppsDto` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `configSpace` |  | ✓ | ✓ | ✓ | ✓ | **—** | ✓ |
+| `configSpace` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `creationTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `defaultIdleTimeout` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `defaultMaxAge` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `domainNames` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `doubleEncrypt` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `doubleEncrypt` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `extranetEnabled` |  | ✓ | ✓ | ✓ | **—** | **—** | ✓ |
-| `fqdnDnsCheck` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `healthCheckType` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
-| `healthReporting` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `icmpAccessType` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `extranetEnabled` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `fqdnDnsCheck` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `healthCheckType` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
+| `healthReporting` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `icmpAccessType` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | **—** |
 | `id` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
 | `inconsistentConfigDetails` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `inspectTrafficWithZia` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `inspectTrafficWithZia` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `inspectionApps` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `ipAnchored` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `isCnameEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `ipAnchored` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `isCnameEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `isIncompleteDRConfig` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `matchStyle` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `matchStyle` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `modifiedBy` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `modifiedTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `passiveHealthEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `passiveHealthEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `policyStyle` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
 | `praApps` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `segmentGroupId` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `segmentGroupName` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `selectConnectorCloseToApp` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `selectConnectorCloseToApp` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `serverGroupIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `serverGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `shareToMicrotenants` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `sharedMicrotenantDetails` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `tags` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `tcpKeepAlive` |  | ✓ | **✓ type** | ✓ | **✓ enum1** | ✓ | ✓ |
-| `tcpPortRange` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `tcpKeepAlive` |  | ✓ | **✓ type** | ✓ | **✓ enum1** | ✓ | **—** |
+| `tcpPortRange` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `tcpPortRanges` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `tcpProtocols` |  | ✓ | **—** | **—** | **—** | **✓ enum≠** | **—** |
-| `udpPortRange` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `udpPortRange` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `udpPortRanges` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `udpProtocols` |  | ✓ | **—** | **—** | **—** | **✓ enum≠** | **—** |
-| `useInDrMode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `weightedLoadBalancing` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `useInDrMode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `weightedLoadBalancing` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `zpnErId` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `zscalerManaged` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 
@@ -2248,17 +2257,17 @@ generator: "scripts/automate-capture/rosetta.py"
 | `predefinedControlsVersion` | The protocol for the AppProtection application. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `threatlabzControls` | The ThreatLabZ predefined controls. To learn more, see <a href="https://help.zscaler.com/zpa/about-threatlabz-controls">About ThreatLabZ Controls</a>. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `websocketControls` | The WebSocket controls. To learn more, see <a href="https://help.zscaler.com/zpa/about-websocket-controls">About WebSocket Controls</a>. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `zsDefinedControlChoice` | Indicates the user's choice for the ThreatLabZ Controls. The supported values are<ul><li><code>ALL</code>: Zscaler handles the ThreatLabZ Controls for the AppProtection profile.<li><code>SPECIFIC</code>: User handles the ThreatLabZ Controls for the AppProtection profile. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `zsDefinedControlChoice` | Indicates the user's choice for the ThreatLabZ Controls. The supported values are<ul><li><code>ALL</code>: Zscaler handles the ThreatLabZ Controls for the AppProtection profile.<li><code>SPECIFIC</code>: User handles the ThreatLabZ Controls for the AppProtection profile.</ul> | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `lss_config`
 
-`POST /zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig`
+`GET /zpa/mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}`
 
 | field | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- |
 | `appConnectorGroupIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `conditions` | **—** | **—** | ✓ | **—** | **—** | **—** |
-| `config` | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
+| `config` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `connectorGroups` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `inconsistentConfigDetails` | ✓ | **—** | **—** | **—** | **—** | **—** |
@@ -2276,15 +2285,19 @@ generator: "scripts/automate-capture/rosetta.py"
 | `applicationIds` | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `applications` | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
 | `creationTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `days` | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `emailIds` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `endTime` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `endTimeCron` | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `microtenantId` | ✓ | **✓ type** | **—** | ✓ | ✓ | **—** |
 | `microtenantName` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `modifiedBy` | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
 | `modifiedTime` | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `startTime` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `startTimeCron` | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `status` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `timeZone` | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `workingHours` | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `pra_console`
@@ -2376,36 +2389,40 @@ generator: "scripts/automate-capture/rosetta.py"
 
 `POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey`
 
-| field | description | contract | go | python | tf | ansible | mcp |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `appConnectorGroupId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `appConnectorGroupName` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `associationType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `componentId` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `description` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `enabled` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enrollmentCertId` |  | ✓ | **✓ type** | ✓ | ✓ | **—** | ✓ |
-| `enrollmentCertName` | Read only property. Applicable only for GET calls, ignored in PUT/POST calls. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `expirationInEpochSec` |  | ✓ | **✓ type** | **—** | **—** | **—** | **—** |
-| `exportable` |  | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `ipAcl` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `keyType` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `maxUsage` |  | ✓ | **✓ type** | ✓ | **✓ req** | ✓ | ✓ |
-| `microtenantId` |  | ✓ | **✓ type** | **—** | ✓ | ✓ | **—** |
-| `microtenantName` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
-| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` |  | ✓ | ✓ | ✓ | ✓ | **✓ req** | ✓ |
-| `provisioningKey` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `readOnly` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `restrictionType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `uiConfig` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `usageCount` | defaults to 0 | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
-| `zcomponentId` |  | ✓ | **✓ type** | ✓ | **✓ req** | **—** | **—** |
-| `zcomponentName` | Read only property. Applicable only for GET calls, ignored in PUT/POST calls. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `zscalerManaged` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| field | contract | go | python | tf | ansible | mcp |
+| --- | --- | --- | --- | --- | --- | --- |
+| `appConnectorGroupId` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `appConnectorGroupName` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `associationType` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `cloudName` | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `componentId` | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `creationTime` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `description` | **—** | **—** | **—** | **—** | **—** | ✓ |
+| `enabled` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `enrollmentCertId` | **—** | ✓ | ✓ | **—** | **—** | ✓ |
+| `enrollmentCertName` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `expirationInEpochSec` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `ipAcl` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `keyType` | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `maxUsage` | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
+| `maxUsageCount` | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `microtenantId` | **—** | ✓ | **—** | **—** | ✓ | **—** |
+| `microtenantName` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `modifiedBy` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedTime` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `nonceAssociationType` | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `nonceValue` | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `provisioningKey` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `readOnly` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `restrictionType` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `scopeId` | ✓ | **—** | **—** | **—** | **—** | **—** |
+| `uiConfig` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `usageCount` | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
+| `zcomponentId` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `zcomponentName` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `zscalerManaged` | **—** | ✓ | **—** | **—** | **—** | **—** |
 
 ### `segment_group`
 
@@ -2465,7 +2482,7 @@ generator: "scripts/automate-capture/rosetta.py"
 
 ### `service_edge_group`
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup`
+`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}`
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -2484,9 +2501,9 @@ generator: "scripts/automate-capture/rosetta.py"
 | `graceDistanceValueUnit` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `isPublic` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `latitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `location` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
-| `longitude` |  | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
+| `latitude` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `location` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `longitude` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
 | `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |

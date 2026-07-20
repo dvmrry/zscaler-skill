@@ -1,6 +1,6 @@
 # Privileged Remote Access — consolidated capture notes
 
-**Captured:** 2026-04-24 via Playwright MCP. Content below is a structured summary of six PRA help articles rather than verbatim innerText per page — several article pages returned Japanese-fallback translations on extraction (help.zscaler.com served `/ja/` variants for some URLs), so the notes here preserve the semantic content under English URL attribution. For verbatim quoting, re-capture against the live pages.
+**Captured:** 2026-04-24 via Playwright MCP; Consoles Policy section recaptured 2026-07-20. Content below is a structured summary rather than verbatim innerText per page — several original article pages returned Japanese-fallback translations on extraction (help.zscaler.com served `/ja/` variants for some URLs), so the notes preserve the semantic content under English URL attribution. For verbatim quoting, re-capture against the live pages.
 
 ## Sources
 
@@ -12,6 +12,7 @@
 - [Accessing Privileged Sessions (Recording & Playback)](https://help.zscaler.com/zpa/accessing-privileged-sessions)
 - [About Privileged Remote Access Applications](https://help.zscaler.com/zpa/about-privileged-remote-access-applications)
 - [Privileged Remote Access Management](https://help.zscaler.com/zpa/privileged-remote-access-management)
+- [Configuring Consoles Policies](https://help.zscaler.com/zpa/configuring-consoles-policies)
 
 ---
 
@@ -95,6 +96,26 @@ Access to recordings is gated by the **Session Recording Full Access** admin rol
 
 ---
 
-**Capabilities Policy**: At capture time, the English help page for Privileged Capabilities Policy was under maintenance. The policy surface governs per-console capabilities (clipboard, file transfer, monitoring, etc.) and is referenced from other articles. Re-capture when the English page comes back.
+## Configuring Consoles Policies
+
+The former Privileged Capabilities Policy URL now redirects to **Configuring
+Consoles Policies**. A consoles policy is assigned to selected privileged
+consoles and controls:
+
+- file uploads, with optional inline inspection when the ZIA integration is
+  available;
+- file downloads;
+- clipboard copy from and paste into the privileged console;
+- privileged-session recording;
+- session sharing in **Control** or **Monitor** mode; and
+- joining a live privileged session.
+
+File Uploads, File Downloads, Clipboard Copy, Clipboard Paste, Record Sessions,
+Share Sessions Mode, and Join Sessions Mode are disabled by default. For a
+VNC-enabled console, file upload or download requires SSH on port 22 with the
+same credentials used for the VNC login; attempts fail when the target has SFTP
+disabled. Policy changes made during a live session take effect only for a new
+session. The Help article also notes that session recording captures screen
+output, not file-transfer or clipboard-transfer contents.
 
 **File Transfer System**: A separate help article surface exists for PRA file-transfer details; not captured in this pass.

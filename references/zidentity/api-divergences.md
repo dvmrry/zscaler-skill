@@ -5,10 +5,10 @@ title: "ZIdentity API source divergences"
 content-type: reference
 source-tier: code
 confidence: medium
-last-verified: "2026-07-09"
+last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
-  vendor/zscaler-sdk-python: 6ff5bc97d02e1e1b4c564e2f0a8986edc730e03f
+  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/**"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"

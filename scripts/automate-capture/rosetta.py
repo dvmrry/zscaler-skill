@@ -16,6 +16,7 @@ from pathlib import Path
 
 from reconcile_contract import (  # reuse the registry only; no source extraction runs
     PRODUCTS as RECONCILE_PRODUCTS,
+    _contract_key,
     _contract_reconcile_field,
     _contract_ops,
     display_contract_path,
@@ -25,6 +26,7 @@ ROOT = Path(os.environ.get("REPO_ROOT", "."))
 SPEC_DIR = ROOT / "vendor/zscaler-api-specs/automate-zscaler"
 RECONCILED_PRODUCTS = ("zpa", "zia", "zcc", "zcloudconnector")
 THIN_PRODUCTS = {
+    "ai-security": "AI Security",
     "aiguard": "AI Guard",
     "bi": "Business Insights",
     "easm": "EASM",
@@ -126,14 +128,14 @@ def contract_fields_for_resource(product: str, resource: dict, contracts: dict) 
     cfg = registry.get(resource["resource"])
     fields: dict[str, dict] = {}
     if cfg:
-        reads, writes = _contract_ops(cfg, contracts, product)
+        reads, writes, _coverage = _contract_ops(cfg, contracts, product)
         for op in [*reads, *writes]:
             for raw in op.get("response_schema") or []:
                 field = _contract_reconcile_field(raw)
                 if field and field.get("name"):
                     fields.setdefault(field["name"], _contract_field_from_schema(field))
         if cfg.get("compare_required", True) and cfg.get("create"):
-            create_op = writes[0] if writes else None
+            create_op = contracts.get(_contract_key(product, cfg, cfg["create"]))
             for raw in (create_op or {}).get("request_body") or []:
                 field = _contract_reconcile_field(raw)
                 if field and field.get("name"):

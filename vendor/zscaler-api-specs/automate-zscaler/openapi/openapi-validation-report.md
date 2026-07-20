@@ -6,34 +6,26 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 
 | product | operations | paths | issues |
 |---|---:|---:|---:|
-| `aiguard` | 45 | 27 | 8 |
+| `ai-security` | 11 | 11 | 0 |
+| `aiguard` | 47 | 29 | 0 |
 | `bi` | 10 | 6 | 0 |
 | `easm` | 11 | 11 | 0 |
-| `event-monitoring` | 10 | 7 | 0 |
+| `event-monitoring` | 15 | 12 | 0 |
 | `zcc` | 54 | 53 | 0 |
 | `zcell` | 36 | 28 | 0 |
 | `zcloudconnector` | 165 | 96 | 124 |
 | `zdx` | 148 | 121 | 2 |
 | `zia` | 471 | 295 | 0 |
-| `zid` | 31 | 18 | 3 |
-| `zpa` | 188 | 125 | 0 |
+| `zid` | 31 | 18 | 0 |
+| `zpa` | 208 | 137 | 0 |
 
 ## Issue Counts
 
-- `adjacent_path_templates`: 11
 - `default_response_as_success`: 124
 - `path_prefix_anomaly`: 2
 
 ## Issues
 
-- `aiguard` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/v1/detections/policies/{id}{disable}", "product": "aiguard"}
-- `aiguard` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/v1/detections/policies/{id}{enable}", "product": "aiguard"}
-- `aiguard` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/v1/detections/policies/{id}{referential}-check", "product": "aiguard"}
-- `aiguard` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/v1/llm-application-credentials/{id}{referential}-check", "product": "aiguard"}
-- `aiguard` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/v1/llm-application-credentials/{id}{regenerate}", "product": "aiguard"}
-- `aiguard` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/v1/llm-applications/{id}{referential}-check", "product": "aiguard"}
-- `aiguard` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/v1/llm-provider-credentials/{id}{referential}-check", "product": "aiguard"}
-- `aiguard` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/v1/llm-providers/{id}{referential}-check", "product": "aiguard"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/activation/ec-activate-z-resource-activate", "path": "/ecAdminActivateStatus/activate", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "put", "operation": "zcloudconnector/activation/ec-activate-z-resource-force-activate", "path": "/ecAdminActivateStatus/forcedActivate", "product": "zcloudconnector"}
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/activation/ec-activate-z-resource-get-org-edit-activate-status", "path": "/ecAdminActivateStatus", "product": "zcloudconnector"}
@@ -160,6 +152,3 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 - `zcloudconnector` `default_response_as_success` {"issue": "default_response_as_success", "method": "get", "operation": "zcloudconnector/workload-groups/workload-group-z-resource-get-workload-groups-lite", "path": "/workloadGroups/lite", "product": "zcloudconnector"}
 - `zdx` `path_prefix_anomaly` {"expected_prefix": "/v1", "issue": "path_prefix_anomaly", "path": "/snapshot/alert", "product": "zdx"}
 - `zdx` `path_prefix_anomaly` {"expected_prefix": "/v1", "issue": "path_prefix_anomaly", "path": "/snapshot/user", "product": "zdx"}
-- `zid` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/users/{id}{setskipmfa}", "product": "zid"}
-- `zid` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/users/{id}{resetpassword}", "product": "zid"}
-- `zid` `adjacent_path_templates` {"issue": "adjacent_path_templates", "path": "/users/{id}{updatepassword}", "product": "zid"}

@@ -11,7 +11,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from rosetta import build_issue_routing, build_rosetta  # noqa: E402
+from rosetta import THIN_PRODUCTS, build_issue_routing, build_rosetta  # noqa: E402
 
 CASES = []
 
@@ -145,6 +145,11 @@ def row_by_field(rows, field):
         if row["field"] == field:
             return row
     raise AssertionError(f"missing row for {field}")
+
+
+@case
+def test_contract_only_registry_includes_ai_security():
+    assert THIN_PRODUCTS["ai-security"] == "AI Security"
 
 
 @case
