@@ -11,6 +11,9 @@ verified-against:
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
+  - "vendor/terraform-provider-zpa/zpa/**"
+  - "vendor/zpacloud-ansible/plugins/modules/**"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/**"
   - "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md"
   - "vendor/zscaler-api-specs/automate-zscaler/rosetta.md"
@@ -40,14 +43,22 @@ Use the rosetta table as the field-level index when a section below summarizes a
 
 ## Automate operation-inventory drift
 
-### Three create operations are absent from Automate, but not removed from ZPA
+### Three create operations are absent from Automate; runtime evidence differs
 
 The 2026-07-20 compiled Automate inventory omits the POST operations for App
-Connector Groups, LSS configurations, and Private Service Edge Groups. Current
-Help pages still document the same methods and paths, and unauthenticated probes
-to all three endpoints reached the management service's authentication boundary
-(`401 auth.header.missing`). This supports classifying the discrepancy as an
-Automate documentation coverage gap rather than an API removal
+Connector Groups, LSS configurations, and Private Service Edge Groups. Legacy
+Help pages and current first-party clients retain the same methods and paths.
+Current authenticated Terraform acceptance tests confirm App Connector Group
+and Private Service Edge Group create on a OneAPI beta tenant. LSS create lacks
+equivalent current public runtime evidence because the provider test is disabled
+and the latest public Go integration run stopped before the LSS package
+(`vendor/zscaler-help/zpa-create-operation-drift-capture.md`).
+
+Unauthenticated `401 auth.header.missing` responses are not evidence for any of
+the routes. Both tested ZPA gateways returned the same response for documented
+and deliberately nonexistent paths across several methods, showing that the
+gateway authenticates before exposing route resolution. Classify the missing
+POSTs as Automate **publication** gaps; track runtime confirmation separately
 (`vendor/zscaler-help/zpa-create-operation-drift-capture.md`).
 
 The reconciler therefore records these three exact missing operation keys and
@@ -306,6 +317,42 @@ The Python SDK confirms segment group membership is managed from the application
 ---
 
 ## App Connectors, Groups and Schedules
+
+### `AppConnectorGroup.enrollmentCertId` — API error calls it `signingCertId`; legacy Help omits it
+
+**What each source says:**
+
+- **Legacy Help:** the create article resolves under Legacy Zscaler APIs and its
+  advertised field table does not include `signingCertId` or an equivalent
+  enrollment-certificate field
+  (`vendor/zscaler-help/zpa-create-operation-drift-capture.md`).
+- **Authenticated Go SDK integration run:** the production tenant rejected an
+  App Connector Group POST with `400 missing.mandatory.params` because
+  the API's `signingCertId` was empty. The Go client serializes the corresponding
+  field as `enrollmentCertId`, and its current test now looks up the `Connector`
+  enrollment certificate and sends its ID
+  (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:60`,
+  `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group_test.go:21-53`).
+- **Terraform provider:** exposes `enrollment_cert_id` and auto-resolves the
+  `Connector` enrollment certificate before create when the user omits it
+  (`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:203-207,233-245`).
+- **Python SDK:** accepts arbitrary create keywords and POSTs them, but the
+  method's documented keyword list and example omit `enrollment_cert_id`
+  (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:254-332`).
+- **Ansible and MCP:** both resolve the enrollment certificate before delegating
+  to the Python SDK
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_app_connector_groups.py:575-615`,
+  `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_connector_groups.py:324-363`).
+
+**Significance / which to trust:** Treat `enrollmentCertId` as required for App
+Connector Group create on the observed OneAPI production tenant, despite the
+server error's older `signingCertId` terminology. Prefer a client that resolves
+it automatically, or fetch the `Connector` enrollment certificate and send its
+ID explicitly. Direct Python SDK callers must add the undocumented
+`enrollment_cert_id` keyword. Do not generate a current create payload from the
+legacy Help field table alone.
+
+---
 
 ### `AssistantSchedule.frequencyInterval` wire type — `string` (SDKs) vs `<integer>` (Postman)
 
