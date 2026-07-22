@@ -3,7 +3,7 @@ product: zia
 topic: "zia-dlp"
 title: "ZIA Data Loss Prevention — dictionaries, engines, policy rules"
 content-type: reasoning
-last-verified: "2026-06-21"
+last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 sources:
@@ -19,7 +19,19 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md"
   - "vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
+  - "vendor/zscaler-sdk-go/CHANGELOG.md"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_channel/endpoint_resource_channel.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go"
+  - "vendor/terraform-provider-zia/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/dlp_web_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/dlp_dictionary.py"
@@ -223,24 +235,24 @@ Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`
 
 ## Endpoint DLP
 
-Source: `vendor/zscaler-help/about-dlp-engines.md`; `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`.
+The Go v3.8.41 pin exposes Endpoint DLP as several distinct management families, not only as fields on an inline DLP rule (`vendor/zscaler-sdk-go/CHANGELOG.md:3-4,14-64`):
 
-The channels on an engine (Network Share, Personal Cloud Storage, Printing, Removable Storage) indicate this is **Endpoint DLP** — DLP enforced by Zscaler Client Connector on the endpoint itself, not by the Public Service Edge. Endpoint DLP is a distinct feature that uses the same dictionaries and engines but runs agent-side. Key differences:
+| Object family | Management surface |
+|---|---|
+| Application catalog | `GET /zia/api/v1/endPointApplications`, `/lite`, `/count`, `/cloudApps/count`, `/policies`, and `/getCategoriesWithNonEmptyApps`; list and category reads aggregate pagination (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:13-14,37-93,124-177`). |
+| Custom applications | List/get/create/update/delete through `/zia/api/v1/endPointApplications/customApps` and `/customApp[/{id}]` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:15-16,67-89,93-133`). |
+| Application groups | List/create/update/delete, policy-association read, and resource-association update through `/zia/api/v1/endPointApplicationGroups` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go:18-19,46-84,92-101,133-145`). |
+| Endpoint resources | CRUD at `/zia/api/v1/dlpEndpointResource`; channel-scoped reads accept `PRINTING`, `REMOVABLE_DRIVE_TRANSFER`, `NETWORK_DRIVE_TRANSFER`, and `PERSONAL_CLOUD_STORAGE` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go:12-29,55-80`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_channel/endpoint_resource_channel.go:13-27,41-75`). |
+| Resource groups | CRUD at `/zia/api/v1/endPointDlpResourceGroups`, channel-scoped list reads, resource-to-group reads, and group-resource association reads/updates (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go:17-38,57-98,102-145`). |
+| Rules and exceptions | Rule CRUD/list/get at `/zia/api/v1/endPointDlpRules`; exception/sub-rule create/update/delete at `/zia/api/v1/endPointDlpRules/{id}/subRule[/{subRuleId}]` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go:17-18,67-128`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go:14-15,57-84`). |
 
-- **Enforcement location**: endpoint, not cloud.
-- **Traffic scope**: user activity on the endpoint (file uploads to USB, printing, copying to network share, moving to personal cloud like Dropbox/OneDrive-personal) — not web traffic.
-- **Requires ZCC** with Endpoint DLP entitlement.
-- **Separate policy rule type** from inline DLP rules.
+Endpoint-application responses expose descriptive, OS, file, signature, type, and version data (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-55`), but the shared request serializer emits only non-empty `resourceId` and `zappId` (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-161`). The shared model also types `versions` as one `Versions` struct, while the custom-application response model types the same wire key as `[]Versions`; callers must not assume those two response shapes are interchangeable (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
-Not deeply covered here; flagged for future work if operators need it.
+Terraform provider v4.8.0 adds resources for custom applications, application groups, endpoint resources, resource groups, rules, and sub-rules, plus data sources for application, custom-app, rule, channel, and resource-group-tag reads (`vendor/terraform-provider-zia/CHANGELOG.md:3-27`). This is SDK/provider surface evidence only: the generated reconciliation boundary confirms that these endpoint families remain outside the current Automate capture, and client presence does not establish tenant entitlement or live rollout (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:3-10`).
 
 ## Outbound Email DLP
 
-Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`.
-
-A distinct DLP variant (*What Is Zscaler Outbound Email DLP?* — referenced but not captured). Scans outbound email at the email-gateway layer rather than web traffic. Uses the same dictionaries and engines. Zscaler Incident Receiver is specifically for outbound email policy rule content.
-
-Not deeply covered here.
+Go v3.8.41 provides list, lite-list, get, create, update, and delete operations for `/zia/api/v1/emailDlpRules`, plus `GET /zia/api/v1/emailDlpRules/actions?tenantIds=...`, whose response is returned as raw CSV bytes (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:17-18,57-70,87-138,141-160`). The v3.8.41 release notes mention only the actions CSV endpoint, omitting the list/lite/get/CRUD methods that are present in code (`vendor/zscaler-sdk-go/CHANGELOG.md:66-67`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-138`). Terraform provider v4.8.0 adds the `zia_outbound_email_dlp` resource and data source (`vendor/terraform-provider-zia/CHANGELOG.md:16-18`).
 
 ## Edge cases
 

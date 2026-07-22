@@ -29,6 +29,22 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 - Expected operations absent from the captured contract: **0**
 
+## Client Surfaces Outside the Captured Contract
+
+Official client/provider families that cannot yet be reconciled field by field because no corresponding operation is mapped in the current Automate capture:
+
+| family | API path family | official surfaces |
+|---|---|---|
+| `endpoint_application_catalog` | `/zia/api/v1/endPointApplications` | `go`, `tf` |
+| `endpoint_custom_applications` | `/zia/api/v1/endPointApplications/customApps` | `go`, `tf` |
+| `endpoint_application_groups` | `/zia/api/v1/endPointApplicationGroups` | `go`, `tf` |
+| `endpoint_dlp_resources` | `/zia/api/v1/dlpEndpointResource`<br>`/zia/api/v1/endPointDlpResourceGroups` | `go`, `tf` |
+| `endpoint_dlp_rules` | `/zia/api/v1/endPointDlpRules` | `go`, `tf` |
+| `outbound_email_dlp` | `/zia/api/v1/emailDlpRules` | `go`, `tf` |
+| `dns_application_groups` | `/zia/api/v1/dnsApplicationGroups` | `go`, `tf` |
+| `eun_templates_and_status` | `/zia/api/v1/eunTemplate`<br>`/zia/api/v1/userConfirmation` | `go`, `tf` |
+| `ips_categories` | `/zia/api/v1/ipsCategories` | `go` |
+
 ## Contract Groups Outside Terraform Scope
 
 Captured contract groups with no Terraform resource mapping in this report:
@@ -371,7 +387,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## firewall_dns_rule
 
-`POST /zia/api/v1/firewallDnsRules` — contract 41 / Go 43 / TF 41 fields / Ansible 34 fields / Python 43 fields / MCP 5 tools
+`POST /zia/api/v1/firewallDnsRules` — contract 41 / Go 48 / TF 46 fields / Ansible 34 fields / Python 43 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -394,11 +410,11 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **MCP request fields absent from the contract:** `advanced`, `enabled`
 
-**Go SDK fields absent from the contract:** `defaultDnsRuleNameUsed`, `isWebEunEnabled`
+**Go SDK fields absent from the contract:** `defaultDnsRuleNameUsed`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `isWebEunEnabled`
 
 ## firewall_filtering_rule
 
-`POST /zia/api/v1/firewallFilteringRules` — contract 38 / Go 39 / TF 37 fields / Ansible 35 fields / Python 41 fields / MCP 5 tools
+`POST /zia/api/v1/firewallFilteringRules` — contract 38 / Go 44 / TF 42 fields / Ansible 35 fields / Python 41 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -416,11 +432,11 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Contract fields absent from the Go SDK struct:** `destIpv6Groups`, `srcIpv6Groups`
 
-**Go SDK fields absent from the contract:** `accessControl`, `enableFullLogging`, `zpaAppSegments`
+**Go SDK fields absent from the contract:** `accessControl`, `enableFullLogging`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `zpaAppSegments`
 
 ## firewall_ips_rule
 
-`POST /zia/api/v1/firewallIpsRules` — contract 37 / Go 39 / TF 37 fields / Ansible 30 fields / Python 39 fields / MCP 5 tools
+`POST /zia/api/v1/firewallIpsRules` — contract 37 / Go 39 / TF 39 fields / Ansible 30 fields / Python 39 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -750,7 +766,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## ssl_inspection_rule
 
-`POST /zia/api/v1/sslInspectionRules` — contract 32 / Go 32 / TF 28 fields / Ansible 27 fields / Python 32 fields / MCP 5 tools
+`POST /zia/api/v1/sslInspectionRules` — contract 32 / Go 34 / TF 30 fields / Ansible 27 fields / Python 32 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -774,6 +790,8 @@ Captured contract groups with no Terraform resource mapping in this report:
 **Contract fields unmatched in MCP request tools:** `accessControl`, `cloudApplications`, `defaultRule`, `departments`, `destIpGroups`, `deviceGroups`, `deviceTrustLevels`, `devices`, `groups`, `id`, `labels`, `lastModifiedBy`, `lastModifiedTime`, `locationGroups`, `locations`, `platforms`, `predefined`, `proxyGateways`, `roadWarriorForKerberos`, `sourceIpGroups`, `state`, `timeWindows`, `urlCategories`, `userAgentTypes`, `users`, `workloadGroups`, `zpaAppSegments`
 
 **MCP request fields absent from the contract:** `advanced`, `enabled`
+
+**Go SDK fields absent from the contract:** `endPointApplicationGroups`, `endPointApplications`
 
 ## static_ip
 

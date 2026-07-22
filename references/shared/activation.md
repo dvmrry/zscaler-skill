@@ -6,7 +6,7 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
 confidence: high
 source-tier: doc
 sources:
@@ -149,13 +149,13 @@ When a tenant reports "I changed the rule and it's not taking effect," make acti
 4. If the tenant uses Terraform: check whether `zia_activation_status` / `ztc_activation_status` was applied after the last policy change.
 5. If the tenant uses direct console / API: confirm the admin clicked "Activate" or called the activate endpoint.
 
-The current MCP source directly implements ZIA status and activation tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/activation.py:32-62`), and its bundled cross-product workflow calls `zia_get_activation_status` (`vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md:260-266`). MCP v0.13.1 does not expose a corresponding ZTW/CBC activation tool, so the CBC branch above is grounded in the captured Help/API contract rather than in MCP tool coverage.
+The current MCP source directly implements ZIA status and activation tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/activation.py:32-62`), and its bundled cross-product workflow calls `zia_get_activation_status` (`vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md:260-266`). MCP v0.13.3 does not expose a corresponding ZTW/CBC activation tool, so the CBC branch above is grounded in the captured Help/API contract rather than in MCP tool coverage.
 
 ### Bundled MCP workflow drift
 
-The legacy command and cross-product skill still exist in v0.13.1, but they are not fully aligned with the rewritten Pydantic tool schemas. Both pass a nonexistent `search` argument to `zcc_list_devices` and `zdx_list_devices` (`vendor/zscaler-mcp-server/commands/troubleshoot-user.md:24-41`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md:47-49`, `:89-99`), while the current ZCC input uses `username` and the ZDX input uses `emails`, `user_ids`, MAC/IP, and scope filters (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/list_devices.py:24-39`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:27-58`). The new guided ZDX prompt repeats the invalid `search` call and asks `zdx_get_device` for health fields that its curated output does not return (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:68-73`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:85-103`, `:153-185`). Treat the activation-status step as verified, but resolve current tool inputs and outputs from `src/zscaler_mcp/tools/` rather than copying the bundled workflow verbatim.
+The legacy command and cross-product skill still exist in v0.13.3, but they are not fully aligned with the rewritten Pydantic tool schemas. Both pass a nonexistent `search` argument to `zcc_list_devices` and `zdx_list_devices` (`vendor/zscaler-mcp-server/commands/troubleshoot-user.md:24-41`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md:47-49`, `:89-99`), while the current ZCC input uses `username` and the ZDX input uses `emails`, `user_ids`, MAC/IP, and scope filters (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/list_devices.py:24-39`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:27-58`). The new guided ZDX prompt repeats the invalid `search` call and asks `zdx_get_device` for health fields that its curated output does not return (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:68-73`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:85-103`, `:153-185`). Treat the activation-status step as verified, but resolve current tool inputs and outputs from `src/zscaler_mcp/tools/` rather than copying the bundled workflow verbatim.
 
-The generated tool catalog carries one more migration artifact: its contributor note still says to edit the removed `zscaler_mcp/services.py` catalog (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:7`). In v0.13.1, tools self-register through `@tool` and the central registry explicitly says it is populated at import time instead of from a hand-maintained list (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/registry.py:1-8`, `:127-128`). Treat the generated tables as the inventory view, but use the co-located `src/zscaler_mcp/tools/` definitions as the source for tool descriptions and schemas.
+The generated tool catalog carries one more migration artifact: its contributor note still says to edit the removed `zscaler_mcp/services.py` catalog (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:7`). In v0.13.3, tools self-register through `@tool` and the central registry explicitly says it is populated at import time instead of from a hand-maintained list (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/registry.py:1-8`, `:127-128`). Treat the generated tables as the inventory view, but use the co-located `src/zscaler_mcp/tools/` definitions as the source for tool descriptions and schemas.
 
 ## Failure modes
 
@@ -169,7 +169,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscal
 
 Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
 
-These products do not use the ZIA/CBC activation pattern. ZPA's Terraform provider does not ship a `zpa_activation_status` resource. ZIdentity and ZCC changes apply on write, while BI is reporting-oriented. ZDX is read-heavy rather than strictly read-only: MCP v0.13.1 includes four gated diagnostic-session writes (`zdx_start_deeptrace`, `zdx_delete_deeptrace`, `zdx_start_analysis`, and `zdx_delete_analysis`) with no separate activation call (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:319-355`).
+These products do not use the ZIA/CBC activation pattern. ZPA's Terraform provider does not ship a `zpa_activation_status` resource. ZIdentity and ZCC changes apply on write, while BI is reporting-oriented. ZDX is read-heavy rather than strictly read-only: MCP v0.13.3 includes four gated diagnostic-session writes (`zdx_start_deeptrace`, `zdx_delete_deeptrace`, `zdx_start_analysis`, and `zdx_delete_analysis`) with no separate activation call (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:319-355`).
 
 If a user reports "rule didn't take effect," **branch the activation check by product**:
 - ZIA / CBC → check activation status first.

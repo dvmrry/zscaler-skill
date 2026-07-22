@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cc-regions"
 title: "Cloud Connector supported regions — AWS / Azure / GCP coverage"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-22"
 confidence: medium
 source-tier: doc
 sources:
@@ -18,6 +18,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go"
   - "vendor/terraform-provider-ztc/ztc/data_source_ztc_supported_regions.go"
+  - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md"
+  - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf"
 author-status: draft
 ---
 
@@ -172,7 +174,7 @@ The VMSS (autoscaling) deployment on Azure requires a **Function App** for healt
 
 Source: `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/cbc-about-cloud-provisioning-templates.md`; `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
 
-### Coverage status: unconfirmed
+### Deployment-region list unconfirmed; resource sync captured
 
 GCP is confirmed as a supported cloud provider for Cloud Connector at the product level. Multiple help docs establish this:
 
@@ -186,9 +188,11 @@ GCP is confirmed as a supported cloud provider for Cloud Connector at the produc
 
 **What is not in the captured docs:** a GCP-specific deployment guide analogous to the AWS and Azure ones. The provisioning template config doc references *"Deploying Zscaler Cloud Connector on the Google Cloud Platform"* as a related article (implying such a page exists), but that page was not captured. No captured *help* doc enumerates which GCP regions are supported, whether a Google Cloud Marketplace listing exists, or what the GCP-specific networking model looks like (GCP uses a different model than AWS VPC or Azure VNet — e.g., VPC is global, subnets are regional, no native load balancer equivalent to GWLB).
 
+The official Terraform capture now covers one deployment subsystem: its resource-sync function reconciles GCP VM instances with the Zscaler Cloud Connector portal and removes dangling portal resources every 30 minutes (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`; `vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:331-353`). This does not resolve the deployment-region list.
+
 The one programmatic handle on GCP regions is the **workload-discovery supported-region set** (§ Programmatic region enumeration): `cloud_type` accepts `GCP` (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:177`), so `GET /ztw/api/v1/publicCloudInfo/supportedRegions` / the `ztc_supported_regions` data source will return the GCP region rows for a given tenant. The captured source defines this surface but does not embed the region values, so the specific GCP regions stay unconfirmed from captures — query the endpoint against a tenant to read the current set. This is the WDS region set, not a GCP CC *deployment*-region list.
 
-**Summary:** GCP is a first-class supported cloud for CC deployment. The deployment mechanics and the GCP *deployment*-region list are not covered in the skill's current vendor captures; the GCP WDS supported-region set is reachable via the programmatic surface above. Register the deployment specifics as an open question; do not invent region lists.
+**Summary:** GCP is a first-class supported cloud for CC deployment. The resource-sync mechanics are now captured in the official Terraform module, but the GCP *deployment*-region list remains absent from the captured sources (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`; `vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:331-353`). The GCP WDS supported-region set remains reachable via the separate programmatic surface above; do not infer a deployment-region list from it.
 
 ---
 
@@ -251,7 +255,7 @@ The `OQ-CCR-*` IDs below are this doc's per-question handles; the set is filed i
 | OQ-CCR-01 | Does AWS Cloud Connector AMI support AWS GovCloud (`us-gov-east-1`, `us-gov-west-1`)? | Federal / DoD deployments; FedRAMP High may require workloads in GovCloud with CC. | Check AWS GovCloud Marketplace; ask Zscaler GovCloud team. |
 | OQ-CCR-02 | Does Azure Cloud Connector Marketplace listing exist in Azure Government (`usgovarizona`, `usgovtexas`, `usgovvirginia`)? | Same federal use-case; Zscaler has a GovCloud ZIA/ZPA offering — unclear if CC image is available in Azure Gov. | Check Azure Government Marketplace; contact Zscaler FedRAMP team. |
 | OQ-CCR-03 | Which specific GCP regions does Zscaler support for CC *deployment*? Is there a Google Cloud Marketplace listing? | GCP CC is documented as supported at product level but no deployment-region list or Marketplace listing was confirmed in captured docs. (Note: the GCP *workload-discovery* region set is reachable via `GET /publicCloudInfo/supportedRegions` — see § Programmatic region enumeration — but that is the WDS set, not the deployment-region list.) | Capture `help.zscaler.com/cloud-branch-connector/deploying-zscaler-cloud-connector-google-cloud-platform` (linked-but-not-captured); separately, query `ztc_supported_regions` (cloud_type=GCP) against a tenant to read the live WDS set. |
-| OQ-CCR-04 | What is the GCP-specific networking model for CC (instance template, load balancer type, NIC configuration)? | GCP networking differs materially from AWS and Azure. The CC deployment doc for GCP was not captured. | Same capture target as OQ-CCR-03. |
+| OQ-CCR-04 | What is the GCP-specific networking model for CC (instance template, load balancer type, NIC configuration)? | The new Terraform capture documents the resource-sync function and scheduler, not the broader networking model (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`). | Same capture target as OQ-CCR-03. |
 | OQ-CCR-05 | Do AWS opt-in regions (`ap-east-1`, `af-south-1`, `eu-south-1`, `me-central-1`, `il-central-1`, `ap-southeast-3`, `ap-southeast-4`) support CC AMI and/or ZTG? | Some customers have workloads in newer opt-in regions not on the ZTG list. | Contact Zscaler Support (the ZTG article explicitly directs there for unlisted regions). |
 | OQ-CCR-06 | Is the Azure Function App Flex Consumption plan gap documented per region, and is there a published list of affected Azure regions? | Affects VMSS supportability in those regions. | Check Azure documentation for Flex Consumption plan regional availability; update `./azure-deployment.md`. |
 | OQ-CCR-07 | Does CC in AWS China (`cn-north-1`, `cn-northwest-1`) require the same special gateway configuration as Azure China? | Expected yes by analogy with the Azure guidance, but not confirmed in captured docs. | Check for a China-specific CC deployment page; contact Zscaler Support. |
@@ -264,6 +268,7 @@ The `OQ-CCR-*` IDs below are this doc's per-question handles; the set is filed i
 
 - AWS deployment mechanics (ENI model, GWLB, ASG, CloudFormation): [`./aws-deployment.md`](./aws-deployment.md)
 - Azure deployment mechanics (NIC model, ILB, VMSS, Function App): [`./azure-deployment.md`](./azure-deployment.md)
+- GCP deployment mechanics currently captured for resource synchronization: [`./gcp-deployment.md`](./gcp-deployment.md)
 - Subclouds — restricting which PSEs handle tenant traffic: [`../shared/subclouds.md`](../shared/subclouds.md)
 - Cloud Connector product overview (CC Groups, forwarding rule evaluation): [`./overview.md`](./overview.md)
 - Traffic forwarding rules (including GCP VPC-to-VPC forwarding): [`./forwarding.md`](./forwarding.md)

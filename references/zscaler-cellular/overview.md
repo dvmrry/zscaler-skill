@@ -5,13 +5,13 @@ title: "Zscaler Cellular - SIM and Cellular Edge forwarding into ZTE"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
-  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
+  vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
+  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -48,7 +48,7 @@ This began as a thin Tier-C reference, but the current source set now includes a
 | Python SDK | `client.zcell` is a OneAPI-only service and exposes nine subclients for anomaly policy, audit data, customer data, customer regions, network events, SIM analytics, SIM handling, SIM location groups, and tags (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`). |
 | Terraform | No Zscaler Cellular resources or data sources found in the audited ZIA or ZPA providers. |
 | Ansible | No Zscaler Cellular modules found in the audited ZIA or ZPA collections. |
-| MCP | v0.13.1 exposes 20 read-only tools across nine API-aligned toolsets plus three guided prompts (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`; prompt registrations at `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-27`, `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-26`, and `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-27`). |
+| MCP | v0.13.3 exposes 20 read-only tools across nine API-aligned toolsets plus three guided prompts (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`; prompt registrations at `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-27`, `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-26`, and `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-27`). |
 | Automate contract | 36 ZCell operations captured across nine families (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:15`). |
 | Help | The live index exposes 21 articles, while only the What Is and Architecture bodies are captured. The captured body describes Zscaler SIM and Zscaler Cellular Edge; the remaining titles establish a capture backlog, not article semantics (`vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; `vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`). |
 
@@ -68,12 +68,12 @@ The marketing capture lists Zscaler Cellular Service and Zscaler Cellular Partne
 
 ZCell has a documented API surface, a Python SDK wrapper, and a read-only MCP layer. The contract covers anomaly policies, audit search/metadata, customer data, customer regions, network events, SIM analytics, SIM actions/search/details, SIM location groups, and tags (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-14`, `:1506-1518`, `:1956-2079`, `:2430-2583`, `:2812-2824`, `:3280-3713`, `:3801-5594`, `:5673-6458`). The Python SDK exposes the same product as `client.zcell`; its README states that ZCell uses OneAPI OAuth2 credentials and a separate `zcellCustomerId` / `ZCELL_CUSTOMER_ID` value for `/customers/{id}` scoping (`vendor/zscaler-sdk-python/README.md:385-402`). MCP enforces that separate customer ID at client construction and does not ask callers to pass it into each tool (`vendor/zscaler-mcp-server/src/zscaler_mcp/client.py:24-40`, `:48-98`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:17-19`).
 
-MCP covers SIM inventory/detail, analytics, location-group reads, anomaly reads, customer/region reads, audit, network events, and tags. It does not expose the contract/SDK mutation or export operations: anomaly-policy management, customer/region updates, SIM download/tag/lock/status/eSIM actions, location-group management, or tag creation (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; SDK gap sources summarized in [`./api.md`](./api.md#mcp-v0131-surface)). The Help portal's management scope is broader still, including SIM/eSIM activation, anomaly policies, and location-group management (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67`). Do not infer Terraform manageability, full client parity, or live entitlement from the presence of MCP tool registrations.
+MCP covers SIM inventory/detail, analytics, location-group reads, anomaly reads, customer/region reads, audit, network events, and tags. It does not expose the contract/SDK mutation or export operations: anomaly-policy management, customer/region updates, SIM download/tag/lock/status/eSIM actions, location-group management, or tag creation (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; SDK gap sources summarized in [`./api.md`](./api.md#mcp-v0133-surface)). The Help portal's management scope is broader still, including SIM/eSIM activation, anomaly policies, and location-group management (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67`). Do not infer Terraform manageability, full client parity, or live entitlement from the presence of MCP tool registrations.
 
 ## Open questions
 
 - `zscaler-cellular-01`: The contract, Python SDK, and MCP read layer resolve the broad surface question, but tenant entitlement, live backend acceptance, and exact ZIA/ZPA policy-object mapping for IP/IMEI/IMSI identifiers remain open. See [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
-- MCP request/response divergences for anomaly violations, SIM pagination, and audit filters are tracked in [`./api.md`](./api.md#mcp-v0131-divergences-and-test-boundary) and clarifications `zscaler-cellular-02`–`zscaler-cellular-04`.
+- MCP request/response divergences for anomaly violations, SIM pagination, and audit filters are tracked in [`./api.md`](./api.md#mcp-v0133-divergences-and-test-boundary) and clarifications `zscaler-cellular-02`–`zscaler-cellular-04`.
 - Nineteen current Help article bodies remain uncaptured across setup, deployment/credentials, SIM/eSIM lifecycle, network events, anomaly/geofence operations, and audit logs (`vendor/zscaler-help/zscaler-cellular-help-index.md:12-47`).
 
 ## Cross-links

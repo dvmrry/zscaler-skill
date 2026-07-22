@@ -3,12 +3,12 @@ product: zia
 topic: "zia-url-filtering"
 title: "ZIA URL filtering rule precedence"
 content-type: reasoning
-last-verified: "2026-07-20"
+last-verified: "2026-07-22"
 confidence: medium
 source-tier: mixed
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
 sources:
   - "https://help.zscaler.com/zscaler-deployments-operations/url-filtering-deployment-and-operations-guide"
   - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt"
@@ -127,6 +127,10 @@ Each action has caveats around SSL Inspection and EUN settings — see `ssl-insp
 2. `action = BLOCK`
 
 (Per `zscaler/zia/url_filtering.py:191-194`.) When answering "why don't my override users get the prompt?", check these two fields first — the most common cause is a rule with `action != BLOCK` that still has `override_users` populated from a prior configuration.
+
+### List pagination differs by SDK
+
+Go `GetAll` aggregates every URL Filtering rule page through `common.ReadAllPages` (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`). Python `list_rules` instead accepts caller-selected `page` and `page_size` values, sends one GET with those query parameters, and returns the rules from that response (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:54-112`).
 
 ### Custom-category regex patterns (API-only capability)
 

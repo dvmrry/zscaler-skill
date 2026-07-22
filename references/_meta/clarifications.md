@@ -139,7 +139,8 @@ The 2026-07-08 upstream-issue sweep opened `cloud-connector-26` for Cloud
 Connector traffic-forwarding rule labels: static sources show a contract field
 and a Terraform provider gap, while live write acceptance remains unverified.
 
-The 2026-07-16 MCP v0.13.1 review opened `zero-trust-branch-02`: the generated
+The 2026-07-16 MCP v0.13.1 review opened `zero-trust-branch-02`; the 2026-07-22
+v0.13.3 refresh found no intervening tool or catalog change. The generated
 catalog labels `ztw` as Workload Segmentation while the module and docsrc call it
 Zscaler Cloud & Branch Connector; neither surface is the separate ZTB API. It
 also opened `zscaler-cellular-02`–`zscaler-cellular-04` for the new ZCell MCP
@@ -3423,7 +3424,7 @@ Whether a macOS user denial of the ZCC Network Extension (in System Settings →
 
 *Origin: `references/zia/dns-control.md` § Open questions*
 
-A DNS Control rule model carries a `block_response_code` field, but no vendored source enumerates which DNS response codes it accepts (NXDOMAIN, REFUSED, specific rcodes, etc.). The Python and Go SDK sources describe it only as a DNS response-code string (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:190`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47-48`); MCP v0.13.1 no longer documents the field. Until the accepted set is known, the skill cannot say what a given response-blocking rule actually returns to the client resolver.
+A DNS Control rule model carries a `block_response_code` field, but no vendored source enumerates which DNS response codes it accepts (NXDOMAIN, REFUSED, specific rcodes, etc.). The Python and Go SDK sources describe it only as a DNS response-code string (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:190`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47-48`); MCP v0.13.3 no longer documents the field. Until the accepted set is known, the skill cannot say what a given response-blocking rule actually returns to the client resolver.
 
 **Status**: open
 **Resolves with**: lab test (configure a BLOCK rule, observe accepted values in the console / API) OR tenant snapshot
@@ -3434,7 +3435,7 @@ A DNS Control rule model carries a `block_response_code` field, but no vendored 
 
 *Origin: `references/zia/dns-control.md` § Open questions*
 
-The commented Go validator binds `redirect_ip` only to `REDIR_RES` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:286-290`). MCP v0.13.1 lists `redirect_ip` only as a generic advanced DNS field and no longer documents an action binding (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:35-40`). Whether the live API enforces the Go validator's `REDIR_RES`-only binding remains unresolved.
+The commented Go validator binds `redirect_ip` only to `REDIR_RES` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:286-290`). MCP v0.13.3 lists `redirect_ip` only as a generic advanced DNS field and no longer documents an action binding (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:35-40`). Whether the live API enforces the Go validator's `REDIR_RES`-only binding remains unresolved.
 
 **Status**: open
 **Resolves with**: lab test (submit `redirect_ip` against each `REDIR_*` action, observe which the API accepts)
@@ -4228,7 +4229,7 @@ The Go SDK defines the custom IPS signature rules import + import-status path (`
 
 *Origin: `references/zia/api-divergences.md` § Open questions*
 
-Two Cloud App Control behaviors remain workflow-skill observations, confirmed absent from both SDKs, and so require live-tenant confirmation. First, the create workflow says a per-app-invalid action rejects the whole multi-app create with `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications", motivating one rule per app (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:44-73,268-274`). Second, the workflow says action discovery may depend on a category "representative" app, but only in generic terms (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:150-163`); MCP v0.13.1's executable tool forwards `rule_type` and `cloud_apps` directly and does not implement representative-app probing (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:140-148`). The former AZURE_DEVOPS/GITHUB example and "11 actions" count have no current MCP equivalent and are not retained as current behavior. This is the API-divergence framing of the same gap `zia-49` tracks at the action-validity level.
+Two Cloud App Control behaviors remain workflow-skill observations, confirmed absent from both SDKs, and so require live-tenant confirmation. First, the create workflow says a per-app-invalid action rejects the whole multi-app create with `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications", motivating one rule per app (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:44-73,268-274`). Second, the workflow says action discovery may depend on a category "representative" app, but only in generic terms (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:150-163`); MCP v0.13.3's executable tool forwards `rule_type` and `cloud_apps` directly and does not implement representative-app probing (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:140-148`). The former AZURE_DEVOPS/GITHUB example and "11 actions" count have no current MCP equivalent and are not retained as current behavior. This is the API-divergence framing of the same gap `zia-49` tracks at the action-validity level.
 
 **Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: lab test (probe a live tenant: submit a mixed-validity multi-app create to observe the atomic-rejection behavior; call `list_available_actions` with multiple apps from one category to establish whether representative-app behavior exists)
@@ -4311,7 +4312,7 @@ Two DNS Control action-binding questions beyond `zia-47`/`zia-48`. First, whethe
 
 *Origin: `references/zia/firewall.md` § Open questions*
 
-Several firewall-surface items could not be backed from any vendor file in this pass. (1) `STANDARD` vs `PREDEFINED` Network Service `type` behavior — no `STANDARD`/`PREDEFINED` literal appears in SDK service/model source; MCP v0.13.1 names `STANDARD / PREDEFINED / CUSTOM` only in the output-view description for a returned service's `type`, not as an input enum or validator (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:71-75`), and only `CUSTOM` appears as a concrete SDK value, so the wire-level distinction is unverified. (2) Valid country-code values — the current MCP input describes the generic `COUNTRY_XX` form (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:48-55`), while SDK examples use `COUNTRY_CA` / `COUNTRY_US` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:431`, `:469`); the full `COUNTRY_*` enum is not enumerated. (3) Allowed custom URL-category identifiers — `ip_categories` is documented as "Only Custom categories allowed" with example `CUSTOM_01` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:430`) but no source enumerates or validates the allowed identifiers. (4) `DSTN_DOMAIN` field requirement — it appears only in the four-value enum lists with no example or per-type field rule (vs `DSTN_FQDN` using `addresses`). (5) `tag` and `creatorContext` semantics — both exist on the Python Network Service model (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:34`, `:36`) but carry no description or allowed-values documentation. (6) Caps and ordering — no mined source states a hard cap on addresses per destination group or ports per network service, nor a precedence rule among the four port arrays.
+Several firewall-surface items could not be backed from any vendor file in this pass. (1) `STANDARD` vs `PREDEFINED` Network Service `type` behavior — no `STANDARD`/`PREDEFINED` literal appears in SDK service/model source; MCP v0.13.3 names `STANDARD / PREDEFINED / CUSTOM` only in the output-view description for a returned service's `type`, not as an input enum or validator (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:71-75`), and only `CUSTOM` appears as a concrete SDK value, so the wire-level distinction is unverified. (2) Valid country-code values — the current MCP input describes the generic `COUNTRY_XX` form (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:48-55`), while SDK examples use `COUNTRY_CA` / `COUNTRY_US` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:431`, `:469`); the full `COUNTRY_*` enum is not enumerated. (3) Allowed custom URL-category identifiers — `ip_categories` is documented as "Only Custom categories allowed" with example `CUSTOM_01` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:430`) but no source enumerates or validates the allowed identifiers. (4) `DSTN_DOMAIN` field requirement — it appears only in the four-value enum lists with no example or per-type field rule (vs `DSTN_FQDN` using `addresses`). (5) `tag` and `creatorContext` semantics — both exist on the Python Network Service model (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:34`, `:36`) but carry no description or allowed-values documentation. (6) Caps and ordering — no mined source states a hard cap on addresses per destination group or ports per network service, nor a precedence rule among the four port arrays.
 
 **Status**: open
 **Resolves with**: lab test (read live network services / destination groups to observe `type`, country, and category values and any caps) OR zscaler doc not yet read (Network Services and IP Destination Groups reference)
@@ -6186,7 +6187,7 @@ The Python SDK exposes `client.ztb` through `oneapi_client.py` (`vendor/zscaler-
 
 *Origin: `references/zero-trust-branch/overview.md` § Open questions*
 
-MCP v0.13.1's generated tool catalog labels the `ztw` family "Workload Segmentation" (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:372-396`; label generation at `vendor/zscaler-mcp-server/src/zscaler_mcp/common/docgen.py:194-205`), while the service module and docsrc call it "Zscaler Cloud & Branch Connector" (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/__init__.py:1-6`; `vendor/zscaler-mcp-server/docsrc/tools/ztw/index.rst:1-4`). The tools call `client.ztw`; no MCP `ztb` registry family, `/ztb/...` path, or `client.ztb` usage was found. Confirm the canonical `ztw` product label and keep it distinct from the Python SDK's separate ZTB product surface until upstream resolves the naming drift.
+MCP v0.13.3's generated tool catalog labels the `ztw` family "Workload Segmentation" (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:372-396`; label generation at `vendor/zscaler-mcp-server/src/zscaler_mcp/common/docgen.py:194-205`), while the service module and docsrc call it "Zscaler Cloud & Branch Connector" (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/__init__.py:1-6`; `vendor/zscaler-mcp-server/docsrc/tools/ztw/index.rst:1-4`). The tools call `client.ztw`; no MCP `ztb` registry family, `/ztb/...` path, or `client.ztb` usage was found. Confirm the canonical `ztw` product label and keep it distinct from the Python SDK's separate ZTB product surface until upstream resolves the naming drift.
 
 **Status**: open
 **Resolves with**: MCP maintainer clarification or an upstream catalog/module naming fix
@@ -6197,7 +6198,7 @@ MCP v0.13.1's generated tool catalog labels the `ztw` family "Workload Segmentat
 
 *Origin: `references/zscaler-cellular/overview.md` § Open questions*
 
-The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The captured Automate contract exposes 36 ZCell operations, the Python SDK exposes `client.zcell` as a OneAPI-only service, and MCP v0.13.1 includes 20 read-only tools across nine toolsets (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`). MCP still guesses the live token's canonical Cellular `prd` claim from three variants (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
+The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The captured Automate contract exposes 36 ZCell operations, the Python SDK exposes `client.zcell` as a OneAPI-only service, and MCP v0.13.3 includes 20 read-only tools across nine toolsets (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`). MCP still guesses the live token's canonical Cellular `prd` claim from three variants (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
 
 **Status**: partially resolved — last updated 2026-07-16
 **Resolves with**: tenant-side API capture, vendor entitlement documentation, or vendor documentation mapping Cellular IP/IMEI/IMSI identifiers to ZIA/ZPA policy objects
@@ -6206,7 +6207,7 @@ The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI pol
 
 ### zscaler-cellular-02 — MCP violation response shape
 
-*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.1 divergences and test boundary*
+*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.3 divergences and test boundary*
 
 The Automate contract declares anomaly-policy `/violations` response `content` as an array of ICCID strings (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:4080-4200`). The Python SDK's page cleaner retains only dictionary content items, while its method tries to instantiate `AnomalyPolicy` models and the MCP tool shapes those results as policy summaries (`vendor/zscaler-sdk-python/zscaler/oneapi_response.py:244-274`; `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:363-430`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/anomaly_policy.py:240-269`). Confirm whether offending ICCIDs are lost in a live response and align the contract, SDK cleaner/model, and MCP output.
 
@@ -6217,7 +6218,7 @@ The Automate contract declares anomaly-policy `/violations` response `content` a
 
 ### zscaler-cellular-03 — MCP SIM pagination routing
 
-*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.1 divergences and test boundary*
+*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.3 divergences and test boundary*
 
 The Automate contract places SIM-search `page`, `size`, `sortBy`, and `sortDir` in query parameters (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:11421-11470`). MCP exposes page/size but puts them into the POST body and exposes no sorting; the SDK likewise forwards those kwargs as body fields (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:244-261`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:286-315`). Confirm whether the backend accepts body pagination or silently ignores it.
 
@@ -6228,7 +6229,7 @@ The Automate contract places SIM-search `page`, `size`, `sortBy`, and `sortDir` 
 
 ### zscaler-cellular-04 — MCP audit request contract
 
-*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.1 divergences and test boundary*
+*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.3 divergences and test boundary*
 
 MCP types audit `object_id` as a string and exposes operation/object/name/visibility/user plus page/size filters (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:31-58`). The Automate contract declares `objectId` as `int64` and additionally exposes entry ID, root-customer, and sorting inputs (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:25-135`). Confirm accepted runtime typing and decide whether the omitted filters are intentional narrowing or missing coverage.
 

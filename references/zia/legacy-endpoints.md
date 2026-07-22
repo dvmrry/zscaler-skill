@@ -3,13 +3,14 @@ product: zia
 topic: "legacy-endpoints"
 title: "ZIA legacy API endpoint reference"
 content-type: reference
-last-verified: "2026-07-20"
+last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/**"
+  - "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py"
 author-status: draft
 ---
 
@@ -226,6 +227,17 @@ Complete endpoint surface for the ZIA legacy API. Extracted directly from the Go
 | `GET /zia/api/v1/idmprofile/lite` | IDM profiles (lite) |
 | `GET /zia/api/v1/incidentReceiverServers` | Incident receiver servers |
 
+Endpoint DLP additions in Go v3.8.41:
+
+| Endpoint | Notes |
+|---|---|
+| `GET /zia/api/v1/endPointApplications[/lite\|/count\|/cloudApps/count\|/policies\|/getCategoriesWithNonEmptyApps]` | Catalog, counts, categories, and policy associations (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:13-14,37-93,124-177`) |
+| `GET /zia/api/v1/endPointApplications/customApps`; `GET\|POST\|PUT\|DELETE /zia/api/v1/endPointApplications/customApp[/{id}]` | Custom endpoint-application lifecycle (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:67-133`) |
+| `GET\|POST\|PUT\|DELETE /zia/api/v1/endPointApplicationGroups[/{id}]` | Application-group lifecycle; `/policies` reads policy associations and `/{id}/resources` updates members (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go:46-145`) |
+| `GET /zia/api/v1/dlpEndpointResource/{channel}[/{id}]`; `POST\|PUT\|DELETE /zia/api/v1/dlpEndpointResource[/{id}]` | Resource reads and lifecycle for `PRINTING`, `REMOVABLE_DRIVE_TRANSFER`, `NETWORK_DRIVE_TRANSFER`, and `PERSONAL_CLOUD_STORAGE` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_channel/endpoint_resource_channel.go:17-27,41-75`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go:55-80`) |
+| `GET\|POST\|PUT\|DELETE /zia/api/v1/endPointDlpResourceGroups[/{channel}\|/{id}/resources\|/{id}]` | Resource-group lifecycle and associations (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go:57-145`) |
+| `GET\|POST\|PUT\|DELETE /zia/api/v1/endPointDlpRules[/{id}]`; `POST\|PUT\|DELETE /zia/api/v1/endPointDlpRules/{id}/subRule[/{subRuleId}]` | Rule and exception/sub-rule lifecycle (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go:67-128`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go:57-84`) |
+
 ## DNS / Firewall
 
 | Endpoint | Notes |
@@ -255,6 +267,7 @@ Complete endpoint surface for the ZIA legacy API. Extracted directly from the Go
 | `GET /zia/api/v1/ipSourceGroups` | IP source groups |
 | `GET /zia/api/v1/timeWindows` | Time windows |
 | `GET /zia/api/v1/timeIntervals` | Time intervals |
+| `GET\|POST\|PUT\|DELETE /zia/api/v1/dnsApplicationGroups[/{id}]` | DNS application-group lifecycle (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/dns_application_groups/dns_application_groups.go:13-86`) |
 
 ## IPS Control / Signatures
 
@@ -270,12 +283,15 @@ Custom IPS signature rules (Suricata/Snort rule text). Distinct from the IPS Con
 | `GET /zia/api/v1/ipsSignatureRules/export` | Export custom IPS signature rules as CSV. Response body is raw CSV (`application/octet-stream` + `Content-Disposition: attachment`); the request itself must not advertise `Content-Type: text/csv` or the gateway returns HTTP 415 |
 | `POST /zia/api/v1/ipsSignatureRules/validateRuleText` | Validate rule text. Body wraps the text as `{"ruleText": "..."}` (a raw string is rejected). Well-formed rule returns HTTP 200; an invalid rule returns HTTP 400 with `INVALID_INPUT_ARGUMENT` and a diagnostic message |
 | `POST /zia/api/v1/ipsSignatureRules/import` | Bulk import rules from CSV (multipart upload), paired with `GET /ipsSignatureRules/import` to poll import status. **Status: defined in the SDK but disabled** — the SDK marks the import / import-status path as broken upstream and ships the functions commented out, so it is not currently usable |
+| `GET /zia/api/v1/ipsCategories` | Paginated IPS category catalog (`vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:14-19,186-194,307-313`) |
 
 ## Email
 
 | Endpoint | Notes |
 |---|---|
 | `GET /zia/api/v1/emailRecipientProfile` | Email recipient profiles |
+| `GET\|POST\|PUT\|DELETE /zia/api/v1/emailDlpRules[/{id}\|/lite]` | Outbound Email DLP list/lite/get and lifecycle operations (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-138`) |
+| `GET /zia/api/v1/emailDlpRules/actions` | Actions for repeated `tenantIds`; response is raw CSV (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:141-160`) |
 
 ## End User Notifications
 
@@ -283,6 +299,11 @@ Custom IPS signature rules (Suricata/Snort rule text). Distinct from the IPS Con
 |---|---|
 | `GET /zia/api/v1/eun` | End user notification config |
 | `PUT /zia/api/v1/eun` | Update |
+| `GET /zia/api/v1/eunTemplate/{templateType}/product/{product}` | Browser/ZCC EUN templates (`vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go:111-118`) |
+| `GET /zia/api/v1/eunTemplate/{templateType}/featureEnablementStatus` | EUN feature status (`vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go:121-146`) |
+| `GET /zia/api/v1/userConfirmation/product/{product}` | User-confirmation templates by policy (`vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go:164-177`) |
+| `GET /zia/api/v1/userConfirmation/globalDefaultTemplates` | Global default confirmation templates (`vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go:180-189`) |
+| `GET /zia/api/v1/userConfirmation/{templateType}/featureEnablementStatus` | Confirmation feature status (`vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go:197-218`) |
 
 ## Export / Shadow IT
 
@@ -515,6 +536,8 @@ Read-only geo/IP-to-region resolvers (city, state, country, coordinates).
 | `GET /zia/api/v1/urlFilteringRules/{id}` | Get rule |
 | `PUT /zia/api/v1/urlFilteringRules/{id}` | Update |
 | `DELETE /zia/api/v1/urlFilteringRules/{id}` | Delete |
+
+Go `GetAll` aggregates all pages with `ReadAllPages`; Python v1.9.38 sends one caller-selected `page`/`page_size` request (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:55-101`).
 
 ## User Management
 

@@ -6113,8 +6113,8 @@
       "contract_path": "/firewallDnsRules",
       "counts": {
         "contract": 41,
-        "go": 43,
-        "tf": 41
+        "go": 48,
+        "tf": 46
       },
       "contract_coverage": {
         "expected_operations": [
@@ -6128,6 +6128,11 @@
         "contract_only_vs_go": [],
         "go_only_vs_contract": [
           "defaultDnsRuleNameUsed",
+          "endPointApplicationGroups",
+          "endPointApplications",
+          "eunTemplateId",
+          "excludeContextShieldEndPoint",
+          "isEunEnabled",
           "isWebEunEnabled"
         ],
         "contract_unmatched_in_tf": [
@@ -8741,8 +8746,8 @@
       "contract_path": "/firewallFilteringRules",
       "counts": {
         "contract": 38,
-        "go": 39,
-        "tf": 37
+        "go": 44,
+        "tf": 42
       },
       "contract_coverage": {
         "expected_operations": [
@@ -8760,6 +8765,11 @@
         "go_only_vs_contract": [
           "accessControl",
           "enableFullLogging",
+          "endPointApplicationGroups",
+          "endPointApplications",
+          "eunTemplateId",
+          "excludeContextShieldEndPoint",
+          "isEunEnabled",
           "zpaAppSegments"
         ],
         "contract_unmatched_in_tf": [
@@ -13225,7 +13235,7 @@
       "counts": {
         "contract": 37,
         "go": 39,
-        "tf": 37
+        "tf": 39
       },
       "contract_coverage": {
         "expected_operations": [
@@ -34388,8 +34398,8 @@
       "contract_path": "/sslInspectionRules",
       "counts": {
         "contract": 32,
-        "go": 32,
-        "tf": 28
+        "go": 34,
+        "tf": 30
       },
       "contract_coverage": {
         "expected_operations": [
@@ -34401,7 +34411,10 @@
       },
       "presence": {
         "contract_only_vs_go": [],
-        "go_only_vs_contract": [],
+        "go_only_vs_contract": [
+          "endPointApplicationGroups",
+          "endPointApplications"
+        ],
         "contract_unmatched_in_tf": [
           "accessControl",
           "defaultRule",
@@ -37495,7 +37508,8 @@
     "mcp_field_resources": 25,
     "mcp_contract_unmatched": 349,
     "mcp_only": 30,
-    "missing_contract_operations": 0
+    "missing_contract_operations": 0,
+    "client_surfaces_without_contract": 9
   },
   "contract_only_groups": [
     "api-authentication",
@@ -37512,5 +37526,138 @@
     "system-audit-report",
     "time",
     "time-intervals"
+  ],
+  "client_surfaces_without_contract": [
+    {
+      "name": "endpoint_application_catalog",
+      "api_paths": [
+        "/zia/api/v1/endPointApplications"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go"
+        ],
+        "tf": [
+          "vendor/terraform-provider-zia/zia/data_source_zia_endpoint_dlp_application.go"
+        ]
+      }
+    },
+    {
+      "name": "endpoint_custom_applications",
+      "api_paths": [
+        "/zia/api/v1/endPointApplications/customApps"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go"
+        ],
+        "tf": [
+          "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_custom_apps.go",
+          "vendor/terraform-provider-zia/zia/data_source_zia_endpoint_dlp_custom_apps.go"
+        ]
+      }
+    },
+    {
+      "name": "endpoint_application_groups",
+      "api_paths": [
+        "/zia/api/v1/endPointApplicationGroups"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go"
+        ],
+        "tf": [
+          "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_application_group.go"
+        ]
+      }
+    },
+    {
+      "name": "endpoint_dlp_resources",
+      "api_paths": [
+        "/zia/api/v1/dlpEndpointResource",
+        "/zia/api/v1/endPointDlpResourceGroups"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go",
+          "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go"
+        ],
+        "tf": [
+          "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_resource.go",
+          "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_resource_group.go"
+        ]
+      }
+    },
+    {
+      "name": "endpoint_dlp_rules",
+      "api_paths": [
+        "/zia/api/v1/endPointDlpRules"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go",
+          "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go"
+        ],
+        "tf": [
+          "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_rules.go",
+          "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_sub_rules.go"
+        ]
+      }
+    },
+    {
+      "name": "outbound_email_dlp",
+      "api_paths": [
+        "/zia/api/v1/emailDlpRules"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go"
+        ],
+        "tf": [
+          "vendor/terraform-provider-zia/zia/resource_zia_outbound_email_dlp.go"
+        ]
+      }
+    },
+    {
+      "name": "dns_application_groups",
+      "api_paths": [
+        "/zia/api/v1/dnsApplicationGroups"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/dns_application_groups/dns_application_groups.go"
+        ],
+        "tf": [
+          "vendor/terraform-provider-zia/zia/resource_zia_dns_application_groups.go"
+        ]
+      }
+    },
+    {
+      "name": "eun_templates_and_status",
+      "api_paths": [
+        "/zia/api/v1/eunTemplate",
+        "/zia/api/v1/userConfirmation"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go"
+        ],
+        "tf": [
+          "vendor/terraform-provider-zia/zia/data_source_zia_eun_template_product.go",
+          "vendor/terraform-provider-zia/zia/data_source_zia_eun_user_confirmation_template_product.go"
+        ]
+      }
+    },
+    {
+      "name": "ips_categories",
+      "api_paths": [
+        "/zia/api/v1/ipsCategories"
+      ],
+      "surfaces": {
+        "go": [
+          "vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go"
+        ]
+      }
+    }
   ]
 }

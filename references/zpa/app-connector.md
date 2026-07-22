@@ -3,7 +3,7 @@ product: zpa
 topic: "zpa-app-connector"
 title: "ZPA App Connector — VM architecture, groups, provisioning keys, software updates"
 content-type: reasoning
-last-verified: "2026-07-20"
+last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 verified-against:
@@ -11,7 +11,7 @@ verified-against:
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
   vendor/terraform-aws-zpa-app-connector-modules: a866e4988f002d0b50dcc0db10c06e46db4bf0e7
   vendor/terraform-azurerm-zpa-app-connector-modules: a03b6651d45b80b774661b19acb8ae3954694aa5
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
 sources:
   - "https://help.zscaler.com/zpa/about-connectors"
   - "vendor/zscaler-help/about-app-connectors.md"
@@ -64,6 +64,7 @@ sources:
   - "vendor/zscaler-help/app-connector-status-log-fields.md"
   - "vendor/zscaler-help/private-service-edge-status-log-fields.md"
   - "vendor/zscaler-help/private-cloud-controller-status-log-fields.md"
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
 author-status: draft
 ---
 
@@ -118,6 +119,10 @@ App Connector Groups are the policy, upgrade, and capacity unit. Per *About App 
 - **Latitude/longitude coordinates** on the group tell ZPA where the group is physically, for nearest-connector selection.
 - **`city_country` is a normal optional input in the current modules.** The current AWS module no longer masks post-create changes with `ignore_changes`. Review a plan diff instead of automatically dismissing it as API-derived readback drift.
 - **`-el8` version tracks** and `ip_anchor_type` enum fields surface in the SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/`) — relevant when auditing group config.
+- **Group editing from application-serving context** became available on July
+  16, 2026: App Connector groups can be edited from the "Where are my apps being
+  served from?" view to resolve unknown hosting or location details
+  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:36-39`).
 
 Groups are the unit at which upgrades are orchestrated: when a new App Connector version is available, ZPA picks one connector in the group at random, upgrades it (restart + re-enroll), picks the next, and so on. The group stays available throughout because only one connector is down at a time.
 
@@ -316,6 +321,16 @@ Zscaler publishes reference Terraform configurations in two vendor-maintained re
 
 - AWS: IMDSv2 enforced (`imdsv2_enabled=true`) on both standalone and ASG launch templates (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf:92-96`); EBS encrypted by default with AWS-managed keys (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/variables.tf:40-50`); IAM AssumeRole principal is `ec2.amazonaws.com` (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-iam-aws/main.tf:8-19`).
 - Azure: OS disk hardcoded to `Premium_LRS` storage with `ReadWrite` caching (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvmss-azure/main.tf:44-47`); marketplace image — publisher `zscaler`, offer `zscaler-private-access`, SKU `zpa-con-azure`, version `latest` (`vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zsac-acvm-azure/variables.tf:72-94`).
+
+### Remote network inspection and settings
+
+The July 13, 2026 release added a **Get Network Interfaces** command that
+collects the network-interface inventory used by an App Connector
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:47-50`). The same
+release introduced limited-availability remote App Connector network settings
+that can enable SSH on the operating system and update software-interface
+settings on ZPA virtual machines in AWS, Azure, and GCP
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:51-53`).
 
 ### Software updates
 

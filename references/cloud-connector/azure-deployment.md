@@ -3,11 +3,11 @@ product: ztw
 topic: "azure-deployment"
 title: "Cloud Connector on Azure — deployment shape, NIC model, scaling, HA"
 content-type: reasoning
-last-verified: "2026-07-06"
+last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 verified-against:
-  vendor/terraform-azurerm-cloud-connector-modules: b530ca475148f6bb6d66b22473bf0559dd1e8f54
+  vendor/terraform-azurerm-cloud-connector-modules: 8714f88d1ac2827b40900b11bd52243919af2ae5
 sources:
   - "github.com/zscaler/terraform-azurerm-cloud-connector-modules"
   - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
@@ -204,6 +204,12 @@ VMSS deployments include a **mandatory Azure Function App** with two functions:
 **Function App ASP SKU options**: `Y1` (Flex Consumption, default), `FC1`, `EP1`, `B1` (`modules/terraform-zscc-function-app-azure/variables.tf:126-139`).
 
 **Regional caveat**: Flex Consumption plan is not available in all Azure regions. When unavailable but VNet integration is required, upgrade to Elastic Premium (EP1). Skipping this produces a degraded VMSS deployment with no orphan cleanup or unhealthy-instance termination.
+
+### Legacy VM NVA compatibility tag
+
+The single-VM and VMSS modules expose `enable_legacy_vm_nva_tag` as a boolean that defaults to `true`; each variable description says to set it to `false` once MANA host support is available (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/variables.tf:19-23`; `vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/variables.tf:25-29`). With the default enabled, both modules merge `LegacyVMNVA = "true"` into the resource tags; disabling the variable merges an empty map instead, while retaining `global_tags` (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/main.tf:155`; `vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/main.tf:91`).
+
+This source establishes only the emitted Azure resource tag and its MANA-related configuration guidance. It does not identify a consumer of `LegacyVMNVA` or establish any traffic or policy effect; treat the setting as deployment metadata unless another source documents its runtime use (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/variables.tf:19-23`; `vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/main.tf:155`; `vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/variables.tf:25-29`; `vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/main.tf:91`).
 
 ## HA model in Azure
 

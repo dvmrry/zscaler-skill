@@ -36,7 +36,7 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
 
 - Renovate watches git submodules, groups them as `Zscaler upstream submodules`,
   labels the PR `upstream-bump`, and runs before 9am UTC Monday. All vendor
-  submodules in `.gitmodules` (currently 20) ride the same grouped PR.
+  submodules in `.gitmodules` (currently 21) ride the same grouped PR.
 - A bump PR that changes `vendor/**` or `.gitmodules` triggers the hygiene
   workflow. The non-advisory hygiene checks fail the job on real errors; vendor
   family coverage and vendor drift are advisory so expected upstream movement is

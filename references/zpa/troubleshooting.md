@@ -3,10 +3,11 @@ product: zpa
 topic: "zpa-troubleshooting"
 title: "ZPA access troubleshooting — verification workflow and signal sources"
 content-type: reasoning
-last-verified: "2026-04-27"
+last-verified: "2026-07-22"
 confidence: medium
 source-tier: doc
 sources:
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
   - "vendor/zscaler-help/understanding-private-access-architecture.md"
   - "vendor/zscaler-help/about-app-connectors.md"
   - "vendor/zscaler-help/zpa-about-connector-groups.md"
@@ -121,6 +122,16 @@ App Connector logs are the on-host record of what the connector did for each req
 - **Certificate errors**: if the application server's certificate chain fails validation by the connector (relevant for double-encrypted segments), the connector logs a TLS handshake failure. This is distinct from the user-facing certificate error visible in a browser — the connector's error is server-side.
 
 LSS App Connector Status and App Connector Metrics log types stream connector health data to the configured SIEM. The LSS retransmit window after a connectivity gap is at most 15 minutes; logs generated during longer outages are permanently lost. See [`./app-connector.md § Logging`](./app-connector.md).
+
+### 2.4 Remote log and interface collection
+
+Remote troubleshooting supports `journalctl` collection of either service logs
+or full-system logs from App Connectors, Private Service Edges, Private Cloud
+Controllers, and Network Connectors
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:41-45`). For App
+Connectors, the **Get Network Interfaces** command collects the
+network-interface inventory used by the connector
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:47-50`).
 
 ---
 

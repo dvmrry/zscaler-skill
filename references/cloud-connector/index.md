@@ -3,7 +3,7 @@ product: cloud-connector
 topic: "cloud-connector-index"
 title: "Cloud & Branch Connector reference hub"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 sources:
@@ -12,6 +12,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go"
   - "vendor/terraform-provider-ztc/ztc/provider.go"
+  - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md"
+  - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf"
 author-status: draft
 ---
 
@@ -64,6 +66,7 @@ Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-h
 | API and Terraform surface — Python `client.ztw.*`, Go `ztw/services/*`, `ztc_*` resources in TF, provisioning templates, activation | [`./api.md`](./api.md) | draft |
 | **Azure deployment** — Marketplace listing, dual-NIC architecture, Standard ILB + 15s probe, NAT Gateway per AZ, VMSS scaling + Function App orphan cleanup, HA model | [`./azure-deployment.md`](./azure-deployment.md) | draft |
 | **AWS deployment** — Marketplace listing, dual-ENI model, GWLB vs ENI endpoint patterns, ASG with custom CloudWatch CPU metrics, CloudFormation deployment flow, route-table modification post-deploy step, HA model | [`./aws-deployment.md`](./aws-deployment.md) | draft |
+| **GCP deployment** — captured Terraform resource-sync path: 30-minute Cloud Scheduler cadence, GCP-to-Zscaler resource reconciliation, dangling-resource cleanup, and the opaque function-implementation boundary (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`; `vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:249-262,331-353`) | [`./gcp-deployment.md`](./gcp-deployment.md) | draft |
 | **AWS workload discovery** — Account trust setup (External ID + Trusted Account ID + IAM role assumption), permission states, EventBridge metadata pipeline, AWS Account Groups, sublocation scopes, `zs:namespace` VPC tag for overlapping CIDRs | [`./aws-workload-discovery.md`](./aws-workload-discovery.md) | draft |
 | **DNS subsystems** — three distinct components: DNS Gateways (resolver pairs), DNS Policies (DoH, tunnel detection, response rewriting), Log & Control Forwarding (telemetry routing); subsystem interactions and failure modes | [`./dns-subsystem.md`](./dns-subsystem.md) | draft |
 | **Upgrades + credential rotation** — Sunday midnight local upgrade cadence (2-hour stagger, OS-image vs package distinction), zsroot rotation procedure (CC vs BC), combined sequencing for in-place vs re-deploy windows | [`./upgrade-and-credential-rotation.md`](./upgrade-and-credential-rotation.md) | draft |
@@ -93,7 +96,7 @@ In scope:
 Not in scope (explicitly deferred):
 
 - **Branch Connector zero-trust appliance specifics** — referenced in the shared help section but not deeply covered here. The configuration model is similar to Cloud Connector; Branch-specific details (hardware, zero-touch provisioning) are operational and vendor-specific.
-- **Per-cloud deployment guides** — Azure is now covered at [`./azure-deployment.md`](./azure-deployment.md). AWS CloudFormation and GCP templates remain deferred; reference architecture PDFs exist under `help.zscaler.com/downloads/cloud-branch-connector/reference-architecture/`.
+- **Per-cloud deployment guides** — Azure and AWS are covered at [`./azure-deployment.md`](./azure-deployment.md) and [`./aws-deployment.md`](./aws-deployment.md). GCP is covered narrowly at [`./gcp-deployment.md`](./gcp-deployment.md) for the captured resource-synchronization path; the vendored function module documents reconciliation and its 30-minute scheduler, while the function body remains outside the Terraform source (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`; `vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:249-262,331-353`).
 - **VMSS / ASG / MIG operational tuning** — help articles cover this; captured at architecture level only.
 - **Zscaler Zero Trust SD-WAN** — now covered at [`./zero-trust-sdwan.md`](./zero-trust-sdwan.md). Covers positioning vs traditional SD-WAN, Cloud/Branch Connector roles, capabilities and limits, vendor comparison by axis, and operational gotchas.
 

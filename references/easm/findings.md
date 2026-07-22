@@ -5,7 +5,7 @@ title: "ZEASM Findings — field table, drill-down levels, and scoring-field cav
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
 confidence: medium
 source-tier: code
 sources:
@@ -18,7 +18,7 @@ author-status: draft
 
 # ZEASM Findings — field table, drill-down levels, and scoring-field caveats
 
-> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.13.1 now wraps the Python client with four read-only finding tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:183-209`, `:212-283`). There is no Go field column to compare. Several finding fields are declared by attribute name only, with no value enumeration or docstring in source; those allowed-value sets are recorded as unverified under [Open questions](#open-questions), not guessed.
+> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.13.3 now wraps the Python client with four read-only finding tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:183-209`, `:212-283`). There is no Go field column to compare. Several finding fields are declared by attribute name only, with no value enumeration or docstring in source; those allowed-value sets are recorded as unverified under [Open questions](#open-questions), not guessed.
 
 ## Endpoint
 

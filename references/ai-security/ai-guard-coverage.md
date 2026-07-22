@@ -5,13 +5,13 @@ title: "AI Guard public-source coverage manifest"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
-  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
-  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
+  vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
+  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
   vendor/zscaler-terraform-skills: f85c5bc723a7ff948d53a0a92d69cbcaaacb8452
 confidence: high
 source-tier: mixed
