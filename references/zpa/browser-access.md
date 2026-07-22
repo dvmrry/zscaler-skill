@@ -5,9 +5,9 @@ title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
+  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
 confidence: high
 source-tier: mixed
 sources:
@@ -213,7 +213,7 @@ As of `zscaler-sdk-python` >= 1.9.28 (verified on v1.9.31), both Browser Access 
 
 The SDK v2 BA service models the per-domain Browser Access payload under `common_apps_dto.apps_config`. The SDK itself auto-injects `app_types: ["BROWSER_ACCESS"]` into each `apps_config` entry that omits it and serializes the object as `commonAppsDto` (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py:260-267`).
 
-zscaler-mcp-server v0.13.1 retains five dedicated BA tools for list/get/create/update/delete (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py:256-364`). Its current create/update models expose optional `clientless_app_ids` and forward that value as-is to the SDK v2 call; they no longer expose or require `common_apps_dto.apps_config`, validate domain/app-domain or protocol/certificate relationships, or inject `app_types` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py:54-121`, `:228-248`, `:313-342`). The list tool validates `page` and `page_size` as positive integers and stringifies them in the SDK query parameters (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py:24-39`, `:264-275`).
+zscaler-mcp-server v0.13.3 retains five dedicated BA tools for list/get/create/update/delete (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py:256-364`). Its current create/update models expose optional `clientless_app_ids` and forward that value as-is to the SDK v2 call; they no longer expose or require `common_apps_dto.apps_config`, validate domain/app-domain or protocol/certificate relationships, or inject `app_types` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py:54-121`, `:228-248`, `:313-342`). The list tool validates `page` and `page_size` as positive integers and stringifies them in the SDK query parameters (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py:24-39`, `:264-275`).
 
 **Methods:**
 
@@ -221,7 +221,7 @@ zscaler-mcp-server v0.13.1 retains five dedicated BA tools for list/get/create/u
 |---|---|---|
 | SDK v1 | `list_segments_ba`, `get_segment_ba`, `add_segment_ba`, `update_segment_ba`, `delete_segment_ba` | Legacy BA wrapper using `clientless_app_ids`. |
 | SDK v2 | `list_segments_ba`, `get_segment_ba`, `add_segment_ba`, `update_segment_ba`, `delete_segment_ba` | Preferred BA wrapper using `common_apps_dto.apps_config`; update auto-diffs BA apps by domain and writes `deleted_ba_apps`. |
-| MCP v0.13.1 | `zpa_list_application_segments_ba`, `zpa_get_application_segment_ba`, `zpa_create_application_segment_ba`, `zpa_update_application_segment_ba`, `zpa_delete_application_segment_ba` | Agent-facing tools; create/update accept optional `clientless_app_ids` and forward provided values without BA-specific preflight validation. |
+| MCP v0.13.3 | `zpa_list_application_segments_ba`, `zpa_get_application_segment_ba`, `zpa_create_application_segment_ba`, `zpa_update_application_segment_ba`, `zpa_delete_application_segment_ba` | Agent-facing tools; create/update accept optional `clientless_app_ids` and forward provided values without BA-specific preflight validation. |
 
 Go SDK parity: `applicationsegmentbrowseraccess/` package.
 
@@ -279,7 +279,7 @@ Key Terraform constraints:
 
 ## Open questions
 
-- **MCP v0.13.1 Browser Access payload mismatch.** The MCP create/update contract forwards `clientless_app_ids` to `app_segments_ba_v2` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py:54-121`, `:228-248`, `:313-342`), while the Python SDK v2 create path reads `common_apps_dto`, iterates `apps_config`, and emits `commonAppsDto` (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py:260-267`). That mismatch may make MCP BA writes nonfunctional and requires a live call or upstream test to resolve. The bundled BA onboarding skill still says `common_apps_dto.apps_config` is required and that the create tool performs certificate/domain validation (`vendor/zscaler-mcp-server/skills/zpa/application_segment-ba-onboard/SKILL.md:31-41`), contradicting the current tool implementation; treat those skill instructions as stale until the source and skill are reconciled.
+- **MCP v0.13.3 Browser Access payload mismatch.** The MCP create/update contract forwards `clientless_app_ids` to `app_segments_ba_v2` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py:54-121`, `:228-248`, `:313-342`), while the Python SDK v2 create path reads `common_apps_dto`, iterates `apps_config`, and emits `commonAppsDto` (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py:260-267`). That mismatch may make MCP BA writes nonfunctional and requires a live call or upstream test to resolve. The bundled BA onboarding skill still says `common_apps_dto.apps_config` is required and that the create tool performs certificate/domain validation (`vendor/zscaler-mcp-server/skills/zpa/application_segment-ba-onboard/SKILL.md:31-41`), contradicting the current tool implementation; treat those skill instructions as stale until the source and skill are reconciled.
 
 - **Exact runtime semantics of `trust_untrusted_cert` and `allow_options`.** Both fields are present on the SDK clientless-app model (`models/application_segment.py:774,775`), and their names strongly imply the behavior described in §8 (tolerate a backend cert mismatch; pass `OPTIONS` preflight through to the backend). But the SDK model is only a passthrough struct — it does not document what the ZPA service does with each flag. The precise ingress behavior (e.g. whether `allow_options` blocks vs forwards `OPTIONS`, and whether `trust_untrusted_cert` suppresses the §5 web-server certificate error end-to-end or only on the backend leg) is inferred from the field names and not confirmed in vendor source. Needs an admin-help or API-reference citation before stating it as definite. (Tracked as [`zpa-36`](../_meta/clarifications.md#zpa-36-runtime-semantics-of-trust_untrusted_cert-and-allow_options).)
 

@@ -125,6 +125,16 @@ FIXTURE_REPORTS = {
             }
         ],
         "totals": {},
+        "client_surfaces_without_contract": [
+            {
+                "name": "new_family",
+                "api_paths": ["/zia/api/v1/newFamily"],
+                "surfaces": {
+                    "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/new_family/new_family.go"],
+                    "tf": ["vendor/terraform-provider-zia/zia/resource_zia_new_family.go"],
+                },
+            }
+        ],
     }
 }
 
@@ -157,6 +167,32 @@ def row_by_field(rows, field):
 def test_contract_only_registry_includes_ai_security():
     assert THIN_PRODUCTS["ai-security"] == "AI Security"
     assert THIN_PRODUCTS["event-monitoring"] == "Event Monitoring"
+
+
+@case
+def test_unmapped_client_family_is_visible_and_routed():
+    rosetta = build_rosetta(FIXTURE_REPORTS, FIXTURE_CONTRACT_FIELDS)
+    unmapped = rosetta["boundaries"]["client_surfaces_without_contract"]
+    assert unmapped == [{
+        "product": "zia",
+        "name": "new_family",
+        "api_paths": ["/zia/api/v1/newFamily"],
+        "surfaces": {
+            "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/new_family/new_family.go"],
+            "tf": ["vendor/terraform-provider-zia/zia/resource_zia_new_family.go"],
+        },
+    }]
+    markdown = render_rosetta_markdown(rosetta)
+    assert "`zia.new_family`" in markdown
+    assert "`/zia/api/v1/newFamily`" in markdown
+
+    worklist = build_issue_routing(FIXTURE_REPORTS, FIXTURE_CONTRACT_FIELDS)
+    row = next(r for r in worklist["rows"] if r["resource"] == "new_family")
+    assert row["divergence_type"] == "client_surface_without_contract_mapping"
+    assert row["target_repo"] == "automate.zscaler.com docs"
+    assert row["direction"] == "contract_or_capture_gap"
+    assert row["confidence"] == "HIGH"
+    assert row["evidence"]["api_paths"] == ["/zia/api/v1/newFamily"]
 
 
 @case

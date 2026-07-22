@@ -3,7 +3,7 @@ product: shared
 topic: "nss-architecture"
 title: "Nanolog Streaming Service (NSS) architecture"
 content-type: reasoning
-last-verified: "2026-06-16"
+last-verified: "2026-07-22"
 confidence: high
 source-tier: doc
 sources:
@@ -14,6 +14,8 @@ sources:
   - "vendor/zscaler-help/nss-dns-logs.csv"
   - "vendor/zscaler-help/about-nss-feeds.md"
   - "vendor/zscaler-help/about-nss-servers.md"
+  - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
 author-status: draft
 ---
 
@@ -157,6 +159,10 @@ An NSS feed is the configuration object that specifies **which data** from the N
 | **Tunnel feed** | GRE/IPSec tunnel events | VM-based NSS (via Firewall subscription) |
 | **MCAS feed** | Microsoft Cloud App Security integration feed | VM-based NSS |
 | **Real-time alert feed** | Alerts for NSS connectivity monitoring | VM-based NSS |
+
+The July 2026 Help capture adds NSS and Cloud NSS feed support for 3rd-Party App Governance and Posture Management logs and states that both log types require an Advanced SaaS Security Posture Management subscription (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:12-23`). For the Cloud NSS `/nssFeeds` model, Help names new `nssLogType` values `POSTURE_CONTROL` and `APP_GOVERNANCE` (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:25-28`).
+
+Source boundary: the current Automate `/nssFeeds` request model enumerates log types through `EMAIL_DLP` and contains neither `POSTURE_CONTROL` nor `APP_GOVERNANCE` (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:52622-52650`). The capture contains `APP_GOVERNANCE` elsewhere only in a SaaS-application feature enum, so that unrelated occurrence is not independent proof of the new NSS log type (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:387802-387818`; `vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:25-28`).
 
 DNS and tunnel logs flow through the Firewall NSS subscription on VM-based NSS. The Cloud NSS "Firewall" subscription covers all firewall-module records including DNS (Tier A — vendor/zscaler-help/about-nss-feeds.md).
 

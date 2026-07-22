@@ -5,7 +5,7 @@ title: "ZIA Workload Groups — policy-scoping primitive (sourced from SDK / TF;
 content-type: reasoning
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
 confidence: medium
 source-tier: code
 sources:
@@ -192,7 +192,7 @@ param** on `/workloadGroups`. To resolve a group by name you list all groups and
 filter locally. The Go SDK's `GetByName` does exactly this — it calls
 `common.ReadAllPages` then filters in Go with `strings.EqualFold`
 (`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:85-97`),
-which also makes the match **case-insensitive**. MCP v0.13.1 accepts only `page`
+which also makes the match **case-insensitive**. MCP v0.13.3 accepts only `page`
 and `page_size`, forwards those pagination keys, and exposes no `query` argument
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py:22-24,81-100`).
 MCP callers therefore need to page/list and filter the returned rows locally.

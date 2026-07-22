@@ -3,16 +3,17 @@ product: zpa
 topic: "privileged-remote-access"
 title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
-last-verified: "2026-07-20"
+last-verified: "2026-07-22"
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/privileged-remote-access-captures.md"
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
   - "vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py"
   - "vendor/zpacloud-ansible/CHANGELOG.md"
@@ -180,6 +181,15 @@ file-transfer and clipboard-transfer contents
 For VNC-enabled consoles, enabling uploads or downloads requires SSH on port 22
 with the same credentials used for VNC. The connection fails when SFTP is
 disabled on the target (`vendor/zscaler-help/privileged-remote-access-captures.md`).
+
+## Step-Up Authentication
+
+Zscaler announced Step-Up Authentication for Privileged Remote Access as a
+limited-availability feature on July 20, 2026
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-30`). It can
+require a user to complete additional authentication before application access,
+and the Zscaler Admin Console supports conditional access for this flow
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:29-32`).
 
 ## Operational gotchas
 

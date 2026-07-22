@@ -3,9 +3,10 @@ product: zpa
 topic: "zpa-index"
 title: "ZPA reference hub"
 content-type: reference
-last-verified: "2026-06-15"
+last-verified: "2026-07-22"
 confidence: high
-sources: []
+sources:
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
 author-status: reviewed
 ---
 
@@ -23,6 +24,7 @@ Entry point for Zscaler Private Access (ZPA) questions — application segments,
 | App Connector — VM model, groups, provisioning keys, scheduled software updates, certificate enrollment | [`./app-connector.md`](./app-connector.md) | draft |
 | **Browser Access** — clientless web-app access via browser (no ZCC), dual-access model, TLS-1.2 cipher requirement, wildcard-cert one-level-only gotcha, same-vs-different-hostname cert mechanics, mutual-exclusions with SIPA/Double-Encryption/Multimatch | [`./browser-access.md`](./browser-access.md) | draft |
 | **Privileged Remote Access (PRA)** — clientless RDP/SSH/VNC gateway, credential pooling (3 credential types, immutable protocol), approval workflow (requester → approver → time-bounded), capabilities policy, session recording with 6-state lifecycle | [`./privileged-remote-access.md`](./privileged-remote-access.md) | draft |
+| **Business-to-Business Federation** — limited-availability partner trust, incoming/outgoing federation requests, federated-partner management, and application-segment federation with granular controls (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:14-25`) | [`./b2b-federation.md`](./b2b-federation.md) | draft |
 | **AppProtection** (formerly Inspection) — inline WAF/IPS for ZPA-protected apps, 6 control categories (OWASP CRS 4.8 / ThreatLabZ / Active Directory Kerberos+SMB+LDAP / API / WebSocket / Custom), three-tier policy model (Controls → Profiles → Rules), Paranoia Levels 1-4, default `OWASP Top-10 for Visibility` profile, LSS log stream | [`./appprotection.md`](./appprotection.md) | draft |
 | ZPA API — endpoints, authentication, response shapes | [`./api.md`](./api.md) | draft |
 | **Snapshot schema** — what's in `_data/snapshot/<cloud>/zpa/*.json`, list-wrapping, ruleOrder-as-string, embedded-objects pattern, common jq queries | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |

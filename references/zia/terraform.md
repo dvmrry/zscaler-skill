@@ -3,9 +3,9 @@ product: zia
 topic: "zia-terraform"
 title: "ZIA Terraform provider resource catalog"
 content-type: reference
-last-verified: "2026-07-06"
+last-verified: "2026-07-22"
 verified-against:
-  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
+  vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
 confidence: medium
 source-tier: mixed
 sources:
@@ -95,7 +95,7 @@ author-status: draft
 
 # ZIA Terraform provider resource catalog
 
-Complete catalog of the 74 resources and corresponding data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, v4.x). Resources are grouped by ZIA functional area. Most configuration resources require activation to take effect; action-style resources such as `zia_sandbox_file_submission` are not staged policy configuration. See the [Activation lifecycle](#activation-lifecycle) section.
+Catalog of resources and data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, current pin v4.8.0; `vendor/terraform-provider-zia/CHANGELOG.md:3-12`). Resources are grouped by ZIA functional area. Most configuration resources require activation to take effect; action-style resources such as `zia_sandbox_file_submission` are not staged policy configuration. See the [Activation lifecycle](#activation-lifecycle) section.
 
 > **For HCL authoring guidance** — best practices, decision tables, anti-patterns, CI/CD with the activation step, secret hygiene — see Zscaler's official skill bundle, vendored at [`vendor/zscaler-terraform-skills/skills/zia-skill/`](../../vendor/zscaler-terraform-skills/skills/zia-skill/) (upstream: `zscaler/zscaler-terraform-skills`, MIT). This doc covers the resource catalog and provider internals; their skill covers how to *write* HCL against the catalog.
 
@@ -463,6 +463,28 @@ Import: by numeric ID or name.
 ---
 
 ## Policy: DLP
+
+### Endpoint and Outbound Email DLP added in v4.8.0
+
+Provider v4.8.0 adds these DLP management objects (`vendor/terraform-provider-zia/CHANGELOG.md:14-27`):
+
+| Terraform object | Kind | Scope |
+|---|---|---|
+| `zia_dlp_global_options` | Resource + data source | DLP Advanced Settings |
+| `zia_endpoint_dlp_custom_apps` | Resource + data source | Custom Endpoint DLP applications |
+| `zia_endpoint_dlp_rules` | Resource + data source | Endpoint DLP policy rules |
+| `zia_outbound_email_dlp` | Resource + data source | Outbound Email DLP policy rules |
+| `zia_endpoint_dlp_application_group` | Resource | Endpoint application groups |
+| `zia_endpoint_dlp_resource` | Resource | Endpoint DLP resources |
+| `zia_endpoint_dlp_resource_group` | Resource | Endpoint DLP resource groups/tags |
+| `zia_endpoint_dlp_sub_rules` | Resource | Endpoint DLP exception/sub-rules |
+| `zia_endpoint_dlp_application` | Data source | Endpoint application by name or ID |
+| `zia_dlp_endpoint_resource_channels` | Data source | Resources for a specified channel |
+| `zia_dlp_endpoint_resource_group_tag` | Data source | Resource tags for a channel |
+| `zia_eun_template_product` | Data source | Browser/ZCC notification templates by policy type |
+| `zia_eun_user_confirmation_template_product` | Data source | User-confirmation templates by policy type |
+
+The same release adds `zia_dns_application_groups` as a resource/data source and extends `zia_ssl_inspection_rules`, `zia_firewall_filtering_rule`, and `zia_firewall_dns_rule` with `end_point_applications` and `end_point_application_groups`; the two firewall rule resources also gain `exclude_context_shield_end_point` (`vendor/terraform-provider-zia/CHANGELOG.md:14-16,29-35`). These provider objects establish IaC surface, not tenant entitlement or live feature availability (`vendor/terraform-provider-zia/CHANGELOG.md:3-12`).
 
 ### `zia_dlp_web_rules`
 

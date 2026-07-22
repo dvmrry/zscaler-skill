@@ -2061,6 +2061,103 @@ ZIA_CONTRACT_ONLY_GROUPS = [
     "time-intervals",
 ]
 
+# Official client/provider resource families present at the pinned revisions but
+# absent from the current Automate capture. Keep these at the resource-family
+# level: field reconciliation is not trustworthy until an operation contract is
+# captured. The registry makes that boundary visible in generated artifacts
+# instead of silently dropping surfaces that are outside ZIA_RESOURCES.
+ZIA_CLIENT_SURFACES_WITHOUT_CONTRACT = [
+    {
+        "name": "endpoint_application_catalog",
+        "api_paths": ["/zia/api/v1/endPointApplications"],
+        "surfaces": {
+            "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go"],
+            "tf": ["vendor/terraform-provider-zia/zia/data_source_zia_endpoint_dlp_application.go"],
+        },
+    },
+    {
+        "name": "endpoint_custom_applications",
+        "api_paths": ["/zia/api/v1/endPointApplications/customApps"],
+        "surfaces": {
+            "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go"],
+            "tf": [
+                "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_custom_apps.go",
+                "vendor/terraform-provider-zia/zia/data_source_zia_endpoint_dlp_custom_apps.go",
+            ],
+        },
+    },
+    {
+        "name": "endpoint_application_groups",
+        "api_paths": ["/zia/api/v1/endPointApplicationGroups"],
+        "surfaces": {
+            "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go"],
+            "tf": ["vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_application_group.go"],
+        },
+    },
+    {
+        "name": "endpoint_dlp_resources",
+        "api_paths": ["/zia/api/v1/dlpEndpointResource", "/zia/api/v1/endPointDlpResourceGroups"],
+        "surfaces": {
+            "go": [
+                "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go",
+                "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go",
+            ],
+            "tf": [
+                "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_resource.go",
+                "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_resource_group.go",
+            ],
+        },
+    },
+    {
+        "name": "endpoint_dlp_rules",
+        "api_paths": ["/zia/api/v1/endPointDlpRules"],
+        "surfaces": {
+            "go": [
+                "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go",
+                "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go",
+            ],
+            "tf": [
+                "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_rules.go",
+                "vendor/terraform-provider-zia/zia/resource_zia_endpoint_dlp_sub_rules.go",
+            ],
+        },
+    },
+    {
+        "name": "outbound_email_dlp",
+        "api_paths": ["/zia/api/v1/emailDlpRules"],
+        "surfaces": {
+            "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go"],
+            "tf": ["vendor/terraform-provider-zia/zia/resource_zia_outbound_email_dlp.go"],
+        },
+    },
+    {
+        "name": "dns_application_groups",
+        "api_paths": ["/zia/api/v1/dnsApplicationGroups"],
+        "surfaces": {
+            "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/dns_application_groups/dns_application_groups.go"],
+            "tf": ["vendor/terraform-provider-zia/zia/resource_zia_dns_application_groups.go"],
+        },
+    },
+    {
+        "name": "eun_templates_and_status",
+        "api_paths": ["/zia/api/v1/eunTemplate", "/zia/api/v1/userConfirmation"],
+        "surfaces": {
+            "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go"],
+            "tf": [
+                "vendor/terraform-provider-zia/zia/data_source_zia_eun_template_product.go",
+                "vendor/terraform-provider-zia/zia/data_source_zia_eun_user_confirmation_template_product.go",
+            ],
+        },
+    },
+    {
+        "name": "ips_categories",
+        "api_paths": ["/zia/api/v1/ipsCategories"],
+        "surfaces": {
+            "go": ["vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go"],
+        },
+    },
+]
+
 PRODUCTS = {
     "zcc": {
         "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json",
@@ -2082,6 +2179,7 @@ PRODUCTS = {
         "contract_json": "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json",
         "resources": ZIA_RESOURCES,
         "contract_only_groups": ZIA_CONTRACT_ONLY_GROUPS,
+        "client_surfaces_without_contract": ZIA_CLIENT_SURFACES_WITHOUT_CONTRACT,
     },
 }
 
@@ -2555,7 +2653,36 @@ def build_report(contracts, product="zpa"):
         report["contract_only_groups"] = PRODUCTS[product]["contract_only_groups"]
     if PRODUCTS[product].get("scope_notes"):
         report["scope_notes"] = PRODUCTS[product]["scope_notes"]
+    client_surfaces = client_surfaces_without_contract(contracts, product)
+    if client_surfaces:
+        report["client_surfaces_without_contract"] = client_surfaces
+        report["totals"]["client_surfaces_without_contract"] = len(client_surfaces)
     return report
+
+
+def client_surfaces_without_contract(contracts, product):
+    """Return registered client routes that remain absent from the capture.
+
+    Compare route families rather than literal strings so a future captured
+    ``/{id}`` operation clears its registered base path automatically. For a
+    grouped family, retain only the sibling paths that are still absent.
+    """
+    registered = PRODUCTS[product].get("client_surfaces_without_contract", [])
+    captured_paths = {
+        display_contract_path(product, operation.get("path", "")).rstrip("/")
+        for operation in contracts.values()
+        if operation.get("path")
+    }
+    missing = []
+    for item in registered:
+        missing_paths = []
+        for api_path in item["api_paths"]:
+            family = api_path.rstrip("/")
+            if not any(path == family or path.startswith(family + "/{") for path in captured_paths):
+                missing_paths.append(api_path)
+        if missing_paths:
+            missing.append({**item, "api_paths": missing_paths})
+    return missing
 
 
 # ---- markdown rendering ----------------------------------------------------
@@ -2602,6 +2729,19 @@ def render_markdown(report):
                f"**{t['mcp_only']}** MCP-only fields\n")
     out.append(f"- Expected operations absent from the captured contract: "
                f"**{t['missing_contract_operations']}**\n")
+    if report.get("client_surfaces_without_contract"):
+        out.append("## Client Surfaces Outside the Captured Contract\n")
+        out.append(
+            "Official client/provider families that cannot yet be reconciled field by field because no "
+            "corresponding operation is mapped in the current Automate capture:\n"
+        )
+        out.append("| family | API path family | official surfaces |")
+        out.append("|---|---|---|")
+        for item in report["client_surfaces_without_contract"]:
+            paths = "<br>".join(f"`{path}`" for path in item["api_paths"])
+            surfaces = ", ".join(f"`{surface}`" for surface in sorted(item["surfaces"]))
+            out.append(f"| `{item['name']}` | {paths} | {surfaces} |")
+        out.append("")
     if report.get("contract_only_groups"):
         out.append("## Contract Groups Outside Terraform Scope\n")
         out.append("Captured contract groups with no Terraform resource mapping in this report:\n")

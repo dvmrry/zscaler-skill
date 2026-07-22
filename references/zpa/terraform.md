@@ -3,15 +3,17 @@ product: zpa
 topic: "zpa-terraform"
 title: "ZPA Terraform provider — resource catalog"
 content-type: reference
-last-verified: "2026-07-20"
+last-verified: "2026-07-22"
 verified-against:
-  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
+  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
 confidence: medium
 source-tier: code
 sources:
   - "vendor/terraform-provider-zpa/docs/index.md"
   - "vendor/terraform-provider-zpa/README.md"
   - "vendor/terraform-provider-zpa/docs/guides/release-notes.md"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_capabilities_access_rule.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_portal_access_rule.go"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_browser_access.md"
@@ -98,6 +100,10 @@ Complete listing of every Terraform resource and data source in the `zscaler/zpa
 ---
 
 ## Provider overview
+
+Provider v4.4.8 added `JOIN_SESSION` and `CONTROL_SESSION` options to the
+privileged capabilities supported by `zpa_policy_capabilities_rule`
+(`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`).
 
 Provider v4.4.7 changed two operationally relevant surfaces. It added three
 portal-access capability fields—`access_uninspected_file_sandbox`,
@@ -1008,11 +1014,16 @@ Controls which PRA capabilities are available in a session.
 
 **Required:** `privileged_capabilities` block with Boolean fields:
 
-`clipboard_copy`, `clipboard_paste`, `file_download`, `file_upload`, `inspect_file_download`, `inspect_file_upload`, `monitor_session`, `record_session`, `share_session`.
+`clipboard_copy`, `clipboard_paste`, `file_download`, `file_upload`, `inspect_file_download`, `inspect_file_upload`, `monitor_session`, `record_session`, `share_session`, `join_session`, `control_session`. The two v4.4.8 additions are Boolean schema fields (`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_capabilities_access_rule.go:174-183`).
+
+| Terraform field | Capability value | Mapping |
+|---|---|---|
+| `join_session` | `JOIN_SESSION` | `true` appends `JOIN_SESSION` to the outgoing capability list (`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_capabilities_access_rule.go:431-433`) |
+| `control_session` | `CONTROL_SESSION` | `true` appends `CONTROL_SESSION` to the outgoing capability list (`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_capabilities_access_rule.go:434-435`) |
 
 **Conditions limited to:** `APP`, `APP_GROUP`, `SAML`, `SCIM`, `SCIM_GROUP`.
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_capabilities_rule.md`.
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_policy_capabilities_rule.md:94-105`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_capabilities_access_rule.go:174-183`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_capabilities_access_rule.go:431-435`.
 
 ---
 

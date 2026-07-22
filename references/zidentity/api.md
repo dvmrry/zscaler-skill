@@ -5,7 +5,7 @@ title: "ZIdentity API — endpoint catalog, API clients, and auth flow"
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
 confidence: high
 source-tier: mixed
 sources:

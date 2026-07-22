@@ -411,6 +411,10 @@ def build_rosetta(
 
 def build_boundaries(reports: dict[str, dict]) -> dict:
     contract_only = []
+    client_surfaces_without_contract = []
+    for product, report in sorted(reports.items()):
+        for item in report.get("client_surfaces_without_contract", []):
+            client_surfaces_without_contract.append({"product": product, **item})
     for product, display in sorted(THIN_PRODUCTS.items()):
         path = SPEC_DIR / f"{product}-api-reference.json"
         operations = len(_read_json(path)) if path.exists() else 0
@@ -424,6 +428,7 @@ def build_boundaries(reports: dict[str, dict]) -> dict:
     return {
         "reconciled_products": sorted(reports),
         "contract_only_products": contract_only,
+        "client_surfaces_without_contract": client_surfaces_without_contract,
         "postman": {
             "status": "reference-only",
             "reason": "Postman is example-shaped reference data, not a constraint-bearing reconciliation leg.",
@@ -755,6 +760,27 @@ def build_issue_routing(
             route_one_sided_enums(product, resource, rows)
             route_type_drift(product, resource, rows)
             route_readonly(product, resource, rows)
+        for item in reports[product].get("client_surfaces_without_contract", []):
+            surfaces = sorted(item["surfaces"])
+            _append_row(
+                rows,
+                product=product,
+                resource=item["name"],
+                field="__resource__",
+                divergence_type="client_surface_without_contract_mapping",
+                direction="contract_or_capture_gap",
+                target_repo=CONTRACT_REPO,
+                suggested_action=(
+                    "Capture or confirm the Automate operation contract before attempting field-level reconciliation."
+                ),
+                confidence="HIGH" if len(surfaces) >= 2 else "MEDIUM",
+                source_surface=",".join(surfaces),
+                source_repo=",".join(sorted({repo_for_surface(product, surface) for surface in surfaces})),
+                evidence={
+                    "api_paths": item["api_paths"],
+                    "surfaces": item["surfaces"],
+                },
+            )
     rows.sort(key=lambda item: (
         item["target_repo"],
         item["product"],
@@ -875,6 +901,13 @@ def render_rosetta_markdown(rosetta: dict) -> str:
         out.append(
             f"  - `{item['product']}` ({item['display']}): {item['operations']} captured operations; {item['reason']}"
         )
+    unmapped = rosetta["boundaries"].get("client_surfaces_without_contract", [])
+    if unmapped:
+        out.append("- Official client/provider families outside the captured Automate contract:")
+        for item in unmapped:
+            paths = ", ".join(f"`{path}`" for path in item["api_paths"])
+            surfaces = ", ".join(f"`{surface}`" for surface in sorted(item["surfaces"]))
+            out.append(f"  - `{item['product']}.{item['name']}`: {paths}; surfaces: {surfaces}.")
     rows_by_product: dict[str, list[dict]] = defaultdict(list)
     for row in rosetta["rows"]:
         rows_by_product[row["product"]].append(row)

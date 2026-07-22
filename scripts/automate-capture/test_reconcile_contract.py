@@ -14,10 +14,12 @@ sys.path.insert(0, HERE)
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 
 from reconcile_contract import (  # noqa: E402
+    ZIA_CLIENT_SURFACES_WITHOUT_CONTRACT,
     _contract_ops,
     _contract_reconcile_field,
     _mcp_package_root,
-    ansible_category, build_report, contract_category, extract_ansible_argument_spec_fields,
+    ansible_category, build_report, client_surfaces_without_contract, contract_category,
+    extract_ansible_argument_spec_fields,
     extract_ansible_sdk_calls, extract_go_struct_fields, extract_python_model_fields,
     extract_mcp_request_fields, extract_mcp_sdk_calls, extract_mcp_tool_functions,
     extract_python_service_fields, extract_python_service_methods, extract_tf_schema_fields,
@@ -90,6 +92,47 @@ def test_display_contract_path_preserves_product_context():
     assert display_contract_path("zcc", "/papi/public/v1/setDeviceCleanupInfo") == \
         "/zcc/papi/public/v1/setDeviceCleanupInfo"
     assert display_contract_path("zia", "/zia/api/v1/locations") == "/zia/api/v1/locations"
+
+
+@case
+def test_zia_unmapped_client_surface_registry_is_well_formed():
+    names = [item["name"] for item in ZIA_CLIENT_SURFACES_WITHOUT_CONTRACT]
+    assert len(names) == len(set(names)), names
+    assert {"outbound_email_dlp", "dns_application_groups", "ips_categories"} <= set(names)
+    for item in ZIA_CLIENT_SURFACES_WITHOUT_CONTRACT:
+        assert item["api_paths"] and item["surfaces"], item
+        assert set(item["surfaces"]) <= {"go", "tf", "python", "ansible", "mcp"}, item
+        for paths in item["surfaces"].values():
+            assert paths and all(path.startswith("vendor/") for path in paths), item
+
+
+@case
+def test_unmapped_client_surfaces_self_clear_when_routes_are_captured():
+    absent = client_surfaces_without_contract({}, "zia")
+    assert len(absent) == len(ZIA_CLIENT_SURFACES_WITHOUT_CONTRACT)
+
+    contracts = {}
+    for index, item in enumerate(ZIA_CLIENT_SURFACES_WITHOUT_CONTRACT):
+        for path_index, path in enumerate(item["api_paths"]):
+            raw_path = path.removeprefix("/zia/api/v1") + "/{id}"
+            contracts[f"op-{index}-{path_index}"] = {"path": raw_path}
+    assert client_surfaces_without_contract(contracts, "zia") == []
+
+    # A captured child route must not clear its overlapping parent family.
+    custom_only = {"custom": {"path": "/endPointApplications/customApps/{id}"}}
+    custom_missing = {
+        item["name"] for item in client_surfaces_without_contract(custom_only, "zia")
+    }
+    assert "endpoint_custom_applications" not in custom_missing
+    assert "endpoint_application_catalog" in custom_missing
+
+    # Grouped families retain a missing sibling instead of disappearing whole.
+    partial = {"eun": {"path": "/eunTemplate/{templateType}"}}
+    eun = next(
+        item for item in client_surfaces_without_contract(partial, "zia")
+        if item["name"] == "eun_templates_and_status"
+    )
+    assert eun["api_paths"] == ["/zia/api/v1/userConfirmation"]
 
 
 @case

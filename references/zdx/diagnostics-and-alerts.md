@@ -6,7 +6,7 @@ content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
 confidence: high
 source-tier: mixed
 sources:
@@ -230,7 +230,7 @@ Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vend
 - **Alerts on 0-availability probes**: may fire briefly on a transient network issue (one failed probe → availability = 0 for that window). Tune alert duration minimums to avoid flap.
 - **Historical alerts with status `Completed by Modified Rule`**: the alert's thresholds as-displayed may be the new-rule thresholds, not the thresholds that were active when the alert fired. Treat thresholds on historical alerts as "current rule snapshot," not "as-fired."
 
-## MCP v0.13.1 guided-prompt drift
+## MCP v0.13.3 guided-prompt drift
 
 The new `zdx_troubleshoot_user_experience` MCP prompt is not schema-safe as shipped. It calls `zdx_list_devices(search=...)`, but the current tool accepts `emails`, `user_ids`, MAC/IP, location/department/geo, `since`, and `offset`—not `search` (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:36-42`, `:68-73`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:27-58`). It then expects `zdx_get_device` to return CPU, memory, disk, adapter, and ZCC-tunnel health, while that tool's curated output contains only device ID/name and owning-user identity (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:68-73`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:85-103`, `:153-185`).
 

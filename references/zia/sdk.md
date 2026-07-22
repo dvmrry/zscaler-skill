@@ -3,13 +3,30 @@ product: zia
 topic: zia-sdk
 title: "ZIA SDK — service and method catalog"
 content-type: reference
-last-verified: "2026-07-20"
+last-verified: "2026-07-22"
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
 confidence: medium
 source-tier: code
 sources:
+  - vendor/zscaler-sdk-python/pyproject.toml
+  - vendor/zscaler-sdk-go/CHANGELOG.md
+  - vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_channel/endpoint_resource_channel.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/dns_application_groups/dns_application_groups.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go
+  - vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go
   - vendor/zscaler-sdk-python/zscaler/zia/activate.py
   - vendor/zscaler-sdk-python/zscaler/zia/admin_roles.py
   - vendor/zscaler-sdk-python/zscaler/zia/admin_users.py
@@ -1710,6 +1727,18 @@ The current Python SDK adds eight `client.zia` accessors that were absent from t
 | `smpc_instance` | `list_smpc_instances` and `update_smpc_instance`. |
 
 These are SDK surfaces, not proof that every tenant is entitled to the corresponding backend. Preserve the normal tenant/role/feature checks before treating a successful client import as API availability.
+
+### Go v3.8.41 ZIA expansion
+
+Go v3.8.41 adds Endpoint DLP application catalog/count/category/policy reads, custom-application CRUD, application-group CRUD and associations, four channel-specific Endpoint DLP resource types, resource-group CRUD/associations, Endpoint DLP rule and exception/sub-rule CRUD, Outbound Email DLP list/lite/get/CRUD plus actions CSV, DNS application-group CRUD, and five EUN/user-confirmation template or feature-status reads (`vendor/zscaler-sdk-go/CHANGELOG.md:3-4,14-81`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go:111-146,164-218`). It also adds `GET /zia/api/v1/ipsCategories`, which the release notes omit (`vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:14-19,186-194,307-313`; `vendor/zscaler-sdk-go/CHANGELOG.md:8-81`).
+
+The Go release notes are not a complete endpoint inventory: they mention only `/emailDlpRules/actions` while code includes full Outbound Email DLP CRUD/list/lite/get, and they omit `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:66-81`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`).
+
+Request serialization for the shared endpoint-application model emits only `resourceId` and `zappId`, even though response decoding exposes descriptive and version fields (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-163`). The common model types `versions` as one struct, while custom-app responses type it as `[]Versions` (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
+
+Firewall Filtering now carries `excludeContextShieldEndPoint`, `isEunEnabled`, `eunTemplateId`, `endPointApplications`, and `endPointApplicationGroups`; Firewall DNS carries the endpoint-application operands plus Web/EUN controls; SSL Inspection carries both endpoint-application operands (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go:48-48,83-85,145-147`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:97-100,151-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:118-120`).
+
+Python v1.9.38 remains narrower: its EUN service implements only GET/PUT `/eun`, not the five Go template/status reads (`vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/zia/end_user_notification.py:35-77,136-161`; `vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go:111-218`). Python URL Filtering performs one caller-selected paged request, while Go `GetAll` now aggregates pages through `ReadAllPages` (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:55-101`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`). SDK presence remains a code-surface observation, not proof of entitlement or rollout (`vendor/zscaler-sdk-go/CHANGELOG.md:3-10`).
 
 ---
 

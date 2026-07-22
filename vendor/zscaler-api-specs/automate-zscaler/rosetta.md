@@ -173,6 +173,16 @@ This section carries true operation additions/removals, route corrections, and f
   - `zcell` (Zscaler Cellular): 36 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `zdx` (ZDX): 148 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `zid` (Zidentity): 31 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
+- Official client/provider families outside the captured Automate contract:
+  - `zia.endpoint_application_catalog`: `/zia/api/v1/endPointApplications`; surfaces: `go`, `tf`.
+  - `zia.endpoint_custom_applications`: `/zia/api/v1/endPointApplications/customApps`; surfaces: `go`, `tf`.
+  - `zia.endpoint_application_groups`: `/zia/api/v1/endPointApplicationGroups`; surfaces: `go`, `tf`.
+  - `zia.endpoint_dlp_resources`: `/zia/api/v1/dlpEndpointResource`, `/zia/api/v1/endPointDlpResourceGroups`; surfaces: `go`, `tf`.
+  - `zia.endpoint_dlp_rules`: `/zia/api/v1/endPointDlpRules`; surfaces: `go`, `tf`.
+  - `zia.outbound_email_dlp`: `/zia/api/v1/emailDlpRules`; surfaces: `go`, `tf`.
+  - `zia.dns_application_groups`: `/zia/api/v1/dnsApplicationGroups`; surfaces: `go`, `tf`.
+  - `zia.eun_templates_and_status`: `/zia/api/v1/eunTemplate`, `/zia/api/v1/userConfirmation`; surfaces: `go`, `tf`.
+  - `zia.ips_categories`: `/zia/api/v1/ipsCategories`; surfaces: `go`.
 
 ## ZCC
 
@@ -1340,9 +1350,14 @@ This section carries true operation additions/removals, route corrections, and f
 | `dnsRuleRequestTypes` | DNS request types to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `ednsEcsObject` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `endPointApplicationGroups` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `endPointApplications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `eunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `excludeContextShieldEndPoint` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier generated for the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `isDefaultRuleName` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `isEunEnabled` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `isWebEunEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
 | `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
@@ -1389,9 +1404,14 @@ This section carries true operation additions/removals, route corrections, and f
 | `devices` | <p>Name-ID pairs of devices for which rule must be applied. Specifies  devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p>  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableFullLogging` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `endPointApplicationGroups` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `endPointApplications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `eunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `excludeContextShieldEndPoint` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `excludeSrcCountries` | Indicates whether the countries specified in the sourceCountries field are included or excluded from the rule. A true value denotes that the specified source countries are excluded from the rule. A false value denotes that the rule is applied to the source countries if there is a match.  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `groups` | The groups to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier for the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `isEunEnabled` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `labels` | Labels that are applicable to the rule. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | Timestamp when the rule was last modified. Ignored if the request is POST or PUT. For GET, ignored if or the rule is current version. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
@@ -1914,6 +1934,8 @@ This section carries true operation additions/removals, route corrections, and f
 | `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `devices` | Name-ID pairs of devices for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
+| `endPointApplicationGroups` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `endPointApplications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `groups` | Name-ID pairs of groups for which the rule is applied. If not set, rule is applied for all groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | System generated identifier for the SSL inspection rule | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
 | `labels` | Name-ID pairs of rule labels associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |

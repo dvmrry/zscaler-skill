@@ -5,13 +5,13 @@ title: "Zscaler Cellular claims ledger - Tier 3 misc refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 4371c9bab44d852526721b4b5999e2471dda5198
+  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/terraform-provider-zia: 6e6509f001ca71adcedfd4884250d09227395bf0
-  vendor/terraform-provider-zpa: 02c88e27da98ec75f7a7a85f43486b4f0552dfa9
+  vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
+  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 23912913f8588c650b104d3bd30c0c755d6962cd
+  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -63,8 +63,8 @@ author-status: draft
 | ZCell now has a captured Automate API contract with 36 operations across nine families. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:15`; `vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458` |
 | Python SDK exposes `client.zcell` as a OneAPI-only service with nine subclients. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103` |
 | ZCell API calls are customer-scoped with `zcellCustomerId` / `ZCELL_CUSTOMER_ID`, separate from ZPA `customerId`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/config/config_setter.py:23-28`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:159-172`; `vendor/zscaler-sdk-python/README.md:385-402` |
-| No product-specific Zscaler Cellular Go SDK, Terraform, or Ansible surface was found in the prior audited trees; those three absence claims were not re-audited during the MCP v0.13.1 refresh. | `overview.md`, `api.md` | AUDIT-SCOPED ABSENCE -> 2026-07-08 search across Go SDK, Terraform providers, and Ansible collections for ZCell / Zscaler Cellular service surfaces. |
-| MCP v0.13.1 includes 20 read-only ZCell tools across nine API-aligned toolsets. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149` |
+| No product-specific Zscaler Cellular Go SDK, Terraform, or Ansible surface was found in the prior audited trees; those three absence claims were not re-audited during the MCP v0.13.3 refresh. | `overview.md`, `api.md` | AUDIT-SCOPED ABSENCE -> 2026-07-08 search across Go SDK, Terraform providers, and Ansible collections for ZCell / Zscaler Cellular service surfaces. |
+| MCP v0.13.3 includes 20 read-only ZCell tools across nine API-aligned toolsets. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149` |
 | MCP adds three guided ZCell prompts: investigate a SIM, audit data usage, and review anomaly policies. Prompts orchestrate the read tools; they do not add mutation coverage. | `index.md`, `api.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-85`; `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-93`; `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-95` |
 | ZCell tools require the shared OneAPI credentials plus a separate `ZCELL_CUSTOMER_ID`; the customer ID is injected into `zcellCustomerId` and is not a per-call tool argument. | `api.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/client.py:24-40`, `:48-98`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:17-19` |
 | Time-bounded MCP reads expose a local `days` shorthand, default 7 and constrained to 1–365; they do not expose raw start/end timestamps. | `api.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:35-56`; `vendor/zscaler-sdk-python/zscaler/utils.py:485-558` |

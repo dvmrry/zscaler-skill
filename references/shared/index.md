@@ -3,7 +3,7 @@ product: shared
 topic: "shared-index"
 title: "Shared / cross-product reference hub"
 content-type: reference
-last-verified: "2026-04-24"
+last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 sources: []
@@ -40,6 +40,7 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 | **M365 Conditional Access via SIPA** — IP-based Conditional Access policy with Zscaler egress anchoring; setup pattern; limitations and failure modes | [`./m365-conditional-access.md`](./m365-conditional-access.md) | draft |
 | **Multi-cluster load sharing** — ZIA policy enforcement and traffic distribution across data center clusters; failover semantics; cluster selection | [`./multi-cluster-load-sharing.md`](./multi-cluster-load-sharing.md) | draft |
 | **Zscaler SDK landscape** — Python and Go SDK structure across products, client construction, auth flows, common patterns | [`./zsdk.md`](./zsdk.md) | draft |
+| **MCP server** — cross-product transport hardening, Host validation, executable write-tool gating, upstream documentation contradiction, and inventory/dependency provenance | [`./mcp-server.md`](./mcp-server.md) | draft |
 | **Claims ledger** — first-pass Tier 2 audit ledger for source-backed shared claims changed or explicitly guarded in this refresh | [`./_claims-ledger.md`](./_claims-ledger.md) | draft |
 | **Devin runtime notes** (agent infrastructure) — how Devin processes `.devin/workflows/` and `.devin/rules/`; conventions for authoring workflow shims that work across CC and Devin | [`../../agents/_meta/devin-runtime-notes.md`](../../agents/_meta/devin-runtime-notes.md) | draft |
 
