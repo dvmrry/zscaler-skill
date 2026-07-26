@@ -47,6 +47,10 @@ Expected top-level directories:
 - `_data/audits/`
 - `_data/soc-reviews/`
 
+The optional `_data/knowledge/` directory holds downstream operational
+knowledge. Its absence is normal and silent; see
+[`./knowledge.md`](./knowledge.md) for its schema and loading boundary.
+
 Run the public contract check after creating or replacing `_data`:
 
 ```bash
@@ -122,7 +126,7 @@ repository, non-secret policy may also live in the selected runtime config:
 ```json
 {
   "overlaySubmission": {
-    "allowedRoots": ["cases", "schemas", "iac"],
+    "allowedRoots": ["cases", "schemas", "iac", "knowledge"],
     "defaultBranch": "main",
     "branchPrefix": "runtime-data/",
     "requireExplicitApproval": true
@@ -215,6 +219,13 @@ Engineers explicitly opt in to publishing a skill-internal case by adding
 are safe to commit for institutional memory.
 
 See [`./cases.md`](./cases.md) for the full convention.
+
+### `_data/knowledge/` (optional)
+
+**Private operational knowledge learned from incidents and team experience.**
+Records are grouped by product, remain downstream-owned, and are absent from
+public upstream. See [`./knowledge.md`](./knowledge.md) for the record contract,
+validation rules, answer-time disclosures, and workflow exclusions.
 
 ### `_data/audits/`
 

@@ -115,9 +115,12 @@ Step 1 proposed loads are docs-only. They must include:
 - `agents/investigator/harness.md`
 
 They may include grounding cards or product references that match the framing.
-They must not include snapshot files, sibling case journals, or broad data
-directories. Every proposed load must exist under the repository root; a
-missing file is a blocked intake, not a reason to invent a replacement path.
+They must not include snapshot files, operational-knowledge records, sibling
+case journals, or broad data directories. Snapshot, current-case evidence, and
+matching-product operational-knowledge discovery are bounded Step 2
+runtime-data classes approved by the explicit Checkpoint 1 `Proceed` choice.
+Every proposed load must exist under the repository root; a missing file is a
+blocked intake, not a reason to invent a replacement path.
 
 After a passing `open-case`, the Step 1 response must render proposed loads from
 the verified `case-intake.json` / `case-intake.md` artifacts. Do not append,
@@ -171,9 +174,12 @@ check — run it only when resuming an existing case or re-checking after a
 repair, not after a passing `open-case`.
 
 Step 2 may load only the proposed loads stored in the verified
-`case-intake.json`, plus later user-approved additions. If the chat-rendered
-Step 1 list differs from `case-intake.json`, treat Step 1 as invalid and fix the
-case intake before continuing.
+`case-intake.json` plus bounded runtime-data entry points covered by the user's
+Checkpoint 1 `Proceed` choice: selected snapshot files, operative-case
+evidence, and relevant active records from matching product and `shared`
+knowledge directories. Any other addition requires separate user approval. If
+the chat-rendered Step 1 list differs from `case-intake.json`, treat Step 1 as
+invalid and fix the case intake before continuing.
 
 After Step 2 loads are complete and before Step 3 begins, record every loaded
 and deferred path with the helper:

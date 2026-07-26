@@ -187,6 +187,39 @@ export function resolveSource(root, checksDir, source) {
   const s = String(source || "").trim();
   if (!s) return { type: "unknown", resolves: false, error: "source is empty" };
 
+  const knowledgeRoot = path.normalize(runtimeDataRelative(root, "knowledge"));
+  const sourcePaths = s
+    .split(/,|\s\+\s/)
+    .map((part) => part.trim().replace(/:\d[\d-]*$/, ""))
+    .filter(Boolean);
+  const knowledgeAbsolute = path.join(root, knowledgeRoot);
+  const knowledgeRealpath = fs.existsSync(knowledgeAbsolute)
+    ? fs.realpathSync(knowledgeAbsolute)
+    : null;
+  const citesPrivateKnowledge = sourcePaths.some((sourcePath) => {
+    const normalized = path.normalize(sourcePath);
+    if (normalized === knowledgeRoot || normalized.startsWith(`${knowledgeRoot}${path.sep}`)) {
+      return true;
+    }
+    if (!knowledgeRealpath) return false;
+    try {
+      const sourceAbsolute = safeRepoPath(root, sourcePath);
+      if (!fs.existsSync(sourceAbsolute)) return false;
+      const sourceRealpath = fs.realpathSync(sourceAbsolute);
+      const relative = path.relative(knowledgeRealpath, sourceRealpath);
+      return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== "..");
+    } catch {
+      return false;
+    }
+  });
+  if (citesPrivateKnowledge) {
+    return {
+      type: "unknown",
+      resolves: false,
+      error: "auditor findings must not cite private operational-knowledge records",
+    };
+  }
+
   // (c) check:<name> — auditor-specific recorded-check reference.
   if (s.startsWith("check:")) {
     const checkName = s.slice("check:".length).trim();

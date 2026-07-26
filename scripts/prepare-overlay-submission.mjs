@@ -19,7 +19,7 @@ import {
   toPosix,
 } from "./lib.mjs";
 
-const DEFAULT_OVERLAY_ROOTS = ["cases", "schemas", "iac"];
+const DEFAULT_OVERLAY_ROOTS = ["cases", "schemas", "iac", "knowledge"];
 const DEFAULT_BRANCH_PREFIX = "artifact-submission/";
 const MAX_SCAN_BYTES = 5 * 1024 * 1024;
 

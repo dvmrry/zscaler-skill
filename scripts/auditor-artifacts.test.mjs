@@ -23,6 +23,7 @@ import {
   renderAuditReport,
   auditStatus,
   capabilities,
+  resolveSource,
   REQUIRED_INTAKE_MARKERS,
   REGISTER_TABLE_HEADER,
 } from "./auditor-artifacts.mjs";
@@ -98,6 +99,33 @@ function assertNextCommandsDispatched(commands, scriptName) {
     );
   }
 }
+
+test("resolveSource rejects private operational-knowledge records", () => {
+  const root = tempRepo();
+  const recordPath = path.join(root, "_data", "knowledge", "zpa", "claim.md");
+  fs.mkdirSync(path.dirname(recordPath), { recursive: true });
+  fs.writeFileSync(recordPath, "# Private claim\n\nEvidence.\n", "utf8");
+
+  const result = resolveSource(root, path.join(root, "_data", "audits", "test", "checks"),
+    "_data/knowledge/zpa/claim.md:3");
+
+  assert.equal(result.resolves, false);
+  assert.match(result.error, /must not cite private operational-knowledge records/);
+});
+
+test("resolveSource rejects a symlink alias to a private operational-knowledge record", () => {
+  const root = tempRepo();
+  const recordPath = path.join(root, "_data", "knowledge", "zpa", "claim.md");
+  fs.mkdirSync(path.dirname(recordPath), { recursive: true });
+  fs.writeFileSync(recordPath, "# Private claim\n\nEvidence.\n", "utf8");
+  fs.symlinkSync(recordPath, path.join(root, "private-alias.md"));
+
+  const result = resolveSource(root, path.join(root, "_data", "audits", "test", "checks"),
+    "private-alias.md:1");
+
+  assert.equal(result.resolves, false);
+  assert.match(result.error, /must not cite private operational-knowledge records/);
+});
 
 // ── open-audit happy path ─────────────────────────────────────────────────────
 

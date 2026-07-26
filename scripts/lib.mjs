@@ -333,7 +333,7 @@ export function normalizeAllowedRoots(roots, mountPath = DEFAULT_DATA_MOUNT) {
     if (normalized === mount || normalized.startsWith(`${mount}/`)) {
       return normalized;
     }
-    if (["cases", "schemas", "iac"].includes(normalized.split("/")[0])) {
+    if (["cases", "schemas", "iac", "knowledge"].includes(normalized.split("/")[0])) {
       return `${mount}/${normalized}`;
     }
     throw new Error(`allowed root must be mount-relative or under ${mount}/: ${entry}`);

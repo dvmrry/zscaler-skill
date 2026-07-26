@@ -44,7 +44,7 @@ const SUPPORTED_OPERATIONS = [
 ];
 const SUPPORTED_OPTIONS = {
   "complete-turn": ["--turn-json", "--turn-input-json"],
-  "record-loads": ["--loaded", "--deferred", "--allow-additional", "--force"],
+  "record-loads": ["--loaded", "--deferred", "--allow-additional", "--approved-additional", "--force"],
   "save-journal": ["--content-file"],
   "run-turn": ["--user-action", "--journal-file", "--turn-input-json"],
   "initialize-turn-ledger": ["--journal-file", "--force"],
@@ -114,7 +114,7 @@ function usage(exitCode = 0) {
   out.write(`Usage:
   node scripts/investigator-artifacts.mjs open-case --root <repo> --case-slug <slug> --framing-json <file> [--proposed-load <path> ...] [--force]
   node scripts/investigator-artifacts.mjs verify-case --root <repo> --case-slug <slug>
-  node scripts/investigator-artifacts.mjs record-loads --root <repo> --case-slug <slug> --loaded <path> [--loaded <path> ...] [--deferred <path>=<reason> ...] [--allow-additional] [--force]
+  node scripts/investigator-artifacts.mjs record-loads --root <repo> --case-slug <slug> --loaded <path> [--loaded <path> ...] [--deferred <path>=<reason> ...] [--allow-additional] [--approved-additional <path> ...] [--force]
   node scripts/investigator-artifacts.mjs verify-loads --root <repo> --case-slug <slug>
   node scripts/investigator-artifacts.mjs initialize-turn-ledger --root <repo> --case-slug <slug> [--journal-file <path>] [--force]
   node scripts/investigator-artifacts.mjs begin-turn --root <repo> --case-slug <slug> --user-action <action>
@@ -145,6 +145,7 @@ function parseArgs(argv) {
     loaded: [],
     deferred: [],
     allowAdditional: false,
+    approvedAdditional: [],
   };
 
   for (let i = 3; i < argv.length; i += 1) {
@@ -217,6 +218,9 @@ function parseArgs(argv) {
       args.force = true;
     } else if (key === "--allow-additional") {
       args.allowAdditional = true;
+    } else if (key === "--approved-additional") {
+      args.approvedAdditional.push(value);
+      i += 1;
     } else if (key === "--allow-placeholder-query") {
       args.allowPlaceholderQuery = true;
     } else if (key === "--content-file") {
@@ -760,7 +764,51 @@ function parseDeferredEntry(entry) {
  * Inputs must already be normalised (normalizeProposedLoads-style paths).
  * `root` is required for filesystem existence checks on `loaded` paths.
  */
-function loadsStatus(root, proposedLoads, loaded, deferred, additionalAllowed) {
+function isPathWithin(relativePath, prefix) {
+  return relativePath.startsWith(`${prefix}${path.sep}`);
+}
+
+function matchingKnowledgeProducts(root, framing) {
+  const referencesDir = path.join(root, "references");
+  if (!fs.existsSync(referencesDir)) return new Set();
+  const known = new Set(
+    fs.readdirSync(referencesDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name !== "_meta" && entry.name !== "shared")
+      .map((entry) => entry.name),
+  );
+  const mentioned = new Set();
+  for (const value of asArray(framing?.products)) {
+    const normalizedValue = String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+    if (known.has(normalizedValue)) mentioned.add(normalizedValue);
+    for (const token of String(value).toLowerCase().split(/[^a-z0-9-]+/).filter(Boolean)) {
+      if (known.has(token)) mentioned.add(token);
+    }
+  }
+  return mentioned;
+}
+
+function boundedRuntimeLoadContext(root, caseSlug, framing, approvedAdditionalPaths = []) {
+  return {
+    mountPath: runtimeDataMountPath(root),
+    caseSlug,
+    knowledgeProducts: matchingKnowledgeProducts(root, framing),
+    approvedAdditionalPaths: new Set(approvedAdditionalPaths),
+  };
+}
+
+function isApprovedRuntimeAdditional(relativePath, context) {
+  if (!context) return false;
+  const mount = path.normalize(context.mountPath);
+  if (isPathWithin(relativePath, path.join(mount, "snapshot"))) return true;
+  if (isPathWithin(relativePath, path.join(mount, "cases", context.caseSlug))) return true;
+  if (isPathWithin(relativePath, path.join(mount, "knowledge", "shared"))) return true;
+  for (const product of context.knowledgeProducts || []) {
+    if (isPathWithin(relativePath, path.join(mount, "knowledge", product))) return true;
+  }
+  return false;
+}
+
+function loadsStatus(root, proposedLoads, loaded, deferred, additionalAllowed, context = null) {
   const issues = [];
 
   // Mandatory docs may not be deferred.
@@ -810,13 +858,18 @@ function loadsStatus(root, proposedLoads, loaded, deferred, additionalAllowed) {
     }
   }
 
-  // Additional loads (loaded but not in proposedLoads) require the flag.
+  // Additional loads must belong to a bounded runtime-data class or carry an
+  // exact approval.
   const proposedSet = new Set(proposedLoads);
   const additionalLoads = loaded.filter((p) => !proposedSet.has(p));
-  if (additionalLoads.length > 0 && !additionalAllowed) {
-    issues.push(
-      `loaded paths not in proposedLoads require --allow-additional: ${additionalLoads.join(", ")}`,
-    );
+  for (const additional of additionalLoads) {
+    const explicitlyApproved = context?.approvedAdditionalPaths?.has(additional) === true;
+    const boundedRuntimeApproved = additionalAllowed && isApprovedRuntimeAdditional(additional, context);
+    if (!explicitlyApproved && !boundedRuntimeApproved) {
+      issues.push(
+        `loaded path not in proposedLoads is outside approved Step 2 runtime-data classes and lacks exact --approved-additional approval: ${additional}`,
+      );
+    }
   }
 
   return {
@@ -853,6 +906,13 @@ function recordLoads(args) {
   });
 
   const additionalAllowed = Boolean(args.allowAdditional);
+  const approvedAdditionalPaths = normalizeProposedLoads(args.approvedAdditional || []);
+  const loadContext = boundedRuntimeLoadContext(
+    root,
+    args.caseSlug,
+    caseIntakeJson.framing || {},
+    approvedAdditionalPaths,
+  );
 
   // Refuse to overwrite without --force.
   fs.mkdirSync(paths.workflowDir, { recursive: true });
@@ -861,7 +921,7 @@ function recordLoads(args) {
   }
 
   const { status, blockingIssues, additionalLoads } = loadsStatus(
-    root, proposedLoads, loaded, deferred, additionalAllowed,
+    root, proposedLoads, loaded, deferred, additionalAllowed, loadContext,
   );
 
   const artifact = {
@@ -870,7 +930,9 @@ function recordLoads(args) {
     loaded,
     deferred,
     additionalLoads,
-    additionalApproved: additionalAllowed && additionalLoads.length > 0,
+    additionalApproved: (additionalAllowed || approvedAdditionalPaths.length > 0) && additionalLoads.length > 0,
+    boundedRuntimeApproved: additionalAllowed,
+    approvedAdditionalPaths,
     blockingIssues,
     recordedAt: new Date().toISOString(),
   };
@@ -916,9 +978,20 @@ function verifyLoads(root, caseSlug) {
   const loaded = Array.isArray(artifact.loaded) ? artifact.loaded : [];
   const deferred = Array.isArray(artifact.deferred) ? artifact.deferred : [];
   const additionalAllowed = artifact.additionalApproved === true;
+  const approvedAdditionalPaths = Array.isArray(artifact.approvedAdditionalPaths)
+    ? normalizeProposedLoads(artifact.approvedAdditionalPaths)
+    : [];
+  const loadContext = boundedRuntimeLoadContext(
+    root,
+    caseSlug,
+    caseIntakeJson.framing || {},
+    approvedAdditionalPaths,
+  );
+  const boundedRuntimeApproved = artifact.boundedRuntimeApproved === true
+    || (artifact.boundedRuntimeApproved === undefined && additionalAllowed);
 
   const { status, blockingIssues, additionalLoads } = loadsStatus(
-    root, proposedLoads, loaded, deferred, additionalAllowed,
+    root, proposedLoads, loaded, deferred, boundedRuntimeApproved, loadContext,
   );
 
   if (artifact.status === "pass" && status !== "pass") {
@@ -953,7 +1026,25 @@ function requirePassingLoads(root, caseSlug) {
   const loaded = Array.isArray(artifact.loaded) ? artifact.loaded : [];
   const deferred = Array.isArray(artifact.deferred) ? artifact.deferred : [];
   const additionalAllowed = artifact.additionalApproved === true;
-  const { status, blockingIssues } = loadsStatus(root, proposedLoads, loaded, deferred, additionalAllowed);
+  const approvedAdditionalPaths = Array.isArray(artifact.approvedAdditionalPaths)
+    ? normalizeProposedLoads(artifact.approvedAdditionalPaths)
+    : [];
+  const loadContext = boundedRuntimeLoadContext(
+    root,
+    caseSlug,
+    caseIntakeJson.framing || {},
+    approvedAdditionalPaths,
+  );
+  const boundedRuntimeApproved = artifact.boundedRuntimeApproved === true
+    || (artifact.boundedRuntimeApproved === undefined && additionalAllowed);
+  const { status, blockingIssues } = loadsStatus(
+    root,
+    proposedLoads,
+    loaded,
+    deferred,
+    boundedRuntimeApproved,
+    loadContext,
+  );
   if (status !== "pass") {
     throw new Error(
       `${LOADS_BASENAME} recomputes to blocked: ${blockingIssues.join("; ")}; fix loads and rerun record-loads before initialize-turn-ledger`,
