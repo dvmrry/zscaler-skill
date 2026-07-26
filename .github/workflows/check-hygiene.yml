@@ -7,6 +7,7 @@ name: Doc hygiene
 #   - check-citation-density.py: reference source-anchor coverage and Source: audit
 #   - check-workflow-metadata.mjs: workflow metadata and adapter-reference check
 #   - check-verified-against.py:   verified source pins and paths are valid; SHAs resolve in initialized submodules
+#   - check-reference-freshness.mjs: diff-aware date/pin and cited-root checks (advisory)
 #   - check-capability-registry.mjs: role-routing registry contract
 #   - node --test:            stdlib helper regressions for investigator gates
 #                             and _data setup/data-contract helpers
@@ -137,6 +138,12 @@ jobs:
 
       - name: Check verified-against provenance
         run: ./scripts/check-verified-against.py
+
+      - name: Check reference freshness semantics (advisory)
+        continue-on-error: true
+        env:
+          REFERENCE_FRESHNESS_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: node scripts/check-reference-freshness.mjs --base "${REFERENCE_FRESHNESS_BASE:-HEAD^}" --head HEAD
 
       - name: Run Node helper regression tests
         run: node --test scripts/*.test.mjs scripts/bridge/*.test.mjs

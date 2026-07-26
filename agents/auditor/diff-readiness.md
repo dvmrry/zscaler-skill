@@ -3,7 +3,7 @@ role: auditor
 artifact: methodology
 title: "Auditor diff and release-readiness playbook"
 content-type: reference
-last-verified: "2026-07-10"
+last-verified: "2026-07-26"
 confidence: high
 source-tier: practice
 sources:
@@ -12,6 +12,7 @@ sources:
   - "scripts/check-fast.mjs"
   - "scripts/check-release-state.mjs"
   - "scripts/check-verified-against.py"
+  - "scripts/check-reference-freshness.mjs"
 dependencies:
   - "harness.md"
   - "methodology.md"
@@ -71,7 +72,10 @@ Add surface-specific gates:
 - **Release/version changes:** `node scripts/check-release-state.mjs`, full tag
   history, workflow YAML parsing, and changed-path trigger inspection
 - **Provenance changes:** `./scripts/check-verified-against.py` with initialized
-  submodules when object resolution is claimed
+  submodules when object resolution is claimed, plus
+  `node scripts/check-reference-freshness.mjs --base <base>` for independent
+  working-tree checks of date/pin agreement and cited-root initialization
+  (pass `--head <head>` for a committed range)
 - **Portable skill changes:** `./scripts/check-agent-skills.py` and the skill
   quick validator
 - **Reference/doc changes:** hygiene, citations, staleness, orphans, doc links,

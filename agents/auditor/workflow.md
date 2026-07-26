@@ -4,7 +4,7 @@ title: Zscaler Auditor
 role: auditor
 artifact: workflow
 content-type: reference
-last-verified: "2026-07-10"
+last-verified: "2026-07-26"
 confidence: medium
 sources:
   - agents/auditor/prompt.md
@@ -33,6 +33,7 @@ supporting-scripts:
   - scripts/check-fast.mjs
   - scripts/check-release-state.mjs
   - scripts/check-verified-against.py
+  - scripts/check-reference-freshness.mjs
   - scripts/auditor-artifacts.mjs
   - scripts/auditor-mcp-server.mjs
 ---
@@ -62,7 +63,8 @@ from review to implementation.
 
 Supporting scripts: `scripts/check-hygiene.py`, `scripts/check-fast.mjs`,
 `scripts/check-release-state.mjs`, `scripts/check-verified-against.py`,
-`scripts/auditor-artifacts.mjs`, and `scripts/auditor-mcp-server.mjs`.
+`scripts/check-reference-freshness.mjs`, `scripts/auditor-artifacts.mjs`, and
+`scripts/auditor-mcp-server.mjs`.
 
 On MCP runtimes, the role entrypoint is server-provided (prompt `audit`), and
 the final audit answer is produced by the `render_audit_report` tool — not by
