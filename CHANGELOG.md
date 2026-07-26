@@ -4,6 +4,20 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.16.0](https://github.com/dvmrry/zscaler-skill/compare/v0.15.0...v0.16.0) (2026-07-26)
+
+
+### Features
+
+* optional operational-knowledge overlay contract ([#237](https://github.com/dvmrry/zscaler-skill/issues/237)) ([ccfff8d](https://github.com/dvmrry/zscaler-skill/commit/ccfff8da30e14346b7bd09851581c6d4c0d7b96e))
+* enforce Node.js 20.11+ and add a unified full gate ([#235](https://github.com/dvmrry/zscaler-skill/pull/235)) ([3eeacb7](https://github.com/dvmrry/zscaler-skill/commit/3eeacb75863a9a7d6d2727e1707ff8682e2ebb39))
+* enforce `zscalerctl` as the tenant-observation boundary ([#236](https://github.com/dvmrry/zscaler-skill/pull/236)) ([60215e8](https://github.com/dvmrry/zscaler-skill/commit/60215e8d6349d831a364c7954778100de6437e07))
+
+
+### Documentation
+
+* refresh vendor KB for MCP 0.13.4 ([#232](https://github.com/dvmrry/zscaler-skill/issues/232)) ([04e3a39](https://github.com/dvmrry/zscaler-skill/commit/04e3a3920abac2d5dca4c2bb51970ba811c465d4))
+
 ## [0.15.0](https://github.com/dvmrry/zscaler-skill/compare/v0.14.0...v0.15.0) (2026-07-22)
 
 
