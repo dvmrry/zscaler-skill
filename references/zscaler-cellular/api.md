@@ -5,13 +5,13 @@ title: "Zscaler Cellular / ZCell API, SDK, and MCP surface"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
+  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
-  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
+  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -96,9 +96,9 @@ The SDK service object exposes nine ZCell subclients: `anomaly_policy`, `audit_d
 | `client.zcell.sim_location_groups` | List/get/create/update/delete SIM location groups (`vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:40-69`, `:91-114`, `:131-163`, `:187-213`, `:236-257`). |
 | `client.zcell.tag_handling` | List/create tags at `/customers/{id}/tag` (`vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:35-69`, `:91-121`). |
 
-## MCP v0.13.3 surface
+## MCP v0.13.4 surface
 
-The ZCell surface landed in MCP v0.13.0 and remains present in the pinned v0.13.3 tree: **20 read-only tools across nine toolsets** plus guided prompts (`vendor/zscaler-mcp-server/CHANGELOG.md:35-50`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`). The inventory/search tools are classified by semantic effect rather than HTTP verb—`zcell_list_sims`, for example, uses the SDK's POST search path but is registered as a read (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:1-10`, `:226-264`).
+The ZCell surface landed in MCP v0.13.0 and remains present in the pinned v0.13.4 tree: **20 read-only tools across nine toolsets** plus guided prompts (`vendor/zscaler-mcp-server/CHANGELOG.md:37-54`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`). The inventory/search tools are classified by semantic effect rather than HTTP verb—`zcell_list_sims`, for example, uses the SDK's POST search path but is registered as a read (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:1-10`, `:226-264`).
 
 | Family | MCP read tools | Captured contract/SDK operations not exposed by MCP |
 |---|---:|---|
@@ -124,7 +124,7 @@ MCP outputs are curated agent views rather than lossless SDK/API payloads. Audit
 
 The release also registers three service-scoped prompts: `zcell_investigate_sim(iccid, since_days="7")`, `zcell_audit_data_usage(since_days="30", country="")`, and `zcell_review_anomaly_policies(since_days="30", policy_type="")` (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-85`; `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-93`; `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-95`). These are orchestration instructions over the read tools, not additional API operations. Prompt visibility is gated only by whether any selected tool leaves the `zcell` service visible, so a partial toolset configuration can advertise a prompt whose required tools are unavailable (`vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:133-141`).
 
-## MCP v0.13.3 divergences and test boundary
+## MCP v0.13.4 divergences and test boundary
 
 - **Violation response shape:** the Automate contract defines `/violations` response `content` as an array of strings, while the SDK response cleaner drops non-dictionary page items and the MCP tool shapes results as policy summaries. The prompt's promise to enumerate offending ICCIDs is therefore not source-consistent and needs a live/upstream fix (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:4080-4200`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py:244-274`; `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:363-430`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/anomaly_policy.py:240-269`; `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:76-89`).
 - **SIM pagination routing:** the contract places `page`, `size`, `sortBy`, and `sortDir` in query parameters, while MCP puts page/size in the POST body and exposes no sorting; live backend acceptance of that routing is not established (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:11421-11470`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:244-261`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:286-315`).

@@ -5,10 +5,10 @@ title: "ZPA application segment matching"
 content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
-  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
-  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
+  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
+  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
 confidence: high
 source-tier: mixed
 sources:
@@ -27,6 +27,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go"
 author-status: draft
 ---
 
@@ -98,7 +101,7 @@ A few fields live at the API/TF level but are absent from or under-documented in
   - `zscaler_managed` — Zscaler owns this segment (e.g., Deception-configured). Edit/delete unavailable via API.
   - `restriction_type` — further microtenant-scope restriction indicator.
   - Treat any segment with `read_only=true` or `zscaler_managed=true` as immutable for skill answers.
-- **`select_connector_close_to_app` is provider-version sensitive.** Terraform provider v4.4.6 removed `ForceNew` from this attribute on the base `zpa_application_segment` resource, and the current schema exposes it as a plain optional bool (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions treated the base resource as destroy/recreate on toggle; check the provider version and variant schema before planning a connector-proximity routing change.
+- **`select_connector_close_to_app` is provider-version sensitive.** Terraform provider v4.4.6 removed `ForceNew` from this attribute on the base `zpa_application_segment` resource, and the current schema exposes it as a plain optional bool (`vendor/terraform-provider-zpa/CHANGELOG.md:42-51`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions treated the base resource as destroy/recreate on toggle; check the provider version and variant schema before planning a connector-proximity routing change.
 - **`bypass_type` has three values, not two**: `ALWAYS`, `NEVER`, `ON_NET` (`resource_zpa_application_segment.go:83-87`). **`ON_NET`** (bypass only for on-network users) is undocumented in most help articles but is a valid API value — useful for hybrid on-network-vs-remote patterns.
 - **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) — controls ICMP behavior on the segment. Relevant when a question asks "why can I ping this app through ZPA?"
 - **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not boolean** (sent on the wire `:234`). Wire-format quirk: callers writing JSON payloads programmatically must send strings.
@@ -111,6 +114,16 @@ A few fields live at the API/TF level but are absent from or under-documented in
   - **`health_check_type`** (py `:46`; go `HealthCheckType` `:39`) — discriminates health-check strategies beyond the `health_reporting` enum.
   - **`policy_style`** (py `:55`, sent `:256`; go `PolicyStyle` `:76`) — finer-grained policy-style selector (undocumented enum).
   - **`zpn_er_id`** (py `:136`, sent `:255`; go `ZPNERID` `:74`, JSON key `zpnErId`) — Zscaler internal reference identifier.
+
+The Go serialization fix for `bypassOnReauth` is segment-type-specific. Base
+and Browser Access segments now always send the boolean, while Inspection and
+PRA still omit explicit `false`
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:38`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:27`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:25`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:34`).
+See [`./api-divergences.md`](./api-divergences.md#bypassonreauth-explicit-false-is-still-dropped-for-inspection-and-pra-in-go)
+for the Python comparison.
 - **Newer segment fields neither SDK section called out before.** Modeled on the Go `ApplicationSegmentResource` and (where noted) the Python models:
   - **`app_recommendation_id`** (go `AppRecommendationId` `:46`; Python carries it on the Browser Access `AppResource` model, `application_segment.py:864`) — links a segment back to an app-recommendation record.
   - **`default_idle_timeout`** (go `DefaultIdleTimeout` `:68`; Python `AppResource` `:869`) and **`default_max_age`** (go `DefaultMaxAge` `:69`; Python `AppResource` `:870`) — session-lifecycle timers, emitted as strings.

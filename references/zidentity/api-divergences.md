@@ -7,7 +7,7 @@ source-tier: code
 confidence: medium
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
+  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/**"

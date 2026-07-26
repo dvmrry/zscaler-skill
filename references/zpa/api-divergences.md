@@ -4,13 +4,17 @@ topic: "api-divergences"
 title: "ZPA API source divergences"
 content-type: reference
 confidence: medium
-last-verified: "2026-07-20"
+last-verified: "2026-07-26"
 verified-against:
-  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
+  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
+  - "vendor/zscaler-sdk-python/zscaler/helpers.py"
   - "vendor/terraform-provider-zpa/zpa/**"
   - "vendor/zpacloud-ansible/plugins/modules/**"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/**"
@@ -93,6 +97,43 @@ documentation-routing changes, not endpoint migrations.
 - **Go SDK (core `ApplicationSegmentResource` and `AppSegmentPRA`):** no `omitempty` — empty string is always sent on the wire. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:47`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:43`)
 
 **Significance / which to trust:** Trust the source file. An engineer omitting `segmentGroupId` on a PRA or core segment will send an empty string; for Inspection or BrowserAccess segments the field is omitted safely.
+
+---
+
+### `bypassOnReauth` explicit `false` is still dropped for Inspection and PRA in Go
+
+The wire field is the boolean `bypassOnReauth`. Go v3.8.42 now serializes it
+without `omitempty` for the base and Browser Access segment structs
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:38`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:27`).
+Inspection and PRA still declare `json:"bypassOnReauth,omitempty"`, so Go
+omits an explicit `false` for those two segment types
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:25`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:34`).
+
+Python has no separate Inspection or PRA request model: both services import
+the shared `ApplicationSegments` model
+(`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:23-24`;
+`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:23-24`). Their create
+and update paths build the request body from `kwargs` for `POST /application`
+and `PUT /application/{segment_id}`
+(`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:228-234,273`,
+`:380-386,459`;
+`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:232-238,280`,
+`:339-345,420`). The common request executor converts keys to camelCase, and
+the recursive converter returns scalar values unchanged
+(`vendor/zscaler-sdk-python/zscaler/request_executor.py:363-412`;
+`vendor/zscaler-sdk-python/zscaler/helpers.py:347-364`). Python therefore sends
+`bypass_on_reauth=False` as `bypassOnReauth: false`, while Go Inspection and
+PRA omit it. This is a live divergence for two of the four segment types, not a
+fully resolved SDK difference.
+
+The Rosetta field table currently records only cross-surface presence for
+`bypassOnReauth`; its marker vocabulary does not encode serializer-presence
+behavior such as Go `omitempty`
+(`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`, `:2249`). Keep
+this prose-level divergence until the reconciliation schema can represent
+omission semantics.
 
 ---
 
@@ -206,7 +247,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 **What each source says:**
 
-- **Go SDK (v2):** `path = fmt.Sprintf(mgmtConfigV2+...)` at line 281. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:281`)
+- **Go SDK (v2):** `path = fmt.Sprintf(mgmtConfigV2+...)` at line 282. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:282`)
 - **Postman:** documents `PUT /mgmtconfig/v2/.../rule/:ruleId`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:77032`)
 
 **Significance / which to trust:** The v2 package UpdateRule correctly uses the v2 URL. Any cached claim to the contrary is wrong. Callers constructing URLs manually must use the v2 path for update.
@@ -251,7 +292,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 **What each source says:**
 
-- **Go SDK:** `BulkReorder` (v1 and v2) detects any rule named exactly `Default_Rule` and appends its ID last regardless of caller input. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:377-395`)
+- **Go SDK:** `BulkReorder` (v1 and v2) detects any rule named exactly `Default_Rule` and appends its ID last regardless of caller input. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:378-396`)
 - **Python SDK:** `bulk_reorder_rules` sends the caller-supplied list without modification. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:4132-4147`)
 
 **Significance / which to trust:** High impact. Omitting `Default_Rule` from the end of a bulk reorder in the Python SDK can break policy evaluation. Python SDK callers must manually place the `Default_Rule` ID last.
@@ -297,7 +338,7 @@ The Python SDK confirms segment group membership is managed from the application
 **What each source says:**
 
 - **Go v1:** `Conditions` struct (line 101) has `MicroTenantID string` with `omitempty`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:93-102`)
-- **Go v2:** `PolicyRuleResourceConditions` struct (lines 161-169) has no `MicroTenantID` field. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:161-169`)
+- **Go v2:** `PolicyRuleResourceConditions` struct (lines 162-170) has no `MicroTenantID` field. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:162-170`)
 - **Postman:** consistent with Go — v1 conditions include `microtenantId`; v2 conditions include `setIds` instead. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:73629`)
 
 **Significance / which to trust:** Serializing a v1 condition object with `microtenantId` to a v2 endpoint sends an unrecognized field.
@@ -308,7 +349,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 **`operands.name` rewritten by API (corroborated):** Go SDK v1 UpdateRule explicitly clears `operand.Name` before PUT (`policysetcontroller.go:198-202`). This confirms the operator observation that the API always rewrites operand name to the referenced object's display name. The SDK strips it silently to prevent 400 errors.
 
-**`priority` and `rule_order` — server-computed (partially corroborated):** Both fields are present in Go v2 `PolicyRule` request struct (lines 138, 141) but sending them on creates/updates is likely ignored or causes drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:138,141`) (Corroborating operator field observation from production Terraform usage.)
+**`priority` and `rule_order` — server-computed (partially corroborated):** Both fields are present in Go v2 `PolicyRule` request struct (lines 139, 142) but sending them on creates/updates is likely ignored or causes drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:139,142`) (Corroborating operator field observation from production Terraform usage.)
 
 **`capabilities.file_upload=False` maps to `INSPECT_FILE_UPLOAD` — Python SDK bug confirmed:** `policies.py:3216-3217` maps `priv_caps_map.get('file_upload') is False` to `'INSPECT_FILE_UPLOAD'`. Setting `file_upload=False` to mean inspect-uploads is counter-intuitive. `inspect_file_upload=True` independently also maps to `INSPECT_FILE_UPLOAD` (line 3222). (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:3214-3222`)
 

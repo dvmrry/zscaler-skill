@@ -235,7 +235,7 @@ Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`
 
 ## Endpoint DLP
 
-The Go v3.8.41 pin exposes Endpoint DLP as several distinct management families, not only as fields on an inline DLP rule (`vendor/zscaler-sdk-go/CHANGELOG.md:3-4,14-64`):
+Go v3.8.41 introduced Endpoint DLP as several distinct management families, not only as fields on an inline DLP rule (`vendor/zscaler-sdk-go/CHANGELOG.md:12-13,23-73`):
 
 | Object family | Management surface |
 |---|---|
@@ -248,11 +248,11 @@ The Go v3.8.41 pin exposes Endpoint DLP as several distinct management families,
 
 Endpoint-application responses expose descriptive, OS, file, signature, type, and version data (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-55`), but the shared request serializer emits only non-empty `resourceId` and `zappId` (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-161`). The shared model also types `versions` as one `Versions` struct, while the custom-application response model types the same wire key as `[]Versions`; callers must not assume those two response shapes are interchangeable (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
-Terraform provider v4.8.0 adds resources for custom applications, application groups, endpoint resources, resource groups, rules, and sub-rules, plus data sources for application, custom-app, rule, channel, and resource-group-tag reads (`vendor/terraform-provider-zia/CHANGELOG.md:3-27`). This is SDK/provider surface evidence only: the generated reconciliation boundary confirms that these endpoint families remain outside the current Automate capture, and client presence does not establish tenant entitlement or live rollout (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:3-10`).
+Terraform provider v4.8.0 adds resources for custom applications, application groups, endpoint resources, resource groups, rules, and sub-rules, plus data sources for application, custom-app, rule, channel, and resource-group-tag reads (`vendor/terraform-provider-zia/CHANGELOG.md:3-27`). This is SDK/provider surface evidence only: the generated reconciliation boundary confirms that these endpoint families remain outside the current Automate capture, and client presence does not establish tenant entitlement or live rollout (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:12-19`).
 
 ## Outbound Email DLP
 
-Go v3.8.41 provides list, lite-list, get, create, update, and delete operations for `/zia/api/v1/emailDlpRules`, plus `GET /zia/api/v1/emailDlpRules/actions?tenantIds=...`, whose response is returned as raw CSV bytes (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:17-18,57-70,87-138,141-160`). The v3.8.41 release notes mention only the actions CSV endpoint, omitting the list/lite/get/CRUD methods that are present in code (`vendor/zscaler-sdk-go/CHANGELOG.md:66-67`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-138`). Terraform provider v4.8.0 adds the `zia_outbound_email_dlp` resource and data source (`vendor/terraform-provider-zia/CHANGELOG.md:16-18`).
+Go v3.8.41 provides list, lite-list, get, create, update, and delete operations for `/zia/api/v1/emailDlpRules`, plus `GET /zia/api/v1/emailDlpRules/actions?tenantIds=...`, whose response is returned as raw CSV bytes (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:17-18,57-70,87-138,141-160`). The v3.8.41 release notes mention only the actions CSV endpoint, omitting the list/lite/get/CRUD methods that are present in code (`vendor/zscaler-sdk-go/CHANGELOG.md:75-76`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-138`). Terraform provider v4.8.0 adds the `zia_outbound_email_dlp` resource and data source (`vendor/terraform-provider-zia/CHANGELOG.md:16-18`).
 
 ## Edge cases
 

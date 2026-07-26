@@ -3,9 +3,9 @@ product: shared
 topic: "mcp-server"
 title: "Zscaler MCP server — transport hardening, write gating, and inventory"
 content-type: reference
-last-verified: "2026-07-22"
+last-verified: "2026-07-26"
 verified-against:
-  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
 confidence: medium
 source-tier: code
 sources:
@@ -27,7 +27,18 @@ author-status: draft
 
 ## Release boundary
 
-The checked tree declares MCP server v0.13.3. Its v0.13.2 notes restore in-process TLS, Host-header validation, and the global write-tools switch; the v0.13.3 entry is a dependency refresh (`vendor/zscaler-mcp-server/pyproject.toml:1-4`; `vendor/zscaler-mcp-server/CHANGELOG.md:3-25`). The generated v0.13.3 inventory remains 402 tools (`vendor/zscaler-mcp-server/README.md:502-524`): the per-service counts total 254 read tools and 148 write tools (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:28`; `:203`; `:321`; `:361`; `:374`; `:402`; `:421`; `:437`; `:462`; `:491`). The release delta therefore does not require a substantive rewrite of product-surface facts; it changes server transport, exposure controls, and dependency resolution (`vendor/zscaler-mcp-server/CHANGELOG.md:9-25`).
+The checked tree declares MCP server v0.13.4. Its v0.13.2 notes restore
+in-process TLS, Host-header validation, and the global write-tools switch;
+v0.13.3 refreshes dependencies; and v0.13.4 fixes SSL Inspection list/get
+validation by normalizing the API's nested `action` object to its `type`. The
+v0.13.4 list tool also drops its advertised `search` input because that API
+returns a flat, unpaginated list (`vendor/zscaler-mcp-server/pyproject.toml:1-4`;
+`vendor/zscaler-mcp-server/CHANGELOG.md:3-35`). The generated v0.13.4 inventory
+remains 402 tools (`vendor/zscaler-mcp-server/README.md:502-524`): the
+per-service counts total 254 read tools and 148 write tools
+(`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:28`; `:203`; `:321`;
+`:361`; `:374`; `:402`; `:421`; `:437`; `:462`; `:491`). Except for the SSL
+Inspection read fix, the product-surface inventory is unchanged from v0.13.3.
 
 ## In-process TLS for HTTP transports
 
@@ -59,13 +70,15 @@ The README says both flags are mandatory and that `--enable-write-tools` alone r
 
 **Safety recommendation, not an executable requirement:** keep write mode disabled unless needed; when it is needed, always supply the narrowest practical explicit allowlist. This is repository guidance, but the current code does not enforce it (`vendor/zscaler-mcp-server/README.md:342-350`; `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/registry.py:91-95`; `:118-123`).
 
-## Dependency metadata divergence
+## Dependency resolution
 
-The generated `requirements.txt` pins `zscaler-sdk-python==1.9.37`, while `uv.lock` resolves `zscaler-sdk-python` 1.9.38 (`vendor/zscaler-mcp-server/requirements.txt:258-265`; `vendor/zscaler-mcp-server/uv.lock:2255-2258`). Dependency provenance therefore depends on which installation artifact is used.
+The generated `requirements.txt` and `uv.lock` both resolve
+`zscaler-sdk-python` 1.9.38 (`vendor/zscaler-mcp-server/requirements.txt:265`;
+`vendor/zscaler-mcp-server/uv.lock:2256-2257`).
 
 ## Open questions
 
-> - **Client-certificate enforcement** - The v0.13.2 release note describes `ZSCALER_MCP_TLS_CA_CERTS` as mutual-TLS client validation, but the implementation and test only establish that the CA-bundle path is forwarded as `ssl_ca_certs` (`vendor/zscaler-mcp-server/CHANGELOG.md:19-23`; `vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:196-200`; `vendor/zscaler-mcp-server/tests/test_cli.py:221-237`) - *unverified, requires a client-certificate enforcement test or explicit Uvicorn client-cert requirement configuration*
+> - **Client-certificate enforcement** - The v0.13.2 release note describes `ZSCALER_MCP_TLS_CA_CERTS` as mutual-TLS client validation, but the implementation and test only establish that the CA-bundle path is forwarded as `ssl_ca_certs` (`vendor/zscaler-mcp-server/CHANGELOG.md:29-35`; `vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:196-200`; `vendor/zscaler-mcp-server/tests/test_cli.py:221-237`) - *unverified, requires a client-certificate enforcement test or explicit Uvicorn client-cert requirement configuration*
 
 ## Cross-links
 

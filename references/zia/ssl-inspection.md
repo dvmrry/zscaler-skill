@@ -3,7 +3,9 @@ product: zia
 topic: "zia-ssl-inspection"
 title: "ZIA SSL/TLS inspection — pipeline position and policy semantics"
 content-type: reasoning
-last-verified: "2026-06-15"
+last-verified: "2026-07-26"
+verified-against:
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
 confidence: high
 source-tier: doc
 sources:
@@ -25,6 +27,10 @@ sources:
   - "vendor/zscaler-help/ranges-limitations-zia.md"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
+  - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ssl_inspection.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/_rules_common.py"
+  - "vendor/zscaler-mcp-server/tests/test_zia_shaping.py"
   - "https://duo.com/docs/duo-desktop"
   - "https://help.duo.com/s/article/9585"
 author-status: draft
@@ -156,6 +162,20 @@ action: {
   doNotDecryptSubActions: { ... }      // only when type = DO_NOT_DECRYPT
 }
 ```
+
+**MCP automation surface (v0.13.4).** The MCP list tool takes no filtering
+fields and calls the SDK's flat `list_rules()` operation without search or
+pagination parameters; the get tool calls `get_rule()` and then shapes the
+result (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ssl_inspection.py:46-50`,
+`:101-107`, `:118-124`). Both curated views type `action` as a string and
+collapse a nested object to its `type` (falling back to `action_type`) before
+validating the summary/detail response
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/_rules_common.py:39-62`,
+`:72-81`, `:103-128`; regression coverage at
+`vendor/zscaler-mcp-server/tests/test_zia_shaping.py:134-158`). The curated
+views do not expose the nested `decryptSubActions` or
+`doNotDecryptSubActions` blocks, so use the SDK or raw API when those fields are
+required.
 
 Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The Go SDK's `validateSSLInspectionRule()` (`vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:234`) enforces per-type constraints:
 

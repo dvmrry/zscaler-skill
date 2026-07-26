@@ -5,13 +5,13 @@ title: "Zero Trust Branch claims ledger - Tier 3 misc refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
+  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
-  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
+  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -57,5 +57,5 @@ author-status: draft
 | Python App Connector Config exposes get/create/delete methods under `/ztb/api/v3/appconnector/config`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/app_connector_config.py:24-35`, `:41-76`, `:78-148` |
 | Python Site2Site VPN exposes hub list and S2S get/create/update operations under `/ztb/api/v3/CloudGateway`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/site2site_vpn.py:32-40`, `:46-192` |
 | Go SDK Branch Connector files are adjacent ZPA services, not ZTB product service layers. | `overview.md` | `vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector/branch_connector.go:1-16`; `vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector_group/branch_connector_group.go:11-18` |
-| No ZTB product Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees, and no Go ZTB product service was found. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across the Go SDK, Terraform, Ansible, and Postman families; MCP portion rechecked 2026-07-22 against v0.13.3 for Zero Trust Branch / ZTB product surface. |
+| No ZTB product Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees, and no Go ZTB product service was found. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across the Go SDK, Terraform, Ansible, and Postman families; MCP portion rechecked 2026-07-26 against v0.13.4 for Zero Trust Branch / ZTB product surface. |
 | ZTB Python SDK auth-mode divergence and non-Python coverage remain unresolved. | `overview.md`, `clarifications.md` | OPEN QUESTION -> `references/_meta/clarifications.md#zero-trust-branch-01-ztb-python-sdk-auth-mode-divergence-and-non-python-coverage` |
