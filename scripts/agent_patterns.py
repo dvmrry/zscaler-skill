@@ -1,31 +1,25 @@
-"""agent_patterns.py — executable patterns for AI agents and operators.
+"""Pure reasoning patterns for AI agents and operators.
 
-A small, dependency-free (stdlib + zscaler SDK) module with typed functions
-covering the five most-asked diagnostic patterns:
+This dependency-free module contains typed, deterministic transformations over
+caller-provided values:
 
   - detect_cloud()              — cloud class (commercial / gov / unknown)
   - is_gov_cloud()              — boolean check for gov-cloud routing decisions
   - detect_auth_framework()     — OneAPI vs legacy from env vars
-  - smoke_test_creds()          — verify a credential set actually works
-  - enumerate_endpoints()       — list available SDK endpoints by product
   - interpret_error()           — map a Zscaler API error to a recovery action
-
-Plus a composite:
-
-  - diagnose_tenant()           — runs all of the above in one call
 
 The companion markdown doc at references/_meta/agent-patterns.md mirrors these
 functions for in-context reference.
 
-These are pure functions over their inputs (no global state, no side effects
-beyond what the names suggest). An AI agent can lift any function as-is.
+Credentialed tenant reads and SDK surface reflection deliberately do not live
+here. Use the read-only zscalerctl companion (when available) or supplied
+snapshot/command output for observation, then apply these pure functions.
 """
 
 from __future__ import annotations
 
-import os
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Literal
 
 
@@ -60,9 +54,9 @@ def detect_cloud(
     """Identify the Zscaler cloud class a tenant is on.
 
     Inputs (any one is sufficient):
-      env        : dict of env vars (e.g. os.environ). Checked: ZSCALER_CLOUD,
-                   ZIA_CLOUD. If both unset, defaults to 'commercial' per the
-                   ZSCALER_CLOUD-unset-for-production convention.
+      env        : caller-provided, sanitized env-name mapping. Checked:
+                   ZSCALER_CLOUD and ZIA_CLOUD. If both are unset, defaults to
+                   'commercial' per the ZSCALER_CLOUD production convention.
       admin_url  : a tenant admin URL like 'admin.zscalergov.net' or
                    'admin.zscalertwo.net'. Used as a secondary signal.
 
@@ -181,114 +175,6 @@ def detect_auth_framework(env: dict[str, str] | None = None) -> AuthFramework:
     return "unknown"
 
 
-# ----- credential smoke test ----------------------------------------------
-
-
-@dataclass
-class SmokeResult:
-    ok: bool
-    product: str
-    note: str
-    detail: dict[str, Any] = field(default_factory=dict)
-
-
-# Map product → (sdk-attribute-path, low-cost call). The chosen calls are
-# read-only and either return a small object or 0-page list. Adjust if a
-# product changes its low-cost endpoint.
-SMOKE_CALLS: dict[str, tuple[str, str]] = {
-    "zia": ("zia.activation", "get_status"),
-    "zpa": ("zpa.connector_groups", "list_groups"),
-    "zcc": ("zcc.devices", "list_devices"),
-    "zdx": ("zdx.apps", "list_apps"),
-    "ztw": ("ztw.activation", "get_status"),
-    "zwa": ("zwa.dlp_incidents", "search"),
-}
-
-
-def smoke_test_creds(client: Any, product: str = "zia") -> SmokeResult:
-    """Verify a Zscaler client's credentials work by making one low-cost API call.
-
-    Args:
-      client : an instantiated zscaler client (ZscalerClient, LegacyZIAClient, etc.)
-      product: which product to test against. Defaults to ZIA. See SMOKE_CALLS for the
-               available products + the specific endpoint each one tests.
-
-    Returns SmokeResult(ok, product, note, detail). On failure, `note` describes
-    the failure mode in caller-actionable language ('credentials rejected',
-    'rate-limited', etc.).
-
-    Does NOT raise on auth failure; returns ok=False and a structured note.
-    """
-    if product not in SMOKE_CALLS:
-        return SmokeResult(
-            ok=False,
-            product=product,
-            note=f"unknown product '{product}' (known: {sorted(SMOKE_CALLS)})",
-        )
-
-    path, method_name = SMOKE_CALLS[product]
-    target: Any = client
-    try:
-        for attr in path.split("."):
-            target = getattr(target, attr)
-        method = getattr(target, method_name)
-    except AttributeError as e:
-        return SmokeResult(
-            ok=False,
-            product=product,
-            note=f"SDK doesn't expose {path}.{method_name}: {e}",
-            detail={"path": path, "method": method_name},
-        )
-
-    try:
-        result = method()
-        # SDK returns (data, response, error) for most methods
-        if isinstance(result, tuple) and len(result) == 3:
-            _, _, err = result
-            if err:
-                err_str = str(err).lower()
-                if "401" in err_str or "unauthor" in err_str:
-                    return SmokeResult(False, product, "credentials rejected (401)", {"err": str(err)})
-                if "429" in err_str or "rate" in err_str:
-                    return SmokeResult(False, product, "rate-limited (429) — creds likely OK", {"err": str(err)})
-                return SmokeResult(False, product, f"API error: {err}", {"err": str(err)})
-        return SmokeResult(True, product, "OK", {"call": f"{path}.{method_name}"})
-    except Exception as e:
-        return SmokeResult(False, product, f"exception during call: {type(e).__name__}: {e}", {"exception": type(e).__name__})
-
-
-# ----- endpoint enumeration -----------------------------------------------
-
-
-def enumerate_endpoints(client: Any) -> dict[str, list[str]]:
-    """Walk the SDK client's products and enumerate the public service attributes.
-
-    For each product attribute (zia, zpa, zcc, zdx, ztw, zwa), lists the
-    service modules / methods present. Useful for an agent that wants to
-    know "what's available?" without grepping SDK source.
-
-    Returns: dict like {'zia': ['activation', 'url_filtering_rules', ...], 'zpa': [...]}
-    """
-    out: dict[str, list[str]] = {}
-    for product in ("zia", "zpa", "zcc", "zdx", "ztw", "zwa"):
-        product_client = getattr(client, product, None)
-        if product_client is None:
-            continue
-        services = [
-            name
-            for name in dir(product_client)
-            if not name.startswith("_") and not callable(getattr(product_client, name, None))
-        ]
-        # Also capture top-level callables (some products expose direct methods)
-        services.extend(
-            name
-            for name in dir(product_client)
-            if not name.startswith("_") and callable(getattr(product_client, name, None))
-        )
-        out[product] = sorted(set(services))
-    return out
-
-
 # ----- error code interpretation ------------------------------------------
 
 # Recovery action vocabulary
@@ -364,7 +250,7 @@ def interpret_error(status_code: int, body: str | dict | None = None) -> ErrorIn
 
     if status_code == 401:
         return ErrorInterpretation(401, "Unauthorized", "fix-creds",
-            "Auth rejected. Common causes: missing audience parameter on OneAPI, expired/rotated secret, OneAPI on a gov cloud (use legacy).")
+            "Auth rejected. Common causes: missing OneAPI audience, expired/rotated secret, or the wrong auth path for this cloud and client/provider.")
 
     if status_code == 403:
         return ErrorInterpretation(403, "Forbidden", "fix-creds",
@@ -406,100 +292,15 @@ def interpret_error(status_code: int, body: str | dict | None = None) -> ErrorIn
         "Unrecognized error shape. Capture full response and escalate.")
 
 
-# ----- composite diagnose -------------------------------------------------
-
-
-@dataclass
-class TenantDiagnosis:
-    cloud_class: CloudClass
-    cloud_details: dict[str, Any]
-    auth_framework: AuthFramework
-    forced_legacy: bool
-    smoke_test: SmokeResult | None
-    endpoints: dict[str, list[str]] | None
-    advisories: list[str]
-
-
-def diagnose_tenant(
-    env: dict[str, str] | None = None,
-    admin_url: str | None = None,
-    client: Any | None = None,
-    smoke_test_product: str = "zia",
-) -> TenantDiagnosis:
-    """One-call diagnostic combining the patterns above.
-
-    Args:
-      env                : env var dict (default: os.environ)
-      admin_url          : optional admin URL for cloud detection
-      client             : optional instantiated SDK client for smoke test + endpoint enumeration
-      smoke_test_product : which product to smoke-test against if client given
-
-    Returns a TenantDiagnosis with cloud class, auth framework, smoke test
-    result, endpoint enumeration, and advisory notes (e.g., "gov-cloud detected
-    — verify the selected client/provider supports FedRAMP OneAPI before using it").
-    """
-    if env is None:
-        env = dict(os.environ)
-
-    cloud_class, cloud_details = detect_cloud(env=env, admin_url=admin_url)
-    auth_framework = detect_auth_framework(env=env)
-    # Back-compat field: gov clouds used to be treated as blanket legacy-only.
-    # Current SDK/provider support is mixed, so do not force legacy from cloud
-    # class alone. Use the advisory to make callers choose by client/provider.
-    forced_legacy = False
-
-    advisories: list[str] = []
-    if cloud_class == "gov" and auth_framework == "oneapi":
-        advisories.append(
-            "Gov-cloud tenant + OneAPI env vars: verify this client/provider supports "
-            "FedRAMP OneAPI (gov/govus). ZPA Terraform GOV/GOVUS and older clients "
-            "still need legacy auth."
-        )
-    if auth_framework == "unknown":
-        advisories.append(
-            "No recognizable auth env vars found. Set OneAPI vars (ZSCALER_CLIENT_ID + "
-            "_SECRET + _VANITY_DOMAIN) or product-specific legacy vars."
-        )
-
-    smoke = None
-    endpoints = None
-    if client is not None:
-        smoke = smoke_test_creds(client, product=smoke_test_product)
-        if not smoke.ok:
-            advisories.append(
-                f"Smoke test against {smoke_test_product} failed: {smoke.note}"
-            )
-        try:
-            endpoints = enumerate_endpoints(client)
-        except Exception as e:
-            advisories.append(f"Endpoint enumeration raised {type(e).__name__}: {e}")
-
-    return TenantDiagnosis(
-        cloud_class=cloud_class,
-        cloud_details=cloud_details,
-        auth_framework=auth_framework,
-        forced_legacy=forced_legacy,
-        smoke_test=smoke,
-        endpoints=endpoints,
-        advisories=advisories,
-    )
-
-
 __all__ = [
     "GOV_CLOUDS",
     "COMMERCIAL_CLOUDS",
     "CloudClass",
     "AuthFramework",
     "ErrorAction",
-    "SmokeResult",
     "ErrorInterpretation",
-    "TenantDiagnosis",
     "detect_cloud",
     "is_gov_cloud",
     "detect_auth_framework",
-    "smoke_test_creds",
-    "enumerate_endpoints",
     "interpret_error",
-    "diagnose_tenant",
-    "SMOKE_CALLS",
 ]

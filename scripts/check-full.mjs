@@ -33,6 +33,11 @@ const FULL_CHECKS = [
   },
   { name: "documentation hygiene", command: "./scripts/check-hygiene.py", args: [] },
   {
+    name: "pure agent-pattern regression tests",
+    command: "uv",
+    args: ["run", "python", "scripts/agent_patterns.test.py"],
+  },
+  {
     name: "reference freshness semantics",
     command: process.execPath,
     args: [

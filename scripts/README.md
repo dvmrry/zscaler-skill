@@ -35,7 +35,9 @@ use the read-only `zscalerctl` CLI for tenant reads.
   `requires-python` and `dependencies`
 - **Stdlib-only executables** may use the uv shebang with an empty dependency
   list or a direct Python shebang; library and test modules omit script metadata.
-- **Library files** (no shebang) are imported by other scripts: `agent_patterns.py`.
+- **Library files** (no shebang) are imported by other scripts:
+  `agent_patterns.py` contains pure classification and error-interpretation
+  helpers only; credentialed tenant reads belong to `zscalerctl`.
 - **Bash scripts** (`check-citations.sh`, `check-staleness.sh`, etc.) are direct-invokable (`./scripts/<name>.sh`).
 - **Node helpers** use only Node standard libraries when they exist to support
   runtime workflow gates without adding a project install step.
