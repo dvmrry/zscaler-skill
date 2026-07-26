@@ -3,9 +3,8 @@ name: Lint JS
 # Bug-catching lint for the Node helper scripts (scripts/*.mjs), the docs site
 # browser JS (docs/*.js), and the docs CSS (docs/*.css). Uses Biome with only
 # the correctness / suspicious / security rule groups enabled (see biome.json) —
-# style and formatting are intentionally not enforced. The repo has no
-# package.json, so Biome is run via a pinned npx invocation rather than a
-# committed dependency.
+# style and formatting are intentionally not enforced. Biome remains a pinned
+# npx invocation rather than a committed dependency.
 #
 # Runs on EVERY pull request (no path filter): this is a required status check,
 # and a path-filtered required check would never report on PRs that don't touch
@@ -28,6 +27,6 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version-file: ".node-version"
       - name: Biome lint (correctness / suspicious / security)
         run: npx --yes @biomejs/biome@1.9.4 lint docs scripts

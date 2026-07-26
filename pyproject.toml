@@ -8,16 +8,16 @@ requires-python = ">=3.10"
 # This pyproject.toml exists for two reasons:
 #
 # 1. Aggregated visibility of the third-party Python deps the skill's scripts use.
-#    Each script also self-declares its deps via PEP 723 inline metadata
-#    (https://peps.python.org/pep-0723/) — see the `# /// script` block at the
-#    top of each `scripts/*.py` file. uv resolves those at run time. The list
-#    below mirrors the union of those declarations for discoverability.
+#    Dependency-bearing executables self-declare via PEP 723 inline metadata
+#    (https://peps.python.org/pep-0723/). Library modules, test modules, and
+#    some stdlib-only executables intentionally omit it. The list below mirrors
+#    the union of third-party declarations for discoverability.
 #
 # 2. `uv sync --extra scripts` lets contributors install all script deps once
 #    rather than letting uv resolve per-script on first run.
 #
-# To run any script: `./scripts/<name>.py` — uv reads the inline metadata,
-# resolves and caches deps, runs the script. No project-level install needed.
+# Run an executable by its documented command. Where PEP 723 metadata is
+# present, uv resolves and caches dependencies without a project-level install.
 
 [project.optional-dependencies]
 scripts = [

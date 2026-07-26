@@ -26,12 +26,12 @@ function makeLayout(root) {
   }
 }
 
-test("version comparison handles Node 18 boundary", () => {
-  assert.equal(compareVersions("18.0.0", "18.0.0"), 0);
-  assert.equal(compareVersions("18.1.0", "18.0.0"), 1);
-  assert.equal(compareVersions("17.9.9", "18.0.0"), -1);
-  assert.equal(versionAtLeast("v20.3.1", "18.0.0"), true);
-  assert.equal(versionAtLeast("16.20.2", "18.0.0"), false);
+test("version comparison handles the Node 20.11 boundary", () => {
+  assert.equal(compareVersions("20.11.0", "20.11.0"), 0);
+  assert.equal(compareVersions("20.12.0", "20.11.0"), 1);
+  assert.equal(compareVersions("20.10.9", "20.11.0"), -1);
+  assert.equal(versionAtLeast("v22.0.0", "20.11.0"), true);
+  assert.equal(versionAtLeast("20.10.0", "20.11.0"), false);
 });
 
 test("repo layout check accepts the expected top-level files and directories", () => {
@@ -56,7 +56,7 @@ test("repo layout check reports missing entries against a temp dir", () => {
 
 test("JSON report includes checks array and overall ok flag", () => {
   const checks = [
-    { name: "Node version", status: "ok", detail: "20.0.0 >= 18.0.0" },
+    { name: "Node version", status: "ok", detail: "20.11.0 >= 20.11.0" },
     {
       name: "_data runtime mount",
       status: "skip",
@@ -71,7 +71,7 @@ test("JSON report includes checks array and overall ok flag", () => {
       {
         name: "Node version",
         status: "ok",
-        detail: "20.0.0 >= 18.0.0",
+        detail: "20.11.0 >= 20.11.0",
         next: null,
       },
       {
@@ -174,7 +174,7 @@ test("references profile skips local runtime and hook checks", () => {
   fs.mkdirSync(path.join(root, "vendor/example"), { recursive: true });
   fs.writeFileSync(path.join(root, "vendor/example/README.md"), "present\n", "utf8");
 
-  const checks = runChecks({ root, profile: "references", nodeVersion: "20.0.0" });
+  const checks = runChecks({ root, profile: "references", nodeVersion: "20.11.0" });
   assert.deepEqual(checks.map((check) => check.name), [
     "Node version",
     "Repo layout",

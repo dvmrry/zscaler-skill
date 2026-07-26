@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 # pre-push — run the local checks CI enforces before allowing a push.
 #
-# Two families, both required in CI and previously NOT both covered here:
-#   1. The Python docs/citation/vendor/scrape hygiene suite (check-hygiene.yml).
-#   2. The node/MCP fast suite (scripts/check-fast.mjs) — workflow metadata,
-#      agent-skill contracts, citation links, helper-command refs, node helper
-#      tests, MCP conformance, diff whitespace. These are disjoint from family 1.
+# The fast gate is deterministic and does not require network access or every
+# vendor submodule. Run `npm run check:full` explicitly before merge.
 #
 # Catches failures BEFORE they hit main. Bypass with `git push --no-verify` if
 # you need to (e.g., pushing a known-broken WIP branch); CI remains the backstop.
@@ -13,47 +10,20 @@
 # Activate once per clone:
 #   git config core.hooksPath .githooks
 
-set -e
+set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-echo "▸ pre-push: running hygiene suite + node/MCP fast checks (10 steps)..."
+echo "▸ pre-push: running the fast deterministic gate..."
 echo
 
-failed=0
-
-run() {
-  local label="$1"
-  local cmd="$2"
-  echo "  ▸ $label"
-  if ! eval "$cmd" > /tmp/pre-push-output.txt 2>&1; then
-    echo "    ✗ FAILED"
-    cat /tmp/pre-push-output.txt | sed 's/^/      /'
-    failed=1
-  else
-    # Show last line only on success — keeps output tight
-    tail -1 /tmp/pre-push-output.txt | sed 's/^/      /'
-  fi
-}
-
-run "check-hygiene"          "./scripts/check-hygiene.py"
-run "check-workflow-evals"   "./scripts/check-workflow-evals.py"
-run "check-citations"        "./scripts/check-citations.sh"
-run "check-doc-links"        "./scripts/check-doc-links.py"
-run "citation-source-audit"  "./scripts/check-citation-density.py --audit-source-quality --include-source-style --strict-sources --top 25"
-run "citation-inventory"     "./scripts/check-citation-density.py --compare-citation-inventory references/_meta/citation-inventory.json --strict-inventory --top 25"
-run "check-orphans"          "./scripts/check-orphans.py"
-run "check-vendor-drift"     "./scripts/check-vendor-drift.py"
-run "check-scrape-freshness" "./scripts/check-scrape-freshness.py"
-run "check-fast (node/MCP)"  "node scripts/check-fast.mjs"
-
-echo
-if [ $failed -ne 0 ]; then
-  echo "✗ pre-push: hygiene failed — push blocked."
+if ! node scripts/check-fast.mjs; then
+  echo
+  echo "✗ pre-push: fast gate failed — push blocked."
   echo "  Fix the issues above and retry, or override with:"
   echo "    git push --no-verify"
   exit 1
 fi
+echo
 echo "✓ pre-push: all checks pass."
-exit 0

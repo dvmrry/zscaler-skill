@@ -4,6 +4,14 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { checkNodeVersion } from "./doctor.mjs";
+
+const nodeCheck = checkNodeVersion();
+if (nodeCheck.status === "FAIL") {
+  console.error(`check-fast: ${nodeCheck.detail}`);
+  console.error(`Minimum supported Node.js version is 20.11.0; see ${nodeCheck.next}.`);
+  process.exit(1);
+}
 
 // Auto-discover every scripts/**/*.test.mjs (recursively, so suites in subdirs
 // like scripts/bridge/ are never silently skipped) — a new test file is picked
