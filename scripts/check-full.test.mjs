@@ -16,6 +16,7 @@ test("full gate includes both Node and Python checks", () => {
   assert.ok(FULL_CHECKS.some((check) => check.args.includes("scripts/check-fast.mjs")));
   assert.ok(FULL_CHECKS.some((check) => check.command.endsWith(".py")));
   assert.ok(FULL_CHECKS.some((check) => check.args.includes("--strict-inventory")));
+  assert.ok(FULL_CHECKS.some((check) => check.args.includes("scripts/agent_patterns.test.py")));
   const freshness = FULL_CHECKS.find((check) =>
     check.args.includes("scripts/check-reference-freshness.mjs"),
   );

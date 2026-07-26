@@ -20,7 +20,10 @@ author-status: reviewed
 
 # Executable patterns for AI agents
 
-The rest of the skill is **descriptive** (how Zscaler behaves) and **procedural** (what steps a human operator takes). This doc is **executable**: typed Python functions an AI agent can lift verbatim into a tool environment, or import from `scripts/agent_patterns.py`.
+The rest of the skill is **descriptive** (how Zscaler behaves) and
+**procedural** (what steps a human operator takes). This doc is **executable**:
+typed, pure Python functions an AI agent can lift verbatim into a tool
+environment, or import from `scripts/agent_patterns.py`.
 
 The runbook (`runbooks.md`) is the human-shaped layer; this is the agent-shaped layer. They cover the same ground from different angles.
 
@@ -28,7 +31,8 @@ The runbook (`runbooks.md`) is the human-shaped layer; this is the agent-shaped 
 
 Two paths:
 
-1. **Import the module** — `scripts/agent_patterns.py` is dependency-free except for the Zscaler SDK (and the SDK is only needed for `smoke_test_creds` / `enumerate_endpoints`):
+1. **Import the module** — `scripts/agent_patterns.py` is dependency-free and
+   performs no network or SDK calls:
    ```python
    import sys; sys.path.insert(0, "scripts")
    import agent_patterns as ap
@@ -38,7 +42,11 @@ Two paths:
 
 2. **Copy-paste a function** — every pattern below is self-contained in the doc and in the module. Paste into your runtime if the import path isn't available.
 
-The `diagnose_tenant()` composite in `scripts/agent_patterns.py` is a worked-example consumer that calls every pattern in one pass.
+Credentialed observation is a separate boundary. When tenant facts are needed,
+use supplied snapshots or command output, or request a bounded read-only
+`zscalerctl --format json` call when the companion is available. Do not add SDK
+clients, credential smoke tests, endpoint reflection, or raw API calls to this
+module. See [`tooling.md`](tooling.md).
 
 ## Pattern 1 — `detect_cloud` (cloud class detection)
 
@@ -105,10 +113,10 @@ def is_gov_cloud(env=None, admin_url=None):
 
 **Usage:**
 ```python
-if is_gov_cloud(env=os.environ):
-    client = LegacyZIAClient(...)  # Forced legacy
-else:
-    client = ZscalerClient(...)    # OneAPI eligible
+if is_gov_cloud(env=provided_env):
+    # Select the matching gov-cloud reference and verify client/provider support;
+    # gov alone does not force one universal auth path.
+    auth_family = detect_auth_framework(provided_env)
 ```
 
 ## Pattern 3 — `detect_auth_framework` (which auth is configured)
@@ -117,7 +125,9 @@ else:
 
 **Returns:** `'oneapi' | 'zia-legacy' | 'zpa-legacy' | 'zcc-legacy' | 'zdx-legacy' | 'unknown'`
 
-**Why agents need this:** before instantiating a client, confirm the env has what's needed. Avoids silent failures from missing env vars.
+**Why agents need this:** interpret a caller-provided, sanitized map of which
+auth variables are present. The function checks presence only; callers should
+use placeholders rather than pass credential values into an agent context.
 
 ```python
 def detect_auth_framework(env=None):
@@ -149,82 +159,7 @@ def detect_auth_framework(env=None):
     return "unknown"
 ```
 
-## Pattern 4 — `smoke_test_creds` (verify creds work)
-
-**What it answers:** "Do my credentials actually work?" Runs one low-cost API call per product.
-
-**Why agents need this:** fail fast on auth misconfiguration. Most operations against a misconfigured client return cryptic 401s on every call; smoke-testing once at startup surfaces the failure with a clear cause.
-
-```python
-SMOKE_CALLS = {
-    "zia": ("zia.activation", "get_status"),
-    "zpa": ("zpa.connector_groups", "list_groups"),
-    "zcc": ("zcc.devices", "list_devices"),
-    "zdx": ("zdx.apps", "list_apps"),
-    "ztw": ("ztw.activation", "get_status"),
-    "zwa": ("zwa.dlp_incidents", "search"),
-}
-
-def smoke_test_creds(client, product="zia"):
-    """Returns SmokeResult(ok, product, note, detail). Does NOT raise."""
-    if product not in SMOKE_CALLS:
-        return SmokeResult(False, product, f"unknown product '{product}'")
-    path, method_name = SMOKE_CALLS[product]
-    target = client
-    try:
-        for attr in path.split("."):
-            target = getattr(target, attr)
-        method = getattr(target, method_name)
-    except AttributeError as e:
-        return SmokeResult(False, product, f"SDK doesn't expose {path}.{method_name}: {e}")
-    try:
-        result = method()
-        if isinstance(result, tuple) and len(result) == 3:
-            _, _, err = result
-            if err:
-                err_str = str(err).lower()
-                if "401" in err_str or "unauthor" in err_str:
-                    return SmokeResult(False, product, "credentials rejected (401)", {"err": str(err)})
-                if "429" in err_str or "rate" in err_str:
-                    return SmokeResult(False, product, "rate-limited (429) — creds likely OK")
-                return SmokeResult(False, product, f"API error: {err}")
-        return SmokeResult(True, product, "OK", {"call": f"{path}.{method_name}"})
-    except Exception as e:
-        return SmokeResult(False, product, f"exception: {type(e).__name__}: {e}")
-```
-
-**Usage:**
-```python
-result = smoke_test_creds(client, product="zia")
-if not result.ok:
-    raise RuntimeError(f"ZIA creds failed smoke test: {result.note}")
-```
-
-## Pattern 5 — `enumerate_endpoints` (list available services per product)
-
-**What it answers:** "What can I call on this client?" (without grepping SDK source)
-
-**Why agents need this:** dynamic discovery beats hardcoded endpoint lists. Especially useful when the SDK version bumps and surfaces change.
-
-```python
-def enumerate_endpoints(client):
-    """Returns {'zia': [services...], 'zpa': [...], ...}."""
-    out = {}
-    for product in ("zia", "zpa", "zcc", "zdx", "ztw", "zwa"):
-        product_client = getattr(client, product, None)
-        if product_client is None:
-            continue
-        services = [
-            name for name in dir(product_client)
-            if not name.startswith("_")
-        ]
-        out[product] = sorted(set(services))
-    return out
-```
-
-**For the official endpoint surface** (not just SDK-exposed methods), see the Postman collection at `vendor/zscaler-api-specs/oneapi-postman-collection.json` — 597 endpoints across all products. The Postman collection is the authoritative endpoint enumeration; the SDK exposes a subset.
-
-## Pattern 6 — `interpret_error` (error → recovery action)
+## Pattern 4 — `interpret_error` (error → recovery action)
 
 **What it answers:** "What should I do about this HTTP error?"
 
@@ -282,66 +217,20 @@ def interpret_error(status_code, body=None):
     return ErrorInterpretation(status_code, label or f"HTTP {status_code}", "escalate", "Unrecognized; capture + escalate.")
 ```
 
-**Usage in retry logic:**
+**Usage with a supplied error:**
 ```python
-def call_with_recovery(method, max_retries=3):
-    for attempt in range(max_retries):
-        try:
-            data, resp, err = method()
-            if err is None:
-                return data
-            interp = interpret_error(resp.status_code if resp else 500, body=str(err))
-            if interp.action == "retry-after-header":
-                time.sleep(int(resp.headers.get("Retry-After", 5)))
-                continue
-            if interp.action == "retry":
-                time.sleep(2 ** attempt)
-                continue
-            if interp.action in ("fix-config", "fix-creds", "no-recovery"):
-                raise RuntimeError(f"{interp.label}: {interp.note}")
-            if interp.action == "wait":
-                time.sleep(30)
-                continue
-            raise RuntimeError(f"Unrecognized action {interp.action}: {interp.note}")
-        except Exception as e:
-            if attempt == max_retries - 1:
-                raise
-    raise RuntimeError(f"Exhausted {max_retries} retries")
+result = interpret_error(
+    supplied_status_code,
+    body=supplied_sanitized_error_body,
+)
+# result.action describes the recovery class; this function performs no retry
+# and makes no tenant call.
 ```
-
-## Composite — `diagnose_tenant`
-
-One call to run all five patterns. Returns a structured `TenantDiagnosis` with cloud class, auth framework, smoke-test result (if client provided), endpoint enumeration, and advisory notes for common misconfigurations.
-
-```python
-def diagnose_tenant(env=None, admin_url=None, client=None, smoke_test_product="zia"):
-    if env is None:
-        env = dict(os.environ)
-    cloud_class, cloud_details = detect_cloud(env=env, admin_url=admin_url)
-    auth_framework = detect_auth_framework(env=env)
-    forced_legacy = False  # compatibility field; gov no longer implies blanket legacy-only
-    advisories = []
-    if cloud_class == "gov" and auth_framework == "oneapi":
-        advisories.append("Gov-cloud + OneAPI env vars: verify this client/provider supports FedRAMP OneAPI.")
-    if auth_framework == "unknown":
-        advisories.append("No recognizable auth env vars. Set OneAPI or legacy vars.")
-    smoke = endpoints = None
-    if client is not None:
-        smoke = smoke_test_creds(client, product=smoke_test_product)
-        if not smoke.ok:
-            advisories.append(f"Smoke test {smoke_test_product} failed: {smoke.note}")
-        try:
-            endpoints = enumerate_endpoints(client)
-        except Exception as e:
-            advisories.append(f"Endpoint enumeration raised {type(e).__name__}")
-    return TenantDiagnosis(cloud_class, cloud_details, auth_framework, forced_legacy, smoke, endpoints, advisories)
-```
-
-The `diagnose_tenant()` composite in `scripts/agent_patterns.py` is the consumer reference — it combines every pattern and returns a `TenantDiagnosis`.
 
 ## Cross-links
 
 - Module source: `scripts/agent_patterns.py` (canonical implementation)
+- Tenant-observation boundary: [`tooling.md`](tooling.md)
 - Human-readable runbooks: [`runbooks.md`](runbooks.md)
 - Auth framework reference: [`../shared/oneapi.md`](../shared/oneapi.md)
 - Verification protocol (when adding new patterns): [`verification-protocol.md`](verification-protocol.md)
