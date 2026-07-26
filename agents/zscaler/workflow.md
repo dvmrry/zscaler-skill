@@ -43,7 +43,8 @@ Optional reads:
 - `agents/clarification-pattern.md` — load when asking a closed-set
   clarification or when clarification formatting is drifting.
 - `agents/loading-discipline.md` — load when the turn needs multiple file
-  reads, a broad search, or stage/context-loading discipline is drifting.
+  reads, a broad search, operational-knowledge loading, or stage/context-loading
+  discipline is drifting.
 
 ## Capability routing
 

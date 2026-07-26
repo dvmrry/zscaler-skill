@@ -156,7 +156,8 @@ Template:
 **Journal created:** `<working-dir>/_data/cases/<slug>/journal.md`
 
 **What's next?**
-- Proceed — load the proposed files (run Step 2)
+- Proceed — load the proposed docs and bounded Step 2 runtime-data entry points
+  (matching snapshot, operative evidence, and operational knowledge)
 - Add or correct framing — specify
 - Add pre-collected evidence path — specify
 - Pause — stop here
@@ -194,6 +195,8 @@ Template:
   - `<path>` — `<why loaded>`
 - Snapshot:
   - `<path>` — `<why loaded>`
+- Operational knowledge (omit this category when none is loaded):
+  - `<path>` — `<why loaded>`
 - Existing evidence:
   - `<working-dir>/_data/cases/<slug>/journal.md` — `operative journal`
   - `<path>` — `<why loaded>`
@@ -208,6 +211,10 @@ Template:
 
 **Evidence enumeration**
 - `<path or no files returned>`
+
+**Operational-knowledge enumeration** (omit this entire section when no
+relevant active record is present)
+- `<matching product/shared path>`
 
 **Selected snapshot/evidence entry points**
 - `<path>` — `<why selected>`
@@ -244,9 +251,12 @@ node scripts/investigator-artifacts.mjs record-loads \
 ```
 
 Pass `--allow-additional` only when the user has explicitly approved loading
-paths that were not in `case-intake.json proposedLoads`; document the reason
-via the deferred or additional entry. Pass `--force` only if rerunning after a
-correction.
+paths or a bounded runtime-data class not present in
+`case-intake.json proposedLoads`. The Checkpoint 1 `Proceed` choice approves
+the selected snapshot, operative-evidence, and matching-product/shared
+operational-knowledge entry points named by Step 2; document each reason in the
+Step 2 output. Any other additional load needs separate approval. Pass `--force`
+only if rerunning after a correction.
 
 Only after the helper exits 0 emit:
 `**Loads recorded:** <working-dir>/_data/cases/<slug>/workflow/01-loads.json`
@@ -688,7 +698,7 @@ Step 2 has five sub-steps. Do them in order.
 Use the file-read tool to load every path in Step 1 proposed loads. Do not
 summarize from memory. Do not skip a file because it seems obvious.
 
-### 2B — Enumerate Snapshot and Existing Evidence
+### 2B — Enumerate Snapshot, Operational Knowledge, and Existing Evidence
 
 If tenant cloud is specified, enumerate:
 
@@ -722,13 +732,24 @@ literal file enumeration as plain monospace paths, one path per line where the
 runtime allows it. Do not browse sibling case directories unless the user
 explicitly points to them.
 
+After product scope is known, enumerate only the matching
+`<mount>/knowledge/<product>/` directories plus `<mount>/knowledge/shared/`.
+Missing runtime data, a missing `knowledge/` directory, or no records is silent.
+Inspect record frontmatter first and retain only relevant `status: active`
+records for body loading. Before using any retained record, load
+`docs/data-contract/knowledge.md`. Do not follow its evidence references into
+sibling cases unless the user independently made that case operative.
+
 ### 2C — Select Entry Points
 
-Use the loaded docs and grounding cards to choose snapshot and evidence entry
-points. This selection is mapping-driven: start from the grounding card's
-`Inspect snapshot` list or the product/reference mapping, then narrow by the
-user's literal tokens. Cap initial snapshot loads at five files total across
-products unless the user explicitly directs otherwise.
+Use the loaded docs and grounding cards to choose snapshot, evidence, and
+operational-knowledge entry points. This selection is mapping-driven: start
+from the grounding card's `Inspect snapshot` list or the product/reference
+mapping, then narrow by the user's literal tokens. Cap initial snapshot loads
+at five files total across products unless the user explicitly directs
+otherwise. Operational-knowledge candidates stay bounded to the matching
+product directories plus `shared/` and must pass the relevance and active-state
+checks above.
 
 Prefer entry points that identify policy objects, app segments, server groups,
 connector groups, locations, forwarding profiles, log schemas, or named
@@ -747,7 +768,8 @@ Default entry points by product:
 
 ### 2D — Load Selected Files
 
-Load selected snapshot and evidence files with the file-read tool. Also read
+Load selected snapshot, operational-knowledge, and evidence files with the
+file-read tool. Also read
 `<working-dir>/_data/cases/<slug>/journal.md` as the operative artifact so
 Step 3 updates the same file rather than creating a new one. Do not load
 unselected snapshot files. For files larger than 100 MB, search for

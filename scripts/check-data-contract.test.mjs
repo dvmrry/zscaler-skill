@@ -45,6 +45,69 @@ function makeDataSkeleton(root, mountPath = "_data") {
   }
 }
 
+function makeKnowledgeFixture(root, mountPath = "_data") {
+  makeDataSkeleton(root, mountPath);
+  fs.mkdirSync(path.join(root, "references", "zpa"), { recursive: true });
+  fs.mkdirSync(path.join(root, "references", "shared"), { recursive: true });
+  fs.writeFileSync(path.join(root, "references", "zpa", "browser-access.md"), "# Browser Access\n", "utf8");
+  fs.writeFileSync(path.join(root, "references", "shared", "operations.md"), "# Operations\n", "utf8");
+  fs.mkdirSync(path.join(root, mountPath, "cases", "case-one"), { recursive: true });
+  fs.writeFileSync(path.join(root, mountPath, "cases", "case-one", "journal.md"), "# Journal\n", "utf8");
+  fs.mkdirSync(path.join(root, mountPath, "private"), { recursive: true });
+  fs.writeFileSync(path.join(root, mountPath, "private", "vendor-ticket.txt"), "ticket\n", "utf8");
+}
+
+function knowledgeFrontmatter(options = {}) {
+  const {
+    title = "Operational observation",
+    recordType = "claim",
+    status = "active",
+    confidence = "high",
+    scope = "Observed in the production tenant",
+    lastValidated = "2026-07-25",
+    evidence = ["case:cases/case-one/journal.md"],
+    conflictsWith,
+    doNotInfer,
+    supersededBy,
+  } = options;
+  const lines = [
+    "---",
+    `title: \"${title}\"`,
+    `record-type: ${recordType}`,
+    `status: ${status}`,
+    `confidence: ${confidence}`,
+    `scope: \"${scope}\"`,
+    `last-validated: \"${lastValidated}\"`,
+    "evidence:",
+    ...evidence.map((item) => `  - ${item}`),
+  ];
+  if (conflictsWith !== undefined) {
+    lines.push("conflicts-with:", ...conflictsWith.map((item) => `  - ${item}`));
+  }
+  if (doNotInfer !== undefined) lines.push(`do-not-infer: \"${doNotInfer}\"`);
+  if (supersededBy !== undefined) lines.push(`superseded-by: ${supersededBy}`);
+  lines.push("---", "", "Record body.", "");
+  return lines.join("\n");
+}
+
+function writeKnowledgeRecord(root, relativePath, content = knowledgeFrontmatter(), mountPath = "_data") {
+  const target = path.join(root, mountPath, "knowledge", relativePath);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, content, "utf8");
+  return target;
+}
+
+function knowledgeErrors(root, mountPath = "_data") {
+  return checkDataContract(root, mountPath).errors;
+}
+
+function assertKnowledgeError(root, pattern, mountPath = "_data") {
+  assert.ok(
+    knowledgeErrors(root, mountPath).some((error) => pattern.test(error)),
+    `expected error matching ${pattern}`,
+  );
+}
+
 test("checkDataContract accepts an empty runtime mount with warnings", () => {
   const root = tempRepo();
   makeDataSkeleton(root);
@@ -205,4 +268,290 @@ test("checkDataContract treats populated directories as available", () => {
   assert.deepEqual(report.errors, []);
   assert.ok(!report.warnings.some((warning) => warning.includes("snapshot-backed reasoning unavailable")));
   assert.ok(!report.warnings.some((warning) => warning.includes("tenant schema hints unavailable")));
+});
+
+test("knowledge validation is silent when knowledge is absent or empty", () => {
+  const root = tempRepo();
+  makeDataSkeleton(root);
+  const absent = checkDataContract(root);
+
+  fs.mkdirSync(path.join(root, "_data", "knowledge"), { recursive: true });
+  const empty = checkDataContract(root);
+
+  assert.deepEqual(empty, absent);
+});
+
+test("a missing runtime mount retains the existing mount error without knowledge diagnostics", () => {
+  const root = tempRepo();
+  assert.deepEqual(checkDataContract(root).errors, ["_data/ directory is missing"]);
+});
+
+test("knowledge validation accepts valid claims, procedures, promoted records, and retired records", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  writeKnowledgeRecord(root, "zpa/claim.md", knowledgeFrontmatter({
+    evidence: [
+      "case:cases/case-one/journal.md",
+      "vendor-call",
+      "vendor-ticket:private/vendor-ticket.txt",
+      "vendor-email",
+      "public-doc:https://help.zscaler.com/zpa/browser-access",
+    ],
+    conflictsWith: ["references/zpa/browser-access.md"],
+    doNotInfer: "Do not generalize across tenants.",
+  }));
+  writeKnowledgeRecord(root, "shared/procedure.md", knowledgeFrontmatter({
+    recordType: "procedure",
+    confidence: "medium",
+    evidence: ["vendor-email:private/vendor-ticket.txt"],
+  }));
+  writeKnowledgeRecord(root, "zpa/promoted.md", knowledgeFrontmatter({
+    status: "promoted",
+    evidence: ["public-doc:https://help.zscaler.com/zpa/browser-access"],
+    supersededBy: "references/zpa/browser-access.md",
+  }));
+  writeKnowledgeRecord(root, "zpa/retired-with-successor.md", knowledgeFrontmatter({
+    status: "retired",
+    supersededBy: "references/zpa/browser-access.md",
+  }));
+  writeKnowledgeRecord(root, "zpa/retired-without-successor.md", knowledgeFrontmatter({ status: "retired" }));
+
+  assert.deepEqual(knowledgeErrors(root), []);
+});
+
+test("knowledge validation accepts CRLF flat frontmatter", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  writeKnowledgeRecord(root, "zpa/crlf.md", knowledgeFrontmatter().replaceAll("\n", "\r\n"));
+  assert.deepEqual(knowledgeErrors(root), []);
+});
+
+test("knowledge evidence resolves relative to a configured custom mount", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root, "tenant-data");
+  writeKnowledgeRecord(root, "zpa/claim.md", knowledgeFrontmatter(), "tenant-data");
+  assert.deepEqual(knowledgeErrors(root, "tenant-data"), []);
+});
+
+test("knowledge validation rejects missing, unknown, duplicate, and non-flat fields", async (t) => {
+  const variants = [
+    ["missing required", knowledgeFrontmatter().replace('title: "Operational observation"\n', ""), /missing required frontmatter field: title/],
+    ["unknown field", knowledgeFrontmatter().replace("---\n\nRecord body", "mystery: value\n---\n\nRecord body"), /unknown frontmatter field: mystery/],
+    ["duplicate field", knowledgeFrontmatter().replace("record-type: claim\n", "record-type: claim\nrecord-type: claim\n"), /duplicate frontmatter field: record-type/],
+    ["nested mapping", knowledgeFrontmatter().replace("  - case:cases/case-one/journal.md", "  - kind: case\n    ref: cases/case-one/journal.md"), /unsupported frontmatter line: ref:/],
+    ["inline collection", knowledgeFrontmatter().replace("evidence:\n  - case:cases/case-one/journal.md", "evidence: [case:cases/case-one/journal.md]"), /inline collections are not supported/],
+    ["malformed inline map", knowledgeFrontmatter().replace('title: "Operational observation"', "title: {broken"), /inline collections are not supported/],
+    ["malformed inline list", knowledgeFrontmatter().replace('scope: "Observed in the production tenant"', "scope: [tenant"), /inline collections are not supported/],
+    ["block scalar", knowledgeFrontmatter().replace('scope: "Observed in the production tenant"', "scope: |"), /block scalar values are not supported/],
+    ["malformed double quote", knowledgeFrontmatter().replace('title: "Operational observation"', 'title: "Operational "observation"'), /malformed quoted scalar/],
+    ["malformed single quote", knowledgeFrontmatter().replace('title: "Operational observation"', "title: 'Operational 'observation'"), /malformed quoted scalar/],
+  ];
+
+  for (const [name, content, pattern] of variants) {
+    await t.test(name, () => {
+      const root = tempRepo();
+      makeKnowledgeFixture(root);
+      writeKnowledgeRecord(root, "zpa/invalid.md", content);
+      assertKnowledgeError(root, pattern);
+    });
+  }
+});
+
+test("knowledge validation rejects invalid field types and enum values", async (t) => {
+  const variants = [
+    ["numeric title", knowledgeFrontmatter().replace('title: "Operational observation"', "title: 42"), /title must be a string scalar/],
+    ["empty title", knowledgeFrontmatter().replace('title: "Operational observation"', 'title: ""'), /title must be a non-empty string scalar/],
+    ["list scope", knowledgeFrontmatter().replace('scope: "Observed in the production tenant"', "scope:\n  - tenant"), /scope must be a string scalar/],
+    ["blank scope", knowledgeFrontmatter().replace('scope: "Observed in the production tenant"', 'scope: "   "'), /scope must be a non-empty string scalar/],
+    ["scalar evidence", knowledgeFrontmatter().replace("evidence:\n  - case:cases/case-one/journal.md", "evidence: case:cases/case-one/journal.md"), /evidence must be a scalar list/],
+    ["non-string evidence item", knowledgeFrontmatter().replace("  - case:cases/case-one/journal.md", "  - 42"), /every evidence item must be a string scalar/],
+    ["record type enum", knowledgeFrontmatter().replace("record-type: claim", "record-type: observation"), /record-type must be one of/],
+    ["status enum", knowledgeFrontmatter().replace("status: active", "status: stale"), /status must be one of/],
+    ["confidence enum", knowledgeFrontmatter().replace("confidence: high", "confidence: certain"), /confidence must be one of/],
+    ["date format", knowledgeFrontmatter().replace('last-validated: "2026-07-25"', 'last-validated: "07/25/2026"'), /last-validated must match YYYY-MM-DD/],
+  ];
+
+  for (const [name, content, pattern] of variants) {
+    await t.test(name, () => {
+      const root = tempRepo();
+      makeKnowledgeFixture(root);
+      writeKnowledgeRecord(root, "zpa/invalid.md", content);
+      assertKnowledgeError(root, pattern);
+    });
+  }
+});
+
+test("knowledge validation requires a known product directory", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  writeKnowledgeRecord(root, "unknown-product/claim.md");
+  assertKnowledgeError(root, /first knowledge path component must be a known references\/ product or shared/);
+});
+
+test("knowledge validation reports an unavailable product taxonomy separately from the record", async (t) => {
+  for (const state of ["absent", "empty"]) {
+    await t.test(state, () => {
+      const root = tempRepo();
+      makeKnowledgeFixture(root);
+      fs.rmSync(path.join(root, "references"), { recursive: true, force: true });
+      if (state === "empty") fs.mkdirSync(path.join(root, "references", "_meta"), { recursive: true });
+      writeKnowledgeRecord(root, "zpa/claim.md");
+
+      const errors = knowledgeErrors(root);
+      assert.ok(
+        errors.some((error) => /product taxonomy unavailable; references\/ has no product directories/.test(error)),
+      );
+      assert.ok(!errors.some((error) => /first knowledge path component/.test(error)));
+    });
+  }
+});
+
+test("knowledge validation requires exactly product and slug path components", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  writeKnowledgeRecord(root, "zpa/nested/claim.md");
+  assertKnowledgeError(root, /knowledge record path must be knowledge\/<product>\/<slug>\.md/);
+});
+
+test("knowledge validation rejects invalid evidence kinds and ref cardinality", async (t) => {
+  const variants = [
+    ["empty evidence", knowledgeFrontmatter({ evidence: [] }), /evidence must be a non-empty scalar list/],
+    ["unknown kind", knowledgeFrontmatter({ evidence: ["chat-message"] }), /unknown evidence kind: chat-message/],
+    ["case ref required", knowledgeFrontmatter({ evidence: ["case"] }), /case evidence requires a ref/],
+    ["public-doc ref required", knowledgeFrontmatter({ evidence: ["public-doc"] }), /public-doc evidence requires a ref/],
+    ["empty optional ref", knowledgeFrontmatter({ evidence: ["vendor-call:"] }), /evidence ref must not be empty/],
+  ];
+
+  for (const [name, content, pattern] of variants) {
+    await t.test(name, () => {
+      const root = tempRepo();
+      makeKnowledgeFixture(root);
+      writeKnowledgeRecord(root, "zpa/invalid.md", content);
+      assertKnowledgeError(root, pattern);
+    });
+  }
+});
+
+test("knowledge validation enforces local evidence path boundaries", async (t) => {
+  const variants = [
+    ["missing", "case:cases/missing/journal.md", /does not resolve under the runtime mount/],
+    ["POSIX absolute", "case:/etc/passwd", /must be relative/],
+    ["Windows absolute", "case:C:\\Windows\\system.ini", /must be relative/],
+    ["traversal", "case:cases/../../outside.md", /must not contain '\.\.'/],
+  ];
+
+  for (const [name, evidence, pattern] of variants) {
+    await t.test(name, () => {
+      const root = tempRepo();
+      makeKnowledgeFixture(root);
+      writeKnowledgeRecord(root, "zpa/invalid.md", knowledgeFrontmatter({ evidence: [evidence] }));
+      assertKnowledgeError(root, pattern);
+    });
+  }
+});
+
+test("knowledge validation requires public-doc evidence to be a credential-free HTTPS URL", async (t) => {
+  const invalidRefs = [
+    "http://help.zscaler.com/zpa/browser-access",
+    "references/zpa/browser-access.md",
+    "https://",
+    "https://user:secret@help.zscaler.com/zpa/browser-access",
+  ];
+
+  for (const ref of invalidRefs) {
+    await t.test(ref, () => {
+      const root = tempRepo();
+      makeKnowledgeFixture(root);
+      writeKnowledgeRecord(root, "zpa/invalid.md", knowledgeFrontmatter({ evidence: [`public-doc:${ref}`] }));
+      assertKnowledgeError(root, /public-doc evidence ref must be a public https:\/\/ URL/);
+    });
+  }
+});
+
+test("knowledge validation rejects record and evidence symlinks and evidence escapes", async (t) => {
+  await t.test("record file symlink", () => {
+    const root = tempRepo();
+    makeKnowledgeFixture(root);
+    const source = path.join(root, "record.md");
+    fs.writeFileSync(source, knowledgeFrontmatter(), "utf8");
+    const link = path.join(root, "_data", "knowledge", "zpa", "linked.md");
+    fs.mkdirSync(path.dirname(link), { recursive: true });
+    fs.symlinkSync(source, link);
+    assertKnowledgeError(root, /knowledge records and directories must not be symlinks/);
+  });
+
+  await t.test("evidence file symlink inside mount", () => {
+    const root = tempRepo();
+    makeKnowledgeFixture(root);
+    fs.symlinkSync("case-one/journal.md", path.join(root, "_data", "cases", "linked-journal.md"));
+    writeKnowledgeRecord(root, "zpa/claim.md", knowledgeFrontmatter({ evidence: ["case:cases/linked-journal.md"] }));
+    assertKnowledgeError(root, /evidence ref must not traverse a symlink/);
+  });
+
+  await t.test("nested directory symlink escape", () => {
+    const root = tempRepo();
+    makeKnowledgeFixture(root);
+    const outside = path.join(root, "outside");
+    fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(outside, "evidence.txt"), "private\n", "utf8");
+    fs.symlinkSync(outside, path.join(root, "_data", "cases", "escape"));
+    writeKnowledgeRecord(root, "zpa/claim.md", knowledgeFrontmatter({ evidence: ["case:cases/escape/evidence.txt"] }));
+    const errors = knowledgeErrors(root);
+    assert.ok(errors.some((error) => /evidence ref must not traverse a symlink/.test(error)));
+    assert.ok(errors.some((error) => /evidence ref resolves outside the runtime mount/.test(error)));
+  });
+});
+
+test("knowledge validation rejects a symlinked knowledge directory", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  const outside = path.join(root, "outside-knowledge", "zpa");
+  fs.mkdirSync(outside, { recursive: true });
+  fs.writeFileSync(path.join(outside, "claim.md"), knowledgeFrontmatter(), "utf8");
+  fs.symlinkSync(path.dirname(outside), path.join(root, "_data", "knowledge"));
+  assertKnowledgeError(root, /knowledge\/.*must not be a symlink/);
+});
+
+test("knowledge validation rejects a broken symlink at the knowledge root", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  fs.symlinkSync(path.join(root, "gone"), path.join(root, "_data", "knowledge"));
+  assertKnowledgeError(root, /knowledge\/.*must not be a symlink/);
+});
+
+test("knowledge validation structurally validates conflicts-with", async (t) => {
+  const variants = [
+    ["missing", "references/zpa/missing.md", /conflicts-with does not resolve/],
+    ["outside references", "_data/cases/case-one/journal.md", /conflicts-with must resolve under references\//],
+    ["traversal", "references/zpa/../../outside.md", /conflicts-with must not contain '\.\.'/],
+  ];
+
+  for (const [name, target, pattern] of variants) {
+    await t.test(name, () => {
+      const root = tempRepo();
+      makeKnowledgeFixture(root);
+      writeKnowledgeRecord(root, "zpa/invalid.md", knowledgeFrontmatter({ conflictsWith: [target] }));
+      assertKnowledgeError(root, pattern);
+    });
+  }
+});
+
+test("knowledge validation enforces superseded-by status invariants", async (t) => {
+  const variants = [
+    ["promoted requires successor", { status: "promoted", evidence: ["public-doc:https://help.zscaler.com/zpa/browser-access"] }, /promoted records require superseded-by/],
+    ["promoted requires public evidence", { status: "promoted", supersededBy: "references/zpa/browser-access.md" }, /promoted records require public-doc evidence/],
+    ["active rejects successor", { supersededBy: "references/zpa/browser-access.md" }, /active records must not have superseded-by/],
+    ["procedure cannot be promoted", { recordType: "procedure", status: "promoted", evidence: ["public-doc:https://help.zscaler.com/zpa/browser-access"], supersededBy: "references/zpa/browser-access.md" }, /procedure records may not be promoted/],
+    ["successor must exist", { status: "retired", supersededBy: "references/zpa/missing.md" }, /superseded-by does not resolve/],
+    ["successor stays in references", { status: "retired", supersededBy: "_data/cases/case-one/journal.md" }, /superseded-by must resolve under references\//],
+  ];
+
+  for (const [name, options, pattern] of variants) {
+    await t.test(name, () => {
+      const root = tempRepo();
+      makeKnowledgeFixture(root);
+      writeKnowledgeRecord(root, "zpa/invalid.md", knowledgeFrontmatter(options));
+      assertKnowledgeError(root, pattern);
+    });
+  }
 });

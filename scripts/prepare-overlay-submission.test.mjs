@@ -41,6 +41,15 @@ function makeRootWithCase(mountPath = "_data") {
   return { root, caseDir };
 }
 
+function makeRootWithKnowledge(mountPath = "_data") {
+  const root = tempDir("zscaler-overlay-knowledge-");
+  const knowledgeDir = path.join(root, mountPath, "knowledge", "zpa");
+  fs.mkdirSync(knowledgeDir, { recursive: true });
+  const recordPath = path.join(knowledgeDir, "browser-access-cookie.md");
+  fs.writeFileSync(recordPath, "---\ntitle: Browser Access cookie\n---\n", "utf8");
+  return { root, recordPath };
+}
+
 function makeOverlayRepo() {
   const repo = tempDir("zscaler-overlay-repo-");
   git(repo, ["init", "-b", "main"]);
@@ -303,6 +312,25 @@ test("prepare-overlay-submission CLI merges shared policy with a private repo ta
   assert.match(output, /FILE: cases\/2026-05-18-example/);
 });
 
+test("prepare-overlay-submission accepts knowledge under the default allowed roots", () => {
+  const { root, recordPath } = makeRootWithKnowledge();
+  const overlay = makeOverlayRepo();
+
+  const output = runPrepareCommand([
+    "--root",
+    root,
+    "--repo-url",
+    overlay,
+    "--artifact",
+    path.relative(root, recordPath),
+    "--approve",
+    "--dry-run",
+  ]);
+
+  assert.match(output, /Status: dry-run/);
+  assert.match(output, /FILE: knowledge\/zpa\/browser-access-cookie\.md/);
+});
+
 test("prepare-overlay-submission rejects private repoUrl in shared runtime config", () => {
   const { root, caseDir } = makeRootWithCase();
   fs.writeFileSync(
@@ -414,6 +442,7 @@ test("runtimePathToOverlayPath maps runtime _data paths to overlay-root paths", 
   assert.equal(runtimePathToOverlayPath("_data/cases/example"), "cases/example");
   assert.equal(runtimePathToOverlayPath("_data/schemas/fields.json"), "schemas/fields.json");
   assert.equal(runtimePathToOverlayPath("_data/iac/main.tf"), "iac/main.tf");
+  assert.equal(runtimePathToOverlayPath("_data/knowledge/zpa/claim.md"), "knowledge/zpa/claim.md");
   assert.equal(runtimePathToOverlayPath("tenant-data/cases/example", "tenant-data"), "cases/example");
   assert.throws(() => runtimePathToOverlayPath("references/zpa/app-segments.md"), /must start with _data/);
   assert.throws(

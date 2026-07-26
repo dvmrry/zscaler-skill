@@ -2,13 +2,14 @@
 topic: "loading-discipline"
 title: "Loading discipline — stage announcements and context budgets"
 content-type: reference
-last-verified: "2026-06-18"
+last-verified: "2026-07-26"
 confidence: medium
 source-tier: practice
 sources:
   - "Internal UX practice — Cascade silent-think anti-pattern; long answer pauses without surfaced action read as stuck"
   - "Skill Creator progressive-disclosure guidance — keep core instructions lean, load detailed references only when needed"
   - "agents/siem-emission-discipline.md (parallel cross-cutting discipline pattern)"
+  - "docs/data-contract/knowledge.md (operational-knowledge loading and disclosure contract)"
 author-status: draft
 ---
 
@@ -61,15 +62,34 @@ artifact that can answer the current question, then stop.
    (the captured API contract, divergences, rosetta, and the `issue-routing`
    worklist) is reference-grade reconciliation data, not raw vendor source —
    search it like `references/**`, not like a vendor tree.
-5. **Treat `_data/` as tenant evidence, not reference background.** Search
+5. **Treat `_data/` as scoped evidence, not reference background.** Search
    `_data/snapshot/`, `_data/cases/`, or `_data/iac/` only when the question is
-   tenant-specific, case-specific, or deployment-specific.
+   tenant-specific, case-specific, or deployment-specific. Operational knowledge
+   follows the narrower v1 rule below.
 6. **One-pass answer budget.** For ad-hoc Q&A, aim for one primary reference
    plus one clarification check. Add more only when the user asks for a
    comparison, conflict, or cross-product behavior.
 7. **Record what mattered.** Procedural roles with artifacts should record the
    files actually used, not every file considered. Rejected broad searches do
    not belong in evidence ledgers.
+
+### Operational knowledge (v1)
+
+Ad-hoc Q&A and the investigator may perform a bounded read of operational
+knowledge under `<mount>/knowledge/`: search only product directories matching
+the question plus `shared/`, inspect frontmatter first, and load bodies only for
+relevant `active` records. Follow
+[`docs/data-contract/knowledge.md`](../docs/data-contract/knowledge.md) for the
+schema, applicability rules, and required answer-time disclosures.
+
+Missing runtime data, a missing `knowledge/` directory, or zero matches is
+silent. Do not warn, diagnose, or broaden the search. A malformed record is
+different: skip it and preserve an invalid-record diagnostic where the workflow
+has diagnostics or artifacts.
+
+This permission does not extend to architect, SOC, or retro in v1. Researcher
+and auditor have a hard exclusion and must never load `knowledge/`, including
+when a broad search or user-supplied scope would otherwise include it.
 
 **Safety boundaries are not budgeted.** A doc that prevents a harmful action —
 `agents/siem-emission-discipline.md` (tenant-data / SIEM emission rules) — is a

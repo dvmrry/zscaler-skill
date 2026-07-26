@@ -278,8 +278,10 @@ selected runtime config. Keep `repoUrl` in the ignored setup config; the helper
 rejects repository URLs in committed runtime configs.
 The overlay repository is treated as the runtime-data content root, so runtime
 paths are copied without the mount prefix (`_data/cases/foo` or
-`tenant-data/cases/foo` → `cases/foo`). If `runtimeData.mountPath` is set, the
-submission helper reads it automatically; otherwise pass `--mount-path`.
+`tenant-data/cases/foo` → `cases/foo`; `_data/knowledge/zpa/foo.md` →
+`knowledge/zpa/foo.md`). The default allowed roots are `cases`, `schemas`,
+`iac`, and `knowledge`. If `runtimeData.mountPath` is set, the submission helper
+reads it automatically; otherwise pass `--mount-path`.
 
 ## When to add a new script
 

@@ -311,15 +311,15 @@ test("runtimeDataMountSettings rejects a non-object runtimeData section", () => 
 
 test("normalizeAllowedRoots keeps valid _data roots and strips trailing slashes", () => {
   assert.deepEqual(
-    normalizeAllowedRoots(["_data/cases/", "_data/schemas", "_data/iac"]),
-    ["_data/cases", "_data/schemas", "_data/iac"],
+    normalizeAllowedRoots(["_data/cases/", "_data/schemas", "_data/iac", "_data/knowledge"]),
+    ["_data/cases", "_data/schemas", "_data/iac", "_data/knowledge"],
   );
 });
 
 test("normalizeAllowedRoots supports a configured runtime mount", () => {
   assert.deepEqual(
-    normalizeAllowedRoots(["cases/", "tenant-data/schemas"], "tenant-data"),
-    ["tenant-data/cases", "tenant-data/schemas"],
+    normalizeAllowedRoots(["cases/", "tenant-data/schemas", "knowledge"], "tenant-data"),
+    ["tenant-data/cases", "tenant-data/schemas", "tenant-data/knowledge"],
   );
 });
 

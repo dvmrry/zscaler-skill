@@ -15,6 +15,7 @@ sources:
   - "references/shared/siem-log-mapping.md"
   - "references/shared/splunk-queries.md"
   - "agents/tenant-schema-derivation.md"
+  - "docs/data-contract/knowledge.md"
 dependencies:
   - "harness.md"
   - "grounding/index.md"
@@ -54,6 +55,17 @@ Runtime-data path convention: examples use `_data/` as the default mount. If
 `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
 `runtimeData.mountPath`, substitute that configured mount path for `_data` in
 snapshot, case, schema, audit, and SOC-review paths.
+
+During Step 2, after product scope is known, check the matching
+`<mount>/knowledge/<product>/` directory plus `<mount>/knowledge/shared/` for a
+relevant active operational-knowledge record. Missing runtime data, a missing
+`knowledge/` directory, or zero matches is silent. Inspect frontmatter first
+and load only relevant `status: active` bodies. Before using a record, load
+[`../../docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md)
+and follow its Layer 3 attribution, scope, confidence, freshness, and inference
+disclosures. The record is the reusable distilled artifact; do not follow its
+evidence references into sibling cases unless the user independently made that
+case the operative directory.
 
 ## User framing — what to include for best results
 
@@ -347,7 +359,7 @@ Cross-cutting discipline docs and methodology supplements are listed as `depende
 - [`investigator/diagnostics/template.md`](./diagnostics/template.md) — authoring template for reusable diagnostics. **Load when:** creating or reviewing a verified diagnostic sequence; do not load for ordinary case grounding.
 - [`../siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, query plumbing, public/private boundary. **Required read** — loaded up front as the SIEM/tenant-data safety boundary, not deferred to emit time.
 - [`../tenant-schema-derivation.md`](../tenant-schema-derivation.md) — canonical-vs-tenant schema reconciliation recipes per SIEM. **Load when:** canonical schema and tenant SIEM fields disagree, or deriving tenant-specific field mappings.
-- [`../loading-discipline.md`](../loading-discipline.md) — stage-announcement contract for I/O-driven pauses. **Inline summary** (always applies; load full doc only if cadence drifts): announce I/O actions before doing them — one line, fixed vocab (`reading <path>`, `searching <dir>`, `querying <name>`, `composing answer`), no heartbeats, no announcements for trivial in-context answers.
+- [`../loading-discipline.md`](../loading-discipline.md) — stage-announcement and bounded operational-knowledge loading contract. **Inline summary** (always applies; load full doc if cadence drifts or before loading operational knowledge): announce I/O actions before doing them — one line, fixed vocab (`reading <path>`, `searching <dir>`, `querying <name>`, `composing answer`), no heartbeats, no announcements for trivial in-context answers.
 - [`../clarification-pattern.md`](../clarification-pattern.md) — closed-set clarification format. **Inline summary** (always applies; load full doc only if format drifts): one closed-set clarification per turn; bulleted multi-choice with `Other — specify` as the escape; use Claude Code's `AskUserQuestion` when available; never reshape investigation output to trigger native UI.
 
 ## Cross-links

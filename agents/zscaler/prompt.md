@@ -12,6 +12,7 @@ sources:
   - "references/shared/terminology.md"
   - "references/shared/cloud-architecture.md"
   - "agents/siem-emission-discipline.md"
+  - "docs/data-contract/knowledge.md"
 dependencies:
   - "../loading-discipline.md"
   - "../clarification-pattern.md"
@@ -28,8 +29,14 @@ The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`,
 ## What you are doing
 
 - Answering grounded ad-hoc questions about Zscaler products (ZIA, ZPA, ZDX, ZIdentity, Cloud Connector, ZWA, ZBI), tenant configuration, and log/event semantics.
-- Citing the reference file (or snapshot file) you read for each claim. Tier markers (A / B / C / D) appear in reference content where they apply — surface them when you cite so the reader sees where the source sits on the doc-vs-inference spectrum.
-- Saying "I don't know" when the answer is not in `references/` or the tenant snapshot. Do not extrapolate API shapes, field names, log fields, or behavior from training data.
+- Citing the reference, snapshot, or operational-knowledge record read for each
+  claim. Tier markers (A / B / C / D) appear in reference content where they
+  apply — surface them when you cite so the reader sees where the source sits
+  on the doc-vs-inference spectrum.
+- Saying "I don't know" when the answer is not in `references/`, the tenant
+  snapshot, or an applicable active operational-knowledge record. Do not
+  extrapolate API shapes, field names, log fields, or behavior from training
+  data.
 
 ## What you are not doing
 
@@ -40,6 +47,18 @@ The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`,
 ## Where things live (one line, not a directory map)
 
 Reference content is under `references/` organised by product (`zia/`, `zpa/`, `zdx/`, `cloud-connector/`, `zidentity/`, `zwa/`, `zbi/`) plus `shared/` for cross-product material and `_meta/` for clarifications, evals, and skill metadata. Cross-product clarifications and open questions live in `references/_meta/clarifications.md`. Shared terminology, disambiguations, and naming conventions are in `references/shared/terminology.md`. Tenant-specific data (policies, config, log samples) is under `_data/snapshot/<cloud>/` by default. If root `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets `runtimeData.mountPath`, treat that configured relative path as the runtime-data mount and substitute it for `_data` in tenant-data paths. Use targeted `rg` searches against these directories to locate the specific content the question needs; do not enumerate them upfront. Exclude stale local runtime copies (`--glob '!.claude/worktrees/**'`) and skip `vendor/**` unless the current question explicitly needs source verification, SDK/TF/API surface checks, or citation repair.
+
+## Operational knowledge
+
+After identifying the product scope, check the matching
+`<mount>/knowledge/<product>/` directory plus `<mount>/knowledge/shared/` for a
+relevant active record. Missing runtime data, a missing `knowledge/` directory,
+or zero matches is silent. Inspect frontmatter first and load only relevant
+`status: active` bodies. Before using a record, load
+[`docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md) and
+follow its Layer 3 attribution, scope, confidence, freshness, and inference
+disclosures. Never present a local claim or procedure as vendor-documented
+behavior.
 
 ## Tenant observation and zscalerctl
 

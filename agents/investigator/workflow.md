@@ -109,7 +109,8 @@ trigger applies:
 - `agents/investigator/methodology.md` — load when stuck, drifting, or preparing handoff.
 - `agents/investigator/diagnostics/template.md` — load only when authoring or reviewing a verified reusable diagnostic.
 - `agents/tenant-schema-derivation.md` — load when canonical-vs-tenant field mismatch appears.
-- `agents/loading-discipline.md` — load if stage-announcement cadence drifts.
+- `agents/loading-discipline.md` — load if stage-announcement cadence drifts or
+  before loading operational knowledge.
 - `agents/clarification-pattern.md` — load if clarification format drifts.
 
 ## New Case Entry

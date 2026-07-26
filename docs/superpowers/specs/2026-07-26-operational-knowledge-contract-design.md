@@ -92,10 +92,10 @@ do-not-infer: "Says nothing about behavior across microtenants."
 
 Frontmatter is **flat by design**: scalar fields and scalar lists only. The repository's frontmatter
 parser ([`scripts/check-workflow-metadata.mjs`](../../../scripts/check-workflow-metadata.mjs)) supports
-exactly that, and a nested mapping under a list item does not error — `- kind: case` is captured as the
-literal string `"kind: case"` and the following indented line becomes a top-level key. Silent
-mis-parsing is worse than a parse failure, so the schema stays within what the parser handles and the
-repository stays at zero runtime dependencies.
+exactly that. It captures a one-line mapping such as `- kind: case` as the literal scalar
+`"kind: case"`; additional indented mapping lines are unsupported rather than becoming a nested
+object. The schema stays within the parser's actual data model and keeps the repository at zero runtime
+dependencies.
 
 ### Fields
 
@@ -147,6 +147,9 @@ act recorded in `status`.
 ### `superseded-by` invariants
 
 - Required when `status: promoted`.
+- `status: promoted` also requires at least one valid `public-doc` evidence
+  entry; public evidence is what makes the record eligible for the explicit
+  human promotion decision.
 - Rejected when `status: active`.
 - Optional when `status: retired` — an observation may be disproven or superseded because a public
   reference now explains the authoritative behavior, and that pointer is worth keeping.
@@ -288,7 +291,9 @@ Added to `scripts/check-data-contract.mjs`:
 9. `superseded-by` invariants as specified above; the target resolves under `references/`.
 
 `knowledge/` is **not** added to `DATA_REQUIRED_DIRS`. Its absence is a silent pass, and the checker
-emits no warning for an unpopulated mount.
+emits no warning merely because the optional directory is absent. The existing setup contract remains
+unchanged: a missing runtime-data mount itself is an error when `check-data-contract.mjs` is invoked,
+even though answer-time workflow loading treats unavailable runtime data as a silent no-op.
 
 ## Overlay submission
 
@@ -322,8 +327,10 @@ hold a real record:
 - absolute path and `..` traversal in `ref`
 - record file that is a symlink; evidence `ref` that is a symlink; nested symlink escaping the mount
 - `conflicts-with` path that does not resolve under `references/`
-- `promoted` without `superseded-by`; `active` with `superseded-by`; `procedure` with `promoted`
-- absent mount, absent `knowledge/`, empty `knowledge/` — each a silent pass
+- `promoted` without `superseded-by`; `promoted` without `public-doc`; `active`
+  with `superseded-by`; `procedure` with `promoted`
+- absent `knowledge/` and empty `knowledge/` — each a silent pass; absent runtime-data mount retains
+  the checker's existing setup error
 
 ## Files changed
 
@@ -334,6 +341,11 @@ hold a real record:
 | `scripts/check-data-contract.mjs` | new validator; `knowledge/` stays optional |
 | `scripts/check-data-contract.test.mjs` | fixtures above |
 | `scripts/prepare-overlay-submission.mjs` | `knowledge` in `DEFAULT_OVERLAY_ROOTS` |
+| `scripts/prepare-overlay-submission.test.mjs` | default-root submission coverage for knowledge records |
+| `scripts/lib.mjs`, `scripts/lib.test.mjs` | accept mount-relative `knowledge` in configured allowed roots |
+| `scripts/README.md`, `agents/setup/prompt.md` | document knowledge as a selectable overlay artifact |
 | `agents/loading-discipline.md` | loading rule, linking to `knowledge.md` for answer-time behavior |
+| `agents/zscaler/{prompt,workflow}.md`, `agents/investigator/{prompt,workflow}.md` | make the v1 reader trigger discoverable from required workflow content |
+| `agents/investigator/{case-intake,harness}.md` | authorize bounded knowledge discovery through the existing Step 2 checkpoint/load gate |
 | `agents/researcher/*`, `agents/auditor/*` | explicit exclusion statement only — no new modes |
 | `references/_meta/layering-model.md` | Layer 3 now has a structured home |

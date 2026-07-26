@@ -14,6 +14,7 @@ sources:
   - agents/auditor/diff-readiness.md
   - agents/declared-records.md
   - scripts/auditor-artifacts.mjs
+  - docs/data-contract/knowledge.md
 author-status: reviewed
 summary: Evidence-based reference, diff, and release-readiness audit
 primary-command: /z-auditor
@@ -60,6 +61,13 @@ analysis.
 
 Do not edit files during an audit unless the user explicitly changes the task
 from review to implementation.
+
+## Operational-knowledge exclusion
+
+Never load or search `<mount>/knowledge/` during an auditor run, including a
+broad repository audit, diff audit, or user-supplied scope that would otherwise
+include it. Overlay-knowledge auditing is not a v1 auditor mode. Report the
+directory as excluded from scope without inspecting its names or contents.
 
 Supporting scripts: `scripts/check-hygiene.py`, `scripts/check-fast.mjs`,
 `scripts/check-release-state.mjs`, `scripts/check-verified-against.py`,

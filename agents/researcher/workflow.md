@@ -4,7 +4,7 @@ title: Zscaler Researcher
 role: researcher
 artifact: workflow
 content-type: reference
-last-verified: "2026-07-15"
+last-verified: "2026-07-26"
 confidence: medium
 sources:
   - agents/researcher/prompt.md
@@ -13,6 +13,7 @@ sources:
   - agents/researcher/verifier.md
   - agents/declared-records.md
   - scripts/prepare-overlay-submission.mjs
+  - docs/data-contract/knowledge.md
 author-status: reviewed
 summary: Citation-backed reference expansion workflow
 primary-command: /z-researcher
@@ -45,6 +46,14 @@ Use this workflow to expand reference docs from source material. Follow the
 parse, extract, write, and verify checkpoints in `agents/researcher/prompt.md`.
 The checkpoints are audit/attestation gates, not helper-enforced structural
 gates.
+
+## Operational-knowledge exclusion
+
+Never load or search `<mount>/knowledge/` during a researcher run, even when a
+broad search or user-supplied scope would include it. Researcher output is
+upstream-bound; private operational records, their evidence, and overlay paths
+must not enter reference prose. A human may instead provide a brief authored
+from a public source, which is evaluated like any other public input.
 
 Supporting scripts:
 
