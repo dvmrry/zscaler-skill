@@ -54,6 +54,8 @@ broad search or user-supplied scope would include it. Researcher output is
 upstream-bound; private operational records, their evidence, and overlay paths
 must not enter reference prose. A human may instead provide a brief authored
 from a public source, which is evaluated like any other public input.
+The public `docs/data-contract/knowledge.md` contract may be read as workflow
+policy; this exclusion applies to private records under the runtime-data mount.
 
 Supporting scripts:
 

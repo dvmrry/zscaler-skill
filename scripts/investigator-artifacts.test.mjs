@@ -1886,7 +1886,7 @@ test("loadsStatus blocks deferred entry missing reason", () => {
   assert.ok(result.blockingIssues.some((i) => i.includes("missing reason")));
 });
 
-test("loadsStatus blocks additional loads without allow-additional flag", () => {
+test("loadsStatus blocks additional loads without bounded or exact approval", () => {
   const root = tempRepo();
   const proposedLoads = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
   const loaded = [
@@ -1896,10 +1896,10 @@ test("loadsStatus blocks additional loads without allow-additional flag", () => 
   ];
   const result = loadsStatus(root, proposedLoads, loaded, [], false);
   assert.equal(result.status, "blocked");
-  assert.ok(result.blockingIssues.some((i) => i.includes("--allow-additional")));
+  assert.ok(result.blockingIssues.some((i) => i.includes("--approved-additional")));
 });
 
-test("loadsStatus passes with additional loads when allow-additional is true", () => {
+test("loadsStatus passes a non-runtime additional load only with exact approval", () => {
   const root = tempRepo();
   const proposedLoads = ["agents/investigator/prompt.md", "agents/investigator/harness.md"];
   const loaded = [
@@ -1907,7 +1907,9 @@ test("loadsStatus passes with additional loads when allow-additional is true", (
     "agents/investigator/harness.md",
     "agents/investigator/grounding/zpa-segment-matching.md",
   ];
-  const result = loadsStatus(root, proposedLoads, loaded, [], true);
+  const result = loadsStatus(root, proposedLoads, loaded, [], false, {
+    approvedAdditionalPaths: new Set(["agents/investigator/grounding/zpa-segment-matching.md"]),
+  });
   assert.equal(result.status, "pass");
   assert.deepEqual(result.additionalLoads, ["agents/investigator/grounding/zpa-segment-matching.md"]);
 });
@@ -2018,7 +2020,7 @@ test("recordLoads refuses to overwrite without --force", () => {
   assert.equal(forced.status, "pass");
 });
 
-test("recordLoads records additional loads and additionalApproved flag", () => {
+test("recordLoads records an exactly approved additional load", () => {
   const root = tempRepo();
   const framingPath = writeJson(root, "framing.json", {
     workingDirectory: root,
@@ -2043,7 +2045,8 @@ test("recordLoads records additional loads and additionalApproved flag", () => {
       "agents/investigator/grounding/zpa-segment-matching.md",
     ],
     deferred: [],
-    allowAdditional: true,
+    allowAdditional: false,
+    approvedAdditional: ["agents/investigator/grounding/zpa-segment-matching.md"],
     force: false,
   });
 
@@ -2053,6 +2056,90 @@ test("recordLoads records additional loads and additionalApproved flag", () => {
   const artifact = JSON.parse(fs.readFileSync(result.loadsPath, "utf8"));
   assert.equal(artifact.additionalApproved, true);
   assert.deepEqual(artifact.additionalLoads, ["agents/investigator/grounding/zpa-segment-matching.md"]);
+  assert.deepEqual(artifact.approvedAdditionalPaths, ["agents/investigator/grounding/zpa-segment-matching.md"]);
+});
+
+test("recordLoads blocks a sibling case even when bounded additions are allowed", () => {
+  const root = tempRepo();
+  const caseSlug = "2026-05-17-bounded-sibling";
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug,
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  makeRepoFiles(root, ["_data/cases/other-case/journal.md"]);
+
+  const result = recordLoads({
+    root,
+    caseSlug,
+    loaded: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      "_data/cases/other-case/journal.md",
+    ],
+    deferred: [],
+    allowAdditional: true,
+    force: false,
+  });
+
+  assert.equal(result.status, "blocked");
+  assert.ok(result.blockingIssues.some((issue) => issue.includes("other-case/journal.md")));
+});
+
+test("recordLoads allows only the three bounded Step 2 runtime-data classes", () => {
+  const root = tempRepo();
+  const caseSlug = "2026-05-17-bounded-runtime";
+  const framingPath = writeJson(root, "framing.json", {
+    workingDirectory: root,
+    symptom: "ZPA users cannot reach wiki.internal",
+    tenantCloud: "zs2",
+    products: ["zpa", "Cloud Connector"],
+    scope: "many users",
+  });
+  openCase({
+    root,
+    caseSlug,
+    framingJson: framingPath,
+    proposedLoads: ["agents/investigator/prompt.md", "agents/investigator/harness.md"],
+  });
+  makeRepoFiles(root, [
+    "references/cloud-connector/index.md",
+    "_data/snapshot/zs2/zpa/application-segments.json",
+    "_data/knowledge/zpa/segment-behavior.md",
+    "_data/knowledge/cloud-connector/workload-behavior.md",
+    "_data/knowledge/shared/activation-lock.md",
+  ]);
+
+  const boundedLoads = [
+    `_data/cases/${caseSlug}/journal.md`,
+    "_data/snapshot/zs2/zpa/application-segments.json",
+    "_data/knowledge/zpa/segment-behavior.md",
+    "_data/knowledge/cloud-connector/workload-behavior.md",
+    "_data/knowledge/shared/activation-lock.md",
+  ];
+  const result = recordLoads({
+    root,
+    caseSlug,
+    loaded: [
+      "agents/investigator/prompt.md",
+      "agents/investigator/harness.md",
+      ...boundedLoads,
+    ],
+    deferred: [],
+    allowAdditional: true,
+    force: false,
+  });
+
+  assert.equal(result.status, "pass");
+  assert.deepEqual(result.additionalLoads, boundedLoads);
 });
 
 test("verifyLoads passes for a valid artifact", () => {
@@ -2688,6 +2775,7 @@ test("capabilities includes new operations and options", () => {
   assert.ok(result.supportedOptions["record-loads"].includes("--loaded"));
   assert.ok(result.supportedOptions["record-loads"].includes("--deferred"));
   assert.ok(result.supportedOptions["record-loads"].includes("--allow-additional"));
+  assert.ok(result.supportedOptions["record-loads"].includes("--approved-additional"));
   assert.ok(result.supportedOptions["record-loads"].includes("--force"));
 });
 

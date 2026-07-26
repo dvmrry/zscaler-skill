@@ -250,13 +250,14 @@ node scripts/investigator-artifacts.mjs record-loads \
   --deferred <path>=<reason-for-deferral>
 ```
 
-Pass `--allow-additional` only when the user has explicitly approved loading
-paths or a bounded runtime-data class not present in
-`case-intake.json proposedLoads`. The Checkpoint 1 `Proceed` choice approves
-the selected snapshot, operative-evidence, and matching-product/shared
-operational-knowledge entry points named by Step 2; document each reason in the
-Step 2 output. Any other additional load needs separate approval. Pass `--force`
-only if rerunning after a correction.
+Pass `--allow-additional` only for the bounded runtime-data classes approved by
+the Checkpoint 1 `Proceed` choice: selected snapshot files, the operative case,
+and matching-product/shared operational knowledge. The helper validates those
+prefixes and rejects sibling cases or non-matching product knowledge. For any
+other path the user approves explicitly, pass that exact path with
+`--approved-additional <path>`; the generic flag is not a waiver. Document each
+additional-load reason in the Step 2 output. Pass `--force` only if rerunning
+after a correction.
 
 Only after the helper exits 0 emit:
 `**Loads recorded:** <working-dir>/_data/cases/<slug>/workflow/01-loads.json`

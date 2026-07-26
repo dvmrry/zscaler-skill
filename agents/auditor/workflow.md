@@ -68,6 +68,8 @@ Never load or search `<mount>/knowledge/` during an auditor run, including a
 broad repository audit, diff audit, or user-supplied scope that would otherwise
 include it. Overlay-knowledge auditing is not a v1 auditor mode. Report the
 directory as excluded from scope without inspecting its names or contents.
+The public `docs/data-contract/knowledge.md` contract may be read as workflow
+policy; this exclusion applies to private records under the runtime-data mount.
 
 Supporting scripts: `scripts/check-hygiene.py`, `scripts/check-fast.mjs`,
 `scripts/check-release-state.mjs`, `scripts/check-verified-against.py`,

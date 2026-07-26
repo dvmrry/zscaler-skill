@@ -320,10 +320,12 @@ hold a real record:
 - out-of-enum `record-type`, `status`, `confidence`; wrong-type values for scalar fields
 - malformed `last-validated`
 - unknown product directory
+- unavailable product taxonomy, while `shared` remains independently valid
 - nested mapping in frontmatter (the silent mis-parse case) — must be a finding
 - empty `evidence`; unknown `evidence` kind
 - `case` evidence whose `ref` does not resolve
 - `public-doc` evidence with a non-`https://` ref
+- `public-doc` evidence using a loopback, private, dotless, or internal host
 - absolute path and `..` traversal in `ref`
 - record file that is a symlink; evidence `ref` that is a symlink; nested symlink escaping the mount
 - `conflicts-with` path that does not resolve under `references/`
@@ -331,6 +333,8 @@ hold a real record:
   with `superseded-by`; `procedure` with `promoted`
 - absent `knowledge/` and empty `knowledge/` — each a silent pass; absent runtime-data mount retains
   the checker's existing setup error
+- `README.md` and `.gitkeep` skeleton markers — silent at the root and product levels
+- unsupported record extensions, directory refs, `__proto__`, NUL bytes, and CLI nonzero exit
 
 ## Files changed
 
@@ -340,6 +344,8 @@ hold a real record:
 | `docs/data-contract/README.md` | document `knowledge` in the `allowedRoots` default |
 | `scripts/check-data-contract.mjs` | new validator; `knowledge/` stays optional |
 | `scripts/check-data-contract.test.mjs` | fixtures above |
+| `scripts/investigator-artifacts.mjs`, `scripts/investigator-artifacts.test.mjs` | enforce the bounded Step 2 runtime-data classes and exact approval for any other added load |
+| `scripts/auditor-artifacts.mjs`, `scripts/auditor-artifacts.test.mjs` | reject private knowledge paths as auditor finding sources |
 | `scripts/prepare-overlay-submission.mjs` | `knowledge` in `DEFAULT_OVERLAY_ROOTS` |
 | `scripts/prepare-overlay-submission.test.mjs` | default-root submission coverage for knowledge records |
 | `scripts/lib.mjs`, `scripts/lib.test.mjs` | accept mount-relative `knowledge` in configured allowed roots |

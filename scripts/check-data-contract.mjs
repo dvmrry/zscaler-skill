@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import net from "node:net";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -225,7 +226,7 @@ function parseKnowledgeFrontmatter(filePath, root, errors) {
     return null;
   }
 
-  const data = {};
+  const data = Object.create(null);
   let currentList = null;
   const lines = match[1].split(/\r?\n/);
   for (let index = 0; index < lines.length; index += 1) {
@@ -331,6 +332,9 @@ function validateMountReference(value, owner, field, mountDir, errors) {
     errors.push(`${owner}: ${field} does not resolve under the runtime mount: ${value}`);
     return;
   }
+  if (!fs.statSync(target).isFile()) {
+    errors.push(`${owner}: ${field} must resolve to a file: ${value}`);
+  }
 
   const mountRealpath = fs.realpathSync(mountDir);
   const targetRealpath = fs.realpathSync(target);
@@ -353,6 +357,9 @@ function validateReferencePath(value, owner, field, root, errors) {
     errors.push(`${owner}: ${field} does not resolve: ${value}`);
     return;
   }
+  if (!fs.statSync(target).isFile()) {
+    errors.push(`${owner}: ${field} must resolve to a file: ${value}`);
+  }
   if (!fs.existsSync(referencesDir)) {
     errors.push(`${owner}: references/ directory is missing`);
     return;
@@ -365,10 +372,63 @@ function validateReferencePath(value, owner, field, root, errors) {
   }
 }
 
+function isNonPublicIpAddress(hostname) {
+  const unwrapped = hostname.startsWith("[") && hostname.endsWith("]")
+    ? hostname.slice(1, -1)
+    : hostname;
+  const family = net.isIP(unwrapped);
+  if (family === 4) {
+    const [a, b] = unwrapped.split(".").map(Number);
+    return a === 0
+      || a === 10
+      || a === 127
+      || (a === 169 && b === 254)
+      || (a === 172 && b >= 16 && b <= 31)
+      || (a === 192 && b === 168);
+  }
+  if (family === 6) {
+    const normalized = unwrapped.toLowerCase();
+    if (normalized === "::" || normalized === "::1") return true;
+    if (normalized.startsWith("::ffff:")) {
+      const words = normalized.slice("::ffff:".length).split(":");
+      if (words.length === 2) {
+        const high = Number.parseInt(words[0], 16);
+        const low = Number.parseInt(words[1], 16);
+        if (Number.isInteger(high) && Number.isInteger(low)) {
+          const mapped = `${high >>> 8}.${high & 0xff}.${low >>> 8}.${low & 0xff}`;
+          return isNonPublicIpAddress(mapped);
+        }
+      }
+    }
+    const first = Number.parseInt(normalized.split(":", 1)[0] || "0", 16);
+    return (first & 0xfe00) === 0xfc00 || (first & 0xffc0) === 0xfe80;
+  }
+  return false;
+}
+
 function validatePublicDoc(value, owner, errors) {
   try {
     const url = new URL(value);
-    if (url.protocol !== "https:" || url.hostname === "" || url.username !== "" || url.password !== "") {
+    const hostname = url.hostname.toLowerCase();
+    const hostnameWithoutTrailingDot = hostname.replace(/\.$/, "");
+    const unwrappedHostname = hostnameWithoutTrailingDot.startsWith("[")
+      && hostnameWithoutTrailingDot.endsWith("]")
+      ? hostnameWithoutTrailingDot.slice(1, -1)
+      : hostnameWithoutTrailingDot;
+    const isIpAddress = net.isIP(unwrappedHostname) !== 0;
+    const isLocalName = hostnameWithoutTrailingDot === "localhost"
+      || hostnameWithoutTrailingDot.endsWith(".localhost")
+      || hostnameWithoutTrailingDot.endsWith(".internal")
+      || hostnameWithoutTrailingDot.endsWith(".local");
+    if (
+      url.protocol !== "https:"
+      || hostname === ""
+      || url.username !== ""
+      || url.password !== ""
+      || (!isIpAddress && !hostnameWithoutTrailingDot.includes("."))
+      || isLocalName
+      || isNonPublicIpAddress(hostnameWithoutTrailingDot)
+    ) {
       throw new Error("not a public HTTPS URL");
     }
   } catch {
@@ -411,10 +471,12 @@ function knownKnowledgeProducts(root) {
   if (!fs.existsSync(referencesDir) || !fs.statSync(referencesDir).isDirectory()) return null;
   const products = new Set(
     fs.readdirSync(referencesDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory() && entry.name !== "_meta")
+      .filter((entry) => entry.isDirectory() && entry.name !== "_meta" && entry.name !== "shared")
       .map((entry) => entry.name),
   );
-  return products.size === 0 ? null : products;
+  if (products.size === 0) return null;
+  products.add("shared");
+  return products;
 }
 
 function knowledgeRecordFiles(knowledgeDir, root, errors) {
@@ -426,10 +488,17 @@ function knowledgeRecordFiles(knowledgeDir, root, errors) {
         errors.push(`${relativeDisplay(root, target)}: knowledge records and directories must not be symlinks`);
         continue;
       }
+      if (DATA_SKELETON_FILES.has(entry.name)) continue;
       if (entry.isDirectory()) {
         visit(target);
-      } else if (entry.isFile() && entry.name.endsWith(".md")) {
-        files.push(target);
+      } else if (entry.isFile()) {
+        if (/\.md$/i.test(entry.name)) {
+          files.push(target);
+        } else {
+          errors.push(
+            `${relativeDisplay(root, target)}: unsupported knowledge file extension; records must use .md`,
+          );
+        }
       }
     }
   }
@@ -444,7 +513,7 @@ function validateKnowledgeRecord(filePath, root, mountDir, knowledgeDir, product
   if (parts.length !== 2) {
     errors.push(`${owner}: knowledge record path must be knowledge/<product>/<slug>.md`);
   }
-  if (products && !products.has(parts[0])) {
+  if (parts[0] !== "shared" && products && !products.has(parts[0])) {
     errors.push(`${owner}: first knowledge path component must be a known references/ product or shared`);
   }
 
@@ -544,7 +613,11 @@ function validateKnowledge(root, mountDir, errors) {
   if (files.length === 0) return;
 
   const products = knownKnowledgeProducts(root);
-  if (!products) {
+  const needsProductTaxonomy = files.some((filePath) => {
+    const relativeRecord = path.relative(knowledgeDir, filePath);
+    return relativeRecord.split(path.sep)[0] !== "shared";
+  });
+  if (!products && needsProductTaxonomy) {
     errors.push(
       `${relativeDisplay(root, knowledgeDir)}: product taxonomy unavailable; references/ has no product directories`,
     );

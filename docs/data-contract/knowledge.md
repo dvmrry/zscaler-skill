@@ -25,7 +25,10 @@ Store one Markdown record per file:
 
 The first directory component is the product. It must match a product directory
 under `references/`, excluding `_meta`; `shared` is also valid. The filename is
-the record identifier. Do not duplicate either value in frontmatter.
+the record identifier. Record extensions are matched case-insensitively as
+`.md`; other regular files are invalid. `README.md` and `.gitkeep` are ignored
+as structural markers at any level. Do not duplicate the product or identifier
+in frontmatter.
 
 ## Record format
 
@@ -64,11 +67,11 @@ do-not-infer: "Says nothing about behavior across microtenants."
 | `status` | yes | `active`, `promoted`, or `retired` |
 | `confidence` | yes | `high`, `medium`, or `low` |
 | `scope` | yes | non-empty, human-readable applicability statement |
-| `last-validated` | yes | date in `YYYY-MM-DD` form |
+| `last-validated` | yes | string in `YYYY-MM-DD` form; format-only validation does not prove it is a real calendar date |
 | `evidence` | yes | non-empty list of evidence entries described below |
-| `conflicts-with` | no | list of repository-relative paths beneath `references/` |
-| `do-not-infer` | no | boundary statement emitted verbatim when used |
-| `superseded-by` | conditional | repository-relative path beneath `references/` |
+| `conflicts-with` | no | list of repository-relative file paths beneath `references/` |
+| `do-not-infer` | no | boundary statement emitted verbatim when used; omit it rather than storing an empty string |
+| `superseded-by` | conditional | repository-relative file path beneath `references/` |
 
 Unknown fields are invalid. Put dates, participants, quotations, qualifications,
 and relationship explanations in the Markdown body rather than inventing more
@@ -83,16 +86,20 @@ colon and reference:
   `cases/2026-07-20-ba-session-drop/journal.md`.
 - `vendor-call`, `vendor-ticket`, and `vendor-email` may be bare or may carry a
   mount-relative reference.
-- `public-doc:ref` requires a public `https://` URL. A repository path does not
-  qualify as public evidence.
+- `public-doc:ref` requires a public `https://` URL. Loopback, private or
+  link-local IP literals, dotless hosts, and local/internal hostnames do not
+  qualify. A repository path does not qualify as public evidence.
 
-Local references must exist when the mount is present. Absolute filesystem
-paths, traversal with `..`, symlinks, and paths whose resolved target escapes
-the runtime-data mount are invalid. Record files themselves must not be
-symlinks. A `public-doc` entry makes a claim eligible for human promotion; it
-does not promote the record automatically.
+Local references must resolve to files when the mount is present. Absolute
+filesystem paths, traversal with `..`, symlinks, and paths whose resolved target
+escapes the runtime-data mount are invalid. Record files themselves must not be
+symlinks. These are lint-time path checks, not a runtime sandbox: the validator
+does not read evidence targets, and filesystem hardlinks are indistinguishable
+from ordinary in-mount files. Revalidate after changing the mount. A
+`public-doc` entry makes a claim eligible for human promotion; it does not
+promote the record automatically.
 
-`conflicts-with` targets are structurally checked beneath `references/`. The
+`conflicts-with` targets are structurally checked as files beneath `references/`. The
 record body explains whether the operational knowledge narrows or contradicts
 the cited reference. Before activation, the author confirms that an absent
 `conflicts-with` list means no related contradiction was found.

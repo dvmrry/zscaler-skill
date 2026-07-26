@@ -281,6 +281,18 @@ test("knowledge validation is silent when knowledge is absent or empty", () => {
   assert.deepEqual(empty, absent);
 });
 
+test("knowledge validation ignores skeleton markers at the root and product levels", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  fs.mkdirSync(path.join(root, "_data", "knowledge", "zpa"), { recursive: true });
+  fs.writeFileSync(path.join(root, "_data", "knowledge", "README.md"), "# Local knowledge\n", "utf8");
+  fs.writeFileSync(path.join(root, "_data", "knowledge", ".gitkeep"), "", "utf8");
+  fs.writeFileSync(path.join(root, "_data", "knowledge", "zpa", "README.md"), "# ZPA records\n", "utf8");
+  fs.writeFileSync(path.join(root, "_data", "knowledge", "zpa", ".gitkeep"), "", "utf8");
+
+  assert.deepEqual(knowledgeErrors(root), []);
+});
+
 test("a missing runtime mount retains the existing mount error without knowledge diagnostics", () => {
   const root = tempRepo();
   assert.deepEqual(checkDataContract(root).errors, ["_data/ directory is missing"]);
@@ -326,6 +338,18 @@ test("knowledge validation accepts CRLF flat frontmatter", () => {
   assert.deepEqual(knowledgeErrors(root), []);
 });
 
+test("knowledge validation treats shared as valid without a references taxonomy", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  fs.rmSync(path.join(root, "references"), { recursive: true, force: true });
+  writeKnowledgeRecord(root, "shared/procedure.md", knowledgeFrontmatter({
+    recordType: "procedure",
+    evidence: ["vendor-call"],
+  }));
+
+  assert.deepEqual(knowledgeErrors(root), []);
+});
+
 test("knowledge evidence resolves relative to a configured custom mount", () => {
   const root = tempRepo();
   makeKnowledgeFixture(root, "tenant-data");
@@ -339,12 +363,15 @@ test("knowledge validation rejects missing, unknown, duplicate, and non-flat fie
     ["unknown field", knowledgeFrontmatter().replace("---\n\nRecord body", "mystery: value\n---\n\nRecord body"), /unknown frontmatter field: mystery/],
     ["duplicate field", knowledgeFrontmatter().replace("record-type: claim\n", "record-type: claim\nrecord-type: claim\n"), /duplicate frontmatter field: record-type/],
     ["nested mapping", knowledgeFrontmatter().replace("  - case:cases/case-one/journal.md", "  - kind: case\n    ref: cases/case-one/journal.md"), /unsupported frontmatter line: ref:/],
+    ["list item without field", knowledgeFrontmatter().replace('title: "Operational observation"', '  - orphan\ntitle: "Operational observation"'), /list item without a list field/],
     ["inline collection", knowledgeFrontmatter().replace("evidence:\n  - case:cases/case-one/journal.md", "evidence: [case:cases/case-one/journal.md]"), /inline collections are not supported/],
     ["malformed inline map", knowledgeFrontmatter().replace('title: "Operational observation"', "title: {broken"), /inline collections are not supported/],
     ["malformed inline list", knowledgeFrontmatter().replace('scope: "Observed in the production tenant"', "scope: [tenant"), /inline collections are not supported/],
     ["block scalar", knowledgeFrontmatter().replace('scope: "Observed in the production tenant"', "scope: |"), /block scalar values are not supported/],
     ["malformed double quote", knowledgeFrontmatter().replace('title: "Operational observation"', 'title: "Operational "observation"'), /malformed quoted scalar/],
     ["malformed single quote", knowledgeFrontmatter().replace('title: "Operational observation"', "title: 'Operational 'observation'"), /malformed quoted scalar/],
+    ["prototype field", knowledgeFrontmatter().replace("---\n\nRecord body", "__proto__: smuggled\n---\n\nRecord body"), /unknown frontmatter field: __proto__/],
+    ["duplicate prototype field", knowledgeFrontmatter().replace("---\n\nRecord body", "__proto__: one\n__proto__: two\n---\n\nRecord body"), /duplicate frontmatter field: __proto__/],
   ];
 
   for (const [name, content, pattern] of variants) {
@@ -363,8 +390,15 @@ test("knowledge validation rejects invalid field types and enum values", async (
     ["empty title", knowledgeFrontmatter().replace('title: "Operational observation"', 'title: ""'), /title must be a non-empty string scalar/],
     ["list scope", knowledgeFrontmatter().replace('scope: "Observed in the production tenant"', "scope:\n  - tenant"), /scope must be a string scalar/],
     ["blank scope", knowledgeFrontmatter().replace('scope: "Observed in the production tenant"', 'scope: "   "'), /scope must be a non-empty string scalar/],
+    ["numeric record type", knowledgeFrontmatter().replace("record-type: claim", "record-type: 42"), /record-type must be a string scalar/],
+    ["numeric status", knowledgeFrontmatter().replace("status: active", "status: 42"), /status must be a string scalar/],
+    ["numeric confidence", knowledgeFrontmatter().replace("confidence: high", "confidence: 42"), /confidence must be a string scalar/],
+    ["numeric validation date", knowledgeFrontmatter().replace('last-validated: "2026-07-25"', "last-validated: 42"), /last-validated must be a string scalar/],
+    ["numeric inference guard", knowledgeFrontmatter({ doNotInfer: "guard" }).replace('do-not-infer: "guard"', "do-not-infer: 42"), /do-not-infer must be a string scalar/],
+    ["numeric successor", knowledgeFrontmatter({ status: "retired", supersededBy: "references/zpa/browser-access.md" }).replace("superseded-by: references/zpa/browser-access.md", "superseded-by: 42"), /superseded-by must be a string scalar/],
     ["scalar evidence", knowledgeFrontmatter().replace("evidence:\n  - case:cases/case-one/journal.md", "evidence: case:cases/case-one/journal.md"), /evidence must be a scalar list/],
     ["non-string evidence item", knowledgeFrontmatter().replace("  - case:cases/case-one/journal.md", "  - 42"), /every evidence item must be a string scalar/],
+    ["non-string conflict item", knowledgeFrontmatter({ conflictsWith: ["42"] }), /every conflicts-with item must be a string scalar/],
     ["record type enum", knowledgeFrontmatter().replace("record-type: claim", "record-type: observation"), /record-type must be one of/],
     ["status enum", knowledgeFrontmatter().replace("status: active", "status: stale"), /status must be one of/],
     ["confidence enum", knowledgeFrontmatter().replace("confidence: high", "confidence: certain"), /confidence must be one of/],
@@ -413,6 +447,26 @@ test("knowledge validation requires exactly product and slug path components", (
   assertKnowledgeError(root, /knowledge record path must be knowledge\/<product>\/<slug>\.md/);
 });
 
+test("knowledge validation accepts case-insensitive .md and rejects unsupported record extensions", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  writeKnowledgeRecord(root, "zpa/claim.MD");
+  const unsupported = path.join(root, "_data", "knowledge", "zpa", "claim.markdown");
+  fs.writeFileSync(unsupported, knowledgeFrontmatter(), "utf8");
+
+  assertKnowledgeError(root, /unsupported knowledge file extension; records must use \.md/);
+  fs.rmSync(unsupported);
+  assert.deepEqual(knowledgeErrors(root), []);
+});
+
+test("knowledge validation requires knowledge to be a directory when present", () => {
+  const root = tempRepo();
+  makeDataSkeleton(root);
+  fs.writeFileSync(path.join(root, "_data", "knowledge"), "not a directory\n", "utf8");
+
+  assertKnowledgeError(root, /knowledge\/ must be a directory when present/);
+});
+
 test("knowledge validation rejects invalid evidence kinds and ref cardinality", async (t) => {
   const variants = [
     ["empty evidence", knowledgeFrontmatter({ evidence: [] }), /evidence must be a non-empty scalar list/],
@@ -438,6 +492,8 @@ test("knowledge validation enforces local evidence path boundaries", async (t) =
     ["POSIX absolute", "case:/etc/passwd", /must be relative/],
     ["Windows absolute", "case:C:\\Windows\\system.ini", /must be relative/],
     ["traversal", "case:cases/../../outside.md", /must not contain '\.\.'/],
+    ["NUL byte", "case:cases/\0journal.md", /contains a NUL byte/],
+    ["directory", "case:cases/case-one", /must resolve to a file/],
   ];
 
   for (const [name, evidence, pattern] of variants) {
@@ -456,6 +512,16 @@ test("knowledge validation requires public-doc evidence to be a credential-free 
     "references/zpa/browser-access.md",
     "https://",
     "https://user:secret@help.zscaler.com/zpa/browser-access",
+    "https://localhost:8443/internal/notes",
+    "https://localhost./internal/notes",
+    "https://intranet/notes",
+    "https://wiki.internal/zpa-notes",
+    "https://10.1.2.3/doc",
+    "https://[::1]/doc",
+    "https://[::ffff:127.0.0.1]/doc",
+    "https://[::ffff:10.1.2.3]/doc",
+    "https://[fc00::1]/doc",
+    "https://[fe80::1]/doc",
   ];
 
   for (const ref of invalidRefs) {
@@ -524,6 +590,7 @@ test("knowledge validation structurally validates conflicts-with", async (t) => 
     ["missing", "references/zpa/missing.md", /conflicts-with does not resolve/],
     ["outside references", "_data/cases/case-one/journal.md", /conflicts-with must resolve under references\//],
     ["traversal", "references/zpa/../../outside.md", /conflicts-with must not contain '\.\.'/],
+    ["directory", "references/zpa", /conflicts-with must resolve to a file/],
   ];
 
   for (const [name, target, pattern] of variants) {
@@ -536,6 +603,21 @@ test("knowledge validation structurally validates conflicts-with", async (t) => 
   }
 });
 
+test("knowledge validation rejects reference targets whose realpath escapes references", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  const outside = path.join(root, "outside-reference.md");
+  fs.writeFileSync(outside, "# Outside\n", "utf8");
+  const target = path.join(root, "references", "zpa", "browser-access.md");
+  fs.rmSync(target);
+  fs.symlinkSync(outside, target);
+  writeKnowledgeRecord(root, "zpa/claim.md", knowledgeFrontmatter({
+    conflictsWith: ["references/zpa/browser-access.md"],
+  }));
+
+  assertKnowledgeError(root, /conflicts-with resolves outside references\//);
+});
+
 test("knowledge validation enforces superseded-by status invariants", async (t) => {
   const variants = [
     ["promoted requires successor", { status: "promoted", evidence: ["public-doc:https://help.zscaler.com/zpa/browser-access"] }, /promoted records require superseded-by/],
@@ -544,6 +626,7 @@ test("knowledge validation enforces superseded-by status invariants", async (t) 
     ["procedure cannot be promoted", { recordType: "procedure", status: "promoted", evidence: ["public-doc:https://help.zscaler.com/zpa/browser-access"], supersededBy: "references/zpa/browser-access.md" }, /procedure records may not be promoted/],
     ["successor must exist", { status: "retired", supersededBy: "references/zpa/missing.md" }, /superseded-by does not resolve/],
     ["successor stays in references", { status: "retired", supersededBy: "_data/cases/case-one/journal.md" }, /superseded-by must resolve under references\//],
+    ["successor must be a file", { status: "retired", supersededBy: "references/zpa" }, /superseded-by must resolve to a file/],
   ];
 
   for (const [name, options, pattern] of variants) {
@@ -554,4 +637,19 @@ test("knowledge validation enforces superseded-by status invariants", async (t) 
       assertKnowledgeError(root, pattern);
     });
   }
+});
+
+test("check-data-contract CLI exits nonzero for an invalid knowledge record", () => {
+  const root = tempRepo();
+  makeKnowledgeFixture(root);
+  writeKnowledgeRecord(
+    root,
+    "zpa/invalid.md",
+    knowledgeFrontmatter().replace("---\n\nRecord body", "unknown-field: value\n---\n\nRecord body"),
+  );
+
+  assert.throws(
+    () => runCheckCommand(["--root", root]),
+    (error) => error.status === 1 && String(error.stdout).includes("unknown frontmatter field"),
+  );
 });
