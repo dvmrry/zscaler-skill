@@ -1,13 +1,14 @@
 # `scripts/` — skill tooling
 
-All Python scripts use [uv](https://docs.astral.sh/uv/) with [PEP 723 inline script metadata](https://peps.python.org/pep-0723/). Each script declares its own deps in a `# /// script` block at the top of the file; uv resolves and caches them on first run. No project-level install needed.
+Python executables that need third-party packages use [uv](https://docs.astral.sh/uv/) with [PEP 723 inline script metadata](https://peps.python.org/pep-0723/). Library modules, test modules, and some stdlib-only executables intentionally omit inline metadata. The top-level `pyproject.toml` records the aggregate third-party dependency set.
 
 ## Running
 
 Common local checks:
 
 ```bash
-node scripts/check-fast.mjs
+npm run check:fast
+npm run check:full
 node scripts/doctor.mjs --profile references
 node scripts/check-vendor-refresh.mjs --base origin/main
 ./scripts/check-hygiene.py
@@ -15,8 +16,11 @@ node scripts/check-vendor-refresh.mjs --base origin/main
 ./scripts/run-evals.py list
 ```
 
-Python scripts use uv to read their inline metadata; Node helpers use only the
-standard library.
+Use the fast gate while iterating. The full gate runs all locally reproducible
+required CI checks plus advisories behind one command, including the Python
+checks; advisory findings remain non-blocking. Node helpers use only the
+standard library. It compares reference freshness against `origin/main` by
+default; set `REFERENCE_FRESHNESS_BASE` to use a different base ref.
 
 Optionally install all script deps once via `uv sync --extra scripts` (reads the aggregated list from the top-level `pyproject.toml`).
 
@@ -27,8 +31,10 @@ use the read-only `zscalerctl` CLI for tenant reads.
 ## Convention
 
 - **Shebang**: `#!/usr/bin/env -S uv run --quiet --script`
-- **PEP 723 block**: declares `requires-python` and `dependencies`
-- **Stdlib-only scripts** still use the uv shebang (with `dependencies = []`) for consistency — direct invocation works the same way regardless of whether deps are external.
+- **PEP 723 block**: used by dependency-bearing executables to declare
+  `requires-python` and `dependencies`
+- **Stdlib-only executables** may use the uv shebang with an empty dependency
+  list or a direct Python shebang; library and test modules omit script metadata.
 - **Library files** (no shebang) are imported by other scripts: `agent_patterns.py`.
 - **Bash scripts** (`check-citations.sh`, `check-staleness.sh`, etc.) are direct-invokable (`./scripts/<name>.sh`).
 - **Node helpers** use only Node standard libraries when they exist to support
@@ -38,7 +44,7 @@ use the read-only `zscalerctl` CLI for tenant reads.
 
 | Category | Scripts |
 |---|---|
-| **Hygiene / CI** | `check-fast.mjs` (parallel local fast gate), `check-vendor-refresh.mjs` (one-command reference preflight, worktree impact report, and fast gate), `check-worktree-whitespace.mjs` (checks unstaged, staged, and untracked files), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-verified-against.py` (validates all source-pin mappings, paths, and SHA syntax plus locally available submodule commit objects), `check-reference-freshness.mjs` (diff-aware advisory for fresh dates over stale pins, cited uninitialized submodules, and content changes with unchanged verification dates), `check-helper-command-refs.mjs` (scans tracked docs for stale investigator-artifacts.mjs, auditor-artifacts.mjs, and soc-artifacts.mjs command tokens), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.mjs` (committed-ref or worktree vendor bump summary with MCP review lenses), `find-asymmetries.py` |
+| **Hygiene / CI** | `check-full.mjs` (single mixed-toolchain pre-merge gate with CI-matching advisories), `check-fast.mjs` (parallel local and pre-push gate), `check-vendor-refresh.mjs` (one-command reference preflight, worktree impact report, and fast gate), `check-worktree-whitespace.mjs` (checks unstaged, staged, and untracked files), `check-hygiene.py`, `check-citations.sh` / `check-citations.mjs`, `check-citation-density.py` (density advisory; source-line audit + citation inventory regression strict in CI), `check-agent-skills.py` (portable Agent Skill contract and adapter-shape check), `check-workflow-metadata.mjs` (workflow metadata and adapter-reference check), `check-verified-against.py` (validates all source-pin mappings, paths, and SHA syntax plus locally available submodule commit objects), `check-reference-freshness.mjs` (diff-aware advisory for fresh dates over stale pins, cited uninitialized submodules, and content changes with unchanged verification dates), `check-helper-command-refs.mjs` (scans tracked docs for stale investigator-artifacts.mjs, auditor-artifacts.mjs, and soc-artifacts.mjs command tokens), `check-doc-links.py`, `check-orphans.py`, `check-workflow-evals.py`, `check-vendor-drift.py`, `check-scrape-freshness.py`, `vendor-impact-summary.mjs` (committed-ref or worktree vendor bump summary with MCP review lenses), `find-asymmetries.py` |
 | **Manual hygiene** | `check-staleness.sh`, `check-data-contract.mjs`, `runtime-data-path.mjs`, `setup-data-mount.mjs`, `prepare-overlay-submission.mjs` |
 | **Eval suite** | `run-evals.py`, `benchmark-investigator-helper.mjs` |
 | **Reasoning helpers** | `agent_patterns.py` (lib), `ab-test-prompt.py` (experimental placeholder), `investigator-artifacts.mjs` (exports `renderCaseReport` — artifact-derived report, no free narrative), `investigator-mcp-server.mjs` (MCP stdio transport for the helper gates; registered in `.mcp.json`; exposes resources `investigator://case/{slug}/report\|journal\|status` and prompts `investigate`/`resume-case`), `investigator-mcp-server.test.mjs` (node:test suite for the MCP server), `check-mcp-conformance.mjs` (in-process JSON-RPC conformance gate; wired into `check-fast.mjs`; degrades gracefully if official inspector unavailable), `auditor-artifacts.mjs` (deterministic helper for the auditor role; exports `openAudit`, `recordFinding`, `updateFinding`, `recordCheckOutput`, `renderAuditReport`, `auditStatus`, `capabilities`; evidence-gated findings and append-only stable-ID closure with verified `Resolved` updates; standalone zero-dependency), `auditor-mcp-server.mjs` (MCP stdio transport for the auditor helper gates; registered in `.mcp.json` and `.devin/config.json`; exposes resources `auditor://audit/{slug}/report\|register\|status` and prompt `audit`; conformant from the start — annotations, outputSchema, structuredContent, -32602 for unknown tools), `auditor-artifacts.test.mjs` (node:test suite for the auditor helper), `auditor-mcp-server.test.mjs` (node:test suite for the auditor MCP server), `soc-artifacts.mjs` (deterministic helper for the SOC role; exports `openReview`, `recordEvidence`, `recordFinding`, `renderSocReport`, `socStatus`, `resolveSource`, `capabilities`; evidence-gated findings with file:line, cross-file, and evidence:<name> source types; SOC-specific framework-not-evidence guard that rejects CWE/OWASP/NIST/MITRE/ATT&CK/CISA tags as standalone source; standalone zero-dependency), `soc-mcp-server.mjs` (MCP stdio transport for the SOC helper gates; registered in `.mcp.json` and `.devin/config.json`; exposes resources `soc://review/{slug}/report\|register\|status` and prompt `soc-review`; conformant from the start — annotations, outputSchema on soc_status, structuredContent, -32602 for unknown tools/prompts), `soc-artifacts.test.mjs` (node:test suite for the SOC helper), `soc-mcp-server.test.mjs` (node:test suite for the SOC MCP server), `agents/soc/mcp-entrypoint.md` (SOC role entrypoint served by the MCP prompt; carries gated workflow, framework-not-evidence rule, status-first recovery, and answer-from-artifact discipline) |
@@ -276,6 +282,6 @@ submission helper reads it automatically; otherwise pass `--mount-path`.
 ## When to add a new script
 
 - Use the uv-script shebang
-- Declare deps in PEP 723 inline metadata
+- Declare third-party deps in PEP 723 inline metadata
 - If introducing a new third-party dep, add it to `pyproject.toml` `[project.optional-dependencies] scripts` for aggregated visibility
 - Make it executable: `chmod +x scripts/<name>.py`

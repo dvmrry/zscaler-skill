@@ -39,7 +39,7 @@ should also initialize the pinned upstream source repositories:
 git submodule update --init --recursive
 ```
 
-Install Node 18+ for the deterministic workflow helpers. Full private-fork
+Install Node 20.11+ for the deterministic workflow helpers. Full private-fork
 setup — source checkout, credentials, runtime data, and snapshot behavior — is
 in [docs/getting-started.md](./docs/getting-started.md).
 

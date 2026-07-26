@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { checkDataContract } from "./check-data-contract.mjs";
 import { gitTryOutput, runtimeDataMountSettings } from "./lib.mjs";
 
-const MIN_NODE_VERSION = "18.0.0";
+const MIN_NODE_VERSION = "20.11.0";
 const REQUIRED_LAYOUT = [
   { path: "SKILL.md", type: "file" },
   { path: "references", type: "directory" },
@@ -398,6 +398,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 
 export {
+  MIN_NODE_VERSION,
   checkDataRuntimeMount,
   checkGitHooksPath,
   checkNodeVersion,

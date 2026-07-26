@@ -12,10 +12,10 @@ relative mount path in the committed `zscaler-skill-runtime.json`.
   `SKILL.md`. Install per https://claude.com/claude-code if you do not have it.
   The skill can also be loaded by any agent harness that honors the Anthropic
   skill conventions, but Claude Code is what this walkthrough assumes.
-- **Python 3.10+** with [`uv`](https://docs.astral.sh/uv/) on `PATH`. Every
-  script uses the uv single-file-script pattern; dependencies install on first
-  run, no virtualenv setup needed.
-- **Node 18+** for deterministic workflow helpers such as case-intake,
+- **Python 3.10+** with [`uv`](https://docs.astral.sh/uv/) on `PATH`. Executable
+  Python scripts with third-party dependencies use uv inline metadata; an
+  aggregated dependency list is also available in `pyproject.toml`.
+- **Node 20.11+** for deterministic workflow helpers such as case-intake,
   runtime-data setup, data-contract checks, and artifact handling.
 - **Git** for submodule fetch.
 - **ZIA and ZPA admin access** to create the API client credentials used below.
@@ -42,9 +42,10 @@ Activate the pre-push hook so hygiene runs locally before any push:
 git config core.hooksPath .githooks
 ```
 
-The hook (`.githooks/pre-push`) runs the local hygiene suite before push.
+The hook (`.githooks/pre-push`) runs the deterministic fast gate before push;
+it does not require network-resolved linters or a complete vendor checkout.
 Failures block the push; bypass with `git push --no-verify` if you really need
-to. CI runs the same hygiene family on PRs and pushes to `main`.
+to. Run the full gate separately before merge.
 
 ## Check Current Project State (Maintainers)
 
@@ -56,8 +57,9 @@ fork, use these state sources:
   — unresolved product-behavior questions and lab-test status.
 - [`PLAN.md`](../PLAN.md) — historical build record and crash-recovery context.
 
-Run `node scripts/check-fast.mjs` before making changes; it is a more reliable
-current-state signal than completed roadmap prose.
+Run `npm run check:fast` while iterating and `npm run check:full` before merge.
+The full gate runs the mixed Node/Python suite behind one command and preserves
+CI's distinction between blocking checks and advisories.
 
 ## Install as a Claude Skill
 
