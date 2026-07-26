@@ -26,12 +26,15 @@ Deliberately deferred, each with the condition that reverts the decision:
 | --- | --- |
 | Typed reference relationships (`narrows` / `contradicts`) | a second author exists, or code branches on the relationship |
 | Promotion packet and researcher handoff | a first record actually clears for publication |
-| Auditor overlay-audit mode | record volume makes authoring drift real |
-| Retro read-before-write, duplicate detection | roughly 10+ records, when memory stops sufficing |
+| Mechanical gate on upstream artifacts citing overlay paths | the promotion workflow exists — nothing can violate it before then |
+| Architect, SOC read access | someone wants a record surfaced in those workflows; none loads the shared discipline today |
+| Retro read-before-write and duplicate detection | roughly 10+ records, when memory stops sufficing |
+| Auditor overlay-audit mode | enough records exist that authoring drift is real |
 | Generated `index.json` | a frontmatter scan is measurably slow |
 | Scan / surface / invalid-record diagnostics | the above |
 | Conflict-staleness analysis (`conflicts-with` target churn) | records exist and a target has churned |
 | Structured `scope` matched against `_data/snapshot/` | records whose applicability actually varies |
+| Structured vendor-citation fields (`date` / `who` / `quote`) | they gate something, which would also justify a YAML dependency |
 
 Also out of scope: detecting *undeclared* conflicts between a record and a reference doc. That needs
 semantic comparison across the whole reference set and would imply coverage the implementation does
@@ -74,17 +77,25 @@ confidence: high                # high | medium | low
 scope: "Observed on our production tenant; no indication it is tenant-specific"
 last-validated: "2026-07-25"
 evidence:
-  - kind: case
-    ref: cases/2026-07-20-ba-session-drop/journal.md
-  - kind: vendor-call
-    date: "2026-07-22"
-    who: "TAM, ZPA SE"
-    quote: "The cookie is bound to the assistant, not the connector."
+  - case:cases/2026-07-20-ba-session-drop/journal.md
+  - vendor-call
 conflicts-with:
   - references/zpa/browser-access.md
 do-not-infer: "Says nothing about behavior across microtenants."
 ---
+
+## Evidence
+
+- Case `2026-07-20-ba-session-drop` — session survived a rolling connector restart.
+- Vendor call, 2026-07-22 (TAM, ZPA SE): "The cookie is bound to the assistant, not the connector."
 ```
+
+Frontmatter is **flat by design**: scalar fields and scalar lists only. The repository's frontmatter
+parser ([`scripts/check-workflow-metadata.mjs`](../../../scripts/check-workflow-metadata.mjs)) supports
+exactly that, and a nested mapping under a list item does not error — `- kind: case` is captured as the
+literal string `"kind: case"` and the following indented line becomes a top-level key. Silent
+mis-parsing is worse than a parse failure, so the schema stays within what the parser handles and the
+repository stays at zero runtime dependencies.
 
 ### Fields
 
@@ -96,8 +107,8 @@ do-not-infer: "Says nothing about behavior across microtenants."
 | `confidence` | yes | `high` \| `medium` \| `low` | answer calibration (see below) |
 | `scope` | yes | string | disclosed verbatim; gates applicability by human judgment |
 | `last-validated` | yes | `YYYY-MM-DD` | disclosed verbatim |
-| `evidence` | yes | non-empty array | validation, attribution |
-| `conflicts-with` | no | array of `references/` paths | disclosed; structurally validated |
+| `evidence` | yes | non-empty list of `kind` or `kind:ref` | validation, promotion eligibility, attribution |
+| `conflicts-with` | no | list of `references/` paths | disclosed; structurally validated |
 | `do-not-infer` | no | string | emitted verbatim at answer time |
 | `superseded-by` | conditional | `references/` path | redirects consumers of a promoted record |
 
@@ -107,17 +118,27 @@ stored expiry date is metadata that goes quietly wrong).
 
 ### `evidence` entries
 
-`kind` is one of `case`, `vendor-call`, `vendor-ticket`, `vendor-email`, `public-doc`.
+Each entry is a single scalar: a bare `kind`, or `kind:ref`. `kind` is one of `case`, `vendor-call`,
+`vendor-ticket`, `vendor-email`, `public-doc`.
 
-- `case` — `ref` required, resolved **mount-relative** (e.g. `cases/2026-07-20-slug/journal.md`).
-  The path must exist when the mount is present.
-- `public-doc` — `ref` required, either a public `https://` URL or a path under an approved public
-  repository root (`references/`, `vendor/`).
-- `vendor-call`, `vendor-ticket`, `vendor-email` — `date` (`YYYY-MM-DD`) required. `ref` is optional
-  and, when present, resolved mount-relative. `who` and `quote` are optional strings.
+- `case` — `ref` required, resolved **mount-relative** (e.g. `cases/2026-07-20-slug/journal.md`). The
+  path must exist when the mount is present.
+- `public-doc` — `ref` required and must be a public `https://` URL. Repository paths do not qualify:
+  a `references/` path would let the knowledge base make its own record promotion-eligible, which
+  establishes nothing about whether Zscaler published the behavior, and a `vendor/` path is
+  unresolvable when the submodule is uninitialized.
+- `vendor-call`, `vendor-ticket`, `vendor-email` — `ref` optional; when present, resolved
+  mount-relative. Dates, participants, and quotations belong in the body's `## Evidence` section,
+  where prose reads naturally and a quotation containing punctuation is harmless.
 
 Rejected in every case: absolute filesystem paths, `..` traversal, and local `ref` values that do not
 resolve when the mount is present.
+
+**Symlink containment.** Rejecting absolute paths and `..` does not prevent a symlink *inside* the
+mount from resolving outside it, which would let a loader read arbitrary local files. Therefore: reject
+a record file that is itself a symlink, reject an evidence `ref` that is a symlink, and verify the
+`realpath` of every resolved local reference lies beneath the runtime mount. Both direct and nested
+symlink escapes are tested.
 
 Presence of a `public-doc` entry makes a record **eligible** for promotion. It does not make it
 promotable — a public source may cover a narrower scope than the claim. Promotion is an explicit human
@@ -126,7 +147,9 @@ act recorded in `status`.
 ### `superseded-by` invariants
 
 - Required when `status: promoted`.
-- Rejected when `status` is `active` or `retired`.
+- Rejected when `status: active`.
+- Optional when `status: retired` — an observation may be disproven or superseded because a public
+  reference now explains the authoritative behavior, and that pointer is worth keeping.
 - `record-type: procedure` may never be `promoted`. A team runbook is not a vendor fact; if it
   contains one, that claim belongs in its own `claim` record.
 
@@ -197,12 +220,18 @@ configuration state is semantic, and automating it would recreate the false-cove
 design avoids for conflict detection. A checker may enforce it later if real records reveal a reliable
 pattern.
 
-### Authoring checklist
+### Authoring rules
 
-Because implicit `extends` is ambiguous — no `conflicts-with` could mean "I checked, nothing related"
-or "I never looked" — the author confirms `conflicts-with` is complete before a record is considered
-`active`. A forgotten contradiction is the dangerous case: the record gets treated as gap-filling
-while it actually disputes a reference doc.
+Enforced by review, not by tooling:
+
+- **`conflicts-with` completeness.** Implicit `extends` is ambiguous — no `conflicts-with` could mean
+  "I checked, nothing related" or "I never looked." The author confirms completeness before a record is
+  `active`. A forgotten contradiction is the dangerous case: the record gets treated as gap-filling
+  while it actually disputes a reference doc.
+- **No configuration assertions**, per the Layer 2 boundary above.
+- **No overlay paths in upstream artifacts.** An upstream artifact must never cite `cases/...` or
+  `knowledge/...` — unresolvable for a public reader and a leak of internal structure. Mechanically
+  checkable, but deferred: nothing can violate it until promotion exists.
 
 ## Workflow loading
 
@@ -211,23 +240,24 @@ The governing rule attaches to the destination of a run, not permanently to a wo
 > Runtime knowledge may be loaded when the output remains local or operator-facing. It must not enter
 > a run producing upstream-bound content.
 
-| Workflow | Access |
+v1 grants access only to the two workflows that already load `agents/loading-discipline.md`:
+
+| Workflow | v1 access |
 | --- | --- |
-| ad-hoc Q&A | bounded read |
+| ad-hoc Q&A (`agents/zscaler/`) | bounded read |
 | investigator | bounded read; may surface a candidate record but never creates one automatically |
-| architect | bounded read |
-| SOC | bounded read; most records will not match posture scope |
-| retro | bounded read **and** human-approved write — the designated reader/writer |
 | researcher | **hard exclusion** |
-| auditor (upstream mode) | **hard exclusion** |
-| auditor (explicit overlay-audit mode) | read-only |
+| auditor | **hard exclusion** |
+| architect, SOC, retro | no access in v1 — see Non-goals |
 
 The researcher and auditor exclusions are a safety boundary, not a scoping preference. The researcher
 produces `references/` prose; feeding it overlay knowledge is how proprietary material would leak into
 public docs, laundered through the one workflow whose job is producing publishable text.
 
-An auditor invoked explicitly in overlay-audit mode may read records in order to enforce the authoring
-rules above. That mode produces a local overlay audit and never an upstream artifact.
+Architect, SOC, and retro are excluded from v1 for a mechanical reason rather than a policy one: none
+of them references the shared loading discipline, so granting access means adding required reads to
+three more prompt/workflow pairs. Retro is the eventual reader/writer, and its read exists to avoid
+duplicate claims — a problem that does not exist at v1 volumes. Records are authored manually in v1.
 
 ### Loading mechanics
 
@@ -243,25 +273,22 @@ rules above. That mode produces a local overlay audit and never an upstream arti
 
 Added to `scripts/check-data-contract.mjs`:
 
-1. Frontmatter parses as YAML.
-2. All required fields present.
+1. Frontmatter parses, and every line is within the flat-scalar subset the parser supports. A line
+   that would silently mis-parse is a finding, not a shrug.
+2. All required fields present; unknown fields rejected.
 3. `record-type`, `status`, and `confidence` values are within their enums.
-4. `last-validated` and every `evidence[].date` match `YYYY-MM-DD`.
+4. `last-validated` matches `YYYY-MM-DD`.
 5. The first path component is a product directory under `references/`, excluding `_meta`.
-6. `evidence` is a non-empty array; each entry satisfies its per-`kind` rules; no absolute paths, no
-   `..` traversal; local `ref` values resolve when the mount is present.
-7. Every `conflicts-with` path resolves under `references/`. Structural validation only — no
+6. `evidence` is a non-empty list; each entry's `kind` is known; each entry satisfies its per-`kind`
+   rule; `public-doc` refs are `https://` URLs.
+7. No absolute paths, no `..` traversal; local `ref` values resolve when the mount is present; no
+   record file or evidence target is a symlink; every resolved local `realpath` lies beneath the mount.
+8. Every `conflicts-with` path resolves under `references/`. Structural validation only — no
    relationship analysis, no staleness comparison.
-8. `superseded-by` invariants as specified above; the target resolves under `references/`.
+9. `superseded-by` invariants as specified above; the target resolves under `references/`.
 
 `knowledge/` is **not** added to `DATA_REQUIRED_DIRS`. Its absence is a silent pass, and the checker
 emits no warning for an unpopulated mount.
-
-One further rule is stated here but **not implemented in v1**: an upstream artifact must never cite an
-overlay path. A `clarifications.md` entry citing `cases/...` or `knowledge/...` is both unresolvable for
-a public reader and a leak of internal structure. It concerns public files, so it is mechanically
-checkable — but nothing can violate it until promotion exists, so v1 records it as an authoring rule
-and defers the check alongside the promotion work.
 
 ## Overlay submission
 
@@ -269,28 +296,31 @@ and defers the check alongside the promotion work.
 `cases`, `schemas`, and `iac`, and to the documented `allowedRoots` default in
 `docs/data-contract/README.md`.
 
-This serves the downstream-to-company-overlay path, which is reachable. There is no git path from the
-downstream environment to github.com, so promotion to `references/` is a human carry — a person reads
-the cleared claim and its public source, then authors upstream prose from the public source on a
-machine that can reach GitHub. No tooling for that path is in scope.
+Network topology is deployment-specific and not asserted here. Internal submission works when the
+configured overlay remote is reachable; local-only operation — commit to the overlay checkout, no push
+— remains valid; and the helper never pushes by default in either case. Promotion of a record to
+`references/` is prohibited by this contract regardless of network reachability: upstream prose must be
+authored from the public source, not derived from the private record. No tooling for that path is in
+scope.
 
 ## Testing
 
 Synthetic fixtures under a temporary mount, so every rule is exercised in a repository that will never
 hold a real record:
 
-- a valid `claim` record with `case` and `vendor-call` evidence
-- a valid `procedure` record
-- a valid `promoted` record with `superseded-by`
-- missing required field
-- out-of-enum `record-type`, `status`, `confidence`
+- valid `claim` with `case` and `vendor-call` evidence; valid `procedure`; valid `promoted` with
+  `superseded-by`; valid `retired` both with and without a successor
+- one valid fixture per `evidence` kind
+- missing required field; unknown field
+- out-of-enum `record-type`, `status`, `confidence`; wrong-type values for scalar fields
 - malformed `last-validated`
 - unknown product directory
-- empty `evidence`
+- nested mapping in frontmatter (the silent mis-parse case) — must be a finding
+- empty `evidence`; unknown `evidence` kind
 - `case` evidence whose `ref` does not resolve
-- `vendor-call` evidence missing `date`
-- `public-doc` evidence with a non-public `ref`
+- `public-doc` evidence with a non-`https://` ref
 - absolute path and `..` traversal in `ref`
+- record file that is a symlink; evidence `ref` that is a symlink; nested symlink escaping the mount
 - `conflicts-with` path that does not resolve under `references/`
 - `promoted` without `superseded-by`; `active` with `superseded-by`; `procedure` with `promoted`
 - absent mount, absent `knowledge/`, empty `knowledge/` — each a silent pass
@@ -305,5 +335,5 @@ hold a real record:
 | `scripts/check-data-contract.test.mjs` | fixtures above |
 | `scripts/prepare-overlay-submission.mjs` | `knowledge` in `DEFAULT_OVERLAY_ROOTS` |
 | `agents/loading-discipline.md` | loading rule, linking to `knowledge.md` for answer-time behavior |
-| `agents/researcher/*`, `agents/auditor/*` | explicit exclusion; auditor overlay-audit mode |
+| `agents/researcher/*`, `agents/auditor/*` | explicit exclusion statement only — no new modes |
 | `references/_meta/layering-model.md` | Layer 3 now has a structured home |
