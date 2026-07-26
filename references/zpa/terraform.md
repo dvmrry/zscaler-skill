@@ -5,7 +5,7 @@ title: "ZPA Terraform provider — resource catalog"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
+  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
 confidence: medium
 source-tier: code
 sources:
@@ -55,6 +55,9 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_cloud_browser_isolation_external_profile.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md"
+  - "vendor/terraform-provider-zpa/zpa/common.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_v2.go"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_browser_access.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_posture_profile.md"
@@ -101,16 +104,25 @@ Complete listing of every Terraform resource and data source in the `zscaler/zpa
 
 ## Provider overview
 
+Provider v4.4.9 added the optional
+`device_posture_failure_notification_enabled` field to both
+`zpa_policy_access_rule` and `zpa_policy_access_rule_v2`; the provider carries
+it through schema, read, and write paths
+(`vendor/terraform-provider-zpa/CHANGELOG.md:3-13`;
+`vendor/terraform-provider-zpa/zpa/common.go:594-598`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule.go:169,263`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_v2.go:71-75,320,420`).
+
 Provider v4.4.8 added `JOIN_SESSION` and `CONTROL_SESSION` options to the
 privileged capabilities supported by `zpa_policy_capabilities_rule`
-(`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`).
+(`vendor/terraform-provider-zpa/CHANGELOG.md:16-25`).
 
 Provider v4.4.7 changed two operationally relevant surfaces. It added three
 portal-access capability fields—`access_uninspected_file_sandbox`,
 `upload_inspected_sandbox`, and `upload_inspected_scan`—and changed transient or
 cancelled read failures for application segments, server groups, Service Edge
 groups, and LSS configurations from provider panics into recoverable Terraform
-errors (`vendor/terraform-provider-zpa/docs/guides/release-notes.md:19-32`;
+errors (`vendor/terraform-provider-zpa/docs/guides/release-notes.md:42-55`;
 `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_portal_access_rule.go:118-157`).
 
 ### Invocation
@@ -909,7 +921,7 @@ conditions {
 | `PLATFORM` | OS/platform (windows, mac, android, ios, linux) |
 | `COUNTRY_CODE` | ISO 3166-1 alpha-2 country codes |
 | `EDGE_CONNECTOR_GROUP` | Cloud connector group IDs — the primary validator resolves these against the cloud connector group getter (`vendor/terraform-provider-zpa/zpa/common.go:107-111`) |
-| `BRANCH_CONNECTOR_GROUP` | Branch connector group IDs — a distinct object type, not an alias of `EDGE_CONNECTOR_GROUP`; handled only by the resource-level validator (`vendor/terraform-provider-zpa/zpa/common.go:1040`) and the v1→v2 aggregation switch (`vendor/terraform-provider-zpa/zpa/common.go:1334`) |
+| `BRANCH_CONNECTOR_GROUP` | Branch connector group IDs — a distinct object type, not an alias of `EDGE_CONNECTOR_GROUP`; handled only by the resource-level validator (`vendor/terraform-provider-zpa/zpa/common.go:1045`) and the v1→v2 aggregation switch (`vendor/terraform-provider-zpa/zpa/common.go:1339`) |
 | `RISK_FACTOR_TYPE` | Risk score values |
 | `CHROME_ENTERPRISE` | Chrome Enterprise device signals |
 | `CHROME_POSTURE_PROFILE` | Chrome posture profile IDs |
@@ -937,8 +949,23 @@ Standard access control rule (allow/deny/require approval).
 |---|---|
 | `action` | `ALLOW`, `DENY`, `REQUIRE_APPROVAL` |
 | `conditions` | One or more condition blocks |
+| `device_posture_failure_notification_enabled` | Optional boolean on both v1 and v2 access-rule resources |
 | `app_connector_groups` | Block; optional connector pinning |
 | `app_server_groups` | Block; optional server group pinning |
+
+For v2 rules, the top-level `operator` joins separate `conditions` blocks and
+supports only `AND`; omitting it lets ZPA supply `AND`. Each condition block has
+its own `AND`/`OR` operator for the operands inside that block, while multiple
+values inside one operand are always ORed. The API rejects a repeated
+`object_type` inside one condition block with `duplicate.operand.found`; use
+separate condition blocks when the same type needs independent grouping
+(`vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md:264-272,316-343,365-366`).
+
+The provider documentation also warns that a block combining different object
+types with `OR` may be valid through Terraform/API but not safely round-trip
+through the Admin GUI; re-saving such a rule in the GUI can drop operands the
+builder cannot represent
+(`vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md:344-350`).
 
 The access-rule variant doc files are usage examples showing different `object_type` configurations in conditions — not distinct resources. They are: `zpa_policy_access_rule_application_segment.md` (`object_type = "APP"`), `zpa_policy_access_rule_browser_access.md`, `zpa_policy_access_rule_posture_profile.md`, `zpa_policy_access_rule_risk_factor.md`, `zpa_policy_access_rule_saml.md`, `zpa_policy_access_rule_scim_attribute.md`, `zpa_policy_access_rule_scim_group.md`, and `zpa_policy_access_rule_trusted_networks.md`. Each configures the same `zpa_policy_access_rule` / `zpa_policy_access_rule_v2` resource.
 

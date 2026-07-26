@@ -5,7 +5,7 @@ title: "ZPA API resource schemas"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: cd24ac6b1f409d6752b5de8092e50dcab7b8c5c0
+  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
 confidence: high
 source-tier: code
@@ -351,7 +351,7 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | ConfigSpace | configSpace | string | ✓ |  |
 | Applications | applications | string | ✓ |  |
 | BypassType | bypassType | string | ✓ |  |
-| BypassOnReauth | bypassOnReauth | bool | ✓ |  |
+| BypassOnReauth | bypassOnReauth | bool |  |  |
 | HealthCheckType | healthCheckType | string | ✓ |  |
 | IsCnameEnabled | isCnameEnabled | bool |  |  |
 | IpAnchored | ipAnchored | bool |  |  |
@@ -490,7 +490,7 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | SegmentGroupID | segmentGroupId | string | ✓ |  |
 | SegmentGroupName | segmentGroupName | string | ✓ |  |
 | BypassType | bypassType | string | ✓ |  |
-| BypassOnReauth | bypassOnReauth | bool | ✓ |  |
+| BypassOnReauth | bypassOnReauth | bool |  |  |
 | ExtranetEnabled | extranetEnabled | bool |  |  |
 | AppRecommendationId | appRecommendationId | string | ✓ |  |
 | MatchStyle | matchStyle | string | ✓ |  |
@@ -2319,6 +2319,7 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | Disabled | disabled | string | ✓ |  |
 | Action | action | string | ✓ |  |
 | ActionID | actionId | string | ✓ |  |
+| DevicePostureFailureNotificationEnabled | devicePostureFailureNotificationEnabled | bool |  |  |
 
 ## PolicySet
 
@@ -2433,6 +2434,7 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | Name | name | string | ✓ |  |
 | Action | action | string | ✓ |  |
 | ActionID | actionId | string | ✓ |  |
+| DevicePostureFailureNotificationEnabled | devicePostureFailureNotificationEnabled | bool |  |  |
 
 ## PolicyRuleResource
 
@@ -2447,6 +2449,7 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | ExtranetEnabled | extranetEnabled | bool | ✓ |  |
 | Action | action | string | ✓ |  |
 | ActionID | actionId | string | ✓ |  |
+| DevicePostureFailureNotificationEnabled | devicePostureFailureNotificationEnabled | bool | ✓ |  |
 
 ## PolicyRuleResourceConditions
 
@@ -3665,25 +3668,25 @@ Postman response examples show `PING_TRACEROUTING` as a valid value in addition 
 ### Access, Timeout, Forwarding, and Inspection Policy
 
 **v2 package — CREATE uses v2 path; GET/DELETE use v1 path.**
-`POST /zpa/mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule` (create). `GET /zpa/mgmtconfig/v1/…/rule/{ruleId}` (single rule). `DELETE /zpa/mgmtconfig/v1/…/rule/{ruleId}`. All three sources agree: only POST (and PUT) differ by API version. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:249,294`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:1617-1619,3966-3969`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:73638,80514`)
+`POST /zpa/mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule` (create). `GET /zpa/mgmtconfig/v1/…/rule/{ruleId}` (single rule). `DELETE /zpa/mgmtconfig/v1/…/rule/{ruleId}`. All three sources agree: only POST (and PUT) differ by API version. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:250,295`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:1617-1619,3966-3969`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:73638,80514`)
 
 **PolicyRuleResource (v2 response struct) — field serialization notes.**
 `microtenantId` has no omitempty on the response struct (always serialized). `conditions`, `appServerGroups`, `appConnectorGroups`, `serviceEdgeGroups` all lack omitempty on the response struct (always serialized). `credentialPool` has no omitempty on the response struct (a nil pointer serializes as null); on the request struct (`PolicyRule`) `credentialPool` does have omitempty. `policySetId` on `PolicyRule` (request) has omitempty; on `PolicyRuleResource` (response) it has NO omitempty (always serialized). (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:47-93`)
 
 **v1 UpdateRule strips operand Name; v2 UpdateRule strips operand ID.**
-Before PUT, v1 `UpdateRule` iterates all conditions/operands and clears `operand.Name` if non-empty. v2 `UpdateRule` clears `operand.ID` if non-empty instead. Both also ensure `Conditions` is set to an empty slice (not nil) when zero-length, so the API receives an empty JSON array rather than null. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:192-202`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:262-279`)
+Before PUT, v1 `UpdateRule` iterates all conditions/operands and clears `operand.Name` if non-empty. v2 `UpdateRule` clears `operand.ID` if non-empty instead. Both also ensure `Conditions` is set to an empty slice (not nil) when zero-length, so the API receives an empty JSON array rather than null. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:192-202`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:263-280`)
 
 **Process-level mutex on all write operations (both SDKs).**
-Go SDK: package-level `sync.Mutex` (`ruleMutex`) is acquired before `CreateRule`, `UpdateRule`, `Delete`, `Reorder`, and `BulkReorder` in both v1 and v2 packages. GET operations skip the lock. Python SDK: `@synchronized(global_rule_lock)` module-level decorator on all add/update/delete/reorder methods. Both serialize concurrent writes in the same process. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:26,244-245`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:29-43,527`)
+Go SDK: package-level `sync.Mutex` (`ruleMutex`) is acquired before `CreateRule`, `UpdateRule`, `Delete`, `Reorder`, and `BulkReorder` in both v1 and v2 packages. GET operations skip the lock. Python SDK: `@synchronized(global_rule_lock)` module-level decorator on all add/update/delete/reorder methods. Both serialize concurrent writes in the same process. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:26,245-246`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:29-43,527`)
 
 **BulkReorder — Go SDK pins Default_Rule last; Python SDK does not.**
-Go SDK `BulkReorder` (both v1 and v2) scans all rules, skips any rule named exactly `Default_Rule` (case-sensitive), sorts the rest by caller-supplied order map, then appends the `Default_Rule` ID at the end. Python `bulk_reorder_rules` sends the caller's `rules_orders` list unmodified. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:377-395`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:4132-4147`)
+Go SDK `BulkReorder` (both v1 and v2) scans all rules, skips any rule named exactly `Default_Rule` (case-sensitive), sorts the rest by caller-supplied order map, then appends the `Default_Rule` ID at the end. Python `bulk_reorder_rules` sends the caller's `rules_orders` list unmodified. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:378-396`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:4132-4147`)
 
 **Bulk reorder — execute-once warning.**
-Postman endpoint name states "Execute this API only once to reorder the rules". The endpoint replaces the entire rule order atomically from the submitted array. Sending it twice in quick succession risks a race. Go SDK `BulkReorder` holds `ruleMutex` during the call. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:75114`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:342-344`)
+Postman endpoint name states "Execute this API only once to reorder the rules". The endpoint replaces the entire rule order atomically from the submitted array. Sending it twice in quick succession risks a race. Go SDK `BulkReorder` holds `ruleMutex` during the call. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:75114`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:343-345`)
 
 **v2 condition operand wire format.**
-Operand: `{id, creationTime, modifiedBy, modifiedTime, objectType, values ([]string, omitempty), idpId, lhs, rhs, entryValues ([]OperandsResourceLHSRHSValue, omitempty)}`. Use `entryValues` for `POSTURE`, `TRUSTED_NETWORK`, `COUNTRY_CODE`, `PLATFORM`, `RISK_FACTOR_TYPE`, `SAML`, `SCIM`, `SCIM_GROUP`. Use `values[]` for `CLIENT_TYPE`, `APP_GROUP`, and similar. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:161-187`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:171-187,300-316`)
+Operand: `{id, creationTime, modifiedBy, modifiedTime, objectType, values ([]string, omitempty), idpId, lhs, rhs, entryValues ([]OperandsResourceLHSRHSValue, omitempty)}`. Use `entryValues` for `POSTURE`, `TRUSTED_NETWORK`, `COUNTRY_CODE`, `PLATFORM`, `RISK_FACTOR_TYPE`, `SAML`, `SCIM`, `SCIM_GROUP`. Use `values[]` for `CLIENT_TYPE`, `APP_GROUP`, and similar. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:162-188`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:171-187,300-316`)
 
 **v1 vs. v2 condition format differences.**
 v1 operand shape: `{objectType, lhs, rhs}` flat. v2 operand shape: `{objectType, values:[...]}` for simple types; `{objectType, entryValues:[{lhs,rhs},...]}` for multi-value types. v2 conditions add a `setIds` array (array of longs) absent from v1; v1 conditions include `microtenantId` absent from v2. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:132-133,300-316`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:73629`)
@@ -3698,7 +3701,7 @@ Both Go v1 and v2 declare `disabled` as string with omitempty. Postman v2 POST b
 Both fields are typed as string in both Go SDK packages (v1 and v2). Sample values: `'600'` (idle) and `'172800'` (48h total). Postman declares them as integer. Python SDK defaults: `reauth_timeout=172800`, `reauth_idle_timeout=600`; docstrings say str but defaults are int; the API appears to accept both. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/zpa_policy_access_timeout_rule_test.go:62-63`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:69-70`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:1930-1931`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:74375`)
 
 **credential_id and credential_pool_id are mutually exclusive (Python SDK enforced).**
-Exactly one must be supplied; both present or both absent returns an error tuple without calling the API. Wire format: `credential_id → {credential: {id: ...}}`, `credential_pool_id → {credentialPool: {id: ...}}`. Go SDK v2 `PolicyRule` has both `Credential *Credential` and `CredentialPool *Credential` (both omitempty on request struct; `CredentialPool` has no omitempty on response struct). (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:2920-2923`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:89,154-155`)
+Exactly one must be supplied; both present or both absent returns an error tuple without calling the API. Wire format: `credential_id → {credential: {id: ...}}`, `credential_pool_id → {credentialPool: {id: ...}}`. Go SDK v2 `PolicyRule` has both `Credential *Credential` and `CredentialPool *Credential` (both omitempty on request struct; `CredentialPool` has no omitempty on response struct). (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:2920-2923`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:89,155-156`)
 
 **CLIENT_TYPE auto-injected for isolation rules — Python SDK only.**
 If no `CLIENT_TYPE` condition is present in an isolation or browser-protection rule, the Python SDK silently appends `{objectType:'CLIENT_TYPE', values:['zpn_client_type_exporter']}` (v2). Go SDK has no equivalent auto-injection. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:1203-1209,2410-2416`)
@@ -3722,13 +3725,13 @@ Python SDK `reformat_params` table maps `app_connector_group_ids` to the wire ke
 The `StepAuthLevel` struct is defined but not used by any function in the Go package. `GetStepupAuthLevel` unmarshals into `[]string`. Python `get_step_up_auth_levels` returns the full `StepUpAuthLevel` object list. (`vendor/zscaler-sdk-go/zscaler/zpa/services/step_up_auth/step_up_auth.go:15-28,30-38`, `vendor/zscaler-sdk-python/zscaler/zpa/stepup_auth_level.py:91-101`)
 
 **GetPolicyByApplication uses v1 URL path despite living in v2 package; Python method name has typo.**
-`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}/application/{applicationId}`. Both Go v2 package and Python SDK use the v1 URL path. Python method name: `list_rules_by_appplication_id` (double-p). (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:440-441`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:4411-4414`)
+`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}/application/{applicationId}`. Both Go v2 package and Python SDK use the v1 URL path. Python method name: `list_rules_by_appplication_id` (double-p). (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:441-442`, `vendor/zscaler-sdk-python/zscaler/zpa/policies.py:4411-4414`)
 
 **GetPolicyCount — Go SDK decodes into wrong type.**
-`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}/count`. Python SDK method `get_policy_rule_count` returns dict with `'count'` key as string. Go SDK v2 `GetPolicyCount` calls this URL but decodes into `[]PolicyRuleResource` — a mismatched type. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:4303-4306`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:431-438`)
+`GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}/count`. Python SDK method `get_policy_rule_count` returns dict with `'count'` key as string. Go SDK v2 `GetPolicyCount` calls this URL but decodes into `[]PolicyRuleResource` — a mismatched type. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:4303-4306`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:432-439`)
 
 **PrivilegedCapabilities.microtenantId — present in v1, absent from v2 request body.**
-Go v1 `PrivilegedCapabilities` struct includes `MicroTenantID` (omitempty). Go v2 `PrivilegedCapabilities` struct includes `MicroTenantID` without omitempty. Postman v1 POST body shows `privilegedCapabilities.microtenantId`; Postman v2 POST body omits it. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:122-128`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:194-200`)
+Go v1 `PrivilegedCapabilities` struct includes `MicroTenantID` (omitempty). Go v2 `PrivilegedCapabilities` struct includes `MicroTenantID` without omitempty. Postman v1 POST body shows `privilegedCapabilities.microtenantId`; Postman v2 POST body omits it. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:122-128`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:195-201`)
 
 **Update returns 204 No Content — Python SDK synthesizes stub.**
 When the API returns 204 (no body), the Python SDK synthesizes a minimal object containing only the rule id. Callers cannot rely on the full rule object being returned on update. All three SDKs agree that PUT returns 204 No Content. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:724-725`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:79734,77032`)

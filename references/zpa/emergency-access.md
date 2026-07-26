@@ -6,7 +6,7 @@ content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
+  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
 confidence: high
 source-tier: doc
 sources:

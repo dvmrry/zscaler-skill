@@ -3,12 +3,12 @@ product: zpa
 topic: "zpa-private-service-edges"
 title: "ZPA Private Service Edges — on-prem brokering for private app access"
 content-type: reference
-last-verified: "2026-07-15"
+last-verified: "2026-07-26"
 confidence: medium
 source-tier: doc
 verified-against:
   vendor/terraform-aws-zpa-private-service-edge-modules: b555a112e27ac25a018b8681a5a339fe7c40458a
-  vendor/terraform-azurerm-zpa-private-service-edge-modules: 7c64477411d028ee67c47d58c1cde872d469ec44
+  vendor/terraform-azurerm-zpa-private-service-edge-modules: bdfecd0adaef82e50a4575d4d6252395aca706b2
 sources:
   - "vendor/zscaler-help/about-private-service-edges.md"
   - "vendor/zscaler-help/about-private-service-edge-groups.md"
@@ -40,8 +40,14 @@ sources:
   - "vendor/terraform-aws-zpa-private-service-edge-modules/examples/README.md"
   - "vendor/terraform-aws-zpa-private-service-edge-modules/README.md"
   - "vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/main.tf"
   - "vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpse-vm-azure/variables.tf"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zsac-pse-vmss-azure/main.tf"
   - "vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/README.md"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/base_pse_vmss/README.md"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/pse_vmss/README.md"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/pse_vmss/variables.tf"
+  - "vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/pse_vmss/main.tf"
   - "vendor/terraform-azurerm-zpa-private-service-edge-modules/README.md"
 author-status: draft
 ---
@@ -277,15 +283,36 @@ The vendor repos ship ready-to-run example configurations. Summaries below; see 
 | `pse` | Brownfield | 2 PSE VMs in an existing or new VPC; supports BYO VPC/subnets/IGW/NAT/IAM/SG |
 | `pse_asg` | Brownfield | ASG variant of `pse`; same BYO options |
 
-**Azure** (`vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/README.md:48-84`):
+**Azure** (`vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/README.md:48-84`; VMSS examples at `vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/base_pse_vmss/README.md:1-9` and `vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/pse_vmss/README.md:1-11`):
 
 | Example | Type | Description |
 |---|---|---|
 | `base` | Greenfield | Resource Group + VNet + bastion subnet; no PSEs deployed |
 | `base_pse` | Greenfield | `base` + 1 or more PSE VMs in an availability set (or zones if supported); count controlled by `pse_count` |
 | `pse` | Brownfield | PSE VM(s) in an existing or new VNet; supports BYO Resource Group/VNet/subnets/PIP/NAT GW |
+| `base_pse_vmss` | Greenfield | Flexible-orchestration PSE VMSS plus the network and bastion resources used for a testbed deployment |
+| `pse_vmss` | Brownfield | Flexible-orchestration PSE VMSS with autoscaling in an existing or newly created Azure environment |
 
-**AWS vs Azure scaling asymmetry**: The AWS modules include a native Auto Scaling Group (`terraform-zspse-asg-aws`) with target-tracking autoscaling (default min 2 / max 4, CPU target 50%) (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf:66-76, :134-138`). The Azure modules have **no VMSS or equivalent autoscaling construct** — the only multi-VM mechanism is the manual `pse_count` variable (default 1, max 250) (`vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpse-vm-azure/variables.tf:87-94`). Azure PSE scale-out requires re-running Terraform with an updated `pse_count`, not policy-driven autoscaling.
+**AWS and Azure autoscaling implementations differ.** AWS uses an Auto Scaling
+Group with target tracking; its defaults are min 2, max 4, and a 50% average-CPU
+target (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/variables.tf:66-76`,
+`:120-138`; ASG and policy at
+`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-asg-aws/main.tf:62-68`,
+`:107-117`). Azure's flexible VMSS defaults to 2 instances, min 2, max 10,
+with CPU-based scale-out and scale-in rules plus optional scheduled scaling
+(`vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/pse_vmss/variables.tf:403-472`;
+VMSS and autoscale resources at
+`vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zsac-pse-vmss-azure/main.tf:5-14`,
+`:94-227`).
+
+The Azure VMSS examples default to OAuth2 user-code onboarding. Each instance
+publishes its code to Azure Key Vault through a user-assigned managed identity;
+Terraform reads the collected codes and supplies them to the Service Edge Group.
+Setting `onboarding_method = "provisioning_key"` selects the provisioning-key
+path instead (`vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/pse_vmss/README.md:7-11`;
+`vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/pse_vmss/variables.tf:125-134`;
+`vendor/terraform-azurerm-zpa-private-service-edge-modules/examples/pse_vmss/main.tf:138-194`,
+`:273-390`).
 
 ### Module defaults and instance types
 
@@ -299,7 +326,14 @@ The AWS and Azure `terraform-zpa-service-edge-group` wrappers still share severa
 | `pse_group_upgrade_time_in_secs` | `66600` (18:30 UTC) | `upgrade_time_in_secs` |
 | `pse_group_override_version_profile` | `false` | `override_version_profile` |
 
-Version-profile handling now differs by cloud wrapper. Azure still defaults `pse_group_version_profile_id` to `"2"` (New Release). AWS defaults it to an empty string: with override disabled the module sends `null` and accepts the API-computed profile; with override enabled, an empty value resolves the `Default` profile, while explicit `0`, `1`, or `2` remains supported (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:57-76`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/main.tf:10-33`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:51-70`). AWS additionally exposes `pse_group_city_country` and OAuth2 `user_codes`; the Azure wrapper does not expose those inputs (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:24-28,91-95`).
+Both current cloud wrappers default `pse_group_version_profile_id` to an empty
+string and expose `pse_group_city_country` plus OAuth2 `user_codes`
+(`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:24-28`,
+`:57-76`, `:91-95`;
+`vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:24-27`,
+`:63-76`, `:91-95`). The Azure wrapper passes those values to the provider's
+Service Edge Group resource
+(`vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/main.tf:22-54`).
 
 **AWS PSE VM** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/variables.tf:34-47,78-93`; `vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zspse-psevm-aws/main.tf:16-28`):
 - Default instance type: `m5.large`

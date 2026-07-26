@@ -121,7 +121,7 @@ rhs        = "true"                  // two validators in common.go disagree on 
                                      // "false" is legal — see gotcha #6. Use "true".
 ```
 
-Source: `vendor/terraform-provider-zpa/zpa/common.go`. The provider has **two** TRUSTED_NETWORK validators that disagree on the legal `rhs` set: the single-operand validator (`common.go:147-158`) enforces `"true"` only (`if operand.RHS != "true"` at `common.go:155`), while the `entry_values` validator (`common.go:1111-1127`) accepts `"true"` or `"false"` (`if !rhsOk || (rhs != "true" && rhs != "false")` at `common.go:1124`). See gotcha #6.
+Source: `vendor/terraform-provider-zpa/zpa/common.go`. The provider has **two** TRUSTED_NETWORK validators that disagree on the legal `rhs` set: the single-operand validator (`common.go:147-158`) enforces `"true"` only (`if operand.RHS != "true"` at `common.go:155`), while the `entry_values` validator (`common.go:1116-1132`) accepts `"true"` or `"false"` (`if !rhsOk || (rhs != "true" && rhs != "false")` at `common.go:1129`). See gotcha #6.
 
 The TF provider validates `lhs` by calling `GetByNetID` at plan time — a plan with an invalid `networkId` will fail at `terraform plan`.
 
@@ -160,7 +160,7 @@ If `master_customer_id` is populated, the Trusted Network was inherited from a p
 **6. RHS semantics — two validators in the same provider disagree on whether `"false"` is legal.**
 The TF provider validates a `TRUSTED_NETWORK` operand through two different code paths, and they do **not** agree:
 - The **single-operand** validator (`common.go:147-158`) enforces `rhs = "true"` only: `if operand.RHS != "true"` at `common.go:155` rejects anything else. This is the strict path.
-- The **`entry_values`** validator (`common.go:1111-1127`) accepts `rhs = "true"` **or** `rhs = "false"`: `if !rhsOk || (rhs != "true" && rhs != "false")` at `common.go:1124` only rejects values outside that pair. This is the permissive path.
+- The **`entry_values`** validator (`common.go:1116-1132`) accepts `rhs = "true"` **or** `rhs = "false"`: `if !rhsOk || (rhs != "true" && rhs != "false")` at `common.go:1129` only rejects values outside that pair. This is the permissive path.
 
 So whether `"false"` (semantically "user is NOT on this trusted network") is accepted depends on which operand shape the resource emits. This is a genuine in-provider divergence — log it in `api-divergences.md` if not already captured. Operationally: **use `"true"` exclusively** so the condition is accepted by both validators regardless of which path runs.
 

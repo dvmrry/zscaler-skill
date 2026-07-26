@@ -5,7 +5,7 @@ title: "ZEASM Lookalike Domains — model fields, the raw-domain key, and narrat
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
 confidence: medium
 source-tier: code
 sources:
@@ -18,7 +18,7 @@ author-status: draft
 
 # ZEASM Lookalike Domains — model fields, the raw-domain key, and narrative-only signals
 
-> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.13.3 now wraps the Python client with read-only list/get tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:143-182`). The SDK model defines a fixed attribute set; signals that appear only in illustrative product narrative (similarity score, active-hosting, MX/DNS) are NOT source fields and are recorded under [Open questions](#open-questions).
+> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.13.4 now wraps the Python client with read-only list/get tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:143-182`). The SDK model defines a fixed attribute set; signals that appear only in illustrative product narrative (similarity score, active-hosting, MX/DNS) are NOT source fields and are recorded under [Open questions](#open-questions).
 
 ## Endpoints
 

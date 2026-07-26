@@ -7,8 +7,8 @@ last-verified: "2026-07-22"
 verified-against:
   vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/terraform-provider-zpa: 41cac5f54065b1a2264d0ab057eba8d0b35fca25
-  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
+  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
 confidence: medium
 source-tier: mixed
 sources:
@@ -44,7 +44,7 @@ Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zsca
 | Jump-host / bastion with full audit trail | **PRA** |
 | Emergency admin break-glass with oversight | **PRA** |
 
-Session recording, approval workflow, and credential pooling are documented as PRA features (`privileged-remote-access-captures.md:31-43, :55-61, :75-94`) and are implemented by dedicated PRA-specific API surfaces (`pra_approval.py:26`, `pra_credential_pool.py:25`). The Terraform PRA segment resource is hardcoded to `app_types = "SECURE_REMOTE_ACCESS"` (`resource_zpa_application_segment_pra.go:588`), distinct from the standard application-segment resource.
+Session recording, approval workflow, and credential pooling are documented as PRA features (`privileged-remote-access-captures.md:31-43, :55-61, :75-94`) and are implemented by dedicated PRA-specific API surfaces (`pra_approval.py:26`, `pra_credential_pool.py:25`). The Terraform PRA segment resource is hardcoded to `app_types = "SECURE_REMOTE_ACCESS"` (`resource_zpa_application_segment_pra.go:595`), distinct from the standard application-segment resource.
 
 ## Architecture
 
@@ -152,9 +152,9 @@ Relevant integration points from `references/zpa/app-segments.md`:
 
 - **Multimatch is not supported** on segments containing PRA-enabled applications. From the reference architecture: "Multimatch must be disabled if the configuration contains applications using the Access Type of Browser Access, AppProtection, or Privileged Remote Access."
 - **SIPA is not supported** on PRA segments — same architectural reason as Browser Access (protocol relay terminates before backend sees the packet).
-- On PRA segments, each app entry carries a `connection_security` value, validated against the enum `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP` (`resource_zpa_application_segment_pra.go:261`). `VM_CONNECT` is one of these connection-security/protocol options, not a separate "action" — it pairs with an `application_protocol` of `RDP`, `SSH`, or `VNC` (`resource_zpa_application_segment_pra.go:253`).
+- On PRA segments, each app entry carries a `connection_security` value, validated against the enum `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP` (`resource_zpa_application_segment_pra.go:268`). `VM_CONNECT` is one of these connection-security/protocol options, not a separate "action" — it pairs with an `application_protocol` of `RDP`, `SSH`, or `VNC` (`resource_zpa_application_segment_pra.go:260`).
 
-A PRA app entry's `application_protocol` is validated against `RDP`, `SSH`, `VNC` (`resource_zpa_application_segment_pra.go:253`), and `app_types` is forced to `["SECURE_REMOTE_ACCESS"]` on every PRA app the resource builds (`resource_zpa_application_segment_pra.go:588`) — you don't set it yourself. That hardcoding is what distinguishes a PRA segment from a standard application segment at the API layer.
+A PRA app entry's `application_protocol` is validated against `RDP`, `SSH`, `VNC` (`resource_zpa_application_segment_pra.go:260`), and `app_types` is forced to `["SECURE_REMOTE_ACCESS"]` on every PRA app the resource builds (`resource_zpa_application_segment_pra.go:595`) — you don't set it yourself. That hardcoding is what distinguishes a PRA segment from a standard application segment at the API layer.
 
 ## Consoles Policy (what users can actually do in-session)
 

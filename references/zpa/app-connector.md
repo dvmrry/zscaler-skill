@@ -11,7 +11,7 @@ verified-against:
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
   vendor/terraform-aws-zpa-app-connector-modules: a866e4988f002d0b50dcc0db10c06e46db4bf0e7
   vendor/terraform-azurerm-zpa-app-connector-modules: a03b6651d45b80b774661b19acb8ae3954694aa5
-  vendor/zscaler-mcp-server: 47fe874551023bf8d138c24612aa4ea0f16aaa56
+  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
 sources:
   - "https://help.zscaler.com/zpa/about-connectors"
   - "vendor/zscaler-help/about-app-connectors.md"
