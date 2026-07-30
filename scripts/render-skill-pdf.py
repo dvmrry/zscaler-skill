@@ -3,7 +3,7 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #     "markdown>=3.5",
-#     "pymdown-extensions>=10",
+#     "pymdown-extensions>=11.0.1",
 # ]
 # ///
 """render-skill-pdf.py — stitch the skill corpus into one packet.
