@@ -62,7 +62,7 @@ Currently used:
 
 - `pyyaml>=6` — frontmatter parsing
 - `httpx>=0.27` — GitHub API calls (issue-watch and maintenance digest sticky issues)
-- `markdown>=3.5`, `pymdown-extensions>=10` — PDF rendering
+- `markdown>=3.5`, `pymdown-extensions>=11.0.1` — PDF rendering
 
 When a reference doc intentionally adds, removes, or restructures visible
 `Source:` coverage, regenerate the citation inventory in the same PR:
