@@ -5,7 +5,7 @@ title: "Runbooks — actionable patterns and troubleshooting flows"
 content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 confidence: high
 source-tier: mixed
 sources:
@@ -46,7 +46,7 @@ Use this when starting a new automation, or when an inherited script is failing 
 Run the [cloud detection](#diagnostic-1-which-cloud-is-this-tenant-on) procedure. Outcomes:
 
 - **Commercial cloud** (`zscaler.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`, `zscalerbeta.net`, `zscalerone.net`): OneAPI eligible if tenant has migrated to ZIdentity.
-- **Gov cloud** (`zscalergov`, `zscalerten`, ZPA `GOV` / `GOVUS`; OneAPI-capable clients use `gov` / `govus`): do not assume a single answer. Current Go/Python SDKs model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, ZIA Terraform v4.7.25+ documents the same path, and ZPA Terraform still requires product-specific legacy auth for `GOV` / `GOVUS` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:156`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`).
+- **Gov cloud** (`zscalergov`, `zscalerten`, ZPA `GOV` / `GOVUS`; OneAPI-capable clients use `gov` / `govus`): do not assume a single answer. Current Go/Python SDKs model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, ZIA Terraform v4.7.25+ documents the same path, and ZPA Terraform still requires product-specific legacy auth for `GOV` / `GOVUS` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:332`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`).
 - **Sub-cloud** (custom CONUS or tenant-specific subcloud): same OneAPI-vs-legacy logic as the parent commercial cloud.
 
 ### Step 2 — Identify the product set

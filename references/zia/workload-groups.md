@@ -5,7 +5,7 @@ title: "ZIA Workload Groups — policy-scoping primitive (sourced from SDK / TF;
 content-type: reasoning
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: medium
 source-tier: code
 sources:
@@ -13,6 +13,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/workload_groups.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py"
   - "vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/terraform-provider-zia/zia/resource_zia_workload_groups.go"
@@ -192,14 +195,21 @@ param** on `/workloadGroups`. To resolve a group by name you list all groups and
 filter locally. The Go SDK's `GetByName` does exactly this — it calls
 `common.ReadAllPages` then filters in Go with `strings.EqualFold`
 (`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:85-97`),
-which also makes the match **case-insensitive**. MCP v0.13.4 accepts only `page`
-and `page_size`, forwards those pagination keys, and exposes no `query` argument
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py:22-24,81-100`).
-MCP callers therefore need to page/list and filter the returned rows locally.
-The current lookup workflow still recommends
+which also makes the match **case-insensitive**. MCP v0.14.0's resource input
+model accepts `page` and `page_size`, forwards those pagination keys, and has no
+server-side name/search field (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py:22-24`, `:43-61`).
+The registry nevertheless marks collection-returning tools as query-capable, and
+the bridge adds an optional JMESPath `query` argument that filters/projects the
+rows after the API call (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:99-116`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:220-247`, `:295-301`).
+The current lookup workflow's recommendation
 `zia_list_workload_groups(query="[?name=='...']")`
 (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:55,176`),
-which is skill drift against the executable tool.
+therefore matches the executable bridge, but it filters only the rows returned by
+the API call; it does not add a server-side name lookup or automatic all-page scan.
+Without `query`, the tool returns each full SDK model record through `shape_many`,
+not a curated subset or raw HTTP response (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py:43-61`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`).
 
 TF `zia_workload_groups` resource: supports create, read, update, delete, and
 import by either numeric ID or name. Changes trigger `ZIA_ACTIVATION` if the

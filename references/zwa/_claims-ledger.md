@@ -6,12 +6,12 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: high
 source-tier: mixed
@@ -63,10 +63,10 @@ This ledger covers the Workflow Automation claims changed or explicitly guarded 
 | Closed incidents have status Resolved, and after closure admins can still perform all other actions except Investigating and Escalate while status remains Resolved. | `overview.md` | `vendor/zscaler-help/zwa-managing-incidents.md:267-285` |
 | Predefined workflow templates include auto-close, auto-create-ticket, auto-escalate, auto-notify, notify-and-close, concurrent notify/escalate, sequential notify/escalate, and notify/escalate-to-manager variants. | `overview.md` | `vendor/zscaler-help/understanding-workflows-workflow-automation.md:27-39` |
 | Workflow mappings are required after configuring a predefined or custom workflow; the mapping chooses incident attributes that trigger the workflow. | `overview.md` | `vendor/zscaler-help/understanding-workflows-workflow-automation.md:43` |
-| Python current-client `client.zwa` resolves to `ZWAService` unless the client is in legacy mode. | `api.md`, `index.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:271-277` |
+| Python current-client `client.zwa` resolves to `ZWAService` unless the client is in legacy mode. | `api.md`, `index.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:287-293` |
 | Python `ZWAService` exposes only `audit_logs` and `dlp_incidents` service properties. | `api.md`, `audit-logs.md` | `vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:21-41` |
-| Python OneAPI configuration uses `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN` for current-client auth. | `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:233-244` |
-| Python `LegacyZWAClient` uses `key_id`, `key_secret`, `cloud`, and optional `partnerId`, with environment variables `ZWA_CLIENT_ID`, `ZWA_CLIENT_SECRET`, and `ZWA_CLOUD`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:636-656` |
+| Python OneAPI configuration uses `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN` for current-client auth. | `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:241-252` |
+| Python `LegacyZWAClient` uses `key_id`, `key_secret`, `cloud`, and optional `partnerId`, with environment variables `ZWA_CLIENT_ID`, `ZWA_CLIENT_SECRET`, and `ZWA_CLOUD`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:738-758` |
 | Python `LegacyZWAClientHelper` defaults to `https://api.<cloud>.zsworkflow.net`, requires key ID and secret, obtains a token from `/v1/auth/api-key/token`, and sets `Authorization: Bearer <token>`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`, `:120-126`, `:140-185` |
 | Legacy help says ZWA API authentication uses API key ID + key secret, `POST /v1/auth/api-key/token`, token/token_type/expires_in, and bearer-token use for subsequent requests. | `api.md` | `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md:8-17`, `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37` |
 | Go ZWA configuration uses `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, optional `ZWA_CLOUD`, and `https://api.<cloud>.zsworkflow.net`; it authenticates against `/v1/auth/api-key/token`. | `api.md` | `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294` |

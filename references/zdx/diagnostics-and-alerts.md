@@ -5,8 +5,8 @@ title: "ZDX Diagnostics Sessions (deeptraces) and Alerts"
 content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: high
 source-tier: mixed
 sources:
@@ -25,8 +25,12 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zdx/models/devices.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/_common.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/deeptrace_manage.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/list_deep_traces.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/deeptrace_analysis.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/device_web_probes.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/device_cloudpath_probes.py"
@@ -107,6 +111,30 @@ From `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`, the SDK uses "d
 
 **Terminology mapping**: the SDK method name `start_deeptrace` corresponds to the portal action "Start a New Diagnostics Session." When writing scripts or agent answers, use "deeptrace" when talking about the SDK/API; use "Diagnostics Session" when talking about the admin portal.
 
+### MCP v0.14.0 record and timestamp behavior
+
+The MCP deep-trace list, get, and metric readers return full SDK-modeled
+records rather than fixed summary views. The list path unwraps each trace and
+passes its `as_dict()` record through unchanged; get unwraps the SDK's
+single-element list; metric readers likewise convert whatever SDK models were
+returned and preserve all modeled attributes
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/list_deep_traces.py:47-98`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/_common.py:159-176`;
+full-record contract at
+`vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). This is
+SDK-model passthrough, not raw HTTP, so the MCP layer does not guarantee a
+particular metric field set; fields depend on the SDK model/result returned by
+the operation (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`).
+
+Those list/get/metric paths no longer apply the older timestamp-normalization
+helper, so timestamp fields stay in the representation supplied by the SDK
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/list_deep_traces.py:47-98`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/_common.py:159-176`). The
+recursive `convert_timestamps()` helper still exists and is explicitly used for
+the synthetic analysis-status `data` envelope
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/_common.py:99-129`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/deeptrace_analysis.py:116-124`).
+
 ### Starting a deeptrace: the required pre-call read chain
 
 Source: `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/deeptrace_manage.py`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/devices.py`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/examples/zdx/deeptrace/deep_trace_start/main.go`.
@@ -115,7 +143,7 @@ The MCP `StartDeepTraceInput` workflow directs callers to resolve `app_id` with 
 
 The Go `deep_trace_start` example confirms the same ordering at the usage level: it prompts for device ID, app ID, web probe ID, and cloud path probe ID in that order, and only then constructs `DeepTraceSessionPayload` and calls `CreateDeepTraceSession` (`vendor/zscaler-sdk-go/examples/zdx/deeptrace/deep_trace_start/main.go:44-99`, `:101`).
 
-**Step 1 reads applications tenant-wide.** Application listing is `GET /zdx/v1/apps` with no device/app path scoping — `list_apps` in the Python SDK (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py:82-85`) and `GetAllApps` in Go (`appsEndpoint = /zdx/v1/apps` at `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`, `:43-45`). The MCP `list_applications` input offers optional `location_id`, `department_id`, `geo_id`, and `since` filters and forwards them to `client.zdx.apps.list_apps(query_params=...)` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/list_applications.py:25-40`, `:97-104`). Its output is a list of curated `ApplicationSummary` dictionaries containing `id`, `name`, `score`, `most_impacted_region`, and `total_users`, not raw `ActiveApplications.as_dict()` records (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/list_applications.py:48-71`, `:87-108`).
+**Step 1 reads applications tenant-wide.** Application listing is `GET /zdx/v1/apps` with no device/app path scoping — `list_apps` in the Python SDK (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py:82-85`) and `GetAllApps` in Go (`appsEndpoint = /zdx/v1/apps` at `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`, `:43-45`). The MCP `list_applications` input offers optional `location_id`, `department_id`, `geo_id`, and `since` filters and forwards them to `client.zdx.apps.list_apps(query_params=...)` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/list_applications.py:25-40`, `:53-81`). Its output is the full `as_dict()` record supplied by each SDK application model, with no fixed MCP-owned field whitelist (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/list_applications.py:53-81`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:101-113`).
 
 ### Probe IDs are scoped to a (device, app) pair
 
@@ -230,11 +258,11 @@ Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vend
 - **Alerts on 0-availability probes**: may fire briefly on a transient network issue (one failed probe → availability = 0 for that window). Tune alert duration minimums to avoid flap.
 - **Historical alerts with status `Completed by Modified Rule`**: the alert's thresholds as-displayed may be the new-rule thresholds, not the thresholds that were active when the alert fired. Treat thresholds on historical alerts as "current rule snapshot," not "as-fired."
 
-## MCP v0.13.4 guided-prompt drift
+## MCP v0.14.0 guided-prompt drift
 
-The new `zdx_troubleshoot_user_experience` MCP prompt is not schema-safe as shipped. It calls `zdx_list_devices(search=...)`, but the current tool accepts `emails`, `user_ids`, MAC/IP, location/department/geo, `since`, and `offset`—not `search` (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:36-42`, `:68-73`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:27-58`). It then expects `zdx_get_device` to return CPU, memory, disk, adapter, and ZCC-tunnel health, while that tool's curated output contains only device ID/name and owning-user identity (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:68-73`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:85-103`, `:153-185`).
+The `zdx_troubleshoot_user_experience` MCP prompt is not schema-safe as shipped. It calls `zdx_list_devices(search=...)`, but the current tool accepts `emails`, `user_ids`, MAC/IP, location/department/geo, `since`, and `offset`—not `search` (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:36-42`, `:68-73`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:27-58`). The prompt also asks `zdx_get_device` for CPU, memory, disk, adapter, and ZCC-tunnel health (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:68-73`). The list/get implementations now preserve the full SDK device records, but the MCP contract does not promise those particular health fields; their availability depends on the SDK model/result returned for that tenant and call (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/active_devices.py:94-128`, `:131-162`; `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`).
 
-The prompt also says to pass every ID as a string, but `zdx_start_deeptrace` requires integer `app_id`, `web_probe_id`, and `cloudpath_probe_id` values and explicitly coerces them before the SDK call (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:58-64`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/deeptrace_manage.py:37-48`, `:103-121`). Until upstream aligns the prompt with its registered schemas and output views, use the prompt only as a conceptual sequence and build calls from the current tool models documented above.
+The prompt also says to pass every ID as a string, but `zdx_start_deeptrace` requires integer `app_id`, `web_probe_id`, and `cloudpath_probe_id` values and explicitly coerces them before the SDK call (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zdx/troubleshoot_user_experience.py:58-64`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/deeptrace_manage.py:37-48`, `:103-121`). Until upstream aligns the prompt with its registered schemas and SDK-owned result contract, use the prompt only as a conceptual sequence and build calls from the current tool models documented above.
 
 ## Open questions
 

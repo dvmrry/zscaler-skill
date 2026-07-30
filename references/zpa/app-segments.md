@@ -6,8 +6,8 @@ content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
 confidence: high
 source-tier: mixed

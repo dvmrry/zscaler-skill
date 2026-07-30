@@ -7,7 +7,14 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: code
 sources:
+  - vendor/zscaler-sdk-python/pyproject.toml
+  - vendor/zscaler-sdk-python/CHANGELOG.md
   - vendor/zscaler-sdk-python/zscaler/zpa/
+  - vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py
+  - vendor/zscaler-sdk-python/zscaler/zpa/legacy.py
+  - vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py
+  - vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py
+  - vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py
   - vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst
   - vendor/zscaler-sdk-python/README.md
   - vendor/zscaler-sdk-go/zscaler/zpa/services/
@@ -1727,6 +1734,87 @@ Also defines `_post_search_all_pages` as a module-level helper used by
 | `update_namespace` | `(namespace_id: str, **kwargs) -> APIResult[Namespace]` |
 | `delete_namespace` | `(namespace_id: str, microtenant_id=None) -> APIResult[None]` |
 | `update_namespace_status` | `(namespace_id: str, **kwargs) -> APIResult[UpdateStatusRequest]` |
+
+---
+
+### 2.69 PolicyGroupAPI
+
+| | |
+|---|---|
+| **Property** | `client.zpa.policy_group` |
+| **Class** | `PolicyGroupAPI` |
+| **File** | `zscaler/zpa/policy_group.py` |
+| **Base path** | `/zpa/mgmtconfig/v1/admin/customers/{customerId}` |
+
+**Methods**
+
+| Method | Signature and endpoint |
+|---|---|
+| `add_group` | `(group_set_id: str, **kwargs)` — POST `/policyGroupSet/{groupSetId}/group` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-96`). |
+| `list_groups` | `(group_set_id: str, query_params=None)` — GET `/policyGroupSet/{groupSetId}/group/all` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:98-165`). |
+| `search_groups` | `(group_set_id: str, **kwargs)` — POST `/policyGroupSet/{groupSetId}/group/search`; `group_set_id` is a required positional argument (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:167-210`). |
+| `get_group` | `(group_set_id: str, group_id: str, query_params=None)` — GET `/policyGroupSet/{groupSetId}/group/{groupId}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:250-295`). |
+| `update_group` | `(group_set_id: str, group_id: str, **kwargs)` — PUT `/policyGroupSet/{groupSetId}/group/{groupId}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:297-362`). |
+| `delete_group` | `(group_set_id: str, group_id: str, microtenant_id=None)` — DELETE `/policyGroupSet/{groupSetId}/group/{groupId}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:212-248`). |
+| `reorder_group` | `(group_set_id: str, group_id: str, new_order: str, microtenant_id=None)` — PUT `/policyGroupSet/{groupSetId}/group/{groupId}/reorder/{newOrder}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:364-388`). |
+
+The base prefix is constructed from the configured customer ID
+(`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:32-36`). List results
+contain the current response page; callers use the shared response pagination
+surface for subsequent pages (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:140-165`).
+
+---
+
+### 2.70 PolicyGroupRuleAPI
+
+| | |
+|---|---|
+| **Property** | `client.zpa.policy_group_rule` |
+| **Class** | `PolicyGroupRuleAPI` |
+| **File** | `zscaler/zpa/policy_group_rule.py` |
+| **Base path** | `/zpa/mgmtconfig/v1/admin/customers/{customerId}` |
+
+**Methods**
+
+| Method | Signature and endpoint |
+|---|---|
+| `list_rules` | `(group_set_id: str, group_id: str, query_params=None)` — GET `/policyGroupSet/{groupSetId}/group/{groupId}/rule` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:37-104`). |
+| `add_rule` | `(group_set_id: str, group_id: str, **kwargs)` — POST `/policyGroupSet/{groupSetId}/group/{groupId}/rule` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:106-203`). |
+| `get_rule` | `(group_set_id: str, group_id: str, rule_id: str, query_params=None)` — GET `/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:244-292`). |
+| `delete_rule` | `(group_set_id: str, group_id: str, rule_id: str, microtenant_id=None)` — DELETE `/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:205-242`). |
+| `reorder_rule` | `(group_set_id: str, group_id: str, rule_id: str, new_order: str, microtenant_id=None)` — PUT `/policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}/reorder/{newOrder}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:294-321`). |
+
+There is no direct rule-update method in this controller; its exported surface
+is list, create, get, delete, and reorder
+(`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:37-321`).
+
+---
+
+### 2.71 PolicyGroupSetAPI
+
+| | |
+|---|---|
+| **Property** | `client.zpa.policy_group_set` |
+| **Class** | `PolicyGroupSetAPI` |
+| **File** | `zscaler/zpa/policy_group_set.py` |
+| **Base path** | `/zpa/mgmtconfig/v1/admin/customers/{customerId}` |
+
+This controller is read-only in the current Python surface:
+
+| Method | Signature and endpoint |
+|---|---|
+| `list_sets` | `(query_params=None)` — GET `/policyGroupSet` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:40-103`). |
+| `get_set_by_policy_type` | `(policy_type: str, query_params=None)` — GET `/policyGroupSet/policyType/{policyType}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:105-151`). |
+| `list_rules` | `(policy_type: str, query_params=None)` — GET `/policyGroupSet/policyType/{policyType}/rules` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:153-219`). |
+| `get_set_summary` | `(policy_type: str, query_params=None)` — GET `/policyGroupSet/policyType/{policyType}/summary` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:221-265`). |
+| `get_set_summary_stats` | `(policy_type: str, query_params=None)` — GET `/policyGroupSet/policyType/{policyType}/summaryStats` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:267-313`). |
+| `get_set` | `(group_set_id: str, query_params=None)` — GET `/policyGroupSet/{groupSetId}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:315-340`). |
+
+Python v1.9.39 registers all three controllers on unified `ZPAService`
+(`vendor/zscaler-sdk-python/pyproject.toml:1-4`;
+`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:504-517`). The equivalent
+legacy properties remain commented out, so these accessors are unified-client
+only (`vendor/zscaler-sdk-python/zscaler/zpa/legacy.py:1070-1098`).
 
 ---
 

@@ -12,7 +12,15 @@ sources:
   - "vendor/zscaler-help/zero-trust-exchange-zte-marketing.md"
   - "vendor/zscaler-help/data-fabric-for-security-marketing.md"
   - "vendor/zscaler-help/security-operations-suite-marketing.md"
-  - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/policies.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
   - "vendor/zscaler-help/ai-guard-users-help-index.md"
   - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
@@ -92,7 +100,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
 |---|---|---|---|
 | **ZBI — Cloud Browser Isolation** | Remote-browser rendering for risky / unmanaged-device scenarios. Isolation profiles, Smart Browser Isolation, ZPA Isolation Policy. Marketed as "Zero Trust Browser." | [`zbi/index.md`](../zbi/index.md) | Python `zscaler/zia/cloud_browser_isolation.py` + Go `zscaler/zpa/services/cloudbrowserisolation/*` |
 | **ZWA — Workflow Automation** | DLP incident lifecycle management. Incident triage, workflows, ticketing/notification integrations. Downstream of ZIA DLP. | [`zwa/index.md`](../zwa/index.md) | Python `zscaler/zwa/` + Go `zscaler/zwa/` |
-| **AI Guard** | Runtime prompt/response policy detection for AI and LLM applications. The current Help tree also covers User-mode architecture, quick starts, prompt allowlisting, topology, token usage, audit, and troubleshooting, though several article bodies remain uncaptured. | [`ai-security/index.md`](../ai-security/index.md) | Python `zscaler/zaiguard/` policy detection plus a captured 47-operation Automate admin contract. No verified Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper for that admin plane. |
+| **AI Guard** | Runtime prompt/response policy detection for AI and LLM applications. The current Help tree also covers User-mode architecture, quick starts, prompt allowlisting, topology, token usage, audit, and troubleshooting, though several article bodies remain uncaptured. | [`ai-security/index.md`](../ai-security/index.md) | Python `zscaler/aiguard/` exposes 39 callable methods across six OneAPI configuration resources; `LegacyAIGuardClient` separately routes policy detection (`vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:671-712`; resource inventories in `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`, `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`). Automate validates 47 operations, so Python lacks eight documented actions; no verified Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper covers that admin plane (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). |
 | **ZMS — Zscaler Microsegmentation** | East-west / workload-to-workload policy via host agents (Win/Linux); AI policy recommendations (14-day rolling telemetry); local OS enforcement (WFP / nftables). Positioned as a ZPA add-on. | [`zms/overview.md`](../zms/overview.md) · [`zms/api.md`](../zms/api.md) | Python `zscaler/zms/` **read-only** GraphQL (`client.zms.*`, `POST /zms/graphql`); no Go SDK, no Terraform. Write config portal-only. |
 | **EASM — External Attack Surface Management** | Outside-in discovery of internet-exposed assets (domains/IPs/services/certs); CISA-KEV + EPSS risk prioritization. Exposure Management suite; distinct from AEM (inside-out CAASM). | [`easm/overview.md`](../easm/overview.md) | Python `zscaler/zeasm/` **read-only** (organizations, findings, lookalike domains); no Go SDK. |
 | **ZCell — Zscaler Cellular** | SIM / Cellular Edge management surface for IoT/OT cellular connectivity: anomaly policies, SIM inventory/actions, SIM analytics, SIM location groups, tags, customer regions, audit, and network-event search. The current Help index exposes 21 articles; 19 bodies remain uncaptured. | [`zscaler-cellular/index.md`](../zscaler-cellular/index.md) · [`zscaler-cellular/api.md`](../zscaler-cellular/api.md) | Captured 36-operation Automate contract, Python `client.zcell.*`, and 20 read-only MCP tools with three guided prompts; no Go SDK, Terraform, or Ansible surface found. |

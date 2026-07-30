@@ -8,7 +8,7 @@ confidence: medium
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/**"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
@@ -40,7 +40,7 @@ This doc records the source-vs-source disagreements found across the `zid` surfa
 
 **What each source says:**
 
-- **Python SDK:** every `zid` service class sets `_zidentity_base_endpoint = "/ziam/admin/api/v1"`. (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/groups.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:31`) The request executor resolves the host to `https://api.zsapi.net` for production (`vendor/zscaler-sdk-python/zscaler/request_executor.py:33`) or `https://api.{cloud}.zsapi.net` for non-government non-production clouds (`vendor/zscaler-sdk-python/zscaler/request_executor.py:186-189`). Net production URL: `https://api.zsapi.net/ziam/admin/api/v1/...`
+- **Python SDK:** every `zid` service class sets `_zidentity_base_endpoint = "/ziam/admin/api/v1"`. (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/groups.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:31`) The request executor resolves the host to `https://api.zsapi.net` for production (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`) or `https://api.{cloud}.zsapi.net` for non-government non-production clouds (`vendor/zscaler-sdk-python/zscaler/request_executor.py:188-190`). Net production URL: `https://api.zsapi.net/ziam/admin/api/v1/...`
 - **Go SDK:** every `zid` service constant uses the bare `/admin/api/v1` prefix (`vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`, `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:17`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:13`, `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:12`). The client detects a ZIdentity request by the substring `/admin/api/v1` and rewrites the host to the vanity-domain admin host: `https://{vanity}-admin.zslogin.net` for production, `https://{vanity}-admin.zslogin{cloud}.net` otherwise. (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:388,410,412`) Net production URL: `https://{vanity}-admin.zslogin.net/admin/api/v1/...`
 - **Postman:** the `ZIAMBase` collection variable is `{{oneAPIBaseUrl}}/ziam/admin/api/v1` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136360`), matching the Python prefix.
 
@@ -56,7 +56,7 @@ feeding them into the commercial hostname pattern:
 - `govus` authenticates at `https://{vanity}.zidentitygov.us/oauth2/v1/token`
   and sends API traffic to `https://api.zscalergov.us`.
 
-Source: `vendor/zscaler-sdk-python/zscaler/constants.py:21-29`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:480-501`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:172-189`.
+Source: `vendor/zscaler-sdk-python/zscaler/constants.py:21-29`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:480-501`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:173-190`.
 
 Do not construct government URLs as `api.gov.zsapi.net` or
 `{vanity}.zslogingov.net`; those follow the old commercial-pattern inference,
@@ -124,7 +124,7 @@ not the current SDK contract.
 
 **What each source says:**
 
-- **Python SDK:** the groups list docstring exposes the `query_params` keys as `exclude_dynamic_groups` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:53`) and the partial-match filter as `name[like]` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:52`, `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:52`). Those are the *method-argument* spellings, not the wire spellings: `create_request` routes the params dict through `_prepare_params`, and because a ZIdentity URL (`/ziam/admin/api/v1`) resolves to the non-ZPA service type `"ziam"` (`vendor/zscaler-sdk-python/zscaler/request_executor.py:183-184`), it takes the non-ZPA else-branch (`:466-468`) which calls `convert_keys_to_camel_case(params)` (`:468`). That helper lower-camelCases each key via `to_lower_camel_case` (`vendor/zscaler-sdk-python/zscaler/helpers.py:341`, `:152-314`), so Python actually sends `excludeDynamicGroups` on the wire (and `loginName` / `displayName[like]` / `primaryEmail[like]` for the per-user filters). The `name[like]` filter has no underscore, so it passes through unchanged (`helpers.py:301-302`).
+- **Python SDK:** the groups list docstring exposes the `query_params` keys as `exclude_dynamic_groups` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:53`) and the partial-match filter as `name[like]` (`vendor/zscaler-sdk-python/zscaler/zid/groups.py:52`, `vendor/zscaler-sdk-python/zscaler/zid/api_client.py:52`). Those are the *method-argument* spellings, not the wire spellings: `create_request` routes the params dict through `_prepare_params`, and because a ZIdentity URL (`/ziam/admin/api/v1`) resolves to the non-ZPA service type `"ziam"` (`vendor/zscaler-sdk-python/zscaler/request_executor.py:196-197`), it takes the non-ZPA else-branch (`:503-506`) which calls `convert_keys_to_camel_case(params)` (`:505`). That helper lower-camelCases each key via `to_lower_camel_case` (`vendor/zscaler-sdk-python/zscaler/helpers.py:162-342`, `:357-374`), so Python actually sends `excludeDynamicGroups` on the wire (and `loginName` / `displayName[like]` / `primaryEmail[like]` for the per-user filters). The `name[like]` filter has no underscore, so it passes through unchanged (`helpers.py:329-342`).
 - **Go SDK:** the shared `PaginationQueryParams` struct maps the exclude flag to the run-together lowercase wire key `excludedynamicgroups` (`url:"excludedynamicgroups,omitempty"`) and the filter to `name[like]` with the brackets preserved (`url:"name[like],omitempty"`). (`vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:35,36`) The `ToURLValues` serializer emits exactly `values.Set("excludedynamicgroups", "true")` and `values.Set("name[like]", ...)`. (`vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:113,116`)
 - **Postman:** request URLs spell the filter with brackets on the wire, e.g. `.../api-clients?...&name[like]=ut`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:129152`)
 

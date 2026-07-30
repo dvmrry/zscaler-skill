@@ -6,11 +6,12 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
+  - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/terraform-provider-zpa/zpa/**"
@@ -2243,6 +2244,21 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | Windows | windows | string |  |  |
 | IOS | ios | string |  |  |
 | MacOS | mac | string |  |  |
+
+## Policy-group controller response routing
+
+Python v1.9.39 adds three unified controllers beneath
+`/zpa/mgmtconfig/v1/admin/customers/{customerId}`
+(`vendor/zscaler-sdk-python/pyproject.toml:1-4`;
+`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:504-517`;
+`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:32-36`). Their response
+model routing is:
+
+| Controller | Response models and operation boundary |
+|---|---|
+| `policy_group` | Create/get/update decode `PolicyGroup`; list returns the current page of `PolicyGroup`; advanced search decodes `CommonFilterSearch`; delete/reorder return no resource model (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-388`). |
+| `policy_group_rule` | List/create/get decode `PolicyRule`; delete/reorder return no resource model. The controller has no direct update operation (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:37-321`). |
+| `policy_group_set` | List, by-policy-type, and summary reads decode `PolicyGroupSetSummary`; cross-group rule list decodes `PolicyRule`; summary stats decode `PolicyGroupSetSummaryStat`; get-by-ID decodes `PolicyGroupSet` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:40-340`). |
 
 ## Conditions
 

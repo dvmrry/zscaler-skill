@@ -5,20 +5,22 @@ title: "ZEASM Lookalike Domains — model fields, the raw-domain key, and narrat
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zeasm/lookalike_domains.py"
   - "vendor/zscaler-sdk-python/zscaler/zeasm/models/lookalike_domains.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py"
   - "vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md"
 author-status: draft
 ---
 
 # ZEASM Lookalike Domains — model fields, the raw-domain key, and narrative-only signals
 
-> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.13.4 now wraps the Python client with read-only list/get tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:143-182`). The SDK model defines a fixed attribute set; signals that appear only in illustrative product narrative (similarity score, active-hosting, MX/DNS) are NOT source fields and are recorded under [Open questions](#open-questions).
+> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.14.0 wraps the Python client with read-only list/get tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:67-94`, `:97-126`). The list tool unwraps the SDK collection's `results`, and both tools return full SDK model records through the shared record-preserving shapers; these are SDK-model records, not raw HTTP responses (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). The SDK model defines a fixed attribute set; signals that appear only in illustrative product narrative (similarity score, active-hosting, MX/DNS) are NOT source fields and are recorded under [Open questions](#open-questions).
 
 ## Endpoints
 
@@ -41,7 +43,7 @@ The same raw domain string is also the model's `lookalike_raw` field; the legiti
 
 ### MCP tool note — key naming
 
-The registered MCP get-tool input schema uses `lookalike_raw` for the raw domain string, matching the SDK parameter name (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:39-54`, `:174-198`; SDK signature at `vendor/zscaler-sdk-python/zscaler/zeasm/lookalike_domains.py:97-103`). The product SKILL.md uses `domain_id`, which does not match the registered MCP input schema (`vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md:89`).
+The registered MCP get-tool input schema uses `lookalike_raw` for the raw domain string, matching the SDK parameter name (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:39-54`, `:97-125`; SDK signature at `vendor/zscaler-sdk-python/zscaler/zeasm/lookalike_domains.py:97-103`). The product SKILL.md uses `domain_id`, which does not match the registered MCP input schema (`vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md:89`).
 
 ## Lookalike-domain field set (`LookalikeDomainDetails`)
 

@@ -39,6 +39,17 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/dlp_resources.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/dlp_templates.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_to_cloud_ir.py"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
+  - "vendor/zscaler-sdk-python/zscaler/zia/dlp_endpoint_resource.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/endpoint_dlp_resource_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/endpoint_dlp_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/endpoint_dlp_sub_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/endpoint_custom_apps.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/endpoint_application_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/web_dlp_global_options.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/zia_service.py"
 author-status: draft
 ---
@@ -192,6 +203,7 @@ The SDK splits DLP into distinct namespaces, each its own REST surface (`vendor/
 | `client.zia.dlp_resources` | `/icapServers`, `/incidentReceiverServers`, `/idmprofile`, `/dlpExactDataMatchSchemas` (`dlp_resources.py:78,265,436,528`; registered `zia_service.py:285`) | The downstream forwarding/matching infrastructure: ICAP servers, Zscaler Incident Receivers, IDM profiles, EDM schemas. |
 | `client.zia.dlp_templates` | DLP notification templates (registered `zia_service.py:277`) | The email-notification templates referenced by a rule. |
 | `client.zia.cloud_to_cloud_ir` | `/cloudToCloudIR` (`cloud_to_cloud_ir.py:78,123,187`; registered `zia_service.py:715`) | Cloud-to-Cloud Incident Forwarding receivers (the C2C surface ZWA ingests from). |
+| `client.zia.web_dlp_global_options` | GET/PUT `/webDlpGlobalOptions` (`vendor/zscaler-sdk-python/zscaler/zia/web_dlp_global_options.py:37-112`; registered `vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:865-871`) | Tenant-wide Web DLP advanced settings. |
 
 The split is the API-level expression of the doc's core indirection: **a rule references engines, never dictionaries** — the rule model carries a `dlp_engines` list (`models/dlp_web_rules.py:117-119`) and there is no dictionary field on the rule. Wrapping a custom dictionary in an engine first is a literal API requirement, not just a UI convention.
 
@@ -235,16 +247,26 @@ Source: `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md`
 
 ## Endpoint DLP
 
-Go v3.8.41 introduced Endpoint DLP as several distinct management families, not only as fields on an inline DLP rule (`vendor/zscaler-sdk-go/CHANGELOG.md:12-13,23-73`):
+Go v3.8.41 introduced Endpoint DLP as several distinct management families, not only as fields on an inline DLP rule; Python v1.9.39 now registers matching unified-client families (`vendor/zscaler-sdk-go/CHANGELOG.md:12-13,23-73`; `vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:849-919`):
 
 | Object family | Management surface |
 |---|---|
-| Application catalog | `GET /zia/api/v1/endPointApplications`, `/lite`, `/count`, `/cloudApps/count`, `/policies`, and `/getCategoriesWithNonEmptyApps`; list and category reads aggregate pagination (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:13-14,37-93,124-177`). |
-| Custom applications | List/get/create/update/delete through `/zia/api/v1/endPointApplications/customApps` and `/customApp[/{id}]` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:15-16,67-89,93-133`). |
-| Application groups | List/create/update/delete, policy-association read, and resource-association update through `/zia/api/v1/endPointApplicationGroups` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go:18-19,46-84,92-101,133-145`). |
-| Endpoint resources | CRUD at `/zia/api/v1/dlpEndpointResource`; channel-scoped reads accept `PRINTING`, `REMOVABLE_DRIVE_TRANSFER`, `NETWORK_DRIVE_TRANSFER`, and `PERSONAL_CLOUD_STORAGE` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go:12-29,55-80`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_channel/endpoint_resource_channel.go:13-27,41-75`). |
-| Resource groups | CRUD at `/zia/api/v1/endPointDlpResourceGroups`, channel-scoped list reads, resource-to-group reads, and group-resource association reads/updates (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go:17-38,57-98,102-145`). |
-| Rules and exceptions | Rule CRUD/list/get at `/zia/api/v1/endPointDlpRules`; exception/sub-rule create/update/delete at `/zia/api/v1/endPointDlpRules/{id}/subRule[/{subRuleId}]` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go:17-18,67-128`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go:14-15,57-84`). |
+| Application catalog | `GET /zia/api/v1/endPointApplications`, `/lite`, `/count`, `/cloudApps/count`, `/policies`, and `/getCategoriesWithNonEmptyApps` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:13-14,37-93,124-177`; `vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:39-381`). |
+| Custom applications | List/get/create/update/delete through `/zia/api/v1/endPointApplications/customApps` and `/customApp[/{id}]` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:15-16,67-89,93-133`; `vendor/zscaler-sdk-python/zscaler/zia/endpoint_custom_apps.py:38-299`). |
+| Application groups | List/create/update/delete, policy-association read, and resource-association update through `/zia/api/v1/endPointApplicationGroups` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go:18-19,46-84,92-101,133-145`; `vendor/zscaler-sdk-python/zscaler/zia/endpoint_application_groups.py:38-320`). |
+| Endpoint resources | CRUD at `/zia/api/v1/dlpEndpointResource`; channel-scoped reads accept `PRINTING`, `REMOVABLE_DRIVE_TRANSFER`, `NETWORK_DRIVE_TRANSFER`, and `PERSONAL_CLOUD_STORAGE` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go:12-29,55-80`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_channel/endpoint_resource_channel.go:13-27,41-75`; `vendor/zscaler-sdk-python/zscaler/zia/dlp_endpoint_resource.py:37-287`). |
+| Resource groups | CRUD at `/zia/api/v1/endPointDlpResourceGroups`, channel-scoped list reads, resource-to-group reads, and group-resource association reads/updates (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go:17-38,57-98,102-145`; `vendor/zscaler-sdk-python/zscaler/zia/endpoint_dlp_resource_groups.py:38-392`). |
+| Rules and exceptions | Rule CRUD/list/get plus file-category reads at `/zia/api/v1/endPointDlpRules`; exception/sub-rule create/update/delete at `/zia/api/v1/endPointDlpRules/{id}/subRule[/{subRuleId}]` (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go:17-18,67-128`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go:14-15,57-84`; `vendor/zscaler-sdk-python/zscaler/zia/endpoint_dlp_rules.py:37-389`; `vendor/zscaler-sdk-python/zscaler/zia/endpoint_dlp_sub_rules.py:35-235`). |
+
+The Python list implementations issue one request and return that response's
+current page; they do not reproduce Go's list/category page aggregation
+(`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177,377-381`;
+`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:37-93,124-177`). These Endpoint DLP accessors are registered on unified `ZIAService`, not the legacy client (`vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:849-919`; `vendor/zscaler-sdk-python/zscaler/zia/legacy.py:786-792`).
+
+One Python wrapper defect is not product behavior: custom-app list/get decode
+`EndpointApplicationsCustomApps`, but create/update declare and decode
+`DlpEndpointResource` instead
+(`vendor/zscaler-sdk-python/zscaler/zia/endpoint_custom_apps.py:38-147,149-274`). Treat the create/update result model as an SDK divergence rather than evidence for the endpoint's wire schema.
 
 Endpoint-application responses expose descriptive, OS, file, signature, type, and version data (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-55`), but the shared request serializer emits only non-empty `resourceId` and `zappId` (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-161`). The shared model also types `versions` as one `Versions` struct, while the custom-application response model types the same wire key as `[]Versions`; callers must not assume those two response shapes are interchangeable (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
@@ -252,7 +274,7 @@ Terraform provider v4.8.0 adds resources for custom applications, application gr
 
 ## Outbound Email DLP
 
-Go v3.8.41 provides list, lite-list, get, create, update, and delete operations for `/zia/api/v1/emailDlpRules`, plus `GET /zia/api/v1/emailDlpRules/actions?tenantIds=...`, whose response is returned as raw CSV bytes (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:17-18,57-70,87-138,141-160`). The v3.8.41 release notes mention only the actions CSV endpoint, omitting the list/lite/get/CRUD methods that are present in code (`vendor/zscaler-sdk-go/CHANGELOG.md:75-76`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-138`). Terraform provider v4.8.0 adds the `zia_outbound_email_dlp` resource and data source (`vendor/terraform-provider-zia/CHANGELOG.md:16-18`).
+Go v3.8.41 and Python v1.9.39 both provide list, lite-list, get, create, update, and delete operations for `/zia/api/v1/emailDlpRules`, plus `GET /zia/api/v1/emailDlpRules/actions`, whose response is returned as raw CSV bytes (`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:17-18,57-70,87-138,141-160`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`). Both release notes mention only the actions CSV endpoint, omitting the list/lite/get/CRUD methods present in code (`vendor/zscaler-sdk-go/CHANGELOG.md:75-76`; `vendor/zscaler-sdk-python/CHANGELOG.md:69-70`). Terraform provider v4.8.0 adds the `zia_outbound_email_dlp` resource and data source (`vendor/terraform-provider-zia/CHANGELOG.md:16-18`).
 
 ## Edge cases
 

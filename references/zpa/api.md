@@ -13,6 +13,10 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/policies.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/lss.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
@@ -30,7 +34,7 @@ author-status: draft
 
 # ZPA API surface
 
-API reference for the slice of ZPA this skill covers — application segments, segment groups, server groups, access policies, and LSS log-streaming config. Derived from the Zscaler Python SDK and the Terraform provider.
+API reference for the slice of ZPA this skill covers — application segments, segment groups, server groups, access policies, policy groups, and LSS log-streaming config. Derived from the Zscaler Python SDK and the Terraform provider.
 
 ## Authentication
 
@@ -201,6 +205,29 @@ Per *Access Policy Deployment and Operations Guide* (vendored PDF) p.3, rule ord
 - **Timeout rule `action` is `RE_AUTH` only** (`resource_zpa_policy_access_timeout_rule.go:31-33`) — single-value enum.
 - **Forwarding rule `action` enum (v2)**: `BYPASS`, `INTERCEPT`, `INTERCEPT_ACCESSIBLE` (`resource_zpa_policy_access_forwarding_rule_v2.go:43-47`). **`INTERCEPT_ACCESSIBLE`** is undocumented in forwarding rule action docs — appears to be a variant of INTERCEPT for accessibility-gated flows.
 - **Inspection rule `action` enum (v2)**: `INSPECT`, `BYPASS_INSPECT` only (`resource_zpa_policy_access_inspection_rule_v2.go:42-45`).
+
+### Policy Group controllers
+
+Python v1.9.39 exposes three unified-client controllers under the exact base
+`/zpa/mgmtconfig/v1/admin/customers/{customerId}`
+(`vendor/zscaler-sdk-python/CHANGELOG.md:3,86-110`;
+`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:504-517`;
+`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:32-36`):
+
+| Controller | Operations |
+|---|---|
+| `client.zpa.policy_group` | Create (POST), list (GET `/group/all`), search (POST `/group/search`), get, update (PUT), delete, and reorder (PUT) under `/policyGroupSet/{groupSetId}/group` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-388`). |
+| `client.zpa.policy_group_rule` | List, create, get, delete, and reorder rules under `/policyGroupSet/{groupSetId}/group/{groupId}/rule`; there is no direct rule-update method (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:37-321`). |
+| `client.zpa.policy_group_set` | Read-only list, by-policy-type, cross-group rule list, summary, summary-stats, and get-by-ID operations under `/policyGroupSet` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:40-340`). |
+
+`search_groups` requires `group_set_id` as its first argument even though its
+embedded usage example omits it
+(`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:167-184`). List methods
+return the current response page; callers use the response pagination API for
+additional pages (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:98-165`;
+`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:37-104`). These
+properties are unified-only: the corresponding legacy properties are commented
+out (`vendor/zscaler-sdk-python/zscaler/zpa/legacy.py:1070-1098`).
 
 ### LSS (Log Streaming Service) config
 

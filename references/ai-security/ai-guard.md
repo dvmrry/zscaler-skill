@@ -8,7 +8,7 @@ confidence: medium
 source-tier: mixed
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
@@ -33,9 +33,23 @@ sources:
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md"
   - "vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md"
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
-  - "vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py"
-  - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
-  - "vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py"
+  - "vendor/zscaler-sdk-python/pyproject.toml"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/legacy.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/policies.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/models/policy_detection.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/models/policies.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/models/policy_match_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/models/llm_provider_credentials.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/models/llm_applications.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/models/llm_application_credentials.py"
   - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zguard-ai-integrations/README.md"
@@ -55,9 +69,9 @@ author-status: draft
 
 ## Certification scope
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
 
-The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with the Python policy-detection SDK and public `zscaler/zguard-ai-integrations` examples. The current 2026-07-20 portal has moved to a 24-article **AI Guard for Users** tree; its index and release chronology are captured, but newly listed article bodies are not yet fully mined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Treat current Help coverage as indexed and partial rather than fully certified.
+The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with Python SDK 1.9.39's OneAPI configuration and separately routed legacy policy-detection surfaces (`vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current 2026-07-20 portal has moved to a 24-article **AI Guard for Users** tree; its index and release chronology are captured, but newly listed article bodies are not yet fully mined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Treat current Help coverage as indexed and partial rather than fully certified.
 
 This certification does not assert private roadmap features, tenant-specific entitlements, commercial packaging, unpublished admin APIs, or portal behavior not present in the captured public sources. Those remain explicit open questions rather than hidden assumptions.
 
@@ -198,14 +212,28 @@ Log exports can be configured to export allowed/detected prompts and blocked pro
 
 ## API surface
 
-Source: `vendor/zscaler-help/ai-guard-api-user-guide.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py`; `vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py`; `vendor/zscaler-sdk-python/zscaler/zaiguard/models/policy_detection.py`; `vendor/zguard-ai-integrations/Microsoft/README.md`; `vendor/zguard-ai-integrations/github-actions/README.md`; `vendor/zguard-ai-integrations/n8n/README.md`.
+Source: `vendor/zscaler-help/ai-guard-api-user-guide.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/legacy.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/models/policy_detection.py`; `vendor/zguard-ai-integrations/Microsoft/README.md`; `vendor/zguard-ai-integrations/github-actions/README.md`; `vendor/zguard-ai-integrations/n8n/README.md`.
 
 AI Guard has an API surface:
 - **Proxy-mode provider API pathing**: Applications send provider-shaped requests to `https://proxy.zseclipse.net` using provider-specific paths such as `/v1/messages`, `/v1/chat/completions`, Bedrock model paths, Gemini `generateContent`, and Vertex paths.
 - **DaaS policy detection API**: The captured DAS Help page uses the global host `https://api.zseclipse.net` for both `POST /v1/detection/execute-policy` and `POST /v1/detection/resolve-and-execute-policy` (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:50`, `:100`, `:158`). Some SDK and integration examples still construct regional hosts such as `https://api.us1.zseclipse.net` or `https://api.{cloud}.zseclipse.net`; treat host selection as an open source divergence rather than proof that either spelling is universally accepted.
-- **Python SDK**: `zscaler.zaiguard.policy_detection.PolicyDetectionAPI` exposes `execute_policy(content, direction, policy_id=None, transaction_id=None)` and `resolve_and_execute_policy(content, direction, transaction_id=None)`. The legacy AI Guard client still defaults to `AIGUARD_CLOUD=us1`, constructs `https://api.<cloud>.zseclipse.net`, and allows `AIGUARD_OVERRIDE_URL` for an explicit host (`vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py:58`, `:75`, `:78`, `:81`).
-- **Admin/config APIs**: The reconstructed Automate snapshot exposes a documented admin-plane contract for detection policies, policy match rules, LLM applications, LLM providers, and credentials; no Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper is captured for that contract (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`).
+- **Python SDK routing**: `client.aiguard` is canonical and `client.zguard` is a deprecated alias. `ZscalerClient` routes the six configuration resources through OneAPI, while `LegacyAIGuardClient(...).aiguard.policy_detection` retains the two runtime methods (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`). Treat this as Python-client routing, not as a universal backend authentication or availability rule.
+- **Legacy runtime detection**: `PolicyDetectionAPI` exposes `execute_policy(content, direction, policy_id=None, transaction_id=None)` and `resolve_and_execute_policy(content, direction, transaction_id=None)` (`vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py:57-63`, `:138-143`). The legacy helper defaults to `AIGUARD_CLOUD=us1`, constructs `https://api.<cloud>.zseclipse.net`, and allows `AIGUARD_OVERRIDE_URL` for an explicit host (`vendor/zscaler-sdk-python/zscaler/aiguard/legacy.py:58`, `:75`, `:78-81`).
+- **Admin/config APIs**: Automate validates a 47-operation, 29-path admin contract with zero structural issues, while Python exposes 39 callable configuration methods; no Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper is captured for that contract (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; Python inventories below; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`).
 - **Provider-type discovery**: `GET /v1/llm-provider-types` and `GET /v1/llm-provider-types/{type}` return the supported admin-plane provider identifiers plus public/private server-key and allowed-value guidance (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7486-7703`, `:7720-7903`).
+
+The callable OneAPI configuration inventory is:
+
+| `client.aiguard` resource | Callable methods | Count | Source |
+|---|---|---:|---|
+| `policies` | list, get by ID/name, create, update, delete | 6 | `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357` |
+| `policy_match_rules` | list, get by ID/name, create, update, delete | 6 | `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338` |
+| `llm_providers` | list/get providers, list/get provider types, create, update, delete | 8 | `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457` |
+| `llm_provider_credentials` | list, get by ID/name, create, update, delete | 6 | `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362` |
+| `llm_applications` | list, get by ID/name, create, update, delete | 6 | `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363` |
+| `llm_application_credentials` | list, get by ID/name, create, regenerate, update, delete | 7 | `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412` |
+
+The eight Automate-documented operations outside that callable Python inventory are policy enable, disable, referential check, and summaries, plus referential checks for providers, provider credentials, applications, and application credentials (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`, `:1469-1481`, `:1954-1966`, `:3956-3968`, `:5229-5241`, `:6142-6154`, `:7166-7178`). Four resource referential methods are commented out after an SDK-maintainer observation of HTTP 404 responses; this is an open live-acceptance discrepancy, not proof that those documented backend operations are universally absent (`vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:180-222`).
 
 The 2026 Help chronology adds an important second vocabulary layer: User-mode and application support includes labels such as GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io that are not all present in the admin-plane `type` enum (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`). Do not assume that Help application/provider labels map one-to-one to customer-creatable LLM provider types; see [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 
@@ -222,11 +250,21 @@ The SDK request/response model matters for resilient DaaS integrations:
 | Per-detector response | `statusCode`, `errorMsg`, `triggered`, `action`, `latency`, `deviceType`, `details`, `severity`, optional `contentHash` |
 | Throttling | `throttlingDetails` carries `rlcId`, `metric`, and `retryAfterMillis`; integrations must treat this as retry/backoff input rather than a generic failure. |
 
+The OneAPI configuration models expose these principal Python-attribute/wire-key mappings:
+
+| Model | Python attributes → wire keys | Source |
+|---|---|---|
+| Policy | `create_time_millis` → `createTimeMillis`; `input_detector_policies` / `output_detector_policies` → `inputDetectorPolicies` / `outputDetectorPolicies`; nested configuration includes `default_action`, `replace_with_masked_content`, and `entity_type` mappings. | `vendor/zscaler-sdk-python/zscaler/aiguard/models/policies.py:37-204` |
+| Policy match rule | `policy_id`, `rule_order`, and `match_criteria` → `policyId`, `ruleOrder`, and `matchCriteria`; criteria map applications, source IPs, groups, and custom headers. | `vendor/zscaler-sdk-python/zscaler/aiguard/models/policy_match_rules.py:37-162` |
+| Provider credential | `provider_id`, `expire_time_millis`, and `api_credentials` → `providerId`, `expireTimeMillis`, and `apiCredentials`. | `vendor/zscaler-sdk-python/zscaler/aiguard/models/llm_provider_credentials.py:37-97` |
+| Application | `owner_email`, timestamp fields, and `application_settings` → `ownerEmail`, timestamp wire keys, and `applicationSettings`; settings map include/encrypt event-content flags. | `vendor/zscaler-sdk-python/zscaler/aiguard/models/llm_applications.py:37-105` |
+| Application credential | Application/provider references and timestamps map to `applicationId`, `providerId`, `providerCredentialsId`, `createTimeMillis`, and `updateTimeMillis`. | `vendor/zscaler-sdk-python/zscaler/aiguard/models/llm_application_credentials.py:37-68` |
+
 When a policy ID is supplied, examples call `execute-policy`. When no policy ID is supplied, examples call `resolve-and-execute-policy`, relying on the API key's associated application and policy to resolve the effective policy. The Python SDK model also shows that the resolved-policy response can include `policyId`, `policyName`, and `policyVersion`, while the explicit execution response model does not expose those fields as top-level attributes.
 
-The public Python SDK exposes runtime policy detection only. It does not expose the Automate-documented admin-plane objects such as LLM Provider, LLM Provider Credential, AI Application, Policy Configuration, Policy Control, or related credential/application management.
+The public Python SDK now exposes the six configuration resources above as well as separately routed runtime policy detection. It does not provide full Automate parity: the eight documented actions listed above remain outside the callable Python inventory.
 
-For implementation caveats, see [`./api-divergences.md`](./api-divergences.md): it records the SDK-vs-Help direction literal mismatch, `policyId` ambiguity for `execute-policy`, detector-taxonomy differences, integration failure posture, the Automate admin-plane contract, client-wrapper gaps, and action-path encoding questions in inspected public sources.
+For implementation caveats, see [`./api-divergences.md`](./api-divergences.md): it records the SDK-vs-Help direction literal mismatch, `policyId` ambiguity for `execute-policy`, detector-taxonomy differences, integration failure posture, Python-to-Automate operation gaps, documentation drift, and static legacy-routing regression cautions.
 
 ## Integration examples
 

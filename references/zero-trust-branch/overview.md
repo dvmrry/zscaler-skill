@@ -6,12 +6,12 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -46,7 +46,7 @@ Zero Trust Branch is the one misc-cluster product with a real SDK surface in thi
 | Family | Audit result |
 |---|---|
 | Go SDK | No ZTB product service surface found. The Go SDK has ZPA Branch Connector and Branch Connector Group services under `/zpa/mgmtconfig/.../branchConnector` and `/branchConnectorGroup`, which are adjacent ZPA surfaces rather than the ZTB `/ztb/...` API (`vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector/branch_connector.go:13-16`, `vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector_group/branch_connector_group.go:11-18`). |
-| Python SDK | ZTB product surface found. `oneapi_client.py` exposes `client.ztb`, and `ztb_service.py` exposes alarms, API keys, app connector config, devices, groups, logs, policy comments, ransomware kill, sites, site-to-site VPN, and templates (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:279-285`; `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`, `:49-135`). |
+| Python SDK | ZTB product surface found. `oneapi_client.py` exposes `client.ztb`, and `ztb_service.py` exposes alarms, API keys, app connector config, devices, groups, logs, policy comments, ransomware kill, sites, site-to-site VPN, and templates (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:295-301`; `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`, `:49-135`). |
 | Terraform | No ZTB product resources or data sources found in the audited ZIA or ZPA providers. |
 | Ansible | No ZTB product modules found in the audited ZIA or ZPA collections. |
 | MCP | No ZTB product tools found in the audited MCP server. MCP's `ztw` tools call `client.ztw`; the module/docsrc describe network-resource tooling under the Cloud & Branch Connector name, while the generated catalog labels the same family "Workload Segmentation." Neither is a `client.ztb` or `/ztb/...` product surface (`vendor/zscaler-mcp-server/docsrc/tools/ztw/index.rst:1-5`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:372-396`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/network_services.py:69-83`). |
@@ -63,7 +63,7 @@ Deployment uses Zero Trust Branch appliances plus the Zscaler Admin Console; cap
 
 ## Python SDK surface
 
-The Python SDK exposes ZTB as `client.ztb`, but the auth story is internally divergent. `oneapi_client.py` creates a `ZTBService` for `client.ztb` when not using a legacy client (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:297-303`), and `ztb_service.py` says the service is used via the OneAPI authentication path while standalone access should use `LegacyZTBClient` or `LegacyZTBClientHelper` (`vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`). The README instead says ZTB authenticates via API key, uses `POST /api/v3/api-key-auth/login`, and is available only through `LegacyZTBClient` because OneAPI/OAuth2 is not supported for ZTB (`vendor/zscaler-sdk-python/README.md:1810-1842`). Keep that as an open clarification, not a resolved claim.
+The Python SDK exposes ZTB as `client.ztb`, but the auth story is internally divergent. `oneapi_client.py` creates a `ZTBService` for `client.ztb` when not using a legacy client (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:295-301`), and `ztb_service.py` says the service is used via the OneAPI authentication path while standalone access should use `LegacyZTBClient` or `LegacyZTBClientHelper` (`vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`). The README instead says ZTB authenticates via API key, uses `POST /api/v3/api-key-auth/login`, and is available only through `LegacyZTBClient` because OneAPI/OAuth2 is not supported for ZTB (`vendor/zscaler-sdk-python/README.md:1886-1919`). Keep that as an open clarification, not a resolved claim.
 
 | Resource | Source-backed operations |
 |---|---|
@@ -81,7 +81,7 @@ Use Python SDK source for capability-level claims. Do not infer Go/Terraform/Ans
 ## Open questions
 
 - `zero-trust-branch-01`: The Python SDK contains a `client.ztb` OneAPI path and a legacy API-key path, while its README says OneAPI/OAuth2 is not supported for ZTB. Confirm the supported auth mode and any source-of-truth drift. See [clarification `zero-trust-branch-01`](../_meta/clarifications.md#zero-trust-branch-01-ztb-python-sdk-auth-mode-divergence-and-non-python-coverage).
-- `zero-trust-branch-02`: MCP v0.13.4 labels the `ztw` generated catalog as "Workload Segmentation" while its module and docsrc call the same service "Zscaler Cloud & Branch Connector". Confirm the canonical product label and boundary; neither spelling establishes ZTB coverage. See [clarification `zero-trust-branch-02`](../_meta/clarifications.md#zero-trust-branch-02-mcp-ztw-product-label-and-ztb-boundary).
+- `zero-trust-branch-02`: MCP v0.14.0 labels the `ztw` generated catalog as "Workload Segmentation" while its module and docsrc call the same service "Zscaler Cloud & Branch Connector". Confirm the canonical product label and boundary; neither spelling establishes ZTB coverage. See [clarification `zero-trust-branch-02`](../_meta/clarifications.md#zero-trust-branch-02-mcp-ztw-product-label-and-ztb-boundary).
 
 ## Cross-links
 

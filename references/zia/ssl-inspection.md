@@ -5,7 +5,7 @@ title: "ZIA SSL/TLS inspection — pipeline position and policy semantics"
 content-type: reasoning
 last-verified: "2026-07-26"
 verified-against:
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: high
 source-tier: doc
 sources:
@@ -27,10 +27,15 @@ sources:
   - "vendor/zscaler-help/ranges-limitations-zia.md"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
+  - "vendor/terraform-provider-zia/zia/resource_zia_ssl_inspection_rules.go"
   - "vendor/zscaler-mcp-server/CHANGELOG.md"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/common/jmespath_utils.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ssl_inspection.py"
-  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/_rules_common.py"
-  - "vendor/zscaler-mcp-server/tests/test_zia_shaping.py"
+  - "vendor/zscaler-mcp-server/tests/test_shaping_helpers.py"
   - "https://duo.com/docs/duo-desktop"
   - "https://help.duo.com/s/article/9585"
 author-status: draft
@@ -163,19 +168,38 @@ action: {
 }
 ```
 
-**MCP automation surface (v0.13.4).** The MCP list tool takes no filtering
-fields and calls the SDK's flat `list_rules()` operation without search or
-pagination parameters; the get tool calls `get_rule()` and then shapes the
-result (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ssl_inspection.py:46-50`,
-`:101-107`, `:118-124`). Both curated views type `action` as a string and
-collapse a nested object to its `type` (falling back to `action_type`) before
-validating the summary/detail response
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/_rules_common.py:39-62`,
-`:72-81`, `:103-128`; regression coverage at
-`vendor/zscaler-mcp-server/tests/test_zia_shaping.py:134-158`). The curated
-views do not expose the nested `decryptSubActions` or
-`doNotDecryptSubActions` blocks, so use the SDK or raw API when those fields are
-required.
+The nested shape is independently modeled across the captured API and client
+surfaces: the Automate contract declares `action` as a required response object
+(`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:405512-405556`),
+the Python SDK constructs an `Action` model and emits it on requests
+(`vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py:80-88`,
+`:170-190`), the Go model carries both nested sub-action blocks
+(`vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:18-30`,
+`:123-132`), and Terraform models `action` and its nested configuration as
+lists/objects (`vendor/terraform-provider-zia/zia/resource_zia_ssl_inspection_rules.go:223-276`).
+
+**MCP automation surface (v0.14.0).** The list and get tools convert the SDK
+models with `as_dict()` and return the full SDK-modeled records, so a nested
+`action`—including sub-action blocks—is retained whenever the SDK supplies it
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ssl_inspection.py:89-118`;
+full-record merge/passthrough contract at
+`vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`, with
+regression coverage at
+`vendor/zscaler-mcp-server/tests/test_shaping_helpers.py:45-89`, `:97-134`).
+This is SDK-model passthrough, not a raw-HTTP response guarantee: the API/SDK
+owns which attributes exist, and MCP deliberately declares no fixed output
+schema for ordinary API records
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`).
+
+The underlying SSL list call still exposes no server-side search or pagination,
+so its explicit input model has no filtering fields
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ssl_inspection.py:42-47`).
+Because it is a collection tool, the MCP bridge adds an optional `query`
+parameter and applies that JMESPath expression after the SDK call; omitting it
+returns the full records
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:98-116`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:183-247`,
+`:272-301`; `vendor/zscaler-mcp-server/src/zscaler_mcp/common/jmespath_utils.py:25-55`).
 
 Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The Go SDK's `validateSSLInspectionRule()` (`vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:234`) enforces per-type constraints:
 

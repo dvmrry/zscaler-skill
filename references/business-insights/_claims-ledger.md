@@ -7,12 +7,12 @@ last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: mixed
@@ -43,15 +43,15 @@ This ledger covers the Tier 3 thin-stub refresh for Business Insights. Rows eith
 | SaaS app insights require ZIA, and workplace insights require ZIA plus Zscaler Client Connector on relevant endpoints. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:47-50` |
 | Zscaler can discover usage of more than 30K apps, but the portal shows a business-relevant subset by default. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:52-54` |
 | Business Insights can distinguish subscribed apps from used apps with metadata fields such as cost, license plans, and contract dates. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:56-58` |
-| Python `client.zbi` is Zscaler Business Insights REST API surface, not Zero Trust Browser. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`; `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24` |
+| Python `client.zbi` is Zscaler Business Insights REST API surface, not Zero Trust Browser. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:237`, `:331-335`; `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24` |
 | Python `client.zbi` exposes `custom_apps`, `report_configs`, and `reports`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:29-51` |
 | `client.zbi.custom_apps` supports list, get, create, update, and delete operations under `/bi/api/v1/customapps`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:26-34`, `:40-92`, `:94-137`, `:139-194`, `:196-244`, `:246-281` |
 | The public custom-app API supports HOST-based signatures; URL-based custom applications are not supported in that Postman-described endpoint family. | `overview.md` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:134506-134535` |
 | `client.zbi.report_configs` supports list, get, create, update, and delete operations under `/bi/api/v1/reports/{report_type}`; the SDK comments document `customapps` as the current/default type. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py:26-34`, `:40-91`, `:93-144`, `:146-215`, `:217-284`, `:286-328` |
 | `client.zbi.reports` lists available report files and downloads reports via `/bi/api/v1/report/all` and `/bi/api/v1/report/download`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zbi/reports.py:28-36`, `:42-115`, `:117-204` |
-| The Python request executor routes `/bi` through the shared OneAPI resolver: production uses the default gateway, non-production commercial clouds use `api.<cloud>.zsapi.net`, and `gov` / `govus` use dedicated FedRAMP gateways. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/request_executor.py:166-189` |
+| The Python request executor routes `/bi` through the shared OneAPI resolver: production uses the default gateway, non-production commercial clouds use `api.<cloud>.zsapi.net`, and `gov` / `govus` use dedicated FedRAMP gateways. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/request_executor.py:167-190` |
 | The OneAPI Postman collection contains a "Zscaler Business Insights" folder with custom-app and report-configuration endpoints. | `overview.md` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:134314-134343`, `:134506-134535`, `:134807-134837`, `:134999-135015`, `:135164-135176`, `:136039-136056` |
-| Python `client.zins` / `client.zinsights` is a separate Z-Insights Analytics GraphQL service. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:336-371` |
+| Python `client.zins` / `client.zinsights` is a separate Z-Insights Analytics GraphQL service. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:387-423` |
 | MCP Z-Insights is read-only and covers web traffic, cyber security incidents, Shadow IT, SaaS security, firewall analytics, and IoT workflows. | `overview.md` | `vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md:1`, `:5`, `:18`, `:22-27`, `:54-80` |
 | MCP error handling treats Z-Insights and Business Insights licensing together, but that does not prove MCP can manage Business Insights custom apps or report configs. | `overview.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/_common.py:277-282` |
 | Go SDK has no product-specific Business Insights / `zbi` REST service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Business Insights or ZBI REST service found in `vendor/zscaler-sdk-go` during the 2026-06-16 surface sweep. |
