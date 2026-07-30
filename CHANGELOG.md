@@ -9,8 +9,7 @@ the skill as a whole, not any single script.
 
 ### Documentation
 
-* refresh MCP 0.14 and SDK 1.9.39 coverage ([d827681](https://github.com/dvmrry/zscaler-skill/commit/d8276819d12841632da2db9dfdf029f3f65669af))
-* refresh MCP 0.14 and SDK 1.9.39 coverage ([0ecc3e8](https://github.com/dvmrry/zscaler-skill/commit/0ecc3e87e6887b770da61e10bfd923d6361cc4fc))
+* refresh MCP 0.14 and SDK 1.9.39 coverage ([#240](https://github.com/dvmrry/zscaler-skill/pull/240))
 
 ## [0.16.0](https://github.com/dvmrry/zscaler-skill/compare/v0.15.0...v0.16.0) (2026-07-26)
 
