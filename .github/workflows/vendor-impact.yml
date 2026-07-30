@@ -30,6 +30,10 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
+        with:
+          # The only uv script in this job is dependency-free; avoid a useless
+          # cache competing with dependency-consuming workflows for the same key.
+          enable-cache: false
 
       - name: Resolve runtime artifact paths
         id: runtime_paths
