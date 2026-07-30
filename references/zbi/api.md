@@ -6,12 +6,12 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: high
 source-tier: code
 sources:
@@ -50,6 +50,8 @@ sources:
   - vendor/zpacloud-ansible/plugins/modules/zpa_isolation_profile_info.py
   - vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule.py
   - vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py
+  - vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py
+  - vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py
   - vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py
   - vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py
   - vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json
@@ -62,7 +64,7 @@ author-status: draft
 
 This reference covers the programmable surface for Zero Trust Browser / Cloud Browser Isolation as expressed in the Python SDK, Go SDK, Terraform providers, Ansible collections, MCP tools, and Postman collection. It does not repeat the architectural model or policy-routing layer; see the cross-links below. Its primary purpose is to document concrete field names, endpoint paths, SDK accessor patterns, and places where "ZBI" is a misleading name.
 
-**Naming guardrail:** Python `client.zbi` is **Zscaler Business Insights**, not Zero Trust Browser. The service wrapper says "Zscaler Business Insights (ZBI)" and OneAPI initializes `_zbi` with the comment "Zscaler Business Insights (REST API)" (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`). Its custom-app/report endpoints use `/bi/api/v1` (`vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:28-34`, `:70-74`). Do not cite `client.zbi.*` as browser-isolation policy/profile management.
+**Naming guardrail:** Python `client.zbi` is **Zscaler Business Insights**, not Zero Trust Browser. The service wrapper names Zscaler Business Insights and exposes its custom-app, report-configuration, and reports APIs; the OneAPI `zbi` property instantiates that wrapper (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-51`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:331-335`). Its custom-app/report endpoints use `/bi/api/v1` (`vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:28-34`, `:70-74`). Do not cite `client.zbi.*` as browser-isolation policy/profile management.
 
 **Automate contract scope:** Zero Trust Browser / CBI does not have a standalone `zbi-api-reference.json` contract file. The captured operation contract appears under the parent ZIA and ZPA products: ZIA exposes the read-only `GET /zia/api/v1/browserIsolation/profiles` operation with four response fields (`id`, `name`, `url`, `defaultProfile`) (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11448-11457`, `:11459-11488`), while ZPA exposes the CBI banner, certificate, profile, region, ZPA-profile, and management isolation-profile paths under `/zpa/cbiconfig/...` and `/zpa/mgmtconfig/...` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10056-10060`, `:10439-10444`, `:10573-10578`, `:10641-10646`). Treat the contract as authoritative for documented method/path and field metadata, then use SDK/Terraform/Ansible/MCP sources below for wrapper behavior and client-side constraints.
 
@@ -522,8 +524,14 @@ Ansible is also present for browser isolation; do not mark it absent:
 
 MCP exposes ZPA isolation profile and policy-rule tooling:
 
-- `get_zpa_isolation_profile` is read-only and returns a curated list of CBI profiles, optionally narrowed by an exact-name filter; even an exact-name lookup retains the list return shape (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py:20-48`).
-- The isolation-policy tools can list, get, create, update, and delete ZPA isolation policy rules. The create tool rejects `action_type="isolate"` when `zpn_isolation_profile_id` is absent; that validation is specific to create rather than a blanket invariant asserted for every operation (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py:66-89`, `:92-122`, `:125-150`, `:153-163`).
+- `get_zpa_isolation_profile` is read-only and returns a list of full SDK profile dictionaries. It can narrow the rows by exact name, but even an exact-name lookup retains the list shape (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py:27-46`).
+- Isolation-policy list/get also return full SDK/API-backed rule records, while create, update, and delete expose the corresponding write operations. The create tool rejects `action_type="isolate"` when `zpn_isolation_profile_id` is absent; that validation is specific to create rather than a blanket invariant asserted for every operation (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py:64-117`, `:120-157`).
+
+These are SDK-model passthroughs, not raw HTTP responses: ordinary resource
+tools deliberately leave the API/SDK field set open, and the shaping helpers
+preserve every modeled attribute rather than applying a field whitelist
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`).
 
 ### Postman / API specs
 

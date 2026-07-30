@@ -19,7 +19,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md"
 verified-against:
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
 author-status: draft
 ---
@@ -180,7 +180,7 @@ Policy rules at **Policies > Cybersecurity > Inline Security > Protection Polici
 
 Source: `vendor/zscaler-sdk-python/zscaler/zpa/app_protection.py`; `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py`; `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py`.
 
-The product behavior above maps onto a real, programmable surface. The Python SDK exposes it as `client.zpa.app_protection`, which returns an `InspectionControllerAPI` instance (`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:194`). **The class is still named `InspectionControllerAPI` while the property is `app_protection`** — concrete proof of the Inspection → AppProtection rename discussed above, frozen into the SDK itself.
+The product behavior above maps onto a real, programmable surface. The Python SDK exposes it as `client.zpa.app_protection`, which returns an `InspectionControllerAPI` instance (`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:200-202`). **The class is still named `InspectionControllerAPI` while the property is `app_protection`** — concrete proof of the Inspection → AppProtection rename discussed above, frozen into the SDK itself.
 
 ### Profiles (Tier 2) → `client.zpa.app_protection`
 
@@ -211,7 +211,7 @@ Enum helpers expose the valid values the console offers: `list_control_action_ty
 
 ### Per-segment opt-in (the app-level toggle) → `client.zpa.app_segments_inspection`
 
-The "enable AppProtection on the application within a segment" toggle is its own SDK surface: `client.zpa.app_segments_inspection` returns `AppSegmentsInspectionAPI` (`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:119`), with `list_segment_inspection` / `get_segment_inspection` / `add_segment_inspection` / `update_segment_inspection` / `delete_segment_inspection` (`app_segments_inspection.py:43`, `:104`, `:144`, `:288`, `:477`). The opt-in is carried in the `common_apps_dto` object — an `apps_config` list whose blocks set `app_types` including `INSPECT` (`app_segments_inspection.py:183-192`). That `INSPECT` app type is the wire-level expression of "this app in this segment is inspected."
+The "enable AppProtection on the application within a segment" toggle is its own SDK surface: `client.zpa.app_segments_inspection` returns `AppSegmentsInspectionAPI` (`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:125-127`), with `list_segment_inspection` / `get_segment_inspection` / `add_segment_inspection` / `update_segment_inspection` / `delete_segment_inspection` (`app_segments_inspection.py:43`, `:104`, `:144`, `:288`, `:477`). The opt-in is carried in the `common_apps_dto` object — an `apps_config` list whose blocks set `app_types` including `INSPECT` (`app_segments_inspection.py:183-192`). That `INSPECT` app type is the wire-level expression of "this app in this segment is inspected."
 
 ### Go SDK and Terraform
 
@@ -267,7 +267,7 @@ Specific tier names (Business / Transformation / Workplace+) and what each unloc
 
 Source: `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/about-active-directory-controls.md`.
 
-1. **AppProtection was called Inspection until recently.** SDKs, Terraform resources, and older docs say "Inspection Policy", "Inspection Profile", `zpn_inspection_profile_id`. They're the same thing. A user looking at ZPA Terraform with `zpa_inspection_*` resources is configuring AppProtection. The current Python SDK still carries the old name internally: `client.zpa.app_protection` returns a class named `InspectionControllerAPI` (`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:194`), and every API path is `.../inspectionProfile` and `.../inspectionControls/...` (`app_protection.py:86`, `:700`).
+1. **AppProtection was called Inspection until recently.** SDKs, Terraform resources, and older docs say "Inspection Policy", "Inspection Profile", `zpn_inspection_profile_id`. They're the same thing. A user looking at ZPA Terraform with `zpa_inspection_*` resources is configuring AppProtection. The current Python SDK still carries the old name internally: `client.zpa.app_protection` returns a class named `InspectionControllerAPI` (`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:200-202`), and every API path is `.../inspectionProfile` and `.../inspectionControls/...` (`app_protection.py:86`, `:700`).
 
 2. **The default profile (`OWASP Top-10 for Visibility`) is fully immutable.** It cannot be edited or deleted, and its **Paranoia Level is permanently set to 1**. Some controls are deliberately excluded from it for higher efficacy — Zscaler-tuned. An operator wanting to tune Paranoia Level higher than 1 must clone the profile first, which changes the policy reference. Tenants new to AppProtection often start by trying to "edit OWASP Top-10 for Visibility" and find they can't change anything.
 

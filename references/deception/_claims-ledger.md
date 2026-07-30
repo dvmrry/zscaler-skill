@@ -6,12 +6,12 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -44,7 +44,7 @@ author-status: draft
 | The Go SDK has an adjacent ZCC OTP response field named `deceptionSettingsOtp`; this is not a Deception product admin API. | `overview.md` | `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:11-18`, `:33-50` |
 | The Python SDK has an adjacent ZCC OTP model field named `deception_settings_otp`; this is not a Deception product admin API. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:22-37`, `:60-65` |
 | Terraform ZPA policy access rule reordering preserves an unmanaged rule named `Zscaler Deception` at order 1 and shifts user-defined rules after it. | `overview.md` | `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_reorder.go:258-295` |
-| MCP exposes the adjacent read-only ZCC OTP bundle and identifies `deception_settings_otp` as the OTP for modifying Deception settings on a device. | `overview.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:1-7`, `:46-63`, `:84-98` |
+| MCP exposes the adjacent read-only ZCC OTP bundle as the full SDK-modeled record; the bundled ZCC workflow identifies `deceptionSettingsOtp` as the value for modifying Deception settings on a device. | `overview.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:46-67`; `vendor/zscaler-mcp-server/skills/zcc/generate-logout-otp/SKILL.md:35-42` |
 | MCP ZPA access-policy guidance treats the licensed Deception rule as auto-provisioned and not to be modified. | `overview.md` | `vendor/zscaler-mcp-server/skills/zpa/create-access-policy-rule/SKILL.md:66-69` |
 | No Deception product CRUD surface was found in audited Go SDK, Python SDK, Ansible, MCP tools, or Postman; Terraform only had the ZPA policy-order helper. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across all six requested families for Deception product administration surface. |
 | Deception admin API endpoints, auth model, audit-log export, and ZPA-managed object contract remain unresolved. | `overview.md`, `clarifications.md` | OPEN QUESTION -> `references/_meta/clarifications.md#deception-01-deception-admin-api-and-zpa-managed-object-contract` |

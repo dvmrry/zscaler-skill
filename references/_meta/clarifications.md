@@ -3424,7 +3424,7 @@ Whether a macOS user denial of the ZCC Network Extension (in System Settings →
 
 *Origin: `references/zia/dns-control.md` § Open questions*
 
-A DNS Control rule model carries a `block_response_code` field, but no vendored source enumerates which DNS response codes it accepts (NXDOMAIN, REFUSED, specific rcodes, etc.). The Python and Go SDK sources describe it only as a DNS response-code string (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:190`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47-48`); MCP v0.13.4 no longer documents the field. Until the accepted set is known, the skill cannot say what a given response-blocking rule actually returns to the client resolver.
+A DNS Control rule model carries a `block_response_code` field, but no vendored source enumerates which DNS response codes it accepts (NXDOMAIN, REFUSED, specific rcodes, etc.). The Python and Go SDK sources describe it only as a DNS response-code string (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:190`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47-48`); MCP v0.14.0 no longer documents the field. Until the accepted set is known, the skill cannot say what a given response-blocking rule actually returns to the client resolver.
 
 **Status**: open
 **Resolves with**: lab test (configure a BLOCK rule, observe accepted values in the console / API) OR tenant snapshot
@@ -3435,7 +3435,7 @@ A DNS Control rule model carries a `block_response_code` field, but no vendored 
 
 *Origin: `references/zia/dns-control.md` § Open questions*
 
-The commented Go validator binds `redirect_ip` only to `REDIR_RES` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:286-290`). MCP v0.13.4 lists `redirect_ip` only as a generic advanced DNS field and no longer documents an action binding (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:35-40`). Whether the live API enforces the Go validator's `REDIR_RES`-only binding remains unresolved.
+The commented Go validator binds `redirect_ip` only to `REDIR_RES` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:286-290`). MCP v0.14.0 lists `redirect_ip` only as a generic advanced DNS field and does not document an action binding (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:31-38`). Whether the live API enforces the Go validator's `REDIR_RES`-only binding remains unresolved.
 
 **Status**: open
 **Resolves with**: lab test (submit `redirect_ip` against each `REDIR_*` action, observe which the API accepts)
@@ -4229,7 +4229,7 @@ The Go SDK defines the custom IPS signature rules import + import-status path (`
 
 *Origin: `references/zia/api-divergences.md` § Open questions*
 
-Two Cloud App Control behaviors remain workflow-skill observations, confirmed absent from both SDKs, and so require live-tenant confirmation. First, the create workflow says a per-app-invalid action rejects the whole multi-app create with `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications", motivating one rule per app (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:44-73,268-274`). Second, the workflow says action discovery may depend on a category "representative" app, but only in generic terms (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:150-163`); MCP v0.13.4's executable tool forwards `rule_type` and `cloud_apps` directly and does not implement representative-app probing (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:140-148`). The former AZURE_DEVOPS/GITHUB example and "11 actions" count have no current MCP equivalent and are not retained as current behavior. This is the API-divergence framing of the same gap `zia-49` tracks at the action-validity level.
+Two Cloud App Control behaviors remain workflow-skill observations, confirmed absent from both SDKs, and so require live-tenant confirmation. First, the create workflow says a per-app-invalid action rejects the whole multi-app create with `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications", motivating one rule per app (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:44-73,268-274`). Second, the workflow says action discovery may depend on a category "representative" app, but only in generic terms (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:150-163`); MCP v0.14.0's executable list tool forwards `rule_type` directly and does not implement representative-app probing (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:136-149`). The former AZURE_DEVOPS/GITHUB example and "11 actions" count have no current MCP equivalent and are not retained as current behavior. This is the API-divergence framing of the same gap `zia-49` tracks at the action-validity level.
 
 **Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: lab test (probe a live tenant: submit a mixed-validity multi-app create to observe the atomic-rejection behavior; call `list_available_actions` with multiple apps from one category to establish whether representative-app behavior exists)
@@ -4312,7 +4312,7 @@ Two DNS Control action-binding questions beyond `zia-47`/`zia-48`. First, whethe
 
 *Origin: `references/zia/firewall.md` § Open questions*
 
-Several firewall-surface items could not be backed from any vendor file in this pass. (1) `STANDARD` vs `PREDEFINED` Network Service `type` behavior — no `STANDARD`/`PREDEFINED` literal appears in SDK service/model source; MCP v0.13.4 names `STANDARD / PREDEFINED / CUSTOM` only in the output-view description for a returned service's `type`, not as an input enum or validator (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:71-75`), and only `CUSTOM` appears as a concrete SDK value, so the wire-level distinction is unverified. (2) Valid country-code values — the current MCP input describes the generic `COUNTRY_XX` form (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:48-55`), while SDK examples use `COUNTRY_CA` / `COUNTRY_US` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:431`, `:469`); the full `COUNTRY_*` enum is not enumerated. (3) Allowed custom URL-category identifiers — `ip_categories` is documented as "Only Custom categories allowed" with example `CUSTOM_01` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:430`) but no source enumerates or validates the allowed identifiers. (4) `DSTN_DOMAIN` field requirement — it appears only in the four-value enum lists with no example or per-type field rule (vs `DSTN_FQDN` using `addresses`). (5) `tag` and `creatorContext` semantics — both exist on the Python Network Service model (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:34`, `:36`) but carry no description or allowed-values documentation. (6) Caps and ordering — no mined source states a hard cap on addresses per destination group or ports per network service, nor a precedence rule among the four port arrays.
+Several firewall-surface items could not be backed from any vendor file in this pass. (1) `STANDARD` vs `PREDEFINED` Network Service `type` behavior — no `STANDARD`/`PREDEFINED` literal appears in SDK service/model source, and MCP v0.14.0 now returns the SDK-modeled service record without documenting or validating a `type` vocabulary (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:90-112`); only `CUSTOM` appears as a concrete SDK value, so the wire-level distinction is unverified. (2) Valid country-code values — the current MCP input describes the generic `COUNTRY_XX` form (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:48-55`), while SDK examples use `COUNTRY_CA` / `COUNTRY_US` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:431`, `:469`); the full `COUNTRY_*` enum is not enumerated. (3) Allowed custom URL-category identifiers — `ip_categories` is documented as "Only Custom categories allowed" with example `CUSTOM_01` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:430`) but no source enumerates or validates the allowed identifiers. (4) `DSTN_DOMAIN` field requirement — it appears only in the four-value enum lists with no example or per-type field rule (vs `DSTN_FQDN` using `addresses`). (5) `tag` and `creatorContext` semantics — both exist on the Python Network Service model (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:34`, `:36`) but carry no description or allowed-values documentation. (6) Caps and ordering — no mined source states a hard cap on addresses per destination group or ports per network service, nor a precedence rule among the four port arrays.
 
 **Status**: open
 **Resolves with**: lab test (read live network services / destination groups to observe `type`, country, and category values and any caps) OR zscaler doc not yet read (Network Services and IP Destination Groups reference)
@@ -4422,7 +4422,7 @@ Workload-group field shapes are SDK/TF-confirmed but their runtime semantics are
 
 *Origin: live ZIA `web_dlp_rules` read observation*
 
-A live ZIA `web_dlp_rules` GET returns a flat integer field `ucTemplateId` that appears in no captured source. The Go SDK models the notification template as `EUNTemplateID int` (wire `eunTemplateId`, `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go:78`) plus `NotificationTemplate *common.IDCustom` (`:90`); the Go-SDK-derived api-schemas `WebDLPRules` table carries both `eunTemplateId` and the `notificationTemplate` object (`references/zia/api-schemas.md:1488,:1492`); and the Automate contract for `POST /webDlpRules` documents the template as the `notificationTemplate` object, with no flat template id (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:125005`, `:125035`). `ucTemplateId` is in none of them — an API-only name absent from every static surface checked: the Go SDK, its derived api-schemas table, and the automate.zscaler.com contract.
+A live ZIA `web_dlp_rules` GET returns a flat integer field `ucTemplateId`. The Go SDK models the web-rule notification template as `EUNTemplateID int` (wire `eunTemplateId`, `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go:78`) plus `NotificationTemplate *common.IDCustom` (`:90`); the Go-SDK-derived api-schemas `WebDLPRules` table carries both `eunTemplateId` and the `notificationTemplate` object (`references/zia/api-schemas.md:1488,:1492`); and the Automate contract for `POST /webDlpRules` documents the template as the `notificationTemplate` object, with no flat template id (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:125005`, `:125035`). Python SDK v1.9.39 now models both `eunTemplateId` and `ucTemplateId`, but only on its new endpoint-DLP rule classes (`vendor/zscaler-sdk-python/zscaler/zia/models/endpoint_dlp_rules.py:45-55`, `:478-487`). That establishes the wire name in a related API family, not its meaning on web DLP rules.
 
 **2026-06-21 snapshot check**: the reconstructed Automate contract still models Web DLP rules with `notificationTemplate` and nested `notificationTemplate.id` fields (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:116429`, `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:116441`, `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:182243`, `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:182273`) and does not settle the live `ucTemplateId` meaning. Keep this open: the remaining question is whether `ucTemplateId` is a redundant flat alias, a tenant-specific/live rename, or a field emitted only under some notification-template state.
 
@@ -5862,7 +5862,7 @@ The ZIdentity user action operations are corroborated across surfaces, but their
 
 *Origin: `references/ai-security/api-divergences.md` § Direction value divergence*
 
-The Python SDK docstrings define AI Guard `direction` as `IN` or `OUT` (`vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:51`, `:131`), and integration docs use `IN`/`OUT` for prompt/response scanning. The DAS Help page examples instead pass `"request"` and `"response"` (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:196`, `:200`, `:204`, `:208`). Whether the live API accepts both literal sets, normalizes them, or treats one set as pseudocode is unverified.
+The Python SDK docstrings define AI Guard `direction` as `IN` or `OUT` (`vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py:57-70`, `:138-150`), and integration docs use `IN`/`OUT` for prompt/response scanning. The DAS Help page examples instead pass `"request"` and `"response"` (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:196`, `:200`, `:204`, `:208`). Whether the live API accepts both literal sets, normalizes them, or treats one set as pseudocode is unverified.
 
 **Status**: open
 **Resolves with**: lab test (call both endpoints with `IN`/`OUT` and `request`/`response`) OR vendor API documentation
@@ -5873,7 +5873,7 @@ The Python SDK docstrings define AI Guard `direction` as `IN` or `OUT` (`vendor/
 
 *Origin: `references/ai-security/api-divergences.md` § `policyId` requirement divergence*
 
-The DAS Help page states `policyId` is required for the explicit-policy option (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:78`), while the Python SDK method marks `policy_id` optional and only emits `policyId` when supplied (`vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py:43`, `:84`). It is unclear whether the server rejects `execute-policy` without a policy ID, falls back to resolution, or whether the SDK optionality exists only for payload construction convenience.
+The DAS Help page states `policyId` is required for the explicit-policy option (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:78`), while the Python SDK method marks `policy_id` optional and only emits `policyId` when supplied (`vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py:57-63`, `:97-104`). It is unclear whether the server rejects `execute-policy` without a policy ID, falls back to resolution, or whether the SDK optionality exists only for payload construction convenience.
 
 **Status**: open
 **Resolves with**: lab test (call `/v1/detection/execute-policy` without `policyId`) OR vendor API documentation
@@ -5895,9 +5895,9 @@ The public Help article gives a 15-item capability list (`vendor/zscaler-help/ai
 
 *Origin: `references/ai-security/api-divergences.md` § Automate admin-plane contract vs client surfaces*
 
-The 2026-06-16 refresh found Python SDK runtime policy detection and public DaaS integration examples, but no broad AI Guard admin-plane client wrapper, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected source classes. The 2026-07-20 Docusaurus-blob snapshot narrows that: the reconstructed Automate contract now exposes 47 AI Guard operations across detection policies, detection-policy match rules, LLM applications, LLM providers, provider types, and application/provider credentials (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`; provider-type discovery at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7486-7903`). What remains open is client-wrapper availability: no captured Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure wraps that admin-plane contract yet.
+The 2026-06-16 refresh found Python SDK runtime policy detection and public DaaS integration examples, but no broad AI Guard admin-plane client wrapper, Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected source classes. The 2026-07-20 Docusaurus snapshot narrowed that by exposing 47 Automate operations across detection policies, match rules, applications, providers, provider types, and credentials (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; provider-type discovery at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7486-7903`). Python SDK v1.9.39 then added six OneAPI configuration resources with 39 callable methods (`vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`; method inventories in `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`, `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`, and `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`). What remains open is the eight-operation Python gap tracked in `ai-security-08` plus Go SDK, Terraform, MCP, Postman, and Automation Hub wrapper availability.
 
-**Status**: partially resolved — last updated 2026-07-20
+**Status**: partially resolved — last updated 2026-07-30
 **Resolves with**: SDK/provider/MCP/Postman source exposing AI Guard admin-plane operations, or vendor confirmation of wrapper roadmap / intended raw-API-only status
 
 ---
@@ -5906,7 +5906,7 @@ The 2026-06-16 refresh found Python SDK runtime policy detection and public DaaS
 
 *Origin: `references/ai-security/api-divergences.md` § Runtime endpoint host divergence*
 
-The captured DAS Help page uses the global host `https://api.zseclipse.net` for both policy execution and policy resolution (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:50`, `:100`, `:158`). The legacy Python AI Guard client still defaults to `https://api.us1.zseclipse.net`, accepts `AIGUARD_CLOUD`, and constructs `https://api.<cloud>.zseclipse.net` unless an override URL is supplied (`vendor/zscaler-sdk-python/zscaler/zaiguard/legacy.py:58`, `:75`, `:78`, `:81`). Public integration examples also still document region-derived hosts (`vendor/zguard-ai-integrations/Microsoft/README.md:519`; `vendor/zguard-ai-integrations/github-actions/README.md:66`; `vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py:38-42`). Upstream issue [zguard-ai-integrations#10](https://github.com/zscaler/zguard-ai-integrations/issues/10) reports that the regional policy-resolution host no longer works and the global host does, but this is issue-report context rather than a static vendor specification. Static sources do not establish whether global and regional hosts both work, whether one is preferred, or whether the regional examples are stale.
+The captured DAS Help page uses the global host `https://api.zseclipse.net` for both policy execution and policy resolution (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:50`, `:100`, `:158`). The legacy Python AI Guard client still defaults to `https://api.us1.zseclipse.net`, accepts `AIGUARD_CLOUD`, and constructs `https://api.<cloud>.zseclipse.net` unless an override URL is supplied (`vendor/zscaler-sdk-python/zscaler/aiguard/legacy.py:54-81`). Public integration examples also still document region-derived hosts (`vendor/zguard-ai-integrations/Microsoft/README.md:519`; `vendor/zguard-ai-integrations/github-actions/README.md:66`; `vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py:38-42`). Upstream issue [zguard-ai-integrations#10](https://github.com/zscaler/zguard-ai-integrations/issues/10) reports that the regional policy-resolution host no longer works and the global host does, but this is issue-report context rather than a static vendor specification. Static sources do not establish whether global and regional hosts both work, whether one is preferred, or whether the regional examples are stale.
 
 **Status**: open
 **Resolves with**: live API trace across global/regional hosts OR vendor documentation / SDK update that states the preferred AI Guard DAS endpoint host
@@ -5921,6 +5921,28 @@ The current Automate admin-plane provider-type discovery contract exposes 23 ide
 
 **Status**: open
 **Resolves with**: current provider-management Help article body, tenant provider-type discovery response, or vendor mapping between User-mode application labels and admin-plane provider types
+
+---
+
+### ai-security-08 — Python SDK AI Guard admin-operation gap
+
+*Origin: `references/ai-security/api-divergences.md` § Python SDK coverage gap*
+
+Python SDK v1.9.39 exposes 39 callable operations across policies, policy-match rules, LLM providers, provider credentials, applications, and application credentials (`vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`; resource implementations under `vendor/zscaler-sdk-python/zscaler/aiguard/`). The captured Automate contract exposes 47 operations across the same administration surface (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). Policy enable, disable, referential check, and summaries have no callable SDK methods; four resource referential-check implementations are commented out after maintainer-observed HTTP 404 responses (`vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:180-222`). The static sources do not establish whether the live API rejects these contract-documented routes generally, whether the reported 404 was tenant/version-specific, or whether the SDK methods were withdrawn for another reason.
+
+**Status**: open
+**Resolves with**: live OneAPI calls for the eight missing operations, SDK integration tests, or a vendor/SDK issue that reconciles the documented routes with runtime acceptance
+
+---
+
+### ai-security-09 — Python SDK legacy policy-detection authentication path
+
+*Origin: `references/ai-security/api-divergences.md` § Legacy runtime static regression cautions*
+
+The v1.9.39 legacy helper can build the AI Guard Bearer header and send a request directly (`vendor/zscaler-sdk-python/zscaler/aiguard/legacy.py:333-410`), but the generic HTTP dispatch path now falls through to the standard session branch for that client (`vendor/zscaler-sdk-python/zscaler/oneapi_http_client.py:318-325`). At the same time, `RequestExecutor` marks an AI Guard legacy helper as legacy, suppresses OAuth, and only injects authorization for non-legacy requests (`vendor/zscaler-sdk-python/zscaler/request_executor.py:35-76`, `:101-107`, `:357-368`). The policy-detection throttling hook also looks for `zguard_legacy_client` while the executor stores `aiguard_legacy_client` (`vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py:124-131`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:63-75`). This source-level path looks internally inconsistent, but it has not been exercised against a live endpoint.
+
+**Status**: open
+**Resolves with**: a mocked prepared-request test proving the Authorization header and throttling hook, a live legacy policy-detection call, or an upstream SDK correction
 
 ---
 
@@ -6187,7 +6209,7 @@ The Python SDK exposes `client.ztb` through `oneapi_client.py` (`vendor/zscaler-
 
 *Origin: `references/zero-trust-branch/overview.md` § Open questions*
 
-MCP v0.13.4's generated tool catalog labels the `ztw` family "Workload Segmentation" (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:372-396`; label generation at `vendor/zscaler-mcp-server/src/zscaler_mcp/common/docgen.py:194-205`), while the service module and docsrc call it "Zscaler Cloud & Branch Connector" (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/__init__.py:1-6`; `vendor/zscaler-mcp-server/docsrc/tools/ztw/index.rst:1-4`). The tools call `client.ztw`; no MCP `ztb` registry family, `/ztb/...` path, or `client.ztb` usage was found. Confirm the canonical `ztw` product label and keep it distinct from the Python SDK's separate ZTB product surface until upstream resolves the naming drift.
+MCP v0.14.0's generated tool catalog labels the `ztw` family "Workload Segmentation" (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:372-396`; label generation at `vendor/zscaler-mcp-server/src/zscaler_mcp/common/docgen.py:194-205`), while the service module and docsrc call it "Zscaler Cloud & Branch Connector" (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/__init__.py:1-6`; `vendor/zscaler-mcp-server/docsrc/tools/ztw/index.rst:1-4`). The tools call `client.ztw`; no MCP `ztb` registry family, `/ztb/...` path, or `client.ztb` usage was found. Confirm the canonical `ztw` product label and keep it distinct from the Python SDK's separate ZTB product surface until upstream resolves the naming drift.
 
 **Status**: open
 **Resolves with**: MCP maintainer clarification or an upstream catalog/module naming fix
@@ -6198,7 +6220,7 @@ MCP v0.13.4's generated tool catalog labels the `ztw` family "Workload Segmentat
 
 *Origin: `references/zscaler-cellular/overview.md` § Open questions*
 
-The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The captured Automate contract exposes 36 ZCell operations, the Python SDK exposes `client.zcell` as a OneAPI-only service, and MCP v0.13.4 includes 20 read-only tools across nine toolsets (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:137-149`). MCP still guesses the live token's canonical Cellular `prd` claim from three variants (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
+The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The captured Automate contract exposes 36 ZCell operations, the Python SDK exposes `client.zcell` as a OneAPI-only service, and MCP v0.14.0 includes 20 read-only tools across nine toolsets (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:29`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:141-153`). MCP still guesses the live token's canonical Cellular `prd` claim from three variants (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
 
 **Status**: partially resolved — last updated 2026-07-16
 **Resolves with**: tenant-side API capture, vendor entitlement documentation, or vendor documentation mapping Cellular IP/IMEI/IMSI identifiers to ZIA/ZPA policy objects
@@ -6207,9 +6229,9 @@ The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI pol
 
 ### zscaler-cellular-02 — MCP violation response shape
 
-*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.4 divergences and test boundary*
+*Origin: `references/zscaler-cellular/api.md` § MCP v0.14.0 divergences and test boundary*
 
-The Automate contract declares anomaly-policy `/violations` response `content` as an array of ICCID strings (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:4080-4200`). The Python SDK's page cleaner retains only dictionary content items, while its method tries to instantiate `AnomalyPolicy` models and the MCP tool shapes those results as policy summaries (`vendor/zscaler-sdk-python/zscaler/oneapi_response.py:244-274`; `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:363-430`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/anomaly_policy.py:240-269`). Confirm whether offending ICCIDs are lost in a live response and align the contract, SDK cleaner/model, and MCP output.
+The Automate contract declares anomaly-policy `/violations` response `content` as an array of ICCID strings (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:4080-4200`). The Python SDK's page cleaner retains only dictionary content items while its method tries to instantiate `AnomalyPolicy` models (`vendor/zscaler-sdk-python/zscaler/oneapi_response.py:260-290`; `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:363-430`). MCP v0.14.0 no longer projects those results into policy summaries; it passes through whatever decoded SDK models survive (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/anomaly_policy.py:149-177`). Confirm whether offending ICCIDs are lost in a live response and align the contract and SDK cleaner/model before attributing any remaining loss to MCP.
 
 **Status**: open
 **Resolves with**: mocked/live SDK response test using the documented string-array payload, followed by an SDK/MCP fix or corrected API schema
@@ -6218,9 +6240,9 @@ The Automate contract declares anomaly-policy `/violations` response `content` a
 
 ### zscaler-cellular-03 — MCP SIM pagination routing
 
-*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.4 divergences and test boundary*
+*Origin: `references/zscaler-cellular/api.md` § MCP v0.14.0 divergences and test boundary*
 
-The Automate contract places SIM-search `page`, `size`, `sortBy`, and `sortDir` in query parameters (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:11421-11470`). MCP exposes page/size but puts them into the POST body and exposes no sorting; the SDK likewise forwards those kwargs as body fields (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:244-261`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:286-315`). Confirm whether the backend accepts body pagination or silently ignores it.
+The Automate contract places SIM-search `page`, `size`, `sortBy`, and `sortDir` in query parameters (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:11421-11470`). MCP exposes page/size but puts them into the POST body and exposes no sorting; the SDK likewise forwards those kwargs as body fields (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:125-162`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:286-315`). Confirm whether the backend accepts body pagination or silently ignores it.
 
 **Status**: open
 **Resolves with**: live/mocked request capture against the ZCell SIM search endpoint or vendor clarification
@@ -6229,7 +6251,7 @@ The Automate contract places SIM-search `page`, `size`, `sortBy`, and `sortDir` 
 
 ### zscaler-cellular-04 — MCP audit request contract
 
-*Origin: `references/zscaler-cellular/api.md` § MCP v0.13.4 divergences and test boundary*
+*Origin: `references/zscaler-cellular/api.md` § MCP v0.14.0 divergences and test boundary*
 
 MCP types audit `object_id` as a string and exposes operation/object/name/visibility/user plus page/size filters (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:31-58`). The Automate contract declares `objectId` as `int64` and additionally exposes entry ID, root-customer, and sorting inputs (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:25-135`). Confirm accepted runtime typing and decide whether the omitted filters are intentional narrowing or missing coverage.
 

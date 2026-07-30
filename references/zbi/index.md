@@ -6,12 +6,12 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: high
 source-tier: mixed
 sources:
@@ -57,7 +57,7 @@ The product has been renamed twice. Operators use all of these names interchange
 - **ZBI** (legacy shorthand often used in tickets for Zscaler Browser Isolation; do not assume this means the Python `client.zbi` accessor)
 - **Zscaler Isolation** (legacy name — what some help-article URLs still use)
 
-Important namespace caveat: the current Python SDK's `client.zbi` service is explicitly **Zscaler Business Insights**, not Zero Trust Browser (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`). Browser-isolation automation lives under ZIA Cloud Browser Isolation, ZPA CBI/isolation surfaces, Terraform provider resources/data sources, Ansible modules, MCP ZPA tools, and the Postman CBI controllers. When answering a question, translate the user's wording to the current source surface before naming an SDK accessor.
+Important namespace caveat: the current Python SDK's `client.zbi` service is explicitly **Zscaler Business Insights**, not Zero Trust Browser (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:237`, `:331-335`). Browser-isolation automation lives under ZIA Cloud Browser Isolation, ZPA CBI/isolation surfaces, Terraform provider resources/data sources, Ansible modules, MCP ZPA tools, and the Postman CBI controllers. When answering a question, translate the user's wording to the current source surface before naming an SDK accessor.
 
 ## Topics
 

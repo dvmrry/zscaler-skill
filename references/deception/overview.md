@@ -6,12 +6,12 @@ content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -40,7 +40,7 @@ Zscaler Deception is sourceable as an active-defense product with decoys, lures,
 | Python SDK | No Deception product service surface found. The Python SDK has an adjacent ZCC OTP model field named `deception_settings_otp` (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:22-37`, `:60-65`). |
 | Terraform | No Deception product resource found. The ZPA provider has a policy-order helper that detects a rule named `Zscaler Deception` at order `1`, preserves it when unmanaged by Terraform, and shifts user-defined order values after it (`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_reorder.go:258-295`). |
 | Ansible | No Deception product module found in the audited ZIA or ZPA collections. |
-| MCP | No Deception product tool found. MCP exposes the adjacent read-only ZCC OTP bundle and documents `deception_settings_otp` as the OTP for modifying Deception settings on a device (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:1-7`, `:46-63`, `:84-98`). The ZPA access-policy skill also treats a licensed Deception rule as tenant auto-provisioned and not to be modified (`vendor/zscaler-mcp-server/skills/zpa/create-access-policy-rule/SKILL.md:66-69`). |
+| MCP | No Deception product tool found. MCP exposes the adjacent read-only ZCC OTP bundle as the full SDK-modeled record (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcc/get_otp.py:46-67`), while its bundled ZCC workflow identifies `deceptionSettingsOtp` as the value for modifying Deception settings on a device (`vendor/zscaler-mcp-server/skills/zcc/generate-logout-otp/SKILL.md:35-42`). The ZPA access-policy skill treats a licensed Deception rule as tenant auto-provisioned and not to be modified (`vendor/zscaler-mcp-server/skills/zpa/create-access-policy-rule/SKILL.md:66-69`). |
 | Postman | No Deception product endpoint family found in the audited OneAPI collection. |
 | Help | Deception has captured Help coverage for product behavior, strategy/personality workflow, roles, decoys, ZPA integration, alerting, ThreatParse, orchestration, and remediation (`vendor/zscaler-help/what-is-zscaler-deception.md:8-10`, `:37-47`, `:51-75`; `vendor/zscaler-help/about-deception-strategy.md:8-16`). |
 

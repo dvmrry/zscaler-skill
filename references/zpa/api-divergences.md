@@ -7,11 +7,13 @@ confidence: medium
 last-verified: "2026-07-26"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
+  - "vendor/zscaler-sdk-python/pyproject.toml"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/helpers.py"
@@ -345,6 +347,37 @@ The Python SDK confirms segment group membership is managed from the application
 
 ---
 
+### Policy Group changelog HTTP methods disagree with executable code
+
+Python v1.9.39's changelog labels policy-group create as
+`GET /policyGroupSet/{groupSetId}/group`, but `add_group` sends POST
+(`vendor/zscaler-sdk-python/CHANGELOG.md:88-95`;
+`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-77`). It also labels
+group reorder as POST, while `reorder_group` sends PUT
+(`vendor/zscaler-sdk-python/CHANGELOG.md:93`;
+`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:364-388`). Trust the
+executable service code for both wrapper methods; the changelog method labels
+are documentation defects.
+
+### `search_groups` example omits its mandatory `group_set_id`
+
+The method signature requires `group_set_id: str` and places it in
+`/policyGroupSet/{group_set_id}/group/search`, but the embedded example calls
+`search_groups` with only `filter_and_sort_dto`
+(`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:167-184`). Copying that
+example raises a Python argument error before any API request. Supply the policy
+group-set ID as the first argument.
+
+### Policy Group controllers are unified-client only
+
+Unified `ZPAService` registers `policy_group`, `policy_group_rule`, and
+`policy_group_set` (`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:504-517`).
+The corresponding legacy properties are present only as commented code
+(`vendor/zscaler-sdk-python/zscaler/zpa/legacy.py:1070-1098`). This is a Python
+client-surface divergence.
+
+---
+
 ### Field observations (Policy)
 
 **`operands.name` rewritten by API (corroborated):** Go SDK v1 UpdateRule explicitly clears `operand.Name` before PUT (`policysetcontroller.go:198-202`). This confirms the operator observation that the API always rewrites operand name to the referenced object's display name. The SDK strips it silently to prevent 400 errors.
@@ -383,7 +416,7 @@ The Python SDK confirms segment group membership is managed from the application
 - **Ansible and MCP:** both resolve the enrollment certificate before delegating
   to the Python SDK
   (`vendor/zpacloud-ansible/plugins/modules/zpa_app_connector_groups.py:575-615`,
-  `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_connector_groups.py:324-363`).
+  `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_connector_groups.py:248-283`).
 
 **Significance / which to trust:** Treat `enrollmentCertId` as required for App
 Connector Group create on the observed OneAPI production tenant, despite the

@@ -6,7 +6,7 @@ content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
 confidence: high
@@ -178,7 +178,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `ven
 - ZIA read/profile-reference surface: Python `client.zia.cloud_browser_isolation.list_isolation_profiles()` and Go `zia/services/browser_isolation` both list `/zia/api/v1/browserIsolation/profiles` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:37-60`, `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:13`, `:30-48`).
 - ZPA CBI configuration surface: Python `client.zpa.cbi_profile` and Go `zpa/services/cloudbrowserisolation/cbiprofilecontroller` expose profile create, read, update, and delete operations (`vendor/zscaler-sdk-python/zscaler/zpa/cbi_profile.py:37`, `:86`, `:124`, `:248`, `:351`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:102`, `:137`, `:146`, `:155`, `:164`).
 - Terraform wraps both sides: ZIA has Smart Isolation/profile-reference fields, and ZPA registers CBI banner, certificate, external-profile, isolation-rule, and read-only data-source surfaces (`vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go:116-126`, `:170-177`; `vendor/terraform-provider-zpa/zpa/provider.go:157-159`, `:169`, `:226-232`).
-- Python `client.zbi` is a **Business Insights** service, not browser isolation (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:230`, `:316-319`).
+- Python `client.zbi` is a **Business Insights** service, not browser isolation (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:237`, `:331-335`).
 
 The honest answer to "is this programmable?" depends on the object. ZIA isolation-profile lookup and Smart Isolation/profile references are programmable; ZPA CBI profile/banner/certificate objects and isolation policy rules have write surfaces; several console UX features remain help-only or unresolved in captured sources.
 

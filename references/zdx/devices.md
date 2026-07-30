@@ -5,7 +5,7 @@ title: "ZDX devices — inventory, health metrics, events, geolocation, API surf
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
 confidence: high
 source-tier: code

@@ -8,7 +8,7 @@ confidence: medium
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
@@ -147,7 +147,7 @@ The deeptrace start-payload and the Python-vs-Go package-shape divergences are w
 
 **What each source says:**
 
-- **Python SDK:** metric/probe methods take `since` in hours via the `@zdx_params` decorator, which converts to epoch `from`/`to` query params. (`vendor/zscaler-sdk-python/zscaler/utils.py:424-429`)
+- **Python SDK:** metric/probe methods take `since` in hours via the `@zdx_params` decorator, which converts to epoch `from`/`to` query params. (`vendor/zscaler-sdk-python/zscaler/utils.py:424-431`)
 - **Go SDK:** takes a `common.GetFromToFilters` struct whose `From`/`To` are `int` Unix-epoch seconds — the caller pre-computes epoch, no hours shorthand. (`vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go:16-20`)
 
 **Significance / which to trust:** Same on-wire `from`/`to` epoch contract; only the SDK ergonomics differ. Pure ergonomics, not a wire disagreement — recorded here so cross-SDK readers stop hunting for a Go `since`.

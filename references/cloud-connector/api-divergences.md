@@ -8,7 +8,7 @@ source-tier: code
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
@@ -205,7 +205,7 @@ Do not assume `LOCAL_SWITCH` works through the Go SDK path or that `ZPA`/`ECSELF
 
 - **Go SDK legacy config:** `ztw/v2_config.go` exposes only username/password/API-key/cloud setters, keyed on the `ZTC_USERNAME`/`ZTC_PASSWORD`/`ZTC_API_KEY`/`ZTC_CLOUD` env vars, and builds a base URL of `https://connector.{cloud}.net/api/v1`. (`vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go:39-43,113-116,172-178`)
 - **Go SDK OneAPI:** the unified client routes ZTW to a dedicated OAuth2 HTTP client (`getServiceHTTPClient` → `ZTWHTTPClient` for the `ztw` service) and classifies any `ztw`-prefixed path as the ZTW service. (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:370-373,385-391`)
-- **Python SDK:** the unified `Client` imports `ZTWService` and returns it over the shared OneAPI request executor unless `use_legacy_client` + a `LegacyZTWClientHelper` are both supplied. (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:30,104-108`)
+- **Python SDK:** the unified `Client` imports `ZTWService` and returns it over the shared OneAPI request executor unless `use_legacy_client` + a `LegacyZTWClientHelper` are both supplied. (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:30-31,112-118,303-310`)
 
 **Significance / which to trust:** ZTW (Cloud Connector) is a **first-class OneAPI service** in both SDKs — not OneAPI-absent. The legacy `ZTC_*` path is the *alternative*, retained for backwards compatibility, not the only surface. Older guidance that read `v2_config.go` in isolation and concluded "OneAPI not confirmed for ZTW" was mis-reading the legacy config as the whole picture; OneAPI for ZTW lives in the top-level unified client, not the legacy ZTW config. (Cross-ref: `sdk.md:110-121`.)
 

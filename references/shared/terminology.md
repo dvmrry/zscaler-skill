@@ -15,7 +15,9 @@ sources:
   - "vendor/zscaler-help/what-is-zscaler-client-connector.md"
   - "references/ai-security/ai-guard.md"
   - "vendor/zscaler-help/ai-guard-what-is.md"
-  - "vendor/zscaler-sdk-python/zscaler/zaiguard/policy_detection.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py"
 author-status: draft
 ---
 
@@ -75,7 +77,7 @@ Zscaler has renamed several core components over time without fully purging the 
 | Zscaler Incident Receiver | ZIR | — | Zscaler-native destination for outbound email policy rule content. ICAP transport; also one-way. |
 | Cloud-to-Cloud Incident Forwarding | C2C | — | Forwards DLP incident metadata + evidence directly to customer public-cloud storage (S3, Azure Blob, etc.). The feed ZWA reads from. |
 | LWF Driver | (same) | `enableLWFDriver` flag on Forwarding Profile | Windows Lightweight Filter — low-level packet interception driver |
-| AI Guard | ZGuard (SDK/client naming in some surfaces) | Help URL: `ai-guard/`; Python SDK `zscaler/zaiguard/` | LLM runtime protection for prompt/response policy detection. Deployment modes: Proxy, DaaS, OnPrem. Python SDK covers policy detection only; portal configuration remains broader than the SDK surface. See `references/ai-security/ai-guard.md`. |
+| AI Guard | ZGuard (`client.zguard` is a deprecated Python accessor alias) | Help URL: `ai-guard/`; Python package `zscaler/aiguard/`; canonical accessor `client.aiguard` | LLM runtime protection for prompt/response policy detection. Python SDK 1.9.39 exposes six OneAPI configuration resources under `client.aiguard`, while `LegacyAIGuardClient(...).aiguard.policy_detection` routes runtime detection; this client split is not a universal backend/auth constraint (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`). Deployment modes remain Proxy, DaaS, and OnPrem. See `references/ai-security/ai-guard.md`. |
 | Breach Predictor | (same) | Help URL: `breach-predictor/` | Predictive threat intelligence — AI-driven breach probability scoring based on telemetry. See `references/breach-predictor/`. |
 | SOC Workbench | Zscaler SOC Workbench | Help URL: `soc-workbench/` | Unified alert/incident triage workspace in the Security Operations platform. Shares Data Fabric + AnySource connectors with AEM/UVM. See `references/soc-workbench/`. |
 | Asset Exposure Management (AEM) | (same) | Help URL: `aem/` | Asset inventory, coverage gap analysis, CMDB hygiene. Part of the Exposure Management suite alongside UVM, Risk360, EASM, Deception. See `references/aem/`. |

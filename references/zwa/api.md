@@ -6,12 +6,12 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
-  vendor/zscaler-sdk-python: a2a814a4dc8b9e79a5f94126d4609cd10573c94d
+  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
   vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
-  vendor/zscaler-mcp-server: 70e67db347441caa31f94da8f904389064db0664
+  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: high
 source-tier: code
@@ -44,15 +44,15 @@ author-status: draft
 
 Source: `vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py`; `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go`.
 
-ZWA has a real SDK surface, but it is narrow: DLP incident lifecycle operations and customer audit-log search. Do not describe it as workflow template or workflow mapping management. In the current Python client, `client.zwa` returns `ZWAService` unless the client is in legacy mode (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:271-277`), and `ZWAService` exposes only `audit_logs` and `dlp_incidents` properties (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:21-41`).
+ZWA has a real SDK surface, but it is narrow: DLP incident lifecycle operations and customer audit-log search. Do not describe it as workflow template or workflow mapping management. In the current Python client, `client.zwa` returns `ZWAService` unless the client is in legacy mode (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:287-293`), and `ZWAService` exposes only `audit_logs` and `dlp_incidents` properties (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:21-41`).
 
 ## Auth and client naming
 
 Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`.
 
-**Python current client.** The general OneAPI `Client` reads `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN`; it obtains an OAuth token and updates the default authorization header (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:233-244`). In that mode, `client.zwa` is the current `ZWAService` wrapper (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:271-277`).
+**Python current client.** The general OneAPI `Client` reads `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN`; it obtains an OAuth token and updates the default authorization header (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:241-252`). In that mode, `client.zwa` is the current `ZWAService` wrapper (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:287-293`).
 
-**Python legacy client.** `LegacyZWAClient` reads `key_id`, `key_secret`, and `cloud` from config or `ZWA_CLIENT_ID`, `ZWA_CLIENT_SECRET`, and `ZWA_CLOUD`; it builds a `LegacyZWAClientHelper` and flips `use_legacy_client=True` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:636-656`). The helper requires key ID/secret, defaults the cloud to `us1`, targets `https://api.<cloud>.zsworkflow.net`, posts to `/v1/auth/api-key/token`, and stores the returned bearer token for subsequent requests (`vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`, `:120-126`, `:140-185`).
+**Python legacy client.** `LegacyZWAClient` reads `key_id`, `key_secret`, and `cloud` from config or `ZWA_CLIENT_ID`, `ZWA_CLIENT_SECRET`, and `ZWA_CLOUD`; it builds a `LegacyZWAClientHelper` and flips `use_legacy_client=True` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:738-758`). The helper requires key ID/secret, defaults the cloud to `us1`, targets `https://api.<cloud>.zsworkflow.net`, posts to `/v1/auth/api-key/token`, and stores the returned bearer token for subsequent requests (`vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`, `:120-126`, `:140-185`).
 
 **Go SDK.** The Go ZWA package is also API-key based: config fields and environment variables are `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, and `ZWA_CLOUD`; the base URL is `https://api.<cloud>.zsworkflow.net`; authentication posts `key_id` and `key_secret` to `/v1/auth/api-key/token` and parses `token`, `token_type`, and `expires_in` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`).
 
@@ -155,7 +155,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscale
 - Say **incident lifecycle API**, not workflow management API. Incident search/detail/history/tickets/triggers/evidence/labels/notes/close are source-backed; workflow template/mapping create-update-delete-list operations are not source-backed in this pass.
 - Say **evidence URL / downloadable evidence XML**, not "raw evidence always returned inline" (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:293-300`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1644-1686`).
 - Preserve cross-SDK differences: Python does not expose delete; Go and help do (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:215-244`).
-- Preserve auth differences: Python current `client.zwa` is OneAPI-client-shaped, while Python legacy and Go are API-key/token-shaped (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:636-656`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`).
+- Preserve auth differences: Python current `client.zwa` is OneAPI-client-shaped, while Python legacy and Go are API-key/token-shaped (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:738-758`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`).
 
 ## Open questions
 
