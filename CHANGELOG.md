@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.16.1](https://github.com/dvmrry/zscaler-skill/compare/v0.16.0...v0.16.1) (2026-07-30)
+
+
+### Documentation
+
+* refresh MCP 0.14 and SDK 1.9.39 coverage ([#240](https://github.com/dvmrry/zscaler-skill/pull/240))
+
 ## [0.16.0](https://github.com/dvmrry/zscaler-skill/compare/v0.15.0...v0.16.0) (2026-07-26)
 
 
