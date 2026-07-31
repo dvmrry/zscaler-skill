@@ -5,10 +5,10 @@ title: "ZPA application segment matching"
 content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
-  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
 confidence: high
 source-tier: mixed
 sources:
@@ -101,7 +101,7 @@ A few fields live at the API/TF level but are absent from or under-documented in
   - `zscaler_managed` — Zscaler owns this segment (e.g., Deception-configured). Edit/delete unavailable via API.
   - `restriction_type` — further microtenant-scope restriction indicator.
   - Treat any segment with `read_only=true` or `zscaler_managed=true` as immutable for skill answers.
-- **`select_connector_close_to_app` is provider-version sensitive.** Terraform provider v4.4.6 removed `ForceNew` from this attribute on the base `zpa_application_segment` resource, and the current schema exposes it as a plain optional bool (`vendor/terraform-provider-zpa/CHANGELOG.md:42-51`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions treated the base resource as destroy/recreate on toggle; check the provider version and variant schema before planning a connector-proximity routing change.
+- **`select_connector_close_to_app` is provider-version sensitive.** Terraform provider v4.4.6 removed `ForceNew` from this attribute on the base `zpa_application_segment` resource, and the current schema exposes it as a plain optional bool (`vendor/terraform-provider-zpa/CHANGELOG.md:53-62`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions treated the base resource as destroy/recreate on toggle; check the provider version and variant schema before planning a connector-proximity routing change.
 - **`bypass_type` has three values, not two**: `ALWAYS`, `NEVER`, `ON_NET` (`resource_zpa_application_segment.go:83-87`). **`ON_NET`** (bypass only for on-network users) is undocumented in most help articles but is a valid API value — useful for hybrid on-network-vs-remote patterns.
 - **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) — controls ICMP behavior on the segment. Relevant when a question asks "why can I ping this app through ZPA?"
 - **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not boolean** (sent on the wire `:234`). Wire-format quirk: callers writing JSON payloads programmatically must send strings.

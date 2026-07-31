@@ -6,11 +6,14 @@ content-type: reference
 confidence: medium
 last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 sources:
   - "vendor/zscaler-sdk-go/CHANGELOG.md"
+  - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/v2_config.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go"
@@ -237,7 +240,7 @@ Python-v1.9.38-versus-Go coverage divergence is therefore resolved at the SDK
 surface level. Python's new endpoint-application list methods still return only
 the current response page rather than reproducing Go's automatic aggregation
 (`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177`;
-`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:145-178`). SDK presence remains a code-surface observation, not proof that an endpoint is entitled or rolled out in a tenant (`vendor/zscaler-sdk-go/CHANGELOG.md:12-19`).
+`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:145-178`). SDK presence remains a code-surface observation, not proof that an endpoint is entitled or rolled out in a tenant (`vendor/zscaler-sdk-go/CHANGELOG.md:51-58`).
 
 ### Python custom-app create/update decode the wrong model
 
@@ -260,11 +263,36 @@ client's catalog.
 
 ### Release-note inventories remain incomplete
 
-The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:17-21,75-90`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
+The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:56-60,114-129`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
 
 The shared Go `EndPointApplications` model serializes requests as only `resourceId` and `zappId`, although its response model exposes descriptive/version fields (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-163`). It also models `versions` as one `Versions` struct, whereas the custom-app response uses `[]Versions` for the same wire key (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
-The generated reconciliation boundary confirms that the current Automate capture does not enumerate the new Endpoint DLP, Outbound Email DLP, DNS application-group, or EUN-template endpoint families, so these remain SDK/provider-surface observations; SDK presence must not be promoted into an entitlement or rollout claim (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:12-19`).
+The generated reconciliation boundary confirms that the current Automate capture does not enumerate the new Endpoint DLP, Outbound Email DLP, DNS application-group, or EUN-template endpoint families, so these remain SDK/provider-surface observations; SDK presence must not be promoted into an entitlement or rollout claim (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:51-58`).
+
+---
+
+## Go v3.8.43 transport behavior is SDK-local
+
+The legacy Go ZIA client's default retry count is now 10 rather than 100
+(`vendor/zscaler-sdk-go/zscaler/zia/v2_config.go:28-34`). For 5xx responses,
+its retry callback delegates to the shared SDK heuristic
+(`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:527-560`): 501 is not retried,
+502/503/504 are always retried, and another 5xx is stopped only when its raw
+body contains none of the four exact transient strings and parses to a JSON
+object with a top-level nonempty string `code`
+(`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-364`). That rule describes
+the Go wrapper's retry choice; it must not be presented as a ZIA server error
+taxonomy.
+
+The client also returns the last HTTP response when its retry budget is
+exhausted without a transport error, then routes normal non-success responses
+through `CheckErrorInResponse`
+(`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:398-420,785-799`). The resulting
+`ErrorResponse` retains the HTTP response and parsed status/code/message/ID/
+reason/exception plus raw body text, but the parser consumes and closes the
+original body (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110`).
+This structured path is not a promise that transport, timeout, authentication,
+or every other client failure has the same shape.
 
 ---
 

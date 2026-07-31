@@ -7,7 +7,7 @@ source-tier: code
 confidence: medium
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json"
@@ -21,6 +21,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zdx/models/call_quality_metrics.py"
   - "vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go"
   - "vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/common/common.go"
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/administration/administration.go"
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/inventory/inventory.go"
@@ -59,7 +60,7 @@ This is the cluster where the three sources most directly contradict one another
 **What each source says:**
 
 - **Python SDK (legacy):** builds the base host as `https://api.{cloud}.net` with `cloud` defaulting to `zdxcloud`, then posts the token request to `{self.url}/v1/oauth/token` — i.e. `https://api.zdxcloud.net/v1/oauth/token`. (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:55`, `:57`, `:173`)
-- **Go SDK:** default `rawBaseURL = "https://api.zdxcloud.net"` (or `https://api.%s.net` for a user-specified cloud), and the token URL is `cfg.BaseURL.String() + "/v1/oauth/token"` — i.e. `https://api.zdxcloud.net/v1/oauth/token`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150-152`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:234`)
+- **Go SDK:** default `rawBaseURL = "https://api.zdxcloud.net"` (or `https://api.%s.net` for a user-specified cloud), and the token URL is `cfg.BaseURL.String() + "/v1/oauth/token"` — i.e. `https://api.zdxcloud.net/v1/oauth/token`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150-152`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:267`)
 - **Help-site reference:** documents the token endpoint as the OneAPI gateway `POST https://api.zsapi.net/zdx/v1/oauth/token`, with the data base URL `https://api.zsapi.net/zdx/v1`. (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:10`, `:16`)
 
 **Significance / which to trust:** Both hosts are documented — the direct cloud host (`api.zdxcloud.net`) is what both vendored SDKs use today; the OneAPI gateway host (`api.zsapi.net`) is the front-door form the help site documents and is also the host the [`../shared/oneapi.md`](../shared/oneapi.md) ZDX-legacy row records. Whether a given tenant's credentials work against one host, the other, or both is unverified from source alone (see open question 1 below). A hand-built client must pick a host and stay on it — the auth path prefix differs by host (next entry).
@@ -70,7 +71,7 @@ This is the cluster where the three sources most directly contradict one another
 
 **What each source says:**
 
-- **Go SDK (direct host):** the token path has **no** `/zdx` segment — `/v1/oauth/token` (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:234`). The data endpoint constants, by contrast, all carry the `/zdx` prefix: `appsEndpoint = "/zdx/v1/apps"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`), `devicesEndpoint = "/zdx/v1/devices"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go:12`), `softwareEndpoint = "/zdx/v1/inventory/software"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/inventory/inventory.go:12`).
+- **Go SDK (direct host):** the token path has **no** `/zdx` segment — `/v1/oauth/token` (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:267`). The data endpoint constants, by contrast, all carry the `/zdx` prefix: `appsEndpoint = "/zdx/v1/apps"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`), `devicesEndpoint = "/zdx/v1/devices"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go:12`), `softwareEndpoint = "/zdx/v1/inventory/software"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/inventory/inventory.go:12`).
 - **Help-site reference (OneAPI host):** auth is at `https://api.zsapi.net/zdx/v1/oauth/token` — the auth path **does** carry `/zdx/v1`. (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:16`)
 
 **Significance / which to trust:** On the direct cloud host the SDKs use, authenticate at `/v1/oauth/*` (no `/zdx`) but call data at `/zdx/v1/*`. On the OneAPI gateway host the help site documents, both auth and data live under `/zdx/v1/*`. The prefix is not optional and not uniform across the host you choose — copy it from the host-matched source, not from the other host's examples.
@@ -82,7 +83,7 @@ This is the cluster where the three sources most directly contradict one another
 **What each source says:**
 
 - **Python SDK:** reads `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second` from the response to drive proactive backoff. (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:97-98`)
-- **Go SDK:** reads the same two headers, `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:167-168`)
+- **Go SDK:** reads the same two headers, `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:192-193`)
 - **Help-site reference:** documents the rate-limit response headers as `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`. (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:103`)
 
 **Significance / which to trust:** A hand-built client that reads `RateLimit-Remaining` (the help name) against the direct cloud host the SDKs target may find it absent and silently lose its backoff signal — both SDKs read the `X-Ratelimit-*-Second` family. Conversely, code calling the OneAPI gateway should expect the `RateLimit-*` family. The header family is **inferred** to be host-coupled, same as the path prefix (unverified — see open question 2 below; this is read off two sources hitting two hosts, not a single confirmed live response). [`api.md § Rate limits`](./api.md) and [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md) document the `RateLimit-*` (gateway) form; this entry records the `X-Ratelimit-*-Second` form the SDKs actually parse.
@@ -97,6 +98,31 @@ This is the cluster where the three sources most directly contradict one another
 - **Server model (help-site / shared doc):** ZDX rate limits are **tiered by license count** — per-second/minute/hour/day caps that scale across four tiers (e.g. 30/min at tier 1 up to 180/min at tier 4). (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:98-101`; tabulated in [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md))
 
 **Significance / which to trust:** The Go SDK's client-side throttle is a conservative fixed ceiling, not a reflection of the tenant's actual server-side allowance. A large-license tenant (higher tier) is more permissively limited server-side than the Go client self-throttles to; a low-tier tenant could in principle exceed its per-minute server cap if the hardcoded 100/60s is more generous than its tier — the limiter is a static guard, not a tier-aware one. Trust the server tier table for the real budget; treat the Go limiter as a floor.
+
+---
+
+### Go v3.8.43 retry exhaustion and structured errors
+
+The direct Go ZDX client now returns the last HTTP response when its retry
+budget is exhausted without a transport error, rather than allowing the
+retry library to replace it with a bare give-up error
+(`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:118-140`). Its 5xx callback
+uses the shared SDK heuristic
+(`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:225-240`): the helper does not
+retry 501, always retries 502/503/504, recognizes four exact case-sensitive
+transient body strings on other 5xx responses, and otherwise stops only for a
+top-level nonempty string JSON `code`
+(`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-364`). Treat that as client
+retry behavior, not as a ZDX server error taxonomy.
+
+The normal request path buffers the body, resets it, and invokes
+`CheckErrorInResponse` for a non-success response
+(`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:477-497`). The resulting
+`ErrorResponse` retains the response/status and parsed code/message/ID/reason/
+exception plus raw body text; the common parser itself consumes and closes the
+body, so callers should not rely on it remaining readable
+(`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110`). Transport and
+other pre-response failures remain outside this structured path.
 
 ---
 
@@ -296,7 +322,7 @@ The administration surface (departments/locations filter-lookup, not admin-user 
 These are SDK-shape differences that do not change the wire contract, recorded so cross-SDK integrators don't misread them as protocol divergences:
 
 - **No `ReadAllPages` helper in either SDK for ZDX.** ZDX uses cursor-based pagination (`next_offset`); neither SDK centralizes the cursor loop, so each caller implements its own. (See [`sdk.md § Cursor-based pagination`](./sdk.md).)
-- **`x-partner-id` (MSP / partner access) is supported by both SDKs** — Python via `ZSCALER_PARTNER_ID` → `partnerId` config → `x-partner-id` header (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:56`, `:329`); Go via `WithPartnerID` / `ZSCALER_PARTNER_ID` → `x-partner-id` header (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:85`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:437-438`). This is parity, not a divergence.
+- **`x-partner-id` (MSP / partner access) is supported by both SDKs** — Python via `ZSCALER_PARTNER_ID` → `partnerId` config → `x-partner-id` header (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:56`, `:329`); Go via `WithPartnerID` / `ZSCALER_PARTNER_ID` → `x-partner-id` header (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:85`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:470-471`). This is parity, not a divergence.
 - **Snapshot is Python-only** — no Go `snapshot` package exists. The reconstructed Automate contract publishes alert and user snapshot creation as `POST /snapshot/alert` and `POST /snapshot/user`, and flags both as path-prefix anomalies relative to the usual `/v1` ZDX prefix (`vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91526-91538`, `vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91675-91687`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:161-162`). The Python SDK composes the alert snapshot call under its `_zdx_base_endpoint = "/zdx/v1"` plus `/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:27`, `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:83-87`). Treat this as a base-path/transport caveat, not as proof either source is wrong. The operational detail lives in [`sdk.md § snapshot`](./sdk.md) and [`diagnostics-and-alerts.md § Sharing an alert snapshot`](./diagnostics-and-alerts.md).
 
 ---

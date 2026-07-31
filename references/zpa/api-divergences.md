@@ -6,18 +6,21 @@ content-type: reference
 confidence: medium
 last-verified: "2026-07-26"
 verified-against:
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
+  - "vendor/zscaler-sdk-go/zscaler/zparequests.go"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/helpers.py"
   - "vendor/terraform-provider-zpa/zpa/**"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/terraform-provider-zpa/go.mod"
   - "vendor/zpacloud-ansible/plugins/modules/**"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/**"
   - "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json"
@@ -392,7 +395,7 @@ client-surface divergence.
 
 ## App Connectors, Groups and Schedules
 
-### `AppConnectorGroup.enrollmentCertId` — API error calls it `signingCertId`; legacy Help omits it
+### `enrollmentCertId` — observed App Connector create requirement vs Terraform create/update resolution
 
 **What each source says:**
 
@@ -407,9 +410,44 @@ client-surface divergence.
   enrollment certificate and sends its ID
   (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:60`,
   `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group_test.go:21-53`).
-- **Terraform provider:** exposes `enrollment_cert_id` and auto-resolves the
-  `Connector` enrollment certificate before create when the user omits it
-  (`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:203-207,233-245`).
+- **Terraform provider v4.4.10:** `enrollment_cert_id` is Optional+Computed on
+  `zpa_app_connector_group`, `zpa_service_edge_group`, and
+  `zpa_private_cloud_group`. The provider invokes the shared resolver before
+  both create and update, using certificate name `Connector` for App Connector
+  and Private Cloud groups and `Service Edge` for Service Edge groups
+  (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`;
+  `vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:203-208,233-245,342-347`;
+  `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:251-256,281-289,385-390`;
+  `vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:154-159,184-192,270-275`).
+- **Resolver lifecycle:** a nonempty value in Terraform `ResourceData` is
+  preserved; a missing/empty value causes a microtenant-scoped name lookup, and lookup
+  errors or empty returned IDs fail the operation. Reads hydrate the backend
+  ID and expansion sends the state value, so refresh alone does not invoke the
+  resolver; empty legacy state is repaired when an update runs. An explicit
+  empty string therefore selects lookup/defaulting rather than clearing the
+  field, while removing an explicit ID may retain the computed current value
+  (`vendor/terraform-provider-zpa/zpa/utils.go:378-398`;
+  `vendor/zscaler-sdk-go/zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go:74-85`;
+  `vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:278-365,423-440`;
+  `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:315-404,453-470`;
+  `vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:216-290,333-347`).
+- **`user_codes` is independent:** certificate resolution runs on every
+  create/update; user-code verification runs only for nonempty codes on create
+  or changed, nonempty codes on update
+  (`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:233-266,342-382`;
+  `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:281-310,385-421`;
+  `vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:184-213,270-306`).
+- **Raw Go SDK:** each Update method serializes the group object supplied by
+  the caller and performs no certificate lookup. `enrollmentCertId` has
+  `omitempty`, so an empty string is omitted when the shared request path
+  marshals the object
+  (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:60,145-152`;
+  `vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go:61,98-105`;
+  `vendor/zscaler-sdk-go/zscaler/zpa/services/private_cloud_group/private_cloud_group.go:46,84-91`;
+  `vendor/zscaler-sdk-go/zscaler/zparequests.go:77-85`).
+- **Provider SDK baseline:** provider v4.4.10 still compiles
+  `zscaler-sdk-go/v3` v3.8.42; do not attribute later SDK behavior to this
+  Terraform release (`vendor/terraform-provider-zpa/go.mod:5-15`).
 - **Python SDK:** accepts arbitrary create keywords and POSTs them, but the
   method's documented keyword list and example omit `enrollment_cert_id`
   (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:254-332`).
@@ -425,6 +463,16 @@ it automatically, or fetch the `Connector` enrollment certificate and send its
 ID explicitly. Direct Python SDK callers must add the undocumented
 `enrollment_cert_id` keyword. Do not generate a current create payload from the
 legacy Help field table alone.
+
+**Terraform scope:** v4.4.10's create/update resolver is the documented
+provider remedy for the reported `missing.mandatory.params` symptom. The provider release note and raw SDK
+serialization path do not independently prove that every backend PUT
+universally requires the field, so keep that conclusion scoped to provider
+behavior and the reported failure
+(`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:145-152`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go:98-105`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/private_cloud_group/private_cloud_group.go:84-91`).
 
 ---
 
@@ -1265,3 +1313,11 @@ The following are unresolved after cross-referencing all available sources. Each
 12. **`IdpController.autoProvision` / `signSamlRequest` — Postman integer typing:** A claim that Postman types these fields as `<integer>` was in the input narrative for this divergence, but the structured input citations cover only `zpa_idp_controller.go:20,42` and `TestScimGroups.yaml:23`. The cassette confirms the wire format is a quoted string; whether Postman independently annotates the type as integer is *unverified — no Postman line reference was provided in the structured input citations.*
 
 13. **`ThreatLabzControls` — Postman corroboration of `ruleMetadata`/`ruleProcessor`/`associatedCustomers`:** The body of the divergence entry cites only `zpa_inspection_profile.go:104-109` and the Python model. A claim that the Postman collection additionally confirms these fields was present in the input narrative but no Postman line number was provided in the structured citations. *Unverified — no Postman line reference was provided in the structured input citations.*
+
+14. **Enrollment-certificate name uniqueness and result order:** `GetByName`
+    sends a search plus the active microtenant, walks the returned list, and
+    returns the first case-insensitive exact-name match without detecting a
+    second match. Whether enrollment-certificate names are tenant-unique and
+    whether duplicate-match ordering is stable is *unverified — requires API
+    contract confirmation or a tenant-side duplicate-name test*
+    (`vendor/zscaler-sdk-go/zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go:74-85`).

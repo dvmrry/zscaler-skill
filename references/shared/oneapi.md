@@ -4,6 +4,9 @@ topic: "oneapi"
 title: "OneAPI — unified API gateway, auth flows, rate limits, error model"
 content-type: reasoning
 last-verified: "2026-06-21"
+verified-against:
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
 confidence: high
 source-tier: doc
 sources:
@@ -27,8 +30,18 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
+  - "vendor/zscaler-sdk-go/zscaler/oneapiconfig.go"
+  - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go"
   - "vendor/terraform-provider-zia/docs/index.md"
   - "vendor/terraform-provider-zpa/docs/index.md"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/terraform-provider-zpa/go.mod"
   - "scripts/automate-capture/README.md"
   - "vendor/zscaler-api-specs/automate-zscaler/rosetta.md"
 author-status: draft
@@ -206,7 +219,7 @@ The Python SDK `LegacyZPAClient` handles this transparently. Hand-coded clients 
 
 ### ZDX legacy — SHA256-signed timestamp
 
-ZDX retains a dedicated legacy SHA256-signed token flow **in addition to** OneAPI (the SDKs route ZDX through ZIdentity OAuth when not using a legacy client — `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:386-387`). Use this legacy flow on non-ZIdentity / gov tenants or tooling pinned to it. The flow:
+ZDX retains a dedicated legacy SHA256-signed token flow **in addition to** OneAPI (the SDKs route ZDX through ZIdentity OAuth when not using a legacy client — `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:376-377,396-397`). Use this legacy flow on non-ZIdentity / gov tenants or tooling pinned to it. The flow:
 
 ```http
 POST https://api.zsapi.net/zdx/v1/oauth/token HTTP/1.1
@@ -462,6 +475,75 @@ The Python SDK (`vendor/zscaler-sdk-python/`) and Go SDK (`vendor/zscaler-sdk-go
 - `ZSCALER_CLOUD` (optional; for non-default clouds)
 
 For the legacy auth path, set `ZSCALER_USE_LEGACY=true` and product-specific env vars (`ZIA_USERNAME`, `ZIA_API_KEY`, etc.). See `README.md § Set up ZIA + ZPA credentials` for the full walkthrough.
+
+### Go SDK v3.8.43 retry and error boundary
+
+At the vendored Go SDK v3.8.43 source pin, the OneAPI, ZCC, ZDX, ZIA,
+ZPA, ZTW, and ZWA retry callbacks route 5xx decisions through the shared
+`errorx.IsRetryableServerError` helper
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:382-405`;
+`vendor/zscaler-sdk-go/zscaler/zcc/v2_client.go:206-222`;
+`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:225-240`;
+`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:527-560`;
+`vendor/zscaler-sdk-go/zscaler/zpa/v2_client.go:227-283`;
+`vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:492-525`;
+`vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:222-237`). This is an SDK
+retry heuristic, not a Zscaler backend error taxonomy.
+
+| Input to `IsRetryableServerError` | Helper result |
+|---|---|
+| Nil response; status below 500; or 501 | Not retryable by this helper (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:320-327`) |
+| 502, 503, or 504 | Always retryable, without classifying the body (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:290-302,329-334`) |
+| Another status at or above 500 whose raw body contains `EDIT_LOCK_NOT_AVAILABLE`, `Resource Access Blocked`, `Failed during enter Org barrier`, or `Request processing failed, possibly because an expected precondition was not met` | Retryable; matching is an exact, case-sensitive substring search (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-288,347-353`) |
+| Another status at or above 500 with a well-formed JSON object whose top-level `code` is a nonempty string, and no transient marker above | Not retryable (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:355-361`) |
+| Another status at or above 500 with a nil or empty body, malformed JSON, HTML, JSON without `code`, or a numeric, empty, nested, or array-shaped `code` | Retryable because none yields a top-level nonempty string code (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:335-364`) |
+
+The OneAPI, ZDX, ZIA, ZPA, ZTW, and ZWA clients install retry-exhaustion
+handlers that return the last HTTP response when the retry loop gives up with
+a response and no transport error. ZCC installs the same handler only when it
+constructs its own HTTP client and `BackoffConf` is present and enabled; a
+custom client or disabled/missing backoff configuration bypasses that retry
+transport. A missing response or non-nil transport/context error remains an
+ordinary error
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:211-233`;
+`vendor/zscaler-sdk-go/zscaler/zcc/v2_client.go:73-108`;
+`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:118-140`;
+`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:398-420`;
+`vendor/zscaler-sdk-go/zscaler/zpa/v2_client.go:125-147`;
+`vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:363-385`;
+`vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:107-129`). Their normal
+non-success request paths then call `CheckErrorInResponse`
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:843-850`;
+`vendor/zscaler-sdk-go/zscaler/zcc/v2_client.go:420-432`;
+`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:477-497`;
+`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:785-799`;
+`vendor/zscaler-sdk-go/zscaler/zpa/v2_client.go:584-605`;
+`vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:720-730`;
+`vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:495-515`).
+
+`ErrorResponse` retains the HTTP response plus a parsed status, code, message,
+ID, reason, and exception, and copies the raw body text into its own `Message`
+field (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,74-110`). JSON
+field extraction runs only when `Content-Type` contains the lowercase literal
+`application/json`; `CheckErrorInResponse` reads and closes the original body
+without rewinding it, so callers must not assume that body remains readable
+(`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:57-67,80-110`). This does not
+make every OneAPI failure structured: transport failures, request-timeout
+exits, session-retry exhaustion, and very long `Retry-After` exits return other
+errors (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:619-626,633-650,714-718`).
+
+OneAPI also has two retry layers. The default `MaxNumOfRetries` is 10, the
+inner `retryablehttp` client uses that value as `RetryMax`, and the outer
+request loop is capped by the same value; for a response path that traverses
+both layers, the SDK implementation budget can therefore reach 110 HTTP
+attempts (ten outer executions, each allowing an initial request plus ten
+inner retries), not merely ten
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:32-39,160-165,608-617`). This is
+a client-side attempt ceiling, not server behavior. The ZPA Terraform provider
+v4.4.10 remains pinned to Go SDK v3.8.42, so these v3.8.43 transport details
+must not be attributed to that provider
+(`vendor/terraform-provider-zpa/CHANGELOG.md:3-8`;
+`vendor/terraform-provider-zpa/go.mod:14`).
 
 ## Surprises worth flagging
 

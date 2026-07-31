@@ -37,7 +37,7 @@ _data/snapshot/<cloud>/zidentity/resource-servers.json
 
 - **Base URL + path prefix depend on which SDK made the call** — the same logical API has two hostnames and two prefixes:
   - **Python SDK** → host `https://api.zsapi.net` (non-prod: `https://api.{cloud}.zsapi.net`), prefix `/ziam/admin/api/v1` (vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177; vendor/zscaler-sdk-python/zscaler/zid/users.py:31). Postman uses `{{ZIAMBase}}` for this.
-  - **Go SDK** → host `https://{vanity}-admin.zslogin.net` (non-prod: `https://{vanity}-admin.zslogin{cloud}.net`), prefix `/admin/api/v1` — no `/ziam` (vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:402-414; the Go zid endpoint constants carry no `/ziam`, e.g. vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16). So a raw-HTTP caller's URL differs by language; the JSON body shape is the same either way.
+  - **Go SDK** → host `https://{vanity}-admin.zslogin.net` (non-prod: `https://{vanity}-admin.zslogin{cloud}.net`), prefix `/admin/api/v1` — no `/ziam` (vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:436-448; the Go zid endpoint constants carry no `/ziam`, e.g. vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16). So a raw-HTTP caller's URL differs by language; the JSON body shape is the same either way.
 - **camelCase JSON keys** (consistent with ZIA / ZPA).
 - **String IDs** — `id: "..."`, not integers. Same as ZPA, different from ZIA.
 - **List endpoints return a single paginated object** (not an array of pages) with this shape:
@@ -320,7 +320,7 @@ These are real, source-confirmed ZIdentity surfaces that a snapshot could add �
 
 7. **Cross-SDK CRUD asymmetry** (high-value): (a) **resource-servers is read-only everywhere** — Python, Go, and the API all expose only list/get; no SDK can modify a resource server. (b) **api-clients is Python-SDK-only** — the Go SDK has no api-client service at all, so client and secret automation requires the Python SDK or raw API (no ZIdentity api-client Terraform resource exists).
 
-8. **Wire host + path differ by SDK** — same logical API: Python → `api.zsapi.net` + `/ziam/admin/api/v1`; Go → `{vanity}-admin.zslogin.net` + `/admin/api/v1` (vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:402-414; vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177). The JSON body is identical; only the URL the snapshot writer hits changes.
+8. **Wire host + path differ by SDK** — same logical API: Python → `api.zsapi.net` + `/ziam/admin/api/v1`; Go → `{vanity}-admin.zslogin.net` + `/admin/api/v1` (vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:436-448; vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177). The JSON body is identical; only the URL the snapshot writer hits changes.
 
 ## Open questions
 

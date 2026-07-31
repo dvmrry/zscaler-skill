@@ -53,7 +53,7 @@ Run the [cloud detection](#diagnostic-1-which-cloud-is-this-tenant-on) procedure
 
 What products does this script touch?
 
-- **ZDX** in scope → ZDX is **OneAPI-capable**: both SDKs route ZDX through the ZIdentity OAuth path when not using a legacy client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:386-387`; Python `oneapi_client.py` `zdx` → `ZDXService`). ZDX also retains a **dedicated legacy SHA256-signed flow** (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`). Prefer OneAPI on ZIdentity-configured commercial tenants (confirm per Step 3); use ZDX legacy on non-ZIdentity or gov tenants — the same OneAPI-or-legacy pattern as ZCC.
+- **ZDX** in scope → ZDX is **OneAPI-capable**: the Go SDK detects ZDX paths and routes them through its ZDX OneAPI HTTP client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:376-377,396-397`), while Python `oneapi_client.py` exposes `zdx` through `ZDXService`. ZDX also retains a **dedicated legacy SHA256-signed flow** (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py`). Prefer OneAPI on ZIdentity-configured commercial tenants (confirm per Step 3); use ZDX legacy on non-ZIdentity or gov tenants — the same OneAPI-or-legacy pattern as ZCC.
 - **Only ZCC** in scope → can use either **OneAPI** (if ZIdentity-configured) or **ZCC legacy** (apiKey + secretKey). OneAPI preferred for new code.
 - **ZIA, ZPA, ZIdentity, ZTW (Cloud Connector), or BI** in scope → eligible for OneAPI on commercial clouds; on gov clouds, choose by client surface and version. Current Go/Python SDKs and ZIA Terraform have `gov` / `govus` OneAPI routing; ZPA Terraform `GOV` / `GOVUS` remains legacy.
 

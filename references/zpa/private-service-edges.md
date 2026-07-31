@@ -7,6 +7,7 @@ last-verified: "2026-07-26"
 confidence: medium
 source-tier: doc
 verified-against:
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/terraform-aws-zpa-private-service-edge-modules: b555a112e27ac25a018b8681a5a339fe7c40458a
   vendor/terraform-azurerm-zpa-private-service-edge-modules: bdfecd0adaef82e50a4575d4d6252395aca706b2
 sources:
@@ -19,6 +20,10 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_private_service_edge_status.md"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go"
+  - "vendor/terraform-provider-zpa/zpa/utils.go"
   - "vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py"
@@ -210,7 +215,8 @@ Three Terraform resources are relevant:
 | `use_in_dr_mode` | Designate this group for disaster recovery only — held in reserve. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:223`) |
 | `upgrade_day` / `upgrade_time_in_secs` | Maintenance window for software updates. Default: `SUNDAY` / `66600` (18:30 UTC). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:221-222`) |
 | `version_profile_name` / `version_profile_id` | Software release track: `Default`, `Previous Default`, `New Release`, or EL8 variants. Set `override_version_profile = true` (`:209`) to use a non-default track. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:211-219`) |
-| `enrollment_cert_id` + `user_codes` | OAuth2 enrollment path — provide the enrollment cert and the user codes displayed on the PSE VMs after boot to complete enrollment via Terraform. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:230-231`) |
+| `enrollment_cert_id` | Optional+Computed. A nonempty value is preserved; when omitted/empty, provider v4.4.10 resolves the `Service Edge` enrollment certificate before create or update (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`; `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:251-256,281-289,385-390`; `vendor/terraform-provider-zpa/zpa/utils.go:383-398`). |
+| `user_codes` | Independent optional set of codes displayed on PSE VMs. Verification runs only for nonempty codes on create or changed/nonempty codes on update; the certificate field does not have to be configured alongside it (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:257-262,296-308,407-419`). |
 | `microtenant_id` | Scope to a microtenant (requires microtenant license). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:224`) |
 
 > **Module coverage gap — `grace_distance_*` and `use_in_dr_mode`**: These are valid provider arguments (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:205-207, :223`) but are **absent from both the AWS and Azure reference module wrappers** (`vendor/terraform-aws-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-95`; `vendor/terraform-azurerm-zpa-private-service-edge-modules/modules/terraform-zpa-service-edge-group/variables.tf:1-82`). Operators using those modules who need grace distance or DR mode must extend the module or switch to the raw `zpa_service_edge_group` resource directly.
@@ -407,6 +413,12 @@ Individual PSE instances are enrolled rather than created through the Service Ed
 | `update_cloud_group(group_id, **kwargs)` | PUT | `/privateCloudControllerGroup/{id}` (`private_cloud_group.py:239`, `:311`) |
 | `delete_cloud_group(group_id)` | DELETE | `/privateCloudControllerGroup/{id}` (`private_cloud_group.py:338`, `:361`) |
 | `list_private_cloud_group_summary()` | GET | `/privateCloudControllerGroup/summary` (`private_cloud_group.py:376`, `:414`) |
+
+Terraform's `zpa_private_cloud_group` follows the same independent-field
+pattern: `enrollment_cert_id` is Optional+Computed and resolves `Connector`
+when missing/empty before create or update, while `user_codes` triggers
+verification only when nonempty on create or changed/nonempty on update
+(`vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:154-164,184-213,270-306`).
 
 **Private Cloud Controller** (`client.zpa.private_cloud_controller`):
 
