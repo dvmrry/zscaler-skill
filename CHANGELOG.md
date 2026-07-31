@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.16.3](https://github.com/dvmrry/zscaler-skill/compare/v0.16.2...v0.16.3) (2026-07-31)
+
+
+### Bug Fixes
+
+* **ci:** serialize releases and gate risky vendor bumps ([#245](https://github.com/dvmrry/zscaler-skill/issues/245)) ([b195e82](https://github.com/dvmrry/zscaler-skill/commit/b195e82b1883bb105b2e15b56600ec799a1e8f2f))
+
 ## [0.16.2](https://github.com/dvmrry/zscaler-skill/compare/v0.16.1...v0.16.2) (2026-07-31)
 
 
