@@ -7,7 +7,7 @@ source-tier: code
 confidence: medium
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/**"
@@ -16,6 +16,7 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zid/services/**"
   - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
   - "vendor/zscaler-sdk-go/zscaler/oneapiconfig.go"
+  - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -41,7 +42,7 @@ This doc records the source-vs-source disagreements found across the `zid` surfa
 **What each source says:**
 
 - **Python SDK:** every `zid` service class sets `_zidentity_base_endpoint = "/ziam/admin/api/v1"`. (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/groups.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:31`) The request executor resolves the host to `https://api.zsapi.net` for production (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`) or `https://api.{cloud}.zsapi.net` for non-government non-production clouds (`vendor/zscaler-sdk-python/zscaler/request_executor.py:188-190`). Net production URL: `https://api.zsapi.net/ziam/admin/api/v1/...`
-- **Go SDK:** every `zid` service constant uses the bare `/admin/api/v1` prefix (`vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`, `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:17`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:13`, `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:12`). The client detects a ZIdentity request by the substring `/admin/api/v1` and rewrites the host to the vanity-domain admin host: `https://{vanity}-admin.zslogin.net` for production, `https://{vanity}-admin.zslogin{cloud}.net` otherwise. (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:388,410,412`) Net production URL: `https://{vanity}-admin.zslogin.net/admin/api/v1/...`
+- **Go SDK:** every `zid` service constant uses the bare `/admin/api/v1` prefix (`vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`, `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:17`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:13`, `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:12`). The client detects a ZIdentity request by the substring `/admin/api/v1` and rewrites the host to the vanity-domain admin host: `https://{vanity}-admin.zslogin.net` for production, `https://{vanity}-admin.zslogin{cloud}.net` otherwise. (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:422,444,446`) Net production URL: `https://{vanity}-admin.zslogin.net/admin/api/v1/...`
 - **Postman:** the `ZIAMBase` collection variable is `{{oneAPIBaseUrl}}/ziam/admin/api/v1` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136360`), matching the Python prefix.
 
 **Significance / which to trust:** This is the headline divergence. The same logical API is reached two different ways: Python and Postman hit `api.zsapi.net/ziam/admin/api/v1`; Go hits `{vanity}-admin.zslogin.net/admin/api/v1`. Anyone tracing traffic, writing a raw-HTTP caller, or configuring an allowlist must know which SDK they are mirroring — the host and the `/ziam` prefix both change. Trust each SDK's own constant for that SDK; trust Postman/Python for the `api.zsapi.net` path.
@@ -129,6 +130,37 @@ not the current SDK contract.
 - **Postman:** request URLs spell the filter with brackets on the wire, e.g. `.../api-clients?...&name[like]=ut`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:129152`)
 
 **Significance / which to trust:** The two SDKs send *different* wire spellings for the same logical filter, and neither matches the snake_case method-argument name. Python emits **camelCase** (`excludeDynamicGroups`, `loginName`, `displayName[like]`); Go emits **run-together lowercase** (`excludedynamicgroups`, `loginname`, `displayname[like]`). So the real divergence is Python-camelCase vs Go-run-together — *not* underscored-vs-run-together. The earlier framing that the Python `exclude_dynamic_groups` "is the binding-layer name and `excludedynamicgroups` is the wire key" was wrong on the Python side: Python never sends the underscored form, but it does not send Go's run-together form either. A raw-HTTP caller must pick one spelling deliberately — Python's camelCase or Go's run-together lowercase — and not copy the SDK's underscored argument names. The `[like]` filters (`name[like]`, and per-user `loginname[like]` / `displayname[like]` / `primaryemail[like]` on the Go side at `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:39,40,41`; `loginName[like]` / `displayName[like]` / `primaryEmail[like]` on the Python side) carry literal square brackets in the query string either way, and must be URL-encoded.
+
+---
+
+## Go OneAPI retry and error-path boundary
+
+ZIdentity calls made through the Go unified client share OneAPI's transport.
+Its 5xx retry callback uses `IsRetryableServerError`
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:382-405`), an SDK heuristic that
+does not retry 501, always retries 502/503/504, recognizes four exact
+case-sensitive transient body strings on other 5xx responses, and otherwise
+stops only for a top-level nonempty string JSON `code`
+(`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-364`). This is not a
+ZIdentity backend error taxonomy.
+
+When retry exhaustion leaves an HTTP response and no transport error, the
+inner handler returns that response for the outer request layer to classify
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:211-233`). Ordinary non-success
+status paths call `CheckErrorInResponse`, whose `ErrorResponse` retains the
+response/status, parsed code/message/ID/reason/exception, and raw body text;
+the parser reads and closes the original body
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:843-850`;
+`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110`). Transport,
+request-timeout, session-exhaustion, and long-`Retry-After` exits are not all
+converted to that structure
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:619-626,633-650,714-718`).
+
+The default OneAPI retry configuration also applies 10 to both the inner
+`RetryMax` and the outer request-loop limit. A response path that traverses
+both layers can therefore consume up to 110 HTTP attempts; that number is an
+SDK implementation budget, not server behavior
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:32-39,160-165,608-617`).
 
 ---
 

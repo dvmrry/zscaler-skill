@@ -5,10 +5,10 @@ title: "ZWA claims ledger - Tier 3 first-pass refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
-  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
@@ -33,6 +33,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zwa/models/audit_logs.py"
   - "vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go"
@@ -69,7 +70,9 @@ This ledger covers the Workflow Automation claims changed or explicitly guarded 
 | Python `LegacyZWAClient` uses `key_id`, `key_secret`, `cloud`, and optional `partnerId`, with environment variables `ZWA_CLIENT_ID`, `ZWA_CLIENT_SECRET`, and `ZWA_CLOUD`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:738-758` |
 | Python `LegacyZWAClientHelper` defaults to `https://api.<cloud>.zsworkflow.net`, requires key ID and secret, obtains a token from `/v1/auth/api-key/token`, and sets `Authorization: Bearer <token>`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`, `:120-126`, `:140-185` |
 | Legacy help says ZWA API authentication uses API key ID + key secret, `POST /v1/auth/api-key/token`, token/token_type/expires_in, and bearer-token use for subsequent requests. | `api.md` | `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md:8-17`, `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37` |
-| Go ZWA configuration uses `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, optional `ZWA_CLOUD`, and `https://api.<cloud>.zsworkflow.net`; it authenticates against `/v1/auth/api-key/token`. | `api.md` | `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294` |
+| Go ZWA configuration uses `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, optional `ZWA_CLOUD`, and `https://api.<cloud>.zsworkflow.net`; it authenticates against `/v1/auth/api-key/token`. | `api.md` | `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327` |
+| Go SDK v3.8.43 ZWA 5xx retry decisions use the shared SDK heuristic; 501 is not retried, 502/503/504 always are, and other 5xx responses stop only for a top-level nonempty string JSON `code` when no exact transient marker is present. This is client behavior, not a ZWA backend taxonomy. | `api.md`, `index.md` | `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:222-237`; `vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-364` |
+| The Go ZWA retry-exhaustion handler can preserve the last response for normal `ErrorResponse` classification; the structured error retains HTTP/parsed fields and raw body text while consuming and closing the original body. | `api.md`, `index.md` | `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:107-129,495-515`; `vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110` |
 | Python DLP incident methods cover transaction lookup, detail lookup, change history, triggers, generated tickets, evidence URL, incident search, incident group search, labels, notes, and close. | `api.md` | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:39`, `:92`, `:145`, `:192`, `:240`, `:293`, `:341`, `:452`, `:494`, `:540`, `:586` |
 | Python DLP methods use `/zwa/dlp/v1` as the base endpoint. | `api.md` | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:32-37` |
 | Python incident search is a POST to `/zwa/dlp/v1/incidents/search`, accepts fields/timeRange, and documents max `page_size` 100. | `api.md` | `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:341-450`, especially `:369-374`, `:422-427` |

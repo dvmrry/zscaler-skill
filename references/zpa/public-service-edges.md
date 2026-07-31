@@ -6,6 +6,8 @@ content-type: reference
 last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
+verified-against:
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
 sources:
   - "vendor/zscaler-help/about-private-service-edges.md"
   - "vendor/zscaler-help/about-private-service-edge-groups.md"
@@ -61,7 +63,7 @@ Drivers for adding a Private Service Edge (regulatory / data-residency, air-gapp
 A Service Edge Group carries an explicit boolean that marks whether the group is a public (Zscaler-reachable) group or a private one. This is the on-API mechanism that distinguishes the two tiers.
 
 - **Python model:** `is_public` ← wire key `isPublic` (`vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_groups.py:54`).
-- **Terraform:** `is_public`, "Enable or disable public access for the Service Edge Group", default `false` (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:91-96`). On the Go API the boolean is serialized to an uppercased string (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:444`).
+- **Terraform:** `is_public`, "Enable or disable public access for the Service Edge Group", default `false` (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:91-96`). On the Go API the boolean is serialized to an uppercased string (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:451`).
 - **Admin Console label:** "Publicly Accessible — Choose if the Private Service Edge group with specific trusted networks mapping is also available publicly for all users outside of these trusted networks. It is important to ensure the Private Service Edge is reachable over a public IP address if you need remote users to be able to connect to it" (`vendor/zscaler-help/about-private-service-edge-groups.md:38`).
 
 The related **grace-distance** controls let a Private Service Edge Group win over a *closer* Public Service Edge: `grace_distance_enabled` "allows ZPA Private Service Edge Groups within the specified distance to be prioritized over a closer ZPA Public Service Edge" (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:214-218`), with `grace_distance_value` the maximum distance and `grace_distance_value_unit` one of `MILES`/`KMS` (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:220-249`). This is the proximity-override the Admin Console calls "Public Service Edge Proximity Override" (`vendor/zscaler-help/about-private-service-edge-groups.md:45`).
@@ -166,7 +168,7 @@ The group is the administrative unit for Service Edges. For the **operator-deplo
 | `latitude` / `longitude` / `location` | — | 40-42 | Geo of the group |
 | `microtenant_id` / `microtenant_name` | `microtenantId` / `microtenantName` | 59-60 | Microtenant scope |
 
-The Go Terraform resource confirms the same distinguishing fields: `is_public` (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:91`), `use_in_dr_mode` (122), `grace_distance_*` (214-249), and the OAuth2 enrollment pair `enrollment_cert_id` / `user_codes` (251-262).
+The Go Terraform resource confirms the same distinguishing fields: `is_public` (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:91`), `use_in_dr_mode` (122), and `grace_distance_*` (214-249). Its OAuth2 fields are adjacent but not configuration-coupled: `enrollment_cert_id` is Optional+Computed and auto-resolves `Service Edge` before create/update when missing or empty, while `user_codes` verification runs only for nonempty codes on create or changed/nonempty codes on update (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:251-262,281-310,385-421`).
 
 ### 5.4 Terraform
 

@@ -5,10 +5,10 @@ title: "ZWA API - incident search, evidence URL, audit logs, auth split"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
-  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
@@ -29,6 +29,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zwa/models/incident_evidence.py"
   - "vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go"
   - "vendor/zscaler-sdk-go/zscaler/zwa/services/common/common.go"
@@ -54,7 +55,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sd
 
 **Python legacy client.** `LegacyZWAClient` reads `key_id`, `key_secret`, and `cloud` from config or `ZWA_CLIENT_ID`, `ZWA_CLIENT_SECRET`, and `ZWA_CLOUD`; it builds a `LegacyZWAClientHelper` and flips `use_legacy_client=True` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:738-758`). The helper requires key ID/secret, defaults the cloud to `us1`, targets `https://api.<cloud>.zsworkflow.net`, posts to `/v1/auth/api-key/token`, and stores the returned bearer token for subsequent requests (`vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`, `:120-126`, `:140-185`).
 
-**Go SDK.** The Go ZWA package is also API-key based: config fields and environment variables are `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, and `ZWA_CLOUD`; the base URL is `https://api.<cloud>.zsworkflow.net`; authentication posts `key_id` and `key_secret` to `/v1/auth/api-key/token` and parses `token`, `token_type`, and `expires_in` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`).
+**Go SDK.** The Go ZWA package is also API-key based: config fields and environment variables are `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, and `ZWA_CLOUD`; the base URL is `https://api.<cloud>.zsworkflow.net`; authentication posts `key_id` and `key_secret` to `/v1/auth/api-key/token` and parses `token`, `token_type`, and `expires_in` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`).
 
 **Legacy help.** The captured Workflow Automation API getting-started/auth pages match the API-key flow: API management is enabled with a Workflow Automation subscription, authentication uses API key ID + key secret, and `POST /v1/auth/api-key/token` returns a bearer token with expiration (`vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md:8-17`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`). Because Python current-client, Python legacy, Go, and the legacy help pages do not express the same migration boundary, keep the exact boundary open in [clarification zwa-04](../_meta/clarifications.md#zwa-04-current-vs-legacy-auth-boundary).
 
@@ -140,6 +141,28 @@ Go exposes `customeraudit.GetCustomerAudit(ctx, service, filters, paginationPara
 
 See [`./audit-logs.md`](./audit-logs.md) for the dedicated audit-log model and open retention/streaming questions.
 
+## Go v3.8.43 retry and error behavior
+
+The Go ZWA client's retry callback routes 5xx responses through the shared SDK
+heuristic (`vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:222-237`). The helper
+does not retry statuses below 500 or 501, always retries 502/503/504, recognizes
+four exact case-sensitive transient body strings on another 5xx, and otherwise
+stops only when a JSON object has a top-level nonempty string `code`
+(`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-364`). Empty, malformed,
+HTML, code-less, numeric-code, empty-code, nested-code, and array payloads remain
+retryable. This is a client heuristic, not a ZWA backend error taxonomy.
+
+When the retry library exhausts its budget with a response and no transport
+error, the ZWA handler returns the last response so the request layer can
+classify it (`vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:107-129`). The
+normal request path buffers and resets the body before calling
+`CheckErrorInResponse` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:495-515`).
+`ErrorResponse` retains the HTTP response/status and parsed code/message/ID/
+reason/exception plus raw body text, but the common parser consumes and closes
+the body (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110`). This
+does not imply that transport or other pre-response failures are structured,
+or that the original body remains readable.
+
 ## Non-surfaces from this pass
 
 Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terraform-provider-zia/zia/data_source_zia_dlp_incident_receiver_servers.go`; `vendor/ziacloud-ansible/plugins/modules/zia_dlp_incident_receiver_info.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md`.
@@ -155,7 +178,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscale
 - Say **incident lifecycle API**, not workflow management API. Incident search/detail/history/tickets/triggers/evidence/labels/notes/close are source-backed; workflow template/mapping create-update-delete-list operations are not source-backed in this pass.
 - Say **evidence URL / downloadable evidence XML**, not "raw evidence always returned inline" (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:293-300`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1644-1686`).
 - Preserve cross-SDK differences: Python does not expose delete; Go and help do (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:215-244`).
-- Preserve auth differences: Python current `client.zwa` is OneAPI-client-shaped, while Python legacy and Go are API-key/token-shaped (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:738-758`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:212-294`).
+- Preserve auth differences: Python current `client.zwa` is OneAPI-client-shaped, while Python legacy and Go are API-key/token-shaped (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:738-758`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`).
 
 ## Open questions
 

@@ -130,7 +130,7 @@ resource "zpa_application_segment" "this" {
 
 **TF-level findings** (`terraform-provider-zpa/zpa/resource_zpa_application_segment.go`):
 
-- **`select_connector_close_to_app` mutability changed in provider v4.4.6.** The v4.4.6 changelog says the provider removed `ForceNew` from this attribute on `zpa_application_segment`, and the current schema now shows only `TypeBool` + `Optional` (`vendor/terraform-provider-zpa/CHANGELOG.md:42-51`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Do not repeat older "API refuses in-place updates" wording unless you are explicitly working with a pre-v4.4.6 provider or a different segment variant whose schema still proves `ForceNew`.
+- **`select_connector_close_to_app` mutability changed in provider v4.4.6.** The v4.4.6 changelog says the provider removed `ForceNew` from this attribute on `zpa_application_segment`, and the current schema now shows only `TypeBool` + `Optional` (`vendor/terraform-provider-zpa/CHANGELOG.md:53-62`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Do not repeat older "API refuses in-place updates" wording unless you are explicitly working with a pre-v4.4.6 provider or a different segment variant whose schema still proves `ForceNew`.
 - **`bypass_type` enum (3 values)**: `ALWAYS`, `NEVER`, `ON_NET` (`:84-86`). **`ON_NET`** (bypass only for on-network users) is undocumented in most App Segment help articles.
 - **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) (`:176-184`). Controls ICMP handling on the segment.
 - **`health_reporting` enum**: `NONE`, `ON_ACCESS`, `CONTINUOUS` (default `NONE`) (`:165-174`).

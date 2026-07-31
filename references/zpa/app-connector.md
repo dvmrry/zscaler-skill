@@ -7,6 +7,7 @@ last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 verified-against:
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
   vendor/terraform-aws-zpa-app-connector-modules: a866e4988f002d0b50dcc0db10c06e46db4bf0e7
@@ -27,6 +28,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/app_connector_groups.py"
   - "vendor/zpacloud-ansible/plugins/modules/zpa_app_connector_groups.py"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go"
+  - "vendor/terraform-provider-zpa/zpa/utils.go"
   - "vendor/terraform-aws-zpa-app-connector-modules/CHANGELOG.md"
   - "vendor/terraform-aws-zpa-app-connector-modules/README.md"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf"
@@ -116,6 +120,7 @@ App Connector Groups are the policy, upgrade, and capacity unit. Per *About App 
 - **Version profile defaults changed.** Both current reference modules default `override_version_profile` to `false`. Azure sends profile ID `0`; AWS sends `0` when override is disabled and resolves the tenant's `Default` profile only when override is enabled without an explicit ID. Existing configurations that relied on the older override-enabled defaults can show a plan diff after a module update. (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`.)
 - **SDK group and connector telemetry is richer than the older model.** Current Python models include group enrollment/private-cloud fields plus connector creation, broker-connect, enrollment, OS/Sarge upgrade, platform, and read-only/managed-state metadata. Treat these as observed runtime and version-track fields, not group membership or proof of health by themselves.
 - **Ansible onboarding convenience:** the ZPA Ansible App Connector Group module can resolve the default enrollment certificate named `Connector` when `enrollment_cert_id` is omitted, and can verify OAuth `user_codes` after create/update. Treat the resolved enrollment certificate ID and user-code verification result as automation evidence; group creation alone is not proof that connectors enrolled successfully.
+- **Terraform parity:** in provider v4.4.10, `enrollment_cert_id` is Optional+Computed and a nonempty `ResourceData` value is preserved; when it is missing/empty, the provider resolves the `Connector` certificate before both create and update. `user_codes` is independent: verification runs only for nonempty codes on create or changed/nonempty codes on update (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`; `vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:203-213,233-266,342-382`; `vendor/terraform-provider-zpa/zpa/utils.go:378-398`).
 - **Latitude/longitude coordinates** on the group tell ZPA where the group is physically, for nearest-connector selection.
 - **`city_country` is a normal optional input in the current modules.** The current AWS module no longer masks post-create changes with `ignore_changes`. Review a plan diff instead of automatically dismissing it as API-derived readback drift.
 - **`-el8` version tracks** and `ip_anchor_type` enum fields surface in the SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/`) — relevant when auditing group config.

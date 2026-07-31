@@ -7,7 +7,7 @@ confidence: medium
 source-tier: code
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
 sources:
@@ -23,6 +23,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/provisioning_url/provisioning_url.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
   - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
   - "vendor/zscaler-sdk-python/zscaler/ztw/forwarding_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/models/forwarding_rules.py"
@@ -219,6 +221,35 @@ Do not assume `LOCAL_SWITCH` works through the Go SDK path or that `ZPA`/`ECSELF
 - **Help-derived framing:** describing ZTW limits as the ZIA "three-tier Heavy/Medium/Light weight model."
 
 **Significance / which to trust:** Trust the SDK's two-bucket model. DELETE is bucketed **with** POST/PUT, not in a separate "Heavy" tier as it is for ZIA's documented weight model. The Go comments say "same as ZIA," but the *enforced* shape in the SDK is two buckets (read vs write), not three weighted tiers. (Cross-ref: `api.md:173-180`, which documents the two-bucket model with the 429 body shape.)
+
+---
+
+## Go v3.8.43 retry and error-path divergence
+
+The Go ZTW retry callback applies the shared SDK 5xx heuristic after its
+separate 401/409/412 transient-marker checks
+(`vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:492-525`). Under that helper,
+501 is not retryable, 502/503/504 are always retryable, and another 5xx stops
+only when no exact transient marker appears and the body contains a top-level
+nonempty string JSON `code`; empty, malformed, HTML, code-less, numeric-code,
+empty-code, nested-code, and array payloads remain retryable
+(`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-364`). This is a Go SDK
+heuristic, not a Cloud Connector backend error taxonomy.
+
+On ordinary retry exhaustion with a response and no transport error, the ZTW
+HTTP handler returns the last response so the request layer can construct an
+`ErrorResponse` (`vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:363-385`). That
+error type retains HTTP status and parsed code/message/ID/reason/exception plus
+the raw body text, while `CheckErrorInResponse` consumes and closes the body
+(`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110`).
+
+There is one critical ZTW exception. The legacy request loop closes every
+non-success response body before its status branch; after a 401 survives all
+five attempts, the final guard calls `CheckErrorInResponse` only after that
+close (`vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:709-730`). The resulting
+error still carries the HTTP response/status and the wrapper error, but the
+API's original code and message cannot be parsed from the already-closed body.
+Do not describe persistent ZTW 401s as preserving the structured API payload.
 
 ---
 

@@ -5,7 +5,7 @@ title: "ZPA Terraform provider — resource catalog"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
 confidence: medium
 source-tier: code
 sources:
@@ -13,8 +13,13 @@ sources:
   - "vendor/terraform-provider-zpa/README.md"
   - "vendor/terraform-provider-zpa/docs/guides/release-notes.md"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/terraform-provider-zpa/go.mod"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_capabilities_access_rule.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_portal_access_rule.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go"
+  - "vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go"
+  - "vendor/terraform-provider-zpa/zpa/utils.go"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_browser_access.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_inspection.md"
@@ -104,25 +109,74 @@ Complete listing of every Terraform resource and data source in the `zscaler/zpa
 
 ## Provider overview
 
+Provider v4.4.10 extends the existing enrollment-certificate resolver to both
+create and update for `zpa_app_connector_group`, `zpa_service_edge_group`, and
+`zpa_private_cloud_group`. The release describes this as the provider remedy
+for a reported `missing.mandatory.params` update failure when
+`enrollment_cert_id` is empty in state
+(`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:233-245,342-347`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:281-289,385-390`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:184-192,270-275`).
+
+For all three resources, `enrollment_cert_id` is `Optional` and `Computed`.
+The shared resolver preserves any nonempty value already in Terraform
+`ResourceData`; for a missing or empty value it looks up `Connector` for App Connector and
+Private Cloud groups or `Service Edge` for Service Edge groups, rejects lookup
+errors and empty IDs, and sets the resolved ID
+(`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:203-208`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:251-256`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:154-159`;
+`vendor/terraform-provider-zpa/zpa/utils.go:378-398`). Reads hydrate the field
+from the backend response, and expansion sends the value currently held in
+state (`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:278-325,423-440`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:315-368,453-470`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:216-253,333-347`).
+
+This lifecycle has three practical consequences. An explicit empty string
+selects provider lookup/defaulting rather than clearing the certificate;
+removing an explicit ID can retain the current computed value; and refresh
+alone only reads backend state, so an empty legacy state is healed when an
+update actually runs the resolver
+(`vendor/terraform-provider-zpa/zpa/utils.go:383-398`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:269-365`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:313-404`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:216-290`).
+Imports resolve the group ID or name and then rely on Read to hydrate state;
+they do not invoke the enrollment-certificate resolver
+(`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:20-52,269-325`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:21-53,313-368`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:18-50,216-253`).
+
+`user_codes` is independent of certificate resolution: the resolver runs for
+every create/update, while code verification runs only for nonempty codes on
+create or for changed, nonempty codes on update
+(`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:233-266,342-382`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:281-310,385-421`;
+`vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:184-213,270-306`).
+Provider v4.4.10 still compiles `zscaler-sdk-go/v3` v3.8.42, so do not
+attribute later SDK behavior to this Terraform release
+(`vendor/terraform-provider-zpa/go.mod:5-15`).
+
 Provider v4.4.9 added the optional
 `device_posture_failure_notification_enabled` field to both
 `zpa_policy_access_rule` and `zpa_policy_access_rule_v2`; the provider carries
 it through schema, read, and write paths
-(`vendor/terraform-provider-zpa/CHANGELOG.md:3-13`;
+(`vendor/terraform-provider-zpa/CHANGELOG.md:14-24`;
 `vendor/terraform-provider-zpa/zpa/common.go:594-598`;
 `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule.go:169,263`;
 `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_v2.go:71-75,320,420`).
 
 Provider v4.4.8 added `JOIN_SESSION` and `CONTROL_SESSION` options to the
 privileged capabilities supported by `zpa_policy_capabilities_rule`
-(`vendor/terraform-provider-zpa/CHANGELOG.md:16-25`).
+(`vendor/terraform-provider-zpa/CHANGELOG.md:27-36`).
 
 Provider v4.4.7 changed two operationally relevant surfaces. It added three
 portal-access capability fields—`access_uninspected_file_sandbox`,
 `upload_inspected_sandbox`, and `upload_inspected_scan`—and changed transient or
 cancelled read failures for application segments, server groups, Service Edge
 groups, and LSS configurations from provider panics into recoverable Terraform
-errors (`vendor/terraform-provider-zpa/docs/guides/release-notes.md:42-55`;
+errors (`vendor/terraform-provider-zpa/docs/guides/release-notes.md:53-66`;
 `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_portal_access_rule.go:118-157`).
 
 ### Invocation
@@ -391,6 +445,8 @@ Logical grouping of App Connectors deployed in a location or region.
 | `pra_enabled` | Boolean; must be `true` for PRA segments |
 | `waf_disabled` | Boolean; disables WAF when `true` |
 | `lss_app_connector_group` | Boolean; marks group for LSS metric collection |
+| `enrollment_cert_id` | Optional+Computed; a nonempty value is preserved, while an omitted/empty value resolves the `Connector` enrollment certificate before create or update (`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:203-208,233-245,342-347`) |
+| `user_codes` | Optional set of VM user codes; verification is independent of certificate resolution and runs only for provided/nonempty codes on create or changed/nonempty codes on update (`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:209-213,252-264,368-380`) |
 
 **Gotchas:**
 - `tcp_quick_ack_app`, `tcp_quick_ack_assistant`, and `tcp_quick_ack_read_assistant` must all be set to the same value. Setting them inconsistently produces an API error.
@@ -436,6 +492,8 @@ Logical grouping of Private Service Edges (PSEs) deployed in a location.
 | `version_profile_id` | Same scheme as connector groups |
 | `override_version_profile` | Boolean |
 | `upgrade_day` / `upgrade_time_in_secs` | Auto-upgrade schedule |
+| `enrollment_cert_id` | Optional+Computed; a nonempty value is preserved, while an omitted/empty value resolves the `Service Edge` enrollment certificate before create or update (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:251-256,281-289,385-390`) |
+| `user_codes` | Optional set of PSE VM user codes; verification is independent of certificate resolution and runs only for provided/nonempty codes on create or changed/nonempty codes on update (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:257-262,296-308,407-419`) |
 
 **Gotcha:** The `service_edges` block within this resource is deprecated. Manage PSE membership via the PSE device enrollment workflow, not this attribute.
 
@@ -838,7 +896,7 @@ Groups Private Service Edge nodes deployed in a private (on-premises) cloud cont
 
 **Required:** `name`.
 
-**Optional:** `city_country`, `country_code`, `description`, `enabled`, `is_public`, `latitude`, `longitude`, `location`, `override_version_profile`, `microtenant_id`, `site_id`, `upgrade_day`, `upgrade_time_in_secs`, `version_profile_id`.
+**Optional:** `city_country`, `country_code`, `description`, `enabled`, `is_public`, `latitude`, `longitude`, `location`, `override_version_profile`, `microtenant_id`, `site_id`, `upgrade_day`, `upgrade_time_in_secs`, `version_profile_id`, `enrollment_cert_id`, `user_codes`. `enrollment_cert_id` is also Computed and resolves the `Connector` certificate when omitted/empty before create or update; `user_codes` independently triggers verification only when nonempty on create or changed/nonempty on update (`vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:154-164,184-213,270-306`).
 
 Source: `vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md`.
 
@@ -1204,7 +1262,7 @@ Resolved items below cite the specific provider files used for verification inli
 
    - **Still open:** which `source_log_type` values accept or require a `policy_rule_resource` block. Only the User Activity (`zpn_trans_log`) and User Status (`zpn_auth_log`) example docs ship one (`vendor/terraform-provider-zpa/docs/resources/zpa_lss_config_user_activity.md:77`); the other eight LSS docs (including App Connector Status, Private Service Edge Metrics, and App Protection) do not. The prior claim here that `zpn_ast_auth_log` and `zpn_pbroker_comprehensive_stats` require the block could not be confirmed from any provider doc and has been removed from the LSS section pending source confirmation. (Tracked as [`zpa-76`](../_meta/clarifications.md#zpa-76-which-lss-source_log_type-values-require-a-policy_rule_resource-block).)
 
-3. **Resolved 2026-04-26.** `app_connector_group` OAuth2 enrollment fields confirmed. Two fields: `enrollment_cert_id` (String) — ID of the enrollment certificate, use `zpa_enrollment_cert` data source with name `"Connector"`; `user_codes` (Set of String) — codes displayed on App Connector VMs during OAuth2 enrollment flow. Both must be set together to trigger the OAuth2 user code verification API.
+3. **Resolved 2026-04-26; lifecycle re-verified in provider v4.4.10.** `app_connector_group` exposes `enrollment_cert_id` (Optional+Computed String) and `user_codes` (optional Set of String), but they are not configuration-coupled. The provider preserves or auto-resolves the `Connector` certificate before every create/update; the user-code verification API runs only when nonempty codes are supplied on create or changed on update (`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:203-213,233-266,342-382`).
 
 4. **Resolved 2026-04-26.** Policy rule v1 deprecation timeline: `rule_order` attribute is deprecated as of the provider docs reviewed (replaced by `zpa_policy_access_rule_reorder`). The v1 resource (`zpa_policy_access_rule`) itself has no removal schedule stated in the docs. The `policy_set_id` attribute was made optional in v3.2.0. No EOL date for v1 resource confirmed.
 

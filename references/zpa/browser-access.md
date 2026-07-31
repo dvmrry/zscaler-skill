@@ -5,7 +5,7 @@ title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
 last-verified: "2026-07-26"
 verified-against:
-  vendor/terraform-provider-zpa: e68b53e17f61870f3bec2a68bff3e3d4f1c6db05
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: high
@@ -244,7 +244,7 @@ Resource type: `zpa_application_segment_browser_access`. This is a separate Terr
 
 Key Terraform constraints:
 - **`certificate_id` conflicts with `ext_label` + `ext_domain`**. If a custom external label/domain is configured on a clientless app, pinning a certificate ID is rejected at plan/apply time (`resource_zpa_application_segment_browser_access.go:48-57`).
-- **`select_connector_close_to_app` is not `ForceNew` on current base or Browser Access schemas.** Browser Access exposes it as a plain optional bool (`vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go:228-231`). As of provider v4.4.6, the base `zpa_application_segment` schema does the same after removing `ForceNew` (`vendor/terraform-provider-zpa/CHANGELOG.md:42-51`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions differed for the base resource, so check provider version before reusing older migration notes.
+- **`select_connector_close_to_app` is not `ForceNew` on current base or Browser Access schemas.** Browser Access exposes it as a plain optional bool (`vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go:228-231`). As of provider v4.4.6, the base `zpa_application_segment` schema does the same after removing `ForceNew` (`vendor/terraform-provider-zpa/CHANGELOG.md:53-62`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions differed for the base resource, so check provider version before reusing older migration notes.
 
 ---
 

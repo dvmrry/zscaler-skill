@@ -36,9 +36,9 @@ The Python SDK prepends the full `/ziam/admin/api/v1` prefix; the Go SDK constan
 | SDK | Host (production) | Path prefix | Resolved wire URL |
 |---|---|---|---|
 | Python | `https://api.zsapi.net` (`request_executor.py:32`); non-prod `https://api.{cloud}.zsapi.net` (`request_executor.py:175-177`) | `/ziam/admin/api/v1` | `https://api.zsapi.net/ziam/admin/api/v1/resource-servers` |
-| Go | `https://{vanity_domain}-admin.zslogin.net` (`oneapiconfig.go:410`); non-prod `https://{vanity_domain}-admin.zslogin{cloud}.net` (`oneapiconfig.go:412`) | `/admin/api/v1` | `https://{vanity_domain}-admin.zslogin.net/admin/api/v1/resource-servers` |
+| Go | `https://{vanity_domain}-admin.zslogin.net` (`oneapiconfig.go:444`); non-prod `https://{vanity_domain}-admin.zslogin{cloud}.net` (`oneapiconfig.go:446`) | `/admin/api/v1` | `https://{vanity_domain}-admin.zslogin.net/admin/api/v1/resource-servers` |
 
-The Go client detects a ZIdentity request by the `/admin/api/v1` substring and builds the URL from the vanity domain directly (`oneapiconfig.go:388, 402-414`); the Python client final-joins its base URL with the `/ziam/admin/api/v1`-prefixed endpoint (`request_executor.py:284`). Same logical API, two different request URLs — this is a cross-SDK wire divergence, not a cosmetic prefix difference.
+The Go client detects a ZIdentity request by the `/admin/api/v1` substring and builds the URL from the vanity domain directly (`oneapiconfig.go:422, 436-448`); the Python client final-joins its base URL with the `/ziam/admin/api/v1`-prefixed endpoint (`request_executor.py:284`). Same logical API, two different request URLs — this is a cross-SDK wire divergence, not a cosmetic prefix difference.
 
 ## Python SDK methods
 
@@ -286,7 +286,7 @@ See [`api-clients.md`](./api-clients.md) for the full `clientResources` field mo
 | Scope model import | Shared `common.CommonIDName` (`models/resource_servers.py:135`) | Local `Scopes` struct (`resource_servers.go:39-42`) |
 | Get return shape | `(result, response, error)` tuple (`resource_servers.py:58`) | `(*ResourceServers, error)` (`resource_servers.go:46`) |
 | Endpoint base constant | `/ziam/admin/api/v1` (`resource_servers.py:31`) | `/admin/api/v1` (prefix within constant) (`resource_servers.go:13`) |
-| Wire host | `api.zsapi.net` (`request_executor.py:32`) | `{vanity_domain}-admin.zslogin.net` (`oneapiconfig.go:410`) |
+| Wire host | `api.zsapi.net` (`request_executor.py:32`) | `{vanity_domain}-admin.zslogin.net` (`oneapiconfig.go:444`) |
 
 ## Known bugs and edge cases
 
@@ -315,7 +315,7 @@ Neither SDK has tests covering pagination query parameters, server-side name fil
 
 - **Empty `serviceScopes` array semantics** — meaning of a resource server with an empty `serviceScopes` slice (vs a populated one) is not documented in either SDK. Requires review of live API behavior or vendor docs. *Unverified, requires tenant-side check or vendor documentation.* — see [clarification `zid-23`](../_meta/clarifications.md#zid-23-empty-servicescopes-array-semantics)
 - **`defaultApi` flag behavior** — the `defaultApi` boolean field on `ResourceServersRecord` is present in both SDKs but its operational semantics (which clients it applies to, override behavior) are not described in any vendored source. *Unverified, requires vendor documentation or lab test.* — see [clarification `zid-24`](../_meta/clarifications.md#zid-24-defaultapi-flag-behavior)
-- **Which wire host a live tenant actually serves** — the Go SDK builds requests against `{vanity_domain}-admin.zslogin.net/admin/api/v1` (`oneapiconfig.go:402-414`) while the Python SDK uses `api.zsapi.net/ziam/admin/api/v1` (`request_executor.py:32, 284`). Both are present in current vendor source, so both are presumably live, but whether the tenant routes them identically (e.g. one is an edge/login-host alias, the other a gateway alias) or whether one is a transitional form cannot be determined from the SDKs alone. *Unverified, requires a live API trace against a tenant.* — see [clarification `zid-16`](../_meta/clarifications.md#zid-16-which-wire-host-a-live-tenant-actually-serves)
+- **Which wire host a live tenant actually serves** — the Go SDK builds requests against `{vanity_domain}-admin.zslogin.net/admin/api/v1` (`oneapiconfig.go:436-448`) while the Python SDK uses `api.zsapi.net/ziam/admin/api/v1` (`request_executor.py:32, 284`). Both are present in current vendor source, so both are presumably live, but whether the tenant routes them identically (e.g. one is an edge/login-host alias, the other a gateway alias) or whether one is a transitional form cannot be determined from the SDKs alone. *Unverified, requires a live API trace against a tenant.* — see [clarification `zid-16`](../_meta/clarifications.md#zid-16-which-wire-host-a-live-tenant-actually-serves)
 
 ## Cross-links
 

@@ -5,8 +5,9 @@ title: "Shared claims ledger — Tier 2 first-pass refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
 confidence: high
 source-tier: mixed
 sources:
@@ -27,6 +28,16 @@ sources:
   - "vendor/zscaler-help/about-scim-zpa.md"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/"
+  - "vendor/zscaler-sdk-go/zscaler/oneapiconfig.go"
+  - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
+  - "vendor/zscaler-sdk-go/zscaler/zcc/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go"
+  - "vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go"
+  - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/terraform-provider-zpa/go.mod"
   - "vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py"
 author-status: draft
@@ -43,7 +54,12 @@ This ledger covers the shared claims changed or explicitly guarded in the Tier 2
 | OneAPI token requests require the `audience` parameter set to `https://api.zscaler.com`. | `oneapi.md` | `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:17`, `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:21` |
 | The OneAPI base URL table includes ZDX at `/zdx/v1` on `https://api.zsapi.net/zdx/v1`; do not regress ZDX out of OneAPI-capable coverage. | `oneapi.md`, `index.md` | `vendor/zscaler-help/automate-zscaler/getting-started.md:118`, `vendor/zscaler-help/automate-zscaler/getting-started.md:124` |
 | ZDX also has a legacy token endpoint on `https://api.zsapi.net/zdx/v1/oauth/token` and signs `key_secret` as a SHA256 hash of `<secret_key>:<timestamp>` with a 15-minute timestamp validity window. | `oneapi.md` | `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:39`, `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:43`, `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:54` |
-| The Go OneAPI client routes ZDX endpoints to the ZDX OneAPI HTTP client. | `oneapi.md` | `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:386`, `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:387` |
+| The Go OneAPI client routes ZDX endpoints to the ZDX OneAPI HTTP client. | `oneapi.md` | `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:376-377`, `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:396-397` |
+| Go SDK v3.8.43 defines one shared 5xx retry heuristic across the OneAPI, ZCC, ZDX, ZIA, ZPA, ZTW, and ZWA retry callbacks; ZCC installs its callback only when backoff is enabled and it constructs the HTTP client. This is SDK behavior, not a backend error taxonomy. | `oneapi.md` | `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:382-405`; `vendor/zscaler-sdk-go/zscaler/zcc/v2_client.go:73-92,206-222`; `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:225-240`; `vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:527-560`; `vendor/zscaler-sdk-go/zscaler/zpa/v2_client.go:227-283`; `vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:492-525`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:222-237` |
+| The shared Go 5xx helper rejects statuses below 500 and 501, always retries 502/503/504, recognizes four exact case-sensitive transient body strings on other 5xx responses, rejects a top-level nonempty string JSON `code`, and otherwise retries payloads that do not produce such a code. | `oneapi.md` | `vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-364` |
+| Go retry-exhaustion handlers can preserve the last HTTP response for normal error parsing; `ErrorResponse` retains the response and parsed status/code/message/id/reason/exception plus raw body text, while `CheckErrorInResponse` consumes and closes the original response body. | `oneapi.md` | `vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110`; `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:211-233,843-850`; `vendor/zscaler-sdk-go/zscaler/zcc/v2_client.go:84-108,420-432`; `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:118-140,477-497`; `vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:398-420,785-799`; `vendor/zscaler-sdk-go/zscaler/zpa/v2_client.go:125-147,584-605`; `vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:363-385,720-730`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:107-129,495-515` |
+| The default Go OneAPI implementation can spend up to 110 HTTP attempts on a path that traverses its ten-retry inner client and ten-execution outer loop; this is an SDK budget, not server behavior. | `oneapi.md` | `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:32-39,160-165,608-617` |
+| Terraform provider ZPA v4.4.10 depends on Go SDK v3.8.42, so Go SDK v3.8.43 transport behavior is not provider-v4.4.10 behavior. | `oneapi.md` | `vendor/terraform-provider-zpa/CHANGELOG.md:3-8`; `vendor/terraform-provider-zpa/go.mod:14` |
 | ZDX OneAPI rate-limit headers are `RateLimit-Limit`, `RateLimit-Remaining`, and `RateLimit-Reset`. | `oneapi.md` | `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:64`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:65`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:66`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:67` |
 | ZIA and Cloud & Branch Connector config changes must be explicitly activated with their activation endpoints. | `activation.md`, `oneapi.md`, `index.md` | `vendor/zscaler-help/automate-zscaler/getting-started.md:193`, `vendor/zscaler-help/automate-zscaler/getting-started.md:196` |
 | The captured legacy ZIA activation status enum values are `ACTIVE`, `PENDING`, and `INPROGRESS`. | `cloud-architecture.md`, `activation.md` | `vendor/zscaler-help/legacy-activation.md:55`, `vendor/zscaler-help/legacy-activation.md:72` |

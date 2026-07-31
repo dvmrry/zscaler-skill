@@ -6,12 +6,15 @@ content-type: reference
 last-verified: "2026-07-22"
 verified-against:
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/zscaler-sdk-go: f38edc59c5c6d05a13fe2cc88d6782e349276586
+  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
 confidence: medium
 source-tier: code
 sources:
   - vendor/zscaler-sdk-python/pyproject.toml
   - vendor/zscaler-sdk-go/CHANGELOG.md
+  - vendor/zscaler-sdk-go/zscaler/errorx/errors.go
+  - vendor/zscaler-sdk-go/zscaler/zia/v2_client.go
+  - vendor/zscaler-sdk-go/zscaler/zia/v2_config.go
   - vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go
   - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go
   - vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go
@@ -1778,15 +1781,15 @@ groups, endpoint applications, and Outbound Email DLP
 
 ### Cross-SDK July 2026 ZIA expansion
 
-Go v3.8.41 and Python v1.9.39 now both expose Endpoint DLP application catalog/count/category/policy reads, custom-application CRUD, application-group CRUD and associations, channel-scoped Endpoint DLP resource management, resource-group CRUD/associations, Endpoint DLP rule and exception/sub-rule management, Outbound Email DLP list/lite/get/CRUD plus actions CSV, DNS application-group CRUD, and five EUN/user-confirmation template or feature-status reads (`vendor/zscaler-sdk-go/CHANGELOG.md:12-13,23-90`; `vendor/zscaler-sdk-python/CHANGELOG.md:3,17-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`). Both also expose `GET /zia/api/v1/ipsCategories` (`vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:14-19,186-194,307-313`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`).
+Go v3.8.41 and Python v1.9.39 now both expose Endpoint DLP application catalog/count/category/policy reads, custom-application CRUD, application-group CRUD and associations, channel-scoped Endpoint DLP resource management, resource-group CRUD/associations, Endpoint DLP rule and exception/sub-rule management, Outbound Email DLP list/lite/get/CRUD plus actions CSV, DNS application-group CRUD, and five EUN/user-confirmation template or feature-status reads (`vendor/zscaler-sdk-go/CHANGELOG.md:51-52,62-129`; `vendor/zscaler-sdk-python/CHANGELOG.md:3,17-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`). Both also expose `GET /zia/api/v1/ipsCategories` (`vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:14-19,186-194,307-313`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`).
 
-Neither changelog is a complete endpoint inventory. The Go release notes mention only `/emailDlpRules/actions` while code includes full Outbound Email DLP CRUD/list/lite/get, and they omit `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:75-90`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only the actions download for Outbound Email DLP and omits both the IPS-category and NSS-collector reads, although all three surfaces are present in code (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`).
+Neither changelog is a complete endpoint inventory. The Go release notes mention only `/emailDlpRules/actions` while code includes full Outbound Email DLP CRUD/list/lite/get, and they omit `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:114-129`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only the actions download for Outbound Email DLP and omits both the IPS-category and NSS-collector reads, although all three surfaces are present in code (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`).
 
 Request serialization for the shared endpoint-application model emits only `resourceId` and `zappId`, even though response decoding exposes descriptive and version fields (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-163`). The common model types `versions` as one struct, while custom-app responses type it as `[]Versions` (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
 Firewall Filtering now carries `excludeContextShieldEndPoint`, `isEunEnabled`, `eunTemplateId`, `endPointApplications`, and `endPointApplicationGroups`; Firewall DNS carries the endpoint-application operands plus Web/EUN controls; SSL Inspection carries both endpoint-application operands (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go:48-48,83-85,145-147`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:97-100,151-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:118-120`).
 
-Pagination remains a cross-SDK difference rather than a coverage gap: Python's new list methods return only the requested response page, while Go aggregation helpers collect pages for the corresponding list operations (`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:37-93`). Python URL Filtering likewise performs one caller-selected paged request, while Go `GetAll` aggregates through `ReadAllPages` (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:55-101`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`). SDK presence remains a code-surface observation, not proof of entitlement or rollout (`vendor/zscaler-sdk-go/CHANGELOG.md:12-19`).
+Pagination remains a cross-SDK difference rather than a coverage gap: Python's new list methods return only the requested response page, while Go aggregation helpers collect pages for the corresponding list operations (`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:37-93`). Python URL Filtering likewise performs one caller-selected paged request, while Go `GetAll` aggregates through `ReadAllPages` (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:55-101`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`). SDK presence remains a code-surface observation, not proof of entitlement or rollout (`vendor/zscaler-sdk-go/CHANGELOG.md:51-58`).
 
 ---
 
@@ -1818,6 +1821,30 @@ Multiple list endpoints accept `search` inside `query_params` but handle it clie
 ### Rate limiting and retries
 
 The SDK uses a custom `RequestExecutor` with built-in retry logic. The exact retry strategy (backoff, attempt count) is not exposed in the ZIA service modules and would require reading `zscaler/request_executor.py` for detail. No explicit rate-limit headers or `429` handling is visible in the ZIA-layer source code.
+
+The Go v3.8.43 legacy ZIA client is explicit at the transport layer. Its
+default retry count was reduced from 100 to 10, with configuration and an
+environment variable still able to override it
+(`vendor/zscaler-sdk-go/zscaler/zia/v2_config.go:28-34`). Its retry callback
+passes 5xx responses through the shared `IsRetryableServerError` heuristic:
+the helper does not retry statuses below 500 or 501, always retries 502/503/504,
+and for other 5xx responses stops only when no exact transient marker is
+present and the body is a JSON object with a top-level nonempty string `code`
+(`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:527-560`;
+`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:279-364`). Empty, malformed,
+HTML, code-less, numeric-code, empty-code, nested-code, and array payloads stay
+retryable under that SDK heuristic. This is client behavior, not a ZIA backend
+error classification.
+
+When the retry budget is exhausted without a transport error, the Go handler
+returns the last response rather than replacing it with a bare retry error
+(`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:398-420`). Normal non-success
+request paths then call `CheckErrorInResponse`, which retains HTTP status and
+parsed API fields in `ErrorResponse` but consumes and closes the original
+response body (`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:785-799`;
+`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110`). Do not generalize
+that path to transport, timeout, or authentication failures, and do not assume
+the response body remains readable after error construction.
 
 ### The `enabled` / `state` convention
 

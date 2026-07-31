@@ -144,7 +144,7 @@ Content-Type: application/json
 
 **Transport 1 — OneAPI gateway.** `https://api.zsapi.net/zdx/v1/oauth/token` (`vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:43`, `vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:16`). This is the gateway convention — data endpoints live under the same `/zdx/v1/...` prefix as auth.
 
-**Transport 2 — legacy direct cloud (what the SDKs build).** Host is `https://api.{cloud}.net`, where `cloud` defaults to `zdxcloud` (so `https://api.zdxcloud.net`); valid clouds are `zdxcloud` and `zdxbeta` (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:33`,`55`,`57`). On this host, **auth lives at `/v1/oauth/token` (no `/zdx` prefix)** while data endpoints use `/zdx/v1/...` — a path-prefix asymmetry unique to the direct-cloud transport (Python `legacy.py:173` → `{base}/v1/oauth/token`; Go `vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150-152` builds the base, `v2_client.go:234` appends `/v1/oauth/token`; data-path consts `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`, `.../reports/devices/devices.go:12`, `.../inventory/inventory.go:12` are all `/zdx/v1/...`).
+**Transport 2 — legacy direct cloud (what the SDKs build).** Host is `https://api.{cloud}.net`, where `cloud` defaults to `zdxcloud` (so `https://api.zdxcloud.net`); valid clouds are `zdxcloud` and `zdxbeta` (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:33`,`55`,`57`). On this host, **auth lives at `/v1/oauth/token` (no `/zdx` prefix)** while data endpoints use `/zdx/v1/...` — a path-prefix asymmetry unique to the direct-cloud transport (Python `legacy.py:173` → `{base}/v1/oauth/token`; Go `vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150-152` builds the base, `v2_client.go:267` appends `/v1/oauth/token`; data-path consts `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`, `.../reports/devices/devices.go:12`, `.../inventory/inventory.go:12` are all `/zdx/v1/...`).
 
 SDK env vars and inputs:
 
@@ -153,7 +153,7 @@ SDK env vars and inputs:
 
 Mechanics:
 
-- `key_secret` is the SHA256 hex digest of `<secret_key>:<timestamp>` (literal colon-concatenation) (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:164-165`; Go `generateHash`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:374-378`).
+- `key_secret` is the SHA256 hex digest of `<secret_key>:<timestamp>` (literal colon-concatenation) (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:164-165`; Go `generateHash`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:407-411`).
 - **Requests are rejected if more than 15 minutes have elapsed** between the supplied `timestamp` and ZDX's clock (`vendor/zscaler-help/automate-zscaler/api-authentication-overview.md:54`, `vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:27`).
 - Returned token is valid for **3600 seconds**.
 
@@ -163,12 +163,12 @@ The Python SDK's `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py` implements th
 
 Both SDKs support a partner ID for multi-tenant / MSP access, sent as an `x-partner-id` request header:
 
-- **Go**: `WithPartnerID` setter or `ZSCALER_PARTNER_ID` env var (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:85`,`214-218`); the header is set on each request (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:437-438`).
+- **Go**: `WithPartnerID` setter or `ZSCALER_PARTNER_ID` env var (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:85`,`214-218`); the header is set on each request (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:470-471`).
 - **Python**: `partner_id` argument or `ZSCALER_PARTNER_ID` env var (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:49`,`56`); flows into the default headers as `x-partner-id` (`vendor/zscaler-sdk-python/zscaler/request_executor.py:114-116`).
 
 ### Token re-authentication (Go)
 
-The Go client transparently re-authenticates on a `401`/`403` response and retries the original request once (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:348-369`). Useful operationally: a long-running Go job survives token expiry without caller intervention.
+The Go client transparently re-authenticates on a `401`/`403` response and retries the original request once (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:381-402`). Useful operationally: a long-running Go job survives token expiry without caller intervention.
 
 ### Auth-utility endpoints
 
@@ -203,7 +203,7 @@ The server-side tier table (limits keyed to license count, different from ZIA's 
 
 **Two response-header families appear across the sources, apparently split by transport** — the SDK-honored direct-cloud form vs the help-documented gateway form. Which family the *live* server actually emits per host is not confirmed from source (see open question below). What each source establishes:
 
-- **Legacy direct-cloud path (SDK-honored).** Both SDKs read **per-second sliding-window** headers: `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. They use these to back off proactively before a 429 (Python `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:97-98`; Go `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:167-168`). This is the authoritative client-honored behavior.
+- **Legacy direct-cloud path (SDK-honored).** Both SDKs read **per-second sliding-window** headers: `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. They use these to back off proactively before a 429 (Python `vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:97-98`; Go `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:192-193`). This is the authoritative client-honored behavior.
 - **OneAPI gateway path (help-documented).** The gateway returns `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (UTC epoch seconds) — distinct from ZIA's lowercase `x-ratelimit-*` (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:103`). The SDK code does not read these; the `X-Ratelimit-*-Second` form above is what the SDK transport honors.
 
 **Go SDK client-side limiter.** Independent of the server tier table, the Go SDK installs a flat **global limiter of 100 requests / 60 s** with an additional **5 s delay** baked into the rate-limit transport (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:314`,`322`). So the Go client self-throttles at a fixed rate rather than reading the server's tier-based allowance.
@@ -213,7 +213,7 @@ The server-side tier table (limits keyed to license count, different from ZIA's 
 - Whether the OneAPI gateway (`api.zsapi.net`) actually enforces the per-second `X-Ratelimit-*-Second` window or only the `RateLimit-*` family — the SDK code only reads the `X-Ratelimit-*-Second` form, and the gateway-header claim rests on the help capture, which the SDK transport does not parse. Server behavior on the gateway is not confirmable from SDK source. See [clarification zdx-04](../_meta/clarifications.md#zdx-04-zdx-rate-limit-header-family-per-host).
 - Whether the server-side tier table (license-count limits) and the Go SDK's flat 100 req/60 s client limiter are reconciled anywhere, or whether the client limiter is simply a conservative floor independent of the negotiated tier. See [clarification zdx-05](../_meta/clarifications.md#zdx-05-zdx-server-tier-table-vs-client-flat-limiter).
 - Full query-parameter schemas per metric endpoint (only the `client.zdx.users` filters are enumerated here from `users.py`; other services' params still need per-method review).
-- Whether the Python SDK has an equivalent of the Go auto-reauth-on-401/403 retry (the Go path is confirmed at `v2_client.go:348-369`; the Python legacy path caches tokens but its 401/403 re-auth behavior was not traced).
+- Whether the Python SDK has an equivalent of the Go auto-reauth-on-401/403 retry (the Go path is confirmed at `v2_client.go:381-402`; the Python legacy path caches tokens but its 401/403 re-auth behavior was not traced).
 
 ## Cross-links
 
