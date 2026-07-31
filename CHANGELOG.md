@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.16.2](https://github.com/dvmrry/zscaler-skill/compare/v0.16.1...v0.16.2) (2026-07-31)
+
+
+### Documentation
+
+* refresh Go SDK 3.8.43 and ZPA provider 4.4.10 ([#242](https://github.com/dvmrry/zscaler-skill/issues/242)) ([64ae32a](https://github.com/dvmrry/zscaler-skill/commit/64ae32a915b83d6c0026dd825f5c7cdd7e8e6075))
+
 ## [0.16.1](https://github.com/dvmrry/zscaler-skill/compare/v0.16.0...v0.16.1) (2026-07-30)
 
 
