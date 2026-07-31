@@ -34,9 +34,14 @@ Renovate and submodule PR triage before merging.
 
 Most weeks, a maintainer does not need to start the upstream bump by hand.
 
-- Renovate watches git submodules, groups them as `Zscaler upstream submodules`,
-  labels the PR `upstream-bump`, and runs before 9am UTC Monday. All vendor
-  submodules in `.gitmodules` (currently 21) ride the same grouped PR.
+- Renovate watches git submodules, normally groups them as `Zscaler upstream
+  submodules`, labels the PR `upstream-bump`, and runs before 9am UTC Monday.
+  Four compatibility-sensitive roots — the AWS, Azure, and GCP Cloud Connector
+  modules plus `terraform-provider-zia` — are excluded from that group and
+  require Dependency Dashboard approval before Renovate opens separate PRs.
+  Approve a Cloud Connector module only after checking its Terraform syntax
+  against the documented floor; approve the ZIA provider only at an exact
+  released tag.
 - A bump PR that changes `vendor/**` or `.gitmodules` triggers the hygiene
   workflow. The non-advisory hygiene checks fail the job on real errors; vendor
   family coverage and vendor drift are advisory so expected upstream movement is
@@ -50,7 +55,7 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
 - Monday at 13:20 UTC, `maintenance-digest.yml` updates the sticky
   `maintenance-digest` issue. Its stale checks use 60 days for reference docs'
   `last-verified` dates and 90 days for help captures.
-- The bump PR does not merge itself; `renovate.json` has no automerge setting.
+- Bump PRs do not merge themselves; `renovate.json` has no automerge setting.
   Review the checks and the vendor-impact comment, then merge manually.
 - Upstream doc changes are threaded into the references by weekly doc-threading
   PRs; PR #198 / commit `9673804` is one example.

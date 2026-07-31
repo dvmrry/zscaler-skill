@@ -115,12 +115,32 @@ test("release commit is the newest first-parent transition to the current versio
   assert.deepEqual(findReleaseCommit(root, "1.2.3"), { commit: reintroduction });
 });
 
-test("auto-tag consistently uses the derived release commit", () => {
+test("Release Please is the sole automatic release publisher", () => {
+  const repairWorkflow = fs.readFileSync(
+    new URL("../.github/workflows/auto-tag.yml", import.meta.url),
+    "utf8",
+  );
+  const releaseWorkflow = fs.readFileSync(
+    new URL("../.github/workflows/release-please.yml", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(repairWorkflow, /^\s{2}workflow_dispatch:/m);
+  assert.doesNotMatch(repairWorkflow, /^\s{2}push:/m);
+  assert.match(releaseWorkflow, /^\s{2}push:/m);
+  assert.match(releaseWorkflow, /branches: \[main\]/);
+  assert.match(releaseWorkflow, /skip-github-release: false/);
+});
+
+test("manual release repair consistently uses the derived release commit", () => {
   const workflow = fs.readFileSync(
     new URL("../.github/workflows/auto-tag.yml", import.meta.url),
     "utf8",
   );
-  assert.match(workflow, /release_commit="\$\(node scripts\/check-release-state\.mjs --release-commit\)"/);
+  assert.match(
+    workflow,
+    /release_commit="\$\(node scripts\/check-release-state\.mjs --release-commit\)"/,
+  );
   assert.match(
     workflow,
     /echo "release_commit=\$\{release_commit\}" >> "\$GITHUB_OUTPUT"/,
@@ -131,15 +151,11 @@ test("auto-tag consistently uses the derived release commit", () => {
   );
   assert.match(
     workflow,
-    /"\$GITHUB_EVENT_NAME" == "workflow_dispatch" && "\$GITHUB_REF" != "refs\/heads\/main"/,
+    /"\$GITHUB_REF" != "refs\/heads\/main"/,
   );
   assert.match(
     workflow,
     /git merge-base --is-ancestor "\$release_commit" refs\/remotes\/origin\/main/,
-  );
-  assert.match(
-    workflow,
-    /"\$GITHUB_EVENT_NAME" == "push" && "\$release_commit" != "\$GITHUB_SHA"/,
   );
   assert.match(workflow, /"\$tagged_commit" != "\$release_commit"/);
   assert.match(workflow, /git tag -a "\$next" "\$release_commit"/);

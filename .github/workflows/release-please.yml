@@ -1,8 +1,8 @@
 name: Release Please
 
 on:
-  # Prepare or update the release PR as releasable commits land. Publishing is
-  # still gated on merging that PR: only its VERSION change reaches auto-tag.
+  # Prepare or update the release PR as releasable commits land. After that PR
+  # merges, Release Please also publishes the matching tag and GitHub release.
   push:
     branches: [main]
   workflow_dispatch:
@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v5
+        id: release
         with:
           # With a fine-grained PAT in RELEASE_PLEASE_TOKEN the release PR
           # triggers required checks normally; without it, behavior is unchanged
@@ -23,3 +24,4 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          skip-github-release: false
