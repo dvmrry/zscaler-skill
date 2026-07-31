@@ -1,9 +1,9 @@
 # Release Process
 
 This repository uses Release Please to prepare semantic-versioned release PRs
-from conventional commits on `main`. Merging a release PR changes `VERSION`;
-that change triggers `auto-tag.yml`, which creates the matching tag and GitHub
-release.
+from conventional commits on `main`. After a release PR merges, Release Please
+creates the matching tag and GitHub release. The separate `auto-tag.yml`
+workflow is a manual repair path, not a second automatic publisher.
 
 ## Version Source
 
@@ -56,8 +56,8 @@ of the tagged repository state.
 3. Review the generated `VERSION`, `CHANGELOG.md`, manifest,
    `pyproject.toml`, and `uv.lock` changes.
 4. Merge the release PR after required checks pass.
-5. The `VERSION` change triggers `auto-tag.yml`, which creates exactly
-   `v<contents-of-VERSION>` and the matching GitHub release.
+5. The next Release Please run recognizes the merged release PR and publishes
+   exactly `v<contents-of-VERSION>` plus the matching GitHub release.
 
 Release PRs must still receive the normal hygiene check before merge. The
 release PR check behavior depends on token configuration:
@@ -68,6 +68,19 @@ release PR check behavior depends on token configuration:
   trigger required checks on its own PRs. Admin-merge is the standing procedure
   in that case.
 
-Normal pushes to `main` do not create releases. Do not hand-edit tags for
-ordinary releases. Use manual tags only for historical backfills or repairs,
-and record that decision in the release PR or issue.
+Normal pushes to `main` do not create releases unless they merge a Release
+Please release PR. Do not hand-edit tags for ordinary releases. Use manual tags
+only for historical backfills or repairs, and record that decision in the
+release PR or issue.
+
+## Release Repair
+
+Use the manual `auto-tag.yml` workflow only after the Release Please run has
+finished unsuccessfully or completed without publishing the expected release.
+Dispatch it from `main`; it derives the commit that introduced the current
+`VERSION`, verifies that commit is reachable from `main`, and then creates only
+the missing tag or release. A matching existing tag/release is a no-op, while a
+tag that points at a different commit is a hard failure.
+
+Do not dispatch the repair while Release Please publication is still running.
+Keeping one automatic publisher avoids tag-push and release-creation races.
