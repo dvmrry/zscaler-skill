@@ -1,5 +1,9 @@
+import errno
 import importlib.util
+import io
 import pathlib
+
+import pytest
 
 
 MODULE_PATH = pathlib.Path(__file__).with_name("extract_docusaurus_blobs.py")
@@ -7,6 +11,65 @@ SPEC = importlib.util.spec_from_file_location("extract_docusaurus_blobs", MODULE
 extract = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader
 SPEC.loader.exec_module(extract)
+
+
+def test_fetch_bytes_retries_raw_connection_reset_then_succeeds(monkeypatch):
+    attempts = [ConnectionResetError("peer reset"), io.BytesIO(b"payload")]
+    sleeps = []
+
+    def fake_urlopen(_request, timeout):
+        assert timeout == 60
+        result = attempts.pop(0)
+        if isinstance(result, BaseException):
+            raise result
+        return result
+
+    monkeypatch.setattr(extract.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(extract.time, "sleep", sleeps.append)
+
+    assert extract.fetch_bytes("https://example.invalid/data", retries=1) == b"payload"
+    assert attempts == []
+    assert sleeps == [1.5]
+
+
+def test_fetch_bytes_raises_raw_connection_reset_after_retries(monkeypatch):
+    attempts = 0
+    sleeps = []
+
+    def fake_urlopen(_request, timeout):
+        nonlocal attempts
+        assert timeout == 60
+        attempts += 1
+        raise ConnectionResetError("peer reset")
+
+    monkeypatch.setattr(extract.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(extract.time, "sleep", sleeps.append)
+
+    with pytest.raises(ConnectionResetError, match="peer reset"):
+        extract.fetch_bytes("https://example.invalid/data", retries=2)
+
+    assert attempts == 3
+    assert sleeps == [1.5, 3.0]
+
+
+def test_fetch_bytes_does_not_retry_permanent_os_error(monkeypatch):
+    attempts = 0
+    sleeps = []
+
+    def fake_urlopen(_request, timeout):
+        nonlocal attempts
+        assert timeout == 60
+        attempts += 1
+        raise OSError(errno.EINVAL, "invalid argument")
+
+    monkeypatch.setattr(extract.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(extract.time, "sleep", sleeps.append)
+
+    with pytest.raises(OSError, match="invalid argument"):
+        extract.fetch_bytes("https://example.invalid/data")
+
+    assert attempts == 1
+    assert sleeps == []
 
 
 def test_chunk_maps_accept_exponent_chunk_ids():

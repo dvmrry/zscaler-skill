@@ -53,7 +53,7 @@ ZPA follows the identical pattern — substitute `zscaler/zpa` and the matching 
 Both providers support two auth frameworks, same as the SDK. From `vendor/terraform-provider-zia/docs/index.md`:
 
 - **OneAPI (v4.0.0+)** — OAuth 2.0 Client Credentials flow via ZIdentity. Recommended for new deployments.
-- **Legacy** — provider-specific API keys + username/password. Required for tenants not migrated to ZIdentity, and still required for ZPA provider `GOV` / `GOVUS` paths (`vendor/terraform-provider-zpa/docs/index.md:34`; `vendor/terraform-provider-zpa/docs/index.md:196`). ZIA provider v4.7.25+ now documents FedRAMP OneAPI support through `zscaler_cloud = "gov"` / `"govus"` (`vendor/terraform-provider-zia/docs/index.md:35`; `vendor/terraform-provider-zia/docs/index.md:140-149`), while the older legacy ZIA cloud values remain `zscalergov` / `zscalerten`.
+- **Legacy** — provider-specific credentials. Required for tenants not migrated to ZIdentity and for provider versions that do not support the target environment. ZIA provider v4.7.25+ documents FedRAMP OneAPI through `zscaler_cloud = "gov"` / `"govus"` (`vendor/terraform-provider-zia/docs/index.md:35`; `vendor/terraform-provider-zia/docs/index.md:140-149`). ZPA provider v4.4.6+ documents the same lowercase OneAPI values, while its legacy client uses uppercase `GOV` / `GOVUS` (`vendor/terraform-provider-zpa/docs/index.md:118-133,214-218`). Provider routing support does not establish entitlement or ZIdentity API-client configuration for every government tenant.
 
 Environment variables (OneAPI mode):
 
@@ -63,7 +63,7 @@ Environment variables (OneAPI mode):
 | `client_secret` | `ZSCALER_CLIENT_SECRET` | Secret-based auth |
 | `private_key` | `ZSCALER_PRIVATE_KEY` | JWT private-key auth (alternative to secret) |
 | `vanity_domain` | `ZSCALER_VANITY_DOMAIN` | Organization's ZIdentity domain |
-| `zscaler_cloud` | `ZSCALER_CLOUD` | Optional; for alternative environments (e.g. `beta`) |
+| `zscaler_cloud` | `ZSCALER_CLOUD` | Optional for production; use `beta`, `gov`, or `govus` for the documented alternative/FedRAMP OneAPI environments |
 
 Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provider-zpa/docs/index.md`.
 

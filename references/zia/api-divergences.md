@@ -6,9 +6,11 @@ content-type: reference
 confidence: medium
 last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
+  vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
 sources:
   - "vendor/zscaler-sdk-go/CHANGELOG.md"
   - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
@@ -18,6 +20,7 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/end_user_notification/end_user_notification.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
@@ -28,9 +31,16 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py"
+  - "vendor/zscaler-sdk-python/tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml"
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/zia_service.py"
   - "vendor/terraform-provider-zia/CHANGELOG.md"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_ips_categories.go"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_ueba_alert_definitions.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_ueba_alert_definitions.go"
+  - "vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_dns_rules.py"
   - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json"
@@ -240,7 +250,7 @@ Python-v1.9.38-versus-Go coverage divergence is therefore resolved at the SDK
 surface level. Python's new endpoint-application list methods still return only
 the current response page rather than reproducing Go's automatic aggregation
 (`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177`;
-`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:145-178`). SDK presence remains a code-surface observation, not proof that an endpoint is entitled or rolled out in a tenant (`vendor/zscaler-sdk-go/CHANGELOG.md:51-58`).
+`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:145-178`). SDK presence remains a code-surface observation, not proof that an endpoint is entitled or rolled out in a tenant (`vendor/zscaler-sdk-go/CHANGELOG.md:60-67`).
 
 ### Python custom-app create/update decode the wrong model
 
@@ -263,11 +273,64 @@ client's catalog.
 
 ### Release-note inventories remain incomplete
 
-The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:56-60,114-129`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
+The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:65-69,123-138`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
 
 The shared Go `EndPointApplications` model serializes requests as only `resourceId` and `zappId`, although its response model exposes descriptive/version fields (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-163`). It also models `versions` as one `Versions` struct, whereas the custom-app response uses `[]Versions` for the same wire key (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
-The generated reconciliation boundary confirms that the current Automate capture does not enumerate the new Endpoint DLP, Outbound Email DLP, DNS application-group, or EUN-template endpoint families, so these remain SDK/provider-surface observations; SDK presence must not be promoted into an entitlement or rollout claim (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:51-58`).
+The generated reconciliation boundary confirms that the current Automate capture does not enumerate the new Endpoint DLP, Outbound Email DLP, DNS application-group, or EUN-template endpoint families, so these remain SDK/provider-surface observations; SDK presence must not be promoted into an entitlement or rollout claim (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:60-67`).
+
+---
+
+## Firewall DNS and Terraform ZIA 4.8.1-4.8.3
+
+### Web-EUN wire spelling is still client-dependent
+
+Go v3.8.44 corrected the firewall-DNS field to `IsWebEUNEnabled` with wire key
+`isWebEUNEnabled`, but `omitempty` still removes an explicit `false` from the
+serialized request (`vendor/zscaler-sdk-go/CHANGELOG.md:3-10`;
+`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:151-160`).
+Python v1.9.39 instead parses and emits `isWebEunEnabled`; its request formatter
+uses that exact spelling even though recorded integration responses contain the
+uppercase-`EUN` form (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:57-58,240-264`;
+`vendor/zscaler-sdk-python/tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml:26,104,186`).
+ZIA Ansible passes `is_web_eun_enabled` into the Python SDK's create/update
+methods and therefore inherits Python's wire spelling
+(`vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_dns_rules.py:620-663,670-710`).
+
+Terraform provider v4.8.2 upgraded to Go v3.8.44 specifically for the corrected
+key, and its `is_web_eun_enabled` attribute expands into the corrected Go model
+field (`vendor/terraform-provider-zia/CHANGELOG.md:14-24`;
+`vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go:169-177,713-729`).
+This closes the provider misspelling, not the cross-client divergence. Whether
+Go's omitted `false` preserves or clears a prior true value remains unverified.
+
+### DNS category equality is no longer a provider-side precondition
+
+Provider v4.8.2 removed the local rule that forced `dest_ip_categories` and
+`res_categories` to contain equal sets. The old create/update calls are now
+commented out and expansion sends the collections independently
+(`vendor/terraform-provider-zia/CHANGELOG.md:21-24`;
+`vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go:298-309,559-577,713-735`).
+The schema description still says the sets must match
+(`vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go:155-157`),
+so this proves only that the provider stopped rejecting unequal values; it does
+not establish universal backend or tenant acceptance.
+
+### New provider coverage is not an entitlement claim
+
+Provider v4.8.3 adds `zia_ips_categories`. It fetches the built-in collection,
+selects one entry by integer ID or case-insensitive name, or returns the full
+collection when neither selector is supplied
+(`vendor/terraform-provider-zia/CHANGELOG.md:3-12`;
+`vendor/terraform-provider-zia/zia/data_source_zia_ips_categories.go:14-93,96-180`).
+Provider v4.8.1 adds a UEBA alert-definition resource and data source. The
+resource validates supported alert names and enums and imports by numeric ID or
+name; the data source requires an ID or an exact, case-sensitive alert name
+(`vendor/terraform-provider-zia/CHANGELOG.md:26-37`;
+`vendor/terraform-provider-zia/zia/resource_zia_ueba_alert_definitions.go:17-32,34-118`;
+`vendor/terraform-provider-zia/zia/data_source_zia_ueba_alert_definitions.go:14-93,95-155`).
+These additions establish provider surface, not entitlement or rollout in every
+tenant.
 
 ---
 

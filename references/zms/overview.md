@@ -13,6 +13,13 @@ sources:
   - "vendor/zscaler-help/microsegmentation-marketing.md"
   - "https://www.zscaler.com/products/zero-trust-microsegmentation"
   - "vendor/zscaler-help/zero-trust-microsegmentation-marketing.md"
+  - "vendor/zscaler-help/about-application-catalog-microsegmentation.md"
+  - "vendor/zscaler-help/about-ml-tag-recommendations-page.md"
+  - "vendor/zscaler-help/about-tags.md"
+  - "vendor/zscaler-help/about-agent-provisioning-keys.md"
+  - "vendor/zscaler-help/editing-agent-provisioning-keys.md"
+  - "vendor/zscaler-sdk-python/zscaler/zms/zms_service.py"
+  - "vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc"
 author-status: draft
 ---
 
@@ -20,7 +27,13 @@ author-status: draft
 
 **East-west / workload-to-workload policy** for servers, containers, and cloud workloads inside a VPC or across multi-cloud. Mental model: **ZPA segments user→app traffic; ZMS segments app→app traffic.** Both products live under the help-portal `/zpa/` namespace because ZMS is positioned as a ZPA add-on, but the enforcement model is fundamentally different.
 
-**Confidence is medium** — all coverage from marketing pages + one help-portal article. **The Python SDK ships a READ-ONLY `zscaler.zms` module** (`client.zms.*` — GraphQL queries only, no mutations; see [`./api.md`](./api.md)). There is **no Go SDK module** (`vendor/zscaler-sdk-go/zscaler/` has no `zms` directory) and **no Terraform provider** resources for ZMS surfaced in the vendored providers. **Write configuration is portal-only** — the SDK reads ZMS state but cannot change it.
+**Confidence is medium.** Current Help documents several operational portal
+surfaces, while the implemented Python SDK and MCP surfaces expose read-only ZMS
+GraphQL queries (`vendor/zscaler-sdk-python/zscaler/zms/zms_service.py:36-105`;
+`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`). Portal write
+workflows are documented, but their GraphQL mutation names and payloads are not;
+that implemented-client boundary is not proof that the service has no
+server-side write API.
 
 ## Why ZMS exists alongside ZPA
 
@@ -73,9 +86,50 @@ The selling point. From the marketing captures:
 
 - **Real-time traffic + workload telemetry** feeds the recommendation engine.
 - **Policy suggestions** are auto-generated based on observed flows — start in monitor-only, observe what real workloads actually communicate, and the cloud surfaces "this workload talks to these N services; here's a least-privilege policy that allows just those."
-- **14-day rolling telemetry window** — observed flows older than 14 days drop out of the recommendation basis. Implications: a workload that talks to a service every 30 days won't be in the policy recommendations; the operator has to whitelist it manually or it'll get blocked when policy goes enforce-mode.
+- **14-day rolling data-retention period** — Help states that collected data is
+  retained on a 14-day rolling cycle, but it does not state that the
+  recommendation engine uses exactly that lookback or define how low-frequency
+  flows affect a generated policy
+  (`vendor/zscaler-help/what-is-microsegmentation-zpa.md:12`).
 
-This last point is the **single biggest operational gotcha** with ZMS: low-frequency legitimate flows are invisible to the recommendation engine. Don't enforce a policy generated from 14 days of observation if your environment has known monthly / quarterly batch jobs.
+Whether monthly or quarterly flows fall outside recommendation inputs is an
+open operational question, not a documented consequence of the retention
+period. Validate the recommendation basis before enforcing generated policy in
+an environment with long-period workflows.
+
+## Current Segmentation portal surfaces
+
+Source: `vendor/zscaler-help/about-application-catalog-microsegmentation.md`; `vendor/zscaler-help/about-ml-tag-recommendations-page.md`; `vendor/zscaler-help/about-tags.md`; `vendor/zscaler-help/about-agent-provisioning-keys.md`; `vendor/zscaler-help/editing-agent-provisioning-keys.md`.
+
+### Application Catalog and ML tag recommendations
+
+The Application Catalog is under **Policies > Access Control > Segmentation**.
+It exposes applications and categories used for ML resource-tag recommendations,
+with portal filters for application name, category, process, protocol, and port;
+the result shape includes process name, protocol, and port start/end
+(`vendor/zscaler-help/about-application-catalog-microsegmentation.md:12-38`).
+Those portal filters do not establish equivalent GraphQL or SDK filter fields
+(`vendor/zscaler-help/about-application-catalog-microsegmentation.md:40-46`).
+
+The ML Tag Recommendations page shows Application Catalog detections on managed
+resources. Administrators can accept, edit, ignore, or delete a recommendation,
+revisit ignored recommendations, and see the previous and next recommendation
+runs. Zscaler Support is the documented path for enabling or disabling the
+feature for an organization
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:10-37`). When a
+recommendation is accepted, resources left unselected are treated as ignored
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:35-37`). The article
+does not publish the operations, enums, or payloads behind those actions
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:39-43`).
+
+### Tags
+
+The portal's tag model is namespace → key → value, and a complete tag can be
+assigned to resource groups. The current page exposes namespace creation, tag
+search, add, detail, edit, and delete actions
+(`vendor/zscaler-help/about-tags.md:10-27`). Help does not define the GraphQL
+types or enforcement semantics behind those actions
+(`vendor/zscaler-help/about-tags.md:29-33`).
 
 ## Provisioning + deployment
 
@@ -85,9 +139,25 @@ From the help-portal capture:
 
 - **Contact your Zscaler Account team to provision** — ZMS is not self-serve. Like Auto-Scaling provisioning for Cloud Connector, this requires a Support / TAM ticket.
 - **Available in US region** for the backend framework (the cloud control plane). Data collection can be localized to the customer's region of choice.
-- **Data retention: 14-day rolling**. Telemetry older than 14 days is dropped.
+- **Data retention: 14-day rolling**. The source does not enumerate the retained
+  data classes or equate this period with the recommendation-engine lookback
+  (`vendor/zscaler-help/what-is-microsegmentation-zpa.md:12`).
 - **Managed resources** can deploy to any region (the agents — they run in the customer's environment regardless of where the control plane is).
 - **ZPA prerequisite** — the help-portal capture says "You can enable Microsegmentation for organizations that have Zscaler Private Access (ZPA)." ZMS is not sold standalone.
+
+### Agent provisioning keys
+
+Provisioning keys are managed from the selected agent group's **Provisioning
+Keys** tab. The portal can list and filter keys, show the associated signing
+certificate, copy/edit/delete a key, and route operators to Agent Manager
+installation for VM groups or a Helm chart for Kubernetes Cluster groups
+(`vendor/zscaler-help/about-agent-provisioning-keys.md:10-29`). The current edit
+drawer supports **Name**, **Maximum Reuse of Key** from 1 through 1,000, and
+**Signing Certificate**
+(`vendor/zscaler-help/editing-agent-provisioning-keys.md:10-22`). The capture
+does not establish that Agent Group is editable or immutable, and it does not
+publish the underlying GraphQL operation
+(`vendor/zscaler-help/editing-agent-provisioning-keys.md:24-29`).
 
 ## Deployment flexibility (marketing claim)
 
@@ -104,13 +174,25 @@ The captured material does not confirm this interpretation. Treat the second mod
 
 Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
-1. **ZMS is read-only in the SDK.** Operators looking for `client.zms.*` **will** find it — but only for read-only GraphQL queries (see [`./api.md`](./api.md)); there are no mutations. Only **write** configuration is portal-only.
-2. **The 14-day telemetry window silently drops infrequent flows.** Don't mass-enforce policies generated from observation alone if your environment has known long-period workflows. Spot-check the recommendation against documented expected traffic patterns.
+1. **The implemented ZMS clients are read-only.** Operators looking for
+   `client.zms.*` will find GraphQL queries, but no implemented Python SDK or MCP
+   mutations (see [`./api.md`](./api.md)). Current Help documents portal writes
+   without publishing their programmatic contract; do not describe the entire
+   service as read-only.
+2. **Recommendation lookback is unresolved.** The documented 14-day data
+   retention period does not establish that infrequent flows are excluded from
+   recommendations. Treat long-period workflow coverage as something to verify,
+   not as a known failure mode
+   (`vendor/zscaler-help/what-is-microsegmentation-zpa.md:12`).
 3. **Agents enforce locally, not via tunnel.** A host that loses cloud connectivity continues to enforce its last-known policy via WFP / nftables — failure mode is fail-closed against unknown flows but allow-known. Different mental model from ZPA's App Connector dial-out (which fails closed entirely if Connectors lose cloud).
 4. **WFP / nftables = native OS firewall.** Conflicts with other firewall management tools (Windows Defender Firewall policies via GPO, host-based firewalls like Carbon Black, custom nftables rules) are real concerns. Captured docs don't cover conflict resolution; treat as unanswered.
 5. **US-region-only control plane** at the captured date. Customers with EU / APAC data residency requirements should validate this hasn't changed and whether it's a blocker.
 6. **Agent updates are continuous-mode** — the agent runs always, presumably auto-updates. Update cadence and rollback options not in captures.
-7. **Containers**: marketing claims container support, but the help-portal capture mentions only Windows and Linux *hosts*. Container coverage might be via host agent observing container traffic rather than per-container agent. Not confirmed.
+7. **Kubernetes deployment is confirmed; enforcement granularity is not.** The
+   provisioning-key page distinguishes Kubernetes Cluster agent groups and
+   directs them to Helm installation, but it does not establish whether policy
+   enforcement is per pod, node, workload, or another boundary
+   (`vendor/zscaler-help/about-agent-provisioning-keys.md:24-27`).
 8. **ZMS appears in help.zscaler.com/zpa/, not its own namespace.** Customers searching for "Zscaler microsegmentation" hit ZPA help docs. Skill should normalize this — recognize "Zscaler microsegmentation", "ZMS", "Zero Trust Microsegmentation" all as the same product.
 
 ## Where ZMS fits relative to existing skill content
@@ -128,7 +210,8 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-
 
 Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
-- **Container support** — agent-per-container vs host-agent-observing-containers?
+- **Kubernetes enforcement granularity** — the Helm deployment path is
+  documented, but is enforcement per pod, node, workload, or host agent?
 - **Cloud-native workload integration** — does ZMS hook into AWS Security Groups / Azure NSGs / GCP firewall rules, or does it pure-OS-level the enforcement and ignore cloud-native firewalls?
 - **Conflict resolution with other host firewalls** — what happens if Windows Defender Firewall via GPO and ZMS via WFP both have rules for the same flow?
 - **Container orchestrator integration** — does ZMS integrate with Kubernetes admission control, service-mesh sidecars, or is it purely host-level?

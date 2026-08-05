@@ -7,7 +7,7 @@ last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
@@ -20,6 +20,8 @@ sources:
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
   - "vendor/zscaler-help/ai-guard-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-users-dashboard.md"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
   - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
@@ -42,6 +44,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/ai-security-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zguard-ai-integrations/README.md"
   - "vendor/zscaler-help/ai-security-marketing.md"
   - "vendor/zscaler-help/ai-guardrails-marketing.md"
@@ -54,7 +57,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 Entry point for **Zscaler AI Security** questions — the family of products that secures enterprise AI usage, including AI Guard (runtime guardrails), AI Guardrails (marketing/runtime-guardrails surface for AI Guard; no separate technical Help surface captured), AI Red Teaming (vulnerability assessment for customer LLM apps), AI infrastructure inventory/findings, and the broader four-pillar governance framework.
 
-Confidence is **high for the captured AI Guard runtime API, Python 1.9.39 configuration surface, Automate admin contract, and legacy May Help material**. Python exposes 39 callable configuration methods across six resources, plus two separately routed legacy policy-detection methods (`vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`; `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py:57-63`, `:138-143`). The current July portal's 24-article AI Guard for Users tree is indexed and its release chronology is captured, but several newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Automate contains 47 AI Guard operations and a separate 11-operation read-only AI Security asset/findings contract (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). Confidence remains **medium for the current Help operating model and broader AI Security family** because the new article bodies, AI Guardrails, and AI Red Teaming are not yet covered to the same depth; Python also lacks eight Automate-documented operations, and no Go SDK, Terraform, Ansible, or MCP AI Guard wrapper is established.
+Confidence is **high for the captured AI Guard runtime API, Python 1.9.39 configuration surface, Automate admin contract, legacy May Help material, and the two current dashboard bodies**. Python exposes 39 callable configuration methods across six resources, plus two separately routed legacy policy-detection methods (`vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`; `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py:57-63`, `:138-143`). The current portal splits dashboard documentation into Users and Apps & Infrastructure; the latter documents connected multi-prompt conversation threads only for DAS/API mode, not Proxy mode (`vendor/zscaler-help/ai-guard-users-dashboard.md:8-28`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:8-35`). The 24-article AI Guard for Users tree is indexed and its release chronology is captured, but several newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Automate contains 47 AI Guard operations and a separate 11-operation read-only AI Security asset/findings contract (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). The current Postman snapshot adds a 97-request AI Red Teaming surface across 14 families, with no saved response examples (`vendor/zscaler-api-specs/oneapi-postman-collection.json:139456-143527`). Confidence remains **medium for the rest of the current Help operating model and broader AI Security family** because those article bodies and AI Guardrails remain thin, and Red Teaming's response schemas, entitlement, live acceptance, and AI Guard interlock remain open; Python also lacks eight Automate-documented operations, and no Go SDK, Terraform, Ansible, or MCP AI Guard wrapper is established.
 
 ## Topics
 
@@ -62,8 +65,8 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 | Topic | File | Status |
 |---|---|---|
-| Four-pillar framework, AI Guard detector categories, deployment modes (Proxy / DaaS / OnPrem), ZIA proxy-chain integration, Python configuration and legacy policy-detection surfaces, AI Red Teaming, edge cases | [`./overview.md`](./overview.md) | draft |
-| AI Guard runtime enforcement, admin objects, policy control, tenant/provider/app setup, observability, log exports, and SDK/API surface | [`./ai-guard.md`](./ai-guard.md) | draft |
+| Four-pillar framework, AI Guard detector categories, deployment modes (Proxy / DaaS / OnPrem), ZIA proxy-chain integration, Python configuration and legacy policy-detection surfaces, AI Red Teaming request surface, edge cases | [`./overview.md`](./overview.md) | draft |
+| AI Guard runtime enforcement, admin objects, policy control, tenant/provider/app setup, Users vs Apps & Infrastructure dashboard behavior, log exports, and SDK/API surface | [`./ai-guard.md`](./ai-guard.md) | draft |
 | AI Guard API and integration divergences — direction literals, `policyId`, detector taxonomy, integration failure posture, Python-to-Automate gaps, documentation drift, and legacy-routing cautions | [`./api-divergences.md`](./api-divergences.md) | draft |
 | AI Security Public API — 11 read-only operations for data stores, identities, issues, MCP servers/tools, and workloads; pagination and wrapper gaps | [`./asset-management-api.md`](./asset-management-api.md) | draft |
 | AI Guard public-source coverage manifest and certification boundary | [`./ai-guard-coverage.md`](./ai-guard-coverage.md) | draft |
@@ -99,10 +102,10 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 - Latency / performance numbers for inline mode.
 - Custom-detector authoring — fixed-set vs extensible.
 - Log export event schema and exact SIEM field mapping. Destinations are captured, but field-level schema is not.
-- AI Red Teaming + AI Guard interlock — does Red Teaming output configure Guard rules?
+- AI Red Teaming response schemas, entitlement/live acceptance, and AI Guard interlock — the Postman request surface is now captured, but does Red Teaming output configure Guard rules?
 - Full Python parity with the AI Guard Automate contract. Python exposes 39 callable configuration methods, leaving policy enable/disable/referential-check/summaries and four resource referential checks outside its inventory (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`, `:1469-1481`, `:1954-1966`, `:3956-3968`, `:5229-5241`, `:6142-6154`, `:7166-7178`).
 - Go SDK, Terraform, MCP, Postman, and Automation Hub coverage for AI Guard admin-plane automation remains absent from the captured client/source classes even though the reconstructed Automate contract now exposes the admin-plane API surface. See [API divergences](./api-divergences.md#automate-admin-plane-contract-vs-client-surfaces).
-- Current AI Guard for Users article bodies for architecture, quick starts, prompt allowlisting, best practices, topology, token usage, audit logs, detection summary, and latency.
+- Current AI Guard for Users article bodies beyond the captured Users dashboard: architecture, quick starts, prompt allowlisting, best practices, topology, token usage, audit logs, detection summary, and latency.
 - A source-backed mapping between Help's User-mode/application provider labels and the narrower Automate admin-plane provider-type enum. See [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 - Gov-cloud availability (likely deferred until commercial cloud GA stabilizes).
 

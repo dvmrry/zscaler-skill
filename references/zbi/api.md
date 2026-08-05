@@ -5,12 +5,12 @@ title: "ZBI API — split Zero Trust Browser / CBI surface and Business Insights
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
+  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
-  vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
+  vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: high
 source-tier: code
@@ -537,9 +537,9 @@ preserve every modeled attribute rather than applying a field whitelist
 
 The Postman collection mirrors the split surface:
 
-- ZIA Browser Isolation has a `GET {{ZIABase}}/browserIsolation/profiles` request (`vendor/zscaler-api-specs/oneapi-postman-collection.json:774-777`, `:823-829`).
-- ZPA CBI controllers include banner, certificate, and profile controller sections under `{{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:15801-15817`, `:17106-17133`, `:19193-19209`, `:21046-21059`, `:21392-21397`).
-- The separate ZPA mgmtconfig isolation-profile read path is also present at `{{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:61255`).
+- ZIA Browser Isolation has a `GET {{ZIABaseUrl}}/browserIsolation/profiles` request (`vendor/zscaler-api-specs/oneapi-postman-collection.json:774-777`, `:823-829`).
+- ZPA CBI controllers include banner, certificate, and profile controller sections under `{{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:15801-15817`, `:17106-17133`, `:19193-19209`, `:21046-21059`, `:21392-21397`).
+- The separate ZPA mgmtconfig isolation-profile read path is also present at `{{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:61255`).
 
 The Automate contract corroborates both ZPA profile-list paths as documented GET operations: `/zpa/cbiconfig/cbi/api/customers/:customerId/zpaprofiles` for `get-all-zpa-profiles` and `/zpa/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` for `get-profiles-for-customer` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10602-10608`, `:10640-10646`). It also confirms that the ZIA-side `defaultProfile` flag is server-set: the field description says "Zscaler sets this field" (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11483-11488`).
 

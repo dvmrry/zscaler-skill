@@ -194,7 +194,11 @@ def field_universe(resource: dict, contract_fields: dict[str, dict]) -> list[str
     fields |= _fields_from_items(resource.get("required_drift", []))
     fields |= _fields_from_items(resource.get("readonly", []))
     fields |= _enum_fields(resource.get("enum"))
-    for values in resource.get("presence", {}).values():
+    for key, values in resource.get("presence", {}).items():
+        # Terraform is corroborating evidence only. Even malformed or future
+        # reports must not let this bucket originate a Rosetta field row.
+        if key == "tf_corroborates_surface_only":
+            continue
         fields |= set(values)
     for surface in ("python", "ansible", "mcp"):
         block = resource.get(surface) or {}
@@ -239,7 +243,8 @@ def _surface_present(resource: dict, surface: str, field: str, contract_present:
             | _enum_fields(resource.get("enum"))
         )
         return (
-            field in drift_fields
+            field in presence.get("tf_corroborates_surface_only", [])
+            or field in drift_fields
             or contract_present and field not in presence.get("contract_unmatched_in_tf", [])
         )
     block = resource.get(surface) or {}
@@ -520,6 +525,10 @@ def route_presence_only(
         block = resource.get(surface) or {}
         for field in block.get("presence", {}).get(f"{surface}_only_vs_contract", []):
             client_only[field].append(surface)
+    for field in sorted(
+        set(client_only) & set(resource.get("presence", {}).get("tf_corroborates_surface_only", []))
+    ):
+        client_only[field].append("tf")
 
     for field, surfaces in sorted(client_only.items()):
         evidence = {

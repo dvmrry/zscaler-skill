@@ -25,7 +25,7 @@ from typing import Any, Literal
 
 # ----- cloud + auth detection ---------------------------------------------
 
-GOV_CLOUDS = frozenset({"zscalergov", "zscalerten", "GOV", "GOVUS"})
+GOV_CLOUDS = frozenset({"gov", "govus", "zscalergov", "zscalerten", "GOV", "GOVUS"})
 COMMERCIAL_CLOUDS = frozenset(
     {
         "zscaler.net",
@@ -103,7 +103,7 @@ def detect_cloud(
 def is_gov_cloud(
     env: dict[str, str] | None = None, admin_url: str | None = None
 ) -> bool:
-    """True iff the tenant is on a gov cloud (zscalergov, zscalerten, GOV, GOVUS).
+    """True iff the input names a OneAPI or legacy government cloud.
 
     Gov clouds require a client/provider-specific auth decision. Current
     SDK/provider versions may support FedRAMP OneAPI via gov/govus, while

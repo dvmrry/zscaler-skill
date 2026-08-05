@@ -36,11 +36,12 @@ FIXTURE_REPORTS = {
                 "resource": "thing",
                 "method": "POST",
                 "path": "/zia/api/v1/things",
-                "counts": {"contract": 5, "go": 5, "tf": 4},
+                "counts": {"contract": 5, "go": 5, "tf": 6},
                 "presence": {
                     "contract_only_vs_go": ["docOnly"],
                     "go_only_vs_contract": ["clientExtra"],
                     "contract_unmatched_in_tf": ["docOnly"],
+                    "tf_corroborates_surface_only": ["clientExtra", "terraformComputedOnly"],
                 },
                 "type_drift": [{"field": "id", "contract": "int64", "go": "string"}],
                 "required_drift": [{
@@ -277,6 +278,10 @@ def test_bucket_inversion_to_cells():
     assert client_extra["columns"]["go"] == "✓"
     assert client_extra["columns"]["python"] == "✓"
 
+    assert row_by_field(rows, "clientExtra")["columns"]["tf"] == "✓"
+    assert not any(row["field"] == "terraformComputedOnly" for row in rows), \
+        "Terraform-only state fields must not originate Rosetta rows"
+
     name = row_by_field(rows, "name")
     assert name["columns"]["tf"] == "✓ req"
 
@@ -294,6 +299,58 @@ def test_bucket_inversion_to_cells():
 
 
 @case
+def test_web_eun_casing_split_keeps_terraform_on_hcl_logical_row():
+    reports = {
+        "zia": {
+            "product": "zia",
+            "resources": [{
+                "resource": "firewall_dns_rule",
+                "method": "POST",
+                "path": "/zia/api/v1/firewallDnsRules",
+                "presence": {
+                    "contract_only_vs_go": [],
+                    "go_only_vs_contract": ["isWebEUNEnabled"],
+                    "contract_unmatched_in_tf": [],
+                    "tf_corroborates_surface_only": ["isWebEunEnabled"],
+                },
+                "type_drift": [],
+                "required_drift": [],
+                "readonly": [],
+                "enum": {"match": [], "value_conflict": [], "one_sided": []},
+                "python": {
+                    "surface": "present",
+                    "presence": {
+                        "contract_unmatched_in_python": [],
+                        "python_only_vs_contract": ["isWebEunEnabled"],
+                    },
+                },
+                "ansible": {
+                    "surface": "present",
+                    "presence": {
+                        "contract_unmatched_in_ansible": [],
+                        "ansible_only_vs_contract": ["isWebEunEnabled"],
+                    },
+                },
+                "mcp": {"surface": "none"},
+            }],
+        },
+    }
+    rows = build_rosetta(reports, {("zia", "firewall_dns_rule"): {}})["rows"]
+
+    go_wire = row_by_field(rows, "isWebEUNEnabled")
+    assert go_wire["columns"]["contract"] == "—"
+    assert go_wire["columns"]["go"] == "✓"
+    assert go_wire["columns"]["tf"] == "—"
+
+    hcl_logical = row_by_field(rows, "isWebEunEnabled")
+    assert hcl_logical["columns"]["contract"] == "—"
+    assert hcl_logical["columns"]["go"] == "—"
+    assert hcl_logical["columns"]["tf"] == "✓"
+    assert hcl_logical["columns"]["python"] == "✓"
+    assert hcl_logical["columns"]["ansible"] == "✓"
+
+
+@case
 def test_routing_rules_and_evidence():
     worklist = build_issue_routing(FIXTURE_REPORTS, FIXTURE_CONTRACT_FIELDS)
     rows = worklist["rows"]
@@ -305,7 +362,14 @@ def test_routing_rules_and_evidence():
     assert len(client_extra) == 1
     assert client_extra[0]["target_repo"] == "automate.zscaler.com docs"
     assert client_extra[0]["confidence"] == "HIGH", client_extra[0]
-    assert client_extra[0]["evidence"]["surfaces"] == ["go", "python"]
+    assert client_extra[0]["source_surface"] == "go,python,tf"
+    assert client_extra[0]["evidence"]["surfaces"] == ["go", "python", "tf"]
+
+    tf_only = [
+        r for r in rows
+        if r["field"] == "terraformComputedOnly"
+    ]
+    assert tf_only == [], "Terraform-only fields must not create issue-routing tickets"
 
     tf_required = [
         r for r in rows

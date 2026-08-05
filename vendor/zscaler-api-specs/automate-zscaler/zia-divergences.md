@@ -76,6 +76,8 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `apiSessionTimeout`
 
+**Terraform provider corroborates these non-contract client fields:** `apiSessionTimeout`
+
 ## advanced_threat_settings
 
 `PUT /zia/api/v1/cyberThreatProtection/advancedThreatSettings` — contract 48 / Go 48 / TF 48 fields / Ansible 48 fields / Python 48 fields / MCP 2 tools
@@ -229,9 +231,11 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `cloudAppTenantIds`, `cloudApplicationTenant`
 
+**Terraform provider corroborates these non-contract client fields:** `cloudAppTenantIds`
+
 ## cloud_app_control_rule
 
-`POST /zia/api/v1/webApplicationRules/{rule_type}` — contract 42 / Go 39 / TF 36 fields / Ansible 32 fields / Python 41 fields / MCP 7 tools
+`POST /zia/api/v1/webApplicationRules/{rule_type}` — contract 42 / Go 39 / TF 36 fields / Ansible 32 fields / Python 41 fields / MCP 6 tools
 
 **Required drift:**
 
@@ -275,9 +279,11 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Ansible module fields absent from the contract:** `datacenterId`, `endTimeUtc`, `name`, `startTimeUtc`
 
+**Terraform provider corroborates these non-contract client fields:** `datacenterId`, `endTimeUtc`, `startTimeUtc`
+
 ## dlp_dictionary
 
-`POST /zia/api/v1/dlpDictionaries` — contract 28 / Go 29 / TF 20 fields / Ansible 16 fields / Python 27 fields / MCP 2 tools
+`POST /zia/api/v1/dlpDictionaries` — contract 28 / Go 29 / TF 20 fields / Ansible 16 fields / Python 27 fields / MCP 1 tools
 
 **Enum value conflicts:**
 
@@ -298,9 +304,11 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `confidenceLevelForPredefinedDict`, `idmProfileMatchAccuracyDetails`, `predefinedPhrases`, `thresholdAllowed`
 
+**Terraform provider corroborates these non-contract client fields:** `confidenceLevelForPredefinedDict`
+
 ## dlp_engine
 
-`POST /zia/api/v1/dlpEngines` — contract 6 / Go 6 / TF 6 fields / Ansible 5 fields / Python 6 fields / MCP 2 tools
+`POST /zia/api/v1/dlpEngines` — contract 6 / Go 6 / TF 6 fields / Ansible 5 fields / Python 6 fields / MCP 1 tools
 
 **Required drift:**
 
@@ -332,6 +340,8 @@ Captured contract groups with no Terraform resource mapping in this report:
 **Python SDK fields absent from the contract:** `tlsEnabled`
 
 **Go SDK fields absent from the contract:** `tlsEnabled`
+
+**Terraform provider corroborates these non-contract client fields:** `tlsEnabled`
 
 ## end_user_notification
 
@@ -385,6 +395,8 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `browserEunTemplateId`
 
+**Terraform provider corroborates these non-contract client fields:** `browserEunTemplateId`
+
 ## firewall_dns_rule
 
 `POST /zia/api/v1/firewallDnsRules` — contract 41 / Go 48 / TF 46 fields / Ansible 34 fields / Python 43 fields / MCP 5 tools
@@ -410,7 +422,9 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **MCP request fields absent from the contract:** `advanced`, `enabled`
 
-**Go SDK fields absent from the contract:** `defaultDnsRuleNameUsed`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `isWebEunEnabled`
+**Go SDK fields absent from the contract:** `defaultDnsRuleNameUsed`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `isWebEUNEnabled`
+
+**Terraform provider corroborates these non-contract client fields:** `defaultDnsRuleNameUsed`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `isWebEunEnabled`
 
 ## firewall_filtering_rule
 
@@ -433,6 +447,8 @@ Captured contract groups with no Terraform resource mapping in this report:
 **Contract fields absent from the Go SDK struct:** `destIpv6Groups`, `srcIpv6Groups`
 
 **Go SDK fields absent from the contract:** `accessControl`, `enableFullLogging`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `zpaAppSegments`
+
+**Terraform provider corroborates these non-contract client fields:** `enableFullLogging`, `endPointApplicationGroups`, `endPointApplications`, `eunTemplateId`, `excludeContextShieldEndPoint`, `isEunEnabled`, `zpaAppSegments`
 
 ## firewall_ips_rule
 
@@ -461,6 +477,8 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `eunTemplateId`, `isEunEnabled`
 
+**Terraform provider corroborates these non-contract client fields:** `eunTemplateId`, `isEunEnabled`
+
 ## forwarding_rule
 
 `POST /zia/api/v1/forwardingRules` — contract 39 / Go 38 / TF 36 fields / Ansible 34 fields / Python 39 fields / no MCP surface
@@ -488,13 +506,15 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `appServiceGroups`, `dedicatedIPGateway`
 
+**Terraform provider corroborates these non-contract client fields:** `appServiceGroups`
+
 ## ftp_control_policy
 
 `PUT /zia/api/v1/ftpSettings` — contract 4 / Go 4 / TF 4 fields / Ansible 4 fields / Python 4 fields / no MCP surface
 
 ## gre_tunnel
 
-`POST /zia/api/v1/greTunnels` — contract 12 / Go 12 / TF 9 fields / Ansible 9 fields / Python 11 fields / MCP 5 tools
+`POST /zia/api/v1/greTunnels` — contract 12 / Go 12 / TF 9 fields / Ansible 9 fields / Python 11 fields / MCP 4 tools
 
 **Required drift:**
 
@@ -512,7 +532,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## ip_destination_group
 
-`POST /zia/api/v1/ipDestinationGroups` — contract 10 / Go 8 / TF 8 fields / Ansible 8 fields / Python 8 fields / MCP 7 tools
+`POST /zia/api/v1/ipDestinationGroups` — contract 10 / Go 8 / TF 8 fields / Ansible 8 fields / Python 8 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -532,7 +552,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## ip_source_group
 
-`POST /zia/api/v1/ipSourceGroups` — contract 5 / Go 5 / TF 5 fields / Ansible 4 fields / Python 5 fields / MCP 7 tools
+`POST /zia/api/v1/ipSourceGroups` — contract 5 / Go 5 / TF 5 fields / Ansible 4 fields / Python 5 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -549,7 +569,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## location
 
-`POST /zia/api/v1/locations` — contract 45 / Go 60 / TF 54 fields / Ansible 47 fields / Python 59 fields / MCP 10 tools
+`POST /zia/api/v1/locations` — contract 45 / Go 60 / TF 54 fields / Ansible 47 fields / Python 59 fields / MCP 7 tools
 
 **Enum value conflicts:**
 
@@ -575,9 +595,11 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `basicAuthEnabled`, `childCount`, `digestAuthEnabled`, `dynamiclocationGroups`, `ecLocation`, `excludeFromDynamicGroups`, `excludeFromManualGroups`, `iotEnforcePolicySet`, `kerberosAuth`, `language`, `matchInChild`, `state`, `staticLocationGroups`, `subLocAccIds`, `subLocScope`, `subLocScopeEnabled`, `subLocScopeValues`, `virtualZenClusters`, `virtualZens`
 
+**Terraform provider corroborates these non-contract client fields:** `basicAuthEnabled`, `digestAuthEnabled`, `excludeFromDynamicGroups`, `excludeFromManualGroups`, `iotEnforcePolicySet`, `kerberosAuth`, `state`, `staticLocationGroups`, `subLocAccIds`, `subLocScope`, `subLocScopeValues`, `virtualZenClusters`, `virtualZens`
+
 ## network_application_group
 
-`POST /zia/api/v1/networkApplicationGroups` — contract 4 / Go 4 / TF 5 fields / Ansible 4 fields / Python 4 fields / MCP 7 tools
+`POST /zia/api/v1/networkApplicationGroups` — contract 4 / Go 4 / TF 5 fields / Ansible 4 fields / Python 4 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -592,7 +614,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## network_service
 
-`POST /zia/api/v1/networkServices` — contract 10 / Go 11 / TF 11 fields / Ansible 9 fields / Python 12 fields / MCP 7 tools
+`POST /zia/api/v1/networkServices` — contract 10 / Go 11 / TF 11 fields / Ansible 9 fields / Python 12 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -618,7 +640,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## network_service_group
 
-`POST /zia/api/v1/networkServiceGroups` — contract 4 / Go 4 / TF 5 fields / Ansible 4 fields / Python 4 fields / MCP 7 tools
+`POST /zia/api/v1/networkServiceGroups` — contract 4 / Go 4 / TF 5 fields / Ansible 4 fields / Python 4 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -716,7 +738,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## rule_label
 
-`POST /zia/api/v1/ruleLabels` — contract 7 / Go 7 / TF 4 fields / Ansible 3 fields / Python 7 fields / MCP 6 tools
+`POST /zia/api/v1/ruleLabels` — contract 7 / Go 7 / TF 4 fields / Ansible 3 fields / Python 7 fields / MCP 5 tools
 
 **Ansible required drift:**
 
@@ -793,9 +815,11 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `endPointApplicationGroups`, `endPointApplications`
 
+**Terraform provider corroborates these non-contract client fields:** `endPointApplicationGroups`, `endPointApplications`
+
 ## static_ip
 
-`POST /zia/api/v1/staticIP` — contract 10 / Go 11 / TF 7 fields / Ansible 8 fields / Python 10 fields / MCP 6 tools
+`POST /zia/api/v1/staticIP` — contract 10 / Go 11 / TF 7 fields / Ansible 8 fields / Python 10 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -824,7 +848,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## url_category
 
-`POST /zia/api/v1/urlCategories` — contract 19 / Go 24 / TF 24 fields / Ansible 17 fields / Python 22 fields / MCP 13 tools
+`POST /zia/api/v1/urlCategories` — contract 19 / Go 24 / TF 24 fields / Ansible 17 fields / Python 22 fields / MCP 10 tools
 
 **Required drift:**
 
@@ -846,6 +870,8 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `categoryGroup`, `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`, `val`
 
+**Terraform provider corroborates these non-contract client fields:** `regexPatterns`, `regexPatternsRetainingParentCategory`, `urlType`, `val`
+
 ## url_filtering_and_cloud_app_settings
 
 `PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings` — contract 21 / Go 29 / TF 28 fields / Ansible 20 fields / Python 20 fields / no MCP surface
@@ -858,11 +884,15 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
 
+**Terraform provider corroborates these non-contract client fields:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
+
 ## user
 
-`POST /zia/api/v1/users` — contract 10 / Go 12 / TF 10 fields / no Ansible surface / Python 10 fields / MCP 2 tools
+`POST /zia/api/v1/users` — contract 10 / Go 12 / TF 10 fields / no Ansible surface / Python 10 fields / MCP 1 tools
 
 **Go SDK fields absent from the contract:** `authMethods`, `deleted`
+
+**Terraform provider corroborates these non-contract client fields:** `authMethods`
 
 ## url_filtering_rule
 
@@ -900,9 +930,11 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `browserEunTemplateId`, `cbiProfileId`, `httpHeaderActionProfiles`, `httpHeaderProfiles`, `sourceCountries`, `sourceIpGroups`, `userAgentTypes`, `userRiskScoreLevels`
 
+**Terraform provider corroborates these non-contract client fields:** `browserEunTemplateId`, `httpHeaderActionProfiles`, `httpHeaderProfiles`, `sourceCountries`, `sourceIpGroups`, `userAgentTypes`, `userRiskScoreLevels`
+
 ## vpn_credential
 
-`POST /zia/api/v1/vpnCredentials` — contract 8 / Go 8 / TF 6 fields / Ansible 8 fields / Python 9 fields / MCP 6 tools
+`POST /zia/api/v1/vpnCredentials` — contract 8 / Go 8 / TF 6 fields / Ansible 8 fields / Python 9 fields / MCP 5 tools
 
 **Required drift:**
 
@@ -928,7 +960,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## workload_group
 
-`POST /zia/api/v1/workloadGroups` — contract 7 / Go 7 / TF 5 fields / Ansible 4 fields / Python 7 fields / MCP 4 tools
+`POST /zia/api/v1/workloadGroups` — contract 7 / Go 7 / TF 5 fields / Ansible 4 fields / Python 7 fields / MCP 2 tools
 
 **Contract fields unmatched in the Ansible module:** `expression`, `lastModifiedBy`, `lastModifiedTime`
 

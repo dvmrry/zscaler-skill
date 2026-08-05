@@ -10,6 +10,7 @@ sources:
   - "https://help.zscaler.com/cloud-branch-connector/configuring-traffic-forwarding-rule"
   - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md"
   - "vendor/zscaler-help/cbc-about-traffic-forwarding.md"
+  - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go"
   - "vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go"
@@ -43,6 +44,10 @@ The console→API mapping for ZPA→`ECZPA` is shown in `vendor/terraform-provid
 The Automate contract now gives a third source on the documented `forwardMethod` vocabulary for traffic-forwarding rules: the contract records `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, and `GEOIP`, while Terraform accepts only `DIRECT`, `LOCAL_SWITCH`, `ZIA`, `ECZPA`, and `DROP` for this resource (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.json:2300-2303`, `:2370-2391`). This is a documented-source divergence, not proof of live backend acceptance.
 
 **Rule `Type` is a separate axis from `ForwardMethod`.** Each rule also carries a `Type` field (`forwarding_rules.go:34` Supported Values: `FIREWALL`, `DNS`, `DNAT`, `SNAT`, `FORWARDING`, `INTRUSION_PREVENTION`, `EC_DNS`, `EC_RDR`, `EC_SELF`, `DNS_RESPONSE`) that classifies the *kind* of rule, distinct from the forwarding *action*. Cloud Connector traffic-forwarding rules are `EC_RDR` type (see the `ECZPA` Terraform example, `ztc_traffic_forwarding_rule.md:205`). Don't conflate rule type with forwarding method.
+
+### July 2026 Layer 4 ingress scope
+
+The July 6 release adds Source Network Address Translation and Destination Network Address Translation for **AWS, Azure, and GCP** and separately announces Azure Gateway Load Balancer support through Terraform (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:18-22`). This confirms the three-cloud product scope for L4 ingress. The scoped release entry does not define the SNAT/DNAT request schema, policy evaluation order, or the exact mapping from the SDK's `Type` strings to creation endpoints; retain those as unconfirmed rather than deriving them from the enum alone.
 
 Rules are evaluated **top-down by rule order, first match wins**. Same pattern as ZIA URL Filter. A default rule with a default gateway is predefined for ZIA forwarding; custom rules evaluate before the default.
 

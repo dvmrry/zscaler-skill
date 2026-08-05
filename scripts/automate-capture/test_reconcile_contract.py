@@ -23,7 +23,7 @@ from reconcile_contract import (  # noqa: E402
     extract_ansible_sdk_calls, extract_go_struct_fields, extract_python_model_fields,
     extract_mcp_request_fields, extract_mcp_sdk_calls, extract_mcp_tool_functions,
     extract_python_service_fields, extract_python_service_methods, extract_tf_schema_fields,
-    display_contract_path, go_category, snake_to_camel,
+    display_contract_path, go_category, reconcile_one, snake_to_camel,
 )
 
 CASES = []
@@ -350,6 +350,64 @@ def test_tf_plugin_framework_top_level_attributes_only():
     assert f["helperList"]["inline"] is False and f["helperList"]["required"] is None
     assert f["settings"]["inline"] is True and f["settings"]["computed"] is True
     assert f["topLevelBlock"]["inline"] is False and f["topLevelBlock"]["required"] is None
+
+
+@case
+def test_reconcile_uses_tf_only_logical_names_only_as_client_corroboration():
+    go_source = '''
+package x
+
+type Thing struct {
+    DocumentedField string `json:"documentedField,omitempty"`
+    AcronymDTO      string `json:"acronymDTO,omitempty"`
+    ClientExtra     string `json:"clientExtra,omitempty"`
+}
+'''
+    tf_source = '''
+func resourceThing() *schema.Resource {
+    return &schema.Resource{
+        Schema: map[string]*schema.Schema{
+            "documented_field": {Type: schema.TypeString, Optional: true},
+            "acronym_dto": {Type: schema.TypeString, Optional: true},
+            "client_extra": {Type: schema.TypeString, Optional: true},
+            "provider_only_field": {Type: schema.TypeBool, Computed: true},
+        },
+    }
+}
+'''
+    with tempfile.TemporaryDirectory() as tmp:
+        go_path = os.path.join(tmp, "thing.go")
+        tf_path = os.path.join(tmp, "resource_thing.go")
+        with open(go_path, "w", encoding="utf-8") as f:
+            f.write(go_source)
+        with open(tf_path, "w", encoding="utf-8") as f:
+            f.write(tf_source)
+        resource = {
+            "name": "thing",
+            "group": "things",
+            "get": "get-thing",
+            "go": (go_path, "Thing"),
+            "tf": tf_path,
+        }
+        contracts = {
+            "zia/things/get-thing": {
+                "method": "GET",
+                "path": "/things",
+                "response_schema": [
+                    {"name": "documentedField", "type": "string"},
+                    {"name": "acronymDTO", "type": "string"},
+                ],
+            },
+        }
+        report = reconcile_one(resource, contracts, "zia")
+
+    assert report["presence"]["tf_corroborates_surface_only"] == ["clientExtra"], \
+        report["presence"]
+    assert report["presence"]["contract_unmatched_in_tf"] == [], report["presence"]
+    assert "providerOnlyField" not in report["presence"]["tf_corroborates_surface_only"], \
+        "computed provider-only fields must not become contract-gap candidates"
+    assert "acronymDto" not in report["presence"]["tf_corroborates_surface_only"], \
+        "case-folded contract matches must not be duplicated as Terraform-only"
 
 
 ANSIBLE_FIXTURE = '''
@@ -767,6 +825,13 @@ def test_integration_zia_registry():
     casb_dlp = next(r for r in report["resources"] if r["resource"] == "casb_dlp_rule")
     casb_conflicts = {d["field"] for d in casb_dlp["enum"]["value_conflict"]}
     assert casb_conflicts == {"contentLocation", "type"}, casb_dlp["enum"]["value_conflict"]
+    firewall_dns = next(r for r in report["resources"] if r["resource"] == "firewall_dns_rule")
+    assert "isWebEUNEnabled" in firewall_dns["presence"]["go_only_vs_contract"], \
+        firewall_dns["presence"]
+    assert "isWebEunEnabled" in firewall_dns["presence"]["tf_corroborates_surface_only"], \
+        firewall_dns["presence"]
+    assert "isWebEUNEnabled" not in firewall_dns["presence"]["tf_corroborates_surface_only"], \
+        "Terraform must retain its HCL-derived logical casing instead of inheriting Go wire casing"
     expected_required = {
         "bandwidth_control_rule": {"name", "order"},
         "casb_dlp_rule": {"name"},

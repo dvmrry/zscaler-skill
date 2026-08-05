@@ -103,10 +103,10 @@ The ZIdentity SDK supports **reading** admin and service entitlements. Role mana
 | Get service entitlements for user | `user_entitlement.get_service_entitlement(user_id)` | `user_entitlement.GetServiceEntitlement(ctx, service, userID)` | `GET /admin/api/v1/users/{id}/service-entitlements` | `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:81-123` | `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:45-54` |
 | List users | `users.list_users(query_params)` | `users.GetAll(ctx, service, queryParams)` | `GET /admin/api/v1/users` | `vendor/zscaler-sdk-python/zscaler/zid/users.py:37-80` | `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:48-50` |
 
-The Postman collection documents the same entitlement endpoints using the `{{ZIAMBase}}` variable (`vendor/zscaler-api-specs/oneapi-postman-collection.json`):
+The Postman collection documents the same entitlement endpoints using the `{{ZIAMBaseUrl}}` variable (`vendor/zscaler-api-specs/oneapi-postman-collection.json`):
 
-- `GET {{ZIAMBase}}/users/:id/admin-entitlements`
-- `GET {{ZIAMBase}}/users/:id/service-entitlements`
+- `GET {{ZIAMBaseUrl}}/users/:id/admin-entitlements`
+- `GET {{ZIAMBaseUrl}}/users/:id/service-entitlements`
 
 ### Entitlement model
 

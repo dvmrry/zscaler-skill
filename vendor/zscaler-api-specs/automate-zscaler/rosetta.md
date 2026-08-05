@@ -246,7 +246,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `enableAllDefaultAdaptersTN` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `enableLWFDriver` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enableSplitVpnTN` |  | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
-| `enableUnifiedTunnel` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `enableUnifiedTunnel` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `evaluateTrustedNetwork` |  | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
 | `forwardingProfileActions` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `forwardingProfileZpaActions` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
@@ -262,10 +262,10 @@ This section carries true operation additions/removals, route corrections, and f
 | `trustedEgressIps` | The egress IP address of the network. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `trustedGateways` | The IP address of the default gateway. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `trustedNetworkIds` | The IDs of trusted networks.  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `trustedNetworkIdsSelected` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `trustedNetworkIdsSelected` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `trustedNetworks` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `trustedSubnets` | The subnet of the trusted network. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `unifiedTunnel` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `unifiedTunnel` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `web_privacy`
 
@@ -278,10 +278,10 @@ This section carries true operation additions/removals, route corrections, and f
 | `collectUserInfo` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `collectZdxLocation` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `disableCrashlytics` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enableAutoLogSnippet` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableAutoLogSnippet` | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `enableFQDNMatchForVpnBypasses` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `enablePacketCapture` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `enforceSecurePacUrls` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enforceSecurePacUrls` | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `exportLogsForNonAdmin` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `grantAccessToZscalerLogFolder` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `id` | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
@@ -647,7 +647,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `srcIpGroups` | The source IP groups to which the rule applies. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `srcIps` | The source IP addresses to which the rule applies. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `srcIpv6Groups` | Not applicable to Cloud & Branch Connector. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `srcWorkloadGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `srcWorkloadGroups` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `state` | Specifies whether the rule is enabled or disabled. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `templateSyncedRuleFlag` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `timeWindows` | Not applicable to Cloud & Branch Connector. | ✓ | **—** | ✓ | **—** | **—** | **—** |
@@ -695,7 +695,7 @@ This section carries true operation additions/removals, route corrections, and f
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `apiSessionTimeout` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `apiSessionTimeout` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `authBypassApps` | Cloud applications that are exempted from cookie authenticatio | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `authBypassUrlCategories` | URL categories that are exempted from cookie authentication | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `authBypassUrls` | Custom URLs that are exempted from cookie authentication for users | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1055,7 +1055,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `buckets` | The buckets for the Zscaler service to inspect for sensitive data | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `casbEmailLabel` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `casbTombstoneTemplate` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `cloudAppTenantIds` |  | **—** | ✓ | **—** | **—** | ✓ | **—** |
+| `cloudAppTenantIds` |  | **—** | ✓ | **—** | ✓ | ✓ | **—** |
 | `cloudAppTenants` | Name-ID pairs of the cloud application tenants for which the rule is applied. If the name-ID pairs of the cloud application tenants are not specified, the rule is applied to all tenants. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `cloudApplicationTenant` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `description` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
@@ -1144,16 +1144,16 @@ This section carries true operation additions/removals, route corrections, and f
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `datacenterId` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `datacenterId` |  | **—** | **—** | **—** | ✓ | ✓ | **—** |
 | `dcName` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `dcid` | The unique identifier for the DC exclusion configuration | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `description` | Additional information about the DC exclusion | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `endTime` | The timestamp (in epoch) when the DC exclusion is set to expire and tunnels are re-enabled for the data center. The expiration can be set to happen within 15 days from the start time and it must be at least 2 hours from the start time (e.g., if the startTime Time is 11:30 AM UTC, set the endTime to 1:30 PM UTC after converting it to Unix time.) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `endTimeUtc` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `endTimeUtc` |  | **—** | **—** | **—** | ✓ | ✓ | **—** |
 | `expired` | A Boolean value indicating whether the DC exclusion has expired | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `name` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `startTime` | The timestamp (in epoch) when the DC exclusion is set to begin and tunnels are disabled for the data center. The exclusion can be set to begin within a month from the current date and it must be at least 5 minutes from the current time (e.g., if the current time is 11:30 AM UTC, set the startTime to 11:35 AM UTC after converting it to Unix time.) | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `startTimeUtc` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `startTimeUtc` |  | **—** | **—** | **—** | ✓ | ✓ | **—** |
 
 ### `dlp_dictionary`
 
@@ -1162,7 +1162,7 @@ This section carries true operation additions/removals, route corrections, and f
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `binNumbers` | <p>The list of Bank Identification Number (BIN) values that are included or excluded from the Credit Cards dictionary. BIN values can be specified only for Diners Club, Mastercard, RuPay, and Visa cards. Up to 512 BIN values can be configured in a dictionary.</p><p><b>Note</b>: This field is applicable only to the predefined Credit Cards dictionary and its clones.</p> | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
-| `confidenceLevelForPredefinedDict` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `confidenceLevelForPredefinedDict` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `confidenceThreshold` | The DLP confidence threshold | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `custom` | This value is set to true for custom DLP dictionaries. | ✓ ro | ✓ | ✓ | **✓ ro** | **—** | **—** |
 | `customPhraseMatchType` | The DLP custom phrase match type | ✓ | ✓ | ✓ | **✓ enum≠** | ✓ | **—** |
@@ -1220,7 +1220,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `name` | The DLP notification template name. | ✓ | ✓ | ✓ | **✓ req** | **✓ req** | **—** |
 | `plainTextMessage` | The template for the plain text UTF-8 message body that must be displayed in the DLP notification email. | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
 | `subject` | The Subject line that is displayed within the DLP notification email. | ✓ | ✓ | ✓ | **✓ req** | ✓ | **—** |
-| `tlsEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `tlsEnabled` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 
 ### `end_user_notification`
 
@@ -1284,7 +1284,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `action` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `activeContent` | Flag to check whether a file has active content or not | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `browserEunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `browserEunTemplateId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `capturePCAP` | Enable or disable Capture PCAP Settings  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `cloudApplications` | The list of cloud applications to which the File Type Control policy rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1335,7 +1335,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `blockResponseCode` | When the action is selected as BLOCK_WITH_RESPONSE to block the DNS traffic and send a response code to the client, specify the response code using this field. | ✓ | ✓ | ✓ | **✓ enum1** | ✓ | **—** |
 | `capturePCAP` | A Boolean value that indicates whether packet capture (PCAP) is enabled or not | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `capturePcap` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `defaultDnsRuleNameUsed` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `defaultDnsRuleNameUsed` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `defaultRule` | A Boolean field that indicates that the rule is predefined by using a true value | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `departments` | The departments to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | The description of the rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -1350,15 +1350,16 @@ This section carries true operation additions/removals, route corrections, and f
 | `dnsRuleRequestTypes` | DNS request types to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `ednsEcsObject` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `endPointApplicationGroups` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `endPointApplications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `eunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `excludeContextShieldEndPoint` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `endPointApplicationGroups` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplications` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `eunTemplateId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `excludeContextShieldEndPoint` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier generated for the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `isDefaultRuleName` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `isEunEnabled` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `isWebEunEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `isEunEnabled` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `isWebEUNEnabled` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `isWebEunEnabled` |  | **—** | **—** | ✓ | ✓ | ✓ | **—** |
 | `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | The timestamp when the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
@@ -1402,16 +1403,16 @@ This section carries true operation additions/removals, route corrections, and f
 | `deviceGroups` | <p>Name-ID pairs of device groups for which the rule must be applied. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `deviceTrustLevels` | <p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `devices` | <p>Name-ID pairs of devices for which rule must be applied. Specifies  devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p>  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableFullLogging` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `enableFullLogging` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `endPointApplicationGroups` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `endPointApplications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `eunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `excludeContextShieldEndPoint` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `endPointApplicationGroups` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplications` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `eunTemplateId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `excludeContextShieldEndPoint` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `excludeSrcCountries` | Indicates whether the countries specified in the sourceCountries field are included or excluded from the rule. A true value denotes that the specified source countries are excluded from the rule. A false value denotes that the rule is applied to the source countries if there is a match.  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `groups` | The groups to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier for the Firewall Filtering policy rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `isEunEnabled` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `isEunEnabled` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `labels` | Labels that are applicable to the rule. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | Timestamp when the rule was last modified. Ignored if the request is POST or PUT. For GET, ignored if or the rule is current version. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
@@ -1433,7 +1434,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `timeWindows` | The time interval in which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `users` | The users to which the Firewall Filtering policy rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `workloadGroups` | The list of preconfigured workload groups to which the policy must be applied.  and . | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `zpaAppSegments` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `zpaAppSegments` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 
 ### `firewall_ips_rule`
 
@@ -1458,10 +1459,10 @@ This section carries true operation additions/removals, route corrections, and f
 | `devices` | Devices to which the rule applies. This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enableFullLogging` | A Boolean value that indicates whether full logging is enabled. A true value indicates that full logging is enabled, whereas a false value indicates that aggregate logging is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `eunTemplateId` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `eunTemplateId` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `groups` | The user groups to which the rule applies | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | Unique identifier generated for the rule | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
-| `isEunEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `isEunEnabled` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `labels` | The label associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `lastModifiedTime` | The timestamp when the rule was last modified | ✓ | ✓ | ✓ | **—** | **—** | **—** |
@@ -1490,7 +1491,7 @@ This section carries true operation additions/removals, route corrections, and f
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `appServiceGroups` |  | **—** | ✓ | **—** | **—** | ✓ | **—** |
+| `appServiceGroups` |  | **—** | ✓ | **—** | ✓ | ✓ | **—** |
 | `dedicatedIPGateway` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `departments` | Name-ID pairs of the departments to which the forwarding rule applies. If not set, the rule applies to all departments. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | Additional information about the forwarding rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1607,7 +1608,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `aupForceSslInspection` | <p>For First Time AUP Behavior, Force SSL Inspection. When set, Zscaler forces SSL Inspection in order to enforce AUP for HTTPS traffic.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `aupTimeoutInDays` | <p>Custom AUP Frequency. Refresh time (in days) to re-validate the AUP.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `authRequired` | <p>Enforce Authentication. Required when ports are enabled, IP Surrogate is enabled, or Kerberos Authentication is enabled.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `basicAuthEnabled` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `basicAuthEnabled` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `cautionEnabled` | <p>Enable Caution. When set to true, a caution notifcation is enabled for the location. </p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `childCount` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `city` | <p>Geolocation of the IoT device. It displays the name-ID pair for the location ("city" : { "id":"0", "name":"string" }).</p><p>For example, "city" : { "id":"2077963", "name":"Albany, Western Australia, Australia"}.</p> | ✓ | **—** | **—** | **—** | ✓ | **—** |
@@ -1616,13 +1617,13 @@ This section carries true operation additions/removals, route corrections, and f
 | `defaultExtranetDns` | A Boolean value indicating that the DNS server configuration used in the extranet is the designated default DNS server | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `defaultExtranetTsPool` | A Boolean value indicating that the traffic selector specified in the extranet is the designated default traffic selector | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `description` | <p>Additional notes or information regarding the location or sub-location. The description cannot exceed 1024 characters.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `digestAuthEnabled` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `digestAuthEnabled` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `displayTimeUnit` | <p>Display Time Unit. The time unit to display for IP Surrogate idle time to disassociation.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `dnBandwidth` | Download bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `dynamiclocationGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `ecLocation` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `excludeFromDynamicGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `excludeFromManualGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `excludeFromDynamicGroups` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
+| `excludeFromManualGroups` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `extranet` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `extranetDns` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `extranetIpPool` | This is an immutable reference to an entity that mainly consists of id and name | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -1630,12 +1631,12 @@ This section carries true operation additions/removals, route corrections, and f
 | `id` | Location ID. | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
 | `idleTimeInMinutes` | <p>Idle Time to Disassociation. The user mapping idle time (in minutes) is required if a Surrogate IP is enabled.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `iotDiscoveryEnabled` | <p>If this field  is  set to true, IoT discovery is enabled for this location.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `iotEnforcePolicySet` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `iotEnforcePolicySet` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `ipAddresses` | <p>For locations: IP addresses of the egress points that are provisioned in the Zscaler Cloud. Each entry is a single IP address (e.g., 238.10.33.9).</p> <p>For sub-locations: Egress, internal, or GRE tunnel IP addresses. Each entry is either a single IP address, CIDR (e.g., 10.10.33.0/24), or range (e.g., 10.10.33.1-10.10.33.10)).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `ipsControl` | <p>Enable IPS Control. When set to true, IPS Control is enabled for the location if Firewall is enabled.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `ipv6Dns64Prefix` | <p>(Optional) Name-ID pair of the NAT64 prefix configured as the DNS64 prefix for the location. If specified, the DNS64 prefix is used for the IP addresses that reside in this location. If not specified, a prefix is selected from the set of supported prefixes. This field is applicable only if <code>ipv6Enabled</code> is set is <code>true</code>. .</p><p>Before you can configure a DNS64 prefix, you must send a GET request to <code>/ipv6config/nat64prefix</code> to retrieve the IDs of NAT64 prefixes, which can be configured as the DNS64 prefix.</p> | ✓ | ✓ | **—** | ✓ | ✓ | **—** |
 | `ipv6Enabled` | If set to true, IPv6 is enabled for the location and IPv6 traffic from  the location can be forwarded to the Zscaler service to enforce security policies. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `kerberosAuth` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `kerberosAuth` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `language` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `latitude` | <p>The value of latitude must be set to 7-digit precision after decimal point, ranging between -90 and 90 degrees.</p><p><b>Note</b>: This field is mandatory if geoOverride is set to true.</p> | ✓ | **—** | ✓ | **—** | ✓ | **—** |
 | `longitude` | <p>The value of longitude must be set to 7-digit precision after decimal point, ranging between -180 and 180 degrees.</p><p><b>Note</b>: This field is mandatory if geoOverride is set to true.</p> | ✓ | **—** | ✓ | **—** | ✓ | **—** |
@@ -1650,12 +1651,12 @@ This section carries true operation additions/removals, route corrections, and f
 | `ports` | IP ports that are associated with the location. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `profile` | <p>(Optional) Profile tag that specifies the location traffic type. If not specified, this tag is automatically set to best possible value using certain criteria.</p><p>The criteria used for setting best possible value is as follows:</p>   <ul>   <li>When invoked with a partner API key, it automatically sets the profile attribute to <b>CORPORATE</b>.</li>   <li>When invoked using public API, it automatically sets the profile attribute based on the following criteria:     <ul>     <li>If the location has authentication enabled, then it sets profile to <b>CORPORATE</b>.</li>     <li>If the location has authentication disabled and name contains "guest", then it sets profile to <b>GUESTWIFI</b>.</li>     <li>For all other locations with authentication disabled, it sets profile to <b>SERVER</b>.</li></ul>     </li>     </ul> | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ enum≠** | **—** |
 | `sslScanEnabled` | <p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p><p>Enable SSL Inspection. Set to true in order to apply your SSL Inspection policy to HTTPS traffic in the location and inspect HTTPS transactions for data leakage, malicious content, and viruses. </p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `state` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `staticLocationGroups` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `subLocAccIds` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `subLocScope` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `state` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
+| `staticLocationGroups` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
+| `subLocAccIds` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
+| `subLocScope` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `subLocScopeEnabled` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `subLocScopeValues` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `subLocScopeValues` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `surrogateIP` | <p>Enable Surrogate IP. When set to true, users are mapped to internal device IP addresses. .</p> | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `surrogateIPEnforcedForKnownBrowsers` | <p>Enforce Surrogate IP for Known Browsers. When set to true, IP Surrogate is enforced for all known browsers. </p> | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `surrogateIp` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
@@ -1664,8 +1665,8 @@ This section carries true operation additions/removals, route corrections, and f
 | `surrogateRefreshTimeUnit` | <p>Display Refresh Time Unit. The time unit to display for refresh time for re-validation of surrogacy.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `tz` | Timezone of the location. If not specified, it defaults to GMT. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
 | `upBandwidth` | Upload bandwidth in kbps. The value 0 implies no Bandwidth Control enforcement. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `virtualZenClusters` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `virtualZens` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `virtualZenClusters` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `virtualZens` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `vpnCredentials` | VPN User Credentials that are associated with the location. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `xffForwardEnabled` | <p>Enable XFF Forwarding for a location. When set to true, traffic is passed to Zscaler Cloud via the X-Forwarded-For (XFF) header.</p><p><b>Note:</b> For sub-locations, this attribute is a read-only field as the  value is inherited from the parent location.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `zappSSLScanEnabled` | <p>This parameter was deprecated and no longer has an effect on SSL policy. It remains supported in the API payload in order to maintain backwards compatibility with existing scripts, but it will be removed in future.</p><p>Enable Zscaler App SSL Setting. When set to true, the Zscaler App SSL Scan Setting takes effect, irrespective of the SSL policy that is configured for the location. </p> | ✓ | ✓ | **—** | ✓ | **—** | **—** |
@@ -1934,8 +1935,8 @@ This section carries true operation additions/removals, route corrections, and f
 | `deviceTrustLevels` | List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `devices` | Name-ID pairs of devices for which the rule is applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enabled` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `endPointApplicationGroups` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `endPointApplications` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `endPointApplicationGroups` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `endPointApplications` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `groups` | Name-ID pairs of groups for which the rule is applied. If not set, rule is applied for all groups. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `id` | System generated identifier for the SSL inspection rule | ✓ ro | ✓ | ✓ | **✓ ro** | ✓ | **—** |
 | `labels` | Name-ID pairs of rule labels associated with the rule | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -2000,16 +2001,16 @@ This section carries true operation additions/removals, route corrections, and f
 | `keywords` | <p>Custom keywords associated to a URL category. Up to 2048 custom keywords can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `keywordsRetainingParentCategory` | <p>Retained custom keywords from the parent URL category that is associated to a URL category. Up to 2048 retained parent keywords can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `name` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `regexPatterns` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `regexPatternsRetainingParentCategory` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `regexPatterns` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
+| `regexPatternsRetainingParentCategory` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `scopes` | Scope of the custom categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `superCategory` | Super Category of the URL category. This field is required when creating custom URL categories. | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | ✓ |
 | `type` | Type of the custom categories. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `urlKeywordCounts` | URL and keyword counts for the URL category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `urlType` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `urlType` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `urls` | <p>Custom URLs to add to a URL category. Up to 25,000 custom URLs can be added per organization across all categories (including bandwidth classes).</p> | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `urlsRetainingParentCategoryCount` | The number of custom URLs associated to the URL category, that also need to be retained under the original parent category. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `val` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `val` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 
 ### `url_filtering_and_cloud_app_settings`
 
@@ -2023,13 +2024,13 @@ This section carries true operation additions/removals, route corrections, and f
 | `enableCIPACompliance` | A Boolean value indicating if the predefined CIPA Compliance Rule is enabled or not. . | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enableChatGptPrompt` | A Boolean value indicating if the use of generative AI prompts with ChatGPT by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableCipaCompliance` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
-| `enableClaudePrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableCreativeCommonsSearchResults` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableDeepSeekPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableClaudePrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `enableCreativeCommonsSearchResults` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `enableDeepSeekPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `enableDynamicContentCat` | A Boolean value that indicates if dynamic categorization of URLs by analyzing content of uncategorized websites using AI/ML tools is enabled or not. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableGeminiPrompt` | A Boolean value indicating if the use of generative AI prompts with Google Gemini by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableGrammarlyPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `enableGrokPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableGrammarlyPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `enableGrokPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `enableMetaPrompt` | A Boolean value indicating if the use of generative AI prompts with Meta AI by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableMicrosoftCoPilotPrompt` | A Boolean value indicating if the use of generative AI prompts with Microsoft Copilot by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `enableMicrosoftCopilotPrompt` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
@@ -2046,10 +2047,10 @@ This section carries true operation additions/removals, route corrections, and f
 | `enableUcaasTalkdesk` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Talkdesk traffic, with minimal or no manual configuration needed. When enabled, this option turns off SSL interception for all Talkdesk destinations. To continue using existing granular controls for Talkdesk traffic, disable this option and enable Cloud Application, DNS, and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableUcaasWebex` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Webex traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all Webex destinations. To continue using existing granular controls for Webex traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableUcaasZoom` | A Boolean value indicating if the Zscaler service is allowed to automatically permit secure local breakout for Zoom traffic, without any manual configuration needed. When enabled, this option turns off SSL interception for all Zoom destinations. To continue using existing granular controls for Zoom traffic, disable this option and enable Cloud Application and Firewall Network Application policies accordingly. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `enableWriterPrompt` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enableWriterPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `enforceSafeSearch` | <p>A Boolean value that indicates whether only safe content must be returned for web, image, and video search. Safe search is supported for specific search engines and other platforms.</p><p><b>Note</b>:  must be enabled for this option. .</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `safeSearchApps` | A list of applications for which the SafeSearch enforcement applies. You cannot modify this field when the enforceSafeSearch field is disabled. | ✓ | ✓ | **—** | **✓ enum1** | **—** | **—** |
-| `zveloDbLookupDisabled` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `zveloDbLookupDisabled` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 
 ### `url_filtering_rule`
 
@@ -2060,7 +2061,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `action` | <p>Action taken when traffic matches rule criteria.</p><p><b>Note</b>: The ISOLATE action is available only if Cloud Browser Isolation is enabled for your organization. .</p> | ✓ | ✓ | ✓ | **✓ enum≠** | **✓ req enum≠** | ✓ |
 | `advanced` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `blockOverride` | When set to true, a 'BLOCK' action triggered by the rule could be overridden. If true and both overrideGroup and overrideUsers are not set, the BLOCK triggered by this rule could be overridden for any users. If blockOverride is not set, 'BLOCK' action cannot be overridden. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `browserEunTemplateId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `browserEunTemplateId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `cbiProfile` | <p>The cloud browser isolation profile to which the ISOLATE action is applied in the  rules.</p><p><b>Note</b>: This parameter is required for the ISOLATE action and is not applicable to other actions.</p> | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `cbiProfileId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `cipaRule` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
@@ -2074,8 +2075,8 @@ This section carries true operation additions/removals, route corrections, and f
 | `endUserNotificationUrl` | URL of end user notification page to be displayed when the rule is matched. Not applicable if either 'overrideUsers' or 'overrideGroups' is specified. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enforceTimeValidity` | Enforce a set a validity time period for the URL Filtering rule. . | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `groups` | Name-ID pairs of groups for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `httpHeaderActionProfiles` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `httpHeaderProfiles` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `httpHeaderActionProfiles` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
+| `httpHeaderProfiles` |  | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `id` | URL Filtering Rule ID | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `labels` | The URL Filtering rule's label. Rule labels allow you to logically group your organization's policy rules. Policy rules that are not associated with a rule label are grouped under the Untagged label. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `lastModifiedBy` | Who modified the rule last | ✓ | ✓ | ✓ | **—** | **—** | **—** |
@@ -2090,15 +2091,15 @@ This section carries true operation additions/removals, route corrections, and f
 | `rank` | Admin rank of the admin who creates this rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `requestMethods` | Request method for which the rule must be applied. If not set, rule is applied to all methods | ✓ | ✓ | ✓ | ✓ | **✓ enum≠** | **—** |
 | `sizeQuota` | Size quota in KB beyond which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `sourceCountries` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `sourceIpGroups` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `sourceCountries` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `sourceIpGroups` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `state` | Rule State | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `timeQuota` | Time quota in minutes, after which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `timeWindows` | Name-ID pairs of time interval during which rule must be enforced. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `urlCategories` | <p>List of URL categories for which rule is be applied.</p> | ✓ | ✓ | ✓ | **✓ enum1** | **✓ enum1** | **—** |
 | `urlCategories2` | <p>List of URL categories for which rule is applied.</p><p><b>Note</b>: The urlCategories and urlCategories2 parameters are connected with a logical <code>AND</code> operator so that the URL Filtering policy rules are triggered when it matches the selected categories in both the URL Categories fields. .</p> | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `userAgentTypes` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
-| `userRiskScoreLevels` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `userAgentTypes` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
+| `userRiskScoreLevels` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `users` | Name-ID pairs of users for which rule must be applied | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `validityEndTime` | If enforceTimeValidity is set to true, the URL Filtering rule ceases to be valid on this end date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `validityStartTime` | If enforceTimeValidity is set to true, the URL Filtering rule is valid starting on this date and time. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -2112,7 +2113,7 @@ This section carries true operation additions/removals, route corrections, and f
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `adminUser` | True if this user is an Admin user | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `authMethods` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `authMethods` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `comments` | Additional information about this user. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `deleted` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `department` | Department a user belongs to | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
@@ -2192,7 +2193,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `dnsQueryType` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enrollmentCertId` |  | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
+| `enrollmentCertId` |  | **—** | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `enrollmentCertName` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `geoLocationId` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
@@ -2224,7 +2225,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `upgradePriority` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `upgradeTimeInSecs` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `useInDrMode` | use_in_dr_mode | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `userCodes` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
+| `userCodes` |  | **—** | **—** | **—** | ✓ | ✓ | **—** |
 | `version` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `versionProfile` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `versionProfileId` |  | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | **—** |
@@ -2277,7 +2278,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `modifiedTime` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `passiveHealthEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `policyStyle` |  | **—** | ✓ | ✓ | **—** | ✓ | **—** |
+| `policyStyle` |  | **—** | ✓ | ✓ | ✓ | ✓ | **—** |
 | `praApps` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
@@ -2286,7 +2287,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `selectConnectorCloseToApp` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `serverGroupIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `serverGroups` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `shareToMicrotenants` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `shareToMicrotenants` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `sharedMicrotenantDetails` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `tags` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `tcpKeepAlive` |  | ✓ | **✓ type** | ✓ | **✓ enum1** | ✓ | **—** |
@@ -2402,7 +2403,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `apiDiscoveryEnabled` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `apiProfile` | If set to true, API protection provides inspection of API traffic by flagging transactions that include security violations. To learn more, see <a href="https://help.zscaler.com/zpa/about-api-protection-controls">About API Protection Controls</a>. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `checkControlDeploymentStatus` | Indicates whether or not the service needs to perform additional validations. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `commonGlobalOverrideActionsConfig` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `commonGlobalOverrideActionsConfig` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `controlsInfo` | The control type and control count. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
 | `creationTime` | The time the AppProtection profile is created. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `customControls` | The set of AppProtection controls used to define how inspections are managed. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
@@ -2414,7 +2415,7 @@ This section carries true operation additions/removals, route corrections, and f
 | `modifiedBy` | The unique identifier of the tenant who modified the AppProtection profile. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `modifiedTime` | The time the AppProtection profile is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `name` | The name of the application. | ✓ | ✓ | ✓ | **✓ req** | **—** | **—** |
-| `overrideAction` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `overrideAction` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `paranoiaLevel` | The OWASP Predefined Paranoia Level. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-appprotection-profiles#paranoia-execution" target= _blank>Configuring AppProtection Profiles</a>. | ✓ | **✓ type** | ✓ | **✓ req** | **—** | **—** |
 | `predefinedADPControls` | The predefined Active Directory controls. To learn more, see <a href="https://help.zscaler.com/zpa/about-active-directory-controls">About Active Directory Controls</a>. | ✓ | **—** | ✓ | **—** | **—** | **—** |
 | `predefinedApiControls` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
@@ -2519,7 +2520,7 @@ This section carries true operation additions/removals, route corrections, and f
 | field | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- |
 | `action` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `approvalReviewers` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `approvalReviewers` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `cName` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `certManagedByZsRadio` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `certificateId` | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
@@ -2556,37 +2557,37 @@ This section carries true operation additions/removals, route corrections, and f
 
 | field | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- |
-| `appConnectorGroupId` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `appConnectorGroupName` | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `associationType` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `appConnectorGroupId` | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `appConnectorGroupName` | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `associationType` | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `cloudName` | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `componentId` | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `creationTime` | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `description` | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `enabled` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `enrollmentCertId` | **—** | ✓ | ✓ | **—** | **—** | ✓ |
+| `enabled` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
+| `enrollmentCertId` | **—** | ✓ | ✓ | ✓ | **—** | ✓ |
 | `enrollmentCertName` | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `expirationInEpochSec` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `id` | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `ipAcl` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `ipAcl` | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `keyType` | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `maxUsage` | **—** | ✓ | ✓ | **—** | ✓ | ✓ |
+| `maxUsage` | **—** | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `maxUsageCount` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `microtenantId` | **—** | ✓ | **—** | **—** | ✓ | **—** |
+| `microtenantId` | **—** | ✓ | **—** | ✓ | ✓ | **—** |
 | `microtenantName` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `modifiedBy` | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `modifiedTime` | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `name` | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
 | `nonceAssociationType` | ✓ | **—** | **—** | **—** | **—** | **—** |
 | `nonceValue` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `provisioningKey` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `provisioningKey` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `readOnly` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `restrictionType` | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `scopeId` | ✓ | **—** | **—** | **—** | **—** | **—** |
-| `uiConfig` | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `uiConfig` | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `usageCount` | ✓ | **✓ type** | ✓ | ✓ | **—** | **—** |
-| `zcomponentId` | **—** | ✓ | ✓ | **—** | **—** | **—** |
-| `zcomponentName` | **—** | ✓ | ✓ | **—** | **—** | **—** |
+| `zcomponentId` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
+| `zcomponentName` | **—** | ✓ | ✓ | ✓ | **—** | **—** |
 | `zscalerManaged` | **—** | ✓ | **—** | **—** | **—** | **—** |
 
 ### `segment_group`
@@ -2658,8 +2659,8 @@ This section carries true operation additions/removals, route corrections, and f
 | `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enrollmentCertId` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `exclusiveForBusinessContinuity` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
+| `enrollmentCertId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `exclusiveForBusinessContinuity` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `geoLocationId` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
 | `graceDistanceEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `graceDistanceValue` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |

@@ -5,7 +5,7 @@ title: "ZPA API resource schemas"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 confidence: high
 source-tier: code
@@ -3751,7 +3751,7 @@ The `StepAuthLevel` struct is defined but not used by any function in the Go pac
 Go v1 `PrivilegedCapabilities` struct includes `MicroTenantID` (omitempty). Go v2 `PrivilegedCapabilities` struct includes `MicroTenantID` without omitempty. Postman v1 POST body shows `privilegedCapabilities.microtenantId`; Postman v2 POST body omits it. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:122-128`, `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:195-201`)
 
 **Update returns 204 No Content — Python SDK synthesizes stub.**
-When the API returns 204 (no body), the Python SDK synthesizes a minimal object containing only the rule id. Callers cannot rely on the full rule object being returned on update. All three SDKs agree that PUT returns 204 No Content. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:724-725`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:79734,77032`)
+When the API returns 204 (no body), the Python SDK synthesizes a minimal object containing only the rule id. Callers cannot rely on the full rule object being returned on update. The current Postman v1 and v2 PUT examples both record 204 with empty bodies. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:724-725`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:79834-79839,77130-77135`)
 
 ### App Connectors, Groups, and Schedules
 
@@ -3762,7 +3762,16 @@ Must be one of: `"5"`, `"7"`, `"14"`, `"30"`, `"60"`, `"90"` (days). The Go SDK 
 `UpdateSchedule` in the Go SDK returns error "cannot update a disabled schedule" if `Enabled` is false. The PUT is never sent, and the SDK's own integration test asserts this rejection. This guard is client-side only; Postman and the Python SDK perform no equivalent check. Consequence: a disabled schedule cannot be re-enabled through `UpdateSchedule` in the Go SDK — `CreateSchedule` (POST) is the remaining write path. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go:65-68`, `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule_test.go:103-109`)
 
 **App Connector Schedule — endpoint paths and HTTP methods.**
-`GET /connectorSchedule` returns a single object (not a list). `POST /connectorSchedule` creates (returns 204 or 200, not 201). `PUT /connectorSchedule/{id}` updates. The `appconnectorcontroller` package contains a dead constant `assistantSchedule` — the actual schedule package uses `connectorSchedule`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go:11-14`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:31993,32542`)
+`GET /connectorSchedule` returns a single object (not a list). POST creates and
+PUT updates. Postman records 204 for both writes; its POST example
+contradictorily includes a full object body, while the PUT example's body is
+empty. Go client tests tolerate either 200 or 204 on create, which is a
+client-side compatibility allowance rather than a second Postman-documented
+status. The `appconnectorcontroller` package contains a dead constant
+`assistantSchedule`; the schedule package uses `connectorSchedule`.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go:11-14`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule_test.go:32-33`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:31980-32069,32515-32632,31254-31372`)
 
 **CreateSchedule returns resource.already.exist if schedule exists.**
 Callers must `GetSchedule` first and branch to `Update`. The Go SDK test explicitly handles this pattern. The Python SDK `add_connector_schedule` has no equivalent guard. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule_test.go:25-33`)
@@ -3812,7 +3821,13 @@ Default page size 20, max 500. `GET /connector` supports `sortBy` and `sortDir` 
 ### Server Groups and Application Servers
 
 **ServerGroup and ApplicationServer base paths.**
-ServerGroup: `/zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup`. ApplicationServer: `/zpa/mgmtconfig/v1/admin/customers/{customerId}/server` (singular, not 'servers' or 'appserver'). PUT returns 204 No Content with empty body; caller must issue a separate GET to retrieve updated state. (`vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:15-17`, `vendor/zscaler-sdk-go/zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go:13-15`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:118819,119563,106643,107387`)
+ServerGroup: `/zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup`.
+ApplicationServer: `/zpa/mgmtconfig/v1/admin/customers/{customerId}/server`
+(singular, not `servers` or `appserver`). Both PUT examples return 204 with an
+empty body; callers must issue a separate GET to retrieve updated state.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:15-17`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go:13-15`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:118814-118827,120850-120877,120965-120970,106638-106651,108674-108701,108789-108794`)
 
 **ApplicationServer.CreationTime — malformed JSON tag.**
 The Go struct has `json:"creationTime,"` (trailing comma) — a bug. The field serializes with key `'creationTime,'` including the comma, though API reads are lenient and the malformed key is ignored on ingestion. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go:18-31`)
@@ -3848,7 +3863,13 @@ Go SDK `ExtranetDTO`: `{ locationDTO, locationGroupDTO, ziaErName, zpnErId }` �
 `locationGroupDTO` is deserialized from responses in the Python `ExtranetDTO` model but is absent from its `request_format()` output. Additionally, `location_group_dto` is not initialized in the else-branch of `__init__`, meaning instances created without config will raise `AttributeError` if `location_group_dto` is accessed. (`vendor/zscaler-sdk-python/zscaler/zpa/models/common.py:134-147`)
 
 **Postman AppServerGroups join-table includes 'passive' and 'weight' fields absent from both SDKs.**
-When a `ServerGroup` appears nested inside an `AppConnectorGroup` response, Postman additionally includes `'passive'` (boolean) and `'weight'` (integer) in this join-table representation. Neither the Go SDK `AppServerGroups` struct nor the Python SDK `ServerGroup` model carries these fields. (`vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:105-115`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:119576`)
+When a `ServerGroup` appears nested inside an `AppConnectorGroup` GET response,
+Postman additionally includes `passive` (boolean) and `weight` (integer) in
+this join-table representation. Neither the Go SDK `AppServerGroups` struct nor
+the Python SDK `ServerGroup` model carries these fields.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:105-115`;
+`vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py:26-110`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:33311`)
 
 **ApplicationServer.Create passes struct by value; ServerGroup.Create uses pointer.**
 `appservercontroller.Create` takes `ApplicationServer` by value (not `*ApplicationServer`). `servergroup.Create` takes `*ServerGroup`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go:57`, `vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:154`)
@@ -3862,7 +3883,15 @@ When a `ServerGroup` appears nested inside an `AppConnectorGroup` response, Post
 Single-object GET uses `/mgmtconfig/v1/…/posture/{id}` (or `/network/{id}`); all list operations use the `/v2/` path. No v1 list endpoint exists. (`vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go:14-16,41`, `vendor/zscaler-sdk-go/zscaler/zpa/services/trustednetwork/zpa_trusted_network.go:14-16,32-33`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:81132,81148,81652`)
 
 **PostureProfile and TrustedNetwork — read-only from the management API.**
-Neither `PostureProfilesAPI` nor `TrustedNetworksAPI` expose create, update, or delete methods in either SDK. Postman collection has no POST/PUT/DELETE endpoints. Posture profiles originate from ZCC enrollment; trusted networks are managed via ZPA console. (`vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py:38-149`, `vendor/zscaler-sdk-python/zscaler/zpa/trusted_networks.py:38-153`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:81132`)
+Neither `PostureProfilesAPI` nor `TrustedNetworksAPI` exposes create, update, or
+delete methods in either SDK. A 2026-08-04 full-collection method/path audit
+also found no POST, PUT, or DELETE request for those two controller families;
+the cited GET is representative. This is an audit-scoped client/collection
+absence, not proof that no private or future write surface exists. Posture
+profiles originate from ZCC enrollment; trusted networks are managed through
+the ZPA console. (`vendor/zscaler-sdk-python/zscaler/zpa/posture_profiles.py:38-149`;
+`vendor/zscaler-sdk-python/zscaler/zpa/trusted_networks.py:38-153`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:81132-81148`)
 
 **GetByPostureUDID and GetByNetID — full client-side scan, no server-side filter.**
 Both functions call `GetAllPagesGeneric` with an empty search string, then iterate all results client-side. Large tenants will page through every profile at 500 items/page before returning. (`vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go:50-62`, `vendor/zscaler-sdk-go/zscaler/zpa/services/trustednetwork/zpa_trusted_network.go:42-54`)
@@ -3963,7 +3992,12 @@ Go SDK: `EnrollmentCert map[string]interface{}` — no schema. Python model extr
 Only `GetSchedule`, `CreateSchedule`, `UpdateSchedule` exist. (`vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go:36-77`)
 
 **Service Edge list endpoints — default page size 20, max 500.**
-Python SDK passes page as string. Postman documents page as integer. `PrivateCloudController` list additionally supports `sort_by` and `sort_dir` (default `dsc`) in Python SDK and Postman. (`vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py:49-50`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:113886`, `vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py:52-55`)
+Python SDK passes page as string. Postman documents page as integer, a default
+page size of 20, and a maximum of 500. `PrivateCloudController` list
+additionally supports `sort_by` and `sort_dir` (default `dsc`) in Python.
+(`vendor/zscaler-sdk-python/zscaler/zpa/service_edges.py:49-50`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:113893-113902`;
+`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py:52-55`)
 
 ### LSS (Log Streaming Service)
 
@@ -4030,7 +4064,13 @@ The Go SDK's `Create` function sends POST then immediately calls `GetAll` and ma
 `pra_credential_pool.py` uses `add_id_groups` (the phased-out ZPA helper) rather than `transform_common_id_fields(..., coerce_ids=False)`. The manual block at line 231 fires first and pops `credential_ids`, so `add_id_groups` finds nothing to coerce for that key. (`vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py:22,233,288`)
 
 **PRAConsole bulk create — request and response shape.**
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praConsole/bulk`. Request body is a top-level JSON array (not a wrapped object). Response is also a top-level JSON array of `PRAConsole` objects. Sending a single object not wrapped in an array will fail. (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praconsole/praconsole.go:108-116`, `vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py:386-390`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:90529`)
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/praConsole/bulk` uses a
+top-level request array rather than a wrapper object. Its successful 201
+response example is also a top-level array of `PRAConsole` objects. Sending a
+single unwrapped object does not match the documented contract.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praconsole/praconsole.go:108-116`;
+`vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py:386-390`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:90529-90556,90640-90650`)
 
 **PRAConsole bulk create — Python SDK bypasses camelCase conversion.**
 The Python SDK sets `body=None` in `create_request`, then manually assigns `request['json'] = body` (the array). This bypasses the executor's body-preparation path, so no automatic snake_case-to-camelCase conversion is applied. All field names in the bulk array must already be in camelCase wire format: `name`, `enabled`, `praApplication`, `praPortals`, `description`. `enabled` defaults to `True` and `description` defaults to `''` when omitted. (`vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py:401,404,414-423`)
@@ -4048,10 +4088,21 @@ Top-level `startTime` and `endTime` on the approval object are Unix epoch intege
 `INVALID`, `ACTIVE`, `FUTURE`, `EXPIRED` — agreed across Go and Python SDKs. `INVALID` means the approval itself is malformed/unusable. (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go:33-38`, `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:155`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:82474`)
 
 **DeleteExpired approvals — 200 OK, optional microtenantId query param.**
-`DELETE /zpa/mgmtconfig/v1/admin/customers/{customerId}/approval/expired`. Postman documents 200 OK with empty JSON object body `{}`. Accepts optional `microtenantId` query param. (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go:148-155`, `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:374-381`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:85810`)
+`DELETE /zpa/mgmtconfig/v1/admin/customers/{customerId}/approval/expired`
+accepts an optional `microtenantId` query parameter. Postman records 200 OK
+with an empty JSON object body `{}`.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go:148-155`;
+`vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:374-381`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:85810-85840,85893-85903`)
 
 **Credential move — target_microtenant_id '0' vs integer 0.**
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/credential/{id}/move` with no request body; returns 204 No Content. `targetMicrotenantId` is passed as a query parameter. Python SDK guard is `'if not target_microtenant_id: raise ValueError(…)'`. The integer `0` is falsy and triggers the error. The docstring types the param as str; only string `'0'` (truthy) passes the guard. Pass `'0'` as a string for the Default microtenant, not integer 0. (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go:127-143`, `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py:368-370`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:36571`)
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/credential/{id}/move`
+has no request body and returns 204 with an empty body. `targetMicrotenantId` is
+a query parameter. Python's `if not target_microtenant_id` guard rejects
+integer `0`; only string `"0"` is truthy and passes for the Default microtenant.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go:127-143`;
+`vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py:368-370`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:36571-36608,36671-36676`)
 
 **Credential.credentialType valid values.**
 Go SDK comment lists SSH, RDP, VNC as protocol type options; integration tests use `USERNAME_PASSWORD`. Python SDK validates `USERNAME_PASSWORD`, `SSH_KEY`, `PASSWORD` and raises `ValueError` for anything else. `SSH_KEY` requires private key matching OPENSSH, RSA, or EC PEM headers. (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go:31-33`, `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py:181-199`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:37381`)
@@ -4066,7 +4117,13 @@ Go struct has both `CName (json:"cName",omitempty)` — a writable canonical nam
 `Enabled (json:"enabled")` and `UserNotificationEnabled (json:"userNotificationEnabled")` have no omitempty — false values are always serialized. `UserNotification (json:"userNotification")` has no omitempty — always serialized even as empty string. `ExtDomain`, `ExtDomainName`, `ExtDomainTranslation`, `ExtLabel` all have no omitempty. (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/praportal/praportal.go:29-65`)
 
 **Update endpoints return 204 No Content — SDK stub handling.**
-`PUT /approval/{id}`, `PUT /praConsole/{id}`, `PUT /credential/{id}` all return 204 No Content. Python SDKs return a stub object containing only the ID. Callers must not rely on the update response for field values. (`vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:318-320`, `vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py:307-308`, `vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py:288-289`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:84491`)
+`PUT /approval/{id}`, `PUT /praConsole/{id}`, and `PUT /credential/{id}` all
+return 204 No Content in the current collection. Python clients return a stub
+object containing only the ID; callers must not rely on update responses for
+field values. (`vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:318-320`;
+`vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py:307-308`;
+`vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py:288-289`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:84606-84611,89325-89330,39513-39518`)
 
 ### Microtenants
 
@@ -4160,7 +4217,14 @@ After a successful Delete, attempting Get by ID returns an error containing `'40
 `CertBlob` must contain a `CERTIFICATE` PEM block concatenated with an `RSA PRIVATE KEY` block (PKCS#1). Empty `CertBlob` yields an API error. (`vendor/zscaler-sdk-go/zscaler/zpa/services/bacertificate/zpa_ba_certificate_test.go:32,65-76,80-90`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:23951`)
 
 **BaCertificate — no Update (PUT) endpoint in Go SDK or Postman.**
-Go SDK has no Update function for `BaCertificate`. Postman collection has no `PUT /mgmtconfig/…/certificate/:id`. Python SDK's `update_certificate` calls `PUT /certificate/{certificate_id}`. Trust Go SDK and Postman — the Python `update_certificate` may not be a valid API operation. (`vendor/zscaler-sdk-go/zscaler/zpa/services/bacertificate/zpa_ba_certificate.go`, `vendor/zscaler-sdk-python/zscaler/zpa/certificates.py:266-321`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:23202`)
+Go SDK has no `BaCertificate` Update function. A 2026-08-04 full-collection
+method/path audit found no PUT for the BA `/certificate/{id}` family; the cited
+POST is representative. Python's `update_certificate` nevertheless calls PUT
+on `/certificate/{certificate_id}`. Treat that operation as unverified rather
+than concluding from the collection alone that the server rejects it.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/bacertificate/zpa_ba_certificate.go`;
+`vendor/zscaler-sdk-python/zscaler/zpa/certificates.py:266-321`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:23202-23230`)
 
 **EnrollmentCert — Generate CSR and Generate Self-Signed both on v1.**
 `POST /zpa/mgmtconfig/v1/…/enrollmentCert/csr/generate` and `POST /zpa/mgmtconfig/v1/…/enrollmentCert/selfsigned/generate`. Both SDKs agree. (`vendor/zscaler-sdk-go/zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go:126,135`, `vendor/zscaler-sdk-python/zscaler/zpa/enrollment_certificates.py:344-347,416-419`)
@@ -4177,13 +4241,29 @@ Go SDK `GetAll` passes `common.Filter{MicroTenantID:…}` on the v2 list call. P
 ### Provisioning Keys
 
 **ProvisioningKeyAssociationTypes — documented wire values.**
-`CONNECTOR_GRP` and `SERVICE_EDGE_GRP` are the two publicly documented and Postman-confirmed wire values. `NP_ASSISTANT_GRP` is present in the Go SDK enum slice but absent from the Python SDK's `simplify_key_type()` and from all Postman collection entries — treat it as an internal/preview value. (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:18-22`, `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:36-41`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:94652`)
+`CONNECTOR_GRP` and `SERVICE_EDGE_GRP` are the two publicly documented and
+Postman-confirmed wire values. `NP_ASSISTANT_GRP` is present in the Go SDK enum
+slice, while Python's `simplify_key_type()` rejects any type other than
+connector or service edge. A 2026-08-04 full-collection search found no
+`NP_ASSISTANT_GRP`; the representative Postman parameter names only the two
+public values. Treat the third value as a Go-only candidate whose server
+acceptance is unverified, not as an established internal or preview feature.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:18-22`;
+`vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:36-41`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:94650-94652`)
 
 **No single list-all endpoint — fan-out required.**
 There is no API endpoint to list all provisioning keys regardless of type. Callers must issue one GET per association type and merge results. Go SDK's `GetAll()` iterates all three known association types. Python SDK does not implement an equivalent cross-type list. (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:17,165-173`)
 
 **AssociationType is a path segment, not a request body field.**
-The key type is encoded only as a URL path segment. The Go SDK struct includes `AssociationType` but without omitempty, so it is emitted in JSON payloads. The API never echoes `AssociationType` in response bodies — the Go SDK manually back-fills it after every API call. (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:43,59,72,119,133,145,160`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:94620`)
+The key type is encoded as a URL path segment. The Go struct also includes
+`AssociationType` without `omitempty`, so the client emits it in JSON payloads
+and manually back-fills it after reads. A 2026-08-04 audit of every current
+Provisioning Key response example found no echoed `associationType`; the cited
+operation is representative. This is an audit-scoped collection observation,
+not a universal server guarantee.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:43,59,72,119,133,145,160`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:94620-94652`)
 
 **GetAll silently suppresses per-type errors.**
 Go SDK `GetAll()` uses a blank identifier for the error returned by `GetAllByAssociationType` on each iteration. If one association type query fails, the error is discarded and results from the remaining types are still returned. (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:167`)
@@ -4222,7 +4302,12 @@ Missing from the Python model: `AssociationType`, `AppConnectorGroupID`, `AppCon
 The actual provisioning token string is returned in the `'provisioningKey'` field. In the Go SDK it uses omitempty — absent from create/update request bodies. (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:36`, `vendor/zscaler-sdk-python/zscaler/zpa/models/provisioning_keys.py:40`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:94720`)
 
 **Update returns no body — callers must re-GET.**
-Go SDK `Update()` accepts nil as the response body target. Postman documents PUT as returning 204 No Content. Python SDK returns a minimal `ProvisioningKey({'id': key_id})` stub. (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:91-98`, `vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:392-393`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:95325`)
+Go SDK `Update()` accepts nil as the response target. Postman records PUT as
+204 with an empty body. Python returns a minimal
+`ProvisioningKey({'id': key_id})` stub.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:91-98`;
+`vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:392-393`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:95256-95283,95383-95388`)
 
 ### Machine Groups and Tunnels
 
@@ -4295,10 +4380,20 @@ Python `IDPController` has `delta`, `iam_idp_id`, `migration_detail`, `one_ident
 Both list-by-IdP (`GET /zpa/userconfig/v1/customers/{customerId}/scimgroup/idpId/{idpId}`) and single-get route to userconfig v1, not mgmtconfig. No Create/Update/Delete endpoints — SCIM groups originate from IdP push. (`vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:14-16,31-33,64-65`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:94-97,138-141`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:101988,102357`)
 
 **ScimGroup ID types — int64 in Go; idpName absent from API.**
-`ID` and `IdpID` are `int64`. Postman confirms `id` and `idpId` as `<long>`. The Go SDK struct includes `IdpName` (string) but neither Postman nor Python model returns `idpName` in ScimGroup responses — the field will always be empty on deserialization. (`vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:19-28`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:102020`)
+`ID` and `IdpID` are `int64`; the current successful Postman example represents
+both as `<long>`. The Go struct includes `IdpName`, while that example and the
+Python model omit it. Treat `idpName` as absent from the observed/modelled read
+shape rather than proving universal response absence from one example.
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:19-28`;
+`vendor/zscaler-sdk-python/zscaler/zpa/models/scim_groups.py:32-46`;
+`vendor/zscaler-api-specs/oneapi-postman-collection.json:102064-102074`)
 
 **ScimGroup list — sortOrder uses 'DSC' not 'DESC'.**
-The `sortOrder` parameter accepts `'ASC'` or `'DSC'` (not `'DESC'`). Default is `DSC`. Both `startTime` and `endTime` must be provided together; either alone is invalid. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:102410,102398`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:61`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:45-49`)
+The `sortOrder` parameter accepts `ASC` or `DSC` (not `DESC`) and defaults to
+`DSC`. `startTime` and `endTime` must be supplied together.
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:102396-102405,102413-102416`;
+`vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:61`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:45-49`)
 
 **ScimAttributeHeader — mgmtconfig v1 for schema headers; userconfig v1 for values.**
 Schema header list and single-get use mgmtconfig v1 with `idpId` mandatory in path. Attribute value enumeration uses userconfig v1. (`vendor/zscaler-sdk-go/zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go:13-17,39-47,52-55`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:75-78,116-119,165-168`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:100189,100924,101485`)
@@ -4321,8 +4416,14 @@ The parameter is named `userName` but the comparison field is `DisplayName`. If 
 **ZPA SCIM configuration is a process-level singleton (sync.Once).**
 `NewScimConfig` uses a package-level `globalScimConfig` and `scimConfigOnce` (`sync.Once`). A single process can only target one IdP via the SCIM protocol client. (`vendor/zscaler-sdk-go/zscaler/zpa/config_scim.go:41-42,82,110-113`)
 
-**SCIM API pagination — startIndex-based with 10 default and 100 max.**
-`GetAllPagesScimGenericWithSearch` enforces: default `itemsPerPage=10` (when <=0), max=100 (clamped). Uses `startIndex` (1-based) and `count` parameters. Response envelope: `{Resources: []T, totalResults: int}`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:408-456`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:47294`)
+**Go SCIM helper pagination — startIndex-based with 10 default and 100 max.**
+`GetAllPagesScimGenericWithSearch` enforces a default `itemsPerPage=10` (when
+the input is nonpositive), clamps it to 100, and sends one-based `startIndex`
+plus `count`. Its response envelope is `{Resources: []T, totalResults: int}`
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:408-456`). This is
+not a universal ZPA SCIM pagination limit: the separate Postman IdP-controller
+request uses `page` / `pagesize` and documents a default of 20 and maximum of
+500 (`vendor/zscaler-api-specs/oneapi-postman-collection.json:47282-47298`).
 
 **SCIM API uses Content-Type: application/scim+json, not application/json.**
 The `scim_api` `DoRequest` method always sets `Content-Type: application/scim+json`. Using the regular ZPA `NewRequestDo` client against SCIM endpoints will send `application/json` and will likely fail. (`vendor/zscaler-sdk-go/zscaler/zpa/config_scim.go:244-245`)

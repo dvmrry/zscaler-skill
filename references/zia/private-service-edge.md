@@ -11,6 +11,7 @@ sources:
   - "vendor/zscaler-help/about-public-service-edges-internet-saas.md"
   - "vendor/zscaler-help/about-virtual-service-edges-internet-saas.md"
   - "vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md"
+  - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md"
 author-status: draft
 ---
 
@@ -130,7 +131,7 @@ Customers requiring **Exact Data Match (EDM)** or **Indexed Data Match (IDM)** f
 
 Source: `vendor/zscaler-help/about-virtual-service-edges-internet-saas.md`; `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.md`.
 
-VSE is the software form factor: a Zscaler OS VM running on customer-operated infrastructure. Platforms supported: VMware ESXi, Microsoft Azure, AWS EC2, Microsoft Hyper-V, Google Cloud Platform. Same control-plane connections as a physical PSE; same inspection stack. Key differences from hardware PSE: (Tier A — VSE help doc)
+VSE is the software form factor: a Zscaler OS VM running on customer-operated infrastructure. The captured VSE platform guide lists VMware ESXi, Microsoft Azure, AWS EC2, Microsoft Hyper-V, and Google Cloud Platform. The July 13 release additionally establishes VSE configuration and a downloadable VSE image for Nutanix (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:33-38`). That release does not establish Nutanix cluster topology, sizing, or parity with the existing platform table. Same control-plane connections as a physical PSE; same inspection stack. Key differences from hardware PSE: (Tier A — VSE help doc)
 
 - **Customer-managed**: Zscaler Cloud Ops does not access or monitor VSEs. Auto-upgrades run during published maintenance windows without operator or Zscaler intervention.
 - **Lower throughput ceiling**: 600 Mbps per VM (ESXi with SSL acceleration card); scale horizontally with multi-VM clusters (up to 16 VMs on ESXi/Hyper-V; native clustering not available on Azure/AWS/GCP — use cloud-native LBs instead).

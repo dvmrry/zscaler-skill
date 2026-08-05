@@ -1,12 +1,38 @@
 # Understanding the Zscaler Cloud & Branch Connector API
 
 **Source:** https://help.zscaler.com/legacy-apis/understanding-zscaler-cloud-branch-connector-api
-**Captured:** 2026-04-24 via Playwright MCP (bundled chromium rendering the JS-served page; `innerText` extraction of `article`).
+**Captured:** 2026-08-04 via Zscaler Help `/zapi/fetch-data` JSON (`body.content` and `body.content_nav`) extraction.
 
 ---
 
-Legacy Zscaler APIs Help 
-Zscaler Cloud & Branch Connector API 
+## Scoped current endpoint navigation
+
+The current rendered API navigation identifies these activation endpoints:
+
+- `PUT /ecAdminActivateStatus/activate`
+- `PUT /ecAdminActivateStatus/forcedActivate`
+- `GET /ecAdminActivateStatus`
+
+It identifies these admin and role paths:
+
+- `GET|POST /adminRoles`
+- `PUT|DELETE /adminRoles/{roleId}`
+- `POST /passwordChange`
+- `GET|POST /adminUsers`
+- `GET|PUT|DELETE /adminUsers/{userId}`
+
+The group navigation includes the mutable upgrade endpoints:
+
+- `PUT /ecgroup/vmStatus`
+- `PUT /ecgroup/releaseChannel`
+- `GET /ecgroup/vmUpgradeMetrics`
+
+The Partner Integrations navigation lists the `/publicCloudInfo` family and the
+distinct Azure `/publicCloudTenant` and `/discoveryService/azure/...` families.
+The Azure paths are enumerated in the 2026 release-summary capture.
+
+Legacy Zscaler APIs Help
+Zscaler Cloud & Branch Connector API
 Understanding the Zscaler Cloud & Branch Connector API
 Understanding the Zscaler Cloud & Branch Connector API
 API Developer & Reference Guide

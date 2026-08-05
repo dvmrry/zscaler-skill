@@ -6,7 +6,7 @@ content-type: reasoning
 last-verified: "2026-07-22"
 verified-against:
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
+  vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: medium
@@ -17,7 +17,11 @@ sources:
   - "vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py"
   - "vendor/zpacloud-ansible/CHANGELOG.md"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py"
   - "vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py"
+  - "vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py"
+  - "vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_pra_approval.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_console.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_credential_pool.py"
@@ -184,12 +188,48 @@ disabled on the target (`vendor/zscaler-help/privileged-remote-access-captures.m
 
 ## Step-Up Authentication
 
+Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md`; `vendor/zpacloud-ansible/CHANGELOG.md`; `vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py`; `vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_pra_approval.py`; `vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py`.
+
 Zscaler announced Step-Up Authentication for Privileged Remote Access as a
 limited-availability feature on July 20, 2026
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-30`). It can
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:70-77`). It can
 require a user to complete additional authentication before application access,
 and the Zscaler Admin Console supports conditional access for this flow
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:29-32`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:70-77`).
+
+### Ansible 2.2.11 reconciliation boundaries
+
+The ZPA Ansible collection now uses both `email_ids` and, when supplied,
+`application_ids` to select an existing PRA approval. An approval for the same
+email set but a different application set is skipped so the requested approval
+can be created instead of overwriting the unrelated one
+(`vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:250-275`; regression
+coverage at
+`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_pra_approval.py:148-191`).
+
+PRA sub-application reconciliation is also parent-scoped in 2.2.11. On update,
+the module resolves `pra_app_id` only from `pra_apps` belonging to the parent
+segment; on create it leaves the parent and child IDs empty, and it emits
+`deleted_pra_apps` only for stale children of that parent
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:502-546`).
+The new tests cover avoiding a foreign child ID, resolving an owned child,
+deleting a stale child, recreating a missing child, and preserving idempotence
+when the child remains present
+(`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py:97-159`,
+`:161-238`, `:302-325`). Missing-child detection is domain-presence checking,
+not full nested-object reconciliation: it does not establish that changes to a
+live child's port, protocol, certificate, or other nested fields will be
+detected (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-452`).
+
+Do not extend the PRA result to Inspection segments. The Inspection module now
+detects a declared domain with no live `inspection_apps` child, but its update
+payload still places deletion IDs under `deleted_pra_apps` and then invokes the
+PRA update and read clients
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:418-430`,
+`:532-538`, `:591-605`). The changelog labels Inspection orphan repair as fixed,
+but these executable payload and client paths do not establish that result
+(`vendor/zpacloud-ansible/CHANGELOG.md:12-16`). Treat the end-to-end repair as
+unproven; the runtime consequence requires an upstream fix or live validation.
 
 ## Operational gotchas
 
@@ -201,7 +241,7 @@ Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zsca
 
 3. **Approval windows are start+duration, not floating.** An approval granted for 2pm-4pm is usable only during that window. Users who miss the window need to re-request.
 
-4. **`working_hours` is optional in current Python SDK / Ansible clients.** Python SDK v1.9.34 fixes `pra_approval.working_hours`, defaults time conversion to UTC when working hours are omitted, and serializes `workingHours` only when a caller explicitly supplies it because the API rejects a partial or empty `workingHours` object (`vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst:350-361`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:193-220`, `:285-312`). The ZPA Ansible collection v2.2.5 carries the same operational fix for `zpa_pra_approval`, including truly optional `working_hours` and sending only the intended update payload (`vendor/zpacloud-ansible/CHANGELOG.md:53-61`; `vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:289-371`).
+4. **`working_hours` is optional in current Python SDK / Ansible clients.** Python SDK v1.9.34 fixes `pra_approval.working_hours`, defaults time conversion to UTC when working hours are omitted, and serializes `workingHours` only when a caller explicitly supplies it because the API rejects a partial or empty `workingHours` object (`vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst:350-361`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:193-220`, `:285-312`). The ZPA Ansible collection v2.2.5 carries the same operational fix for `zpa_pra_approval`, including truly optional `working_hours` and sending only the intended update payload (`vendor/zpacloud-ansible/CHANGELOG.md:67-75`; `vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:76-79`, `:366-405`).
 
 5. **Recording transcoding is async.** A session that just ended isn't immediately streamable. Check status before expecting playback; use prioritized transcoding for urgent forensic review.
 

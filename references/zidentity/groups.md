@@ -67,20 +67,20 @@ Package `groups` in `zscaler/zid/services/groups/groups.go`. All functions are p
 
 Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscaler-api-specs/oneapi-postman-collection.json`)
+Variable `{{ZIAMBaseUrl}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscaler-api-specs/oneapi-postman-collection.json`)
 
 | Method | Path |
 |---|---|
-| GET | `{{ZIAMBase}}/groups?offset=...&limit=...&name[like]=...&excludedynamicgroups=...` |
-| GET | `{{ZIAMBase}}/groups/:id` |
-| POST | `{{ZIAMBase}}/groups` |
-| PUT | `{{ZIAMBase}}/groups/:id` |
-| DELETE | `{{ZIAMBase}}/groups/:id` |
-| GET | `{{ZIAMBase}}/groups/:id/users` |
-| POST | `{{ZIAMBase}}/groups/:id/users` |
-| PUT | `{{ZIAMBase}}/groups/:id/users` |
-| POST | `{{ZIAMBase}}/groups/:id/users/:userId` |
-| DELETE | `{{ZIAMBase}}/groups/:id/users/:userId` |
+| GET | `{{ZIAMBaseUrl}}/groups?offset=...&limit=...&name[like]=...&excludedynamicgroups=...` |
+| GET | `{{ZIAMBaseUrl}}/groups/:id` |
+| POST | `{{ZIAMBaseUrl}}/groups` |
+| PUT | `{{ZIAMBaseUrl}}/groups/:id` |
+| DELETE | `{{ZIAMBaseUrl}}/groups/:id` |
+| GET | `{{ZIAMBaseUrl}}/groups/:id/users` |
+| POST | `{{ZIAMBaseUrl}}/groups/:id/users` |
+| PUT | `{{ZIAMBaseUrl}}/groups/:id/users` |
+| POST | `{{ZIAMBaseUrl}}/groups/:id/users/:userId` |
+| DELETE | `{{ZIAMBaseUrl}}/groups/:id/users/:userId` |
 
 ## Group model fields
 

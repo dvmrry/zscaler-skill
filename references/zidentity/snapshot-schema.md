@@ -36,7 +36,7 @@ _data/snapshot/<cloud>/zidentity/resource-servers.json
 ## Wire-format conventions for ZIdentity
 
 - **Base URL + path prefix depend on which SDK made the call** — the same logical API has two hostnames and two prefixes:
-  - **Python SDK** → host `https://api.zsapi.net` (non-prod: `https://api.{cloud}.zsapi.net`), prefix `/ziam/admin/api/v1` (vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177; vendor/zscaler-sdk-python/zscaler/zid/users.py:31). Postman uses `{{ZIAMBase}}` for this.
+  - **Python SDK** → host `https://api.zsapi.net` (non-prod: `https://api.{cloud}.zsapi.net`), prefix `/ziam/admin/api/v1` (vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177; vendor/zscaler-sdk-python/zscaler/zid/users.py:31). Postman uses `{{ZIAMBaseUrl}}` for this.
   - **Go SDK** → host `https://{vanity}-admin.zslogin.net` (non-prod: `https://{vanity}-admin.zslogin{cloud}.net`), prefix `/admin/api/v1` — no `/ziam` (vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:436-448; the Go zid endpoint constants carry no `/ziam`, e.g. vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16). So a raw-HTTP caller's URL differs by language; the JSON body shape is the same either way.
 - **camelCase JSON keys** (consistent with ZIA / ZPA).
 - **String IDs** — `id: "..."`, not integers. Same as ZPA, different from ZIA.
@@ -147,7 +147,7 @@ Same outer wrapper shape. Field set verified against the Go struct (vendor/zscal
 
 The entitlement flags let you find admin-bearing or service-bearing groups without a second call. Dynamic-group *criteria* are not in the record (portal-only); only the `isDynamicGroup`/`dynamicGroup` flags surface here.
 
-Group memberships are accessed via `GET /groups/{id}/users` — a separate endpoint, not embedded in the list response (vendor/zscaler-sdk-python/zscaler/zid/groups.py membership ops; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:92-93; Postman `Groups Ops get Group Members` → `{{ZIAMBase}}/groups/:id/users`). The response is the standard paginated wrapper of **full user records**, so the same `users.json` field set and jq apply.
+Group memberships are accessed via `GET /groups/{id}/users` — a separate endpoint, not embedded in the list response (vendor/zscaler-sdk-python/zscaler/zid/groups.py membership ops; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:92-93; Postman `Groups Ops get Group Members` → `{{ZIAMBaseUrl}}/groups/:id/users`). The response is the standard paginated wrapper of **full user records**, so the same `users.json` field set and jq apply.
 
 ### Common jq queries
 

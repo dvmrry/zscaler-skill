@@ -11,6 +11,7 @@ sources:
   - "vendor/zscaler-help/about-virtual-service-edges-internet-saas.md"
   - "vendor/zscaler-help/understanding-private-service-edge-internet-saas.md"
   - "vendor/zscaler-help/understanding-multi-cluster-load-sharing.md"
+  - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md"
 author-status: draft
 ---
 
@@ -21,6 +22,14 @@ Source: `vendor/zscaler-help/about-virtual-service-edge-clusters-internet-saas.m
 A VSE Cluster is the production-grade grouping construct for Virtual Service Edge (VSE) VMs. It presents a single cluster IP address to the network, distributes traffic across member VSE instances using a bundled load balancer, and provides active-active redundancy. Individual VSE instances are the raw deployment artifact; the cluster is the operational unit above them. (Tier A — about-virtual-service-edge-clusters-internet-saas.md)
 
 For the VSE VM itself (sizing, platform support, OS hardening, inspection capabilities), see [`./private-service-edge.md § Virtual Service Edge`](./private-service-edge.md). For the broader Service Edge taxonomy — Public vs Private vs Virtual form factors, Central Authority connectivity model — see [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md).
+
+**Nutanix boundary:** the July 13 release establishes VSE configuration on
+Nutanix and says its VM image is downloadable from the Virtual Service Edges
+page (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:33-38`). It
+does not state whether Nutanix supports the native VSE cluster construct,
+bundled load-balancer/CARP behavior, a particular cluster size, or the public-
+cloud load-balancer model. The cluster mechanics below therefore remain scoped
+to the platforms explicitly supported by their cited VSE cluster sources.
 
 ## 1. Definition
 

@@ -5,12 +5,12 @@ title: "Zscaler Cellular / ZCell reference hub"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
+  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
-  vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
+  vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6

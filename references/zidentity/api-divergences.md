@@ -7,7 +7,7 @@ source-tier: code
 confidence: medium
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/**"
@@ -43,7 +43,7 @@ This doc records the source-vs-source disagreements found across the `zid` surfa
 
 - **Python SDK:** every `zid` service class sets `_zidentity_base_endpoint = "/ziam/admin/api/v1"`. (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/groups.py:31`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py:31`) The request executor resolves the host to `https://api.zsapi.net` for production (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`) or `https://api.{cloud}.zsapi.net` for non-government non-production clouds (`vendor/zscaler-sdk-python/zscaler/request_executor.py:188-190`). Net production URL: `https://api.zsapi.net/ziam/admin/api/v1/...`
 - **Go SDK:** every `zid` service constant uses the bare `/admin/api/v1` prefix (`vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`, `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:17`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:13`, `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:12`). The client detects a ZIdentity request by the substring `/admin/api/v1` and rewrites the host to the vanity-domain admin host: `https://{vanity}-admin.zslogin.net` for production, `https://{vanity}-admin.zslogin{cloud}.net` otherwise. (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:422,444,446`) Net production URL: `https://{vanity}-admin.zslogin.net/admin/api/v1/...`
-- **Postman:** the `ZIAMBase` collection variable is `{{oneAPIBaseUrl}}/ziam/admin/api/v1` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136360`), matching the Python prefix.
+- **Postman:** the `ZIAMBaseUrl` collection variable is `{{oneAPIBaseUrl}}/ziam/admin/api/v1` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:144261-144262`), matching the Python prefix.
 
 **Significance / which to trust:** This is the headline divergence. The same logical API is reached two different ways: Python and Postman hit `api.zsapi.net/ziam/admin/api/v1`; Go hits `{vanity}-admin.zslogin.net/admin/api/v1`. Anyone tracing traffic, writing a raw-HTTP caller, or configuring an allowlist must know which SDK they are mirroring — the host and the `/ziam` prefix both change. Trust each SDK's own constant for that SDK; trust Postman/Python for the `api.zsapi.net` path.
 
@@ -87,7 +87,7 @@ not the current SDK contract.
 
 - **Python SDK:** `APIClientAPI` provides the full lifecycle — `list_api_clients`, `get_api_client`, `add_api_client`, `update_api_client`, `delete_api_client`, plus secret operations `get_api_client_secret`, `add_api_client_secret`, `delete_api_client_secret`. (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:37,112,156,265,355,392,436,491`) It is registered on the service as `api_client`. (`vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`, `APIClientAPI` property)
 - **Go SDK:** the `zid/services/` directory contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users` — there is no `api_client` (or `api_clients`) package at all.
-- **Postman:** the API-client endpoints exist on the wire (`{{ZIAMBase}}/api-clients`, `.../api-clients/:id`, `.../api-clients/:id/secrets`). (`vendor/zscaler-api-specs/oneapi-postman-collection.json:129315,129557,128576`)
+- **Postman:** the API-client endpoints exist on the wire (`{{ZIAMBaseUrl}}/api-clients`, `.../api-clients/:id`, `.../api-clients/:id/secrets`). (`vendor/zscaler-api-specs/oneapi-postman-collection.json:129315,129557,128576`)
 
 **Significance / which to trust:** Programmatic API-client management is a Python-SDK capability with no Go equivalent. A Go caller who needs to create or rotate API clients must craft raw HTTP requests against the wire endpoints the Postman collection documents; the SDK will not help. (Scope rule: MCP-server tool coverage is out of scope here — this entry concerns the product SDKs and API surface only.)
 

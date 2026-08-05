@@ -59,6 +59,8 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Go SDK fields absent from the contract:** `enrollmentCertId`, `nameWithoutTrim`, `readOnly`, `restrictionType`, `zscalerManaged`
 
+**Terraform provider corroborates these non-contract client fields:** `enrollmentCertId`, `userCodes`
+
 ## application_server
 
 `POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/server` — contract 12 / Go 12 / TF 8 fields / Ansible 6 fields / Python 7 fields / MCP 5 tools
@@ -88,7 +90,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## application_segment
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/application` — contract 51 / Go 52 / TF 35 fields / Ansible 32 fields / Python 51 fields / MCP 7 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/application` — contract 51 / Go 52 / TF 35 fields / Ansible 32 fields / Python 51 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -124,9 +126,11 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Go SDK fields absent from the contract:** `applications`, `policyStyle`, `readOnly`, `restrictionType`, `shareToMicrotenants`, `tags`, `zscalerManaged`
 
+**Terraform provider corroborates these non-contract client fields:** `policyStyle`, `shareToMicrotenants`
+
 ## ba_certificate
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/certificate` — contract 20 / Go 20 / TF 6 fields / Ansible 5 fields / Python 18 fields / MCP 6 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/certificate` — contract 20 / Go 20 / TF 6 fields / Ansible 5 fields / Python 18 fields / MCP 4 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -216,6 +220,8 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 **Contract fields absent from the Go SDK struct:** `exceptionsVersion`, `predefinedADPControls`
 
 **Go SDK fields absent from the contract:** `commonGlobalOverrideActionsConfig`, `overrideAction`
+
+**Terraform provider corroborates these non-contract client fields:** `commonGlobalOverrideActionsConfig`, `overrideAction`
 
 ## lss_config
 
@@ -351,6 +357,8 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Go SDK fields absent from the contract:** `action`, `approvalReviewers`, `cName`, `certManagedByZsRadio`, `hideInfoTooltip`, `isSRAPortal`, `managedByZs`, `objectType`, `restrictedEntity`, `scopeName`
 
+**Terraform provider corroborates these non-contract client fields:** `approvalReviewers`
+
 ## server_group
 
 `POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/serverGroup` — contract 18 / Go 20 / TF 13 fields / Ansible 8 fields / Python 20 fields / MCP 5 tools
@@ -383,7 +391,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## segment_group
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup` — contract 15 / Go 16 / TF 6 fields / Ansible 5 fields / Python 11 fields / MCP 7 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup` — contract 15 / Go 16 / TF 6 fields / Ansible 5 fields / Python 11 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -435,6 +443,8 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Go SDK fields absent from the contract:** `appConnectorGroupId`, `appConnectorGroupName`, `associationType`, `creationTime`, `enabled`, `enrollmentCertId`, `enrollmentCertName`, `expirationInEpochSec`, `ipAcl`, `maxUsage`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `provisioningKey`, `readOnly`, `restrictionType`, `uiConfig`, `zcomponentId`, `zcomponentName`, `zscalerManaged`
 
+**Terraform provider corroborates these non-contract client fields:** `appConnectorGroupId`, `appConnectorGroupName`, `associationType`, `enabled`, `enrollmentCertId`, `ipAcl`, `maxUsage`, `microtenantId`, `provisioningKey`, `uiConfig`, `zcomponentId`, `zcomponentName`
+
 ## service_edge_group
 
 `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup/{serviceEdgeGroupId}` — contract 33 / Go 41 / TF 27 fields / Ansible 20 fields / Python 32 fields / MCP 5 tools
@@ -465,6 +475,8 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 **Contract fields absent from the Go SDK struct:** `upgradePriority`
 
 **Go SDK fields absent from the contract:** `enrollmentCertId`, `exclusiveForBusinessContinuity`, `nameWithoutTrim`, `objectType`, `readOnly`, `restrictedEntity`, `restrictionType`, `scopeName`, `zscalerManaged`
+
+**Terraform provider corroborates these non-contract client fields:** `enrollmentCertId`, `exclusiveForBusinessContinuity`
 
 ## Scope
 

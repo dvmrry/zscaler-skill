@@ -5,7 +5,7 @@ title: "AI Security claims ledger - Tier 2 first-pass refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 confidence: high
@@ -46,6 +46,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/ai-security-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
 author-status: draft
 ---
@@ -80,3 +81,4 @@ This ledger covers the AI Guard claims changed or explicitly guarded in the Tier
 | The current Help tree contains 24 AI Guard for Users articles; its index is captured, but several newly listed article bodies are not yet mined. | `index.md`, `ai-guard.md`, `ai-guard-coverage.md` | `vendor/zscaler-help/ai-guard-users-help-index.md:8-47`; `ARTICLE-BODY GAP -> references/ai-security/ai-guard-coverage.md#help-article-coverage` |
 | The 2026 Help chronology documents tenant restriction, M365 Copilot streaming inspection, prompt allowlisting, custom RBAC, ADX/Splunk export, Codex support, and default-provider auto-provisioning. | `ai-guard.md`, `ai-guard-coverage.md` | `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:9-55` |
 | The current Automate snapshot separately exposes 11 read-only AI Security asset/findings operations for data stores, identities, issues, MCP servers/tools, and workloads under `/aisecurity/aispm`. | `overview.md`, `index.md`, `asset-management-api.md` | `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:8`; `vendor/zscaler-api-specs/automate-zscaler/ai-security-api-reference.json:2-14`, `:443-455`, `:841-853`, `:1432-1444`, `:1678-1690`, `:1891-1903`, `:2260-2272` |
+| The current Postman snapshot exposes 97 AI Red Teaming request definitions across 14 families under `/aisecurity/airt/api/v2`, but supplies no saved response examples; response schemas, tenant entitlement, live acceptance, and the AI Guard interlock remain unverified. | `overview.md`, `index.md` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:139453-143529`, `:144273-144274`; `OPEN QUESTION -> references/ai-security/overview.md#open-questions` |

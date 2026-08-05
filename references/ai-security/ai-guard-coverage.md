@@ -5,10 +5,10 @@ title: "AI Guard public-source coverage manifest"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
-  vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
+  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
@@ -38,6 +38,8 @@ sources:
   - "vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md"
   - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
   - "vendor/zscaler-help/ai-guard-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-users-dashboard.md"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
@@ -82,9 +84,9 @@ author-status: reviewed
 
 Source: `vendor/zscaler-help/ai-guard-help-index.md`; `vendor/zscaler-help/ai-guard-users-help-index.md`; `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
 
-This manifest is the certification boundary for AI Guard coverage in this repo. The 2026-05-22 **Secure AI Apps & Infrastructure** tree was captured article by article, but the current 2026-07-20 portal publishes a different 24-article **AI Guard for Users** tree. Its index and 2026 release chronology are captured; the bodies of the newly listed architecture, quick-start, prompt-allowlist, best-practice, topology, token-usage, audit, and troubleshooting articles are not yet individually captured (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`).
+This manifest is the certification boundary for AI Guard coverage in this repo. The 2026-05-22 **Secure AI Apps & Infrastructure** tree was captured article by article, but the current portal publishes a different 24-article **AI Guard for Users** tree and separate current dashboard articles for **Users** and **Apps & Infrastructure** (`vendor/zscaler-help/ai-guard-users-dashboard.md:8-16`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:8-16`). Both dashboard bodies, the current tree index, and the 2026 release chronology are captured. The newly listed architecture, quick-start, prompt-allowlist, best-practice, topology, token-usage, audit, and troubleshooting bodies are not yet individually captured (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`).
 
-Acceptable shorthand: **the legacy May Help tree, Python SDK 1.9.39 configuration and legacy-runtime surfaces, Automate contract, and public integrations are captured; the current AI Guard for Users Help tree is indexed but only partially mined at article-body depth**. Python SDK 1.9.39 is pinned at `vendor/zscaler-sdk-python/pyproject.toml:1-4`; its canonical accessor and separate legacy-runtime route are documented at `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385` and `:671-712`.
+Acceptable shorthand: **the legacy May Help tree, both current dashboard bodies, Python SDK 1.9.39 configuration and legacy-runtime surfaces, Automate contract, and public integrations are captured; the rest of the current AI Guard for Users Help tree is indexed but only partially mined at article-body depth**. Python SDK 1.9.39 is pinned at `vendor/zscaler-sdk-python/pyproject.toml:1-4`; its canonical accessor and separate legacy-runtime route are documented at `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385` and `:671-712`.
 
 Do not extend that sentence to private roadmap features, unpublished tenant entitlements, commercial packaging, field-level log schemas not present in Help, or client-wrapper coverage not present in public SDK/API sources.
 
@@ -101,6 +103,14 @@ No Go SDK service, Terraform resource, Postman endpoint, or Automation Hub proce
 Source: `vendor/zscaler-help/ai-guard-help-index.md`; `vendor/zscaler-help/ai-guard-users-help-index.md`; `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md`.
 
 The current tree contains 24 articles: six Getting Started, seven Configuration, two Best Practices, six Monitoring, and three Troubleshooting entries (`vendor/zscaler-help/ai-guard-users-help-index.md:10-47`). Newly indexed topics include architecture, multilingual support, Microsoft 365 Copilot and ChatGPT quick starts, prompt allowlisting, detector best-practice runbooks, user-group/provider topology, token usage, audit logs, detection summaries, and latency. The release capture independently records shipped additions through July 10, including tenant restriction, M365 Copilot streaming inspection, encrypted prompt allowlisting, custom RBAC, ADX and Splunk export, Codex and GitHub Copilot handling, default-provider auto-provisioning, and newer provider/detector support (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:9-55`).
+
+Current dashboard coverage is split rather than represented by one combined
+article:
+
+| Current dashboard article | Captured behavior | Coverage boundary |
+|---|---|---|
+| Users | Users tab; user/LLM/detection/transaction counts; up-to-90-day filtering; transaction fields and detail sections (`vendor/zscaler-help/ai-guard-users-dashboard.md:11-28`) | The article does not document a Conversations view; availability for user transactions is not inferred (`vendor/zscaler-help/ai-guard-users-dashboard.md:30-32`) |
+| Apps & Infrastructure | AI Applications tab; app/LLM/detection/transaction counts; individual transactions and connected multi-prompt conversations (`vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:11-35`) | Conversation threads are documented only for DAS/API mode and not Proxy mode (`vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:23-31`) |
 
 The table below is the article-body coverage for the **May 22 legacy tree**, not a certification of the current July tree.
 
@@ -121,7 +131,7 @@ The table below is the article-body coverage for the **May 22 legacy tree**, not
 | Configuration | Managing AI Guard Policy Control | `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md` | Covered in policy management |
 | Configuration | AI Guard Policy Testing | `vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md` | Covered in policy management |
 | Configuration | Managing Tenant Settings | `vendor/zscaler-help/ai-guard-managing-tenant-settings.md` | Covered in tenant/provider configuration |
-| Dashboard & Diagnostics | About AI Guard Dashboard | `vendor/zscaler-help/ai-guard-dashboard.md` | Covered in observability |
+| Dashboard & Diagnostics | About AI Guard Dashboard (legacy combined capture) | `vendor/zscaler-help/ai-guard-dashboard.md` | Superseded for current dashboard wording by the two current captures above |
 | Dashboard & Diagnostics | About AI Guard Insights | `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md` | Covered in observability |
 | Dashboard & Diagnostics | About AI Guard Usage | `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md` | Covered in observability |
 | Dashboard & Diagnostics | Managing AI Guard Log Exports | `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md` | Covered in observability |
@@ -162,7 +172,7 @@ Source: `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscal
 - AI Red Teaming and AI Guard workflow interlock is not confirmed.
 - Python does not yet wrap eight Automate-documented operations; four referential-check methods are commented out after an SDK-maintainer 404 observation and require live acceptance testing (`vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:180-222`).
 - Go SDK, Terraform, MCP, Postman, and Automation Hub wrappers for the AI Guard admin-plane contract are not present in the inspected captured sources; do not infer entitlement or backend availability from that coverage gap.
-- Current AI Guard for Users article bodies beyond the overlapping legacy captures have not yet been mined individually.
+- Current AI Guard for Users article bodies beyond the captured Users dashboard and overlapping legacy captures have not yet been mined individually.
 - Help calls GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io supported providers/applications, while the Automate provider-type enum uses a narrower/different identifier set; the relationship between Help provider labels and admin-plane provider types is unresolved.
 
 These gaps mean current Help coverage is **indexed but incomplete at article-body depth**. They also mark boundaries where public Help/SDK sources do not expose enough detail to certify behavior beyond the documented surface.

@@ -5,12 +5,13 @@ title: "ZIA legacy API endpoint reference"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/**"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/security_ueba_alerts/alert_definitions/alert_definitions.go"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/zscaler/zia/zia_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
@@ -248,7 +249,7 @@ Complete endpoint surface for the ZIA legacy API. Extracted from hardcoded paths
 | `PUT /zia/api/v1/webDlpGlobalOptions` | Update tenant-wide Web DLP advanced settings (`vendor/zscaler-sdk-python/zscaler/zia/web_dlp_global_options.py:82-112`) |
 
 Endpoint DLP additions in Go v3.8.41 and Python v1.9.39
-(`vendor/zscaler-sdk-go/CHANGELOG.md:51-52,62-112`;
+(`vendor/zscaler-sdk-go/CHANGELOG.md:60-61,71-121`;
 `vendor/zscaler-sdk-python/pyproject.toml:1-4`):
 
 | Endpoint | Notes |
@@ -610,6 +611,14 @@ Go `GetAll` aggregates all pages with `ReadAllPages`; the current Python method 
 | `POST /zia/api/v1/alertSubscriptions` | Create subscription |
 | `PUT /zia/api/v1/alertSubscriptions/{id}` | Update |
 | `DELETE /zia/api/v1/alertSubscriptions/{id}` | Delete |
+| `GET /zia/api/v1/alertDefinitions` | List UEBA alert definitions |
+| `GET /zia/api/v1/alertDefinitions/{id}` | Get a UEBA alert definition |
+| `POST /zia/api/v1/alertDefinitions` | Create a UEBA alert definition |
+| `PUT /zia/api/v1/alertDefinitions/{id}` | Update a UEBA alert definition |
+| `DELETE /zia/api/v1/alertDefinitions/{id}` | Delete a UEBA alert definition |
+
+The UEBA alert-definition paths and wire fields are confirmed by Go v3.8.44
+(`vendor/zscaler-sdk-go/zscaler/zia/services/security_ueba_alerts/alert_definitions/alert_definitions.go:14-29,31-95`).
 
 ---
 

@@ -9,7 +9,7 @@ source-tier: mixed
 verified-against:
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/zpacloud-ansible: 63c8cc3f6e34dc37fea478c2ab7b0453e6ee5218
+  vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/terraform-aws-zpa-app-connector-modules: a866e4988f002d0b50dcc0db10c06e46db4bf0e7
   vendor/terraform-azurerm-zpa-app-connector-modules: a03b6651d45b80b774661b19acb8ae3954694aa5
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
@@ -127,7 +127,7 @@ App Connector Groups are the policy, upgrade, and capacity unit. Per *About App 
 - **Group editing from application-serving context** became available on July
   16, 2026: App Connector groups can be edited from the "Where are my apps being
   served from?" view to resolve unknown hosting or location details
-  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:36-39`).
+  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:79-82`).
 
 Groups are the unit at which upgrades are orchestrated: when a new App Connector version is available, ZPA picks one connector in the group at random, upgrades it (restart + re-enroll), picks the next, and so on. The group stays available throughout because only one connector is down at a time.
 
@@ -332,11 +332,11 @@ Zscaler publishes reference Terraform configurations in two vendor-maintained re
 
 The July 13, 2026 release added a **Get Network Interfaces** command that
 collects the network-interface inventory used by an App Connector
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:47-50`). The same
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:90-93`). The same
 release introduced limited-availability remote App Connector network settings
 that can enable SSH on the operating system and update software-interface
 settings on ZPA virtual machines in AWS, Azure, and GCP
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:51-53`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:94-96`).
 
 ### Software updates
 
@@ -348,6 +348,21 @@ From *Understanding App Connector Software Updates*:
 - **4-hour rolling window.** Within the window, ZPA picks one connector, upgrades it (restart + reconnect), then picks the next, and so on. Continues until the window expires or all connectors in the group are updated.
 - **Unsuccessful updates retry on the next scheduled window.** Until every connector in the group is on the target version.
 - **Starting with App Connector version 24.650.4+**, a version check and automated upgrade runs on initial connection — so freshly-deployed connectors may self-upgrade at first boot before the scheduled window.
+
+Current release artifacts span both images and Manager RPMs, but they are
+separate release entries with different scopes:
+
+- The July 23 release supplies updated RHEL 9 App Connector images for AWS, GCP,
+  and Azure, plus App Connector images for Nutanix AHV and VMware. It also moves
+  the App Connector Docker image to high ciphers for `microdnf` calls, and says
+  the image set includes a 4 GB boot partition for seamless OS updates
+  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-50`).
+- The August 4 release identifies Manager software version `26.56.1` and App
+  Connector RPM packages for RHEL 8.x and 9.x, downloadable from the Zscaler
+  repository
+  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-23`). That
+  entry is RPM-specific and does not establish a new Docker, VM, hypervisor, or
+  cloud-marketplace image (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:25-28`).
 
 **Update statuses** (visible in the App Connector list):
 

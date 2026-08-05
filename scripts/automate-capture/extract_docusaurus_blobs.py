@@ -19,7 +19,9 @@ import base64
 import concurrent.futures
 import csv
 import datetime as dt
+import errno
 import hashlib
+import http.client
 import json
 import pathlib
 import re
@@ -37,6 +39,22 @@ DEFAULT_EXISTING = pathlib.Path("vendor/zscaler-api-specs/automate-zscaler")
 DEFAULT_OUT = pathlib.Path("/tmp/zscaler-automate-blob-proof")
 USER_AGENT = "Mozilla/5.0"
 RETRY_STATUSES = {429, 500, 502, 503, 504}
+RETRY_ERRNOS = {
+    code
+    for name in (
+        "ECONNABORTED",
+        "ECONNREFUSED",
+        "ECONNRESET",
+        "EHOSTDOWN",
+        "EHOSTUNREACH",
+        "ENETDOWN",
+        "ENETRESET",
+        "ENETUNREACH",
+        "EPIPE",
+        "ETIMEDOUT",
+    )
+    if (code := getattr(errno, name, None)) is not None
+}
 
 SCRIPT_RE = re.compile(r'<script[^>]+src="([^"]+\.js)"')
 API_MDX_RE = re.compile(
@@ -70,6 +88,13 @@ def webpack_int(raw: str) -> int:
     return int(float(raw))
 
 
+def retryable_os_error(exc: OSError) -> bool:
+    return (
+        isinstance(exc, (ConnectionError, TimeoutError, http.client.RemoteDisconnected))
+        or exc.errno in RETRY_ERRNOS
+    )
+
+
 def fetch_bytes(url: str, retries: int = 3) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     last_error = None
@@ -84,6 +109,10 @@ def fetch_bytes(url: str, retries: int = 3) -> bytes:
         except urllib.error.URLError as exc:
             last_error = exc
             if attempt == retries:
+                raise
+        except OSError as exc:
+            last_error = exc
+            if not retryable_os_error(exc) or attempt == retries:
                 raise
         time.sleep(1.5 * (attempt + 1))
     raise RuntimeError(f"fetch failed for {url}: {last_error}")

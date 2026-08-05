@@ -121,10 +121,10 @@ Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 | Name | Method | Raw URL | Line |
 |---|---|---|---|
-| Resource Servers Ops list | GET | `{{ZIAMBase}}/resource-servers?offset=...&limit=...&name[like]=...` | 132126 |
-| Resource Servers Ops get | GET | `{{ZIAMBase}}/resource-servers/:id` | 132275 |
+| Resource Servers Ops list | GET | `{{ZIAMBaseUrl}}/resource-servers?offset=...&limit=...&name[like]=...` | 132126 |
+| Resource Servers Ops get | GET | `{{ZIAMBaseUrl}}/resource-servers/:id` | 132275 |
 
-`{{ZIAMBase}}` is the Postman environment variable for the ZIAM base URL. Combined with the Python SDK constant, the resolved paths are `GET /ziam/admin/api/v1/resource-servers` and `GET /ziam/admin/api/v1/resource-servers/{id}` respectively.
+`{{ZIAMBaseUrl}}` is the Postman environment variable for the ZIAM base URL. Combined with the Python SDK constant, the resolved paths are `GET /ziam/admin/api/v1/resource-servers` and `GET /ziam/admin/api/v1/resource-servers/{id}` respectively.
 
 No POST, PUT, or DELETE operations for resource servers appear in the Postman collection (`oneapi-postman-collection.json`).
 

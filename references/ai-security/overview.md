@@ -7,7 +7,7 @@ last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
@@ -44,6 +44,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/ai-security-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zguard-ai-integrations/README.md"
   - "https://www.zscaler.com/products-and-solutions/ai-security"
   - "vendor/zscaler-help/ai-security-marketing.md"
@@ -58,7 +59,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 
 Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; help-portal docs treat individual sub-products (AI Guard, AI Guardrails, AI Red Teaming) as discrete services. This page maps the family so the skill can route a user's question to the right component before claiming depth.
 
-**Confidence is high for the captured AI Guard runtime API, Python 1.9.39's 39-method configuration surface, the Automate admin contract, and the legacy May Help tree.** The six Python resources and their method inventories are exposed at `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`, `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`, `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`, and `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`. The current July AI Guard for Users tree contains 24 indexed articles, but several newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Automate documents 47 AI Guard operations plus a separate 11-operation AI Security asset/findings API (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). **Confidence remains medium for the current Help operating model and broader AI Security family**: AI Guardrails and AI Red Teaming still have mostly marketing-level coverage, Python lacks eight Automate-documented operations, and other client wrappers remain gaps.
+**Confidence is high for the captured AI Guard runtime API, Python 1.9.39's 39-method configuration surface, the Automate admin contract, and the legacy May Help tree.** The six Python resources and their method inventories are exposed at `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`, `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`, `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`, and `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`. The current July AI Guard for Users tree contains 24 indexed articles, but several newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Automate documents 47 AI Guard operations plus a separate 11-operation AI Security asset/findings API (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). The current Postman snapshot also publishes a 97-request AI Red Teaming surface, but without saved response examples (`vendor/zscaler-api-specs/oneapi-postman-collection.json:139453-143529`). **Confidence remains medium for the current Help operating model and broader AI Security family**: Red Teaming request coverage is now machine-readable, while response schemas, tenant entitlement, live acceptance, and its interlock with AI Guard remain unresolved; Python also lacks eight Automate-documented operations, and other client wrappers remain gaps.
 
 ## The four pillars
 
@@ -73,7 +74,7 @@ From the AI Security product page, Zscaler's framing covers the full enterprise-
 | **Secure AI Apps and Infrastructure** | Automated vulnerability assessment of customer-deployed LLM apps; 25+ prebuilt probes; custom risk scanning; remediation tracking. | **AI Red Teaming** (sub-product). |
 | **AI Governance** | Real-time compliance monitoring, framework alignment, audit reporting. | Spans **AI Guard** (runtime enforcement) + reporting layer. |
 
-The "Secure Access to AI Apps" pillar is where the existing skill already has deep policy coverage. AI Asset Management now has a documented read-only API surface; governance workflow and Red Teaming remain thinner.
+The "Secure Access to AI Apps" pillar is where the existing skill already has deep policy coverage. AI Asset Management has a documented read-only API surface, and AI Red Teaming now has machine-readable request coverage; governance workflows, Red Teaming response behavior, and live operating semantics remain thinner.
 
 ## AI Security asset inventory and findings
 
@@ -173,7 +174,7 @@ These framing differences don't currently establish a separate programmable prod
 
 ## AI Red Teaming
 
-Source: `vendor/zscaler-help/ai-security-marketing.md`.
+Source: `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 Separate sub-product. **Automated vulnerability assessment for customer-deployed LLM applications**:
 
@@ -183,7 +184,23 @@ Separate sub-product. **Automated vulnerability assessment for customer-deployed
 
 Positioned for development teams hardening their own LLM apps. **Distinct from AI Guard**: AI Guard is runtime enforcement; AI Red Teaming is offline / scheduled testing. Use both in tandem if you build LLM apps.
 
-No deeper material captured. Treat as awareness-only within the deep-dive — recommend Zscaler docs / TAM for adoption.
+The current OneAPI Postman snapshot materially deepens the programmable
+boundary. It publishes **97 request definitions across 14 families** under
+`{{AIRedTeamingBaseUrl}}/api/v2`: AI apps, 17 provider-integration tests,
+business units, file and dataset uploads, model benchmarks, probes and probe
+settings/runs, remediation and policy generation, reports, scheduled tests,
+test-case results, test runs, and trigger operations
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:139456-143527`). The
+collection variable resolves the base to
+`{{oneAPIBaseUrl}}/aisecurity/airt`
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:144273-144274`).
+
+Treat this as **request-surface coverage, not a complete operational API
+contract**. The 97 entries include 49 POST, 37 GET, 7 PUT, 3 DELETE, and 1 PATCH
+request, but all have empty saved-response arrays. The snapshot therefore does
+not establish response schemas, tenant entitlement, authentication scopes,
+live endpoint acceptance, or whether remediation/policy-generation output can
+be applied to AI Guard automatically.
 
 ## Where AI Security fits relative to existing skill content
 

@@ -7,7 +7,7 @@ last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 confidence: medium
-source-tier: code
+source-tier: mixed
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zeasm/findings.py"
   - "vendor/zscaler-sdk-python/zscaler/zeasm/lookalike_domains.py"
@@ -23,18 +23,29 @@ sources:
   - "vendor/zscaler-mcp-server/docsrc/tools/easm/index.rst"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
 
 # External Attack Surface Management (ZEASM) — SDK surface, org scoping, and resources
 
-> Sourced from the Zscaler Python SDK `zeasm` package and the MCP-server EASM tool layer. Every claim carries an inline `vendor/...:NN` citation to the exact line that states it. Where the SDK only declares an attribute name without a description, that gap is recorded under [Open questions](#open-questions) rather than promoted to fact.
+> Sourced from the Zscaler Python SDK `zeasm` package, the MCP-server EASM tool
+> layer, and the vendor OneAPI Postman collection. Every claim carries an inline
+> `vendor/...:NN` citation. Postman examples are identified as examples rather
+> than promoted to a complete SDK model or a promise of server behavior.
 
 ## What it is
 
 The Python SDK `zeasm` service tracks findings "identified and tracked for an organization's internet-facing assets scanned by EASM" (`vendor/zscaler-sdk-python/zscaler/zeasm/findings.py:28-31`, `:41-42`). The MCP-server EASM tooling expands the product name as **External Attack Surface Management** (`vendor/zscaler-mcp-server/docsrc/tools/easm/index.rst:1`); the SDK itself uses the code name **ZEASM** throughout and does not spell out the acronym.
 
 The service exposes exactly three sub-resources — `organizations`, `findings`, and `lookalike_domains` — wired via the `ZEASMService` property accessors (`vendor/zscaler-sdk-python/zscaler/zeasm/zeasm_service.py:29-51`).
+
+That statement is scoped to the Python SDK. The newer OneAPI Postman collection
+also documents four GET-only asset inventory and asset-detail operations that
+are not present as a fourth `ZEASMService` accessor
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:136239-136270`,
+`:136412-136443`, `:136585-136616`, `:136757-136775`;
+`vendor/zscaler-sdk-python/zscaler/zeasm/zeasm_service.py:29-51`).
 
 ### Python SDK and MCP surface
 
@@ -62,6 +73,66 @@ Both the SDK and current MCP tool call it the EASM Admin Portal (`vendor/zscaler
 ### Organizations collection
 
 The SDK organizations collection carries `next_page`, `prev_page`, `results`, and `total_results` (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:39-42`) — it is the only ZEASM collection in source that models page cursors (see [Open questions](#open-questions)). The `results` list holds `CommonIDName` items, which currently carry **only `id` and `name`** (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:41`; `vendor/zscaler-sdk-python/zscaler/zeasm/models/common.py:37-38`). MCP v0.14.0 unwraps the collection's `results` wrapper and returns one full SDK-modeled item dictionary per organization (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/organizations.py:38-60`). The passthrough contract preserves every field carried by the SDK item, but it is not raw HTTP and does not promise fields beyond the current SDK model (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). The current organization rows may therefore still contain only `id` and `name`. Bundled MCP documentation still describes the old `results` / `total_results` wrapper, which contradicts the current implementation (`vendor/zscaler-mcp-server/docsrc/tools/easm/index.rst:49-63`). No scan-date or asset-count fields exist on the current SDK organization item model.
+
+### Asset inventory in the OneAPI Postman collection
+
+The current Postman collection adds four organization-scoped asset read
+operations that are newly in scope for this reference:
+
+| Operation | Method | Canonical path | Citation |
+|---|---|---|---|
+| List assets | GET | `/organizations/{orgId}/assets` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:136757-136775` |
+| List certificates for an asset | GET | `/organizations/{orgId}/assets/{assetId}/certificates` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:136239-136270` |
+| List services for an asset | GET | `/organizations/{orgId}/assets/{assetId}/services` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:136412-136443` |
+| List technologies for an asset | GET | `/organizations/{orgId}/assets/{assetId}/technologies` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:136585-136616` |
+
+The list-assets request documents a default page size of 100 and a maximum of
+1,000. It exposes `offset`, `sort`, `search`, `riskLevel`, `status`, `country`,
+`state`, `type`, `lastSeen`, `firstSeen`, and `certificateExpiration` query
+parameters (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136776-136835`).
+
+### Current Postman raw-URL defects
+
+Three EASM GET requests in the current official Postman snapshot have malformed
+raw URL templates. Do not copy these strings verbatim:
+
+- **List assets** appends an extra `}}` to `{{EASMBaseUrl}}` in both `raw` and
+  `host`; its structured path array still records `organizations`, `:orgId`,
+  and `assets` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136765-136775`).
+- **Get lookalike-domain details** appends an extra `}` to the base variable in
+  both `raw` and `host`; its structured path array records the canonical
+  organization-scoped detail path
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:138630-138650`).
+- **List lookalike domains** omits the slash after `{{EASMBaseUrl}}` and folds
+  `organizations` into `host`, leaving it out of the structured path array
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:138885-138904`).
+
+The Python SDK independently constructs the canonical lookalike paths as
+`/organizations/{org_id}/lookalike-domains` and
+`/organizations/{org_id}/lookalike-domains/{lookalike_raw}/details`
+(`vendor/zscaler-sdk-python/zscaler/zeasm/lookalike_domains.py:73-76`,
+`:123-127`). For list assets, use the canonical path in the table above, which
+follows the request's structured path array; the current Python SDK has no
+asset client that independently corroborates it.
+
+The collection's HTTP 200 examples show, but do not define an exhaustive
+contract for, these child-record fields:
+
+- Certificates: expiry, first/last-seen and issued timestamps, stale status,
+  subject common name, and subject key identifier
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136312-136322`).
+- Services: creation/update timestamps, IP, port, and protocol
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136485-136495`).
+- Technologies: creation/update timestamps, IP, name, version, and CVE strings
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:136658-136668`).
+
+These four paths are Postman-documented raw REST coverage. The current Python
+SDK and MCP EASM resource inventories still expose organizations, findings, and
+lookalike domains rather than an asset client/toolset
+(`vendor/zscaler-sdk-python/zscaler/zeasm/zeasm_service.py:29-51`;
+`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:419-431`). Absence of
+an SDK or MCP wrapper is a client-coverage gap, not evidence that the REST paths
+are unavailable.
 
 ### Findings and lookalike domains
 
@@ -93,5 +164,6 @@ The SDK response objects support client-side filtering and projection via `resp.
 
 - Findings field table and drill-down: [`findings.md`](findings.md)
 - Lookalike-domain model and raw-domain key: [`lookalike-domains.md`](lookalike-domains.md)
+- Postman-documented asset inventory and child detail endpoints: [Asset inventory in the OneAPI Postman collection](#asset-inventory-in-the-oneapi-postman-collection)
 - AEM (asset exposure, SecOps platform): [`../aem/overview.md`](../aem/overview.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

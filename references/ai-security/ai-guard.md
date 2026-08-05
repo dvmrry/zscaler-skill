@@ -7,7 +7,7 @@ last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
@@ -22,6 +22,8 @@ sources:
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
   - "vendor/zscaler-help/ai-guard-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-users-dashboard.md"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
   - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
@@ -71,7 +73,7 @@ author-status: draft
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
 
-The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with Python SDK 1.9.39's OneAPI configuration and separately routed legacy policy-detection surfaces (`vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current 2026-07-20 portal has moved to a 24-article **AI Guard for Users** tree; its index and release chronology are captured, but newly listed article bodies are not yet fully mined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Treat current Help coverage as indexed and partial rather than fully certified.
+The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with Python SDK 1.9.39's OneAPI configuration and separately routed legacy policy-detection surfaces (`vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current portal separates its dashboard documentation into **AI Guard for Users** and **Apps & Infrastructure** surfaces (`vendor/zscaler-help/ai-guard-users-dashboard.md:8-16`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:8-16`); both dashboard bodies are captured. The broader 24-article AI Guard for Users tree remains only partially mined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Treat current Help coverage as indexed and partial rather than fully certified.
 
 This certification does not assert private roadmap features, tenant-specific entitlements, commercial packaging, unpublished admin APIs, or portal behavior not present in the captured public sources. Those remain explicit open questions rather than hidden assumptions.
 
@@ -196,17 +198,24 @@ AI Guard RBAC supports custom roles for system users managed through ZIdentity o
 
 ## Observability
 
-Source: `vendor/zscaler-help/ai-guard-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`.
+Source: `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md`; `vendor/zscaler-help/ai-guard-users-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`.
 
 | Surface | Description |
 |---|---|
-| Dashboard | Operational transaction view across users or AI applications. Shows app/LLM/detection/transaction counts, per-transaction policy name, severity, prompt/response detections, LLM, and prompt/response action. Date range is capped at up to 90 days. |
+| Dashboard — Users | The **Users** tab reports user, LLM, policy-detection, and transaction counts. Rows expose date/time, user, policy name, severity, prompt/response detections, LLM, and prompt/response actions; the article documents date ranges of up to 90 days (`vendor/zscaler-help/ai-guard-users-dashboard.md:11-28`). |
+| Dashboard — Apps & Infrastructure | The **AI Applications** tab reports application, LLM, policy-detection, and transaction counts. It can show individual transactions or connected multi-prompt conversation threads; conversation-thread viewing is documented as exclusive to DAS/API mode and absent from Proxy mode (`vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:11-35`). |
 | Insights | Executive overview of prompts, responses, active apps/LLMs, blocked counts, token counts, detection latency, trends over time, security posture, transactions by LLM/application, top detectors, and PII detections/categories. |
 | Usage | Usage view by AI application or user, including prompt/response content size, prompt tokens, and response tokens. |
 | Log Exports | Third-party export configuration for incident/event data. Captured destinations include ADX Event Hub, CrowdStrike HEC plus S3 content storage, AWS S3 metadata/content buckets, and Splunk HEC metadata/content endpoints. |
 | System Users | View users in AI Guard's user registry |
 
-Dashboard transaction details include Overview, Detection Summary, Performance & Network Stats, Custom Request Headers, and Prompt Details. This means AI Guard can support investigations where the key question is "which detector fired, on which app/user, with what prompt/response action, and with what latency?"
+Both current dashboard articles organize transaction details into Overview,
+Detection Summary, Performance & Network Stats, Custom Request Headers, and
+Prompt Details (`vendor/zscaler-help/ai-guard-users-dashboard.md:23-28`;
+`vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:32-35`). The
+current Users article does not document the multi-prompt Conversations view;
+that absence does not establish whether conversation threads are available or
+unavailable for user transactions (`vendor/zscaler-help/ai-guard-users-dashboard.md:30-32`).
 
 Log exports can be configured to export allowed/detected prompts and blocked prompts. Some destinations separate metadata and content streams or buckets, which matters for sensitive-content handling and SIEM ingestion design.
 

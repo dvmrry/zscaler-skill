@@ -14,14 +14,18 @@ sources:
   - "vendor/zscaler-help/cbc-about-cloud-connector-groups.md"
   - "vendor/zscaler-help/cbc-understanding-azure-vmss-deployments.md"
   - "vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.md"
+  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
+  - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
   - "vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/admin_users.py"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/decorator.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py"
   - "vendor/zscaler-mcp-server/docs/guides/toolsets.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
 author-status: draft
 ---
 
@@ -60,7 +64,7 @@ An OS-level CVE requires a re-deploy cycle, not just waiting for the next Sunday
 - Upgrades within a group are **staggered to prevent service impact** — the source states the stagger but does not quantify how many members are down at once or name a minimum healthy-member precondition (`cbc-managing-cloud-branch-connector-upgrades.md:21`). See the redundancy gotcha below for why a 2-CC group is still exposed during the window.
 - Failed upgrades retry at the next weekly window; they don't block the rest of the group.
 
-Per-VM upgrade state is **read** from the ZTW EC-group API, not surfaced as a single Admin Console "status" field. `GET /ecgroup/{id}/vm/{vmId}` returns each VM's `buildVersion`, `lastUpgradeTime`, `upgradeStatus`, `upgradeStartTime`, `upgradeEndTime`, and `upgradeDayOfWeek` (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:111-116`; `vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:48-53`). Note `upgradeStatus` is an integer enum in the model (`common.go:113` types it `int`), not a "Scheduled / Success / Failure" string label — alongside it the VM exposes `operationalStatus` (string) and `status` (string list) (`common.go:104-105`; `ec_group_vm.py:41-42`). See [API / SDK observability](#api-sdk-observability) below for how to read this programmatically.
+Per-VM upgrade state is **read** from the ZTW EC-group API, not surfaced as a single Admin Console "status" field. `GET /ecgroup/{id}/vm/{vmId}` returns each VM's `buildVersion`, `lastUpgradeTime`, `upgradeStatus`, `upgradeStartTime`, `upgradeEndTime`, and `upgradeDayOfWeek` (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:111-116`; `vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:48-53`). Note `upgradeStatus` is an integer enum in the model (`common.go:113` types it `int`), not a "Scheduled / Success / Failure" string label — alongside it the VM exposes `operationalStatus` (string) and `status` (string list) (`common.go:104-105`; `ec_group_vm.py:41-42`). See [API / SDK control boundary](#api-sdk-control-boundary) below for how to read and control this programmatically.
 
 > **Gotcha:** a group with exactly 2 CCs has no redundancy margin during the upgrade of the first CC. Zscaler's documented production minimum is 2 CCs per AZ across 2 AZs (4 total). A 2-CC group passes the weekly window with zero redundancy for the duration of one CC's restart.
 
@@ -70,9 +74,9 @@ CC Groups live at **Infrastructure > Connectors > Cloud > Management > Cloud Con
 
 The product surfaces the schedule at group scope. In the SDK the read field lives on the per-VM model: `upgradeDayOfWeek` is a field of `ECGroupVM` (Python) / `ECVMs` (Go) — the per-VM record returned by `GET /ecgroup/{id}/vm/{vmId}` (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:116`). That same per-VM record also carries the VM's `id`, `name`, `natIp`, and `buildVersion` (Python `:39`, `:40`, `:45`, `:48`; Go `:102`, `:103`, `:108`, `:111`). Because the schedule is group-scoped in the product, all VMs in a group share the same day. Shift groups away from the Sunday midnight default to avoid overlap with tenant maintenance blackouts.
 
-### API / SDK observability
+### API / SDK control boundary
 
-The weekly upgrade window is **observable but not triggerable** through the ZTW EC-group API. Every method in the EC-group service is a read except one delete — there is no create, update, or upgrade-trigger:
+The current Python/Go EC-group clients expose reads plus deletion (`vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py:39-304`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go:36-88`), but that is no longer the boundary of the raw CBC API. Current Help and Automate captures expose schedule, release-channel, and VM-status writes in addition to upgrade observability.
 
 | Operation | Endpoint | SDK method |
 |---|---|---|
@@ -82,8 +86,13 @@ The weekly upgrade window is **observable but not triggerable** through the ZTW 
 | Get one EC group | `GET /ecgroup/{id}` | `get_ec_group` (`ec_groups.py:97`) |
 | Get one VM in a group | `GET /ecgroup/{id}/vm/{vmId}` | `get_ec_group_vm` (`ec_groups.py:263`) |
 | Delete one VM in a group | `DELETE /ecgroup/{id}/vm/{vmId}` | `delete_ec_group_vm` (`ec_groups.py:304`) |
+| Update upgrade schedule | `PUT /ecgroup/scheduleupgrade` | Raw Automate API; request includes `dayOfWeek`, `startTime`, and `endTime` (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:175246-175314`) |
+| Select release channel | `PUT /ecgroup/releaseChannel` | Bulk group/VM IDs; `STABLE`, `LATEST`, or `BETA` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:12-20`) |
+| Enable/disable VMs in bulk | `PUT /ecgroup/vmStatus` | Bulk group/VM IDs; `ENABLE` or `DISABLE` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:21-31`) |
+| Enable/disable one VM | `PUT /ecgroup/{ecgroupId}/vm/{vmId}/{status}` | Raw Automate API (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:158164-158192`) |
+| Read aggregate metrics | `GET /ecgroup/vmUpgradeMetrics` | Release-channel and scheduled-upgrade metrics with platform/channel/status filters (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:33-48`) |
 
-Endpoints confirmed in `vendor/zscaler-api-specs/oneapi-postman-collection.json` (`/ecgroup`, `/ecgroup/lite`, `/ecgroup/{id}`, `/ecgroup/{id}/vm/{vmId}`, and `/ecInstance/lite`); SDK methods in `vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py`. There is **no create, update, or upgrade-trigger method** in the EC-group service — which independently confirms that operators cannot initiate an individual CC's upgrade via API; they can only read its state and (destructively) delete the VM so the scale set or group re-provisions it.
+The raw API can therefore change upgrade timing, release channel, and VM enabled state. The scoped group OpenAPI still exposes no immediate per-VM **upgrade now** operation (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:50-52`). Do not mistake an SDK coverage gap for a read-only product API, and do not mistake `scheduleupgrade` for an immediate upgrade trigger.
 
 To confirm or monitor the window programmatically, read `GET /ecgroup/{id}/vm/{vmId}` and inspect `buildVersion`, `lastUpgradeTime`, `upgradeStatus`, `upgradeStartTime`, `upgradeEndTime`, `upgradeDayOfWeek` (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:48-53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:111-116`).
 
@@ -174,7 +183,7 @@ Rationale:
 
 ### Change management
 
-- Upgrade windows are Zscaler-triggered; operators configure the schedule but don't initiate individual upgrades. Brief weekend on-call on per-group window times.
+- Operators can configure the schedule and release channel and can enable or disable selected VMs through the raw API, but the captured group API provides no immediate per-VM upgrade-now action (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:12-52`).
 - zsroot rotation is operator-initiated — track it as a change record (CC hostname, date, operator). zsroot qualifies for privileged-credential audit scope; include it in the credential inventory.
 
 ---

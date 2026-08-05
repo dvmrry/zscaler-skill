@@ -14,6 +14,7 @@ sources:
   - "vendor/zscaler-help/understanding-step-up-authentication.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
+  - "vendor/terraform-provider-zpa/docs/index.md"
 author-status: draft
 ---
 
@@ -188,7 +189,20 @@ Source: token URL — Python `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_cli
 
 The vanity domain is **not** part of the API gateway host. Setting `ZSCALER_VANITY_DOMAIN` to a full `<tenant>.zsapi.net` host (or to anything other than the bare subdomain label) is the most common OneAPI setup error.
 
-Government-cloud OneAPI support is now client/version-specific rather than a blanket "unsupported" rule. The vendored Go and Python SDKs model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, using `zidentitygov.net` / `zidentitygov.us` identity providers and `api.zscalergov.net` / `api.zscalergov.us` API gateways (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`). ZIA Terraform v4.7.25+ documents the same `gov` / `govus` path, while ZPA Terraform `GOV` / `GOVUS` remains legacy-only (`vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`).
+Government-cloud OneAPI support is client/version-specific rather than a
+blanket "unsupported" rule. The vendored Go and Python SDKs model FedRAMP
+OneAPI routing for `cloud=gov` / `cloud=govus`, using `zidentitygov.net` /
+`zidentitygov.us` identity providers and `api.zscalergov.net` /
+`api.zscalergov.us` API gateways
+(`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`;
+`vendor/zscaler-sdk-python/zscaler/constants.py:17-28`). ZIA Terraform v4.7.25+
+and ZPA Terraform v4.4.6+ document the same lowercase OneAPI values
+(`vendor/terraform-provider-zia/docs/index.md:140-149`;
+`vendor/terraform-provider-zpa/docs/index.md:118-133`). ZPA's uppercase `GOV` /
+`GOVUS` values remain part of its legacy-client configuration
+(`vendor/terraform-provider-zpa/docs/index.md:214-218`). These client/provider
+routing paths do not by themselves prove entitlement or ZIdentity API-client
+configuration for every government tenant.
 
 ---
 

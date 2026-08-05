@@ -13,6 +13,8 @@ sources:
   - "vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md"
   - "https://help.zscaler.com/cloud-branch-connector/about-cloud-connector-groups"
   - "vendor/zscaler-help/cbc-about-cloud-connector-groups.md"
+  - "https://help.zscaler.com/cloud-branch-connector/about-google-cloud-platform-zero-trust-gateways"
+  - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
 author-status: draft
 ---
 
@@ -48,12 +50,7 @@ A group is the unit of:
 - **Upgrade orchestration** — "Schedule Upgrade" applies at the group level; upgrades ripple through member VMs in a way that maintains redundancy (not all at once).
 - **Autoscaling scope** — an autoscaling group (ASG / VMSS / MIG) is one Cloud Connector Group.
 
-**Group types** (per the admin console dropdown):
-
-- **Cloud Connector** — traditional Cloud Connector deployment model.
-- **Zero Trust Gateway (ZTG)** — a newer deployment model variant.
-
-Difference between these two is not fully documented in the captured material; flagged for future clarification.
+**Deployment types must not be collapsed into naming aliases.** Standard Cloud Connector is the customer-deployed VM model described throughout this document. GCP Zero Trust Gateway is a Zscaler cloud-native service that secures workload traffic without customer-managed security infrastructure; it is currently Limited Availability and Support-enabled (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). See [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md) for its separate creation and operating contract.
 
 **Cloud Connector states** (per-VM):
 
@@ -190,7 +187,7 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md
 
 - **Existing sessions fail during failover.** The ~30-second failover time applies to new-session routing; existing sessions that were on the failed Cloud Connector or gateway may time out and require retry. Applications with long-lived connections (databases, streaming) see impact.
 - **Health check customization requires Support.** Default intervals (15s Azure, 30s AWS) are "optimized." Changing them requires Zscaler Support engagement.
-- **Zero Trust Gateway vs Cloud Connector group types** — the difference isn't captured in help articles we've pulled. Both appear in the admin console Group Type dropdown. Likely an architectural evolution (newer = ZTG). Flag for future documentation.
+- **GCP Zero Trust Gateway is not a renamed Cloud Connector VM.** GCP ZTG is Zscaler-managed and cloud-native, while the Cloud Connector path in this document is customer-deployed (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). Do not reuse Cloud Connector VM lifecycle or ownership assumptions for GCP ZTG.
 - **Disabled Cloud Connector vs deleted**: disabling stops traffic processing but keeps the VM in inventory and the VM running. Useful for staged rollouts or incident response without deprovisioning.
 - **Tertiary gateway is automatic, not user-configured.** A tenant that wants full control over failover sequencing has only primary/secondary configurable; tertiary is Zscaler's safety net.
 - **Horizontal scale is N+1-style redundancy**. Adding more Cloud Connectors to a group increases throughput; they're all active. Remove one and throughput drops accordingly — no spare capacity unless over-provisioned.
@@ -198,7 +195,7 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md
 
 ## Open questions
 
-- **Exact ZTG vs Cloud Connector group type semantics** — not documented in captured articles. Likely a naming evolution; lab-test or documentation search needed. See [clarification `cloud-connector-07`](../_meta/clarifications.md#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics).
+- **AWS ZTG parity with the documented GCP service boundary** — GCP Help now distinguishes the Zscaler-managed gateway from a customer-deployed Cloud Connector VM (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`), but this capture does not establish that every AWS ZTG deployment has identical ownership, IAM, or interception semantics.
 - **Whether Cloud Connector's `?cchealth` probe port is configurable** — the help article implies "configured during deployment" but doesn't specify range (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:30`). Filed with the other HA mechanics as [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
 - **Fail-open + fail-close toggle location** — help article mentions "customers can change this configuration" but doesn't name the admin-portal path (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). See [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
 - **What the fail-open egress path actually is** — the source says fail-open lets "workloads that are accessing the internet to continue doing so" and that "the egressing traffic is flowing through Zscaler for inspection and policy control" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). These two clauses are hard to reconcile: if no Cloud Connector in the group can reach a Service Edge (the precondition for fail-open to matter), it's unclear how that same traffic would still flow "through Zscaler for inspection." Whether fail-open routes direct-to-internet (no inspection) or via some retained/degraded Zscaler path is not resolved by the captured text; needs a lab test or a clearer source. Do not document either reading as fact. See [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
@@ -206,6 +203,7 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md
 ## Cross-links
 
 - Traffic forwarding — [`./forwarding.md`](./forwarding.md)
+- GCP Zero Trust Gateway managed-service boundary — [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md)
 - API / SDK / TF surface — [`./api.md`](./api.md)
 - ZPA App Connector (the other outbound-only Zscaler VM) — [`../zpa/app-segments.md`](../zpa/app-segments.md) (app connectors referenced in segment config)
 - ZCC forwarding profile (the endpoint-side equivalent) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)

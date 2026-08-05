@@ -196,7 +196,6 @@ provider "zpa" {
   client_id      = var.client_id
   client_secret  = var.client_secret
   vanity_domain  = "acme"
-  zscaler_cloud  = "zscalerthree"
   customer_id    = var.customer_id
 }
 ```
@@ -213,12 +212,24 @@ The provider supports two mutually exclusive auth frameworks. The framework is s
 | `client_secret` | `ZSCALER_CLIENT_SECRET` | Sensitive; use env var or secret store |
 | `private_key` | `ZSCALER_PRIVATE_KEY` | Alternative to `client_secret` |
 | `vanity_domain` | `ZSCALER_VANITY_DOMAIN` | Customer-specific vanity subdomain |
-| `zscaler_cloud` | `ZSCALER_CLOUD` | Cloud name (e.g., `zscalerthree`) |
+| `zscaler_cloud` | `ZSCALER_CLOUD` | Optional for production commercial clouds; use `gov` or `govus` for FedRAMP OneAPI |
 | `customer_id` | `ZPA_CUSTOMER_ID` | ZPA customer ID (tenant-level) |
+
+FedRAMP OneAPI requires ZPA provider v4.4.6 or later and
+`zscaler_cloud = "gov"` or `"govus"` (equivalently,
+`ZSCALER_CLOUD=gov|govus`). The provider documents these environments as
+dedicated ZIdentity and API-gateway paths
+(`vendor/terraform-provider-zpa/docs/index.md:100-105,118-133`). Provider
+routing support does not by itself prove that a particular government tenant
+is entitled or has a ZIdentity API client configured.
 
 **Legacy (ZPA-native credentials)**
 
-Add `use_legacy_client = true` to the provider block. Required for GOV and GOVUS clouds, which do not support OneAPI.
+Add `use_legacy_client = true` to the provider block for pre-ZIdentity tenants.
+For FedRAMP government clouds, also use the legacy path when the provider is
+older than v4.4.6; commercial OneAPI support dates to v4.0.0. The legacy client
+continues to use the uppercase `GOV` / `GOVUS` `zpa_cloud` values
+(`vendor/terraform-provider-zpa/docs/index.md:30-34,110-127,178-182,214-218`).
 
 | Attribute | Env var |
 |---|---|

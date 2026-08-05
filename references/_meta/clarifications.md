@@ -96,18 +96,10 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-07-20:
-21 entries are resolved or clarified, 28 are partially resolved, and the current
-refresh queue has expanded the open register with `zia-50`–`zia-70`,
-`zpa-21`–`zpa-81`, `zcc-77`–`zcc-101`, `zdx-03`–`zdx-44`,
-`zid-01`–`zid-36`, `cloud-connector-01`–`cloud-connector-26`,
-`ai-security-01`–`ai-security-04`, `ai-security-06`–`ai-security-07`, `zbi-01`–`zbi-06`,
-`zwa-01`–`zwa-05`, Tier-C insights entries `business-insights-01`,
-`soc-workbench-01`, and `unified-01`, Tier-C risk entries
-`risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, and
-`dspm-01`, and Tier-C misc entries `aem-01`, `deception-01`,
-`identity-protection-01`, `zero-trust-branch-01`–`zero-trust-branch-02`, and
-`zscaler-cellular-02`–`zscaler-cellular-04`.
+Skim this before reading the full entries. Summary refreshed 2026-08-04:
+24 entries are resolved or clarified, 33 are partially resolved, and 405 are open.
+The three exact memberships below are checked against every detailed entry's
+explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
@@ -146,6 +138,12 @@ Zscaler Cloud & Branch Connector; neither surface is the separate ZTB API. It
 also opened `zscaler-cellular-02`–`zscaler-cellular-04` for the new ZCell MCP
 violation-response shape, SIM-pagination routing, and audit-request contract.
 
+The 2026-08-04 Help and client-source refresh resolved `cloud-connector-07`,
+narrowed `cloud-connector-18`, `cloud-connector-22`, `zia-68`, and `zpa-49`,
+and opened `cloud-connector-27`, `cloud-connector-28`, `zia-71`, and `zpa-82`.
+The remaining questions are bounded to the specific source conflicts and live
+API semantics recorded below.
+
 ### Resolved
 
 | ID | Title |
@@ -169,6 +167,11 @@ violation-response shape, SIM-pagination routing, and audit-request contract.
 | [`shared-05`](#shared-05-snapshot-format) | Raw JSON per resource; no paraphrasing |
 | [`zpa-07`](#zpa-07-deception-policy-order-interaction) | Deception = separate Zscaler product; rules must fire before normal access rules to intercept attacker traffic to decoys |
 | [`zpa-15`](#zpa-15-machine-groups-file-path-correction) | Machine groups misclassified as ZIA in coverage audit — file moved to `references/zpa/machine-groups.md` |
+| [`zcc-12`](#zcc-12-requestexecutor-zcc-rate-limit-retry-behavior) | `RequestExecutor` backs off on the ZCC-specific rate-limit header |
+| [`zpa-21`](#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope) | Current Postman response examples establish the observed ten-value PRA application-protocol set |
+| [`zpa-48`](#zpa-48-pse-provisioning-key-apiterraform-support) | PSE provisioning keys are supported through the generic Terraform resource |
+| [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | GCP ZTG is a Zscaler-managed service; standard GCP Cloud Connector is a customer-deployed VM path |
+| [`zcc-86`](#zcc-86-get_web_privacy-returns-none-on-error) | Python `get_web_privacy` returns `None` on request, execution, or response-parse failure |
 
 ### Partially resolved
 
@@ -180,10 +183,26 @@ violation-response shape, SIM-pagination routing, and audit-request contract.
 | [`zia-11`](#zia-11-transparent-vs-explicit-forwarding-mixed-mode) | Transparent vs explicit forwarding mixed mode | Silent per-session drift for tenants not gating rules by Device/Location Group |
 | [`log-01`](#log-01-nss-feed-format-versions) | NSS feed format versions | Exact field-presence differences between CSV/JSON/TSV output templates |
 | [`log-02`](#log-02-cloud-nss-vs-legacy-nss-divergence) | Cloud NSS vs legacy NSS divergence | Both source from the same Nanolog — field content parity expected; branching most likely needed for format (Cloud NSS recommends JSON) and per-instance feed-count limits, not field presence |
+| [`log-04`](#log-04-mpatp-blocked-policy-type-log-field) | MP/ATP blocked-policy-type log field | Full `ruletype` and `reason` enums still require tenant evidence |
+| [`zcc-01`](#zcc-01-forwardingprofile-condition_type-enum) | ForwardingProfile `condition_type` enum | Integer datatype known; semantic mapping remains open |
+| [`zcc-02`](#zcc-02-forwardingprofile-actions-network_type-enum) | ForwardingProfile actions `network_type` enum | Integer datatype known; semantic mapping remains open |
+| [`zcc-03`](#zcc-03-forwardingprofile-action_type-enum) | ForwardingProfile `action_type` enum | Integer datatype known; semantic mapping remains open |
+| [`zcc-04`](#zcc-04-forwardingprofile-primary_transport-enum) | ForwardingProfile `primary_transport` enum | Integer datatype known; semantic mapping remains open |
+| [`zcc-05`](#zcc-05-systemproxydata-vs-native-forwarding-action-precedence) | `systemProxyData` vs native forwarding action precedence | Cross-surface precedence still requires a lab test or public documentation |
+| [`zcc-06`](#zcc-06-trustednetwork-condition_type-enum) | TrustedNetwork `condition_type` enum | Integer datatype known; semantic mapping remains open |
+| [`zcc-07`](#zcc-07-forwarding-profile-assignment-to-usersdevices) | Forwarding-profile assignment to users/devices | WebPolicy is the known assignment surface; sole-surface completeness needs tenant confirmation |
+| [`shared-17`](#shared-17-public-service-edge-selection-algorithm) | Public Service Edge selection algorithm | Selection-signal weighting, failover timing, and DC-exclusion mechanics remain open |
+| [`shared-18`](#shared-18-end-to-end-authentication-timeline-across-the-request-chain) | End-to-end authentication timeline across the request chain | Auth-source precedence, surrogate-IP clock anchoring, and trusted-network transitions remain open |
+| [`shared-19`](#shared-19-modern-http-response-side-re-evaluation-http2-websocket-http3-streaming-rpc) | Modern HTTP response-side re-evaluation | Per-stream and non-DLP inspection semantics for modern protocols remain open |
 | [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity | Contract now supplies the category-level `actions` vocabulary; no read path exposes per-app validity |
 | [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app quirk | Contract narrows the action vocabulary; whole-create rejection and representative-app behavior remain MCP-observation/lab-test questions |
 | [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | Contract now supplies the static `fileTypes` vocabulary; field dependencies, protocol acceptance, and FTP per-site scope remain open |
+| [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform URL-category, sandbox, and static-IP questions | `/staticIP` guidance is now documented by the provider; URL-category EA eligibility, sandbox v1/v2 mapping, and primary rate-limit confirmation remain open |
+| [`zpa-49`](#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses) | Supported hypervisor / cloud-image formats for ZPA PSEs | RHEL 9 on AWS/GCP/Azure, Docker, Nutanix AHV, and VMware are confirmed; Hyper-V/KVM, exact formats, and distribution paths remain open |
+| [`zpa-41`](#zpa-41-format-only-log-type-codes-acceptance-on-a-receivers-sourcelogtype) | Format-only log-type-code acceptance | `zpn_pbroker_comprehensive_stats` is resolved; seven remaining codes still need live acceptance tests |
 | [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | Automate contract now gives an independent contract enum and records Terraform disagreement; runtime semantics and backend acceptance remain open |
+| [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API paths, cloud discovery, and Go auth | Admin/role, activation, Azure discovery, and Go OAuth paths are resolved; only a public GCP discovery REST family remains open |
+| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage and deployment boundaries | GCP ZTG regions and standard deployment architecture are documented; standard-CC regions, WDS/ZTG parity, sovereign clouds, VM-size regionality, and Azure Flex gaps remain open |
 | [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | Reconciler confirms Automate currently exposes only older v1 `webTrustedNetwork` while Terraform uses Go SDK v2 trusted networks; supersession/migration remains open |
 | [`zdx-35`](#zdx-35-share_snapshot-obfuscation-transmission) | `share_snapshot` obfuscation transmission | Automate contract now confirms `obfuscation` is a request-body field; Python wrapper transmission remains open |
 | [`ai-security-04`](#ai-security-04-ai-guard-admin-plane-programmability) | AI Guard admin-plane programmability | Automate contract now exposes the admin-plane API; captured client wrappers remain absent |
@@ -194,7 +213,33 @@ violation-response shape, SIM-pagination routing, and audit-request contract.
 
 ### Open
 
-`zia-02`, `zia-12`, `zia-14`, `zia-15`, `zia-16`–`zia-70`, `zpa-01`, `zpa-04`, `zpa-09`, `zpa-10`, `zpa-11`–`zpa-14`, `zpa-16`–`zpa-81`, `log-03`, `log-05`–`log-22`, `shared-06`, `shared-07`–`shared-16`, `shared-20`–`shared-37`, `zcc-08`–`zcc-101`, `zdx-01`–`zdx-44`, `zid-01`–`zid-36`, `zms-01`, `easm-01`–`easm-02`, `cloud-connector-01`–`cloud-connector-26`, `ai-security-01`–`ai-security-03`, `ai-security-06`–`ai-security-07`, `zwa-01`–`zwa-05`, `business-insights-01`, `soc-workbench-01`, `unified-01`, `risk360-01`–`risk360-02`, `breach-predictor-01`, `uvm-01`, `dspm-01`, `aem-01`, `deception-01`, `identity-protection-01`, `zero-trust-branch-01`–`zero-trust-branch-02`, `zscaler-cellular-02`–`zscaler-cellular-04`.
+- **zia**: `zia-02`, `zia-12`, `zia-14`–`zia-48`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-58`–`zia-67`, `zia-69`–`zia-71`
+- **log**: `log-03`, `log-05`–`log-22`
+- **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-82`
+- **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-39`
+- **zcc**: `zcc-08`–`zcc-11`, `zcc-13`–`zcc-79`, `zcc-81`–`zcc-85`, `zcc-87`–`zcc-101`
+- **zdx**: `zdx-01`–`zdx-34`, `zdx-36`–`zdx-44`
+- **zms**: `zms-01`
+- **easm**: `easm-01`, `easm-02`
+- **cloud-connector**: `cloud-connector-01`–`cloud-connector-06`, `cloud-connector-08`, `cloud-connector-10`–`cloud-connector-17`, `cloud-connector-19`–`cloud-connector-21`, `cloud-connector-23`–`cloud-connector-28`
+- **zid**: `zid-01`–`zid-36`
+- **ai-security**: `ai-security-01`–`ai-security-03`, `ai-security-06`–`ai-security-09`
+- **risk360**: `risk360-01`, `risk360-02`
+- **breach-predictor**: `breach-predictor-01`
+- **uvm**: `uvm-01`
+- **dspm**: `dspm-01`
+- **zbi**: `zbi-01`, `zbi-05`, `zbi-06`
+- **zwa**: `zwa-01`–`zwa-05`
+- **business-insights**: `business-insights-01`
+- **soc-workbench**: `soc-workbench-01`
+- **unified**: `unified-01`
+- **aem**: `aem-01`
+- **deception**: `deception-01`
+- **identity-protection**: `identity-protection-01`
+- **zero-trust-branch**: `zero-trust-branch-01`, `zero-trust-branch-02`
+- **zscaler-cellular**: `zscaler-cellular-02`–`zscaler-cellular-04`
+
+### Refresh history
 
 The vendor-MCP scrape (2026-06-14) added these open behavior questions — each links to its detailed entry below:
 
@@ -243,9 +288,10 @@ The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions s
 | [`zia-65`](#zia-65-ucaas-one-click-toggle-field-location) | UCaaS One-Click toggle field location | tenant snapshot / zscaler doc not yet read |
 | [`zia-66`](#zia-66-whether-the-255-ssl-inspection-rule-cap-is-raisable) | Whether the 255 SSL Inspection rule cap is raisable | zscaler doc not yet read / support ticket |
 | [`zia-67`](#zia-67-tenant-profile-per-app-wire-mechanic-and-v1v2-protocol-semantics) | Tenant Profile per-app wire mechanic and v1/v2 protocol semantics | zscaler doc not yet read / lab test |
-| [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform `url_categories_predefined` EA gating, sandbox v1/v2 endpoint, static-IP throttle | zscaler doc not yet read / lab test |
+| [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform `url_categories_predefined` EA gating, sandbox v1/v2 endpoint, static-IP throttle | primary API rate-limit table / lab test |
 | [`zia-69`](#zia-69-workload-group-runtime-expression-evaluation-expressionjson-sync-and-tag-type-enum) | Workload-group runtime expression evaluation, `expressionJson` sync, and tag-type enum | lab test / zscaler doc not yet read |
 | [`zia-70`](#zia-70-dlp_web_rules-live-read-returns-undocumented-uctemplateid) | `dlp_web_rules` live read returns undocumented `ucTemplateId` | lab test / zscaler confirmation |
+| [`zia-71`](#zia-71-web-eun-explicit-false-preserve-vs-clear-on-firewall-dns-rule-update) | Web-EUN explicit `false`: preserve vs clear on firewall-DNS update | lab test |
 
 The ZPA reference re-verification pass (2026-06-15) registered the remaining `## Open questions` items from the ZPA docs — each links to its detailed entry below:
 
@@ -278,7 +324,7 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-45`](#zpa-45-machine-tunnel-provisioning-key-mechanism) | Machine-tunnel provisioning key mechanism | zscaler doc not yet read / tenant snapshot |
 | [`zpa-46`](#zpa-46-api-enforcement-of-the-chrome_posture_profile-vs-chrome_enterprise-operand-form-split) | API enforcement of the CHROME_POSTURE_PROFILE vs CHROME_ENTERPRISE operand-form split | lab test |
 | [`zpa-47`](#zpa-47-private-service-edge-vm-sizing-and-per-instance-session-limits) | PSE VM sizing and per-instance session limits | zscaler doc not yet read |
-| [`zpa-49`](#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses) | Supported hypervisor / cloud-image formats for ZPA PSEs | zscaler doc not yet read |
+| [`zpa-49`](#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses) | Supported hypervisor / cloud-image formats for ZPA PSEs | zscaler doc not yet read / Marketplace capture |
 | [`zpa-50`](#zpa-50-zpa-pse-dedicated-hardware-appliance-availability) | ZPA PSE dedicated hardware appliance availability | zscaler doc not yet read / support ticket |
 | [`zpa-51`](#zpa-51-private-cloud-controller-product-positioning) | Private Cloud Controller product positioning | zscaler doc not yet read |
 | [`zpa-52`](#zpa-52-restart_private_controller-operational-semantics) | `restart_private_controller` operational semantics (graceful vs hard) | lab test |
@@ -311,6 +357,7 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-79`](#zpa-79-provisioning-trigger-that-creates-zpa-trusted-network-objects) | Provisioning trigger that creates ZPA Trusted Network objects | zscaler doc not yet read / operator experience |
 | [`zpa-80`](#zpa-80-zcczpa-trusted-network-signal-at-session-establishment) | ZCC→ZPA trusted-network signal at session establishment | zscaler doc not yet read / lab test |
 | [`zpa-81`](#zpa-81-pse-routing-off-network-fallback-when-is_public-false) | PSE routing / off-network fallback when `is_public = false` | zscaler doc not yet read / lab test |
+| [`zpa-82`](#zpa-82-pra-approval-identity-when-email-and-application-sets-match-but-time-windows-differ) | PRA approval identity when email/application sets match but time windows differ | API read / lab test |
 
 The ZCC deep-dive refresh (2026-06-15) registered these open behavior questions surfaced in the per-doc **Open questions** sections — each links to its detailed entry below:
 
@@ -444,7 +491,6 @@ The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these op
 | [`cloud-connector-04`](#cloud-connector-04-ipv6-entries-in-ztc_ip_source_groups-vs-a-separate-ipv6-group-object) | IPv6 entries in `ztc_ip_source_groups` vs separate IPv6 group object | lab test / code read |
 | [`cloud-connector-05`](#cloud-connector-05-source_ip_group_exclusion-applicability-to-cloud-branch-connector) | `source_ip_group_exclusion` applicability to CC | lab test |
 | [`cloud-connector-06`](#cloud-connector-06-zia-origin-source-groups-editability-from-ztc-and-lite-payload-shape) | ZIA-origin group editability from ZTC + `/lite` payload shape | lab test / zscaler doc not yet read |
-| [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | ZTG vs Cloud Connector group type semantics | zscaler doc not yet read / lab test |
 | [`cloud-connector-08`](#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path) | HA: `?cchealth` port, fail-open/close toggle path, fail-open egress | lab test / zscaler doc not yet read |
 | [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | lab test / Postman cross-check |
 | [`cloud-connector-10`](#cloud-connector-10-forwarding-rule-count-limit-and-admin-rank-rule-order-interaction) | Forwarding rule-count limit + Admin Rank ↔ Rule Order interaction | support ticket / lab test |
@@ -455,15 +501,17 @@ The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these op
 | [`cloud-connector-15`](#cloud-connector-15-subcloud_primarysecondary-backend-behavior-for-cc-dc-proxies) | `subcloud_primary`/`secondary` backend behavior for CC DC proxies | lab test |
 | [`cloud-connector-16`](#cloud-connector-16-ztc_traffic_forwarding_rule-oneapi-requirement-and-zpa-app-segment-id-equivalence) | `ztc_traffic_forwarding_rule` OneAPI requirement + ZPA segment-ID parity | lab test |
 | [`cloud-connector-17`](#cloud-connector-17-local-local_switch-forwarding-method-real-behavior-or-doc-artifact) | "Local" / `LOCAL_SWITCH` forwarding method — real or doc artifact | lab test / Postman cross-check |
-| [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API gaps: endpoint paths / Azure-GCP discovery / Go ZIdentity auth | code read / lab test |
+| [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API gap: public GCP discovery REST family | vendor API documentation / lab test |
 | [`cloud-connector-19`](#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-govten-exclusion-behavior) | ZTW SDK method-convention anomalies + OneAPI gov/ten exclusion behavior | code read / lab test |
 | [`cloud-connector-20`](#cloud-connector-20-nss-va-for-cbc-feed-coverage-sizing-certs-ha-and-rule-match-semantics) | NSS VA for CBC: feed coverage / sizing / certs / HA / rule-match | zscaler doc not yet read / lab test |
 | [`cloud-connector-21`](#cloud-connector-21-insightstunnel-insights-aggregation-and-byte-count-parity-with-nss-feeds) | Insights/Tunnel-Insights aggregation + byte-count parity with NSS feeds | lab test / zscaler doc not yet read |
-| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: GovCloud / China / GCP deploy / WDS-vs-ZTG parity | zscaler doc not yet read / tenant snapshot / support ticket |
+| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: standard deployment / sovereign clouds / WDS-vs-ZTG parity | tenant snapshot / support ticket / cloud Marketplace checks |
 | [`cloud-connector-23`](#cloud-connector-23-dest_workload_groups_ids-binding-to-local_switch-local) | `dest_workload_groups_ids` binding to `LOCAL_SWITCH` / "Local" | lab test |
 | [`cloud-connector-24`](#cloud-connector-24-field-character-limit-enforcement-on-dns-and-log-and-control-rules) | Field character-limit enforcement on DNS / Log-and-Control rules | lab test / zscaler doc not yet read |
 | [`cloud-connector-25`](#cloud-connector-25-zcloudconnector-default-response-success-schema-semantics) | ZCloudConnector default-response success schema semantics | vendor spec / live response |
 | [`cloud-connector-26`](#cloud-connector-26-ztc_traffic_forwarding_rule-label-support) | `ztc_traffic_forwarding_rule` label support | provider source update / lab test |
+| [`cloud-connector-27`](#cloud-connector-27-eu-central-2-ztg-region-source-conflict) | `eu-central-2` ZTG region source conflict | Help capture / vendor clarification |
+| [`cloud-connector-28`](#cloud-connector-28-gcp-resource-sync-default-cadence-help-vs-terraform-module) | GCP Resource Sync default cadence: Help vs Terraform module | vendor clarification |
 
 ---
 
@@ -2721,7 +2769,7 @@ The maximum number of UDIDs accepted per `/forceRemoveDevices` or `/removeDevice
 
 Whether the `RequestExecutor` (shared OneAPI SDK transport) automatically reads and honors `X-Rate-Limit-Retry-After-Seconds` on the modern ZCC API path, or whether only `LegacyZCCClientHelper` implements the retry behavior. Not confirmed from available SDK source.
 
-**Status**: resolved (2026-06-15) — confirmed YES. `RequestExecutor.get_retry_after()` explicitly reads `X-Rate-Limit-Retry-After-Seconds` (then `X-Rate-Limit-Remaining`) under the inline comment "ZCC Specific Rate Limiting Headers (LegacyZCCClientHelper)" (`vendor/zscaler-sdk-python/zscaler/request_executor.py:907,913–915`); `is_retryable_status()` includes 429 (`request_executor.py:745`); default `maxRetries=2` from `config["client"]["rateLimit"]` (`request_executor.py:82`). The modern OneAPI path therefore backs off on the ZCC header. Documented in `references/zcc/api-rate-limits.md § 5`.
+**Status**: resolved (2026-06-15) — confirmed YES. `RequestExecutor.get_retry_after()` explicitly reads `X-Rate-Limit-Retry-After-Seconds` (then `X-Rate-Limit-Remaining`) under the inline comment "ZCC Specific Rate Limiting Headers (LegacyZCCClientHelper)" (`vendor/zscaler-sdk-python/zscaler/request_executor.py:943-951`); the retry loop invokes that method and sleeps before retrying (`vendor/zscaler-sdk-python/zscaler/request_executor.py:755-766`); `is_retryable_status()` includes 429 (`vendor/zscaler-sdk-python/zscaler/request_executor.py:771-784`); and the default is `maxRetries=2` from `config["client"]["rateLimit"]` (`vendor/zscaler-sdk-python/zscaler/request_executor.py:83-86`). The modern OneAPI path therefore backs off on the ZCC header when the response supplies it. Documented in `references/zcc/api-rate-limits.md § 5`.
 **Resolves with**: code read (inspect `RequestExecutor` in the Python SDK for rate-limit header handling) — done
 
 ---
@@ -3470,10 +3518,21 @@ For Cloud App Control, which individual actions are valid for a given cloud appl
 
 *Origin: `references/zpa/api-postman-schemas.md` § Open questions*
 
-The report claims `DYNAMIC`, `FTP`, `VNC`, and `WEBSOCKET` are present for `PRAApplication.applicationProtocol` and cites `vendor/zscaler-api-specs/oneapi-postman-collection.json:86512`, but that line shows a PRA Console GET response listing only `HTTP` and `SSH` in the two example instances. The full 10-value enum (`AUTO`, `DYNAMIC`, `FTP`, `HTTP`, `HTTPS`, `NONE`, `RDP`, `SSH`, `VNC`, `WEBSOCKET`) likely appears across multiple PRA endpoints in the collection rather than at a single line — whether every value is actually present is unverified at line level.
+The current official Postman snapshot establishes the observed ten-value set
+across two response examples. The body at line 11008 contains `AUTO`, `DYNAMIC`,
+`FTP`, `HTTP`, `HTTPS`, `NONE`, `SSH`, `VNC`, and `WEBSOCKET`; the response at
+line 11744 adds `RDP`
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008,11744`). Together
+they establish `AUTO`, `DYNAMIC`, `FTP`, `HTTP`, `HTTPS`, `NONE`, `RDP`, `SSH`,
+`VNC`, and `WEBSOCKET` as the collection's observed
+`PRAApplication.applicationProtocol` values. This closes the citation-scope
+question without claiming that illustrative response bodies are a formal or
+future-exhaustive server enum.
 
-**Status**: open
-**Resolves with**: code read (grep the full Postman collection for each enum value to confirm completeness)
+**Status**: resolved (2026-08-04)
+**Answer**: All ten reported values are present across the cited current
+Postman response bodies; use both lines when citing the observed set.
+**Resolved by**: current official Postman response examples
 
 ---
 
@@ -3778,10 +3837,23 @@ The AWS PSE module v2.0.0 confirms that PSE provisioning keys can be managed thr
 
 *Origin: `references/zpa/private-service-edges.md` § Open questions*
 
-VMware (ESXi/vSphere) is confirmed for ZPA PSEs. Whether OVA images are provided for Hyper-V, KVM, or cloud-native VM formats (AWS AMI, Azure image) for ZPA PSEs specifically is not confirmed — ZIA VSEs support those platforms, but ZPA PSEs may differ.
+The July 23 release entry confirms an updated Private Service Edge Docker image,
+RHEL 9 PSE images on AWS, GCP, and Microsoft Azure, a Nutanix AHV PSE image,
+and a VMware PSE image
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-50`). The
+August 4 entry separately confirms PSE Manager RPM packages for RHEL 8.x and
+9.x from the Zscaler repository
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-28`). This
+settles the existence of those platform surfaces, but not the exact image
+formats, Marketplace or direct-download distribution paths, or whether ZPA PSE
+images exist for Hyper-V and KVM. The release capture explicitly warns that
+their omission is not proof of non-support
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:52-53`).
 
-**Status**: open
-**Resolves with**: zscaler doc not yet read
+**Status**: partially resolved — last updated 2026-08-04
+**Resolves with**: zscaler doc not yet read (platform deployment prerequisites
+and exact image formats) OR Marketplace/direct-download capture for each
+platform
 
 ---
 
@@ -4137,6 +4209,27 @@ The claim that `is_public = false` causes remote users to fall back to Public Se
 
 ---
 
+### zpa-82 — PRA approval identity when email and application sets match but time windows differ
+
+*Origin: `references/zpa/api-divergences.md` § Privileged Remote Access*
+
+When no approval ID is supplied, Ansible 2.2.11 identifies an existing PRA
+approval by the email set and, when requested, the application-segment ID set
+(`vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:250-275`). The
+lookup does not compare the approval's top-level `start_time` or `end_time`,
+even though both are accepted inputs
+(`vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:430-432`). If the
+API allows two approvals with the same email and application sets but different
+time windows, source alone does not establish which one Ansible should update
+or whether those records are distinguishable without an explicit ID.
+
+**Status**: open
+**Resolves with**: API read or lab test (create or retrieve same-email,
+same-application approvals with distinct time windows, then test lookup and
+update behavior without `approval_id`)
+
+---
+
 ### zcc-76 — OTP expiry / TTL server behavior
 
 *Origin: `references/zcc/otp.md` § Open questions*
@@ -4400,10 +4493,26 @@ Tenant-restriction wire mechanics are documented by the SaaS vendors but not by 
 
 *Origin: `references/zia/terraform.md` § Open questions*
 
-Three Terraform-provider items remain unresolved. (1) `zia_url_categories_predefined` Early Access status and tenant-eligibility criteria are not documented in the provider source; availability may vary by ZIA edition and cloud environment. (2) `zia_sandbox_behavioral_analysis_v2` — the relationship between v1 and v2 (same underlying API endpoint or separate) is not confirmed; both resources import using the same static ID `"sandbox_settings"` (`vendor/terraform-provider-zia/zia/resource_zia_sandbox_behavioral_analysis_advanced_settings.go:41`), which may cause state conflicts if both are declared in one configuration. (3) `zia_traffic_forwarding_static_ip` per-endpoint POST throttle — a prior "1 POST/sec" gotcha was removed (no vendored source backs a per-second figure; it is absent from provider docs, the static-IP resource, both SDKs, and `ranges-limitations-zia.md`, which only caps Static IP Address Entries per Organization at 100). The only SDK-backed limit is the client-wide 10 POST/PUT/DELETE + 20 GET per 10-second window; whether the `/staticIP` POST path carries a stricter per-endpoint throttle is unconfirmed (`-parallelism=1` retained only as conservative bulk-create guidance).
+Three Terraform-provider items were rechecked. (1)
+`zia_url_categories_predefined` Early Access status and tenant-eligibility
+criteria remain undocumented in the provider source. (2) The relationship
+between `zia_sandbox_behavioral_analysis_v2` and v1 remains unconfirmed; both
+resources import using the same static ID `"sandbox_settings"`
+(`vendor/terraform-provider-zia/zia/resource_zia_sandbox_behavioral_analysis_advanced_settings.go:41`).
+(3) The current provider guide now explicitly says `/staticIP` is limited to
+one POST per second. It also says a 429 supplies `Retry-After`, the provider
+waits and retries transparently, and Terraform should run with its default
+settings rather than reduced parallelism
+(`vendor/terraform-provider-zia/docs/index.md:354-360`). That resolves what the
+provider currently documents and how it handles the limit. It does not yet
+replace the primary ZIA rate-limit table or a live validation of the endpoint,
+so the product-level throttle remains partially open rather than closed.
 
-**Status**: open
-**Resolves with**: zscaler doc not yet read (URL-categories Early Access eligibility; Sandbox behavioral-analysis v1-vs-v2 endpoint mapping) OR lab test (bulk-POST `/staticIP` to detect any per-endpoint throttle)
+**Status**: partially resolved — last updated 2026-08-04
+**Resolves with**: zscaler doc not yet read (URL-categories Early Access
+eligibility; Sandbox behavioral-analysis v1-v2 endpoint mapping; primary ZIA
+per-endpoint rate-limit table) OR lab test (bulk-POST `/staticIP` and compare
+the response headers and retry behavior with the provider guide)
 
 ---
 
@@ -4428,6 +4537,33 @@ A live ZIA `web_dlp_rules` GET returns a flat integer field `ucTemplateId`. The 
 
 **Status**: open
 **Resolves with**: lab test (read a DLP web rule with a notification template set; observe whether the payload also carries `notificationTemplate`/`eunTemplateId` with the same id and whether `ucTemplateId` holds a non-zero value — co-occurrence ⇒ redundant flat alias, sole template id ⇒ live rename of `eun_template_id`) OR zscaler confirmation of the field's meaning
+
+---
+
+### zia-71 — Web-EUN explicit false: preserve vs clear on firewall-DNS rule update
+
+*Origin: `references/zia/dns-control.md` § Open questions*
+
+Go v3.8.44 corrected the firewall-DNS wire key to `isWebEUNEnabled`, but the
+boolean still carries `omitempty`, so an explicit Go `false` is omitted from the
+request
+(`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:155-156`).
+Python v1.9.39 emits its boolean under the differently cased
+`isWebEunEnabled` key
+(`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:250-264`).
+The ZIA Ansible module passes `is_web_eun_enabled` through both its update and
+create calls
+(`vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_dns_rules.py:640-663,670-710`),
+and its `deleteNone` helper removes `None` but preserves `false`
+(`vendor/ziacloud-ansible/plugins/module_utils/utils.py:153-160`). Static source
+therefore proves different request shapes, not the live update semantic:
+whether Go's omission preserves an existing `true`, clears it, or is treated
+the same as an explicit false remains unknown.
+
+**Status**: open
+**Resolves with**: lab test (set Web EUN true, update through Go with false and
+through Python/Ansible with false, then compare the read-back state and captured
+wire bodies)
 
 ---
 
@@ -4501,10 +4637,25 @@ Two related gaps on source IP groups: (1) whether groups created in ZIA (`creato
 
 *Origin: `references/cloud-connector/overview.md` § Open questions*
 
-The exact distinction between a "ZTG" group type and a "Cloud Connector" group type is not documented in captured articles. It is likely a naming evolution, but whether the two denote different object types, different capabilities, or simply old vs new terminology for the same construct is unresolved.
+The capability distinction is now documented. GCP Zero Trust Gateway is a
+Zscaler cloud-native service that secures workload traffic without requiring
+the customer to manage the security infrastructure
+(`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`),
+and its intercept endpoint groups provide project access to a Zscaler-managed
+security service
+(`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:51-54`).
+Standard GCP Cloud Connector is the customer-deployed VM path: Help directs the
+customer to deploy it with Terraform and distinguishes the deployment, VM, and
+Cloud Run function service accounts
+(`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-29`).
+Whether the backend happens to represent the two surfaces with related group
+objects is not a remaining capability question and must not be used to collapse
+the managed-service and customer-VM operating models.
 
-**Status**: open
-**Resolves with**: zscaler doc not yet read OR lab test (inspect both group types in a tenant)
+**Status**: resolved (2026-08-04)
+**Answer**: GCP ZTG is the Zscaler-managed SaaS surface; standard GCP Cloud
+Connector is a customer-deployed VM surface.
+**Resolved by**: current GCP ZTG and GCP Cloud Connector deployment Help
 
 ---
 
@@ -4624,10 +4775,31 @@ The Go `ForwardMethod` enum (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_
 
 *Origin: `references/cloud-connector/api.md` § Open questions*
 
-Three ZTW API-surface items not resolved in the current pass: (1) the `*Endpoint` consts for the `adminuserrolemgmt` and `activation_cli` Go service packages were not inspected, so their endpoint paths are unverified (the rest of the Go service-surface table now carries verified paths); (2) whether `publicCloudInfo` exposes discovery automation for Azure/GCP — `publicCloudInfo` records carry AWS/Azure/GCP account identities, but the discovery-permission and CloudFormation-template flows in current Go source (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:56-82`) are AWS-specific, with no Azure/GCP equivalent of `cloudFormationTemplate` or `discoveryService/{id}/permissions`; (3) ~~whether a ZIdentity OAuth path exists for Go ZTW~~ **RESOLVED**: the unified Go client routes ZTW through a dedicated `ZTWHTTPClient` OAuth2 client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:372-373`); the legacy `ZTC_*` credential surface (`v2_config.go`) is the *alternative* backward-compat path, not the only one. The Go ZTW config object does not itself embed ZIdentity credentials — that lives in the top-level unified client, not the per-service config. Items (1) and (2) remain open.
+The three original items now reduce to one. (1) **Resolved:** current Go source
+uses `/ztw/api/v1/adminUsers` and `/ztw/api/v1/adminRoles`
+(`vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go:13-15`;
+`vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go:14-16`)
+and the active activation package uses the status, activate, and forced-activate
+paths under `/ztw/api/v1/ecAdminActivateStatus`
+(`vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go:10-14`).
+The separate `activation_cli` implementation is entirely commented and is not
+an additional active service surface
+(`vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go:1-76`).
+(2) **Partially resolved:** current Help enumerates the Azure
+`/publicCloudTenant` and `/discoveryService/azure/...` families
+(`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:44-64`) and documents
+the Azure partner-integration behavior
+(`vendor/zscaler-help/cbc-about-microsoft-azure-accounts.md:8-28`). No
+corresponding public GCP discovery REST family is established by the current
+captured API navigation, so only that GCP surface remains open. (3)
+**Resolved:** the unified Go client routes ZTW through a dedicated
+`ZTWHTTPClient` OAuth2 client
+(`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:372-373`); legacy `ZTC_*`
+credentials are the backward-compatible alternative.
 
-**Status**: partially open (items 1 and 2 remain; item 3 resolved)
-**Resolves with**: code read (inspect the two service packages' endpoint consts) OR lab test (probe Azure/GCP discovery automation against a tenant)
+**Status**: partially resolved — last updated 2026-08-04
+**Resolves with**: vendor API documentation or a lab test establishing whether
+GCP workload discovery has a public REST family
 
 ---
 
@@ -4668,10 +4840,30 @@ Three Insights-surface items the log-schema doc flags but cannot resolve from so
 
 *Origin: `references/cloud-connector/regions.md` § Open questions*
 
-The captured regions material leaves the deployment-region picture incomplete (the doc's OQ-CCR-01 through OQ-CCR-09): whether the AWS CC AMI and Azure CC Marketplace listing exist in GovCloud / Azure Government and AWS/Azure China; which GCP regions support CC *deployment* (and whether a Google Cloud Marketplace listing exists) plus the GCP-specific networking model; whether AWS opt-in regions support the CC AMI and/or Zero Trust Gateway; per-region availability of CC VM size options (Small/Medium/Large); and the Azure Function App Flex Consumption regional-gap list. Most consequential: the workload-discovery supported-region surface is confirmed programmatically (`GET /ztw/api/v1/publicCloudInfo/supportedRegions` / the `ztc_supported_regions` data source, see § Programmatic region enumeration), but the captured Go/TF source defines only the shape (id/name/cloud_type), not the region values, and does not assert that the WDS set equals the ZTG deployment list or per-cloud CC deployment availability. The relationship between the three region sets (WDS, ZTG, CC-deployment) is unconfirmed.
+The GCP side is now substantially bounded. Current Help enumerates exactly 16
+GCP Zero Trust Gateway regions
+(`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:31-53`). It
+also confirms standard GCP Cloud Connector is deployed with Terraform
+(`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-10`),
+and the release summary confirms the Terraform package uses a Google Cloud
+Marketplace image
+(`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:38-42`). The standard
+customer-deployed architecture is documented as separate management and service
+VPCs, zonal MIGs, a regional Cloud NAT gateway, a load balancer, custom routes,
+and distinct deployment, VM, and function service accounts
+(`vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.md:8-32,65-76`).
 
-**Status**: open
-**Resolves with**: zscaler doc not yet read (capture the linked GCP/China/GovCloud CC deployment pages) OR tenant snapshot (query `ztc_supported_regions` per cloud and compare against the 16-region ZTG table) OR support ticket (GovCloud / FedRAMP availability)
+What remains open is narrower: the region matrix for standard customer-deployed
+Cloud Connector; whether the workload-discovery region set equals the ZTG set;
+AWS/Azure Gov, China, and other sovereign-cloud availability; per-region
+Small/Medium/Large VM-size availability; and the Azure Function App Flex
+Consumption regional-gap list. None of the confirmed GCP facts establishes
+parity among WDS, ZTG, and standard-CC deployment regions.
+
+**Status**: partially resolved — last updated 2026-08-04
+**Resolves with**: tenant snapshot (query supported WDS regions and compare with
+the ZTG table), cloud Marketplace checks, or vendor confirmation for standard
+CC, sovereign-cloud, VM-size, and Azure Flex regional availability
 
 ---
 
@@ -4716,6 +4908,47 @@ Upstream issue [zscaler/terraform-provider-ztc#46](https://github.com/zscaler/te
 
 **Status**: open
 **Resolves with**: provider source update adding `labels` / `rule_label`, lab test writing labels through the API, or vendor documentation clarifying GUI/API behavior
+
+---
+
+### cloud-connector-27 — `eu-central-2` ZTG region source conflict
+
+*Origin: `references/cloud-connector/regions.md` § Open questions*
+
+The official Cloud & Branch Connector 2025 release summary announced
+`eu-central-2` for Zero Trust Gateways on December 15, 2025, alongside
+`sa-east-1`, `ca-central-1`, and `eu-west-3`
+(`vendor/zscaler-help/cbc-release-upgrade-summary-2025.md:11-18`; [official
+release entry](https://help.zscaler.com/cloud-branch-connector/release-upgrade-summary-2025?applicable_category=connector.zscaler.net&deployment_date=2025-12-15&id=1532586)).
+The current locally captured AWS ZTG region table includes the other three
+regions but omits `eu-central-2`
+(`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-29`). The
+omission is a source conflict; neither source says whether the region was
+withdrawn, and omission alone is not evidence of withdrawal.
+
+**Status**: open
+**Resolves with**: current portal, tenant, or vendor confirmation of
+`eu-central-2`, including whether support changed after the 2025 announcement
+
+---
+
+### cloud-connector-28 — GCP Resource Sync default cadence: Help vs Terraform module
+
+*Origin: `references/cloud-connector/gcp-deployment.md` § Resource Sync*
+
+Current GCP MIG Help says the Resource Sync Cloud Run function reconciles Admin
+Console membership with the MIG and runs every 10 minutes by default
+(`vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.md:26-32`).
+The pinned official GCP Terraform module instead describes a 30-minute trigger
+and configures cron `*/30 * * * *`
+(`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:331-353`).
+For a deployment made from that module, 30 minutes is the concrete configured
+value. Static source does not establish whether Help describes a different
+managed/default template or whether one source is stale.
+
+**Status**: open
+**Resolves with**: vendor clarification or a versioned deployment-template
+mapping that explains which implementation uses the 10-minute default
 
 ---
 
@@ -4826,12 +5059,12 @@ App-Profile fail-close fields are SDK-confirmed on the application-profile / Pol
 
 *Origin: `references/zcc/sdk.md` § Open questions*
 
-The Python SDK's `get_web_privacy` returns bare `None` on any error path rather than the result/response/error tuple that every other SDK method returns (`vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65`). This is either an oversight or an intentional deviation; callers must special-case `None` rather than inspecting a third tuple element. (Earlier doc text attributed this to `utils.py`; the deviation actually lives in `web_privacy.py`.)
+The Python SDK's `get_web_privacy` returns bare `None` on any error path rather than the result/response/error tuple that every other SDK method returns (`vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:60,64,69`). This is either an oversight or an intentional deviation; callers must special-case `None` rather than inspecting a third tuple element. (Earlier doc text attributed this to `utils.py`; the deviation actually lives in `web_privacy.py`.)
 
 **Status**: resolved (2026-06-15) — source-confirmed deviation; retained as a caller-behavior note rather than an open ZCC-behavior question.
 **Resolves with**: code read (done — the three `return None` paths are in `web_privacy.py`)
 
-**Answer**: Confirmed in current source: `get_web_privacy` returns `None` when request creation fails, when execution fails, and when response-body parsing raises (`vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65`). This is a Python-SDK API-surface quirk, not a ZCC product behavior; callers must guard for `None`.
+**Answer**: Confirmed in current source: `get_web_privacy` returns `None` when request creation fails, when execution fails, and when response-body parsing raises (`vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:60,64,69`). This is a Python-SDK API-surface quirk, not a ZCC product behavior; callers must guard for `None`.
 
 ---
 
@@ -4839,7 +5072,7 @@ The Python SDK's `get_web_privacy` returns bare `None` on any error path rather 
 
 *Origin: `references/zcc/sdk.md` § Open questions*
 
-The ZCC API's rate-limit response headers (`X-Rate-Limit-Remaining`, `X-Rate-Limit-Retry-After-Seconds`) are consumed by the legacy ZCC client helper, but how — or whether — they are surfaced and honoured on the OneAPI request path is not documented in the SDK source. This overlaps with the rate-limit clarifications `zcc-10` (header presence on 2xx) and `zcc-12` (RequestExecutor retry behavior).
+The shared request executor's behavior is statically confirmed by resolved clarification `zcc-12`: when a response supplies `X-Rate-Limit-Retry-After-Seconds`, the executor reads it, sleeps, and retries. What remains open is the live service side: whether an actual OneAPI-fronted ZCC 429 emits that header (or `X-Rate-Limit-Remaining`), which headers are exposed unchanged to callers on that path, and whether the observed response agrees with the confirmed executor branch. This also overlaps with `zcc-10`, which asks about header presence on successful responses.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read (OneAPI rate-limit documentation) OR lab test (drive the OneAPI ZCC path to a 429 and inspect the returned headers and client retry behavior)
