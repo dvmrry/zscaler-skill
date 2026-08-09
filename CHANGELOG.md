@@ -4,6 +4,16 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.16.4](https://github.com/dvmrry/zscaler-skill/compare/v0.16.3...v0.16.4) (2026-08-09)
+
+
+### Documentation
+
+* reconcile Terraformer 2.1.21 and activation behavior ([#255](https://github.com/dvmrry/zscaler-skill/issues/255)) ([4c7325a](https://github.com/dvmrry/zscaler-skill/commit/4c7325a89e6708e52d669b573f5f9f4d4dde7268))
+* refresh MCP references for v0.15 ([#253](https://github.com/dvmrry/zscaler-skill/issues/253)) ([3696313](https://github.com/dvmrry/zscaler-skill/commit/36963130209d08ee04bc487041b2c8e7005039dd))
+* refresh SDK knowledge for Go 3.8.45 and Python 1.9.41 ([#254](https://github.com/dvmrry/zscaler-skill/issues/254)) ([aa01da9](https://github.com/dvmrry/zscaler-skill/commit/aa01da9d5bb79b020a7b5da39a1ab465bbf5248e))
+* refresh vendor knowledge and OneAPI coverage ([#249](https://github.com/dvmrry/zscaler-skill/issues/249)) ([dd3f2f7](https://github.com/dvmrry/zscaler-skill/commit/dd3f2f75286d09b6fc6fc6eb93ec7071733b3a90))
+
 ## [0.16.3](https://github.com/dvmrry/zscaler-skill/compare/v0.16.2...v0.16.3) (2026-07-31)
 
 
