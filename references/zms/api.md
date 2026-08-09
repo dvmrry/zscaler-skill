@@ -4,6 +4,8 @@ topic: "zms-api"
 title: "ZMS API — GraphQL surface (read-only)"
 content-type: reference
 last-verified: "2026-06-14"
+verified-against:
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 source-tier: code
 sources:
@@ -25,6 +27,7 @@ sources:
   - "vendor/zscaler-mcp-server/CLAUDE.md"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/app_catalog.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/nonces.py"
+  - "vendor/zscaler-mcp-server/skills/zms/audit-microsegmentation-posture/SKILL.md"
   - "vendor/zscaler-help/about-application-catalog-microsegmentation.md"
   - "vendor/zscaler-help/about-ml-tag-recommendations-page.md"
   - "vendor/zscaler-help/about-tags.md"
@@ -50,10 +53,10 @@ All implemented ZMS SDK operations are **GraphQL over a single endpoint,
 `resource_groups.py:36`, `policy_rules.py:34`, `app_zones.py:33`,
 `app_catalog.py:33`, and `tags.py:42`; also
 `vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8` and
-`vendor/zscaler-mcp-server/CLAUDE.md:174`). The implemented Python SDK and MCP
+`vendor/zscaler-mcp-server/CLAUDE.md:175-184`). The implemented Python SDK and MCP
 surface is **read-only — queries only, no mutations**
 (`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`,
-`vendor/zscaler-mcp-server/CLAUDE.md:170`). That is a client-coverage boundary,
+`vendor/zscaler-mcp-server/CLAUDE.md:175-177`). That is a client-coverage boundary,
 not a whole-service claim: current Help documents portal write actions for ML
 tag recommendations, tags, and provisioning keys without publishing their
 GraphQL operations or payloads
@@ -61,7 +64,7 @@ GraphQL operations or payloads
 `vendor/zscaler-help/about-tags.md:16-33`,
 `vendor/zscaler-help/editing-agent-provisioning-keys.md:15-29`). The implemented
 surface remains **9 domains / 20 read tools**
-(`vendor/zscaler-mcp-server/CLAUDE.md:179-191`, matched by the SDK property set
+(`vendor/zscaler-mcp-server/CLAUDE.md:186-198`, matched by the SDK property set
 in `vendor/zscaler-sdk-python/zscaler/zms/zms_service.py:36-105`).
 
 **Implemented SDK coverage is Python-only.** The Go SDK has no ZMS service at
@@ -90,15 +93,15 @@ ZMS uses two distinct pagination argument names depending on the domain:
 
 Every paginated connection returns the same `pageInfo` selection set — `pageNumber, pageSize, totalCount, totalPages` (`vendor/zscaler-sdk-python/zscaler/zms/agents.py:105-110`; identical block in `agent_groups.py:104-109`, `nonces.py:99-104`, `resources.py:110-115`, `resource_groups.py:105-110`, `policy_rules.py:105-110`, `app_zones.py:91-96`, `app_catalog.py:100-105`, `tags.py:98-103`; the typed `PageInfo` model maps wire keys `pageNumber/pageSize/totalCount/totalPages` in `vendor/zscaler-sdk-python/zscaler/zms/models/common.py:36-39`).
 
-`fetchAll:Boolean` (Python `fetch_all`, default `False`) is implemented **only on `policyRules`** — it bypasses pagination and returns every rule, documented as use-sparingly on large tenants (`vendor/zscaler-sdk-python/zscaler/zms/policy_rules.py:45`, `policy_rules.py:55`, `policy_rules.py:75`, `policy_rules.py:81`; `vendor/zscaler-mcp-server/CLAUDE.md:200`). No other ZMS list method (resources, resource_groups, app_zones, app_catalog, tags, agents, agent_groups, nonces) carries a `fetch_all` argument; no source states `fetchAll` exists elsewhere — see [Open questions](#open-questions).
+`fetchAll:Boolean` (Python `fetch_all`, default `False`) is implemented **only on `policyRules`** — it bypasses pagination and returns every rule, documented as use-sparingly on large tenants (`vendor/zscaler-sdk-python/zscaler/zms/policy_rules.py:45`, `policy_rules.py:55`, `policy_rules.py:75`, `policy_rules.py:81`; `vendor/zscaler-mcp-server/CLAUDE.md:207`). No other ZMS list method (resources, resource_groups, app_zones, app_catalog, tags, agents, agent_groups, nonces) carries a `fetch_all` argument; no source states `fetchAll` exists elsewhere — see [Open questions](#open-questions).
 
 ### Non-numeric identifiers
 
-`eyezId` is the non-numeric identifier for **agents, agent groups, and nonces**. The single-item get queries take `eyezId` typed `String!` (not `ID!`) (`vendor/zscaler-sdk-python/zscaler/zms/agent_groups.py:176`, `vendor/zscaler-sdk-python/zscaler/zms/nonces.py:171`; `vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:12`; `vendor/zscaler-mcp-server/CLAUDE.md:198`).
+`eyezId` is the non-numeric identifier for **agents, agent groups, and nonces**. The single-item get queries take `eyezId` typed `String!` (not `ID!`) (`vendor/zscaler-sdk-python/zscaler/zms/agent_groups.py:176`, `vendor/zscaler-sdk-python/zscaler/zms/nonces.py:171`; `vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:12`; `vendor/zscaler-mcp-server/CLAUDE.md:205`).
 
 ## Domains and operations
 
-Per-domain read operations (9 domains, 20 read tools per `vendor/zscaler-mcp-server/CLAUDE.md:179-191`):
+Per-domain read operations (9 domains, 20 read tools per `vendor/zscaler-mcp-server/CLAUDE.md:186-198`):
 
 | Domain | Read operations | Citation |
 |---|---|---|
@@ -152,13 +155,13 @@ are not part of the implemented read-only SDK/MCP surface.
 
 ### Resource Groups
 
-`resourceGroupMembers` keys on `id:String!` (`vendor/zscaler-sdk-python/zscaler/zms/resource_groups.py:179`). `resourceGroups` uses GraphQL **inline fragments** to distinguish two concrete types. `ManagedResourceGroup` fields: `id, name, description, type, origin, resourceMemberCount, modifiedTime`; `UnmanagedResourceGroup` adds `cidrs` and `fqdns` to that same set (`vendor/zscaler-sdk-python/zscaler/zms/resource_groups.py:84-103`). Managed groups are **tag-based membership**; unmanaged groups are **CIDR/FQDN-based membership** (`vendor/zscaler-mcp-server/CLAUDE.md:197`).
+`resourceGroupMembers` keys on `id:String!` (`vendor/zscaler-sdk-python/zscaler/zms/resource_groups.py:179`). `resourceGroups` uses GraphQL **inline fragments** to distinguish two concrete types. `ManagedResourceGroup` fields: `id, name, description, type, origin, resourceMemberCount, modifiedTime`; `UnmanagedResourceGroup` adds `cidrs` and `fqdns` to that same set (`vendor/zscaler-sdk-python/zscaler/zms/resource_groups.py:84-103`). Managed groups are **tag-based membership**; unmanaged groups are **CIDR/FQDN-based membership** (`vendor/zscaler-mcp-server/CLAUDE.md:204`).
 
 `resourceGroupProtectionStatus` node selection: `protectedPercentage, protectedResourceGroupsCount, unprotectedResourceGroupsCount, totalResourceGroups` (`vendor/zscaler-sdk-python/zscaler/zms/resource_groups.py:272-276`).
 
 ### Policy Rules
 
-`fetchAll:Boolean` (Python `fetch_all`, default `False`) on `policyRules` bypasses pagination and returns every rule (`vendor/zscaler-sdk-python/zscaler/zms/policy_rules.py:45`, `policy_rules.py:55`; `vendor/zscaler-mcp-server/CLAUDE.md:200`).
+`fetchAll:Boolean` (Python `fetch_all`, default `False`) on `policyRules` bypasses pagination and returns every rule (`vendor/zscaler-sdk-python/zscaler/zms/policy_rules.py:45`, `policy_rules.py:55`; `vendor/zscaler-mcp-server/CLAUDE.md:207`).
 
 `ListPolicyRules` node selection: `id, name, action, priority, description, deleted, sourceTargetType, destinationTargetType, appZoneScopeTargetType, creationTime, modifiedTime, lastHit`, plus `portAndProtocols[]{ protocol, portRanges[]{ startPort, endPort } }` (`vendor/zscaler-sdk-python/zscaler/zms/policy_rules.py:85-103`).
 
@@ -194,9 +197,9 @@ GraphQL operation, enum, pagination contract, or payload for those actions
 
 ### Tags (namespace → key → value hierarchy)
 
-The Tags domain implements the three-level namespace → key → value hierarchy via 3 read operations: `tagNamespaces` (paginated), `tagKeys` (paginated, keyed by `namespaceId:String!`), `tagValues` (paginated, keyed by `tagId:String!` AND `namespaceOrigin:NamespaceOrigin!`) (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:85`, `tags.py:178`, `tags.py:182`, `tags.py:279`, `tags.py:283`; hierarchy described in `vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:13` and `vendor/zscaler-mcp-server/CLAUDE.md:196`).
+The Tags domain implements the three-level namespace → key → value hierarchy via 3 read operations: `tagNamespaces` (paginated), `tagKeys` (paginated, keyed by `namespaceId:String!`), `tagValues` (paginated, keyed by `tagId:String!` AND `namespaceOrigin:NamespaceOrigin!`) (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:85`, `tags.py:178`, `tags.py:182`, `tags.py:279`, `tags.py:283`; hierarchy described in `vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:13` and `vendor/zscaler-mcp-server/CLAUDE.md:203`).
 
-`tagValues` uniquely requires `namespaceOrigin:NamespaceOrigin!` as a mandatory argument (Python `namespace_origin`) in addition to `tagId` — listing tag values requires both the tag key ID and the namespace origin (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:243`, `tags.py:279`, `tags.py:309`; `vendor/zscaler-mcp-server/CLAUDE.md:196`).
+`tagValues` uniquely requires `namespaceOrigin:NamespaceOrigin!` as a mandatory argument (Python `namespace_origin`) in addition to `tagId` — listing tag values requires both the tag key ID and the namespace origin (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:243`, `tags.py:279`, `tags.py:309`; `vendor/zscaler-mcp-server/CLAUDE.md:203`).
 
 Node selections: `tagNamespaces` → `id, name, description, origin`; `tagKeys` → `id, name, description`; `tagValues` → `id, name` (minimal) (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:92-97`, `tags.py:190-194`, `tags.py:292-295`).
 
@@ -227,7 +230,7 @@ GraphQL/SDK enum value sets recovered from `vendor/zscaler-sdk-python/zscaler/zm
 | `PolicyRuleTargetType` (source/destination target) | ANY, RESOURCE_GROUP | `models/enums.py:200-204` |
 | `PolicyRuleAppZoneScopeType` (appZoneScopeTargetType) | ANY, APP_ZONE | `models/enums.py:193-197` |
 | `NetworkProtocol` (portAndProtocols.protocol) | TCP, UDP | `models/enums.py:161-165` |
-| `NamespaceOrigin` | CUSTOM, EXTERNAL, ML, UNKNOWN | `models/enums.py:152-158` (corroborated `tags.py:255`, `vendor/zscaler-mcp-server/CLAUDE.md:199`) |
+| `NamespaceOrigin` | CUSTOM, EXTERNAL, ML, UNKNOWN | `models/enums.py:152-158` (corroborated `tags.py:255`, `vendor/zscaler-mcp-server/CLAUDE.md:206`) |
 | `SortDirection` | ASC, DESC | `models/enums.py:260-264` |
 | `TamperProtectionStatus` | DISABLED, DISABLED_INHERITED, ENABLED, ENABLED_INHERITED, INHERITED | `models/enums.py:284-291` |
 | `AgentAdminStatus` | DISABLED, DISABLED_INHERITED, ENABLED, ENABLED_INHERITED, INHERITED | `models/enums.py:20-27` |
@@ -261,7 +264,7 @@ Per-domain filter/orderBy wire keys:
 - **`get_metadata` is the one ZMS query whose `customerId` is `String!`, not `ID!`** — divergent from every other ZMS query (`vendor/zscaler-sdk-python/zscaler/zms/resources.py:257`).
 - **Two pagination dialects exist side by side** (`page`/`pageSize` vs `pageNum`/`pageSize`) — the choice is per-domain, so a generic paginator must dispatch on domain (`vendor/zscaler-sdk-python/zscaler/zms/agents.py:78-87`, `vendor/zscaler-sdk-python/zscaler/zms/resources.py:79`; `vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:11`).
 - **`fetchAll` is `policyRules`-only** — applying it elsewhere is unsupported in the SDK (`vendor/zscaler-sdk-python/zscaler/zms/policy_rules.py:75`, `policy_rules.py:81`). Whether the server itself accepts `fetchAll` on other list queries is unverified — tracked as `zms-01` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zms-01-fetchall-beyond-policyrules).
-- **`tagValues` needs two keys, not one** — both `tagId` and `namespaceOrigin` are mandatory; you cannot list tag values from the tag key ID alone (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:279`, `vendor/zscaler-mcp-server/CLAUDE.md:196`).
+- **`tagValues` needs two keys, not one** — both `tagId` and `namespaceOrigin` are mandatory; you cannot list tag values from the tag key ID alone (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:279`, `vendor/zscaler-mcp-server/CLAUDE.md:203`).
 - **`PolicyAction` vs `DefaultPolicyRuleAction` differ**: custom rules allow `SIM_BLOCK`; default rules do not (`vendor/zscaler-sdk-python/zscaler/zms/models/enums.py:185-190`, `models/enums.py:132-136`).
 - **`ResourceGroupOrigin` (`ML_RECOMMENDED`/`USER_DEFINED`) is a separate enum from `NamespaceOrigin` (`CUSTOM`/`EXTERNAL`/`ML`/`UNKNOWN`)** — do not conflate them (`vendor/zscaler-sdk-python/zscaler/zms/models/enums.py:226-230`, `models/enums.py:152-158`).
 - **The query selection set, not `common.py`, is the authoritative list of returned fields.** `ListAgents` selects `publicIp, privateIps, adminStatus, agentGroupName, agentGroupType, upgradeStatus` (`vendor/zscaler-sdk-python/zscaler/zms/agents.py:99-103`), but the typed `AgentEntry` model stops at `privateIps` and omits `adminStatus/agentGroupName/agentGroupType` (`vendor/zscaler-sdk-python/zscaler/zms/models/common.py:84`) — the typed model is a partial view (`vendor/zscaler-sdk-python/zscaler/zms/agents.py:99-103`).
@@ -284,7 +287,7 @@ The following could not be cleanly backed from in-scope vendor source and are fl
 - **Write mutations are unverified.** The SDK/MCP conventions describe their
   implemented surface as read-only
   (`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`,
-  `vendor/zscaler-mcp-server/CLAUDE.md:170`), while current Help confirms that
+  `vendor/zscaler-mcp-server/CLAUDE.md:175-177`), while current Help confirms that
   portal writes exist for ML recommendations, tags, and provisioning keys
   (`vendor/zscaler-help/about-ml-tag-recommendations-page.md:27-43`,
   `vendor/zscaler-help/about-tags.md:16-33`,

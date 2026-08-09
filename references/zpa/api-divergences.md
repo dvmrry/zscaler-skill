@@ -10,7 +10,7 @@ verified-against:
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
   - "vendor/zscaler-sdk-go/zscaler/zparequests.go"
@@ -495,7 +495,7 @@ client-surface divergence.
 - **Ansible and MCP:** both resolve the enrollment certificate before delegating
   to the Python SDK
   (`vendor/zpacloud-ansible/plugins/modules/zpa_app_connector_groups.py:575-615`,
-  `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_connector_groups.py:248-283`).
+  `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_connector_groups.py:242-284`).
 
 **Significance / which to trust:** Treat `enrollmentCertId` as required for App
 Connector Group create on the observed OneAPI production tenant, despite the

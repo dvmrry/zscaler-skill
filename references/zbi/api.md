@@ -11,7 +11,7 @@ verified-against:
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
 source-tier: code
 sources:
@@ -525,7 +525,7 @@ Ansible is also present for browser isolation; do not mark it absent:
 MCP exposes ZPA isolation profile and policy-rule tooling:
 
 - `get_zpa_isolation_profile` is read-only and returns a list of full SDK profile dictionaries. It can narrow the rows by exact name, but even an exact-name lookup retains the list shape (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py:27-46`).
-- Isolation-policy list/get also return full SDK/API-backed rule records, while create, update, and delete expose the corresponding write operations. The create tool rejects `action_type="isolate"` when `zpn_isolation_profile_id` is absent; that validation is specific to create rather than a blanket invariant asserted for every operation (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py:64-117`, `:120-157`).
+- Isolation-policy list/get also return full SDK/API-backed rule records, while create, update, and delete expose the corresponding write operations. The create tool rejects `action_type="isolate"` when `zpn_isolation_profile_id` is absent; that validation is specific to create rather than a blanket invariant asserted for every operation (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py:64-117`, `:120-161`).
 
 These are SDK-model passthroughs, not raw HTTP responses: ordinary resource
 tools deliberately leave the API/SDK field set open, and the shaping helpers

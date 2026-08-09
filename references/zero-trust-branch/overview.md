@@ -11,7 +11,7 @@ verified-against:
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -49,7 +49,7 @@ Zero Trust Branch is the one misc-cluster product with a real SDK surface in thi
 | Python SDK | ZTB product surface found. `oneapi_client.py` exposes `client.ztb`, and `ztb_service.py` exposes alarms, API keys, app connector config, devices, groups, logs, policy comments, ransomware kill, sites, site-to-site VPN, and templates (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:295-301`; `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`, `:49-135`). |
 | Terraform | No ZTB product resources or data sources found in the audited ZIA or ZPA providers. |
 | Ansible | No ZTB product modules found in the audited ZIA or ZPA collections. |
-| MCP | No ZTB product tools found in the audited MCP server. MCP's `ztw` tools call `client.ztw`; the module/docsrc describe network-resource tooling under the Cloud & Branch Connector name, while the generated catalog labels the same family "Workload Segmentation." Neither is a `client.ztb` or `/ztb/...` product surface (`vendor/zscaler-mcp-server/docsrc/tools/ztw/index.rst:1-5`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:372-396`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/network_services.py:69-83`). |
+| MCP | No ZTB product tools found in the audited MCP server. MCP's `ztw` tools call `client.ztw`; the module/docsrc describe network-resource tooling under the Cloud & Branch Connector name, while the generated catalog labels the same family "Workload Segmentation." Neither is a `client.ztb` or `/ztb/...` product surface (`vendor/zscaler-mcp-server/docsrc/tools/ztw/index.rst:1-5`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:372-396`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/network_services.py:42-62`). |
 | Postman | No ZTB product endpoint family found in the audited OneAPI collection. |
 | Help | ZTB is covered by the Zero Trust Branch Help capture, including product positioning, ZTE forwarding, device segmentation, key features, and deployment form factors (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:8-24`, `:33-47`). |
 
@@ -76,12 +76,12 @@ The Python SDK exposes ZTB as `client.ztb`, but the auth story is internally div
 
 ## Programmability posture
 
-Use Python SDK source for capability-level claims. Do not infer Go/Terraform/Ansible/MCP/Postman parity from Python. Also do not treat Go ZPA Branch Connector files or MCP's `ztw` family as the ZTB product API: those surfaces use ZPA/`client.ztw` paths rather than `/ztb/...` (`vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector/branch_connector.go:1-16`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/network_services.py:69-83`).
+Use Python SDK source for capability-level claims. Do not infer Go/Terraform/Ansible/MCP/Postman parity from Python. Also do not treat Go ZPA Branch Connector files or MCP's `ztw` family as the ZTB product API: those surfaces use ZPA/`client.ztw` paths rather than `/ztb/...` (`vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector/branch_connector.go:1-16`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/network_services.py:42-62`).
 
 ## Open questions
 
 - `zero-trust-branch-01`: The Python SDK contains a `client.ztb` OneAPI path and a legacy API-key path, while its README says OneAPI/OAuth2 is not supported for ZTB. Confirm the supported auth mode and any source-of-truth drift. See [clarification `zero-trust-branch-01`](../_meta/clarifications.md#zero-trust-branch-01-ztb-python-sdk-auth-mode-divergence-and-non-python-coverage).
-- `zero-trust-branch-02`: MCP v0.14.0 labels the `ztw` generated catalog as "Workload Segmentation" while its module and docsrc call the same service "Zscaler Cloud & Branch Connector". Confirm the canonical product label and boundary; neither spelling establishes ZTB coverage. See [clarification `zero-trust-branch-02`](../_meta/clarifications.md#zero-trust-branch-02-mcp-ztw-product-label-and-ztb-boundary).
+- `zero-trust-branch-02`: MCP v0.15.0 labels the `ztw` generated catalog as "Workload Segmentation" while its module and docsrc call the same service "Zscaler Cloud & Branch Connector". Confirm the canonical product label and boundary; neither spelling establishes ZTB coverage. See [clarification `zero-trust-branch-02`](../_meta/clarifications.md#zero-trust-branch-02-mcp-ztw-product-label-and-ztb-boundary).
 
 ## Cross-links
 

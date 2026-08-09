@@ -8,7 +8,7 @@ verified-against:
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
 source-tier: mixed
 sources:
@@ -170,7 +170,7 @@ Source: `vendor/zscaler-help/about-ips-control.md`; `vendor/terraform-provider-z
 
 - **Signature source**: Zscaler's research team + industry-vendor feeds. Updated continuously by Zscaler; no operator action needed.
 - **Custom signatures**: Snort-like syntax. Uploaded as part of custom threat categories; referenced in IPS Control rules.
-- **Custom-signature automation surfaces**: Terraform `zia_ips_signature_rules`, Python SDK `client.zia.ips_signature_rules`, and MCP `zia_*_ips_signature_rule*` tools manage custom IPS signature definitions separately from `zia_firewall_ips_rule`. MCP v0.14.0 describes the SDK's create-time `rule_text` preflight and exposes create/update for the definition; update is PUT-replace and backfills `name` plus `rule_text` when omitted (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ips_signature_rules.py:35-57`, `:119-162`). IPS policy rules then reference the relevant threat category.
+- **Custom-signature automation surfaces**: Terraform `zia_ips_signature_rules`, Python SDK `client.zia.ips_signature_rules`, and MCP `zia_*_ips_signature_rule*` tools manage custom IPS signature definitions separately from `zia_firewall_ips_rule`. MCP v0.15.0 describes the SDK's create-time `rule_text` preflight and exposes create/update for the definition; update is PUT-replace and backfills `name` plus `rule_text` when omitted (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ips_signature_rules.py:35-57`, `:119-162`). IPS policy rules then reference the relevant threat category.
 - **Two distinct SDK surfaces — signature definitions vs the rule engine**: The signature-definition resource above (`client.zia.ips_signature_rules`) is separate from the IPS **policy-rule** engine `client.zia.cloud_firewall_ips` (`vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:236`, class `FirewallIPSRulesAPI`), which drives the **`/firewallIpsRules`** endpoint (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py:75,131,223,323,372`; same path in Go as `firewallIpsRulesEndpoint = "/zia/api/v1/firewallIpsRules"`, `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go:15`). The policy rule carries an `action` enum — `ALLOW`, `BLOCK_DROP`, `BLOCK_RESET`, `BYPASS_IPS` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py:172-173`; Go `Action` field at `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go:38`) — which is what decides allow/block/bypass-inspection per flow. The `BYPASS_IPS` value is the wire-level form of the "bypass IPS inspection" action mentioned in the sub-policy table above; the signature-definition resource has no such action field.
 - **Protocol coverage**: HTTP, HTTPS, FTP, DNS, TCP, UDP, IP-based ports and protocols. IPS sees non-web traffic, unlike URL Filter / CAC / DLP.
 - **Default rule: BLOCK ALL**. The shipped default blocks all traffic that matches any signature — customer rules allow-list specific traffic patterns or user populations.
@@ -297,7 +297,7 @@ The Standard-tier 10-rule Firewall Filtering cap is the most operationally conse
 
 Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_destination_groups.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py`.
 
-Firewall Filtering rules reference Destination Groups for their destination criterion. A group has a **type** drawn from exactly four allowed values — `DSTN_IP`, `DSTN_FQDN`, `DSTN_DOMAIN`, `DSTN_OTHER`. The SDK hard-codes this set as `valid_exclude_types = {"DSTN_IP", "DSTN_FQDN", "DSTN_DOMAIN", "DSTN_OTHER"}` and raises `ValueError` on any other value (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:82-86`, restated at `:164` and `:250`; the same enum is documented on `add_ip_destination_group` at `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:428`). MCP v0.14.0 enforces the same four-value input pattern (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:35-40`). The same values are the Go `excludeType` valid set (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go:112-113`).
+Firewall Filtering rules reference Destination Groups for their destination criterion. A group has a **type** drawn from exactly four allowed values — `DSTN_IP`, `DSTN_FQDN`, `DSTN_DOMAIN`, `DSTN_OTHER`. The SDK hard-codes this set as `valid_exclude_types = {"DSTN_IP", "DSTN_FQDN", "DSTN_DOMAIN", "DSTN_OTHER"}` and raises `ValueError` on any other value (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:82-86`, restated at `:164` and `:250`; the same enum is documented on `add_ip_destination_group` at `vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:428`). MCP v0.15.0 enforces the same four-value input pattern (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:35-40`). The same values are the Go `excludeType` valid set (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/ipdestinationgroups/ipdestinationgroups.go:112-113`).
 
 ### Type → field pairing
 
@@ -313,7 +313,7 @@ The group's payload fields differ by type. The MCP tool field descriptions state
 - The SDK worked examples confirm the pairing: `DSTN_IP` uses `addresses=` an IP list (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:442-443`), `DSTN_FQDN` uses `addresses=` an FQDN/domain list (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:455-456`), and `DSTN_OTHER` uses `countries=['COUNTRY_US']` + `ip_categories=['CUSTOM_01']` with no `addresses` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:468-470`).
 - `ip_categories` accepts "Only Custom categories allowed" (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:430`).
 
-**The field pairing is documented, not code-enforced.** MCP v0.14.0 validates `type` membership through its input pattern but does not cross-check the chosen type against `addresses`, `countries`, or `ip_categories` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:35-55`). A request with, say, `DSTN_IP` and no `addresses` is not rejected by that client-side model.
+**The field pairing is documented, not code-enforced.** MCP v0.15.0 validates `type` membership through its input pattern but does not cross-check the chosen type against `addresses`, `countries`, or `ip_categories` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:35-55`). A request with, say, `DSTN_IP` and no `addresses` is not rejected by that client-side model.
 
 ### Wire schema
 
@@ -359,9 +359,9 @@ A Network Service is the port-based criterion (the "Network Services + Service G
 
 ### Current MCP does not establish a `type` vocabulary
 
-MCP v0.14.0 returns each Network Service as a full SDK-modeled record and no
+MCP v0.15.0 returns each Network Service as a full SDK-modeled record and no
 longer declares a fixed output view for the resource
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:97-112`;
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:95-110`;
 `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`;
 ordinary API records deliberately have no fixed output schema at
 `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`). Its
@@ -379,11 +379,11 @@ current MCP contract; the remaining vocabulary is an open question.
 
 ### protocol enum is a list-query filter
 
-The protocol vocabulary has six documented values — `ICMP`, `TCP`, `UDP`, `GRE`, `ESP`, `OTHER` — used as a list-query filter. MCP v0.14.0 describes those values but has no membership validator; it uppercases a supplied value and forwards it as `query_params.protocol` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:29-32`, `:97-105`). The SDK list docstring names the same values (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:1810-1811`), but the Python service layer and Go `Protocol` string field do not validate membership (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservices/networkservices.go:29`).
+The protocol vocabulary has six documented values — `ICMP`, `TCP`, `UDP`, `GRE`, `ESP`, `OTHER` — used as a list-query filter. MCP v0.15.0 describes those values but has no membership validator; it uppercases a supplied value and forwards it as `query_params.protocol` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:29-32`, `:97-105`). The SDK list docstring names the same values (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:1810-1811`), but the Python service layer and Go `Protocol` string field do not validate membership (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservices/networkservices.go:29`).
 
 ### Port input tuples and the wire-key transform
 
-The SDK accepts ports as a list of `[direction, protocol, start, end?]` tuples, where `direction` is `src`/`dest` and `protocol` is `tcp`/`udp`; `end` is omitted for a single port (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:2006-2007`). MCP v0.14.0 documents the same tuple grammar and converts inner lists to tuples, but does not validate direction or protocol membership (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:39-49`, `:83-87`, `:138-145`). The SDK derives the wire key dynamically as `f"{items[0]}{items[1].title()}Ports"` and appends `{start: int(items[2]), end?: int(items[3])}` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:2050-2055` on add, `:2132-2137` on update). The `.title()` call is what uppercases `tcp`/`udp` to `Tcp`/`Udp`:
+The SDK accepts ports as a list of `[direction, protocol, start, end?]` tuples, where `direction` is `src`/`dest` and `protocol` is `tcp`/`udp`; `end` is omitted for a single port (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:2006-2007`). MCP v0.15.0 documents the same tuple grammar and converts inner lists to tuples, but does not validate direction or protocol membership (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:39-49`, `:83-87`, `:138-145`). The SDK derives the wire key dynamically as `f"{items[0]}{items[1].title()}Ports"` and appends `{start: int(items[2]), end?: int(items[3])}` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:2050-2055` on add, `:2132-2137` on update). The `.title()` call is what uppercases `tcp`/`udp` to `Tcp`/`Udp`:
 
 | Input tuple | Wire key |
 |---|---|
@@ -434,7 +434,7 @@ Python base prefix `/zia/api/v1` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_f
 
 ### Canonical service names are case-sensitive UPPERCASE
 
-MCP v0.14.0 documents server-side `search` as case-sensitive and `name` as a case-insensitive substring filter; the implementation forwards `search` only when `name` is absent, while `name` lowercases both the needle and returned names client-side (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:21-32`, `:97-112`). The lookup workflow uses uppercase predefined examples such as `HTTP`, `FTP`, and `DNS` and recommends `name=` because lowercase server-side search does not match them (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:133-136`). This case behavior is documented in the MCP layer, not the SDK.
+MCP v0.15.0 documents server-side `search` as case-sensitive and `name` as a case-insensitive substring filter; the implementation forwards `search` only when `name` is absent, while `name` lowercases both the needle and returned names client-side (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:21-32`, `:97-112`). The lookup workflow uses uppercase predefined examples such as `HTTP`, `FTP`, and `DNS` and recommends `name=` because lowercase server-side search does not match them (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:133-136`). This case behavior is documented in the MCP layer, not the SDK.
 
 ### Update replaces ports wholesale
 
@@ -444,8 +444,8 @@ On UPDATE: if `ports` are not provided, the existing ports are left unchanged; i
 
 These came up while mining SDK/API source and could not be backed from any vendor file in this pass:
 
-- **Network Service `type` vocabulary** — MCP v0.14.0 returns the SDK-owned record and has no output-view enum; its create/update inputs do not accept `type` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:39-64`, `:97-112`, `:138-168`). The SDK models hold a free-form string, and only `CUSTOM` appears as a concrete SDK test value (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:35`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservices/networkservices.go:27`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservices/networkservices_test.go:23`). Whether the service also returns `STANDARD` or `PREDEFINED`, and what those values mean, remains unverified.
-- **Valid country-code values** — MCP v0.14.0 documents only the generic `COUNTRY_XX` form (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:48-55`); SDK examples use `COUNTRY_CA` / `COUNTRY_US` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:431`, `:469`). The full `COUNTRY_*` enum is not enumerated in any mined file.
+- **Network Service `type` vocabulary** — MCP v0.15.0 returns the SDK-owned record and has no output-view enum; its create/update inputs do not accept `type` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:39-64`, `:97-112`, `:138-168`). The SDK models hold a free-form string, and only `CUSTOM` appears as a concrete SDK test value (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:35`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservices/networkservices.go:27`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/networkservices/networkservices_test.go:23`). Whether the service also returns `STANDARD` or `PREDEFINED`, and what those values mean, remains unverified.
+- **Valid country-code values** — MCP v0.15.0 documents only the generic `COUNTRY_XX` form (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:48-55`); SDK examples use `COUNTRY_CA` / `COUNTRY_US` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:431`, `:469`). The full `COUNTRY_*` enum is not enumerated in any mined file.
 - **Allowed custom URL-category identifiers** — `ip_categories` is documented as "Only Custom categories allowed" with example `CUSTOM_01` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:430`), but no source enumerates or validates the allowed identifiers.
 - **`DSTN_DOMAIN` field requirement** — `DSTN_DOMAIN` appears only in the four-value enum lists; no example or per-type field rule for it (vs `DSTN_FQDN` using `addresses`) exists in any mined source.
 - **`tag` and `creatorContext` semantics** — both fields exist on the Python Network Service model (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:34`, `:36`) but carry no description or allowed-values documentation in any mined source.

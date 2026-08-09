@@ -5,7 +5,7 @@ title: "ZIdentity API — endpoint catalog, API clients, and auth flow"
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
 source-tier: mixed
 sources:
@@ -49,7 +49,7 @@ ZIdentity exposes four top-level feature categories via its API (Tier A — vend
 | **Groups** | Group CRUD; member management | Full CRUD | Full CRUD | Read-only (5 tools) |
 | **Resource Servers** | Introspect available API resources and scopes | Read-only | Read-only | Not available |
 
-The MCP server implements a read-only slice of ZIdentity: five group tools and five user tools (`vendor/zscaler-mcp-server/docs/guides/toolsets.md:109-114`), with all ten marked read-only in the complete generated catalog (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`). The only product tool modules under `src/zscaler_mcp/tools/zid/` are `groups.py` and `users.py` alongside `__init__.py`; there is no API-client, resource-server, or entitlement tool. The v0.14 implementations return full SDK-modeled group and user records rather than the older curated views (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/groups.py:143-187`, `:195-281`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/users.py:185-330`). Therefore, the only captured SDK/MCP convenience surface for API-client management is Python `client.zid.api_client`; Go has no dedicated `api-clients` package and MCP exposes no such tool. Raw REST remains a programmatic option.
+The MCP server implements a read-only slice of ZIdentity: five group tools and five user tools (`vendor/zscaler-mcp-server/docs/guides/toolsets.md:109-114`), with all ten marked read-only in the complete generated catalog (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`). The only product tool modules under `src/zscaler_mcp/tools/zid/` are `groups.py` and `users.py` alongside `__init__.py`; there is no API-client, resource-server, or entitlement tool. The v0.15 implementations return full SDK-modeled group and user records rather than the older curated views (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/groups.py:143-187`, `:195-281`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/users.py:183-321`). Therefore, the only captured SDK/MCP convenience surface for API-client management is Python `client.zid.api_client`; Go has no dedicated `api-clients` package and MCP exposes no such tool. Raw REST remains a programmatic option.
 
 Source: `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/groups.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/users.py`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:109-114`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:46`.
 

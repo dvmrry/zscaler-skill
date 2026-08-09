@@ -5,7 +5,7 @@ title: "ZIA Time Intervals — reusable schedule objects for policy rule evaluat
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 source-tier: doc
 sources:
@@ -126,7 +126,7 @@ lines 165–169)
 
 ### Name field constraint
 
-MCP v0.14.0's create-input description says interval names use **ASCII letters and
+MCP v0.15.0's create-input description says interval names use **ASCII letters and
 spaces only** (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/time_intervals.py:36-40`).
 That is documentation, not executable validation: create forwards `name` directly, and
 update likewise has no name validator (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/time_intervals.py:99-117`, `:120-156`).
@@ -135,7 +135,7 @@ The current `manage-time-interval` workflow skill still says ZIA rejects digits 
 special characters and that the tool raises `ValueError` before the API call
 (`vendor/zscaler-mcp-server/skills/zia/manage-time-interval/SKILL.md:16-23`). That creates
 a skill/code contradiction. Treat the ASCII-letters-and-spaces constraint as a
-workflow/API observation, not as client-side enforcement in MCP v0.14.0. Both SDKs also
+workflow/API observation, not as client-side enforcement in MCP v0.15.0. Both SDKs also
 send names unvalidated (`vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py:144-249`;
 `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go:18-83`).
 The exact server-side rule, regex, error text, and handling of digits or punctuation
@@ -304,7 +304,7 @@ replacement), and DELETE `/{id}`.
 `/zia/api/v1/timeIntervals` and that update uses `UpdateWithPut` (PUT full replacement).
 (`vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go:14-16`, `:75`)
 
-> MCP v0.14.0 returns full SDK model records for list/get/create/update through
+> MCP v0.15.0 returns full SDK model records for list/get/create/update through
 > `shape_many`/`shape_one` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/time_intervals.py:60-156`).
 > The shared shapers preserve every SDK-model attribute; they do not expose raw HTTP
 > responses (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`;
@@ -502,7 +502,7 @@ See also [`_meta/clarifications.md`](../_meta/clarifications.md) — `zia-21` th
    from the `/timeWindows` read-only list) is not confirmed from available sources.
 
 6. **Server-side name rule and literal `Name is not valid` string — unverified.** MCP
-   v0.14.0 describes create names as ASCII letters/spaces only but does not enforce that
+   v0.15.0 describes create names as ASCII letters/spaces only but does not enforce that
    description (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/time_intervals.py:36-48`, `:99-156`).
    The workflow skill still claims digits/special characters are rejected and that the
    tool validates client-side (`vendor/zscaler-mcp-server/skills/zia/manage-time-interval/SKILL.md:16-23`),
