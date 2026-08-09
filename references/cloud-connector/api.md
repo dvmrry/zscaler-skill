@@ -36,6 +36,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go"
   - "vendor/terraform-provider-ztc/ztc/provider.go"
   - "vendor/terraform-provider-ztc/ztc/config.go"
+  - "vendor/terraform-provider-ztc/docs/index.md"
+  - "vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_location_management.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_location_management.go"
 author-status: draft
@@ -79,7 +81,7 @@ Endpoint paths below are the SDK `*Endpoint` consts (Tier A), all under the `/zt
 
 **Location `profile`-tag asymmetry vs ZIA.** ZTW/Cloud Connector location management exposes the same `profile` tag as ZIA (same field, same "defaults to `Unassigned`" semantics) but accepts a **narrower** value set: `NONE`, `CORPORATE`, `SERVER`, `GUESTWIFI`, `IOT` (`vendor/terraform-provider-ztc/ztc/resource_ztc_location_management.go:276-281`). ZIA additionally accepts `WORKLOAD` and `EXTRANET` (`vendor/terraform-provider-zia/zia/resource_zia_location_management.go:385-392`). So a Cloud Connector deployment location **cannot** be tagged `WORKLOAD` or `EXTRANET` — those two profile types are ZIA-only. Verified against both TF provider validators (Tier A).
 
-**Go-SDK authentication status**: the Go ZTW client supports **both** auth paths. ZTW (Cloud Connector) is a first-class OneAPI/ZIdentity service — the unified client routes `ztw` to its own `ZTWHTTPClient` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:372-373`) and rate limiter (`:207-208`) — *and* the legacy CBC/ZTC credential surface (`ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY`, `ZTC_CLOUD`, plus optional `ZSCALER_PARTNER_ID`) remains available. OneAPI is not offered for the `zscalergov`/`zscalerten` clouds. See `sdk.md` § Authentication and `api-divergences.md` for detail.
+**Go-SDK authentication status**: the Go ZTW client supports **both** auth paths. ZTW (Cloud Connector) is a first-class OneAPI/ZIdentity service — the unified client routes `ztw` to its own `ZTWHTTPClient` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:372-373`) and rate limiter (`:207-208`) — *and* the legacy CBC/ZTC credential surface (`ZTC_USERNAME`, `ZTC_PASSWORD`, `ZTC_API_KEY`, `ZTC_CLOUD`, plus optional `ZSCALER_PARTNER_ID`) remains available. FedRAMP is a current source conflict, not a confirmed exclusion: the shared SDK constructs `gov` / `govus` routes, the ZTC provider docs claim support with an impossible `>=v4.7.25` threshold, and Terraform Skills v0.3.1 says released ZTC support is absent (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/terraform-provider-ztc/docs/index.md:143-152`; `vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md:5-16`). Static source does not establish live ZTW acceptance; see `sdk.md` § Authentication and `api-divergences.md` for detail.
 
 ## Terraform provider resources
 
@@ -145,15 +147,15 @@ Cloud Connector has an **activation gate** parallel to ZIA's (see [`../shared/ac
 |---|---|---|
 | GET | `/ztw/api/v1/ecAdminActivateStatus` | Current activation status |
 | PUT | `/ztw/api/v1/ecAdminActivateStatus/activate` | Apply pending config changes |
-| PUT | `/ztw/api/v1/ecAdminActivateStatus/forcedActivate` | Force-activate when normal activation is blocked |
+| PUT | `/ztw/api/v1/ecAdminActivateStatus/forcedActivate` | Force-activate configuration changes |
 
-**`activate` vs `forcedActivate`:** The plain `activate` endpoint runs the normal activation flow — which can fail or be blocked (config validation errors, edit-lock conflicts). `forcedActivate` is the bypass — used when normal activation is stuck. **Treat forced activation as last resort**: it sidesteps validation that protects against pushing broken config to live. The fact that two endpoints exist is itself the signal that CBC's activation pipeline has an escape path that ordinary ZIA activation does not expose in the same way.
+**`activate` vs `forcedActivate`:** The captured contract names the second operation only as “Force activates configuration changes”; the SDKs expose it as an explicit `force` choice, but none of the inspected static sources says that it bypasses validation, clears an edit lock, or is specifically for a stuck activation (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:104-116`; `vendor/zscaler-sdk-python/zscaler/ztw/activation.py:35-67`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go:47-58`). Do not invent those semantics. Confirm the operational intent with Zscaler before using forced activation in an automated recovery path.
 
 ### Terraform / SDK equivalents
 
 - Python SDK: `client.ztw.activate.get_status()` and `client.ztw.activate.activate(force=True|False)`.
 - Go SDK: package-level `activation.GetActivationStatus`, `activation.UpdateActivationStatus`, and `activation.ForceActivationStatus`.
-- Terraform: `ztc_activation_status` resource — runs activation during `terraform apply`.
+- Terraform: `ztc_activation_status` resource — runs **normal** activation during `terraform apply`; it has no force toggle and calls only `UpdateActivationStatus` (`vendor/terraform-provider-ztc/ztc/resource_ztc_activation_status.go:71-85`).
 
 **This is a ZIA-style pattern, not ZPA-style.** ZPA propagates on write; Cloud Connector stages and requires explicit activation. Match the pattern to the familiar ZIA model, not ZPA.
 
@@ -260,12 +262,11 @@ if status.status == "PENDING":
     if err: raise RuntimeError(f"activate: {err}")
 # See ../shared/activation.md for the full staged-vs-live treatment.
 
-# Pattern 3: forcedActivate — last resort when standard activate is stuck
-# CBC has a forcedActivate endpoint that ZIA doesn't have; treat it as escape hatch.
-# Per ./api.md § Activation: forcedActivate sidesteps validation that protects
-# against pushing broken config. Don't use it as a default; only when ./api.md
-# § "activate vs forcedActivate" diagnostic flow says you need it.
-# _, _, err = client.ztw.activate.activate(force=True)  # ← uncomment only if needed
+# Pattern 3: forcedActivate — explicit, separately authorized operation
+# CBC exposes this second endpoint, but captured static sources do not document
+# validation-bypass, lock-clearing, or stuck-activation recovery semantics.
+# Confirm operational intent with Zscaler before enabling it in automation.
+# _, _, err = client.ztw.activate.activate(force=True)  # ← intentionally opt in
 
 # Pattern 4: error-handling wrapper
 def call(method, *args, **kwargs):

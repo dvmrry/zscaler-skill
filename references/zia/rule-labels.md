@@ -23,6 +23,7 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_sandbox_rules.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_bandwidth_control_rule.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_nat_control_rules.md"
+  - "vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_traffic_capture_rules.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_file_type_control_rules.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_firewall_dns_rule.md"
@@ -252,8 +253,8 @@ vendor/zscaler-help/about-rule-labels.md)
 
 Source: `vendor/zscaler-help/about-rule-labels.md`; `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
 
-**Activation.** ZIA requires explicit configuration activation after rule or resource
-changes. When managing rule labels alongside rules via Terraform, include
+**Activation.** ZIA stages rule and resource changes behind its activation gate, but an
+API/admin session ending can autoactivate pending changes (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`). For a deliberate Terraform pipeline, include
 `zia_activation_status` with `depends_on` pointing at all managed resources to trigger
 activation after apply. (Tier B — references/zia/terraform.md)
 

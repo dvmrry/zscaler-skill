@@ -163,6 +163,8 @@ ZIA configuration changes are staged and activation is tenant-wide: one activati
 
 Plans can run concurrently, but only one write-bearing apply should run against a tenant at a time; serialize applies by tenant and activate once after the last apply (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:93-114`). Lowering Terraform's `-parallelism` does not resolve competition between separate applies (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:108-114`).
 
+ZIA also autoactivates pending changes when an API/admin session ends. The API session timeout is 5–20 minutes and defaults to 5, so a Terraform apply that crosses the boundary can publish the changes written so far before the run finishes; the provider then establishes another session and continues (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`). This platform behavior cannot be disabled. Raise `api_session_timeout` to 20 before large runs, and split very large configurations so an apply does not routinely outlive a session (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:72-91`). An explicit activator remains useful for deliberate end-of-pipeline publication, but it does not suppress session-end autoactivation.
+
 ---
 
 ## Rule ordering conventions

@@ -5,6 +5,9 @@ title: "Activation gates — ZIA + CBC have them, others don't"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
+  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
+  vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
@@ -16,6 +19,11 @@ sources:
   - "vendor/zscaler-help/automate-zscaler/getting-started.md"
   - "vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
+  - "vendor/zscaler-sdk-python/zscaler/ztw/activation.py"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go"
+  - "vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md"
+  - "vendor/terraform-provider-ztc/ztc/resource_ztc_activation_status.go"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
   - "vendor/zscaler-mcp-server/commands/troubleshoot-user.md"
   - "vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/activation.py"
@@ -30,7 +38,7 @@ author-status: draft
 
 # Activation gates — ZIA + CBC have them, others don't
 
-**Two products in the captured OneAPI activation documentation have an activation gate**: ZIA and Cloud & Branch Connector (CBC / ZTW). Their configuration changes are **staged** in pending state until explicitly activated. Other products either apply supported writes immediately or expose read-only/read-heavy surfaces; absence of an activation gate does not mean a product has no write operations.
+**Two products in the captured OneAPI activation documentation have an activation gate**: ZIA and Cloud & Branch Connector (CBC / ZTW). Their configuration changes are **staged** in pending state until activation occurs. CBC exposes explicit activation operations; ZIA supports explicit activation but also autoactivates when an API/admin session ends, as detailed below. Other products either apply supported writes immediately or expose read-only/read-heavy surfaces; absence of an activation gate does not mean a product has no write operations.
 
 This asymmetry is the #1 source of "why doesn't my rule change work?" confusion in cross-product automation. Always check activation status early in any ZIA or CBC troubleshooting flow.
 
@@ -41,7 +49,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscal
 | Product | Activation? | Status endpoint | Activate endpoint | Notes |
 |---|---|---|---|---|
 | **ZIA** | Yes | `GET /zia/api/v1/status` | `POST /zia/api/v1/status/activate` | The original activation gate |
-| **CBC (ZTW)** | Yes | `GET /ztw/api/v1/ecAdminActivateStatus` | `POST /ztw/api/v1/ecAdminActivateStatus/activate` | Plus `POST /ztw/api/v1/ecAdminActivateStatus/forceActivate` for stuck activations |
+| **CBC (ZTW)** | Yes | `GET /ztw/api/v1/ecAdminActivateStatus` | `PUT /ztw/api/v1/ecAdminActivateStatus/activate` | Also exposes `PUT /ztw/api/v1/ecAdminActivateStatus/forcedActivate`; its extra semantics are not documented in captured static sources |
 | ZPA | No | — | — | Propagates on write |
 | ZDX | No | — | — | Read-heavy; current MCP can start/delete deep traces and score analyses, and those diagnostic-session writes have no separate activation step (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:319-355`) |
 | ZIdentity | No | — | — | Identity changes apply on write |
@@ -85,24 +93,29 @@ The EUSA endpoints are easy to miss; they enforce a click-through user agreement
 
 Terraform equivalent: the `zia_activation_status` resource runs activation during `terraform apply`.
 
-## CBC mechanism (parallel but with `forceActivate`)
+### Session-boundary autoactivation
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`.
+ZIA also autoactivates pending changes when an API/admin session ends, including when the API session reaches the configured `api_session_timeout`. That timeout accepts 5–20 minutes and defaults to 5; a long Terraform apply can therefore publish a partial set of changes mid-run, after which the provider opens another session and continues (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`). The behavior is platform-native and cannot be disabled by the provider. Before a large apply, raise the timeout to 20 minutes and split work so a single apply is unlikely to cross the boundary (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:72-91`).
 
-CBC's activation gate works the same way as ZIA's — except CBC ships **two activate endpoints**, not one:
+Activation remains tenant-wide and can queue behind other editing sessions; a queued activation cannot be cancelled. Serialize write-bearing applies by tenant and run one explicit activation only after the final apply (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:93-114`).
+
+## CBC mechanism (parallel, with a separate forced endpoint)
+
+Source: `vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json`; `vendor/zscaler-sdk-python/zscaler/ztw/activation.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/resource_ztc_activation_status.go`.
+
+CBC also stages changes behind an activation gate and ships **two activate endpoints**, not one. The captured CBC sources do not establish whether ZIA's session-boundary autoactivation behavior also applies to CBC:
 
 | Method | Path | Purpose |
 |---|---|---|
 | GET | `/ztw/api/v1/ecAdminActivateStatus` | Current activation status |
-| POST | `/ztw/api/v1/ecAdminActivateStatus/activate` | Normal activation |
-| POST | `/ztw/api/v1/ecAdminActivateStatus/forceActivate` | **Force-activate when normal activation is blocked** |
+| PUT | `/ztw/api/v1/ecAdminActivateStatus/activate` | Normal activation |
+| PUT | `/ztw/api/v1/ecAdminActivateStatus/forcedActivate` | Force-activate configuration changes |
 
-**`forceActivate` is a last-resort signal.** Its existence — parallel to ZIA which has only `activate` — implies that CBC's activation pipeline can get stuck in ways ZIA's doesn't (more validation, more cross-resource consistency checks, edit-lock complexity from multi-VM Cloud Connector groups). Operationally:
+The captured Automate contract describes the second operation only as “Force activates configuration changes,” and both SDKs expose it as an explicit force choice (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:104-116`; `vendor/zscaler-sdk-python/zscaler/ztw/activation.py:35-67`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go:47-58`). None of those sources says it bypasses validation, overrides an edit lock, or is specifically a stuck-activation recovery path. Operationally:
 
 - Use `activate` first.
-- If it fails repeatedly with errors that look like state-consistency issues, `forceActivate` is the bypass.
-- `forceActivate` skips at least some validation that protects against pushing broken config to live; only use it when you've confirmed the underlying issue is not a config-correctness problem.
-- Terraform: `ztc_activation_status` resource (likely with a `force` toggle — check the provider schema).
+- Do not infer recovery or validation-bypass semantics from the word “force”; confirm intended use with Zscaler before automating it.
+- Terraform's `ztc_activation_status` resource calls only normal `UpdateActivationStatus` and exposes no force toggle (`vendor/terraform-provider-ztc/ztc/resource_ztc_activation_status.go:71-85`, `:117-123`). Use an SDK or the raw API only when forced activation has been explicitly chosen and operationally justified.
 
 ## `409 EDIT_LOCK_NOT_AVAILABLE` — concurrent writes
 

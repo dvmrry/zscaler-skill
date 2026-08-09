@@ -17,6 +17,7 @@ sources:
   - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
   - "vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_cloud_nss_server.go"
+  - "vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloud_nss.py"
 author-status: draft
 ---
@@ -305,7 +306,7 @@ Both the audit log and event log APIs require ZIA Cloud Service API access. Per 
 
 ### Activation
 
-ZIA requires explicit activation after configuration changes. Audit log queries are read-only operations and do not require activation. Canceling a report (DELETE) also does not require activation.
+ZIA configuration writes use the activation gate; deliberate workflows should activate explicitly, while session end can also autoactivate pending configuration (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`). Audit-log queries are read-only and do not require activation. Canceling a report (DELETE) likewise does not require activation.
 
 ---
 

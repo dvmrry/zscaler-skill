@@ -503,7 +503,7 @@ The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these op
 | [`cloud-connector-16`](#cloud-connector-16-ztc_traffic_forwarding_rule-oneapi-requirement-and-zpa-app-segment-id-equivalence) | `ztc_traffic_forwarding_rule` OneAPI requirement + ZPA segment-ID parity | lab test |
 | [`cloud-connector-17`](#cloud-connector-17-local-local_switch-forwarding-method-real-behavior-or-doc-artifact) | "Local" / `LOCAL_SWITCH` forwarding method — real or doc artifact | lab test / Postman cross-check |
 | [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API gap: public GCP discovery REST family | vendor API documentation / lab test |
-| [`cloud-connector-19`](#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-govten-exclusion-behavior) | ZTW SDK method-convention anomalies + OneAPI gov/ten exclusion behavior | code read / lab test |
+| [`cloud-connector-19`](#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-fedramp-behavior) | ZTW SDK method-convention anomalies + OneAPI FedRAMP behavior | code read / release note / lab test |
 | [`cloud-connector-20`](#cloud-connector-20-nss-va-for-cbc-feed-coverage-sizing-certs-ha-and-rule-match-semantics) | NSS VA for CBC: feed coverage / sizing / certs / HA / rule-match | zscaler doc not yet read / lab test |
 | [`cloud-connector-21`](#cloud-connector-21-insightstunnel-insights-aggregation-and-byte-count-parity-with-nss-feeds) | Insights/Tunnel-Insights aggregation + byte-count parity with NSS feeds | lab test / zscaler doc not yet read |
 | [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: standard deployment / sovereign clouds / WDS-vs-ZTG parity | tenant snapshot / support ticket / cloud Marketplace checks |
@@ -4828,14 +4828,16 @@ GCP workload discovery has a public REST family
 
 ---
 
-### cloud-connector-19 — ZTW SDK method-convention anomalies and OneAPI gov/ten exclusion behavior
+### cloud-connector-19 — ZTW SDK method-convention anomalies and OneAPI FedRAMP behavior
 
 *Origin: `references/cloud-connector/sdk.md` § Open questions*
 
-Two Go SDK convention anomalies whose intent is unconfirmed: (1) `provisioning_url` uses the ZIA-style methods (`service.Client.Create`, not `CreateResource`) for `Create` / `UpdateWithPut` / `Delete` — whether this is intentional or a bug is not stated in source; (2) `workload_groups.Get` calls `service.Client.Read` (not `ReadResource`), inconsistent with the ZTW convention of `ReadResource` for GETs — the endpoint may use the ZIA-compatible request path rather than the Resource-suffixed path, but the reason is not documented. Plus one narrower auth question: OneAPI is confirmed available for ZTW and excluded for the `zscalergov` and `zscalerten` clouds, but whether the SDK surfaces that exclusion as an explicit error or silently falls back to legacy auth for those clouds is not confirmed from source.
+Two Go SDK convention anomalies remain unconfirmed: (1) `provisioning_url` uses the ZIA-style methods (`service.Client.Create`, not `CreateResource`) for `Create` / `UpdateWithPut` / `Delete`; and (2) `workload_groups.Get` calls `service.Client.Read` rather than the ZTW-typical `ReadResource`. The endpoint may use the older request path intentionally, but source does not explain either choice.
 
-**Status**: open
-**Resolves with**: code read (a future SDK release or maintainer note clarifying the method-convention choices) OR lab test (invoke ZTW OneAPI against a gov/ten cloud and observe whether it errors or falls back)
+The earlier FedRAMP premise is reopened. The shared Go OneAPI client constructs dedicated `gov` / `govus` ZIdentity and API-gateway routes, and the ZTC provider passes its unrestricted `zscaler_cloud` string into that client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/terraform-provider-ztc/ztc/provider.go:44-49`; `vendor/terraform-provider-ztc/ztc/config.go:350-372`). The current provider docs claim FedRAMP support but attach it to `>=v4.7.25`, an impossible threshold for the current v0.2.0 ZTC provider (`vendor/terraform-provider-ztc/docs/index.md:143-152`; `vendor/terraform-provider-ztc/CHANGELOG.md:3-12`). Official Terraform Skills v0.3.1 says the opposite: no released ZTC version supports OneAPI FedRAMP and government tenants should use legacy auth (`vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md:5-16`). Static source therefore establishes route construction but neither released support nor live ZTW acceptance. The prior categorical gov/ten exclusion and its fallback question are no longer supportable as written.
+
+**Status**: open — last updated 2026-08-09
+**Resolves with**: code read (a future SDK release or maintainer note clarifying the method-convention choices) AND a current ZTC release note or vendor API statement explicitly establishing FedRAMP support, or a lab test that authenticates and completes a ZTW operation through OneAPI on `gov` / `govus`
 
 ---
 

@@ -15,6 +15,10 @@ sources:
   - "vendor/terraform-provider-zpa/README.md"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go"
+  - "vendor/zscaler-terraformer/CHANGELOG.md"
+  - "vendor/zscaler-terraformer/README.md"
+  - "vendor/zscaler-terraformer/terraformutils/nesting/nesting.go"
 author-status: draft
 ---
 
@@ -178,7 +182,9 @@ From the feature-parity caveat above, plus direct observation:
 
 ## Handy companion tool
 
-`zscaler/zscaler-terraformer` (separate repo at `https://github.com/zscaler/zscaler-terraformer`) converts an existing Zscaler tenant's configuration into Terraform HCL — useful for onboarding an existing tenant into Terraform management without hand-writing every resource.
+`zscaler/zscaler-terraformer` (separate repo at `https://github.com/zscaler/zscaler-terraformer`) converts existing ZIA, ZPA, and a bounded ZTC resource set into Terraform HCL and import commands. It is useful for brownfield onboarding, but its own documentation warns that generated HCL is not guaranteed to be perfect and may need manual repair (`vendor/zscaler-terraformer/README.md:588-598`). Check `--supported-resources=<product>` before assuming a provider resource is covered.
+
+Terraformer v2.1.21 adds name-based data-source conversion for nested `zia_dlp_web_rules` attributes (`vendor/zscaler-terraformer/CHANGELOG.md:3-13`). One edge remains at the current pin: the new special-block list spells `exclude_users`, while the provider schema and expand/flatten paths use `excluded_users` (`vendor/zscaler-terraformer/terraformutils/nesting/nesting.go:257-261`; `vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go:264-269`, `:618-624`, `:832-838`). Treat generated `excluded_users` HCL as a Terraformer tooling limitation: inspect and repair that block manually rather than inferring anything about ZIA's API behavior.
 
 ## Schema patterns worth knowing
 

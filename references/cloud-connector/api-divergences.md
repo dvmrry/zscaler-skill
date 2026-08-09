@@ -10,6 +10,7 @@ verified-against:
   vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
+  vendor/zscaler-terraform-skills: d8226c37f7fc7c544cbf60a9faf59eaa49051980
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.md"
@@ -34,9 +35,12 @@ sources:
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_forwarding_gateway.go"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_location_management.go"
   - "vendor/terraform-provider-ztc/ztc/provider.go"
+  - "vendor/terraform-provider-ztc/ztc/config.go"
+  - "vendor/terraform-provider-ztc/docs/index.md"
   - "vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md"
   - "vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log_rule.md"
   - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md"
+  - "vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md"
 author-status: draft
 ---
 
@@ -208,8 +212,11 @@ Do not assume `LOCAL_SWITCH` works through the Go SDK path or that `ZPA`/`ECSELF
 - **Go SDK legacy config:** `ztw/v2_config.go` exposes only username/password/API-key/cloud setters, keyed on the `ZTC_USERNAME`/`ZTC_PASSWORD`/`ZTC_API_KEY`/`ZTC_CLOUD` env vars, and builds a base URL of `https://connector.{cloud}.net/api/v1`. (`vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go:39-43,113-116,172-178`)
 - **Go SDK OneAPI:** the unified client routes ZTW to a dedicated OAuth2 HTTP client (`getServiceHTTPClient` → `ZTWHTTPClient` for the `ztw` service) and classifies any `ztw`-prefixed path as the ZTW service. (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:370-373,385-391`)
 - **Python SDK:** the unified `Client` imports `ZTWService` and returns it over the shared OneAPI request executor unless `use_legacy_client` + a `LegacyZTWClientHelper` are both supplied. (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:30-31,112-118,303-310`)
+- **Go SDK FedRAMP routing:** the shared OneAPI client maps `gov` and `govus` to dedicated government ZIdentity domains and API gateways; these mappings are service-generic and therefore also feed the ZTW HTTP client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`).
+- **ZTC provider:** `zscaler_cloud` is an unrestricted string and is passed to the shared Go client for both secret and private-key auth (`vendor/terraform-provider-ztc/ztc/provider.go:44-49`; `vendor/terraform-provider-ztc/ztc/config.go:350-372`). Its generated docs nevertheless claim FedRAMP support requires provider `>=v4.7.25`, even though the current ZTC release is v0.2.0 (`vendor/terraform-provider-ztc/docs/index.md:143-152`; `vendor/terraform-provider-ztc/CHANGELOG.md:3-12`).
+- **Terraform Skills v0.3.1:** says no released ZTC version supports OneAPI FedRAMP and directs government tenants to the legacy path (`vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md:5-16`).
 
-**Significance / which to trust:** ZTW (Cloud Connector) is a **first-class OneAPI service** in both SDKs — not OneAPI-absent. The legacy `ZTC_*` path is the *alternative*, retained for backwards compatibility, not the only surface. Older guidance that read `v2_config.go` in isolation and concluded "OneAPI not confirmed for ZTW" was mis-reading the legacy config as the whole picture; OneAPI for ZTW lives in the top-level unified client, not the legacy ZTW config. (Cross-ref: `sdk.md:110-121`.)
+**Significance / which to trust:** ZTW (Cloud Connector) is a **first-class OneAPI service** in both SDKs — not OneAPI-absent. The legacy `ZTC_*` path is the alternative, retained for backwards compatibility, not the only surface. But FedRAMP is not resolved: route-building code proves what URL the client will call, not whether a released/live ZTW service accepts that client and scope. The provider-doc version floor is internally impossible and the official skill contradicts it. For a production government tenant, retain legacy auth unless a current ZTC release note, vendor confirmation, or tenant test establishes OneAPI acceptance. Track that evidence gap in [clarification `cloud-connector-19`](../_meta/clarifications.md#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-fedramp-behavior). (Cross-ref: `sdk.md` § Authentication.)
 
 ---
 

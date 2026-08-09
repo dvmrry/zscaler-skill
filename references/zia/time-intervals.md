@@ -21,6 +21,7 @@ sources:
   - "vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md"
   - "vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md"
   - "vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_time_window.md"
+  - "vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md"
 author-status: draft
 ---
 
@@ -380,11 +381,12 @@ is added in the future, or managing them out-of-band via the API/SDK.
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/time_intervals/time_intervals.go`; `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`.
 
-ZIA changes are generally staged and only take effect after an activation call. Treat time
-interval CRUD operations as part of that activation model unless a tenant test proves
-otherwise. After creating, updating, or deleting a time interval, callers should invoke
-the activation endpoint through the Go SDK or equivalent Python method to commit the
-change.
+ZIA changes are generally staged until an activation event. Treat time-interval CRUD
+operations as part of that activation model unless a tenant test proves otherwise. Callers
+should invoke the activation endpoint through the Go SDK or equivalent Python method to
+publish deliberately after create, update, or delete; do not rely on delay as a safety
+boundary, because an API/admin session ending can autoactivate pending changes
+(`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`).
 
 ## 7. Operational gotchas
 
