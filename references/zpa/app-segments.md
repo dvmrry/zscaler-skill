@@ -7,8 +7,8 @@ last-verified: "2026-07-20"
 verified-against:
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
 confidence: high
 source-tier: mixed
 sources:
@@ -30,6 +30,7 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go"
 author-status: draft
 ---
 
@@ -94,7 +95,7 @@ A few fields live at the API/TF level but are absent from or under-documented in
 - **Dual port-range formats coexist:**
   - `tcp_port_ranges` / `udp_port_ranges` — list of strings, e.g. `["80", "8080-8090"]` (the field name the TF provider uses)
   - `tcp_port_range` / `udp_port_range` — list of `{from, to}` dicts
-  - SDK `request_format()` sends both (`zscaler/zpa/models/application_segment.py:218-221`, where `tcpPortRanges`/`udpPortRanges` and `tcpPortRange`/`udpPortRange` are emitted together; the read-side dict parse is `:98-108`). Different endpoints may prefer one or the other; both are tolerated. In snapshot JSON, you may see the same ports emitted twice in two formats.
+  - SDK `request_format()` sends both (`zscaler/zpa/models/application_segment.py:227-230`, where `tcpPortRanges`/`udpPortRanges` and `tcpPortRange`/`udpPortRange` are emitted together; the read-side dict parse is `:96-108`). Different endpoints may prefer one or the other; both are tolerated. In snapshot JSON, you may see the same ports emitted twice in two formats.
 - **`inspect_traffic_with_zia`** (bool, default `False`) — enables ZIA inline inspection for ZPA traffic at the segment level. This is the ZPA-side hook for ZIA+ZPA integration (distinct from ZIA's `zpa_app_segments` on SSL inspection rules, which operates the reverse direction). When a request touches both products, check both toggles.
 - **Governance flags** (server-assigned, appear across ZPA resources):
   - `read_only` — set by Zscaler-managed or microtenant-restricted objects. Cannot be modified by customer admins.
@@ -104,16 +105,25 @@ A few fields live at the API/TF level but are absent from or under-documented in
 - **`select_connector_close_to_app` is provider-version sensitive.** Terraform provider v4.4.6 removed `ForceNew` from this attribute on the base `zpa_application_segment` resource, and the current schema exposes it as a plain optional bool (`vendor/terraform-provider-zpa/CHANGELOG.md:53-62`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions treated the base resource as destroy/recreate on toggle; check the provider version and variant schema before planning a connector-proximity routing change.
 - **`bypass_type` has three values, not two**: `ALWAYS`, `NEVER`, `ON_NET` (`resource_zpa_application_segment.go:83-87`). **`ON_NET`** (bypass only for on-network users) is undocumented in most help articles but is a valid API value — useful for hybrid on-network-vs-remote patterns.
 - **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) — controls ICMP behavior on the segment. Relevant when a question asks "why can I ping this app through ZPA?"
-- **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not boolean** (sent on the wire `:234`). Wire-format quirk: callers writing JSON payloads programmatically must send strings.
-- **Segment fields under-documented in help but present in both SDKs.** These fields live on the segment model in *both* the Python SDK (`zscaler/zpa/models/application_segment.py`) and the Go SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:29-76`), and the Python `request_format()` writes them on the wire — so Python callers can both read and **write** them, not just read them out of snapshot JSON. They are nonetheless thin or absent in the help articles, so they surface mostly when reading snapshot JSON or scripting segments:
-  - **`bypass_on_reauth`** (py `:50`, sent on the wire `:230`; go `BypassOnReauth` `:38`) — whether the segment bypasses ZPA on session re-authentication. Operationally significant: affects hybrid on-net/off-net users who re-auth mid-session (session flaps can briefly skip ZPA inspection).
+- **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not boolean** (sent on the wire `:243`). Wire-format quirk: callers writing JSON payloads programmatically must send strings.
+- **Segment fields under-documented in help but present in both SDKs.** These fields live on the segment model in *both* the Python SDK (`zscaler/zpa/models/application_segment.py`) and the Go SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:23-79`), and the Python `request_format()` writes them on the wire — so Python callers can both read and **write** them, not just read them out of snapshot JSON. They are nonetheless thin or absent in the help articles, so they surface mostly when reading snapshot JSON or scripting segments:
+  - **`bypass_on_reauth`** (py `:50`, sent on the wire `:239`; go `BypassOnReauth` `:38`) — whether the segment bypasses ZPA on session re-authentication. Operationally significant: affects hybrid on-net/off-net users who re-auth mid-session (session flaps can briefly skip ZPA inspection).
   - **`extranet_enabled`** (py `:68`; go `ExtranetEnabled` `:29`) — extranet access toggle for the segment.
-  - **`api_protection_enabled`** (py `:65`) / **`auto_app_protect_enabled`** (py `:64`) / **`adp_enabled`** (py `:63`, sent `:238`) — AppProtection and Application Data Protection-related flags.
+  - **`api_protection_enabled`** (py `:65`) / **`auto_app_protect_enabled`** (py `:64`) / **`adp_enabled`** (py `:63`, sent `:247`) — AppProtection and Application Data Protection-related flags.
   - **`weighted_load_balancing`** (py `:67`; go `WeightedLoadBalancing` `:56`) — weighted balancing across App Connectors instead of default strategy.
   - **`fqdn_dns_check`** (py `:66`; go `FQDNDnsCheck` `:42`) — FQDN DNS-resolution health check on the segment.
   - **`health_check_type`** (py `:46`; go `HealthCheckType` `:39`) — discriminates health-check strategies beyond the `health_reporting` enum.
-  - **`policy_style`** (py `:55`, sent `:256`; go `PolicyStyle` `:76`) — finer-grained policy-style selector (undocumented enum).
-  - **`zpn_er_id`** (py `:136`, sent `:255`; go `ZPNERID` `:74`, JSON key `zpnErId`) — Zscaler internal reference identifier.
+  - **`policy_style`** (py `:55`, sent `:265`; go `PolicyStyle` `:79`) — finer-grained policy-style selector (undocumented enum).
+  - **`zpn_er_id`** (py `:139-147`, sent `:264`; go `ZPNERID` `:77`, JSON key `zpnErId`) — Zscaler internal reference identifier.
+  - **v3.8.45/v1.9.41 additions:** `hbr_enabled`, `sticky_entity`, `sticky_group`, and `guest_details` are now exposed on the base, Browser Access, Inspection, and PRA segment variants. Both SDKs serialize the same wire keys (`hbrEnabled`, `stickyEntity`, `stickyGroup`, `guestDetails`), while the Go common model expands each guest record into `federationId` plus partner approval/federation metadata (`vendor/zscaler-sdk-go/CHANGELOG.md:3-18`; base fields at `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:61-73`; other variants at `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:57-62`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:57-61`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:51-59`; nested shape at `vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:161-172`; Python read/write surface at `vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:74-90,266-269`). The source names do not establish the accepted `hbrEnabled` states or sticky-selection semantics; those remain open under [clarification `zpa-83`](../_meta/clarifications.md#zpa-83-application-segment-hbr-sticky-and-guestdetails-semantics).
+
+Python v1.9.41's new `guestDetails` type is not safe for populated partner
+records: its constructor tests `partnerInfo` against an unrelated privileged
+capabilities class and then calls `common.PartnerInfo`, while the `PartnerInfo`
+class added by the release is local to the application-segment model
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:20-23,1164-1208`).
+Use a raw response or the Go model when `partnerInfo` can be present; see
+[`./api-divergences.md`](./api-divergences.md#python-v1941-cannot-decode-populated-guestdetailspartnerinfo).
 
 The Go serialization fix for `bypassOnReauth` is segment-type-specific. Base
 and Browser Access segments now always send the boolean, while Inspection and
@@ -125,10 +135,10 @@ PRA still omit explicit `false`
 See [`./api-divergences.md`](./api-divergences.md#bypassonreauth-explicit-false-is-still-dropped-for-inspection-and-pra-in-go)
 for the Python comparison.
 - **Newer segment fields neither SDK section called out before.** Modeled on the Go `ApplicationSegmentResource` and (where noted) the Python models:
-  - **`app_recommendation_id`** (go `AppRecommendationId` `:46`; Python carries it on the Browser Access `AppResource` model, `application_segment.py:864`) — links a segment back to an app-recommendation record.
-  - **`default_idle_timeout`** (go `DefaultIdleTimeout` `:68`; Python `AppResource` `:869`) and **`default_max_age`** (go `DefaultMaxAge` `:69`; Python `AppResource` `:870`) — session-lifecycle timers, emitted as strings.
-  - **`share_to_microtenants`** (go `ShareToMicrotenants` `:72`, JSON `shareToMicrotenants`) — the microtenant-share target list (the payload the Share operation below sets).
-  - **`tags`** (py `:154`; go `Tags` `:75`) — namespace/key/value tag objects attached to the segment.
+  - **`app_recommendation_id`** (go `AppRecommendationId` `:46`; Python carries it on the Browser Access `AppResource` model, `application_segment.py:877`) — links a segment back to an app-recommendation record.
+  - **`default_idle_timeout`** (go `DefaultIdleTimeout` `:71`; Python `AppResource` `:882`) and **`default_max_age`** (go `DefaultMaxAge` `:72`; Python `AppResource` `:883`) — session-lifecycle timers, emitted as strings.
+  - **`share_to_microtenants`** (go `ShareToMicrotenants` `:75`, JSON `shareToMicrotenants`) — the microtenant-share target list (the payload the Share operation below sets).
+  - **`tags`** (py `:159`; go `Tags` `:78`) — namespace/key/value tag objects attached to the segment.
 - **Browser Access app resources expose `inconsistentConfigDetails`.** The Python SDK model for Browser Access app resources (`AppResource`) now carries the API's `inconsistentConfigDetails` field. Treat it as a server-reported configuration warning attached to the app resource, not as application-segment matching or policy precedence by itself.
 - **Cross-microtenant Move and Share operations** are available in **both** SDKs:
   - **Move** — `POST .../application/{id}/move`, moves a segment from one microtenant to another. Python: `client.zpa.app_segments.app_segment_move(application_id, target_segment_group_id=..., target_server_group_id=..., target_microtenant_id=...)` (`zscaler/zpa/application_segment.py:525`). Go: `AppSegmentMicrotenantMove` in the `applicationsegment_move/` service (`applicationsegment_move/applicationsegment_move.go:25,32`).

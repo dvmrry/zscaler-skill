@@ -5,8 +5,8 @@ title: "Zscaler Cellular claims ledger - Tier 3 misc refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
@@ -24,6 +24,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json"
   - "vendor/zscaler-sdk-python/README.md"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_response.py"
   - "vendor/zscaler-sdk-python/zscaler/config/config_setter.py"
@@ -34,6 +35,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcell/customer_region_handling.py"
   - "vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py"
   - "vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcell/models/sim_location_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py"
   - "vendor/zscaler-mcp-server/CHANGELOG.md"
   - "vendor/zscaler-mcp-server/docs/guides/toolsets.md"
@@ -76,5 +78,6 @@ author-status: draft
 | Time-bounded MCP reads expose a local `days` shorthand, default 7 and constrained to 1–365; they do not expose raw start/end timestamps. | `api.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:35-56`; `vendor/zscaler-sdk-python/zscaler/utils.py:485-558` |
 | MCP v0.15 record tools preserve every attribute carried by their decoded SDK model or dictionary input. ZCell audit rows and SIM detail/search therefore return the full decoded records or envelope; this is not raw-HTTP fidelity, and fields such as `old_data`, `new_data`, or `usageVal` appear only if the SDK model's `as_dict()` result carries them. | `api.md` | `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`; `vendor/zscaler-mcp-server/tests/test_shaping_helpers.py:45-89`, `:97-134`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:59-77`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:83-113`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:100-122`, `:125-162`; contract field at `vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:11720-11726` |
 | Anomaly-violation ICCID strings can still be lost before MCP shaping: the SDK response cleaner drops non-dictionary ZCell page items, while the MCP violation tool now passes through every decoded item it receives. | `api.md` | `vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:4080-4200`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py:260-290`; `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:363-430`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/anomaly_policy.py:149-177` |
-| MCP is a 20-operation read/search subset, not parity with the captured 36-operation contract; 16 mutation/export operations remain SDK/API-only. | `api.md` | Totals: `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`; `vendor/zscaler-mcp-server/tests/test_docgen.py:119-123`. Omitted operation families: `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:117-241`, `:311-347`; `vendor/zscaler-sdk-python/zscaler/zcell/customer_data_handling.py:74-108`; `vendor/zscaler-sdk-python/zscaler/zcell/customer_region_handling.py:85-116`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:96-177`, `:179-284`, `:328-454`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:131-257`; `vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:91-121` |
+| MCP is a 20-operation read/search subset, not parity with the captured 36-operation contract; 16 mutation/export operations remain SDK/API-only. | `api.md` | Totals: `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`; `vendor/zscaler-mcp-server/tests/test_docgen.py:119-123`. Omitted operation families: `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:117-241`, `:311-347`; `vendor/zscaler-sdk-python/zscaler/zcell/customer_data_handling.py:74-108`; `vendor/zscaler-sdk-python/zscaler/zcell/customer_region_handling.py:85-116`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:96-177`, `:179-284`, `:328-454`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:131-268`; `vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:91-121` |
+| Python v1.9.40 repairs the SIM location-group get-by-ID geofence model, but create still serializes through the old model: it drops `geo_fence_details` and recognizes tracked devices only as exact wire-case `trackedDevices`. Update likewise recognizes only wire-case `geoFenceData` / `trackedDevices` before request conversion. | `api.md` | Release claim: `vendor/zscaler-sdk-python/CHANGELOG.md:21-30`; create contract: `vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:6548-6617`; service/model mismatch: `vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:23-28,91-172`; `vendor/zscaler-sdk-python/zscaler/zcell/models/sim_location_groups.py:22-51,81-188,249-283` |
 | Cellular admin/API surface is partially resolved: public contract, Python SDK, and read-only MCP automation are source-backed, while live entitlement/backend acceptance, ZIA/ZPA policy-object mapping, and several MCP request/response divergences remain unresolved. | `overview.md`, `api.md`, `clarifications.md` | PARTIAL -> `references/_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface`; `references/_meta/clarifications.md#zscaler-cellular-02-mcp-violation-response-shape`; `references/_meta/clarifications.md#zscaler-cellular-03-mcp-sim-pagination-routing`; `references/_meta/clarifications.md#zscaler-cellular-04-mcp-audit-request-contract` |

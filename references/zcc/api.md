@@ -144,7 +144,7 @@ No `add_forwarding_profile` in the current SDK — profiles are created via a di
 Base path `/zcc/papi/public/v1/web/policy`.
 
 - `list_by_company(query_params={...})` — `GET /web/policy/listByCompany`. Query params `page`, `page_size`, `device_type` (`ios`/`android`/`windows`/`macos`/`linux`), `search`, `search_type`.
-- `web_policy_edit(**kwargs)` — `PUT /web/policy/edit` (PUT, **not** POST — unlike `webForwardingProfile/edit`). The SDK method forwards all kwargs unchanged through `zcc_to_wire(body, WebPolicy)` so the snake_case/camelCase mix lands correctly (`vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py:455-457`); it does not itself branch on create vs. update — the docstring describes it as "Adds or updates" (`:154`). The single endpoint serves both create and update **API-side**: per the CHANGELOG, the create path "silently rejects duplicate names with `success=false, id=0`" (`vendor/zscaler-sdk-python/CHANGELOG.md:111`), and a successful edit returns `{"success":"true","id":<int>}`.
+- `web_policy_edit(**kwargs)` — `PUT /web/policy/edit` (PUT, **not** POST — unlike `webForwardingProfile/edit`). The SDK method forwards all kwargs unchanged through `zcc_to_wire(body, WebPolicy)` so the snake_case/camelCase mix lands correctly (`vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py:455-457`); it does not itself branch on create vs. update — the docstring describes it as "Adds or updates" (`:154`). The single endpoint serves both create and update **API-side**: per the CHANGELOG, the create path "silently rejects duplicate names with `success=false, id=0`" (`vendor/zscaler-sdk-python/CHANGELOG.md:477`), and a successful edit returns `{"success":"true","id":<int>}`.
 - `activate_web_policy(**kwargs)` — `PUT /web/policy/activate`. Enables/disables a policy or app profile per platform; takes `device_type` and `policy_id`.
 - `delete_web_policy(policy_id)` — `DELETE /web/policy/{id}/delete`.
 
@@ -184,11 +184,11 @@ if err: raise RuntimeError(f"force_remove: {err}")
 # mix (WebPolicy.SNAKE_CASE_KEYS) lands correctly on the wire. The method forwards all
 # kwargs unchanged (web_policy.py:455-457) — it does NOT branch on create vs. update.
 # Create-vs-update is decided API-side: the create path silently rejects a duplicate
-# name with success=false, id=0 (CHANGELOG.md:111). A successful /edit returns
+# name with success=false, id=0 (CHANGELOG.md:477). A successful /edit returns
 # {"success":"true","id":<int>} — refetch via list_by_company(device_type=...) to read it back.
 # History: early Python SDK builds v1.9.13–v1.9.14 had a regression where every call
 # returned 400 (upstream issue zscaler/zscaler-sdk-python#458) — resolved by v1.9.25
-# (PR #501; vendor/zscaler-sdk-python/CHANGELOG.md:103).
+# (PR #501; vendor/zscaler-sdk-python/CHANGELOG.md:469).
 _, _, err = client.zcc.web_policy.web_policy_edit(
     name="corp-windows", device_type=3, active="1", rule_order=1,
     group_ids=[62718389], user_ids=["5807211"])  # no id => create

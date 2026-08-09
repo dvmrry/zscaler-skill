@@ -377,7 +377,7 @@ Full CRUD for traffic forwarding rules. Includes an optional server-side filter 
 
 Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44,120,124,128,132,152`.
 
-> Python/Go divergence: the Python SDK added a `dest_workload_groups_ids` attribute to ZTW `forwarding_rules` (`vendor/zscaler-sdk-python/CHANGELOG.md:349`, PR #450), but the Go `ForwardingRules` struct carries only `SrcWorkloadGroups` (`:152`) with no `DestWorkloadGroups` counterpart. Candidate for `api-divergences.md`.
+> Python/Go divergence: the Python SDK added a `dest_workload_groups_ids` attribute to ZTW `forwarding_rules` (`vendor/zscaler-sdk-python/CHANGELOG.md:708-715`, PR #450), but the Go `ForwardingRules` struct carries only `SrcWorkloadGroups` (`:152`) with no `DestWorkloadGroups` counterpart. Candidate for `api-divergences.md`.
 
 TF resource: `ztc_traffic_forwarding_rule`
 

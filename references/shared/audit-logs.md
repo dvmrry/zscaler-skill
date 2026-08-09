@@ -7,8 +7,8 @@ last-verified: "2026-07-20"
 confidence: medium
 source-tier: code
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 sources:
   - "vendor/zscaler-help/about-log-streaming-service.md"
   - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"

@@ -43,7 +43,7 @@ Source: `vendor/zscaler-sdk-python/README.md`.
 Same two-framework model as ZIA — see [`../zia/api.md`](../zia/api.md#authentication-two-frameworks) for the full description. Summary:
 
 - **OneAPI** (current, OAuth 2.0 via ZIdentity): unified `ZscalerClient` exposes `.zpa` as the ZPA resource root.
-- **Legacy** (older, ZPA-specific credentials): `from zscaler.oneapi_client import LegacyZPAClient`. Use for pre-ZIdentity tenants, older SDKs, and provider paths that still document ZPA `GOV` / `GOVUS` as legacy-only. Current Python SDK releases also model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus` (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`), so check the selected client surface before assuming gov means legacy.
+- **Legacy** (older, ZPA-specific credentials): `from zscaler.oneapi_client import LegacyZPAClient`. Use for pre-ZIdentity tenants, older SDKs, and provider paths that still document ZPA `GOV` / `GOVUS` as legacy-only. Current Python SDK releases also model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus` (`vendor/zscaler-sdk-python/CHANGELOG.md:353-361`; `vendor/zscaler-sdk-python/zscaler/constants.py:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:26`), so check the selected client surface before assuming gov means legacy.
 
 ZPA-legacy auth uses a Client ID + Client Secret + customer ID issued in the ZPA Admin Portal. Per SDK README, these map to env vars when using the unified client under legacy mode.
 
@@ -125,8 +125,9 @@ resource "zpa_application_segment" "this" {
   - `tcpPortRange` / `udpPortRange` — list of `{from, to}` dicts
   - SDK `request_format()` sends both. Different API endpoints may require one or the other; the SDK tolerates both.
 - **`inspect_traffic_with_zia`** (bool) — enables ZIA inline inspection for ZPA traffic at the segment level. This is the ZPA-side hook for ZIA+ZPA integration (distinct from ZIA's `zpa_app_segments` on SSL inspection rules).
-- **`policy_style`** — a free `string` in the SDK (no enum constant): `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:76` (`PolicyStyle string json:"policyStyle,omitempty"`). The API returns one of two observed values, `DUAL_POLICY_EVAL` or `NONE` (operator-corroborated, not an SDK enum). See [`./api-divergences.md § Field observations (Application Segments)`](./api-divergences.md#field-observations-application-segments).
+- **`policy_style`** — a free `string` in the SDK (no enum constant): `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:79` (`PolicyStyle string json:"policyStyle,omitempty"`). The API returns one of two observed values, `DUAL_POLICY_EVAL` or `NONE` (operator-corroborated, not an SDK enum). See [`./api-divergences.md § Field observations (Application Segments)`](./api-divergences.md#field-observations-application-segments).
 - **`read_only`, `restriction_type`, `zscaler_managed`** are server-assigned governance flags appearing across App Segments, Segment Groups, App Connector Groups, and Policy Rules. Any object with `read_only=True` or `zscaler_managed=True` should be treated as immutable by the skill.
+- **Current segment federation/stickiness fields** — Go v3.8.45 and Python v1.9.41 add `hbrEnabled`, `stickyEntity`, `stickyGroup`, and `guestDetails` across segment variants. The wire presence is source-backed, but field semantics are not; Python also has a populated-`partnerInfo` decode defect. Use [`./app-segments.md`](./app-segments.md#sdk-visible-fields-not-surfaced-in-help-docs) and [`./api-divergences.md`](./api-divergences.md#python-v1941-cannot-decode-populated-guestdetailspartnerinfo) rather than inferring behavior from the names.
 
 **TF-level findings** (`terraform-provider-zpa/zpa/resource_zpa_application_segment.go`):
 
@@ -210,7 +211,7 @@ Per *Access Policy Deployment and Operations Guide* (vendored PDF) p.3, rule ord
 
 Python v1.9.39 exposes three unified-client controllers under the exact base
 `/zpa/mgmtconfig/v1/admin/customers/{customerId}`
-(`vendor/zscaler-sdk-python/CHANGELOG.md:3,86-110`;
+(`vendor/zscaler-sdk-python/CHANGELOG.md:32,115-139`;
 `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:504-517`;
 `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:32-36`):
 

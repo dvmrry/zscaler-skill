@@ -5,7 +5,7 @@ title: "OneAPI — unified API gateway, auth flows, rate limits, error model"
 content-type: reasoning
 last-verified: "2026-06-21"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
 confidence: high
 source-tier: doc

@@ -7,8 +7,8 @@ last-verified: "2026-07-22"
 confidence: medium
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
 sources:
   - "https://help.zscaler.com/zscaler-deployments-operations/url-filtering-deployment-and-operations-guide"
   - "vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt"
@@ -99,7 +99,7 @@ Protocols (AND) User Agent (AND) [Device Groups (OR) Devices] (AND) Device Trust
 
 - **`userRiskScoreLevels`** (`zscaler/zia/models/url_filtering_rules.py:79-81`) — list of enum values for user-risk-score-based rule scoping. Distinct from the `userRiskProfile` reference; this field gates rule match by current risk-score level (e.g., `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`). Will appear in snapshot JSON for tenants using risk-based policy.
 - **`workloadGroups`** — present in the model + `reformat_params` list (`url_filtering.py:43`); referenced by ID. Workload Groups are a separate ZIA primitive; rules can scope by them. No dedicated reference doc yet.
-- **`httpHeaderProfiles` and `httpHeaderActionProfiles`** — current Python and Go read models expose the HTTP Header Control match profiles and header-insertion action profiles attached to a URL Filtering rule. The Python add/update docstrings name snake-case `http_header_profile_ids` and `http_header_action_profile_ids`, but those names are not present in the method's ID-field reformat list. Treat Python write support through those documented kwargs as unverified; the wire/read fields themselves are corroborated by both SDK models.
+- **`httpHeaderProfiles` and `httpHeaderActionProfiles`** — current Python and Go read models expose the HTTP Header Control match profiles and header-insertion action profiles attached to a URL Filtering rule. Python's shared ID-field transform explicitly maps `http_header_profile_ids` and `http_header_action_profile_ids` to those two wire keys, so the documented Python create/update kwargs are confirmed write paths rather than an unverified convenience (`vendor/zscaler-sdk-python/zscaler/utils.py:92-93`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:205-215,325-334`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:134-138`).
 
 ### Actions
 
@@ -130,7 +130,7 @@ Each action has caveats around SSL Inspection and EUN settings — see `ssl-insp
 
 ### List pagination differs by SDK
 
-Go `GetAll` aggregates every URL Filtering rule page through `common.ReadAllPages` (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`). Python `list_rules` instead accepts caller-selected `page` and `page_size` values, sends one GET with those query parameters, and returns the rules from that response (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:54-112`).
+Go `GetAll` aggregates every URL Filtering rule page through `common.ReadAllPages` (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:333-338`). Python `list_rules` instead accepts caller-selected `page` and `page_size` values, sends one GET with those query parameters, and returns the rules from that response (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:54-112`).
 
 ### Custom-category regex patterns (API-only capability)
 
@@ -203,6 +203,7 @@ Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`;
   - `enable_dynamic_content_cat`
 
   Tenants running CIPA cannot simultaneously benefit from NROD lookup, embedded-site categorization, SafeSearch enforcement, or dynamic content categorization. If a question compares "CIPA-on vs CIPA-off" behavior, this matters.
+- **Go advanced-setting updates are full-state writes.** In Go v3.8.45, every modeled boolean in `URLAdvancedPolicySettings` except deprecated `blockSkype` is serialized even when `false`; `safeSearchApps` is the only other field that retains `omitempty`. The SDK then passes the whole struct directly to PUT (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:149-255`, `:341-376`). Do not construct a sparse zero-valued struct to toggle one setting: its other booleans become explicit `false`. Read the current settings, modify the intended fields, and write the fully populated value.
 - **Silent SSL-bypass behavior.** By default, URL Filtering does NOT evaluate on traffic on the global SSL bypass list. The `enable_evaluate_policy_on_global_ssl_bypass` flag in Advanced Settings (default `false`) flips this on. If a tenant reports "URL rule didn't fire on bypassed traffic," this is the first thing to check. (`zscaler/zia/models/advanced_settings.py:44-45`.) See [`./api.md § Advanced Policy Settings`](./api.md#advanced-policy-settings).
 - **SSL inspection disabled ⇒ criteria don't evaluate.** Rules using Request Method, Protocol, or other HTTP-payload-dependent criteria may not fire on non-inspected HTTPS traffic. (*URL Filtering Deployment and Operations Guide*, p.3, troubleshooting.) See [`./ssl-inspection.md`](./ssl-inspection.md).
 - **Custom URL Category quotas.** 25K custom URLs/TLDs across all categories, 64 custom categories (→ 1,024 via support), 256 keywords per category (2,048 total), 2,048 keywords retaining parent category per category (2,048 total), 2,048 custom IP ranges. (*Ranges & Limitations § URL Filtering & Cloud App Control*, `vendor/zscaler-help/ranges-limitations-zia.md` — authoritative; the older per-API-doc values of "30 per category / 1,000 total" in *Configuring URL Categories Using API* p.12 are stale.)
@@ -210,7 +211,7 @@ Source: `vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`;
 - **Override for Block action.** A Block rule can permit user override via SSO reauth. If SSL Inspection is disabled **and** "Show End User Notifications" is disabled in the corresponding SSL rule, override traffic is allowed without restrictions. (*Configuring the URL Filtering Policy*, p.12.)
 - **Keyword matching is URL-wide.** Custom categories defined by keyword match against the entire URI, so `keyword=gambling` matches `www.google.com/search?q=gambling`. (*About URL Categories*, p.19.)
 - **IP-only URLs aren't usually categorized.** Zscaler generally doesn't categorize bare IPs unless a SaaS provider dedicates the IP/range to a specific app (e.g., Office 365 IPs are categorized as Professional Services + Office 365). (*About URL Categories*, p.18.)
-- **GenAI prompt-tracking flags are per-vendor.** The `URLAdvancedPolicySettings` struct (Go SDK `urlfilteringpolicies.go:150-237`) exposes per-LLM-vendor prompt-capture booleans: `enableChatGPTPrompt`, `enableCopilotPrompt`, `enableGeminiPrompt`, `enableDeepSeekPrompt`, `enableGrokPrompt`, `enableMistralPrompt`, `enableClaudePrompt`, `enableGrammarlyPrompt`, `enableWriterPrompt`, `enableMetaPrompt`, `enablePerplexityPrompt`, and `enablePoePrompt` (12 LLM vendors at the time of this writing). Enabling a per-vendor flag adds that LLM's prompt content to ZIA logs — useful for AI-usage auditing, data-leak investigation, and DLP correlation. Python SDK may not surface all 12; the Go SDK is authoritative for the current list.
+- **GenAI prompt tracking now covers 14 named applications.** Current Help and Go v3.8.45 enumerate ChatGPT, Microsoft Copilot, Gemini, Perplexity, Poe, Meta AI, WRITER, DeepSeek, Grok AI, Claude, Mistral, Grammarly, QuillBot, and Google AI; the final two are the new `enableQuillbotAIPrompt` and `enableGoogleAIPrompt` fields (`vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt:238-269`; `vendor/zscaler-help/Recommended_URL_&_Cloud_App_Control_Policy.txt:95-134`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:187-221,251-255`). Enabled prompts are logged in Web Insights, but only up to 2 KB per prompt. Microsoft Copilot prompts are stored only for unauthenticated users, and the documented capture/DLP support is limited to Copilot Chat rather than Copilot embedded in Office applications (`vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt:265-281`). Python v1.9.41's typed read model exposes only eight of the 14 prompt flags; see [`./api-divergences.md`](./api-divergences.md#advanced-urlcloud-app-settings-have-asymmetric-sdk-models-and-update-semantics).
 - **Adjacent Advanced Settings worth knowing.** `zveloDbLookupDisabled` (disable the Zvelo URL-classification lookup pipeline) and `enableCreativeCommonsSearchResults` (allow CC-licensed search-result tagging) are also on `URLAdvancedPolicySettings`. Neither is commonly toggled but both will appear in snapshot JSON for tenants that did.
 
 ## Worked example (covers eval Q2)

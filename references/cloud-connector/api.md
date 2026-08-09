@@ -47,11 +47,11 @@ Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-ap
 
 How to manage Cloud Connector programmatically. Three programmatic paths exist:
 
-1. **Python SDK** — module path `vendor/zscaler-sdk-python/zscaler/ztw/`. ZTW (Cloud Connector) is GA on the v1.x line; the current vendored SDK is **v1.9.39** (`vendor/zscaler-sdk-python/zscaler/__init__.py:32`). ZTW coverage was added incrementally starting at **v1.0.1 (April 22 2025)** when the `zcon` package was renamed `ztw` and the policy-management / policy-resources endpoints landed (`vendor/zscaler-sdk-python/CHANGELOG.md:2200`, PR #258 / PR #260 ZTW blocks at `:3261` and `:2461`), then refined through later 1.9.x releases. The `ZTWService` entry point exposes ~20 accessors (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:47-219`): `account_details`, `activate`, `admin_roles`, `admin_users`, `ec_groups`, `location_management`, `location_template`, `api_keys`, `provisioning_url`, `forwarding_gateways`, `forwarding_rules`, `ip_destination_groups`, `ip_source_groups`, `ip_groups`, `nw_service_groups`, `nw_service`, `public_cloud_info`, `account_groups`, `discovery_service`, `workload_groups`.
+1. **Python SDK** — module path `vendor/zscaler-sdk-python/zscaler/ztw/`. ZTW (Cloud Connector) is GA on the v1.x line; the current vendored SDK is **v1.9.41** (`vendor/zscaler-sdk-python/zscaler/__init__.py:32`). ZTW coverage was added incrementally starting at **v1.0.1 (April 22 2025)**, whose release section records the `zcon`→`ztw` rename and the policy-management / policy-resources endpoint sets (`vendor/zscaler-sdk-python/CHANGELOG.md:2566,2808-2830`), then refined through later 1.9.x releases. The `ZTWService` entry point exposes ~20 accessors (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:47-219`): `account_details`, `activate`, `admin_roles`, `admin_users`, `ec_groups`, `location_management`, `location_template`, `api_keys`, `provisioning_url`, `forwarding_gateways`, `forwarding_rules`, `ip_destination_groups`, `ip_source_groups`, `ip_groups`, `nw_service_groups`, `nw_service`, `public_cloud_info`, `account_groups`, `discovery_service`, `workload_groups`.
 2. **Go SDK** under package-level `ztw/services/*` functions — module path `vendor/zscaler-sdk-go/zscaler/ztw/`. Same product family, organized into dedicated service packages (`partner_integrations`, `policy_management`, `policyresources`, `provisioning`, `workload_groups`) that the Python SDK groups under flatter accessors.
 3. **Terraform provider** with `ztc_*` resources — path `vendor/terraform-provider-ztc/ztc/`.
 
-> **Not in v2.0.0.** The Python SDK's `2.0.0bN` beta (`vendor/zscaler-sdk-python/CHANGELOG.md:125`, "1.9.23 — Public Preview / Beta") is a ground-up OpenAPI-generated rewrite, but its beta product coverage is **ZIA, ZDX, ZIdentity only** — the CHANGELOG states plainly that "ZPA, ZCC, ZTW, ZTB, and ZWA remain on v1.x for now" (`:144`). So Cloud Connector automation runs on the v1.x GA SDK; v1.x "remains the recommended GA release." Do not pin ZTW work to v2.x expecting Cloud Connector support.
+> **Not in v2.0.0.** The Python SDK's `2.0.0bN` beta is a ground-up OpenAPI-generated rewrite, but its beta product coverage is **ZIA, ZDX, ZIdentity only** — the v1.9.23 Public Preview notes state plainly that "ZPA, ZCC, ZTW, ZTB, and ZWA remain on v1.x for now" and that v1.x remains the recommended GA release (`vendor/zscaler-sdk-python/CHANGELOG.md:491-512`). So Cloud Connector automation runs on the v1.x GA SDK. Do not pin ZTW work to v2.x expecting Cloud Connector support.
 
 ## Go SDK service surface
 
@@ -108,7 +108,7 @@ Resources (manage state):
 
 Data sources (read-only lookups): parallel data sources exist for most of the above (`data_source_ztc_*`) for read-only lookups of existing resources. Plus data sources for `edge_connector_group`, `location_management`, `provisioning_url`, `supported_regions`, `public_cloud_info`, `workload_groups` that offer introspection without creation. Note: `ztc_location_management` is a **data source only** in the ZTC provider (`provider.go:DataSourcesMap`) — there is no `ztc_location_management` resource; location management records are read via this data source, not created/updated/deleted through Terraform.
 
-**`ztc_ip_pool_groups` is fully SDK-backed** — it manages **IP pools** via the `/ipGroups` API ("Retrieves the list of IP pools", `vendor/zscaler-sdk-python/CHANGELOG.md:2461`). Both SDKs cover it: Python `client.ztw.ip_groups` hits `/ipGroups` (`vendor/zscaler-sdk-python/zscaler/ztw/ip_groups.py:72-74`), and Go uses `policyresources/ipgroups` against the full path `/ztw/api/v1/ipGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipgroups/ipgroups.go:15`). So IP pools can be managed via Terraform, Python, or Go — not a TF-only abstraction.
+**`ztc_ip_pool_groups` is fully SDK-backed** — it manages **IP pools** via the `/ipGroups` API ("Retrieves the list of IP pools", `vendor/zscaler-sdk-python/CHANGELOG.md:2827-2830`). Both SDKs cover it: Python `client.ztw.ip_groups` hits `/ipGroups` (`vendor/zscaler-sdk-python/zscaler/ztw/ip_groups.py:72-74`), and Go uses `policyresources/ipgroups` against the full path `/ztw/api/v1/ipGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipgroups/ipgroups.go:15`). So IP pools can be managed via Terraform, Python, or Go — not a TF-only abstraction.
 
 ## Provisioning workflow
 
@@ -222,9 +222,9 @@ Note DELETE is bucketed **with** POST/PUT (the test names the bucket "POST/PUT/D
 
 Source: `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-python/zscaler/ztw/activation.py`; `vendor/zscaler-sdk-python/CHANGELOG.md`.
 
-ZTW (Cloud Connector) is covered by the Python SDK's **v1.x GA line** (current `v1.9.39`, `vendor/zscaler-sdk-python/zscaler/__init__.py:32`). Coverage was added at **v1.0.1 (April 22 2025)** — the `zcon`→`ztw` rename plus the policy-management and policy-resources endpoint sets (`vendor/zscaler-sdk-python/CHANGELOG.md:2200`, ZTW endpoint blocks at `:2461`/`:3261`) — and extended through later 1.9.x releases (e.g. `provisioning_url` CRUD at 1.9.13, PR #450, `:348`). The full accessor list is in the § three-paths section above.
+ZTW (Cloud Connector) is covered by the Python SDK's **v1.x GA line** (current `v1.9.41`, `vendor/zscaler-sdk-python/zscaler/__init__.py:32`). Coverage was added at **v1.0.1 (April 22 2025)** — the `zcon`→`ztw` rename plus the policy-management and policy-resources endpoint sets (`vendor/zscaler-sdk-python/CHANGELOG.md:2566,2808-2830`) — and extended through later 1.9.x releases (for example, `provisioning_url` CRUD at 1.9.13, PR #450, `vendor/zscaler-sdk-python/CHANGELOG.md:708-715`). The full accessor list is in the § three-paths section above.
 
-**Stay on v1.x for Cloud Connector.** The Python `2.0.0bN` beta does **not** include ZTW: "ZPA, ZCC, ZTW, ZTB, and ZWA remain on v1.x for now" (`vendor/zscaler-sdk-python/CHANGELOG.md:144`). v1.x is the recommended GA release; do not migrate ZTW automation to v2.x expecting Cloud Connector support.
+**Stay on v1.x for Cloud Connector.** The Python `2.0.0bN` beta does **not** include ZTW: "ZPA, ZCC, ZTW, ZTB, and ZWA remain on v1.x for now" (`vendor/zscaler-sdk-python/CHANGELOG.md:491-512`). v1.x is the recommended GA release; do not migrate ZTW automation to v2.x expecting Cloud Connector support.
 
 ## Common SDK patterns
 
@@ -280,7 +280,7 @@ For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshootin
 
 Source: `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py`; `vendor/zscaler-sdk-python/zscaler/ztw/forwarding_rules.py`; `vendor/terraform-provider-ztc/ztc/provider.go`.
 
-ZTW config reads are native Python on the v1.x GA SDK (current `v1.9.39`) via the `client.ztw.ec_groups` and `client.ztw.forwarding_rules` service accessors (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:80`, `:133`). No Go SDK or Terraformer workaround is needed for snapshotting.
+ZTW config reads are native Python on the v1.x GA SDK (current `v1.9.41`) via the `client.ztw.ec_groups` and `client.ztw.forwarding_rules` service accessors (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:80`, `:133`). No Go SDK or Terraformer workaround is needed for snapshotting.
 
 Alternative: use `terraform plan -out` against the `ztc` provider and parse the plan JSON for config state. Workable; not elegant.
 

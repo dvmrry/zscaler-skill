@@ -6,12 +6,13 @@ content-type: reference
 confidence: medium
 last-verified: "2026-07-26"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 sources:
+  - "vendor/zscaler-sdk-go/CHANGELOG.md"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
   - "vendor/zscaler-sdk-go/zscaler/zparequests.go"
   - "vendor/zscaler-sdk-python/pyproject.toml"
@@ -146,6 +147,58 @@ omission semantics.
 
 ---
 
+### New segment federation/stickiness fields are cross-SDK, but not yet contract-reconciled
+
+Go v3.8.45 and Python v1.9.41 both add `hbrEnabled`, `stickyEntity`,
+`stickyGroup`, and `guestDetails` to application segments
+(`vendor/zscaler-sdk-go/CHANGELOG.md:3-18`;
+`vendor/zscaler-sdk-python/CHANGELOG.md:3-19`). Go exposes the four fields on
+the base, Browser Access, Inspection, and PRA structs and types each guest as a
+`federationId` plus nested partner approval/federation metadata
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:61-73`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:57-62`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:57-61`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:51-59`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:161-172`). Python's
+base, Browser Access, Inspection, PRA, and Browser Access v2 services all decode
+through the same `ApplicationSegments` model, which now reads and emits those
+keys (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:74-90,266-269`;
+service imports at `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:25`,
+`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py:25`,
+`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:24`,
+`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:24`, and
+`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py:24`).
+
+This establishes cross-SDK wire-field coverage, not behavioral semantics. The
+current Automate/Rosetta capture has no rows for these field names (audit-scoped
+search on 2026-08-09), so its presence comparison cannot catch an omission or
+serializer regression yet. The accepted `hbrEnabled` states, the entity/group
+vocabularies and selection rules for stickiness, and the lifecycle of
+`guestDetails` remain [clarification `zpa-83`](../_meta/clarifications.md#zpa-83-application-segment-hbr-sticky-and-guestdetails-semantics).
+
+### Python v1.9.41 cannot decode populated `guestDetails.partnerInfo`
+
+The new Python `GuestDetails` constructor checks `partnerInfo` against
+`common.PrivilegedCapabilitiesResource`, an unrelated policy-capabilities
+model, then attempts to construct `common.PartnerInfo`
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:20-23,1164-1189`).
+The `PartnerInfo` class introduced by the same release is instead defined
+locally later in `application_segment.py`
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:1208-1251`).
+As a result, a non-null dictionary at `guestDetails[].partnerInfo` raises during
+model construction rather than returning the segment. A second defect affects
+direct writes: `PartnerInfo.request_format()` reads `self.partner_info`, but a
+non-empty constructor never initializes that attribute
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:1222-1249`).
+
+**Significance / which to trust:** This is a Python-wrapper defect, not evidence
+that the ZPA API rejects partner data. The Go nested model is internally
+consistent. Until Python fixes the namespace/type check, use the raw HTTP
+response or Go SDK when a federated segment can return populated partner
+metadata; do not let a Python decode failure masquerade as a missing segment.
+
+---
+
 ### `icmpAccessType` enum — `PING_TRACEROUTING` absent from Python SDK
 
 **What each source says:**
@@ -179,7 +232,7 @@ omission semantics.
 
 **What each source says:**
 
-- **Go SDK (Inspection Update):** builds a map of existing `inspectionApps` keyed by sub-app Name (case-sensitive), injects `InspectAppID` by name match. PRA Update is identical. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:178-188`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:206-217`)
+- **Go SDK (Inspection Update):** builds a map of existing `inspectionApps` keyed by sub-app Name (case-sensitive), injects `InspectAppID` by name match. PRA Update is identical. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:182-192`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:210-221`)
 - **Python SDK (Inspection and PRA Updates):** fetches via `getAppsByType` and maps by domain. (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:417-427`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:378-388`)
 
 **Significance / which to trust:** Engineers using the Go SDK must ensure sub-app names match exactly; Python SDK engineers must ensure domains match. A sub-app whose name differs from its domain is a silent ID-injection failure in the Go SDK.
@@ -219,8 +272,8 @@ unverified.
 
 **What each source says:**
 
-- **Go SDK Inspection Update:** does not automatically populate `DeletedInspectApps` when sub-apps are removed — callers must set it manually. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:168-202`)
-- **Go SDK PRA Update:** auto-computes `DeletedPraApps`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:220-234`)
+- **Go SDK Inspection Update:** does not automatically populate `DeletedInspectApps` when sub-apps are removed — callers must set it manually. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:172-206`)
+- **Go SDK PRA Update:** auto-computes `DeletedPraApps`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:224-238`)
 - **Python SDK:** auto-computes deleted apps for both Inspection and PRA. (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:429-433`)
 
 **Significance / which to trust:** Go SDK Inspection callers who remove sub-apps without manually setting `DeletedInspectApps` will leave orphaned sub-app records server-side. There is no fallback.
@@ -242,7 +295,7 @@ unverified.
 
 **What each source says:**
 
-- **Go SDK:** `ApplicationMappings` struct has `Name string` and `Type string`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:275-278`)
+- **Go SDK:** `ApplicationMappings` struct has `Name string` and `Type string`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:278-281`)
 - **Python SDK:** docstring example uses `mapping.get('names')` implying a list field. (`vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:1162-1163`)
 
 **Significance / which to trust:** Do not assume the mappings response has a `names` array. The Go SDK models it as a flat `{name, type}` record. Python docstring appears illustrative, not authoritative.
@@ -274,10 +327,10 @@ unverified.
 ### Field observations (Application Segments)
 
 **`policy_style` — string returned by API; Terraform maps to bool (corroborated)**
-All three Go SDK structs (`ApplicationSegmentResource`, `AppSegmentPRA`, `AppSegmentInspection`) carry `PolicyStyle string json:"policyStyle,omitempty"`. The API returns a string enum (`DUAL_POLICY_EVAL` or `NONE`). Any Terraform schema that exposes this as `bool` is performing a non-obvious conversion. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:76`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:67`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:67`. (Corroborating operator field observation from production Terraform usage.)
+All three Go SDK structs (`ApplicationSegmentResource`, `AppSegmentPRA`, `AppSegmentInspection`) carry `PolicyStyle string json:"policyStyle,omitempty"`. The API returns a string enum (`DUAL_POLICY_EVAL` or `NONE`). Any Terraform schema that exposes this as `bool` is performing a non-obvious conversion. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:79`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:71`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:71`. (Corroborating operator field observation from production Terraform usage.)
 
 **`server_groups` — API returns N separate objects; provider collapses to one merged block (corroborated)**
-Both SDKs confirm the API accepts and returns N separate server group objects. The merge-flatten behavior is Terraform-provider-specific; the SDK surface is a proper list. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:67`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:273-274`. (Corroborating operator field observation from production Terraform usage.)
+Both SDKs confirm the API accepts and returns N separate server group objects. The merge-flatten behavior is Terraform-provider-specific; the SDK surface is a proper list. Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:70`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:273-274`. (Corroborating operator field observation from production Terraform usage.)
 
 **`segment_group.applications` — server-computed back-reference (corroborated)**
 The Python SDK confirms segment group membership is managed from the application segment side (via `SegmentGroupID`). The Go SDK `ApplicationSegmentResource.Applications` is `string json:"applications,omitempty"` — a summary field, not a list of objects. This matches the operator observation that carrying the applications list in Terraform config causes phantom drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:36`) (Corroborating operator field observation from production Terraform usage.)
@@ -395,10 +448,10 @@ The Python SDK confirms segment group membership is managed from the application
 
 Python v1.9.39's changelog labels policy-group create as
 `GET /policyGroupSet/{groupSetId}/group`, but `add_group` sends POST
-(`vendor/zscaler-sdk-python/CHANGELOG.md:88-95`;
+(`vendor/zscaler-sdk-python/CHANGELOG.md:117-124`;
 `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-77`). It also labels
 group reorder as POST, while `reorder_group` sends PUT
-(`vendor/zscaler-sdk-python/CHANGELOG.md:93`;
+(`vendor/zscaler-sdk-python/CHANGELOG.md:122`;
 `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:364-388`). Trust the
 executable service code for both wrapper methods; the changelog method labels
 are documentation defects.
@@ -1029,7 +1082,7 @@ or live validation.
 
 **What each source says:**
 
-- **Go SDK:** `SearchRequest.FilterBy` produces `{filterBy: {filterGroups: [{filters: [], operator}], operator}}`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:532-545`)
+- **Go SDK:** `SearchRequest.FilterBy` produces `{filterBy: {filterGroups: [{filters: [], operator}], operator}}`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:545-558`)
 - **Postman:** `filterBy` as a top-level flat array `[{filterName, operator, values, commaSepValues}]` with no `filterGroups` wrapper. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:72018`)
 - **Python SDK:** flat `filter_by` list inside `filter_and_sort_dto`. (`vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py:179-225`)
 
@@ -1068,6 +1121,14 @@ or live validation.
 - **Go SDK:** no `omitempty` on `Enabled` — always serialized including `false` when zero-valued. (`vendor/zscaler-sdk-go/zscaler/zpa/services/microtenants/microtenants.go:22`)
 
 **Significance / which to trust:** Go SDK callers must explicitly set `Enabled: true` or the microtenant will be created disabled. The Python docstring claim of `'defaults to True'` holds only as the server-side default, not the SDK default.
+
+---
+
+### Go `MicroTenantName` filter resolution returns early on success
+
+**What the source says:** `GetAllPagesGenericWithCustomFilters` attempts to resolve a supplied `MicroTenantName` through `GET /microtenants` when `MicroTenantID` is empty. The next guard is `if err == nil { return nil, resp, err }`, so a successful lookup returns an empty result and nil error before assigning `filters.MicroTenantID` or requesting the caller's resource. The assignment is reachable only after a lookup error and only when that failed lookup also returned a non-nil object. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:311-351`)
+
+**Significance / which to trust:** Treat name-based microtenant resolution in this Go helper as broken. Resolve the microtenant separately and pass `MicroTenantID` until the inverted guard is fixed; a nil error from the name-based call does not mean the requested resource list was fetched.
 
 ---
 
@@ -1180,7 +1241,7 @@ or live validation.
 
 **What each source says:**
 
-- **Go SDK:** `GetAllPagesGenericWithCustomFilters` retries with the first two words of a multi-word search value when the full search fails. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:339-378`)
+- **Go SDK:** `GetAllPagesGenericWithCustomFilters` retries with the first two words of a multi-word search value when the full search fails. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:352-391`)
 - **Python SDK:** no such retry; a multi-word search failure returns an error immediately. (`vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py:73-98`)
 
 **Significance / which to trust:** Machine group names with spaces may resolve via Go SDK but fail via Python SDK if the server-side search does not support the full multi-word name+EQ+value filter.
@@ -1230,7 +1291,7 @@ or live validation.
 
 - **SCIM protocol endpoints:** `{Resources: []T, totalResults: int}`, max 100 per page, default 10.
 - **Management/userconfig list endpoints:** `{list: [], totalPages: int, totalCount: int}`, max 500 per page, default 20. The `mgmtconfig` scimgroup list also omits `currentCount` (present in mgmtconfig SAML/SCIM attribute header lists).
-- Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:408-456`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:102565`.
+- Sources: `vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:421-469`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:102565`.
 
 **Significance / which to trust:** The two API surfaces are not interchangeable. Code that reads `currentCount` from the list envelope will break on userconfig endpoints. Code that reads `Resources` will break on mgmtconfig endpoints.
 
@@ -1437,3 +1498,10 @@ The following are unresolved after cross-referencing all available sources. Each
     different windows—and how automation should select between them—requires an
     API contract or live-tenant test. Tracked as
     [clarification `zpa-82`](../_meta/clarifications.md#zpa-82-pra-approval-identity-when-email-and-application-sets-match-but-time-windows-differ).
+
+16. **Application-segment HBR/sticky/guest semantics:** Go v3.8.45 and Python
+    v1.9.41 establish `hbrEnabled`, `stickyEntity`, `stickyGroup`, and
+    `guestDetails` as wire fields, but not their accepted values, readonly
+    status, selection behavior, or lifecycle. The current Automate/Rosetta
+    capture has no rows for them. Tracked as
+    [clarification `zpa-83`](../_meta/clarifications.md#zpa-83-application-segment-hbr-sticky-and-guestdetails-semantics).

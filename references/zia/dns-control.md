@@ -7,8 +7,8 @@ last-verified: "2026-07-16"
 verified-against:
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
 source-tier: doc
 sources:
@@ -265,7 +265,7 @@ Behavioral notes drawn from source:
 
 - **`applications`.** Holds DNS tunnels and network applications (canonical ZIA cloud-app names), sent under wire key **`applications`** (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:75-76`; Python model `cloud_firewall_dns_rules.py:108,248`). MCP v0.15.0 names `applications` directly in the advanced DNS fields (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:31-35`).
 
-- **Web-EUN wire spelling diverges by client.** Go v3.8.44 uses `IsWebEUNEnabled bool` with wire key **`isWebEUNEnabled`**; the `omitempty` tag means Go omits explicit `false` (`vendor/zscaler-sdk-go/CHANGELOG.md:3-10`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:151-160`). Recorded Python integration responses independently use the uppercase-`EUN` key (`vendor/zscaler-sdk-python/tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml:26,104,186`). Python 1.9.39 still parses and emits **`isWebEunEnabled`** and includes the field in its request dictionary (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:57-58,250-264`). ZIA Ansible passes `is_web_eun_enabled` into that Python SDK create/update path, so it inherits the Python spelling (`vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_dns_rules.py:630-663,670-710`). `defaultDnsRuleNameUsed` remains aligned between the Go and Python models (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:94-95`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:57-58,262-263`). MCP v0.15.0 does not name either field in its advanced examples, although the passthrough allows other SDK-supported fields (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:31-35`).
+- **Web-EUN wire spelling diverges by client.** Go v3.8.44 uses `IsWebEUNEnabled bool` with wire key **`isWebEUNEnabled`**; the `omitempty` tag means Go omits explicit `false` (`vendor/zscaler-sdk-go/CHANGELOG.md:20-27`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:151-160`). Recorded Python integration responses independently use the uppercase-`EUN` key (`vendor/zscaler-sdk-python/tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml:26,104,186`). Current Python v1.9.41 still parses and emits **`isWebEunEnabled`** and includes the field in its request dictionary (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:57-58,250-264`). ZIA Ansible passes `is_web_eun_enabled` into that Python SDK create/update path, so it inherits the Python spelling (`vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_dns_rules.py:630-663,670-710`). `defaultDnsRuleNameUsed` remains aligned between the Go and Python models (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:94-95`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:57-58,262-263`). MCP v0.15.0 does not name either field in its advanced examples, although the passthrough allows other SDK-supported fields (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:31-35`).
 
 ## Cross-links
 

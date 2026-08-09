@@ -5,7 +5,7 @@ title: "Zscaler cloud architecture — Central Authority, Service Edges, BC Clou
 content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
 source-tier: doc
 sources:
