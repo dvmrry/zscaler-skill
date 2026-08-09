@@ -8,6 +8,7 @@ import { checkNodeVersion } from "./doctor.mjs";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const referenceFreshnessBase = process.env.REFERENCE_FRESHNESS_BASE || "origin/main";
 const PYTEST_FILES = [
+  "scripts/test_check_hygiene.py",
   "scripts/automate-capture/test_extract_docusaurus_blobs.py",
   "scripts/automate-capture/test_build_openapi_from_blobs.py",
   "scripts/automate-capture/test_reconcile_contract.py",
@@ -51,7 +52,17 @@ const FULL_CHECKS = [
   {
     name: "automate-capture regression tests",
     command: "uv",
-    args: ["run", "--with", "pytest", "python", "-m", "pytest", ...PYTEST_FILES],
+    args: [
+      "run",
+      "--with",
+      "pytest",
+      "--with",
+      "pyyaml",
+      "python",
+      "-m",
+      "pytest",
+      ...PYTEST_FILES,
+    ],
   },
   { name: "documentation links", command: "./scripts/check-doc-links.py", args: [] },
   {

@@ -78,12 +78,12 @@ Both functions return slices directly. There is no wrapper object.
 
 Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL.
+Variable `{{ZIAMBaseUrl}}` resolves to the ZIdentity ZIAM base URL.
 
 | Method | Path | Description | Response codes | Citation |
 |---|---|---|---|---|
-| GET | `{{ZIAMBase}}/users/:id/admin-entitlements` | "Retrieves the administrative entitlements for a specific user by their user ID." | 200, 401 | `vendor/zscaler-api-specs/oneapi-postman-collection.json:132388-132675` |
-| GET | `{{ZIAMBase}}/users/:id/service-entitlements` | "Retrieves service entitlements for a specified user ID." | 200, 401 | `vendor/zscaler-api-specs/oneapi-postman-collection.json:132676-132812` |
+| GET | `{{ZIAMBaseUrl}}/users/:id/admin-entitlements` | "Retrieves the administrative entitlements for a specific user by their user ID." | 200, 401 | `vendor/zscaler-api-specs/oneapi-postman-collection.json:132388-132498` |
+| GET | `{{ZIAMBaseUrl}}/users/:id/service-entitlements` | "Retrieves service entitlements for a specified user ID." | 200, 401 | `vendor/zscaler-api-specs/oneapi-postman-collection.json:132676-132786` |
 
 Both entries document only `200 OK` and `401 Unauthorized`. No other response codes are enumerated.
 

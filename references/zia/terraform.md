@@ -5,12 +5,15 @@ title: "ZIA Terraform provider resource catalog"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/terraform-provider-zia: ae339087b83ef20d8c25e96bdeb6da025611a492
+  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/terraform-provider-zia/CHANGELOG.md"
   - "vendor/terraform-provider-zia/docs/index.md"
+  - "vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md"
+  - "vendor/terraform-provider-zia/docs/data-sources/zia_ips_categories.md"
+  - "vendor/terraform-provider-zia/docs/data-sources/zia_ueba_alert_definitions.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_activation_status.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_admin_roles.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_admin_users.md"
@@ -82,6 +85,7 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_url_filtering_and_cloud_app_settings.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_user_management.md"
+  - "vendor/terraform-provider-zia/docs/resources/zia_ueba_alert_definitions.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_cluster.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_node.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_workload_groups.md"
@@ -90,12 +94,17 @@ sources:
   - "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go"
   - "vendor/terraform-provider-zia/zia/provider.go"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_ips_categories.go"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_ueba_alert_definitions.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_ueba_alert_definitions.go"
 author-status: draft
 ---
 
 # ZIA Terraform provider resource catalog
 
-Catalog of resources and data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, current pin v4.8.0; `vendor/terraform-provider-zia/CHANGELOG.md:3-12`). Resources are grouped by ZIA functional area. Most configuration resources require activation to take effect; action-style resources such as `zia_sandbox_file_submission` are not staged policy configuration. See the [Activation lifecycle](#activation-lifecycle) section.
+Catalog of resources and data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, current pin v4.8.3; `vendor/terraform-provider-zia/CHANGELOG.md:3-45`). Resources are grouped by ZIA functional area. Most configuration resources require activation to take effect; action-style resources such as `zia_sandbox_file_submission` are not staged policy configuration. See the [Activation lifecycle](#activation-lifecycle) section.
 
 > **For HCL authoring guidance** — best practices, decision tables, anti-patterns, CI/CD with the activation step, secret hygiene — see Zscaler's official skill bundle, vendored at [`vendor/zscaler-terraform-skills/skills/zia-skill/`](../../vendor/zscaler-terraform-skills/skills/zia-skill/) (upstream: `zscaler/zscaler-terraform-skills`, MIT). This doc covers the resource catalog and provider internals; their skill covers how to *write* HCL against the catalog.
 
@@ -142,15 +151,17 @@ Sandbox uses its own token independent of the main auth method. Set `ZSCALER_SAN
 
 ### Rate limiting
 
-The SDK enforces client-side limits (10 POST/PUT/DELETE and 20 GET per 10-second window) and respects server-side `429 Retry-After` responses. For bulk operations on strictly rate-limited endpoints (e.g., `zia_traffic_forwarding_static_ip`), reduce Terraform parallelism: `terraform apply -parallelism=1`.
+Provider v4.8.1 deprecates and ignores the provider-block `parallelism` attribute. The provider honors the interval returned with HTTP `429 Retry-After` and retries transparently, and its current guidance is to retain Terraform's default `-parallelism` rather than slowing the whole run for one endpoint (`vendor/terraform-provider-zia/CHANGELOG.md:43-51`; `vendor/terraform-provider-zia/zia/provider.go:99-110`; `vendor/terraform-provider-zia/docs/index.md:354-362`). An HTTP 409 carrying `EDIT_LOCK_NOT_AVAILABLE` or `Failed during enter Org barrier` is tenant write-lock contention, not rate limiting (`vendor/terraform-provider-zia/docs/index.md:345-362`).
 
 ### Activation lifecycle
 
-ZIA configuration changes are staged and must be activated before they take effect. Three methods are available:
+ZIA configuration changes are staged and activation is tenant-wide: one activation call publishes all pending tenant changes, not only the objects in one Terraform state (`vendor/terraform-provider-zia/docs/index.md:268-274`). The provider documents three methods in this order:
 
-1. **Implicit activation:** Set environment variable `ZIA_ACTIVATION=true`. The provider activates after each apply automatically.
-2. **`zia_activation_status` resource:** Declare an explicit `zia_activation_status` resource with `depends_on` pointing to all managed resources.
-3. **Out-of-band CLI:** Run the `ziaActivator` tool separately.
+1. **Out-of-band `ziaActivator` CLI (recommended):** run it once after the final apply (`vendor/terraform-provider-zia/docs/index.md:276-290`).
+2. **`zia_activation_status` resource:** use explicit `depends_on` entries for every resource or module whose changes must precede activation; omitted dependencies can run after activation and remain pending (`vendor/terraform-provider-zia/docs/index.md:292-307`; `vendor/terraform-provider-zia/docs/resources/zia_activation_status.md:14-20`).
+3. **`ZIA_ACTIVATION=true` (discouraged):** this activates in-flight once per resource change and consumes the activation endpoint's documented request budget (`vendor/terraform-provider-zia/docs/index.md:309-317`).
+
+Plans can run concurrently, but only one write-bearing apply should run against a tenant at a time; serialize applies by tenant and activate once after the last apply (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:93-114`). Lowering Terraform's `-parallelism` does not resolve competition between separate applies (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:108-114`).
 
 ---
 
@@ -260,7 +271,7 @@ Gotcha: A maximum of 48 custom URL categories is allowed per tenant. The `val` a
 
 Gotcha: Large custom categories can be expensive during Terraform refresh and planning. Upstream issue [zscaler/terraform-provider-zia#575](https://github.com/zscaler/terraform-provider-zia/issues/575) reported an approximately 20,000-URL category taking about 18 minutes during plan/refresh. v4.7.22 attempted to reduce URL diff churn but introduced a `SetNew only operates on computed keys` failure; v4.7.23 is the relevant fixed baseline for large imported categories.
 
-Gotcha: Starting in terraform-provider-zia v4.7.26, deleting a custom URL category first detaches that category from rule-based resources that reference it, avoiding the API refusal for still-attached categories. (`vendor/terraform-provider-zia/CHANGELOG.md:10-15`; `vendor/terraform-provider-zia/zia/resource_zia_url_categories.go:497-514`)
+Gotcha: Starting in terraform-provider-zia v4.7.26, deleting a custom URL category first detaches that category from rule-based resources that reference it, avoiding the API refusal for still-attached categories. (`vendor/terraform-provider-zia/CHANGELOG.md:86-98`; `vendor/terraform-provider-zia/zia/resource_zia_url_categories.go:497-514`)
 
 ### `zia_url_categories_predefined`
 
@@ -338,8 +349,9 @@ DNS Control policy rules that allow, block, or redirect DNS queries based on dom
 | `action` | String | Required; `ALLOW`, `BLOCK`, `REDIR_REQ`, `REDIR_RES`, `REDIR_BOTH` |
 | `redirect_ip` | String | Optional; required for redirect actions |
 | `dest_ip_categories` | List(String) | Optional |
+| `res_categories` | List(String) | Optional |
 
-Gotcha: When either `dest_ip_categories` or `res_categories` is set, both fields must be set and must match. Import by numeric ID or name.
+Provider v4.8.2 no longer performs its former local equality check for `dest_ip_categories` and `res_categories`; create and update now serialize the two sets independently (`vendor/terraform-provider-zia/CHANGELOG.md:14-24`; `vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go:237-307,559-577,699-735`). The same source still contains commented historical text saying a mismatch returns `INVALID_INPUT_ARGUMENT`, so provider acceptance at plan time is established but universal backend acceptance is not (`vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go:237-296,341-358`). Import by numeric ID or name.
 
 ### `zia_firewall_ips_rule`
 
@@ -375,6 +387,12 @@ Gotchas:
 - HCL heredocs are safer than double-quoted strings for signatures with embedded `msg:"..."` content, but indent-stripping heredocs can still leave leading whitespace if the closing marker is misaligned.
 
 Import: by signature ID or signature name.
+
+### `data.zia_ips_categories` (added in v4.8.3)
+
+The read-only IPS-category data source accepts optional `id` and `name`. ID takes precedence, name matching is case-insensitive, and omitting both returns the complete result under `categories` (`vendor/terraform-provider-zia/zia/data_source_zia_ips_categories.go:14-28,96-154`). Single-category and list entries expose `id`, `name`, `back_end_name`, `description`, `deleted`, `predefined`, and `ips_signature_rules_count` (`vendor/terraform-provider-zia/zia/data_source_zia_ips_categories.go:30-91,156-196`). Its returned `name` can populate the Firewall DNS and IPS `res_categories` and `dest_ip_categories` fields (`vendor/terraform-provider-zia/docs/data-sources/zia_ips_categories.md:16-18,61-95`).
+
+This is Terraform coverage over the existing `/ipsCategories` read surface, not evidence that every tenant is entitled to every category (`vendor/terraform-provider-zia/CHANGELOG.md:3-12`; `vendor/terraform-provider-zia/docs/index.md:18-27`).
 
 ### `zia_nat_control_rules`
 
@@ -466,7 +484,7 @@ Import: by numeric ID or name.
 
 ### Endpoint and Outbound Email DLP added in v4.8.0
 
-Provider v4.8.0 adds these DLP management objects (`vendor/terraform-provider-zia/CHANGELOG.md:14-27`):
+Provider v4.8.0 adds these DLP management objects (`vendor/terraform-provider-zia/CHANGELOG.md:64-77`):
 
 | Terraform object | Kind | Scope |
 |---|---|---|
@@ -484,7 +502,7 @@ Provider v4.8.0 adds these DLP management objects (`vendor/terraform-provider-zi
 | `zia_eun_template_product` | Data source | Browser/ZCC notification templates by policy type |
 | `zia_eun_user_confirmation_template_product` | Data source | User-confirmation templates by policy type |
 
-The same release adds `zia_dns_application_groups` as a resource/data source and extends `zia_ssl_inspection_rules`, `zia_firewall_filtering_rule`, and `zia_firewall_dns_rule` with `end_point_applications` and `end_point_application_groups`; the two firewall rule resources also gain `exclude_context_shield_end_point` (`vendor/terraform-provider-zia/CHANGELOG.md:14-16,29-35`). These provider objects establish IaC surface, not tenant entitlement or live feature availability (`vendor/terraform-provider-zia/CHANGELOG.md:3-12`).
+The same release adds `zia_dns_application_groups` as a resource/data source and extends `zia_ssl_inspection_rules`, `zia_firewall_filtering_rule`, and `zia_firewall_dns_rule` with `end_point_applications` and `end_point_application_groups`; the two firewall rule resources also gain `exclude_context_shield_end_point` (`vendor/terraform-provider-zia/CHANGELOG.md:64-66,79-84`). These provider objects establish IaC surface, not tenant entitlement or live feature availability (`vendor/terraform-provider-zia/CHANGELOG.md:53-62`).
 
 ### `zia_dlp_web_rules`
 
@@ -818,9 +836,11 @@ ZPA gateway objects that define which ZPA server group and application segments 
 |---|---|---|
 | `name` | String | Required |
 | `zpa_server_group` | Block | Required; ZPA server group ID |
-| `zpa_app_segments` | List(Block) | Required; ZPA application segment IDs |
+| `zpa_app_segments` | Set(Block) | Optional; ZPA application segment IDs |
+| `description` | String | Optional |
+| `type` | String | Optional; `ZPA` or `ECZPA`, defaults to `ZPA` |
 
-Gotcha: Requires a configured ZPA Terraform provider (`zpa` provider) to manage the referenced server groups and app segments. Import by numeric ID or name.
+The resource schema requires the `zpa_server_group` block, permits zero or more `zpa_app_segments`, validates `type` as `ZPA` or `ECZPA`, and supplies `ZPA` when the type is absent (`vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go:68-127,237-239,310-326`). The provider documentation recommends configuring both the ZIA and ZPA providers and populating these blocks from ZPA data sources, but the ZIA schema validates the supplied ID/name pairs rather than their provenance (`vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_zpa_gateway.md:16-35,76-84`). Import by numeric ID or name.
 
 ### `zia_forwarding_control_proxies`
 
@@ -868,7 +888,7 @@ Static IP address objects that identify a customer IP for association with locat
 | `geo_override` | Bool | Optional |
 | `latitude` / `longitude` | Float | Optional |
 
-Gotcha: As of v4.6.2 ([PR #499](https://github.com/zscaler/terraform-provider-zia/pull/499), `vendor/terraform-provider-zia/CHANGELOG.md:456-465`), when `geo_override = true` but `latitude`/`longitude` are not explicitly provided, the provider lets the API auto-determine the coordinates from the IP address — this eliminated the prior "Missing geo Coordinates" error. More generally, `latitude` and `longitude` are optional and "If not provided, the API will automatically determine it from the IP address" (`vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_static_ips.go:58-78`, with the auto-population path at `:100-104`). For bulk creation against the rate-limited endpoint, reduce Terraform parallelism with `terraform apply -parallelism=1` (the SDK-wide client limit is 10 POST/PUT/DELETE and 20 GET per 10-second window — see Rate limiting above). Import by numeric ID or IP address.
+Gotcha: As of v4.6.2 ([PR #499](https://github.com/zscaler/terraform-provider-zia/pull/499), `vendor/terraform-provider-zia/CHANGELOG.md:568-577`), when `geo_override = true` but `latitude`/`longitude` are not explicitly provided, the provider lets the API auto-determine the coordinates from the IP address — this eliminated the prior "Missing geo Coordinates" error. More generally, `latitude` and `longitude` are optional and "If not provided, the API will automatically determine it from the IP address" (`vendor/terraform-provider-zia/zia/resource_zia_traffic_forwarding_static_ips.go:58-78`, with the auto-population path at `:100-104`). Keep Terraform's default parallelism: provider v4.8.1 removed guidance to lower the global flag and relies on transparent `429 Retry-After` handling (`vendor/terraform-provider-zia/CHANGELOG.md:43-51`; `vendor/terraform-provider-zia/docs/index.md:354-360`). Import by numeric ID or IP address.
 
 ### `zia_traffic_forwarding_vpn_credentials`
 
@@ -1217,6 +1237,26 @@ Alert subscription objects that send email notifications to specified recipients
 
 Import: by numeric ID or email address.
 
+### `zia_ueba_alert_definitions` (added in v4.8.1)
+
+Resource and matching data source coverage for Security & UEBA alert definitions was added in provider v4.8.1 (`vendor/terraform-provider-zia/CHANGELOG.md:26-45`; `vendor/terraform-provider-zia/zia/provider.go:185-205,317-325`).
+
+| Field | Type | Notes |
+|---|---|---|
+| `alert_name` | String | Required; provider-enforced alert-name list |
+| `status` | String | Optional; `ENABLED`, `DISABLED` |
+| `occurrence` | String | Optional; 1, 5, 10, 100, or 1,000 occurrences |
+| `traffic_change_percent` | Int | Optional; traffic-based alerts |
+| `interval` | String | Optional; 5, 15, or 30 minutes, 1 hour, or 1 day |
+| `scope` | String | Optional; `USER`, `LOCATION`, `DEPARTMENT`, `ORGANIZATION` |
+| `severity` | String | Optional; `CRITICAL`, `MAJOR`, `MINOR`, `INFO`, `DEBUG` |
+| `comments` | String | Optional |
+| `entity` | Block | Optional immutable user, location, or department reference |
+
+The provider validation and field constraints are defined at `vendor/terraform-provider-zia/zia/resource_zia_ueba_alert_definitions.go:17-32,62-118`; create, read, update, delete, and activation hooks are implemented at `:122-244`. The data source requires an ID or an exact, case-sensitive `alert_name` and returns the same alert-definition fields (`vendor/terraform-provider-zia/zia/data_source_zia_ueba_alert_definitions.go:14-93,95-155`). Treat the provider's closed `alert_name` list as a Terraform acceptance boundary, not proof that the backend's alert catalog is globally exhaustive or enabled for every tenant.
+
+Import the resource by numeric definition ID or alert name (`vendor/terraform-provider-zia/zia/resource_zia_ueba_alert_definitions.go:40-59`).
+
 ### `zia_rule_labels`
 
 Source: `vendor/terraform-provider-zia/docs/resources/zia_rule_labels.md`.
@@ -1234,13 +1274,13 @@ Import: by numeric ID or name.
 
 Source: `vendor/terraform-provider-zia/docs/resources/zia_activation_status.md`.
 
-Explicit activation trigger resource. Declaring this resource with `depends_on` pointing to all other managed resources causes Terraform to activate ZIA configuration after apply completes.
+Explicit activation trigger resource. Declaring this resource with `depends_on` pointing to the resources it must follow causes Terraform to activate ZIA configuration as part of the graph (`vendor/terraform-provider-zia/docs/resources/zia_activation_status.md:9-18`).
 
 | Field | Type | Notes |
 |---|---|---|
 | `status` | String | Required; must be `"ACTIVE"` |
 
-Gotcha: This resource is not importable. It does not represent durable API state; use it only when implicit activation via `ZIA_ACTIVATION=true` is not desired.
+Gotcha: This resource is not importable. Every resource or module whose changes must precede activation has to appear in `depends_on`; for large or modular configurations, the provider recommends one out-of-band `ziaActivator` call after the final apply instead (`vendor/terraform-provider-zia/docs/resources/zia_activation_status.md:18-20,52-54`).
 
 ---
 
@@ -1382,6 +1422,7 @@ Data sources have the same names as corresponding resources (prefix `data.zia_*`
 | `zia_firewall_filtering_rule` | Firewall filtering rule by name or ID. As of terraform-provider-zia v4.7.21, upstream issue [zscaler/terraform-provider-zia#568](https://github.com/zscaler/terraform-provider-zia/issues/568) added list-all retrieval with local JMESPath `search` support for this data source. Do not assume the same list-all behavior exists for every rule data source; provider maintainers called out endpoint pagination limits in that thread. |
 | `zia_firewall_dns_rule` | Firewall DNS Control rule by name or ID |
 | `zia_firewall_ips_rule` | Firewall IPS Control rule by name or ID |
+| `zia_ips_categories` | IPS category by ID or case-insensitive name; omit both to return all categories |
 | `zia_ips_signature_rules` | Custom IPS signature rule by name or ID |
 | `zia_nat_control_rules` | NAT Control (DNAT) rule by name or ID |
 | `zia_firewall_filtering_destination_groups` | IP destination group by name or ID |
@@ -1502,6 +1543,7 @@ Data sources have the same names as corresponding resources (prefix `data.zia_*`
 | `zia_mobile_malware_protection_policy` | Mobile malware protection policy singleton |
 | `zia_auth_settings_urls` | Cookie auth exemption URL list |
 | `zia_subscription_alert` | Alert subscription by email or ID |
+| `zia_ueba_alert_definitions` | UEBA alert definition by ID or exact alert name |
 
 ### NSS and Logging
 
@@ -1579,4 +1621,4 @@ Resolved items below cite the specific provider or help files used for verificat
 
 6. **Resolved 2026-04-26.** Admin rank values are fixed ZIA system values (not organization-specific). The provider schema sets rank as a TypeInt with no validation constraint (accepts any int). The provider doc for `zia_admin_roles` states: "Default value is 7 (the lowest rank)." Per the admin RBAC capture, rank controls which roles or admin users a given admin can manage — higher rank = more privilege. The valid range is 0–7 where 0 is the highest (super admin) rank and 7 is the default lowest rank.
 
-7. **`zia_traffic_forwarding_static_ip` per-endpoint POST throttle.** A prior version of the static-IP gotcha asserted "the `/staticIP` endpoint is rate-limited to 1 POST per second" (removed 2026-06-15). No vendored source backs a per-second figure: it is absent from the provider docs, `resource_zia_traffic_forwarding_static_ips.go`, the Python/Go SDKs, and `ranges-limitations-zia.md` (which only caps Static IP Address Entries per Organization at 100). The only SDK-backed limit is the client-wide 10 POST/PUT/DELETE + 20 GET per 10-second window. Whether the `/staticIP` POST path carries a stricter per-endpoint throttle is unconfirmed; `terraform apply -parallelism=1` is retained only as conservative bulk-create guidance. Remains unresolved. (Tracked as `zia-68` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle).)
+7. **`zia_traffic_forwarding_static_ip` per-endpoint POST throttle.** Provider v4.8.1 documentation now states that `/staticIP` is limited to one POST per second and says the provider handles excess requests through `429 Retry-After` retries (`vendor/terraform-provider-zia/docs/index.md:354-360`). That narrows the gap, but the figure is still absent from the captured primary endpoint-specific rate table, the static-IP resource implementation, and both SDK service layers. Treat one POST per second as provider-guide evidence rather than a primary API-contract limit; do not lower Terraform's global `-parallelism` on that basis. Remains unresolved pending a primary endpoint table or live validation. (Tracked as `zia-68` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle).)

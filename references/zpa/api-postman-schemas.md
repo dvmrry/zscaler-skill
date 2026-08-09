@@ -18,7 +18,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Application Controller > Adds a new Application Segment for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/application
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/application
 
 **Request:**
 
@@ -55,7 +55,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Application Controller > Deletes the Application Segment for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId
 
 **Response (400):**
 
@@ -70,7 +70,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Application Controller > Get all configured BA/Inspect/PRA Application Segments.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/application/getAppsByType
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/application/getAppsByType
 
 **Response (200):**
 
@@ -92,7 +92,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Application Controller > Gets all configured Application Segments for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/application
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/application
 
 **Response (200):**
 
@@ -113,7 +113,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Application Controller > Gets the Application Segment details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId
 
 **Response (200):**
 
@@ -134,7 +134,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Application Controller > Moves application of one microtenant to another
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId/move
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId/move
 
 **Request:**
 
@@ -159,7 +159,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Application Controller > Share the Application Segment to microtenants.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId/share
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId/share
 
 **Request:**
 
@@ -185,7 +185,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Application Controller > Updates the Application Segment details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/application/:applicationId
 
 **Request:**
 
@@ -216,92 +216,92 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## CBI Banner Controller > Add a CBI Banner for the specified customer.
 
-### POST {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/banner
+### POST {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/banner
 
 
 ## CBI Banner Controller > Delete the CBI Banner for the customer based on the specified ID.
 
-### DELETE {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/banners/:bannerId
+### DELETE {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/banners/:bannerId
 
 
 ## CBI Banner Controller > Get all CBI Banners for the specified customer.
 
-### GET {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/banners
+### GET {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/banners
 
 
 ## CBI Banner Controller > Get the CBI Banner for the customer based on the specified ID.
 
-### GET {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/banners/:bannerId
+### GET {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/banners/:bannerId
 
 
 ## CBI Banner Controller > Update the CBI Banner for the customer based on the specified ID.
 
-### PUT {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/banners/:bannerId
+### PUT {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/banners/:bannerId
 
 
 ## CBI Certificate Controller > Add a CBI Certificate for the specified customer.
 
-### POST {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/certificate
+### POST {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/certificate
 
 
 ## CBI Certificate Controller > Delete the CBI Certificate for the customer based on the specified ID.
 
-### DELETE {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/certificates/:certificateId
+### DELETE {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/certificates/:certificateId
 
 
 ## CBI Certificate Controller > Get all CBI Certificates for the specified customer.
 
-### GET {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/certificates
+### GET {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/certificates
 
 
 ## CBI Certificate Controller > Get the CBI Certificate for the customer based on the specified ID.
 
-### GET {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/certificates/:certificateId
+### GET {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/certificates/:certificateId
 
 
 ## CBI Certificate Controller > Update the CBI Certificate for the customer based on the specified ID.
 
-### PUT {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/certificates/:certificateId
+### PUT {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/certificates/:certificateId
 
 
 ## CBI Profile Controller > Get all CBI Profiles in ZPA for the specified customer.
 
-### GET {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/zpaprofiles
+### GET {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/zpaprofiles
 
 
 ## CBI Profile Controller > add a CBI profile for the specified customer
 
-### POST {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/profiles
+### POST {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/profiles
 
 
 ## CBI Profile Controller > delete the CBI profile for the customer based on the specified Id
 
-### DELETE {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/profiles/:profileId
+### DELETE {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/profiles/:profileId
 
 
 ## CBI Profile Controller > get all CBI Profiles for the specified customer
 
-### GET {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/profiles
+### GET {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/profiles
 
 
 ## CBI Profile Controller > get all Regions for the specified customer
 
-### GET {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/regions
+### GET {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/regions
 
 
 ## CBI Profile Controller > get the CBI profile for the customer based on the specified Id
 
-### GET {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/profiles/:profileId
+### GET {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/profiles/:profileId
 
 
 ## CBI Profile Controller > update the CBI profile for the customer based on the specified Id
 
-### PUT {{ZPABase}}/cbiconfig/cbi/api/customers/:customerId/profiles/:profileId
+### PUT {{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/profiles/:profileId
 
 
 ## Certificate Controller > Adds a certificate with a private key for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/certificate
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/certificate
 
 **Request:**
 
@@ -334,7 +334,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Certificate Controller > Deletes the certificate for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/certificate/:certificateId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/certificate/:certificateId
 
 **Response (400):**
 
@@ -349,7 +349,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Certificate Controller > Gets all certificates for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/certificate
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/certificate
 
 **Response (200):**
 
@@ -372,7 +372,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Certificate Controller > Gets all issued certificates for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/certificate/issued
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/certificate/issued
 
 **Response (200):**
 
@@ -395,7 +395,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Certificate Controller > Gets all issued certificates for the specified customer. This API will be deprecated in a future release.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/clientlessCertificate/issued
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/clientlessCertificate/issued
 
 **Response (200):**
 
@@ -418,7 +418,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Certificate Controller > Gets the certificate details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/certificate/:certificateId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/certificate/:certificateId
 
 **Response (200):**
 
@@ -441,7 +441,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Certificate Controller > Gets the certificate details for the specified ID. This API will be deprecated in a future release.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/clientlessCertificate/:certificateId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/clientlessCertificate/:certificateId
 
 **Response (200):**
 
@@ -464,7 +464,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Cloud Connector Group Controller > Gets all configured Cloud Connector Groups for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/cloudConnectorGroup
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/cloudConnectorGroup
 
 **Response (200):**
 
@@ -487,7 +487,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Cloud Connector Group Controller > Gets the Cloud Connector Group details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/cloudConnectorGroup/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/cloudConnectorGroup/:id
 
 **Response (200):**
 
@@ -510,7 +510,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Controller > Bulk deletes the App Connectors for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/connector/bulkDelete
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/connector/bulkDelete
 
 **Request:**
 
@@ -534,7 +534,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Controller > Configure a App Connector schedule frequency to delete the in active connectors with configured frequency.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/connectorSchedule/:id
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/connectorSchedule/:id
 
 **Request:**
 
@@ -559,7 +559,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 }
 ```
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/connectorSchedule
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/connectorSchedule
 
 **Request:**
 
@@ -590,7 +590,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Controller > Deletes the App Connector for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/connector/:connectorId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/connector/:connectorId
 
 **Response (400):**
 
@@ -605,7 +605,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Controller > Get a Configured App Connector schedule frequency.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/connectorSchedule
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/connectorSchedule
 
 **Response (200):**
 
@@ -623,7 +623,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Controller > Gets all configured App Connector details for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/connector
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/connector
 
 **Response (200):**
 
@@ -644,7 +644,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Controller > Gets the App Connector details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/connector/:connectorId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/connector/:connectorId
 
 **Response (200):**
 
@@ -665,7 +665,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Controller > Updates the App Connector details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/connector/:connectorId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/connector/:connectorId
 
 **Request:**
 
@@ -696,7 +696,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Group Controller > Adds a new App Connector Group for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup
 
 **Request:**
 
@@ -733,7 +733,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Group Controller > Deletes the App Connector Group for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup/:appConnectorGroupId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup/:appConnectorGroupId
 
 **Response (400):**
 
@@ -748,7 +748,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Group Controller > Gets all configured App Connector Groups for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup
 
 **Response (200):**
 
@@ -770,7 +770,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Group Controller > Gets the App Connector Group details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup/:appConnectorGroupId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup/:appConnectorGroupId
 
 **Response (200):**
 
@@ -791,7 +791,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Connector Group Controller > Updates the App Connector Group details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup/:appConnectorGroupId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/appConnectorGroup/:appConnectorGroupId
 
 **Request:**
 
@@ -822,7 +822,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Credential Controller > Adds a new privileged credential for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/credential
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/credential
 
 **Request:**
 
@@ -861,7 +861,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Credential Controller > Deletes the privileged credential for the specified ID. 
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/credential/:id
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/credential/:id
 
 **Response (400):**
 
@@ -876,7 +876,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Credential Controller > Gets all configured privileged credentials for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/credential
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/credential
 
 **Response (200):**
 
@@ -898,7 +898,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Credential Controller > Gets the privileged credential details for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/credential/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/credential/:id
 
 **Response (200):**
 
@@ -920,7 +920,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Credential Controller > Move Privileged credential from one microtenant to another microtenant
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/credential/:id/move
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/credential/:id/move
 
 **Response (400):**
 
@@ -935,7 +935,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Credential Controller > Updates the privileged credential details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/credential/:id
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/credential/:id
 
 **Request:**
 
@@ -967,7 +967,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Customer Controller > Gets the authentication domains for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/authDomains
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/authDomains
 
 **Response (200):**
 
@@ -983,7 +983,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Customer Version Profile Controller > Gets all visible Version Profiles for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/visible/versionProfiles
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/visible/versionProfiles
 
 **Response (200):**
 
@@ -1005,7 +1005,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Emergency Access Controller > Activates the emergency access user for the specified customer.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user/:userId/activate
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user/:userId/activate
 
 **Response (400):**
 
@@ -1020,7 +1020,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Emergency Access Controller > Creates an emergency access user for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user
 
 **Request:**
 
@@ -1059,7 +1059,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Emergency Access Controller > Deactivates the emergency access user for the specified customer.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user/:userId/deactivate
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user/:userId/deactivate
 
 **Response (400):**
 
@@ -1074,7 +1074,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Emergency Access Controller > Gets all emergency access users for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/users
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/users
 
 **Response (200):**
 
@@ -1096,7 +1096,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Emergency Access Controller > Gets the emergency access user for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user/:userId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user/:userId
 
 **Response (200):**
 
@@ -1118,7 +1118,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Emergency Access Controller > Updates the emergency access user for the specified customer.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user/:userId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/emergencyAccess/user/:userId
 
 **Request:**
 
@@ -1149,7 +1149,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Enrollment Certificate Controller > Gets all configured enrollment certificate details for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/enrollmentCert
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/enrollmentCert
 
 **Response (200):**
 
@@ -1171,7 +1171,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Enrollment Certificate Controller > Gets the enrollment certificate details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/enrollmentCert/:enrollmentCertId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/enrollmentCert/:enrollmentCertId
 
 **Response (200):**
 
@@ -1194,7 +1194,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## IdP Controller > Gets all configured IdP details for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/idp
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/idp
 
 **Response (200):**
 
@@ -1217,7 +1217,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## IdP Controller > Gets details of the IdP for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/idp/:idpId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/idp/:idpId
 
 **Response (200):**
 
@@ -1241,7 +1241,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Add a new custom control for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom
 
 **Request:**
 
@@ -1288,7 +1288,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Deletes the custom control for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/:id
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/:id
 
 **Response (400):**
 
@@ -1303,7 +1303,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Get all versions of the predefined inspection controls for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/predefined/versions
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/predefined/versions
 
 **Response (200):**
 
@@ -1317,7 +1317,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Get the predefined control for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/predefined/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/predefined/:id
 
 **Response (200):**
 
@@ -1344,7 +1344,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets all custom controls for a customer and sorts by control number for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom
 
 **Response (200):**
 
@@ -1369,7 +1369,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets all predefined inspection controls for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/predefined
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/predefined
 
 **Response (200):**
 
@@ -1392,7 +1392,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets the custom control for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/:id
 
 **Response (200):**
 
@@ -1418,7 +1418,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets the insepction profile name for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/:id/profiles
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/:id/profiles
 
 **Response (200):**
 
@@ -1438,7 +1438,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets the inspection control action types for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/actionTypes
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/actionTypes
 
 **Response (200):**
 
@@ -1452,7 +1452,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets the inspection control severity types for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/severityTypes
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/severityTypes
 
 **Response (200):**
 
@@ -1466,7 +1466,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets the inspection control types for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/controlTypes
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/controlTypes
 
 **Response (200):**
 
@@ -1480,7 +1480,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets the inspection custom control types.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/inspectionControls/customControlTypes
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/inspectionControls/customControlTypes
 
 **Response (200):**
 
@@ -1496,7 +1496,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Gets the supported HTTP methods in custom controls for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/httpMethods
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/httpMethods
 
 **Response (200):**
 
@@ -1510,7 +1510,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Control Controller > Updates the existing custom control for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/:id
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionControls/custom/:id
 
 **Request:**
 
@@ -1546,7 +1546,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Adds a new inspection profile for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile
 
 **Request:**
 
@@ -1591,7 +1591,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Deletes the inspection profile for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId
 
 **Response (400):**
 
@@ -1606,7 +1606,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Gets all configured inspection profiles for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile
 
 **Response (200):**
 
@@ -1629,7 +1629,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Gets the inspection profile details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId
 
 **Response (200):**
 
@@ -1654,7 +1654,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Updates the inspection profile and controls for the specified ID.
 
-### PATCH {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId/patch
+### PATCH {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId/patch
 
 **Request:**
 
@@ -1689,7 +1689,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Updates the inspection profile for the specified ID and associates all predefined controls to a profile.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId/associateAllPredefinedControls
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId/associateAllPredefinedControls
 
 **Response (400):**
 
@@ -1704,7 +1704,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Updates the inspection profile for the specified ID and dissociates all predefined controls from a profile.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId/dissociateAllPredefinedControls
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId/dissociateAllPredefinedControls
 
 **Response (400):**
 
@@ -1719,7 +1719,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Updates the inspection profile for the specified ID and dissociates all predefined controls from a profile. This API will be deprecated in a future release.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId/deAssociateAllPredefinedControls
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId/deAssociateAllPredefinedControls
 
 **Response (400):**
 
@@ -1734,7 +1734,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Inspection Profile Controller > Updates the inspection profile for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/inspectionProfile/:inspectionProfileId
 
 **Request:**
 
@@ -1769,7 +1769,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Isolation Profile Controller > Gets all isolation profiles for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles
 
 **Response (200):**
 
@@ -1791,7 +1791,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Add a new LSS configuration for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig
+### POST {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig
 
 **Request:**
 
@@ -1834,7 +1834,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Deletes the LSS configuration for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig/:lssId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig/:lssId
 
 **Response (400):**
 
@@ -1849,7 +1849,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Gets a list of LSS status codes.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/lssConfig/statusCodes
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/lssConfig/statusCodes
 
 **Response (200):**
 
@@ -1862,7 +1862,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Gets all LSS client types for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/lssConfig/customers/:customerId/clientTypes
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/lssConfig/customers/:customerId/clientTypes
 
 **Response (200):**
 
@@ -1875,7 +1875,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Gets all LSS client types. This API will be deprecated in a future release.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/lssConfig/clientTypes
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/lssConfig/clientTypes
 
 **Response (200):**
 
@@ -1888,7 +1888,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Gets all LSS configurations for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig
 
 **Response (200):**
 
@@ -1911,7 +1911,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Gets all LSS log formats for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig/logType/formats
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig/logType/formats
 
 **Response (200):**
 
@@ -1924,7 +1924,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Gets all LSS log formats.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/lssConfig/logType/formats
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/lssConfig/logType/formats
 
 **Response (200):**
 
@@ -1937,7 +1937,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Gets the LSS configuration details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig/:lssId
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig/:lssId
 
 **Response (200):**
 
@@ -1961,7 +1961,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Log Streaming Service (LSS) Configuration Controller > Updates the LSS configuration for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig/:lssId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/lssConfig/:lssId
 
 **Request:**
 
@@ -1995,7 +1995,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Machine Group Controller > Get all configured Machine Groups for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/machineGroup
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/machineGroup
 
 **Response (200):**
 
@@ -2019,7 +2019,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Machine Group Controller > Gets details of the Machine Group for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/machineGroup/:Id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/machineGroup/:Id
 
 **Response (200):**
 
@@ -2043,7 +2043,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Microtenant Controller > Adds a new Microtenant for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/microtenants
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/microtenants
 
 **Request:**
 
@@ -2086,7 +2086,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Microtenant Controller > Deletes the Microtenant for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/:microtenantId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/:microtenantId
 
 **Response (400):**
 
@@ -2101,7 +2101,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Microtenant Controller > Gets all configured Microtenants for the specified customer based on given filters.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/search
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/search
 
 **Request:**
 
@@ -2146,7 +2146,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Microtenant Controller > Gets all configured Microtenants for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/microtenants
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/microtenants
 
 **Response (200):**
 
@@ -2170,7 +2170,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Microtenant Controller > Gets the given Microtenant details for the specified customer
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/:microtenantId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/:microtenantId
 
 **Response (200):**
 
@@ -2194,7 +2194,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Microtenant Controller > Gets the name and ID of the configured Microtenant for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/summary
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/summary
 
 **Response (200):**
 
@@ -2214,7 +2214,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Microtenant Controller > Returns the details of the current session.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/me
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/me
 
 **Response (200):**
 
@@ -2230,7 +2230,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Microtenant Controller > Updates the Microtenant details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/:microtenantId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/microtenants/:microtenantId
 
 **Request:**
 
@@ -2264,7 +2264,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Approval Controller > Adds a new privileged approval for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/approval
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/approval
 
 **Request:**
 
@@ -2301,7 +2301,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Approval Controller > Deletes all expired privileged approvals for the specified customer.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/approval/expired
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/approval/expired
 
 **Response (200):**
 
@@ -2312,7 +2312,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Approval Controller > Deletes the privileged approval for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/approval/:id
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/approval/:id
 
 **Response (400):**
 
@@ -2327,7 +2327,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Approval Controller > Gets all configured privileged approvals for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/approval
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/approval
 
 **Response (200):**
 
@@ -2349,7 +2349,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Approval Controller > Gets the privileged approval details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/approval/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/approval/:id
 
 **Response (200):**
 
@@ -2370,7 +2370,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Approval Controller > Updates the privileged approval details for the specified ID. 
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/approval/:id
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/approval/:id
 
 **Request:**
 
@@ -2401,7 +2401,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Console Controller > Adds a new privileged console for the specified privileged portal and customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praConsole
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praConsole
 
 **Request:**
 
@@ -2446,7 +2446,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Console Controller > Creates a list of privileged consoles for the specified privileged portal and customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/bulk
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/bulk
 
 **Request:**
 
@@ -2489,7 +2489,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Console Controller > Deletes the privileged console for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/:id
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/:id
 
 **Response (400):**
 
@@ -2504,7 +2504,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Console Controller > Gets all configured privileged consoles for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praConsole
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praConsole
 
 **Response (200):**
 
@@ -2528,7 +2528,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Console Controller > Gets the privileged console details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/:id
 
 **Response (200):**
 
@@ -2553,7 +2553,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Console Controller > Gets the privileged consoles for the specified ID of the privileged portal.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/praPortal/:portalId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/praPortal/:portalId
 
 **Response (200):**
 
@@ -2577,7 +2577,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Console Controller > Updates the privileged console details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/:id
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praConsole/:id
 
 **Request:**
 
@@ -2612,7 +2612,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Portal Controller > Adds a new privileged portal for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praPortal
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praPortal
 
 **Request:**
 
@@ -2653,7 +2653,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Portal Controller > Deletes the privileged portal for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praPortal/:id
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praPortal/:id
 
 **Response (400):**
 
@@ -2668,7 +2668,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Portal Controller > Gets all configured privileged portals for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praPortal
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praPortal
 
 **Response (200):**
 
@@ -2691,7 +2691,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Portal Controller > Gets the privileged portal details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praPortal/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praPortal/:id
 
 **Response (200):**
 
@@ -2714,7 +2714,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## PRA Portal Controller > Updates the privileged portal for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/praPortal/:id
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/praPortal/:id
 
 **Request:**
 
@@ -2747,7 +2747,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Add a new policy rule for a given policy.
 
-### POST {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/policySet/:policySetId/rule
+### POST {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/policySet/:policySetId/rule
 
 **Request:**
 
@@ -2794,7 +2794,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Adds a new policy rule for the specified policy set.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule
 
 **Request:**
 
@@ -2835,7 +2835,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Bulk reorders all the rules in a policy set. Execute this API only once to reorder the rules
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/reorder
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/reorder
 
 **Request:**
 
@@ -2859,7 +2859,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Deletes the rule in a policy for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId
 
 **Response (400):**
 
@@ -2874,7 +2874,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Gets all client types for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/clientTypes
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/clientTypes
 
 **Response (200):**
 
@@ -2887,7 +2887,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Gets all platforms for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/platform
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/platform
 
 **Response (200):**
 
@@ -2900,7 +2900,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Gets paginated policy rules for the specified policy type.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/policySet/rules/policyType/:policyType
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/policySet/rules/policyType/:policyType
 
 **Response (200):**
 
@@ -2924,7 +2924,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Gets the policy set for the specified policy type.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/policySet/policyType/:policyType
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/policySet/policyType/:policyType
 
 **Response (200):**
 
@@ -2948,7 +2948,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Gets the rule in a policy for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId
 
 **Response (200):**
 
@@ -2971,7 +2971,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Update a rule in a policy.
 
-### PUT {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId
 
 **Request:**
 
@@ -3010,7 +3010,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Updates the rule in a policy for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId
 
 **Request:**
 
@@ -3043,7 +3043,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Policy Set Controller > Updates the rule order for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId/reorder/:newOrder
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/policySet/:policySetId/rule/:ruleId/reorder/:newOrder
 
 **Response (400):**
 
@@ -3058,7 +3058,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Posture Profile Controller > Gets all posture profiles for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/posture
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/posture
 
 **Response (200):**
 
@@ -3080,7 +3080,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Posture Profile Controller > Gets the configured posture profile for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/posture/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/posture/:id
 
 **Response (200):**
 
@@ -3101,7 +3101,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Provisioning Key Controller > Adds a new Provisioning Key for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey
 
 **Request:**
 
@@ -3144,7 +3144,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Provisioning Key Controller > Deletes the Provisioning Key for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey/:provisioningKeyId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey/:provisioningKeyId
 
 **Response (400):**
 
@@ -3159,7 +3159,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Provisioning Key Controller > Gets details of all configured Provisioning Keys for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey
 
 **Response (200):**
 
@@ -3183,7 +3183,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Provisioning Key Controller > Gets details of the Provisioning Key for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey/:provisioningKeyId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey/:provisioningKeyId
 
 **Response (200):**
 
@@ -3207,7 +3207,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Provisioning Key Controller > Updates the Provisioning Key details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey/:provisioningKeyId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/associationType/:associationType/provisioningKey/:provisioningKeyId
 
 **Request:**
 
@@ -3241,7 +3241,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## SAML Attribute Controller > Get all SAML attributes by page.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/samlAttribute
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/samlAttribute
 
 **Response (200):**
 
@@ -3264,7 +3264,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## SAML Attribute Controller > Gets all SAML attributes configured for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/samlAttribute/idp/:idpId
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/samlAttribute/idp/:idpId
 
 **Response (200):**
 
@@ -3287,7 +3287,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## SAML Attribute Controller > Gets the SAML attribute details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/samlAttribute/:attrId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/samlAttribute/:attrId
 
 **Response (200):**
 
@@ -3309,7 +3309,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## SCIM Attribute Header Controller > Gets all SCIM attribute values for the specified ID.
 
-### GET {{ZPABase}}/userconfig/v1/customers/:customerId/scimattribute/idpId/:idpId/attributeId/:attributeId
+### GET {{ZPABaseUrl}}/userconfig/v1/customers/:customerId/scimattribute/idpId/:idpId/attributeId/:attributeId
 
 **Response (200):**
 
@@ -3327,7 +3327,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## SCIM Attribute Header Controller > Gets all SCIM attributes for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/idp/:idpId/scimattribute
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/idp/:idpId/scimattribute
 
 **Response (200):**
 
@@ -3351,7 +3351,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## SCIM Attribute Header Controller > Gets the SCIM attribute details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/idp/:idpId/scimattribute/:scimAttributeId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/idp/:idpId/scimattribute/:scimAttributeId
 
 **Response (200):**
 
@@ -3376,7 +3376,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## SCIM Group Controller > Gets details of all SCIM groups for the specified IdP.
 
-### GET {{ZPABase}}/userconfig/v1/customers/:customerId/scimgroup/idpId/:idpId
+### GET {{ZPABaseUrl}}/userconfig/v1/customers/:customerId/scimgroup/idpId/:idpId
 
 **Response (200):**
 
@@ -3401,7 +3401,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## SCIM Group Controller > Gets the SCIM Group details for the specified ID.
 
-### GET {{ZPABase}}/userconfig/v1/customers/:customerId/scimgroup/:scimGroupId
+### GET {{ZPABaseUrl}}/userconfig/v1/customers/:customerId/scimgroup/:scimGroupId
 
 **Response (200):**
 
@@ -3420,7 +3420,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Segment Group Controller > Adds a new Segment Group for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup
 
 **Request:**
 
@@ -3471,7 +3471,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Segment Group Controller > Deletes the Segment Group for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup/:segmentGroupId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup/:segmentGroupId
 
 **Response (400):**
 
@@ -3486,7 +3486,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Segment Group Controller > Gets all configured Segment Groups for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup
 
 **Response (200):**
 
@@ -3514,7 +3514,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Segment Group Controller > Gets the Segment Group details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup/:segmentGroupId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup/:segmentGroupId
 
 **Response (200):**
 
@@ -3542,7 +3542,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Segment Group Controller > Updates the Segment Group for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup/:segmentGroupId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/segmentGroup/:segmentGroupId
 
 **Request:**
 
@@ -3580,7 +3580,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Controller > Adds a new Server for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/server
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/server
 
 **Request:**
 
@@ -3625,7 +3625,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Controller > Deletes the Server for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/server/:serverId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/server/:serverId
 
 **Response (400):**
 
@@ -3640,7 +3640,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Controller > Gets all configured Servers for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/server
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/server
 
 **Response (200):**
 
@@ -3664,7 +3664,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Controller > Gets the Server details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/server/:serverId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/server/:serverId
 
 **Response (200):**
 
@@ -3689,7 +3689,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Controller > Updates the Server details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/server/:serverId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/server/:serverId
 
 **Request:**
 
@@ -3724,7 +3724,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Group Controller > Add a new Server Group.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup
 
 **Request:**
 
@@ -3777,7 +3777,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Group Controller > Deletes the Server Group for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup/:groupId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup/:groupId
 
 **Response (400):**
 
@@ -3792,7 +3792,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Group Controller > Gets all configured Server Groups for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup
 
 **Response (200):**
 
@@ -3819,7 +3819,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Group Controller > Gets the Server Group details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup/:groupId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup/:groupId
 
 **Response (200):**
 
@@ -3848,7 +3848,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Server Group Controller > Updates the Server Group for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup/:groupId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serverGroup/:groupId
 
 **Request:**
 
@@ -3887,7 +3887,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Controller > Bulk deletes the Service Edges for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge/bulkDelete
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge/bulkDelete
 
 **Request:**
 
@@ -3911,7 +3911,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Controller > Configure a ServiceEdge schedule frequency to delete the in active private broker with configured frequency.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule/:id
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule/:id
 
 **Request:**
 
@@ -3936,7 +3936,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 }
 ```
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule
 
 **Request:**
 
@@ -3967,7 +3967,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Controller > Deletes the Service Edge for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge/:serviceEdgeId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge/:serviceEdgeId
 
 **Response (400):**
 
@@ -3982,7 +3982,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Controller > Get a Configured ServiceEdge schedule frequency.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule
 
 **Response (200):**
 
@@ -4000,7 +4000,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Controller > Gets all the configured Service Edge details for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge
 
 **Response (200):**
 
@@ -4021,7 +4021,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Controller > Gets the Service Edge details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge/:serviceEdgeId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge/:serviceEdgeId
 
 **Response (200):**
 
@@ -4042,7 +4042,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Controller > Updates the Service Edge details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge/:serviceEdgeId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdge/:serviceEdgeId
 
 **Request:**
 
@@ -4073,7 +4073,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Group Controller > Adds a new Service Edge Group for the specified customer.
 
-### POST {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup
+### POST {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup
 
 **Request:**
 
@@ -4112,7 +4112,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Group Controller > Deletes the Service Edge Group for the specified ID.
 
-### DELETE {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup/:serviceEdgeGroupId
+### DELETE {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup/:serviceEdgeGroupId
 
 **Response (400):**
 
@@ -4127,7 +4127,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Group Controller > Get details of all configured Service Edge Groups for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup
 
 **Response (200):**
 
@@ -4149,7 +4149,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Group Controller > Gets the Service Edge Group details for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup/:serviceEdgeGroupId
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup/:serviceEdgeGroupId
 
 **Response (200):**
 
@@ -4171,7 +4171,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Service Edge Group Controller > Updates the Service Edge Group details for the specified ID.
 
-### PUT {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup/:serviceEdgeGroupId
+### PUT {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/serviceEdgeGroup/:serviceEdgeGroupId
 
 **Request:**
 
@@ -4203,7 +4203,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Trusted Network Controller > Gets all trusted networks for the specified customer.
 
-### GET {{ZPABase}}/mgmtconfig/v2/admin/customers/:customerId/network
+### GET {{ZPABaseUrl}}/mgmtconfig/v2/admin/customers/:customerId/network
 
 **Response (200):**
 
@@ -4226,7 +4226,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Trusted Network Controller > Gets the trusted networks for the specified ID.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/customers/:customerId/network/:id
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/network/:id
 
 **Response (200):**
 
@@ -4247,7 +4247,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Zscaler Path Cloud Controller > Get all alternate cloud for zpath cloud.
 
-### GET {{ZPABase}}/mgmtconfig/v1/admin/zpathCloud/getAltClouds
+### GET {{ZPABaseUrl}}/mgmtconfig/v1/admin/zpathCloud/getAltClouds
 
 **Response (200):**
 
@@ -4269,7 +4269,10 @@ The sections below record behavioral details, enum values, and quirks that are n
 
 ### Application Segments — commonAppsDto unified write surface
 
-`commonAppsDto` is the unified write surface for BA, Inspect, and PRA sub-applications (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`). Each entry in `appsConfig` carries:
+`commonAppsDto` is the unified write surface for BA, Inspect, and PRA
+sub-applications in Application Segment POST and PUT request examples
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:11625-11643,12917-12935`).
+Each entry in `appsConfig` carries:
 
 | Field | Notes |
 |---|---|
@@ -4296,13 +4299,16 @@ The sections below record behavioral details, enum values, and quirks that are n
 | `protocols[]` | array |
 | `trustUntrustedCert` | boolean |
 
-On PUT, the `deletedBaApps`, `deletedInspectApps`, and `deletedPraApps` arrays carry IDs of sub-applications to remove (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`).
+On PUT, the `deletedBaApps`, `deletedInspectApps`, and `deletedPraApps` arrays
+carry IDs of sub-applications to remove
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:12917-12935`).
 
 ---
 
 ### Microtenants — sharedMicrotenantDetails on ApplicationSegment GET
 
-ApplicationSegment GET responses include `sharedMicrotenantDetails` with the following shape (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008,14307`):
+ApplicationSegment GET responses include `sharedMicrotenantDetails` with the
+following shape (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`):
 
 ```json
 {
@@ -4321,14 +4327,21 @@ The share PUT request body uses `{ "shareToMicrotenants": ["<long>"] }` — an a
 
 ### Microtenants — microtenantId query parameter sentinel values
 
-For resource endpoints accepting `microtenantId` as a query parameter (`vendor/zscaler-api-specs/oneapi-postman-collection.json:14347`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:36599`):
+For the application-share and credential-move examples accepting
+`microtenantId` as a query parameter
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:14347-14351,36600-36603`):
 
 - Pass `0` to scope the request to the Default microtenant.
 - Omit the parameter entirely for the Customer data microtenant.
 
-For `targetMicrotenantId` on the credential/move endpoint, pass `0` for Default; the null/omit case for target is not documented in the collection (`vendor/zscaler-api-specs/oneapi-postman-collection.json:36607`).
+For `targetMicrotenantId` on the credential/move endpoint, pass `0` for Default;
+the null/omit case for target is not documented in the collection
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:36607-36608`).
 
-This `0`/null pattern is documented in the `microtenantId` field description on every relevant endpoint and applies to application/share, application/move, and credential/move.
+The same `0`/null wording recurs across the current collection's relevant
+application/share, application/move, and credential/move parameter
+descriptions. This is a 2026-08-04 full-collection audit result, not a claim that
+one representative example defines every future endpoint.
 
 ---
 
@@ -4361,25 +4374,48 @@ This `0`/null pattern is documented in the `microtenantId` field description on 
 
 ---
 
-### App Connectors, Groups, and Schedules — microtenantId=0 sentinel
+### App Connectors and Groups — microtenantId=0 sentinel; schedule gap
 
-`microtenantId=0` selects the Default microtenant. For Customer data microtenants the value should be `null` (not zero). This convention applies to connector, group, and schedule endpoints and is documented in the `microtenantId` description on every relevant Postman endpoint (`vendor/zscaler-api-specs/oneapi-postman-collection.json:27800`).
+`microtenantId=0` selects the Default microtenant. For Customer data
+microtenants the value should be `null` (not zero). A 2026-08-04
+full-collection parameter audit found that wording repeated across the current
+connector and group request descriptions; the cited connector example is
+representative rather than proof about future endpoints
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:27796-27801`). The
+current schedule requests carry `microtenantId` but leave its description
+empty, so the collection does not establish the same `0`/null convention for
+that family
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:31993-32010`).
 
 ---
 
-### Server Groups — inconsistentConfigDetails read-only field
+### Server Groups — inconsistentConfigDetails source ambiguity
 
-ServerGroup GET responses include a top-level read-only field `inconsistentConfigDetails` containing 17 keys (`vendor/zscaler-api-specs/oneapi-postman-collection.json:119576`):
+ServerGroup GET responses include a top-level `inconsistentConfigDetails` field
+containing 17 keys
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:118814-118941`):
 
 `application`, `segmentGroup`, `appConnectorGroup`, `baCertificate`, `branchConnectorGroup`, `cloudConnectorGroup`, `idp`, `location`, `machineGroup`, `postureProfile`, `samlAttributes`, `scimAttributes`, `serverGroup`, `sraApplication`, `trustedNetwork`, `userPortal`, `workloadTagGroup`
 
-Each key is an array of `{ name: string, reason: string }` objects surfacing configuration drift. Neither the Go SDK nor the Python SDK struct models this field.
+Each key is an array of `{ name: string, reason: string }` objects surfacing
+configuration drift. The collection also includes the field in a ServerGroup
+POST request example, so Postman does **not** establish it as read-only
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:119576`). Neither the
+Go nor Python ServerGroup model carries it
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:20-41`;
+`vendor/zscaler-sdk-python/zscaler/zpa/models/server_group.py:26-110`).
 
 ---
 
 ### Service Edges — serviceEdgeSchedule POST returns 204
 
-`POST /mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule` returns **204 No Content** with no body or Location header (`vendor/zscaler-api-specs/oneapi-postman-collection.json:111265`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:111317`). Use a GET immediately after creation to retrieve the schedule. This matches the connector schedule pattern but deviates from typical REST create semantics (201 Created).
+The Postman example for
+`POST /mgmtconfig/v1/admin/customers/:customerId/serviceEdgeSchedule` is
+internally contradictory: it records status **204 No Content** and no Location
+header, yet also carries a complete schedule object in `body`
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:111260-111287,111367-111377`).
+Do not infer an empty wire body from the status label alone; perform a GET when
+the client needs authoritative post-create state.
 
 ---
 
@@ -4395,17 +4431,26 @@ Replacement is the customer-scoped path: `GET /mgmtconfig/v2/admin/lssConfig/cus
 
 ### Privileged Remote Access (PRA) — applicationProtocol enum
 
-The full set of `applicationProtocol` values observed across PRA-related endpoints in the Postman collection (`vendor/zscaler-api-specs/oneapi-postman-collection.json:86512`):
+The full set of `applicationProtocol` values observed across current
+PRA-related response examples
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008,11744`):
 
 `AUTO`, `DYNAMIC`, `FTP`, `HTTP`, `HTTPS`, `NONE`, `RDP`, `SSH`, `VNC`, `WEBSOCKET`
 
-Note: `DYNAMIC`, `FTP`, `VNC`, and `WEBSOCKET` are present in the collection but were not included in the original documented set. See Open questions for a citation-scope note.
+Nine values occur together at line 11008; line 11744 adds `RDP`. This is an
+observed example set, not a formal or future-exhaustive server enum. The former
+citation-scope question is resolved as [`zpa-21`](../_meta/clarifications.md#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope).
 
 ---
 
 ### Privileged Remote Access (PRA) — CredentialPool absent from collection
 
-No CredentialPool endpoints exist in `oneapi-postman-collection.json`. The collection contains only Credential Controller endpoints on the `mgmtconfig` vhost (`vendor/zscaler-api-specs/oneapi-postman-collection.json:36571`). CredentialPool lives on a separate `waap-pra-config` vhost and is documented only via the SDKs.
+A 2026-08-04 full-file request-name/path audit found no CredentialPool endpoint
+in the current `oneapi-postman-collection.json`; the cited operation is a
+representative Credential Controller endpoint on the `mgmtconfig` vhost
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:36571-36608`). This is
+an audit-scoped collection absence, not proof that the server lacks the
+separate SDK-documented `waap-pra-config` CredentialPool surface.
 
 ---
 
@@ -4422,9 +4467,16 @@ Omitting vs. passing null may differ in behavior; the description does not clari
 
 ### Provisioning Keys — response codes
 
-**POST create returns 200, not 201.** The Postman collection example response for POST is named "OK" (200) (`vendor/zscaler-api-specs/oneapi-postman-collection.json:97610`). This matches ZPA's general pattern of returning 200 for creates rather than 201.
+**POST create returns 200, not 201.** The Postman collection example response
+for POST is named "OK" with code 200
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:97611-97612`). Treat
+that as the Provisioning Key operation's documented response, not a general
+ZPA create-status convention.
 
-**Error response shape** — uniform across all Provisioning Key endpoints for 4xx and 5xx status codes (`vendor/zscaler-api-specs/oneapi-postman-collection.json:94722`):
+**Error response shape** — a 2026-08-04 structured audit of all 45 4xx/5xx
+examples across the five Provisioning Key operations found one body shape; the
+cited range is a representative response
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:94769-94779`):
 
 ```json
 { "hostname": "<string>", "id": "<string>", "reason": "<string>" }
@@ -4434,13 +4486,23 @@ Omitting vs. passing null may differ in behavior; the description does not clari
 
 ### Cloud Browser Isolation (CBI) — profileId type and POST response code
 
-**profileId is UUID, not long integer.** The Postman collection types `:profileId` as `<uuid>` on CBI isolation profile endpoints (`vendor/zscaler-api-specs/oneapi-postman-collection.json:19626`). Inspection profile IDs are typed as `long`. Using an integer for a CBI profile ID will fail.
+**profileId is UUID, not long integer.** The Postman collection types
+`:profileId` as `<uuid>` on CBI isolation profile endpoints
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:19626`). Inspection
+profile IDs are separately typed as `long`
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:56070-56072`). An
+integer does not match the documented CBI request shape; send the UUID form.
 
-**POST CBI isolation profile returns HTTP 200, not 201.** Successful CBI profile creation returns 200 rather than 201 Created (`vendor/zscaler-api-specs/oneapi-postman-collection.json:21501`). This differs from `mgmtconfig` POST endpoints (inspection controls, etc.) which return 201.
+**POST CBI isolation profile returns HTTP 200, not 201.** Successful CBI
+profile creation returns 200 rather than 201 Created
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:21501-21502`). Scope
+that status expectation to this CBI operation; ZPA create responses vary by
+endpoint.
 
 ---
 
-## Open questions
+## Resolved clarification
 
-- **PRAApplication.applicationProtocol full enum citation scope** — the report claims DYNAMIC, FTP, VNC, and WEBSOCKET are present in the collection and cites `oneapi-postman-collection.json:86512`, but that line shows a PRA Console GET response listing only HTTP and SSH in the two example instances shown. The full 10-value enum (AUTO, DYNAMIC, FTP, HTTP, HTTPS, NONE, RDP, SSH, VNC, WEBSOCKET) likely appears across multiple PRA endpoints in the collection rather than at a single line — *unverified at line-level; requires a grep across the full collection for each enum value to confirm completeness*. (Tracked as [`zpa-21`](../_meta/clarifications.md#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope).)
-
+- **PRAApplication.applicationProtocol observed-set citation scope** — resolved
+  on 2026-08-04 from the current response bodies at lines 11008 and 11744. See
+  [`zpa-21`](../_meta/clarifications.md#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope).

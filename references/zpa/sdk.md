@@ -15,9 +15,13 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py
   - vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py
   - vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py
+  - vendor/zscaler-sdk-python/zscaler/constants.py
+  - vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py
+  - vendor/zscaler-sdk-python/zscaler/request_executor.py
   - vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst
   - vendor/zscaler-sdk-python/README.md
   - vendor/zscaler-sdk-go/zscaler/zpa/services/
+  - vendor/terraform-provider-zpa/docs/index.md
 author-status: draft
 ---
 
@@ -66,8 +70,17 @@ with LegacyZPAClient(config) as client:
     ...
 ```
 
-Government clouds (`zscalergov`, `zscalerten`, ZPA `GOV`, `GOVUS`) are not
-supported on OneAPI; use the legacy client.
+Government-cloud OneAPI support is client- and version-specific, not
+categorically unavailable. The current Python OneAPI client maps lowercase
+`gov` / `govus` to dedicated FedRAMP identity and API-gateway hosts
+(`vendor/zscaler-sdk-python/zscaler/constants.py:17-28`;
+`vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:495-499`;
+`vendor/zscaler-sdk-python/zscaler/request_executor.py:173-186`). Independently,
+ZPA Terraform provider v4.4.6+ documents OneAPI support with those same cloud
+values (`vendor/terraform-provider-zpa/docs/index.md:118-133`). This routing
+support does not establish entitlement or ZIdentity API-client configuration
+for every government tenant; pre-ZIdentity tenants and unsupported client
+versions still require the legacy path.
 
 ### 1.2 Accessing ZPA sub-services
 

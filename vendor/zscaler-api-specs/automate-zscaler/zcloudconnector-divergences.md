@@ -101,7 +101,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## ip_destination_group
 
-`POST /ztw/api/v1/ipDestinationGroups` — contract 11 / Go 8 / TF 8 fields / no Ansible surface / Python 10 fields / MCP 6 tools
+`POST /ztw/api/v1/ipDestinationGroups` — contract 11 / Go 8 / TF 8 fields / no Ansible surface / Python 10 fields / MCP 4 tools
 
 **Required drift:**
 
@@ -115,7 +115,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## ip_pool_group
 
-`POST /ztw/api/v1/ipGroups` — contract 6 / Go 8 / TF 5 fields / no Ansible surface / Python 6 fields / MCP 6 tools
+`POST /ztw/api/v1/ipGroups` — contract 6 / Go 8 / TF 5 fields / no Ansible surface / Python 6 fields / MCP 4 tools
 
 **Required drift:**
 
@@ -128,7 +128,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## ip_source_group
 
-`POST /ztw/api/v1/ipSourceGroups` — contract 6 / Go 6 / TF 5 fields / no Ansible surface / Python 6 fields / MCP 6 tools
+`POST /ztw/api/v1/ipSourceGroups` — contract 6 / Go 6 / TF 5 fields / no Ansible surface / Python 6 fields / MCP 4 tools
 
 **Required drift:**
 
@@ -143,7 +143,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## network_service
 
-`POST /ztw/api/v1/networkServices` — contract 11 / Go 11 / TF 11 fields / no Ansible surface / Python 12 fields / MCP 2 tools
+`POST /ztw/api/v1/networkServices` — contract 11 / Go 11 / TF 11 fields / no Ansible surface / Python 12 fields / MCP 1 tools
 
 **Required drift:**
 
@@ -153,7 +153,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## network_service_group
 
-`POST /ztw/api/v1/networkServiceGroups` — contract 5 / Go 5 / TF 5 fields / no Ansible surface / Python 5 fields / MCP 2 tools
+`POST /ztw/api/v1/networkServiceGroups` — contract 5 / Go 5 / TF 5 fields / no Ansible surface / Python 5 fields / MCP 1 tools
 
 **Required drift:**
 
@@ -216,6 +216,8 @@ Captured contract groups with no Terraform resource mapping in this report:
 **Contract fields absent from the Go SDK struct:** `deviceGroups`, `devices`, `templateSyncedRuleFlag`, `timeWindows`, `zpaAppSegments`, `zpaGateway`
 
 **Go SDK fields absent from the contract:** `defaultRule`, `srcWorkloadGroups`
+
+**Terraform provider corroborates these non-contract client fields:** `srcWorkloadGroups`
 
 ## traffic_forwarding_log_rule
 

@@ -8,7 +8,8 @@ confidence: medium
 source-tier: mixed
 sources:
   - "https://www.zscaler.com/products-and-solutions"
-  - "vendor/zscaler-help/automate-zscaler/getting-started.md (OneAPI 7-product list)"
+  - "vendor/zscaler-help/automate-zscaler/getting-started.md (documented OneAPI baseline)"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zscaler-help/zero-trust-exchange-zte-marketing.md"
   - "vendor/zscaler-help/data-fabric-for-security-marketing.md"
   - "vendor/zscaler-help/security-operations-suite-marketing.md"
@@ -125,7 +126,7 @@ Active-defense threat detection via decoys (fake servers, AD objects, endpoints,
 Cyber risk quantification framework. Monte Carlo financial-loss simulation 1000x/day across 4 scenarios (inherent / residual / 30-day / peer). 115-140+ factors across 4 attack stages × 4 entities, mapped to MITRE ATT&CK / NIST CSF / SEC S-K 106(b). Paid add-on under Security Operations tier. CISO/board audience. Reasoning doc: [`../risk360/overview.md`](../risk360/overview.md). No SDK / TF presence.
 
 #### AI Security family surfaces beyond AI Guard
-AI Guard itself is now classified Tier 2 because the Python SDK exposes runtime policy detection. The broader AI Security family still includes reasoning-only surfaces: AI Guardrails (marketing umbrella), AI Red Teaming (offline vulnerability assessment for customer LLM apps), and the four-pillar governance framework. Reasoning doc: [`../ai-security/overview.md`](../ai-security/overview.md). Captures include `vendor/zscaler-help/ai-security-marketing.md`, `vendor/zscaler-help/ai-guardrails-marketing.md`, `vendor/zscaler-help/ai-guard-what-is.md`, and the AI Guard Help subpage captures listed in the AI Security reference frontmatter.
+AI Guard itself is classified Tier 2 because the Python SDK exposes runtime policy detection. The broader AI Security family includes AI Guardrails (marketing umbrella), AI Red Teaming (offline vulnerability assessment with a 97-request Postman surface but no saved response examples), and the four-pillar governance framework. Reasoning doc: [`../ai-security/overview.md`](../ai-security/overview.md). Captures include `vendor/zscaler-help/ai-security-marketing.md`, `vendor/zscaler-help/ai-guardrails-marketing.md`, `vendor/zscaler-help/ai-guard-what-is.md`, `vendor/zscaler-api-specs/oneapi-postman-collection.json`, and the AI Guard Help subpage captures listed in the AI Security reference frontmatter.
 
 #### ZSDK — Zscaler SDK for Mobile Apps
 **Different product than ZCC.** ZSDK is a **mobile SDK (iOS/Android) for consumer-facing apps** — app developers embed it into their own mobile app's source code so end users get zero-trust connectivity to back-end services without installing any separate Zscaler agent. Access tokens (JWTs) validate user identity; mTLS microtunnels route traffic to back-end APIs and services hidden behind App Connectors. Shares App Connector + Private Service Edge infrastructure with ZPA but runs on a **dedicated multi-tenant cloud at `admin.zsdkone.net`**. Browser Access (limited availability) extends ZPA-style clientless web-app access to ZSDK-protected apps without requiring SDK integration — auth via IdP JWT in any browser. Configuration is portal-based; no first-party Zscaler API SDK for managing ZSDK config (the SDK *is* the product). Tier 3 not because it lacks substance — 30 pages of help-portal content captured — but because it doesn't fit the "zscaler-sdk-* / terraform-provider-*" management surface this skill primarily targets. Captures under `vendor/zscaler-help/zsdk-*.md`.
@@ -271,5 +272,5 @@ Acquisitions typically take 6-12 months to fully integrate; track them as Tier 4
 
 - Cross-product hooks between deep-dive products: [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
 - Cloud architecture (the platform layer underlying all products): [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)
-- OneAPI gateway (the API entrypoint for the 7 products with REST APIs): [`../shared/oneapi.md`](../shared/oneapi.md)
+- OneAPI gateway and the current Postman collection's nine top-level product/service surfaces: [`../shared/oneapi.md`](../shared/oneapi.md)
 - Terminology disambiguation across products and legacy names: [`../shared/terminology.md`](../shared/terminology.md)

@@ -1,13 +1,17 @@
 ---
 product: cloud-connector
 topic: "cc-regions"
-title: "Cloud Connector supported regions — AWS / Azure / GCP coverage"
+title: "Cloud Connector and Zero Trust Gateway regions — AWS / Azure / GCP"
 content-type: reference
 last-verified: "2026-07-22"
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md"
+  - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
+  - "vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md"
+  - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
+  - "vendor/zscaler-help/cbc-release-upgrade-summary-2025.md"
   - "vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md"
   - "vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md"
   - "vendor/zscaler-help/cbc-about-cloud-connector-groups.md"
@@ -23,29 +27,25 @@ sources:
 author-status: draft
 ---
 
-# Cloud Connector supported regions — AWS / Azure / GCP coverage
+# Cloud Connector and Zero Trust Gateway regions — AWS / Azure / GCP
 
 Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
-This document covers which cloud provider regions support Zscaler Cloud Connector (CC) deployment, the mechanism by which Cloud Connector selects Zscaler Public Service Edges, how that interacts with the concept of subclouds, and any known regional capability restrictions or gaps.
+This document separates three region surfaces that must not be conflated: customer-deployed Cloud Connector availability, the documented Zscaler-managed **GCP** Zero Trust Gateway availability, and the workload-discovery supported-region API. The current source set does not establish the same ownership model for AWS ZTG.
 
-> **Confidence note.** Regional support lists change without announcement. Zscaler's help documentation as captured for this skill dates from 2026-04-26. The explicit region matrix below (for the Zero Trust Gateway / AWS subset) comes directly from the canonical help article. Azure and GCP region lists are not enumerated in the captured *help* docs — see the confidence callouts in each section. Note, however, that the **workload-discovery supported-region set** is queryable programmatically per cloud (AWS/Azure/GCP) via the SDK/Terraform/API surface in § Programmatic region enumeration; this is a different surface from the ZTG deployment list and is the most reliable way to read the *current* set. Treat any claim marked Tier D as requiring verification against current Zscaler documentation.
+> **Confidence note.** The Help capture dated 2026-08-04 explicitly lists 18 AWS and 16 GCP **Zero Trust Gateway** regions (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-53`). Those lists do not establish standard Cloud Connector VM deployment availability or the values returned by workload discovery.
 
 ---
 
-## How Zscaler decides where to support CC
+## Keep the three region surfaces separate
 
 Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
-Cloud Connector is a VM image (AMI on AWS, VM image on Azure/GCP) deployed inside the customer's own cloud account. Zscaler does not operate Cloud Connector in its own infrastructure — the customer deploys it into their VPC/VNet/VPC (Google). This means "Cloud Connector regional support" has two distinct meanings:
+1. **Standard Cloud Connector deployment** is the customer-deployed VM path. GCP Help documents Terraform deployment and a Marketplace image, but does not enumerate a GCP standard-CC region list (`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-10`; `vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:38-42`).
+2. **GCP Zero Trust Gateway deployment** is a separate managed-service surface. GCP ZTG is Zscaler cloud-native, Limited Availability, and Support-enabled (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). The current static region article includes both AWS and GCP availability, but it does not establish that AWS uses the same managed-service ownership model.
+3. **Workload discovery** exposes a live per-cloud supported-region set through `/publicCloudInfo/supportedRegions`. That set governs discovery and is not documented as equal to either deployment surface (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:13,33-53`).
 
-1. **CC VM image availability** — whether Zscaler publishes a Cloud Connector image to that region's Marketplace listing. If the image isn't listed, Terraform can still pull it from another region or from a Zscaler-provided image repository, but Marketplace-wizard deployment fails.
-
-2. **Zero Trust Exchange reachability** — whether the Zscaler PSE (Public Service Edge) network has presence near that region. CC selects PSEs by geolocation; a CC in a region with no nearby PSE will still connect — it just incurs higher latency and potential cross-region egress charges to reach the nearest PSE. Zscaler's HA doc states the ZTE operates "over 150 global data centers."
-
-These two concerns are independent. A region can have full CC Marketplace support but no adjacent Zscaler PSE (rare in practice, but possible in emerging regions). Conversely, Zscaler may have PSE presence near a region where CC isn't Marketplace-listed and must be deployed via Terraform.
-
-The relationship to subclouds: subclouds restrict *which PSEs handle tenant traffic* — they override geolocation-based PSE selection. A CC in `ap-southeast-2` (Sydney) would by default select the nearest PSE geographically; a subcloud pinned to EU PSEs would force that CC's traffic to route through Europe. That is almost always wrong for workload latency and egress cost. Subclouds and CC regional placement are orthogonal controls; see [`../shared/subclouds.md`](../shared/subclouds.md) for subcloud mechanics.
+Subcloud/PSE selection is another independent control; see [`../shared/subclouds.md`](../shared/subclouds.md). Nothing in the current ZTG matrix proves one-to-one parity with Public Service Edge locations.
 
 ---
 
@@ -67,14 +67,14 @@ Each returned region carries three fields (`common.go:168-178`):
 | `name` | string | Region name (`common.go:174`). |
 | `cloud_type` | string | Cloud type; supported values `AWS`, `AZURE`, `GCP` (`common.go:177`; mirrored in the TF schema description at `data_source_ztc_supported_regions.go:33,54`). |
 
-So this single surface enumerates supported regions across **all three clouds** (AWS, Azure, GCP) — the one place in the captured source that does so programmatically.
+This surface is typed for all three clouds—AWS, Azure, and GCP—and returns the tenant-visible workload-discovery region set (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:168-178`).
 
 **Important scope distinction.** This is the **workload-discovery** supported-region set, not the **Zero Trust Gateway deployment** region list. The two are different surfaces:
 
-- The 16-region AWS ZTG table below (§ AWS region matrix) enumerates where Zscaler operates Zero Trust Gateway endpoint infrastructure (a VPC Endpoint Service per region). It stays authoritative for ZTG planning and is verified current against `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:18-33`.
+- The current Help table explicitly lists 18 AWS and 16 GCP ZTG regions (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-50`).
 - The WDS set above governs which regions workload discovery can enumerate/scan per cloud. It does **not** replace the ZTG table, and the captured source does not assert the two lists are identical.
 
-Because the WDS endpoint is live, the most reliable way to get the *current* per-cloud supported-region set is to query it (TF data source, Go SDK, or the raw API) against your tenant rather than relying on a static table. The captured Go/TF source defines the surface but does not embed the actual region values, so the specific regions returned for Azure and GCP remain unconfirmed from captures alone — see § Open questions.
+Query the WDS endpoint, Go SDK, or Terraform data source against the tenant for the current workload-discovery set. The SDK/provider source defines the shape but does not embed the returned values (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:33-53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:168-178`).
 
 ---
 
@@ -84,7 +84,7 @@ Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `ven
 
 ### Zero Trust Gateway supported regions (authoritative)
 
-The help article *Supported Regions for Zero Trust Gateways* (`cbc-supported-regions-zero-trust-gateways.md`) provides the only explicit, enumerated list of *named* regions in the captured documentation. (The workload-discovery API in § Programmatic region enumeration also enumerates regions, but the captured source defines only its shape, not the region values, so the ZTG table remains the only place captures actually *name* specific regions.) It covers the **Zero Trust Gateway** (ZTG) feature — a VPC Endpoint-based path where Zscaler presents an AWS VPC Endpoint Service in each supported region, and the customer registers an endpoint to it. This is distinct from the standard CC deployment (where the customer deploys the CC AMI themselves), but it is the only captured source that names specific supported regions.
+The table below is scoped to **Zero Trust Gateway**, not standard Cloud Connector AMI deployment or workload discovery (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-30`).
 
 | Region code | Display name | Location |
 |---|---|---|
@@ -100,7 +100,9 @@ The help article *Supported Regions for Zero Trust Gateways* (`cbc-supported-reg
 | `eu-west-3` | Europe (Paris) | Paris, France |
 | `ap-southeast-1` | Asia Pacific (Singapore) | Singapore |
 | `ap-south-1` | Asia Pacific (Mumbai) | Mumbai, India |
+| `ap-south-2` | Asia Pacific (Hyderabad) | Hyderabad, India |
 | `ap-southeast-2` | Asia Pacific (Sydney) | Sydney, Australia |
+| `ap-southeast-4` | Asia Pacific (Melbourne) | Melbourne, Australia |
 | `ca-central-1` | Canada (Central) | Montreal, Canada |
 | `sa-east-1` | South America (São Paulo) | São Paulo, Brazil |
 | `me-south-1` | Middle East (Bahrain) | Bahrain |
@@ -109,13 +111,11 @@ Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`.
 
 The article's closing note says to contact Zscaler Support for unavailable regions.
 
-**16 regions** across North America (4), Europe (6), Asia-Pacific (3), Canada (1), South America (1), Middle East (1).
+**18 AWS regions** are present in the current Help capture. The May 29 release entry identifies `ap-south-2` and `ap-southeast-4` as additions (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:24-26`).
 
 ### AMI availability (standard CC deployment)
 
-The standard CC AMI deployment (via CloudFormation or Terraform) does not have a separately enumerated region list in the captured docs. The AWS Marketplace listing for Cloud Connector is published by Zscaler as an AMI; AWS Marketplace AMIs are typically available in all standard commercial regions, but Zscaler has not published a region-by-region availability statement for the AMI itself in the captured material.
-
-**Practical guidance:** assume the AMI is available in any AWS commercial region. The ZTG supported-region list above reflects Zscaler's *operational* commitment to that region (Zscaler operates endpoint infrastructure there). For standard CC AMI deployment, the binding constraint is likely PSE proximity rather than AMI availability. Verify current Marketplace listing availability before planning a deployment in a region not on the ZTG list above.
+The standard CC AMI deployment does not have a separately enumerated region list in the current captures. Verify Marketplace availability rather than treating the 18-region ZTG table as an AMI allowlist.
 
 ### Restricted / unsupported AWS regions
 
@@ -123,7 +123,7 @@ The standard CC AMI deployment (via CloudFormation or Terraform) does not have a
 
 **AWS China (`cn-north-1`, `cn-northwest-1`):** Not listed. The ZTG table contains no China regions. The Azure deployment doc's explicit China callout (see Azure section) suggests China is a special case requiring separate handling; the same likely applies to AWS China, but this is not confirmed in captured docs.
 
-**Other opt-in regions** (e.g., `ap-east-1` Hong Kong, `af-south-1` Cape Town, `eu-south-1` Milan, `ap-southeast-3` Jakarta, `ap-southeast-4` Melbourne, `me-central-1` UAE, `il-central-1` Israel): none of these appear in the ZTG table. Whether CC AMI is available and/or ZTG is supported there is unconfirmed. Contact Zscaler Support for any region outside the 16 listed above.
+**Other unlisted regions** (for example, `ap-east-1`, `af-south-1`, `eu-south-1`, `ap-southeast-3`, `me-central-1`, and `il-central-1`) remain unconfirmed for ZTG. Help directs customers to Support for regions not listed (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:52-53`).
 
 ---
 
@@ -172,27 +172,38 @@ The VMSS (autoscaling) deployment on Azure requires a **Function App** for healt
 
 ## GCP region matrix
 
-Source: `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/cbc-about-cloud-provisioning-templates.md`; `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md`; `vendor/zscaler-help/cbc-release-upgrade-summary-2026.md`.
 
-### Deployment-region list unconfirmed; resource sync captured
+### Zero Trust Gateway supported regions
 
-GCP is confirmed as a supported cloud provider for Cloud Connector at the product level. Multiple help docs establish this:
+| Region code | Location |
+|---|---|
+| `us-west1` | Oregon, USA |
+| `us-west2` | Los Angeles, California, USA |
+| `us-west3` | Salt Lake City, Utah, USA |
+| `us-west4` | Las Vegas, Nevada, USA |
+| `us-east1` | South Carolina, USA |
+| `us-east4` | N. Virginia, USA |
+| `us-east5` | Columbus, Ohio, USA |
+| `us-central1` | Iowa, USA |
+| `us-south1` | Dallas, Texas, USA |
+| `europe-west1` | Belgium |
+| `europe-west3` | Frankfurt, Germany |
+| `europe-west4` | Netherlands |
+| `australia-southeast1` | Sydney, Australia |
+| `asia-south1` | Mumbai, India |
+| `asia-south2` | Delhi, India |
+| `asia-southeast1` | Singapore |
 
-- CC Groups are "automatically created when you deploy a Zscaler Cloud Connector in Amazon Web Services (AWS), Microsoft Azure, or **Google Cloud Platform (GCP)**." (`cbc-about-cloud-connector-groups.md`)
-- Provisioning templates support `Google Cloud` as a cloud provider type alongside AWS and Azure. (`cbc-configuring-cloud-provisioning-template.md`)
-- Autoscaling on GCP uses a **Managed Instance Group (MIG) with autoscaling** — equivalent to AWS ASG and Azure VMSS. MIG autoscaling requires Zscaler Support enablement, same as the other clouds. (`cbc-about-cloud-provisioning-templates.md`)
-- The Admin Console monitoring page shows GCP project name as the Account ID field for CC VMs. (`cbc-accessing-cloud-branch-connector-monitoring.md`)
-- Traffic forwarding rules reference workload discovery for GCP alongside AWS and Azure. (`cbc-configuring-traffic-forwarding-rule.md`)
-- The provisioning template VM size for GCP defaults to **Small**. (`cbc-configuring-cloud-provisioning-template.md`)
-- When a GCP instance in an instance group is deleted, it is automatically replaced. (`cbc-about-cloud-connector-groups.md`)
+These are the **16 GCP Zero Trust Gateway regions** in the current Help table (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:31-50`). GCP ZTG is a Zscaler-managed, Limited Availability service, not a customer-deployed connector VM (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 
-**What is not in the captured docs:** a GCP-specific deployment guide analogous to the AWS and Azure ones. The provisioning template config doc references *"Deploying Zscaler Cloud Connector on the Google Cloud Platform"* as a related article (implying such a page exists), but that page was not captured. No captured *help* doc enumerates which GCP regions are supported, whether a Google Cloud Marketplace listing exists, or what the GCP-specific networking model looks like (GCP uses a different model than AWS VPC or Azure VNet — e.g., VPC is global, subnets are regional, no native load balancer equivalent to GWLB).
+### Standard Cloud Connector deployment
 
-The official Terraform capture now covers one deployment subsystem: its resource-sync function reconciles GCP VM instances with the Zscaler Cloud Connector portal and removes dangling portal resources every 30 minutes (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`; `vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:331-353`). This does not resolve the deployment-region list.
+Current Help documents the standard GCP Cloud Connector deployment method as Terraform and the 2026 release summary identifies a Google Cloud Marketplace image (`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-10`; `vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:38-42`). The captured sources do not enumerate the regions in which that customer-deployed VM path is available. See [`./gcp-deployment.md`](./gcp-deployment.md) for its service-account, routing, MIG, health, and resource-sync architecture.
 
-The one programmatic handle on GCP regions is the **workload-discovery supported-region set** (§ Programmatic region enumeration): `cloud_type` accepts `GCP` (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:177`), so `GET /ztw/api/v1/publicCloudInfo/supportedRegions` / the `ztc_supported_regions` data source will return the GCP region rows for a given tenant. The captured source defines this surface but does not embed the region values, so the specific GCP regions stay unconfirmed from captures — query the endpoint against a tenant to read the current set. This is the WDS region set, not a GCP CC *deployment*-region list.
+### Workload-discovery regions
 
-**Summary:** GCP is a first-class supported cloud for CC deployment. The resource-sync mechanics are now captured in the official Terraform module, but the GCP *deployment*-region list remains absent from the captured sources (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`; `vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:331-353`). The GCP WDS supported-region set remains reachable via the separate programmatic surface above; do not infer a deployment-region list from it.
+The separate `GET /ztw/api/v1/publicCloudInfo/supportedRegions` surface can return rows whose `cloud_type` is `GCP`, but the SDK source does not embed the returned region values (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:33-53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:168-178`). Query the tenant for that current WDS set; do not substitute the 16-region ZTG table.
 
 ---
 
@@ -232,9 +243,7 @@ This is a regional / multi-VNet architecture constraint, not a region-availabili
 
 CC selects PSEs by geolocation. The HA doc states PSE selection is automatic: *"the Internet & SaaS Public Service Edges or Private Service Edges are selected using geolocation."* Operators can override PSE selection per CC Group via traffic forwarding rules referencing specific gateways or subclouds.
 
-The 16-region ZTG list above correlates roughly with Zscaler's PSE density in those geographies — these are regions where Zscaler has made a formal operational commitment. For CC deployments in regions outside the list (e.g., `af-south-1` Cape Town), the CC will still connect to the nearest available PSE but may experience higher latency and asymmetric routing to destinations that a regional PSE would serve more directly.
-
-Zscaler's HA doc states the ZTE has "over 150 global data centers," meaning PSE coverage is broader than the 16-region ZTG list. The ZTG list represents where Zscaler has deployed its own endpoint infrastructure (a stronger commitment) rather than the full PSE footprint.
+Do not use the 18-region AWS or 16-region GCP ZTG tables as a Public Service Edge map. The current region article defines ZTG availability and directs unlisted-region requests to Support; it does not assert one-to-one correspondence with PSE locations (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-53`).
 
 ### Failover across regions
 
@@ -254,13 +263,14 @@ The `OQ-CCR-*` IDs below are this doc's per-question handles; the set is filed i
 |---|---|---|---|
 | OQ-CCR-01 | Does AWS Cloud Connector AMI support AWS GovCloud (`us-gov-east-1`, `us-gov-west-1`)? | Federal / DoD deployments; FedRAMP High may require workloads in GovCloud with CC. | Check AWS GovCloud Marketplace; ask Zscaler GovCloud team. |
 | OQ-CCR-02 | Does Azure Cloud Connector Marketplace listing exist in Azure Government (`usgovarizona`, `usgovtexas`, `usgovvirginia`)? | Same federal use-case; Zscaler has a GovCloud ZIA/ZPA offering — unclear if CC image is available in Azure Gov. | Check Azure Government Marketplace; contact Zscaler FedRAMP team. |
-| OQ-CCR-03 | Which specific GCP regions does Zscaler support for CC *deployment*? Is there a Google Cloud Marketplace listing? | GCP CC is documented as supported at product level but no deployment-region list or Marketplace listing was confirmed in captured docs. (Note: the GCP *workload-discovery* region set is reachable via `GET /publicCloudInfo/supportedRegions` — see § Programmatic region enumeration — but that is the WDS set, not the deployment-region list.) | Capture `help.zscaler.com/cloud-branch-connector/deploying-zscaler-cloud-connector-google-cloud-platform` (linked-but-not-captured); separately, query `ztc_supported_regions` (cloud_type=GCP) against a tenant to read the live WDS set. |
-| OQ-CCR-04 | What is the GCP-specific networking model for CC (instance template, load balancer type, NIC configuration)? | The new Terraform capture documents the resource-sync function and scheduler, not the broader networking model (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`). | Same capture target as OQ-CCR-03. |
-| OQ-CCR-05 | Do AWS opt-in regions (`ap-east-1`, `af-south-1`, `eu-south-1`, `me-central-1`, `il-central-1`, `ap-southeast-3`, `ap-southeast-4`) support CC AMI and/or ZTG? | Some customers have workloads in newer opt-in regions not on the ZTG list. | Contact Zscaler Support (the ZTG article explicitly directs there for unlisted regions). |
+| OQ-CCR-03 | Which specific GCP regions support standard customer-deployed Cloud Connector? | Help now confirms Terraform deployment and a Marketplace image, but the 16 named GCP regions are explicitly the ZTG surface, not a standard-CC deployment list (`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-10`; `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:31-50`). | Check current Marketplace availability and obtain a standard-CC deployment matrix from Zscaler. |
+| OQ-CCR-04 | What is the exact lower-level GCP load-balancer/template contract for each deployment family? | Help now establishes the separate VPCs, internal TCP/UDP load-balancer routing, and MIG topology, but lower-level variant-specific behavior still depends on the selected Terraform template (`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:31-44`). | Validate the chosen template and deployed GCP resources. |
+| OQ-CCR-05 | Do unlisted AWS regions such as `ap-east-1`, `af-south-1`, `eu-south-1`, `me-central-1`, `il-central-1`, or `ap-southeast-3` support CC AMI and/or ZTG? | These regions do not appear in the current 18-region ZTG table. | Contact Zscaler Support, as the region article directs for unlisted regions (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:52-53`). |
 | OQ-CCR-06 | Is the Azure Function App Flex Consumption plan gap documented per region, and is there a published list of affected Azure regions? | Affects VMSS supportability in those regions. | Check Azure documentation for Flex Consumption plan regional availability; update `./azure-deployment.md`. |
 | OQ-CCR-07 | Does CC in AWS China (`cn-north-1`, `cn-northwest-1`) require the same special gateway configuration as Azure China? | Expected yes by analogy with the Azure guidance, but not confirmed in captured docs. | Check for a China-specific CC deployment page; contact Zscaler Support. |
 | OQ-CCR-08 | Are there regional differences in which CC VM size options are available (Small / Medium / Large per cloud / region)? | The provisioning template config shows `Large` option for AWS but only `Small` for Azure and GCP. Whether this is cloud-type or region-specific is unclear. | Capture the provisioning template help page's full sizing table. |
-| OQ-CCR-09 | What are the actual region values returned by the workload-discovery `GET /ztw/api/v1/publicCloudInfo/supportedRegions` surface per cloud, and does the WDS supported-region set match (or differ from) the ZTG deployment list and per-cloud CC deployment availability? | The SDK/TF/API surface is confirmed (§ Programmatic region enumeration) but the captured Go/TF source defines only the shape (id/name/cloud_type), not the region values, and does not assert WDS == ZTG == deployment availability. | Query `ztc_supported_regions` (no id/name → full list) or `GET /publicCloudInfo/supportedRegions` against a live tenant; compare the returned AWS rows against the 16-region ZTG table. |
+| OQ-CCR-09 | What values does the workload-discovery `GET /ztw/api/v1/publicCloudInfo/supportedRegions` surface return per cloud, and how do they differ from ZTG and standard-CC deployment availability? | SDK/TF source defines only id/name/cloud type and does not assert WDS == ZTG == deployment availability (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:168-178`). | Query `ztc_supported_regions` or the raw endpoint against a live tenant and compare it with the 18-AWS/16-GCP ZTG tables. |
+| OQ-CCR-10 | Did `eu-central-2` become a supported AWS ZTG region and then get withdrawn, or is the current matrix incomplete? | The December 15, 2025 release entry says ZTG added `eu-central-2`, but the current captured matrix omits it (`vendor/zscaler-help/cbc-release-upgrade-summary-2025.md:11-18`; `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-29`). Neither source explains the discrepancy; see [clarification `cloud-connector-27`](../_meta/clarifications.md#cloud-connector-27-eu-central-2-ztg-region-source-conflict). | Check the current portal/tenant and obtain vendor clarification; do not interpret omission alone as withdrawal. |
 
 ---
 
@@ -268,7 +278,8 @@ The `OQ-CCR-*` IDs below are this doc's per-question handles; the set is filed i
 
 - AWS deployment mechanics (ENI model, GWLB, ASG, CloudFormation): [`./aws-deployment.md`](./aws-deployment.md)
 - Azure deployment mechanics (NIC model, ILB, VMSS, Function App): [`./azure-deployment.md`](./azure-deployment.md)
-- GCP deployment mechanics currently captured for resource synchronization: [`./gcp-deployment.md`](./gcp-deployment.md)
+- GCP Cloud Connector deployment mechanics: [`./gcp-deployment.md`](./gcp-deployment.md)
+- GCP Zero Trust Gateway managed-service boundary: [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md)
 - Subclouds — restricting which PSEs handle tenant traffic: [`../shared/subclouds.md`](../shared/subclouds.md)
 - Cloud Connector product overview (CC Groups, forwarding rule evaluation): [`./overview.md`](./overview.md)
 - Traffic forwarding rules (including GCP VPC-to-VPC forwarding): [`./forwarding.md`](./forwarding.md)

@@ -6,9 +6,10 @@ content-type: reference
 confidence: medium
 last-verified: "2026-07-26"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
@@ -21,7 +22,10 @@ sources:
   - "vendor/terraform-provider-zpa/zpa/**"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/go.mod"
+  - "vendor/zpacloud-ansible/CHANGELOG.md"
   - "vendor/zpacloud-ansible/plugins/modules/**"
+  - "vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py"
+  - "vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_pra_approval.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/**"
   - "vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md"
@@ -159,7 +163,12 @@ omission semantics.
 **What each source says:**
 
 - **Python SDK (PRA):** lists `ANY`, `NLA`, `NLA_EXT`, `TLS`, `VM_CONNECT`, `RDP`. (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:188`)
-- **Postman:** raw body examples show `ANY`, `TLS`, `RDP`, `NLA_EXT`, `VM_CONNECT` — `NLA` is absent from all examples. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`)
+- **Postman:** a 2026-08-04 full-collection audit of `connectionSecurity`
+  example values found `ANY`, `TLS`, `RDP`, `NLA_EXT`, and `VM_CONNECT`, but no
+  `NLA`; the cited body is representative
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`). This is an
+  audit-scoped absence from the current collection, not a server-side rejection
+  rule.
 - **Go SDK:** no enum validation.
 
 **Significance / which to trust:** `NLA` may be legacy or undocumented. Postman is the stronger evidence source; do not depend on `NLA` without live-tenant verification.
@@ -174,6 +183,35 @@ omission semantics.
 - **Python SDK (Inspection and PRA Updates):** fetches via `getAppsByType` and maps by domain. (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:417-427`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:378-388`)
 
 **Significance / which to trust:** Engineers using the Go SDK must ensure sub-app names match exactly; Python SDK engineers must ensure domains match. A sub-app whose name differs from its domain is a silent ID-injection failure in the Go SDK.
+
+---
+
+### Ansible 2.2.11 — PRA child ownership fixed; Inspection repair remains unproven
+
+**What each source says:**
+
+- **PRA module:** resolves child IDs exclusively from the parent segment's own
+  `pra_apps`, leaves IDs empty on create, and builds `deleted_pra_apps` only from
+  that parent-scoped map
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:502-546`).
+- **PRA tests:** prove that create does not adopt a foreign `pra_app_id`, update
+  resolves the owned ID, an orphaned child triggers recreation, and a live child
+  stays idempotent
+  (`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py:97-159`,
+  `:161-238`, `:302-325`).
+- **Inspection module:** detects a missing declared-domain child, but writes
+  deletion IDs as `deleted_pra_apps` and invokes
+  `app_segments_pra.update_segment_pra` followed by `get_segment_pra`
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:418-430`,
+  `:532-538`, `:591-605`).
+
+**Significance / which to trust:** Treat the PRA ownership and orphan repair as
+regression-covered. The changelog also labels Inspection orphan repair as fixed
+(`vendor/zpacloud-ansible/CHANGELOG.md:12-16`), but the detector can enter an
+update path whose subtype-specific payload and client calls do not match
+Inspection. Do not report that repair as resolved; the server-side result—
+rejection, an incorrect subtype operation, or another failure—remains
+unverified.
 
 ---
 
@@ -332,7 +370,10 @@ The Python SDK confirms segment group membership is managed from the application
 
 - **Go SDK:** access rule test uses `Action: 'ALLOW'`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/zpa_policy_access_rule_test.go:64`)
 - **Python SDK:** accepts `'allow'` and uppercases it. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:546-550`)
-- **Postman:** `ALLOW` does not appear in any ZPA policy rule body — only in ZIA firewall rule bodies. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:73629`)
+- **Postman:** a 2026-08-04 full-collection audit found no `ALLOW` action in the
+  current ZPA policy-rule example bodies; the cited response is representative
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:73629`). This is an
+  audit-scoped documentation absence, not an API restriction.
 
 **Significance / which to trust:** `ALLOW` is a real and valid access policy action. The Postman omission is a documentation gap, not an API restriction.
 
@@ -482,21 +523,30 @@ behavior and the reported failure
 
 - **Go SDK:** `FrequencyInterval` as Go `string`; valid-values map uses string keys (`"5"`, `"7"`, etc.). (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go:33`)
 - **Python SDK:** passes `frequency_interval` as a string kwarg. (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_schedule.py:120`)
-- **Postman:** types the field as integer in every `connectorSchedule` example. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:31272`)
+- **Postman:** a 2026-08-04 audit of all current `connectorSchedule` request and
+  response examples found `frequencyInterval` represented as an integer; the
+  cited body is representative
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:31272`).
 
 **Significance / which to trust:** Trust the SDKs. Send `frequencyInterval` as a string-encoded integer, not a bare JSON integer.
 
 ---
 
-### `AppConnectorGroup.dnsQueryType` — `IPV4_IPV6` absent from Postman `appConnectorGroup` examples
+### `AppConnectorGroup.dnsQueryType` — `IPV4_IPV6` corroborated across clients and Postman
 
 **What each source says:**
 
 - **Python SDK:** documents `IPV4_IPV6`, `IPV4`, `IPV6` as accepted values. (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:276-278`)
 - **Go SDK test:** uses `'IPV4_IPV6'`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group_test.go:45`)
-- **Postman:** `appConnectorGroup` response body shows only `'IPV4'`; `IPV4_IPV6` appears only in LSS config contexts. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:33311`)
+- **Postman:** a direct App Connector Group GET response shows `IPV4`, while
+  App Connector Groups nested in a Server Group GET response show
+  `IPV4_IPV6`; both appear directly on `dnsQueryType`, not only in an LSS
+  context
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:33311,118941`).
 
-**Significance / which to trust:** Trust both SDKs — `IPV4_IPV6` is accepted. The Postman example showing only `IPV4` is a sample value, not an exhaustive enum.
+**Significance / which to trust:** All three sources corroborate
+`IPV4_IPV6`. Individual Postman response bodies remain illustrative rather than
+exhaustive enum definitions.
 
 ---
 
@@ -562,7 +612,10 @@ behavior and the reported failure
 
 **What each source says:**
 
-- **Postman:** documents `POST /connectorSchedule` as returning 204 No Content but echoes the full schedule object in the response example body — contradictory. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:32542,32622`)
+- **Postman:** documents `POST /connectorSchedule` as returning 204 No Content
+  but echoes the full schedule object in the response example body —
+  contradictory
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:32515-32542,32622-32632`).
 - **Go SDK test:** accepts both 200 and 204 as valid. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorschedule/appconnectorschedule_test.go:32-33`)
 
 **Significance / which to trust:** Handle both 200 and 204. Do not assume a parseable body on `POST /connectorSchedule`.
@@ -597,7 +650,9 @@ behavior and the reported failure
 
 **What each source says:**
 
-- **Postman:** `serverGroups` array inside `AppConnectorGroup` carries `passive` (boolean) and `weight` (integer) fields. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:119576`)
+- **Postman:** `serverGroups` inside an `AppConnectorGroup` GET response carries
+  `passive` (boolean) and `weight` (integer) fields
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:33311`).
 - **Go SDK / Python SDK:** `AppServerGroups` struct has neither field. (`vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:105-115`)
 
 **Significance / which to trust:** Both SDKs silently drop `passive` and `weight`. If weighted load balancing or passive assignments at the join level are needed, read from the raw API response.
@@ -762,7 +817,9 @@ behavior and the reported failure
 
 **What each source says:**
 
-- **Postman:** `bulkDelete` returns 200 OK; single DELETE returns 204 No Content. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:114763`)
+- **Postman:** `bulkDelete` returns 200 OK, while single DELETE returns 204 No
+  Content
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:114736-114763,114847-114848,113278-113291,113364-113365`).
 - **Python SDK:** `bulk_delete` returns the status code integer.
 
 **Significance / which to trust:** Code that checks `response.status_code == 204` for bulk delete will incorrectly flag success as failure. The correct expected code is 200 for bulk, 204 for single.
@@ -784,7 +841,13 @@ behavior and the reported failure
 
 **`latitude`/`longitude` typed as strings (corroborated):** `ServiceEdgeGroup.Latitude` is `string json:"latitude,omitempty"` in Go. Postman describes lat/lon as `string` for `ServiceEdgeGroup`. (Corroborating operator field observation from production Terraform usage.)
 
-**`ServiceEdgeSchedule` POST returns 204 (confirmed):** Python `add_service_edge_schedule` handles 204 by returning `ServiceEdgeSchedule({"id": scheduler_id})` as synthetic success. There is no Location header. (`vendor/zscaler-sdk-python/zscaler/zpa/service_edge_schedule.py:143-147`) Postman: `vendor/zscaler-api-specs/oneapi-postman-collection.json:111265,111317`.
+**`ServiceEdgeSchedule` POST uses 204 status but Postman also supplies a body:**
+Python `add_service_edge_schedule` handles 204 by returning
+`ServiceEdgeSchedule({"id": scheduler_id})` as synthetic success
+(`vendor/zscaler-sdk-python/zscaler/zpa/service_edge_schedule.py:143-147`). The
+Postman response records 204 and no Location header, but contradictorily embeds
+a complete schedule object in `body`
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:111260-111287,111367-111377`).
 
 ---
 
@@ -855,6 +918,24 @@ behavior and the reported failure
 
 ## Privileged Remote Access (PRA)
 
+### Ansible approval matching — email set plus requested application set
+
+**What each source says:**
+
+- **Ansible 2.2.11:** when no approval ID is supplied, the module compares the
+  email set and, when `application_ids` is supplied, the IDs of the approval's
+  current applications. A same-email approval for another application set is
+  skipped (`vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:250-275`).
+- **Regression test:** a same-email SSH approval is not updated when the desired
+  approval targets a different RDP segment; the module creates a new approval
+  instead
+  (`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_pra_approval.py:148-191`).
+
+**Significance / which to trust:** The natural key is no longer email-only. It
+is email set plus the requested application set when that set is supplied.
+
+---
+
 ### `CredentialPool` Create — POST response may not include the new ID
 
 **What each source says:**
@@ -872,7 +953,11 @@ behavior and the reported failure
 
 - **Python SDK:** validates three types: `USERNAME_PASSWORD`, `SSH_KEY`, `PASSWORD`. (`vendor/zscaler-sdk-python/zscaler/zpa/pra_credential.py:146`)
 - **Go SDK:** struct comment lists SSH, RDP, VNC as protocol options. (`vendor/zscaler-sdk-go/zscaler/zpa/services/privilegedremoteaccess/pracredential/credential_controller.go:31-33`)
-- **Postman:** shows only `PASSWORD` (list response) and `USERNAME_PASSWORD` (POST body); `SSH_KEY` is absent as a `credentialType` value. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:37381`)
+- **Postman:** a 2026-08-04 full-collection audit found `PASSWORD` and
+  `USERNAME_PASSWORD` examples but no `SSH_KEY` `credentialType`; the cited body
+  is representative
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:37381`). This is an
+  audit-scoped documentation absence.
 
 **Significance / which to trust:** Trust the Python SDK's three-way validation as ground truth. The Postman examples are illustrative, not exhaustive. `SSH_KEY` is the type for SSH private-key credentials.
 
@@ -893,9 +978,16 @@ behavior and the reported failure
 
 **What each source says:**
 
-- **Postman (full observed set):** `AUTO`, `DYNAMIC`, `FTP`, `HTTP`, `HTTPS`, `NONE`, `RDP`, `SSH`, `VNC`, `WEBSOCKET`. `DYNAMIC`, `FTP`, `VNC`, and `WEBSOCKET` are missing from some cited claims. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:86512`)
+- **Postman (full observed set across response examples):** `AUTO`, `DYNAMIC`,
+  `FTP`, `HTTP`, `HTTPS`, `NONE`, `RDP`, `SSH`, `VNC`, `WEBSOCKET`. Nine values
+  occur together in one application-segment response body; `RDP` is present in
+  another PRA application response (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008,11744`).
 
-**Significance / which to trust:** Use the full ten-value set. `VNC` is particularly relevant — it is a valid PRA protocol and any allowlist based on the shorter set would incorrectly reject VNC consoles.
+**Significance / which to trust:** Parsers should tolerate all ten values
+observed in the current examples, including `VNC`. Do not convert that observed
+set into an exclusive write allowlist or a claim about the server's
+future-exhaustive enum; formal acceptance constraints still require a contract
+or live validation.
 
 ---
 
@@ -996,7 +1088,10 @@ behavior and the reported failure
 
 **What each source says:**
 
-- **Postman:** CNAME field wire key is `'getcName'` in every certificate response body. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:46169,25489`)
+- **Postman:** a 2026-08-04 audit of the current certificate response examples
+  found `getcName` consistently and no `cName`; the cited enrollment and BA
+  certificate bodies are representative
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:46169,25489`).
 - **Python SDK `EnrollmentCertificate` model:** correctly uses `'getcName'`. (`vendor/zscaler-sdk-python/zscaler/zpa/models/enrollment_certificates.py:36,97`)
 - **Go SDK (`BaCertificate` and `EnrollmentCert`):** both tagged `json:"cName"`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go:21`, `vendor/zscaler-sdk-go/zscaler/zpa/services/bacertificate/zpa_ba_certificate.go:23`)
 - **Python SDK `Certificate` model (BaCert):** also incorrectly uses `'cName'`. (`vendor/zscaler-sdk-python/zscaler/zpa/models/certificates.py:38,81`)
@@ -1106,7 +1201,12 @@ behavior and the reported failure
 
 - **Go SDK:** `ScimGroup` struct includes `IdpName` (string, `json:"idpName,omitempty"`). (`vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:24`)
 - **Live cassette:** API does not return `idpName` in scimgroup GET or list responses. (`vendor/zscaler-sdk-python/tests/integration/zpa/cassettes/TestScimGroups.yaml`)
-- **Postman / Python SDK:** both omit `idpName`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:102020`, `vendor/zscaler-sdk-python/zscaler/zpa/models/scim_groups.py:32-46`)
+- **Postman / Python SDK:** the current successful Postman example omits
+  `idpName`, and the Python model has no such field
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:102064-102074`,
+  `vendor/zscaler-sdk-python/zscaler/zpa/models/scim_groups.py:32-46`). The live
+  cassette above is the stronger evidence that this is not merely one sparse
+  example.
 
 **Significance / which to trust:** Trust the cassette and Postman. `idpName` is not returned by the API. The Go SDK struct field is vestigial; code that depends on it will always see an empty string.
 
@@ -1160,15 +1260,22 @@ behavior and the reported failure
 
 ## Provisioning Keys
 
-### `NP_ASSISTANT_GRP` enum value — Go SDK only; unreachable from Python and Postman
+### `NP_ASSISTANT_GRP` enum value — Go SDK only; undocumented by Python and Postman
 
 **What each source says:**
 
 - **Go SDK:** three `associationType` values: `CONNECTOR_GRP`, `SERVICE_EDGE_GRP`, `NP_ASSISTANT_GRP`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:18-22`)
 - **Python SDK:** `simplify_key_type()` raises `ValueError` for anything other than `'connector'` (→ `CONNECTOR_GRP`) and `'service_edge'` (→ `SERVICE_EDGE_GRP`). (`vendor/zscaler-sdk-python/zscaler/zpa/provisioning.py:36-41`)
-- **Postman:** documents only `CONNECTOR_GRP` and `SERVICE_EDGE_GRP`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:94652`)
+- **Postman:** a 2026-08-04 full-collection search found no
+  `NP_ASSISTANT_GRP`; the cited parameter documents only `CONNECTOR_GRP` and
+  `SERVICE_EDGE_GRP`. This is an audit-scoped absence, not proof that the
+  server rejects the third value.
+  (`vendor/zscaler-api-specs/oneapi-postman-collection.json:94650-94652`)
 
-**Significance / which to trust:** Trust the Go SDK as the more complete source. `NP_ASSISTANT_GRP` appears real but unlaunched/internal; do not advertise it via Python SDK until it appears in Postman or official docs.
+**Significance / which to trust:** Treat `NP_ASSISTANT_GRP` as a Go-only
+candidate, not as an established public API value. Its live acceptance and
+intended object type remain unverified; do not expose it through Python-backed
+automation without tenant or public-contract confirmation.
 
 ---
 
@@ -1321,3 +1428,12 @@ The following are unresolved after cross-referencing all available sources. Each
     whether duplicate-match ordering is stable is *unverified — requires API
     contract confirmation or a tenant-side duplicate-name test*
     (`vendor/zscaler-sdk-go/zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go:74-85`).
+
+15. **PRA approval identity when email and application sets are equal:** Ansible
+    2.2.11 now distinguishes approval candidates by email set plus the requested
+    application set, but its lookup does not compare start/end windows
+    (`vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:250-275`).
+    Whether two approvals may legitimately share those sets while carrying
+    different windows—and how automation should select between them—requires an
+    API contract or live-tenant test. Tracked as
+    [clarification `zpa-82`](../_meta/clarifications.md#zpa-82-pra-approval-identity-when-email-and-application-sets-match-but-time-windows-differ).

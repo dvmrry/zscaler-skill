@@ -128,10 +128,10 @@ LSS App Connector Status and App Connector Metrics log types stream connector he
 Remote troubleshooting supports `journalctl` collection of either service logs
 or full-system logs from App Connectors, Private Service Edges, Private Cloud
 Controllers, and Network Connectors
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:41-45`). For App
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:84-88`). For App
 Connectors, the **Get Network Interfaces** command collects the
 network-interface inventory used by the connector
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:47-50`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:90-93`).
 
 ---
 

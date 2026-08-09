@@ -78,6 +78,13 @@ class AgentPatternsBoundaryTests(unittest.TestCase):
         self.assertEqual(ap.detect_auth_framework(env), "oneapi")
         self.assertEqual(env, original)
 
+    def test_all_documented_government_cloud_values_are_classified(self) -> None:
+        for cloud in ("gov", "govus", "zscalergov", "zscalerten", "GOV", "GOVUS"):
+            with self.subTest(cloud=cloud):
+                env = {"ZSCALER_CLOUD": cloud}
+                self.assertEqual(ap.detect_cloud(env=env)[0], "gov")
+                self.assertTrue(ap.is_gov_cloud(env=env))
+
     def test_error_interpretation_is_deterministic(self) -> None:
         first = ap.interpret_error(409, {"code": "EDIT_LOCK_NOT_AVAILABLE"})
         second = ap.interpret_error(409, {"code": "EDIT_LOCK_NOT_AVAILABLE"})

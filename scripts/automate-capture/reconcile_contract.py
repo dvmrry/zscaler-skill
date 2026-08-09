@@ -2528,13 +2528,20 @@ def reconcile_one(res, contracts, product="zpa"):
     # divergence we want to keep surfacing.
     tf_ci = {}
     for k, v in tf.items():
-        tf_ci.setdefault(k.lower(), v)
+        tf_ci.setdefault(k.lower(), (k, v))
+
+    def tf_match(name):
+        if name in tf:
+            return name, tf[name]
+        return tf_ci.get(name.lower())
 
     def tf_get(name):
-        return tf.get(name) or tf_ci.get(name.lower())
+        match = tf_match(name)
+        return match[1] if match else None
 
     cset, goset = set(cfields), set(go)
-    matched_tf = {name for name in cset if tf_get(name)}
+    matched_tf = {name for name in cset if tf_match(name)}
+    matched_tf_keys = {tf_match(name)[0] for name in matched_tf}
     rep = {
         "resource": res["name"],
         "method": operation.get("method"),
@@ -2602,6 +2609,18 @@ def reconcile_one(res, contracts, product="zpa"):
     rep["ansible"] = reconcile_ansible(res, cfields, required_names, compare_required)
     rep["python"] = reconcile_python(res, cfields)
     rep["mcp"] = reconcile_mcp(res, cfields, routing)
+    # Terraform schemas contain provider-only state/path identifiers and unresolved
+    # helper fields, so they must not originate contract-gap rows. Retain a provider
+    # logical name only when another non-contract client surface already exposes the
+    # exact same name; Rosetta can then use Terraform as corroborating evidence.
+    client_only_fields = set(rep["presence"]["go_only_vs_contract"])
+    for surface in ("python", "ansible", "mcp"):
+        client_only_fields.update(
+            rep[surface].get("presence", {}).get(f"{surface}_only_vs_contract", [])
+        )
+    rep["presence"]["tf_corroborates_surface_only"] = sorted(
+        (set(tf) - matched_tf_keys) & client_only_fields
+    )
     return rep
 
 
@@ -2833,6 +2852,9 @@ def render_markdown(report):
         if r["presence"]["go_only_vs_contract"]:
             out.append(f"**Go SDK fields absent from the contract:** "
                        f"{', '.join('`%s`' % x for x in r['presence']['go_only_vs_contract'])}\n")
+        if r["presence"]["tf_corroborates_surface_only"]:
+            out.append(f"**Terraform provider corroborates these non-contract client fields:** "
+                       f"{', '.join('`%s`' % x for x in r['presence']['tf_corroborates_surface_only'])}\n")
     out.append("## Scope\n")
     out.append("Reconciles the contract against the Go SDK, Python SDK, Terraform provider, Ansible modules, "
                "and Zscaler MCP server tools "

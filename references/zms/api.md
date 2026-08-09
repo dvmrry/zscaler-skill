@@ -23,18 +23,53 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zms/models/common.py"
   - "vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc"
   - "vendor/zscaler-mcp-server/CLAUDE.md"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/app_catalog.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/nonces.py"
+  - "vendor/zscaler-help/about-application-catalog-microsegmentation.md"
+  - "vendor/zscaler-help/about-ml-tag-recommendations-page.md"
+  - "vendor/zscaler-help/about-tags.md"
+  - "vendor/zscaler-help/about-agent-provisioning-keys.md"
+  - "vendor/zscaler-help/editing-agent-provisioning-keys.md"
 author-status: draft
 ---
 
 # ZMS API — GraphQL surface (read-only)
 
-> The conceptual / product framing for ZMS lives in [`./overview.md`](./overview.md). This file documents the **API surface** as recovered from vendor SDK source. Note that `overview.md` predates the SDK landing and states "no SDK module"; this doc supersedes that claim for the API question — the Python SDK now ships a full ZMS service. See [`./index.md`](./index.md).
+> The conceptual and portal framing for ZMS lives in
+> [`./overview.md`](./overview.md). This file documents the implemented API
+> surface recovered from vendor SDK and MCP source. See [`./index.md`](./index.md).
 
 ## Summary
 
-All ZMS operations are **GraphQL over a single endpoint, `POST /zms/graphql`** — every ZMS API class hardcodes `_zms_base_endpoint = '/zms/graphql'` and `http_method = 'POST'` (`vendor/zscaler-sdk-python/zscaler/zms/agents.py:34`, `vendor/zscaler-sdk-python/zscaler/zms/agents.py:133`; identical in `agent_groups.py:33`, `nonces.py:33`, `resources.py:35`, `resource_groups.py:36`, `policy_rules.py:34`, `app_zones.py:33`, `app_catalog.py:33`, `tags.py:42`; also `vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`, `vendor/zscaler-mcp-server/CLAUDE.md:174`). ZMS is **read-only — queries only, no mutations** (`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`, `vendor/zscaler-mcp-server/CLAUDE.md:170`). Per vendor docs the surface is **9 domains / 20 read tools** (`vendor/zscaler-mcp-server/CLAUDE.md:179-191`, matched by the SDK property set in `vendor/zscaler-sdk-python/zscaler/zms/zms_service.py:36-105`).
+All implemented ZMS SDK operations are **GraphQL over a single endpoint,
+`POST /zms/graphql`** — every ZMS API class hardcodes
+`_zms_base_endpoint = '/zms/graphql'` and `http_method = 'POST'`
+(`vendor/zscaler-sdk-python/zscaler/zms/agents.py:34`,
+`vendor/zscaler-sdk-python/zscaler/zms/agents.py:133`; identical in
+`agent_groups.py:33`, `nonces.py:33`, `resources.py:35`,
+`resource_groups.py:36`, `policy_rules.py:34`, `app_zones.py:33`,
+`app_catalog.py:33`, and `tags.py:42`; also
+`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8` and
+`vendor/zscaler-mcp-server/CLAUDE.md:174`). The implemented Python SDK and MCP
+surface is **read-only — queries only, no mutations**
+(`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`,
+`vendor/zscaler-mcp-server/CLAUDE.md:170`). That is a client-coverage boundary,
+not a whole-service claim: current Help documents portal write actions for ML
+tag recommendations, tags, and provisioning keys without publishing their
+GraphQL operations or payloads
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:27-43`,
+`vendor/zscaler-help/about-tags.md:16-33`,
+`vendor/zscaler-help/editing-agent-provisioning-keys.md:15-29`). The implemented
+surface remains **9 domains / 20 read tools**
+(`vendor/zscaler-mcp-server/CLAUDE.md:179-191`, matched by the SDK property set
+in `vendor/zscaler-sdk-python/zscaler/zms/zms_service.py:36-105`).
 
-**Python-only.** ZMS exists **only in the Python SDK**; the Go SDK has no ZMS service at all (`vendor/zscaler-sdk-go/zscaler/` contains zcc, zdx, zia, zid, zpa, ztw, zwa but no `zms` directory). Every ZMS finding below is therefore **single-source** (Python SDK + MCP rules/CLAUDE.md); the Python-vs-Go field/endpoint cross-check this repo's discipline prefers is not possible for ZMS. See [Open questions](#open-questions).
+**Implemented SDK coverage is Python-only.** The Go SDK has no ZMS service at
+the audited pin (`vendor/zscaler-sdk-go/zscaler/` contains zcc, zdx, zia, zid,
+zpa, ztw, and zwa but no `zms` directory). Every field and endpoint below is
+therefore single-family evidence from the Python SDK, corroborated where
+possible by MCP source; Python-versus-Go cross-checking is not available. See
+[Open questions](#open-questions).
 
 ## Mechanics
 
@@ -93,6 +128,22 @@ Per-domain read operations (9 domains, 20 read tools per `vendor/zscaler-mcp-ser
 
 `Nonce` node selection: `eyezId, name, key, maxUsage, usageCount, agentGroupEyezId, agentGroupName, agentGroupType, product, creationTime, modifiedTime` (`vendor/zscaler-sdk-python/zscaler/zms/nonces.py:87-97`). The single-get `nonce` query wraps the payload in an extra `nonce` object — `data.nonce.nonce` (`vendor/zscaler-sdk-python/zscaler/zms/nonces.py:172-173`, `nonces.py:213`).
 
+The MCP list-tool docstring promises rows containing `status` and `expiry`, but
+the SDK query it invokes selects neither field
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/nonces.py:76-98`;
+`vendor/zscaler-sdk-python/zscaler/zms/nonces.py:73-105`). Current Help confirms
+that the portal can display a signing certificate and copy, edit, or delete a
+group-scoped key, but it likewise does not establish SDK `status` or `expiry`
+fields (`vendor/zscaler-help/about-agent-provisioning-keys.md:10-35`). Treat
+those two promised MCP fields as unsupported until the selection set or an
+independent contract adds them.
+
+Portal editing covers the key name, maximum reuse from 1 through 1,000, and the
+signing certificate. The article does not publish a mutation or establish
+whether the agent group is editable
+(`vendor/zscaler-help/editing-agent-provisioning-keys.md:10-29`). Those actions
+are not part of the implemented read-only SDK/MCP surface.
+
 ### Resources
 
 `ListResources` node selection: `id, name, resourceType, status, cloudProvider, cloudRegion, resourceHostname, platformOs, platformOsDistro, platformOsVersion, localIps, deleted, modifiedTime, agentId, appZoneIds, appZoneNames, appZoneMappingState` (`vendor/zscaler-sdk-python/zscaler/zms/resources.py:92-108`). The `resources` query supports `includeDeleted:Boolean` (Python `include_deleted`, default `False`) to control whether deleted resources are returned (`vendor/zscaler-sdk-python/zscaler/zms/resources.py:46`, `resources.py:80`, `resources.py:124`).
@@ -121,6 +172,26 @@ Per-domain read operations (9 domains, 20 read tools per `vendor/zscaler-mcp-ser
 
 `appCatalog` (paginated, `filter:AppCatalogQueryFilter`, `orderBy:AppCatalogQueryOrderBy`) node selection: `id, name, category, creationTime, modifiedTime, details{ portAndProtocol{ protocol, portRanges{startPort,endPort} }, processes }` (`vendor/zscaler-sdk-python/zscaler/zms/app_catalog.py:76`, `app_catalog.py:83-98`).
 
+The portal can filter by application name, category, process, protocol, and
+port, but the SDK's `AppCatalogQueryFilter` exposes only `id`, `name`, and
+`category`. Do not promote the wider portal filter set into the GraphQL client
+contract
+(`vendor/zscaler-help/about-application-catalog-microsegmentation.md:19-46`;
+`vendor/zscaler-sdk-python/zscaler/zms/models/inputs.py:323-351`).
+
+The MCP adapter has an implementation defect on the two filters it does expose:
+`_build_filter()` imports `AppCatalogFilter`, while the pinned SDK defines
+`AppCatalogQueryFilter`. An unfiltered call bypasses the import; a call with
+`name` or `category` reaches it before any request is sent
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/app_catalog.py:57-65`,
+`:99-112`; `vendor/zscaler-sdk-python/zscaler/zms/models/inputs.py:323-351`).
+
+Current Help separately exposes ML tag recommendations derived from catalog
+detections. Operators can accept, edit, ignore, revisit, or delete a
+recommendation and see prior/next run timing, but the article publishes no
+GraphQL operation, enum, pagination contract, or payload for those actions
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:10-43`).
+
 ### Tags (namespace → key → value hierarchy)
 
 The Tags domain implements the three-level namespace → key → value hierarchy via 3 read operations: `tagNamespaces` (paginated), `tagKeys` (paginated, keyed by `namespaceId:String!`), `tagValues` (paginated, keyed by `tagId:String!` AND `namespaceOrigin:NamespaceOrigin!`) (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:85`, `tags.py:178`, `tags.py:182`, `tags.py:279`, `tags.py:283`; hierarchy described in `vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:13` and `vendor/zscaler-mcp-server/CLAUDE.md:196`).
@@ -128,6 +199,11 @@ The Tags domain implements the three-level namespace → key → value hierarchy
 `tagValues` uniquely requires `namespaceOrigin:NamespaceOrigin!` as a mandatory argument (Python `namespace_origin`) in addition to `tagId` — listing tag values requires both the tag key ID and the namespace origin (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:243`, `tags.py:279`, `tags.py:309`; `vendor/zscaler-mcp-server/CLAUDE.md:196`).
 
 Node selections: `tagNamespaces` → `id, name, description, origin`; `tagKeys` → `id, name, description`; `tagValues` → `id, name` (minimal) (`vendor/zscaler-sdk-python/zscaler/zms/tags.py:92-97`, `tags.py:190-194`, `tags.py:292-295`).
+
+The portal can add namespaces and tags and edit or delete a tag, whereas the
+implemented SDK/MCP family above exposes reads only. Help confirms those portal
+actions but does not publish corresponding GraphQL types, operations, or SDK
+fields (`vendor/zscaler-help/about-tags.md:10-33`).
 
 ## Enums
 
@@ -189,6 +265,15 @@ Per-domain filter/orderBy wire keys:
 - **`PolicyAction` vs `DefaultPolicyRuleAction` differ**: custom rules allow `SIM_BLOCK`; default rules do not (`vendor/zscaler-sdk-python/zscaler/zms/models/enums.py:185-190`, `models/enums.py:132-136`).
 - **`ResourceGroupOrigin` (`ML_RECOMMENDED`/`USER_DEFINED`) is a separate enum from `NamespaceOrigin` (`CUSTOM`/`EXTERNAL`/`ML`/`UNKNOWN`)** — do not conflate them (`vendor/zscaler-sdk-python/zscaler/zms/models/enums.py:226-230`, `models/enums.py:152-158`).
 - **The query selection set, not `common.py`, is the authoritative list of returned fields.** `ListAgents` selects `publicIp, privateIps, adminStatus, agentGroupName, agentGroupType, upgradeStatus` (`vendor/zscaler-sdk-python/zscaler/zms/agents.py:99-103`), but the typed `AgentEntry` model stops at `privateIps` and omits `adminStatus/agentGroupName/agentGroupType` (`vendor/zscaler-sdk-python/zscaler/zms/models/common.py:84`) — the typed model is a partial view (`vendor/zscaler-sdk-python/zscaler/zms/agents.py:99-103`).
+- **Filtered MCP App Catalog calls fail before the request path.** The adapter
+  imports nonexistent `AppCatalogFilter`; the SDK type is
+  `AppCatalogQueryFilter`
+  (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/app_catalog.py:57-65`;
+  `vendor/zscaler-sdk-python/zscaler/zms/models/inputs.py:323-351`).
+- **Nonce `status` and `expiry` are promised but not selected.** The MCP
+  docstring names them, while the invoked SDK query selects neither
+  (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/nonces.py:76-98`;
+  `vendor/zscaler-sdk-python/zscaler/zms/nonces.py:73-105`).
 
 ## Open questions
 
@@ -196,8 +281,35 @@ The following could not be cleanly backed from in-scope vendor source and are fl
 
 - **No Go parity / no cross-check.** The Go SDK has no ZMS service (`vendor/zscaler-sdk-go/zscaler/` contains zcc, zdx, zia, zid, zpa, ztw, zwa but no `zms` directory), so every ZMS field/endpoint claim here is single-source (Python SDK + MCP docs). Any downstream claim implying Go parity is unverified.
 - **No authoritative GraphQL schema (SDL).** No `.graphql`/SDL file for ZMS exists in vendor source — argument types (`ID!`, `String!`, `Int`, `Boolean`, the `*Filter`/`*OrderBy` inputs, `SortDirection`, `NamespaceOrigin`) are recoverable only from inline query strings and dataclasses in the Python SDK. Server-side types could differ from these client-asserted ones; unverified beyond the SDK.
-- **Write mutations are unverified.** Rules and CLAUDE.md state ZMS is read-only with no mutations (`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`, `vendor/zscaler-mcp-server/CLAUDE.md:170`), yet a skill describes ZMS write mutations (managedResourceGroupCreate/Update, unmanagedResourceGroupCreate/Update, managedRecommendedResourceGroupUpdate) plus a `recommendedResourceGroups` query (`vendor/zscaler-mcp-server/skills/zms/audit-microsegmentation-posture/SKILL.md:136-138`). These names appear only in skill prose; none is implemented in the Python SDK. Within the read-only scope they are unverified server-side capability claims, not promoted.
-- **Recommended-resource-groups / ML-run surfaces unverified.** Enums exist (`RecommendedResourceGroupUserActionType`, `RecommendedTagUserActionType`, `MLRunStatus`, `MLRunType` — `vendor/zscaler-sdk-python/zscaler/zms/models/enums.py:207-223`, `models/enums.py:294-307`) implying such queries exist server-side, but no query method consumes them in the Python SDK ZMS layer. Their query names/shapes are unverified from source. (The `ResourceGroupsAPI` docstring also lists "Get recommended resource groups (ML-based)" — `vendor/zscaler-sdk-python/zscaler/zms/resource_groups.py:33` — but no such method is defined in the file, which implements only `list_resource_groups`, `get_resource_group_members`, `get_resource_group_protection_status` at `resource_groups.py:42`, `resource_groups.py:146`, `resource_groups.py:237`.)
+- **Write mutations are unverified.** The SDK/MCP conventions describe their
+  implemented surface as read-only
+  (`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`,
+  `vendor/zscaler-mcp-server/CLAUDE.md:170`), while current Help confirms that
+  portal writes exist for ML recommendations, tags, and provisioning keys
+  (`vendor/zscaler-help/about-ml-tag-recommendations-page.md:27-43`,
+  `vendor/zscaler-help/about-tags.md:16-33`,
+  `vendor/zscaler-help/editing-agent-provisioning-keys.md:15-29`). A separate
+  skill names `managedResourceGroupCreate/Update`,
+  `unmanagedResourceGroupCreate/Update`, and
+  `managedRecommendedResourceGroupUpdate` plus a `recommendedResourceGroups`
+  query
+  (`vendor/zscaler-mcp-server/skills/zms/audit-microsegmentation-posture/SKILL.md:136-138`),
+  but those names appear only in skill prose and are not implemented in the
+  Python SDK. The public Help actions do not validate those operation names or
+  payloads.
+- **Recommended-resource-groups / ML-run surfaces unverified.** Enums exist
+  (`RecommendedResourceGroupUserActionType`, `RecommendedTagUserActionType`,
+  `MLRunStatus`, `MLRunType` —
+  `vendor/zscaler-sdk-python/zscaler/zms/models/enums.py:207-223`,
+  `models/enums.py:294-307`) and Help confirms an ML recommendation workflow
+  (`vendor/zscaler-help/about-ml-tag-recommendations-page.md:10-43`), but no
+  query method consumes those enums in the Python SDK ZMS layer. Their query
+  names and shapes remain unverified. The `ResourceGroupsAPI` docstring also
+  lists "Get recommended resource groups (ML-based)"
+  (`vendor/zscaler-sdk-python/zscaler/zms/resource_groups.py:33`), but the file
+  implements only `list_resource_groups`, `get_resource_group_members`, and
+  `get_resource_group_protection_status` at `resource_groups.py:42`,
+  `resource_groups.py:146`, and `resource_groups.py:237`.
 - **Unreferenced enums.** `agentManagerStatus`/`PodPhase`/`TagScope`/`TagAssignmentUserAction` enums are defined (`vendor/zscaler-sdk-python/zscaler/zms/models/enums.py:61-72`, `models/enums.py:175-182`, `models/enums.py:267-281`) but are not referenced by any read query selection set examined; whether they appear in deeper sub-selections (e.g., k8s resource detail) is unverified.
 
 ## Cross-links

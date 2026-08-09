@@ -60,25 +60,25 @@ Package `users` in `zscaler/zid/services/users/users.go`. All functions are pack
 
 Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-Variable `{{ZIAMBase}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscaler-api-specs/oneapi-postman-collection.json`)
+Variable `{{ZIAMBaseUrl}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zscaler-api-specs/oneapi-postman-collection.json`)
 
 | Method | Path | Notes |
 |---|---|---|
-| GET | `{{ZIAMBase}}/users?offset=...&limit=...&[filters]` | List with pagination / filters |
-| GET | `{{ZIAMBase}}/users/:id` | Get single user |
-| POST | `{{ZIAMBase}}/users` | Create user |
-| PUT | `{{ZIAMBase}}/users/:id` | Update user |
-| DELETE | `{{ZIAMBase}}/users/:id` | Delete user |
-| GET | `{{ZIAMBase}}/users/:id/groups` | Get groups for user |
-| GET | `{{ZIAMBase}}/users/:id/admin-entitlements` | Admin entitlements — see [`admin-rbac.md`](./admin-rbac.md) |
-| GET | `{{ZIAMBase}}/users/:id/service-entitlements` | Service entitlements — see [`admin-rbac.md`](./admin-rbac.md) |
-| POST | `{{ZIAMBase}}/users/:id:resetpassword` | Reset password — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
-| POST | `{{ZIAMBase}}/users/:id:setskipmfa` | Set skip MFA — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
-| PUT | `{{ZIAMBase}}/users/:id:updatepassword` | Update password — live ZIAM API op, **NOT in SDK** |
+| GET | `{{ZIAMBaseUrl}}/users?offset=...&limit=...&[filters]` | List with pagination / filters |
+| GET | `{{ZIAMBaseUrl}}/users/:id` | Get single user |
+| POST | `{{ZIAMBaseUrl}}/users` | Create user |
+| PUT | `{{ZIAMBaseUrl}}/users/:id` | Update user |
+| DELETE | `{{ZIAMBaseUrl}}/users/:id` | Delete user |
+| GET | `{{ZIAMBaseUrl}}/users/:id/groups` | Get groups for user |
+| GET | `{{ZIAMBaseUrl}}/users/:id/admin-entitlements` | Admin entitlements — see [`admin-rbac.md`](./admin-rbac.md) |
+| GET | `{{ZIAMBaseUrl}}/users/:id/service-entitlements` | Service entitlements — see [`admin-rbac.md`](./admin-rbac.md) |
+| POST | `{{ZIAMBaseUrl}}/users/:id:resetpassword` | Reset password — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
+| POST | `{{ZIAMBaseUrl}}/users/:id:setskipmfa` | Set skip MFA — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
+| PUT | `{{ZIAMBaseUrl}}/users/:id:updatepassword` | Update password — live ZIAM API op, **NOT in SDK** |
 
 The reconstructed Automate snapshot independently carries the same three user-action operations using slash-delimited paths (`/users/{id}/resetpassword`, `/users/{id}/setskipmfa`, `/users/{id}/updatepassword`) (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5525`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5931`). This corrects the earlier malformed adjacent-template capture and the refreshed contract passes structural path validation (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:14`). The Postman collection still uses colon-suffix action routes, so action existence is corroborated while the exact live URL spelling remains an open cross-source question; see [clarification `zid-36`](../_meta/clarifications.md#zid-36-zidentity-user-action-path-template-encoding).
 
-There is no bulk-delete on the ZIAM users surface. The only `users/bulkDelete` in the Postman collection is `{{ZIABase}}/users/bulkDelete` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:9928`) — that is the **ZIA** users API, not ZIdentity. ZIdentity exposes per-user delete only (`DELETE {{ZIAMBase}}/users/:id`). A grep for `{{ZIAMBase}}/users/bulkDelete` returns zero matches.
+There is no bulk-delete on the ZIAM users surface. The only `users/bulkDelete` in the Postman collection is `{{ZIABaseUrl}}/users/bulkDelete` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:9928`) — that is the **ZIA** users API, not ZIdentity. ZIdentity exposes per-user delete only (`DELETE {{ZIAMBaseUrl}}/users/:id`). A grep for `{{ZIAMBaseUrl}}/users/bulkDelete` returns zero matches.
 
 ## User model fields
 
@@ -196,7 +196,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go
 
 Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-These are **live ZIdentity API operations** (present in the Postman collection on the `{{ZIAMBase}}` surface) that are **not implemented in either active SDK** — i.e. SDK gaps, not API gaps. Anyone scripting against the raw API can call them; SDK users cannot:
+These are **live ZIdentity API operations** (present in the Postman collection on the `{{ZIAMBaseUrl}}` surface) that are **not implemented in either active SDK** — i.e. SDK gaps, not API gaps. Anyone scripting against the raw API can call them; SDK users cannot:
 
 1. **Password reset** — `POST /users/:id:resetpassword` — real ZIAM API op (`oneapi-postman-collection.json:133836`); Go stub scaffolded then commented out (`users.go:134`)
 2. **Set skip MFA** — `POST /users/:id:setskipmfa` — real ZIAM API op (`oneapi-postman-collection.json:133974`), a per-user MFA-bypass capability; Go stub scaffolded then commented out (`users.go:143`)
@@ -208,7 +208,7 @@ The following are genuine SDK + API gaps for the ZIdentity users surface:
 5. **Provisioning source change** — `source` field is readable but not documented as changeable post-creation
 6. **Custom attributes validation** — `customAttrsInfo` accepted as free-form dict/map; backend constraints unknown
 
-**Not a ZIdentity gap — bulk delete is ZIA, not ZIAM.** The Postman collection's only `users/bulkDelete` is `{{ZIABase}}/users/bulkDelete` (`oneapi-postman-collection.json:9928`), which is the ZIA users API. There is no bulk-delete on the ZIdentity (`{{ZIAMBase}}`) users surface — ZIdentity exposes per-user delete only.
+**Not a ZIdentity gap — bulk delete is ZIA, not ZIAM.** The Postman collection's only `users/bulkDelete` is `{{ZIABaseUrl}}/users/bulkDelete` (`oneapi-postman-collection.json:9928`), which is the ZIA users API. There is no bulk-delete on the ZIdentity (`{{ZIAMBaseUrl}}`) users surface — ZIdentity exposes per-user delete only.
 
 Admin/service entitlements endpoints (`/users/:id/admin-entitlements`, `/users/:id/service-entitlements`) are covered in [`admin-rbac.md`](./admin-rbac.md) and are not duplicated here.
 

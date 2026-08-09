@@ -441,15 +441,19 @@ If `partner_id` is set, the `x-partner-id` header is included on every request i
 
 ---
 
-## Open questions
+## Resolved clarifications
 
 <!-- Resolved clarifications 2026-04-26 -->
 
 **Q1 — Resolved 2026-04-26.** `update_zdx_group_entitlement` and `update_zpa_group_entitlement` in the Python SDK send an empty body `{}`, but the Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`) passes a fully populated struct: `ZdxGroupEntitlements` (fields: `collectZdxLocation`, `computeDeviceGroupsForZDX`, `logoutZCCForZDXService`, `totalCount`, `upmDeviceGroupList`, `upmEnableForAll`, `upmGroupList`) or `ZpaGroupEntitlements` (fields: `computeDeviceGroupsForZPA`, `deviceGroupList`, `groupList`, `machineTunEnabledForAll`, `totalCount`, `zpaEnableForAll`). The Python implementation is incomplete — callers must use the Go SDK or construct the PUT body manually from these struct definitions to make meaningful updates.
 
-2. `get_web_privacy` returns `None` on error rather than a three-tuple, unlike every other method in the SDK. This is either an oversight or an intentional deviation. Callers must handle `None` rather than checking the third tuple element. See [clarification `zcc-86`](../_meta/clarifications.md#zcc-86-get_web_privacy-returns-none-on-error).
+**Q2 — Resolved 2026-06-15.** `get_web_privacy` returns `None` on each of
+its three error paths rather than a result/response/error tuple. That
+source-confirmed Python-client quirk requires callers to guard for `None`; its
+design intent is immaterial to the caller contract. See resolved clarification
+[`zcc-86`](../_meta/clarifications.md#zcc-86-get_web_privacy-returns-none-on-error).
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65` (the three `return None` error paths).
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:60,64,69` (the three `return None` error paths).
 
 **Q3 — Re-verified 2026-06-15 (superseded; behavior changed in source).** `web_policy_edit` no longer calls `transform_common_id_fields`. The current source serializes the body with the ZCC-only model-driven serializer: `body = zcc_to_wire(body, WebPolicy)` (`vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py:457`). See the "Request-body wire-key serialization" subsection above for how wire keys are derived per model class. The older `transform_common_id_fields(reformat_params, body, body)` description that previously appeared here was for a prior SDK snapshot and no longer reflects `web_policy.py`.
 
@@ -457,4 +461,6 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py:58,61,65` (the thr
 
 **Q5 — Resolved 2026-04-26.** The `manage_pass` endpoint is confirmed in Go at `vendor/zscaler-sdk-go/zscaler/zcc/services/manage_pass/manage_pass.go`. The `ManagePass` struct accepts: `companyId`, `deviceType`, `exitPass`, `logoutPass`, `policyName`, `uninstallPass`, `zadDisablePass`, `zdpDisablePass`, `zdxDisablePass`, `ziaDisablePass`, `zpaDisablePass`. The Python SDK has `models/manage_pass.py` with the matching model but no service module exposing the PUT call. Callers must use the Go SDK or call `POST /zcc/papi/public/v1/managePass` directly.
 
-6. Rate-limit headers returned by the ZCC API (`X-Rate-Limit-Remaining`, `X-Rate-Limit-Retry-After-Seconds`) are consumed by `LegacyZCCClientHelper` but their behavior for the OneAPI path is not documented in the SDK source. See [clarification `zcc-87`](../_meta/clarifications.md#zcc-87-zcc-rate-limit-header-behavior-on-the-oneapi-path).
+## Open questions
+
+6. On an actual OneAPI-fronted ZCC 429 response, does the service emit `X-Rate-Limit-Remaining` or `X-Rate-Limit-Retry-After-Seconds`, and are those headers exposed unchanged to the shared request executor? The executor's behavior when the retry-after header is present is confirmed; the live OneAPI response headers remain unverified. See [clarification `zcc-87`](../_meta/clarifications.md#zcc-87-zcc-rate-limit-header-behavior-on-the-oneapi-path).

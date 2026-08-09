@@ -15,27 +15,27 @@ author-status: draft
 
 Business-to-Business Federation is a limited-availability ZPA feature announced
 on July 20, 2026 that establishes trusted relationships between business
-partners (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-16`).
+partners (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:55-59`).
 
 ## Partner trust lifecycle
 
 Administrators can create partner-federation requests, manage incoming and
 outgoing requests, and manage trusted federated partners
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:17-18`). Once
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:60-61`). Once
 trust is established, an application segment can be federated to a partner with
 granular controls for the shared resources and users
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:19-20`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:62-63`).
 
 ## ZPA cloud service API
 
 The release summary states that the same federation functionality is supported
 through the ZPA cloud service API
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:21-22`). The
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:64-65`). The
 local capture identifies linked topics for partner and pending-request
 management, federating partners and applications, and retrieving access-policy
 details for federated applications, but it does not contain endpoint paths,
 HTTP methods, or request and response bodies
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:23-25`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:66-68`).
 
 ## Open questions
 
@@ -43,7 +43,7 @@ HTTP methods, or request and response bodies
   response bodies, and detailed semantics for partner requests, partner and
   application federation, and federated-application access-policy retrieval are
   not established by the local release capture
-  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:21-25`) -
+  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:64-68`) -
   *unverified, requires captured bodies for the linked API topics*
 
 ## Cross-links

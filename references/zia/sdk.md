@@ -6,7 +6,7 @@ content-type: reference
 last-verified: "2026-07-22"
 verified-against:
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
 confidence: medium
 source-tier: code
 sources:
@@ -69,6 +69,8 @@ sources:
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py
+  - vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py
+  - vendor/zscaler-sdk-python/tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_ips.py
   - vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_rules.py
   - vendor/zscaler-sdk-python/zscaler/zia/ips_signature_rules.py
@@ -948,6 +950,8 @@ This is separate from the older `client.zia.browser_control_settings` accessor, 
 
 **Go parity:** Yes (`firewalldnscontrolpolicies/`)
 
+**Wire-key divergence:** Go v3.8.44 serializes the Web-EUN flag as `isWebEUNEnabled`, matching recorded Python integration responses, but retains `omitempty` and therefore drops explicit `false` (`vendor/zscaler-sdk-go/CHANGELOG.md:3-10`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:151-160`; `vendor/zscaler-sdk-python/tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml:26,104,186`). Python 1.9.39 still parses and emits `isWebEunEnabled`, including that spelling in its request dictionary (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:57-58,250-264`). The server-side effect of omitted `false` versus an explicitly supplied false value is unverified; do not assume the two clients have equivalent update semantics.
+
 ---
 
 ### FirewallIPSRulesAPI
@@ -1781,15 +1785,15 @@ groups, endpoint applications, and Outbound Email DLP
 
 ### Cross-SDK July 2026 ZIA expansion
 
-Go v3.8.41 and Python v1.9.39 now both expose Endpoint DLP application catalog/count/category/policy reads, custom-application CRUD, application-group CRUD and associations, channel-scoped Endpoint DLP resource management, resource-group CRUD/associations, Endpoint DLP rule and exception/sub-rule management, Outbound Email DLP list/lite/get/CRUD plus actions CSV, DNS application-group CRUD, and five EUN/user-confirmation template or feature-status reads (`vendor/zscaler-sdk-go/CHANGELOG.md:51-52,62-129`; `vendor/zscaler-sdk-python/CHANGELOG.md:3,17-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`). Both also expose `GET /zia/api/v1/ipsCategories` (`vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:14-19,186-194,307-313`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`).
+Go v3.8.41 and Python v1.9.39 now both expose Endpoint DLP application catalog/count/category/policy reads, custom-application CRUD, application-group CRUD and associations, channel-scoped Endpoint DLP resource management, resource-group CRUD/associations, Endpoint DLP rule and exception/sub-rule management, Outbound Email DLP list/lite/get/CRUD plus actions CSV, DNS application-group CRUD, and five EUN/user-confirmation template or feature-status reads (`vendor/zscaler-sdk-go/CHANGELOG.md:60-61,71-138`; `vendor/zscaler-sdk-python/CHANGELOG.md:3,17-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`). Both also expose `GET /zia/api/v1/ipsCategories` (`vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:14-19,186-194,307-313`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`).
 
-Neither changelog is a complete endpoint inventory. The Go release notes mention only `/emailDlpRules/actions` while code includes full Outbound Email DLP CRUD/list/lite/get, and they omit `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:114-129`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only the actions download for Outbound Email DLP and omits both the IPS-category and NSS-collector reads, although all three surfaces are present in code (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`).
+Neither changelog is a complete endpoint inventory. The Go release notes mention only `/emailDlpRules/actions` while code includes full Outbound Email DLP CRUD/list/lite/get, and they omit `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:123-138`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only the actions download for Outbound Email DLP and omits both the IPS-category and NSS-collector reads, although all three surfaces are present in code (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`).
 
 Request serialization for the shared endpoint-application model emits only `resourceId` and `zappId`, even though response decoding exposes descriptive and version fields (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-163`). The common model types `versions` as one struct, while custom-app responses type it as `[]Versions` (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
 Firewall Filtering now carries `excludeContextShieldEndPoint`, `isEunEnabled`, `eunTemplateId`, `endPointApplications`, and `endPointApplicationGroups`; Firewall DNS carries the endpoint-application operands plus Web/EUN controls; SSL Inspection carries both endpoint-application operands (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go:48-48,83-85,145-147`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:97-100,151-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:118-120`).
 
-Pagination remains a cross-SDK difference rather than a coverage gap: Python's new list methods return only the requested response page, while Go aggregation helpers collect pages for the corresponding list operations (`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:37-93`). Python URL Filtering likewise performs one caller-selected paged request, while Go `GetAll` aggregates through `ReadAllPages` (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:55-101`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`). SDK presence remains a code-surface observation, not proof of entitlement or rollout (`vendor/zscaler-sdk-go/CHANGELOG.md:51-58`).
+Pagination remains a cross-SDK difference rather than a coverage gap: Python's new list methods return only the requested response page, while Go aggregation helpers collect pages for the corresponding list operations (`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:37-93`). Python URL Filtering likewise performs one caller-selected paged request, while Go `GetAll` aggregates through `ReadAllPages` (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:55-101`; `vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`). SDK presence remains a code-surface observation, not proof of entitlement or rollout (`vendor/zscaler-sdk-go/CHANGELOG.md:60-67`).
 
 ---
 

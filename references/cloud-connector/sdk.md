@@ -14,11 +14,16 @@ sources:
   - vendor/zscaler-sdk-python/CHANGELOG.md
   - vendor/zscaler-sdk-go/zscaler/oneapiclient.go
   - vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go
+  - vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go
   - vendor/zscaler-sdk-go/zscaler/ztw/services/service.go
   - vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go
+  - vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go
   - vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go
   - vendor/zscaler-sdk-go/zscaler/service.go
   - vendor/terraform-provider-ztc/ztc/provider.go
+  - vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md
+  - vendor/zscaler-help/cbc-release-upgrade-summary-2026.md
+  - vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json
 author-status: draft
 ---
 
@@ -48,7 +53,7 @@ github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/
 └── services/
     ├── common/common.go  # Shared types, ReadAllPages (fixed pageSize=1000)
     ├── activation/
-    ├── activation_cli/   # (no source file found; may be internal)
+    ├── activation_cli/   # package main; current implementation is fully block-commented
     ├── adminuserrolemgmt/
     │   ├── adminroles/
     │   └── adminusers/
@@ -190,6 +195,8 @@ Manages the activation gate. All configuration changes in the ZTC portal are sta
 
 `ECAdminActivation` struct fields: `OrgEditStatus`, `OrgLastActivateStatus`, `AdminStatusMap` (map), `AdminActivateStatus`.
 
+The sibling `activation_cli/zconActivator.go` does not currently provide a runnable command or importable package. It declares `package main`, but its imports, `main`, credential handling, and force-activation call are all enclosed in a single block comment (`vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go:1-76`). Use the compiled `activation` package or raw activation endpoints instead.
+
 TF resource: `ztc_activation_status`  
 TF data source: `ztc_activation_status`
 
@@ -216,6 +223,8 @@ Manages Cloud Connector groups — the logical groupings of Cloud Connector VM i
 `EcGroup` key fields: `ID`, `Name`, `Description` (JSON: `desc`), `DeployType`, `Status` ([]string), `Platform`, `AWSAvailabilityZone`, `AzureAvailabilityZone`, `MaxEcCount`, `TunnelMode`, `Location` (`*CommonIDNameExternalID`), `ProvTemplate` (`*CommonIDNameExternalID`), `ECVMs` ([]ECVMs with full network detail).
 
 TF data source: `ztc_edge_connector_group`
+
+**Raw API coverage exceeds the SDK EC-group package.** Current Help adds bulk release-channel selection, bulk VM enable/disable, and upgrade metrics at `PUT /ecgroup/releaseChannel`, `PUT /ecgroup/vmStatus`, and `GET /ecgroup/vmUpgradeMetrics` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:12-48`). The Automate contract also exposes `PUT /ecgroup/scheduleupgrade` and `PUT /ecgroup/{ecgroupId}/vm/{vmId}/{status}` (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:175246-175314`; `vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:158164-158192`). Those methods are absent from the current Go EC-group function set, which contains only Get/GetByName/Delete/GetAll/lite reads (`vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go:36-88`).
 
 ---
 
@@ -526,6 +535,8 @@ Manages AWS/Azure/GCP account registration for workload discovery.
 
 TF resource: `ztc_public_cloud_info`
 
+Current Help documents a separate Azure REST family under `/publicCloudTenant` and `/discoveryService/azure/...`, including Azure account CRUD, supported-region and group reads, subscription synchronization, permission checks, resource-group/storage-account reads, and topic synchronization (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:44-64`). The current top-level Go partner-integration implementation remains limited to `/publicCloudInfo` region/template operations and AWS-shaped discovery permissions (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:13-90`); GCP public discovery REST coverage remains unconfirmed.
+
 #### account_groups
 
 **Endpoint**: `/ztw/api/v1/accountGroups` (inferred from API docs)
@@ -739,7 +750,7 @@ Resolved items below cite the specific SDK files used for verification inline.
 
 3. **Resolved 2026-06-15.** `workload_groups` Create/Update/Delete ARE commented out — `vendor/zscaler-sdk-go/zscaler/ztw/services/workload_groups/workload_groups.go:97-132` wraps `Create`/`Update`/`Delete` in a `/* … */` block, so they are not compiled and the Go SDK is read-only for workload groups (the Python SDK exposes `list_groups` only). An earlier revision of this doc incorrectly stated they were exported; `api-divergences.md` carries the correct statement. The TF provider exposes no resource for workload groups, so mutation goes through the raw API or is authored ZIA-side.
 
-4. **Resolved 2026-04-26.** `activation_cli` is a standalone CLI program, not a library package. `vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go` declares `package main` and contains a `main()` function that calls `activation.ForceActivationStatus`. It reads credentials from legacy environment variables (`ZCON_USERNAME`, `ZCON_PASSWORD`, `ZCON_API_KEY`, `ZCON_CLOUD`). It is not importable as a Go package — it is a command-line utility bundled with the SDK for force-activating ZTC configurations.
+4. **Corrected 2026-08-04.** `activation_cli` is not a working standalone CLI at the current pin. The file declares `package main`, but the imports and every function—including `main()` and the `ForceActivationStatus` call—are inside a block comment (`vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go:1-76`). It provides neither a callable endpoint wrapper nor a runnable activation command.
 
 5. **Resolved 2026-04-26.** `public_cloud_account` and `public_cloud_info` target different endpoints and serve different purposes. `provisioning/public_cloud_account/` calls `/ztw/api/v1/publicCloudAccountDetails` (source: `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`). `partner_integrations/public_cloud_info/` calls `/ztw/api/v1/publicCloudInfo` — this is the cloud account registration surface with full CRUD including `UpdatePublicCloudChangeState` and `GenerateExternalID`. The `public_cloud_account` package appears to be a precursor or alternative view of cloud account detail; the `public_cloud_info` package is the authoritative management surface.
 

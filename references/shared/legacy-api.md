@@ -28,6 +28,7 @@ sources:
   - "vendor/zscaler-help/legacy-apis-home.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
+  - "vendor/terraform-provider-zpa/docs/index.md"
 author-status: draft
 ---
 
@@ -393,7 +394,17 @@ with LegacyZPAClient(config) as client:
 
 Enable via env var on the unified client path: `ZSCALER_USE_LEGACY=true`. Per-product legacy credential vars are documented in `vendor/zscaler-sdk-python/README.md § Legacy API Framework`.
 
-Gov-cloud handling is client/version-specific. Current Go/Python SDKs and ZIA Terraform provider releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, while older SDKs and ZPA Terraform `GOV` / `GOVUS` still require the legacy client path (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`).
+Gov-cloud handling is client/version-specific. Current Go/Python SDKs and ZIA
+Terraform provider releases model FedRAMP OneAPI routing for `cloud=gov` /
+`cloud=govus`. ZPA Terraform provider v4.4.6+ also documents those lowercase
+OneAPI values; its uppercase `GOV` / `GOVUS` values belong to the legacy-client
+configuration (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`;
+`vendor/zscaler-sdk-python/zscaler/constants.py:17-28`;
+`vendor/terraform-provider-zia/docs/index.md:140-149`;
+`vendor/terraform-provider-zpa/docs/index.md:118-133,214-218`). Older clients
+and pre-ZIdentity tenants still require the legacy path. Client/provider
+routing support does not prove entitlement or ZIdentity API-client setup for
+every government tenant.
 
 ---
 

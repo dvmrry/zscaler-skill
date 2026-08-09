@@ -9,6 +9,13 @@ source-tier: mixed
 sources:
   - "vendor/zscaler-help/what-zscaler-cloud-connector.md"
   - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
+  - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
+  - "vendor/zscaler-help/cbc-adding-google-cloud-platform-zero-trust-gateway.md"
+  - "vendor/zscaler-help/cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.md"
+  - "vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md"
+  - "vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md"
+  - "vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.md"
+  - "vendor/zscaler-help/cbc-configuring-workload-discovery-workloads-google-cloud-platform.md"
   - "vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go"
   - "vendor/terraform-provider-ztc/ztc/provider.go"
@@ -21,7 +28,7 @@ author-status: draft
 
 Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/provider.go`.
 
-Entry point for the Cloud Connector / Branch Connector / Zero Trust Gateway product family — Zscaler's VM-based traffic forwarder for **cloud workloads** (AWS/Azure/GCP) and **branch offices**. Extends ZIA and ZPA to workloads that aren't end-user devices (no ZCC installed).
+Entry point for the Cloud Connector / Branch Connector / Zero Trust Gateway product family. Cloud Connector is the customer-deployed VM path for **cloud workloads**; GCP Zero Trust Gateway is a distinct Zscaler-managed, cloud-native service and must not be treated as merely a newer name for that VM (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 
 ## Naming — one product, several names
 
@@ -31,12 +38,12 @@ Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-h
 |---|---|
 | **Cloud Connector** | Marketing for the cloud-workload VM |
 | **Branch Connector** | Marketing for the branch-office sibling appliance |
-| **Zero Trust Gateway (ZTG)** | Newer marketing term used in the admin console group-type enum |
+| **GCP Zero Trust Gateway (ZTG)** | GCP's managed-gateway deployment model. GCP ZTG is a Zscaler cloud-native service, is in Limited Availability, and requires Support enablement (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). AWS ownership and deployment parity remain unconfirmed. |
 | **Zero Trust Workload (ZTW)** | Go SDK module path: `vendor/zscaler-sdk-go/zscaler/ztw/` |
 | **Zero Trust Cloud (ZTC)** | Terraform provider path: `vendor/terraform-provider-ztc/ztc/` |
 | **Cloud & Branch Connector (CBC)** | Help-site URL path: `help.zscaler.com/cloud-branch-connector/...` |
 
-All refer to the same product suite. Operators will use whichever term comes up in their context — console, help docs, SDK, or marketing material. Translate as needed.
+These names occur in one product family, but they do not all describe the same ownership or deployment shape. Translate SDK/provider names to the product family while preserving the documented distinction between a customer-managed Cloud Connector VM and the Zscaler-managed **GCP** Zero Trust Gateway (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 
 **Python SDK now has ZTW coverage in the current capture.** Older guidance said Python had no Cloud Connector module; that is stale. Current programmatic surfaces are the Python SDK `zscaler.ztw` service, the Go SDK `zscaler/ztw` service packages, and the Zscaler Terraform provider.
 
@@ -66,11 +73,12 @@ Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-h
 | API and Terraform surface — Python `client.ztw.*`, Go `ztw/services/*`, `ztc_*` resources in TF, provisioning templates, activation | [`./api.md`](./api.md) | draft |
 | **Azure deployment** — Marketplace listing, dual-NIC architecture, Standard ILB + 15s probe, NAT Gateway per AZ, VMSS scaling + Function App orphan cleanup, HA model | [`./azure-deployment.md`](./azure-deployment.md) | draft |
 | **AWS deployment** — Marketplace listing, dual-ENI model, GWLB vs ENI endpoint patterns, ASG with custom CloudWatch CPU metrics, CloudFormation deployment flow, route-table modification post-deploy step, HA model | [`./aws-deployment.md`](./aws-deployment.md) | draft |
-| **GCP deployment** — captured Terraform resource-sync path: 30-minute Cloud Scheduler cadence, GCP-to-Zscaler resource reconciliation, dangling-resource cleanup, and the opaque function-implementation boundary (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`; `vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:249-262,331-353`) | [`./gcp-deployment.md`](./gcp-deployment.md) | draft |
+| **GCP Cloud Connector deployment** — Terraform deployment, service-account boundaries, internal-load-balancer routing, MIG autoscaling, health monitoring, resource synchronization, and GCP workload discovery (`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-29,31-47`; `vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.md:8-32`; `vendor/zscaler-help/cbc-configuring-workload-discovery-workloads-google-cloud-platform.md:8-41`) | [`./gcp-deployment.md`](./gcp-deployment.md) | draft |
+| **GCP Zero Trust Gateway** — Zscaler-managed service boundary, Limited Availability constraints, creation contract, health/analytics views, and traffic simulation (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-29`; `vendor/zscaler-help/cbc-adding-google-cloud-platform-zero-trust-gateway.md:8-30`; `vendor/zscaler-help/cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.md:8-54`) | [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md) | draft |
 | **AWS workload discovery** — Account trust setup (External ID + Trusted Account ID + IAM role assumption), permission states, EventBridge metadata pipeline, AWS Account Groups, sublocation scopes, `zs:namespace` VPC tag for overlapping CIDRs | [`./aws-workload-discovery.md`](./aws-workload-discovery.md) | draft |
 | **DNS subsystems** — three distinct components: DNS Gateways (resolver pairs), DNS Policies (DoH, tunnel detection, response rewriting), Log & Control Forwarding (telemetry routing); subsystem interactions and failure modes | [`./dns-subsystem.md`](./dns-subsystem.md) | draft |
 | **Upgrades + credential rotation** — Sunday midnight local upgrade cadence (2-hour stagger, OS-image vs package distinction), zsroot rotation procedure (CC vs BC), combined sequencing for in-place vs re-deploy windows | [`./upgrade-and-credential-rotation.md`](./upgrade-and-credential-rotation.md) | draft |
-| **Supported regions** — AWS (16 ZTG regions enumerated), Azure (all commercial regions; China via Terraform), GCP (supported at product level; region list unconfirmed); cross-region topology tradeoffs; open questions register | [`./regions.md`](./regions.md) | draft |
+| **Supported regions** — current Zero Trust Gateway matrices for 18 AWS and 16 GCP regions; separate boundaries for Azure Marketplace, standard Cloud Connector deployment, and workload-discovery region sets (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-53`) | [`./regions.md`](./regions.md) | draft |
 | **Insights & monitoring** — health metrics, traffic visibility, operational dashboards; what signals are available; latency and throughput reporting | [`./insights-monitoring.md`](./insights-monitoring.md) | draft |
 | **NSS Virtual Appliance** — NSS VA deployment alongside Cloud Connector; log forwarding configuration; NSS VA vs Cloud NSS for workload log egress | [`./nss-va.md`](./nss-va.md) | draft |
 | **Source IP Groups** — network-primitive building blocks for traffic-forwarding rule match criteria; group types and usage | [`./source-ip-groups.md`](./source-ip-groups.md) | draft |
@@ -96,7 +104,7 @@ In scope:
 Not in scope (explicitly deferred):
 
 - **Branch Connector zero-trust appliance specifics** — referenced in the shared help section but not deeply covered here. The configuration model is similar to Cloud Connector; Branch-specific details (hardware, zero-touch provisioning) are operational and vendor-specific.
-- **Per-cloud deployment guides** — Azure and AWS are covered at [`./azure-deployment.md`](./azure-deployment.md) and [`./aws-deployment.md`](./aws-deployment.md). GCP is covered narrowly at [`./gcp-deployment.md`](./gcp-deployment.md) for the captured resource-synchronization path; the vendored function module documents reconciliation and its 30-minute scheduler, while the function body remains outside the Terraform source (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md:22-26,40-45`; `vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:249-262,331-353`).
+- **Per-cloud deployment guides** — Azure, AWS, and customer-deployed GCP Cloud Connector are covered at [`./azure-deployment.md`](./azure-deployment.md), [`./aws-deployment.md`](./aws-deployment.md), and [`./gcp-deployment.md`](./gcp-deployment.md). The separate managed GCP Zero Trust Gateway surface is covered at [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md) (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 - **VMSS / ASG / MIG operational tuning** — help articles cover this; captured at architecture level only.
 - **Zscaler Zero Trust SD-WAN** — now covered at [`./zero-trust-sdwan.md`](./zero-trust-sdwan.md). Covers positioning vs traditional SD-WAN, Cloud/Branch Connector roles, capabilities and limits, vendor comparison by axis, and operational gotchas.
 

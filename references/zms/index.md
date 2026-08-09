@@ -5,7 +5,14 @@ title: "ZMS reference hub"
 content-type: reference
 last-verified: "2026-06-14"
 confidence: medium
-sources: []
+sources:
+  - "vendor/zscaler-help/about-application-catalog-microsegmentation.md"
+  - "vendor/zscaler-help/about-ml-tag-recommendations-page.md"
+  - "vendor/zscaler-help/about-tags.md"
+  - "vendor/zscaler-help/about-agent-provisioning-keys.md"
+  - "vendor/zscaler-help/editing-agent-provisioning-keys.md"
+  - "vendor/zscaler-sdk-python/zscaler/zms/**"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/**"
 author-status: reviewed
 ---
 
@@ -13,13 +20,24 @@ author-status: reviewed
 
 Entry point for **Zscaler Microsegmentation (ZMS)** questions — workload-to-workload (east-west) policy enforcement via host-installed agents, AI-powered policy recommendations, and cloud control plane.
 
-Confidence is **medium** — coverage from marketing material, one help-portal article, and the Python SDK's read-only `zscaler.zms` GraphQL surface. The Python SDK ships a `zms` module (`client.zms.*`, read-only GraphQL — see [`./api.md`](./api.md)); there is no Go SDK module, no Terraform provider, and no Postman collection. Write configuration is portal-only.
+Confidence is **medium** — current Help now covers the Application Catalog, ML
+tag recommendations, tag administration, and agent provisioning keys, while the
+implemented Python SDK and MCP surfaces expose read-only ZMS GraphQL queries
+(`vendor/zscaler-sdk-python/zscaler/zms/zms_service.py:36-105`;
+`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`). The portal
+documents write workflows, but those Help articles do not publish the
+underlying mutation names or payloads; do not turn a client-coverage boundary
+into a claim that no server-side write API exists
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:27-43`,
+`vendor/zscaler-help/about-tags.md:16-32`,
+`vendor/zscaler-help/editing-agent-provisioning-keys.md:10-29`).
 
 ## Topics
 
 | Topic | File | Status |
 |---|---|---|
 | Architecture (cloud + agents + WFP/nftables), AI policy recommendations, deployment, ZPA-add-on framing, edge cases | [`./overview.md`](./overview.md) | draft |
+| Portal operations for Application Catalog, ML tag recommendations, namespace/key/value tags, and group-scoped provisioning keys | [`./overview.md`](./overview.md) | draft |
 | GraphQL API surface (read-only) — query conventions: `eyez_id`, dual pagination, three-level tag hierarchy, managed/unmanaged resource groups | [`./api.md`](./api.md) | draft |
 
 ## Why ZMS matters in the suite
@@ -43,7 +61,7 @@ ZMS is also the only Zscaler product (alongside Cloud Connector with VMs) where 
 
 ## Coverage gaps (deferred)
 
-- Container / Kubernetes integration model.
+- Kubernetes enforcement granularity (per pod, node, workload, or host agent).
 - Conflict resolution with other host firewalls (Defender via GPO, host-IDS, custom nftables).
 - Observation → enforcement transition runbook.
 - Cloud-native firewall integration (AWS SG / Azure NSG / GCP firewall) — does ZMS replace, integrate with, or ignore these?

@@ -6,7 +6,7 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
 confidence: high
 source-tier: code
 sources:

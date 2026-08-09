@@ -5,7 +5,9 @@ title: "ZIA reference hub"
 content-type: reference
 last-verified: "2026-04-24"
 confidence: high
-sources: []
+sources:
+  - "vendor/zscaler-help/zia-about-backup-and-restore.md"
+  - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md"
 author-status: reviewed
 ---
 
@@ -43,6 +45,7 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | **Time intervals** — reusable schedule objects referenced in URL Filtering / Firewall rules; granularity, overlap handling, timezone behavior | [`./time-intervals.md`](./time-intervals.md) | draft |
 | **Rule labels** — tagging construct for policy rule organization and API filtering; no effect on rule evaluation order; label-to-rule relationship | [`./rule-labels.md`](./rule-labels.md) | draft |
 | **VSE clusters** — Virtual Service Edge HA grouping; cluster membership; traffic distribution across VSE VMs; failover behavior | [`./vse-clusters.md`](./vse-clusters.md) | draft |
+| **Backup and Restore** — replacement semantics, 12-point retention, golden restore point behavior, and the EDM/IDM DLP exclusion | [`./backup-and-restore.md`](./backup-and-restore.md) | draft |
 | **IoT Report** — device-type classification and traffic visibility; IoT policy scoping; predefined IoT location groups | [`./iot-report.md`](./iot-report.md) | draft |
 | **API CASB** — out-of-band SaaS app scanning via OAuth/API (not inline); Insights logs; SaaS Security Posture; distinct from inline SSL-inspection CASB path | [`./api-casb.md`](./api-casb.md) | draft |
 | **SCIM provisioning** — ZIA-specific SCIM behavior; group-to-department mapping; attribute constraints; SCIM endpoint differences from ZPA | [`./scim-provisioning.md`](./scim-provisioning.md) | draft |
@@ -61,6 +64,26 @@ Field-level reference for ZIA log streams. Derived directly from Zscaler's publi
 | DNS logs — resolution events, request/response rules, DNS gateway state | [`./logs/dns-log-schema.md`](./logs/dns-log-schema.md) | draft |
 
 For SPL patterns scoped to Zscaler questions, see [`../shared/splunk-queries.md`](../shared/splunk-queries.md). For *when* to query logs at all, see [`../shared/log-correlation.md`](../shared/log-correlation.md).
+
+The July 17 release added **Select All** and **Hide Deleted** to the Users,
+Departments, and Locations filters on the Web, Firewall, DNS, Tunnel, SaaS
+Security, Endpoint DLP, and Email DLP Insights pages and on applicable NSS feed
+filters (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:19-28`).
+This is documented as an Admin Console and feed-configuration change; the
+release does not state that raw log schemas or API filter parameters changed
+(`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:30-31`).
+
+## Recent deployment and isolation additions
+
+- Canada is now listed as a Zero Trust Browser isolation-profile region for
+  ZIA. The release does not publish a region identifier or API enum
+  (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:12-17`).
+- The July 13 release adds Virtual Service Edge configuration on Nutanix and
+  says the Nutanix VM image is downloadable from the Virtual Service Edges page
+  (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:33-38`). This
+  establishes platform/image availability, not Nutanix cluster topology or
+  sizing; see [`./private-service-edge.md`](./private-service-edge.md) and
+  [`./vse-clusters.md`](./vse-clusters.md).
 
 ## API schema references
 

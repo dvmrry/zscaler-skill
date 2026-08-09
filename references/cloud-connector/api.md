@@ -11,6 +11,10 @@ sources:
   - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
   - "https://help.zscaler.com/legacy-apis/understanding-zscaler-cloud-branch-connector-api"
   - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
+  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
+  - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
+  - "vendor/zscaler-help/cbc-about-microsoft-azure-accounts.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
   - "vendor/zscaler-sdk-python/zscaler/__init__.py"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py"
@@ -22,6 +26,10 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/v2_client_ratelimit_test.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go"
+  - "vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipgroups/ipgroups.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/account_groups/account_groups.go"
@@ -39,7 +47,7 @@ Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-ap
 
 How to manage Cloud Connector programmatically. Three programmatic paths exist:
 
-1. **Python SDK** — module path `vendor/zscaler-sdk-python/zscaler/ztw/`. ZTW (Cloud Connector) is GA on the v1.x line; the current vendored SDK is **v1.9.33** (`vendor/zscaler-sdk-python/zscaler/__init__.py:32`). ZTW coverage was added incrementally starting at **v1.0.1 (April 22 2025)** when the `zcon` package was renamed `ztw` and the policy-management / policy-resources endpoints landed (`vendor/zscaler-sdk-python/CHANGELOG.md:2200`, PR #258 / PR #260 ZTW blocks at `:3261` and `:2461`), then refined through later 1.9.x releases. The `ZTWService` entry point exposes ~20 accessors (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:47-219`): `account_details`, `activate`, `admin_roles`, `admin_users`, `ec_groups`, `location_management`, `location_template`, `api_keys`, `provisioning_url`, `forwarding_gateways`, `forwarding_rules`, `ip_destination_groups`, `ip_source_groups`, `ip_groups`, `nw_service_groups`, `nw_service`, `public_cloud_info`, `account_groups`, `discovery_service`, `workload_groups`.
+1. **Python SDK** — module path `vendor/zscaler-sdk-python/zscaler/ztw/`. ZTW (Cloud Connector) is GA on the v1.x line; the current vendored SDK is **v1.9.39** (`vendor/zscaler-sdk-python/zscaler/__init__.py:32`). ZTW coverage was added incrementally starting at **v1.0.1 (April 22 2025)** when the `zcon` package was renamed `ztw` and the policy-management / policy-resources endpoints landed (`vendor/zscaler-sdk-python/CHANGELOG.md:2200`, PR #258 / PR #260 ZTW blocks at `:3261` and `:2461`), then refined through later 1.9.x releases. The `ZTWService` entry point exposes ~20 accessors (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:47-219`): `account_details`, `activate`, `admin_roles`, `admin_users`, `ec_groups`, `location_management`, `location_template`, `api_keys`, `provisioning_url`, `forwarding_gateways`, `forwarding_rules`, `ip_destination_groups`, `ip_source_groups`, `ip_groups`, `nw_service_groups`, `nw_service`, `public_cloud_info`, `account_groups`, `discovery_service`, `workload_groups`.
 2. **Go SDK** under package-level `ztw/services/*` functions — module path `vendor/zscaler-sdk-go/zscaler/ztw/`. Same product family, organized into dedicated service packages (`partner_integrations`, `policy_management`, `policyresources`, `provisioning`, `workload_groups`) that the Python SDK groups under flatter accessors.
 3. **Terraform provider** with `ztc_*` resources — path `vendor/terraform-provider-ztc/ztc/`.
 
@@ -56,8 +64,8 @@ Endpoint paths below are the SDK `*Endpoint` consts (Tier A), all under the `/zt
 | Service | Endpoint(s) | Purpose |
 |---|---|---|
 | `activation` | `/ecAdminActivateStatus` (+ `/activate`, `/forcedActivate`) | Apply pending configuration changes (same pattern as ZIA's activation gate). See § Activation. (`activation/activation.go:11-13`) |
-| `activation_cli` | — | CLI-driven activation variant (separate `activation_cli` service package). |
-| `adminuserrolemgmt` | — | Admin user and role RBAC for the Cloud Connector portal. |
+| `activation_cli` | — | **No callable surface at the current pin.** The file declares `package main`, but its imports, `main`, and activation logic are all inside one block comment (`vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go:1-76`). |
+| `adminuserrolemgmt` | `/adminRoles`, `/adminUsers` | Admin user and role RBAC for the Cloud Connector portal (`vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go:14-15`; `vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go:13-14`). |
 | `ecgroup` | `/ecgroup` (+ `/lite`) | **Edge Connector Group** — the logical grouping of Cloud Connector VMs. Corresponds to "Cloud Connector Group" in the admin UI. See [`./overview.md § Cloud Connector Group`](./overview.md). (`ecgroup/ecgroup.go:16`) |
 | `dns_gateway` | `/dnsGateways` (+ `/lite`) | DNS gateway CRUD — named DNS destinations used in rule forwarding. (`dns_gateway/dns_gateway.go:15`) |
 | `forwarding_gateways` | `/gateways` (ZIA gw), `/dnsGateways` (DNS gw) | Forwarding gateway CRUD — named endpoint pairs (primary/secondary) for ZIA or DNS paths. (`forwarding_gateways/zia_forwarding_gateway/zia_forwarding_gateway.go:16`) |
@@ -149,6 +157,20 @@ Cloud Connector has an **activation gate** parallel to ZIA's (see [`../shared/ac
 
 **This is a ZIA-style pattern, not ZPA-style.** ZPA propagates on write; Cloud Connector stages and requires explicit activation. Match the pattern to the familiar ZIA model, not ZPA.
 
+## Cloud Connector group upgrade operations
+
+The raw CBC API is mutable even though the current Go EC-group package exposes reads plus deletion (`vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go:36-88`). Current Help documents:
+
+| Method | Path | Contract |
+|---|---|---|
+| PUT | `/ecgroup/releaseChannel` | Bulk-select `STABLE`, `LATEST`, or `BETA` for group and VM IDs (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:12-20`). |
+| PUT | `/ecgroup/vmStatus` | Bulk-set selected group/VM IDs to `ENABLE` or `DISABLE` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:21-31`). |
+| GET | `/ecgroup/vmUpgradeMetrics` | Read release-channel and scheduled-upgrade metrics, including platform, release-channel, and upgrade-status filters (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:33-48`). |
+| PUT | `/ecgroup/scheduleupgrade` | Update the scheduled upgrade time; the captured Automate body includes `dayOfWeek`, `startTime`, and `endTime` fields (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:175246-175314`). |
+| PUT | `/ecgroup/{ecgroupId}/vm/{vmId}/{status}` | Change one VM's status through the Automate contract (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:158164-158192`). |
+
+These operations support scheduling, release-channel selection, and VM enable/disable. The scoped group OpenAPI does not expose an immediate per-VM **upgrade now** operation (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:50-52`).
+
 ## Partner integrations (workload discovery)
 
 Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/account_groups/account_groups.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go`; `vendor/zscaler-sdk-python/zscaler/ztw/discovery_service.py`; `vendor/zscaler-sdk-python/zscaler/ztw/public_cloud_info.py`; `vendor/zscaler-sdk-python/zscaler/ztw/account_groups.py`.
@@ -164,7 +186,20 @@ The partner-integration surface is a full discovery / account-management API, SD
 | `/discoveryService/{id}/permissions` | Set discovery permissions (`DiscoveryRole`, `ExternalID`) for an AWS account | `UpdateDiscoveryPermissions` (`partner_integrations.go:81-82`) | `discovery_service.py:90-91` |
 | `/accountGroups` (+ `/lite`, `/{id}`, `/count`) | CRUD on account groups | `partner_integrations/account_groups` (`account_groups.go:14`) | `client.ztw.account_groups` (`account_groups.py:74-75`) |
 
-The discovery model is AWS-centric in the cited source: trust is established via a Zscaler-owned AWS account (`TrustedAccountId`) and a trusted role (`TrustedRoleName`), with the customer side providing a `DiscoveryRole` + `ExternalID` (`partner_integrations.go:15-30`). The `publicCloudInfo` records themselves span AWS/Azure/GCP account identities, but the discovery-permission/CloudFormation flow in this capture is AWS-specific.
+The current SDK discovery model is AWS-centric: trust is established via a Zscaler-owned AWS account (`TrustedAccountId`) and trusted role (`TrustedRoleName`), with the customer side providing `DiscoveryRole` and `ExternalID` (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:16-30`). Current Help separately documents the Azure raw REST family below.
+
+### Azure partner-integration REST family
+
+The Azure account-management family uses `/publicCloudTenant`, not `/publicCloudInfo`:
+
+| Operation group | Methods and paths |
+|---|---|
+| Azure account CRUD | `GET|POST /publicCloudTenant`; `GET|PUT|DELETE /publicCloudTenant/{id}` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:44-56`) |
+| Inventory helpers | `GET /publicCloudTenant/ccGroups`; `GET /publicCloudTenant/count`; `GET /publicCloudTenant/supportedRegions` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:49-53`) |
+| Subscription and permission sync | `PUT /discoveryService/azure/subscriptionSync`; `POST /discoveryService/azure/tenantPermission` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:57-58`) |
+| Regional resources and topic | `POST /discoveryService/azure/{region}/resourceGroups`; `POST /discoveryService/azure/{region}/storageAccounts`; `PUT /discoveryService/azure/{region}/topicSync` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:59-61`) |
+
+Help describes Azure partner integration as discovering workload metadata across subscriptions and associating Cloud Connectors with that workload information for policy enforcement (`vendor/zscaler-help/cbc-about-microsoft-azure-accounts.md:8-22`). No equivalent public GCP discovery REST family was established by this sweep.
 
 ## Rate limiting
 
@@ -187,7 +222,7 @@ Note DELETE is bucketed **with** POST/PUT (the test names the bucket "POST/PUT/D
 
 Source: `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-python/zscaler/ztw/activation.py`; `vendor/zscaler-sdk-python/CHANGELOG.md`.
 
-ZTW (Cloud Connector) is covered by the Python SDK's **v1.x GA line** (current `v1.9.33`, `vendor/zscaler-sdk-python/zscaler/__init__.py:32`). Coverage was added at **v1.0.1 (April 22 2025)** — the `zcon`→`ztw` rename plus the policy-management and policy-resources endpoint sets (`vendor/zscaler-sdk-python/CHANGELOG.md:2200`, ZTW endpoint blocks at `:2461`/`:3261`) — and extended through later 1.9.x releases (e.g. `provisioning_url` CRUD at 1.9.13, PR #450, `:348`). The full accessor list is in the § three-paths section above.
+ZTW (Cloud Connector) is covered by the Python SDK's **v1.x GA line** (current `v1.9.39`, `vendor/zscaler-sdk-python/zscaler/__init__.py:32`). Coverage was added at **v1.0.1 (April 22 2025)** — the `zcon`→`ztw` rename plus the policy-management and policy-resources endpoint sets (`vendor/zscaler-sdk-python/CHANGELOG.md:2200`, ZTW endpoint blocks at `:2461`/`:3261`) — and extended through later 1.9.x releases (e.g. `provisioning_url` CRUD at 1.9.13, PR #450, `:348`). The full accessor list is in the § three-paths section above.
 
 **Stay on v1.x for Cloud Connector.** The Python `2.0.0bN` beta does **not** include ZTW: "ZPA, ZCC, ZTW, ZTB, and ZWA remain on v1.x for now" (`vendor/zscaler-sdk-python/CHANGELOG.md:144`). v1.x is the recommended GA release; do not migrate ZTW automation to v2.x expecting Cloud Connector support.
 
@@ -245,7 +280,7 @@ For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshootin
 
 Source: `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py`; `vendor/zscaler-sdk-python/zscaler/ztw/forwarding_rules.py`; `vendor/terraform-provider-ztc/ztc/provider.go`.
 
-ZTW config reads are native Python on the v1.x GA SDK (current `v1.9.33`) via the `client.ztw.ec_groups` and `client.ztw.forwarding_rules` service accessors (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:80`, `:133`). No Go SDK or Terraformer workaround is needed for snapshotting.
+ZTW config reads are native Python on the v1.x GA SDK (current `v1.9.39`) via the `client.ztw.ec_groups` and `client.ztw.forwarding_rules` service accessors (`vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py:80`, `:133`). No Go SDK or Terraformer workaround is needed for snapshotting.
 
 Alternative: use `terraform plan -out` against the `ztc` provider and parse the plan JSON for config state. Workable; not elegant.
 
@@ -253,8 +288,8 @@ Alternative: use `terraform plan -out` against the `ztc` provider and parse the 
 
 Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go`; `vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go`.
 
-- **`adminuserrolemgmt` / `activation_cli` endpoint paths** — these two Go service packages weren't inspected for their `*Endpoint` consts in this pass (the rest of the § Go SDK service surface table now carries verified paths). Filed with the Azure/GCP-discovery and Go-ZIdentity questions as [clarification `cloud-connector-18`](../_meta/clarifications.md#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth).
-- **Whether `publicCloudInfo` exposes discovery automation for Azure/GCP** — `publicCloudInfo` records carry AWS/Azure/GCP account identities, but the discovery-permission and CloudFormation-template flows in the current Go source (`partner_integrations.go:56-82`) are AWS-specific. No Azure/GCP equivalent of `cloudFormationTemplate` or `discoveryService/{id}/permissions` was found. See [clarification `cloud-connector-18`](../_meta/clarifications.md#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth).
+- **Resolved endpoint constants.** Admin user and role paths are `/ztw/api/v1/adminUsers` and `/ztw/api/v1/adminRoles` (`vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go:13-14`; `vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go:14-15`). `activation_cli` has no endpoint of its own and is inert because all implementation is commented out (`vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go:1-76`).
+- **GCP discovery automation remains open.** Azure now has a distinct `/publicCloudTenant` and `/discoveryService/azure/...` REST family (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:44-61`). No equivalent public GCP discovery REST family was established.
 - **Resolved: Go ZTW supports OneAPI/ZIdentity.** The unified Go client routes `ztw` to a dedicated OneAPI HTTP client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:372-373`), so ZIdentity OAuth is a supported path alongside the legacy `ZTC_*` credentials (see § Go-SDK authentication status). Tracked in [clarification `cloud-connector-18`](../_meta/clarifications.md#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth).
 
 ## Cross-links

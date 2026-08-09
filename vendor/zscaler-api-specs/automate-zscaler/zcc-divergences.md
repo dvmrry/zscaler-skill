@@ -72,11 +72,15 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Go SDK fields absent from the contract:** `enableAllDefaultAdaptersTN`, `enableUnifiedTunnel`, `trustedNetworkIdsSelected`, `unifiedTunnel`
 
+**Terraform provider corroborates these non-contract client fields:** `enableUnifiedTunnel`, `trustedNetworkIdsSelected`, `unifiedTunnel`
+
 ## web_privacy
 
 `PUT /zcc/papi/public/v1/setWebPrivacyInfo` — contract 11 / Go 14 / TF 14 fields / no Ansible surface / Python 11 fields / no MCP surface
 
 **Go SDK fields absent from the contract:** `enableAutoLogSnippet`, `enableFQDNMatchForVpnBypasses`, `enforceSecurePacUrls`
+
+**Terraform provider corroborates these non-contract client fields:** `enableAutoLogSnippet`, `enforceSecurePacUrls`
 
 ## Scope
 

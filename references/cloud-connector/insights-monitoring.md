@@ -16,6 +16,7 @@ sources:
   - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.md"
   - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md"
   - "vendor/zscaler-help/cbc-managing-cloud-branch-connector-upgrades.md"
+  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
   - "vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md"
   - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go"
@@ -273,9 +274,16 @@ This is monitoring of the workload-discovery integration, not CC traffic — but
 
 ## 4. API/SDK access
 
-Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
+Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
 
-No dedicated read-side "metrics" API was identified in the captured ZTW SDK surface. The ZTW API and SDK expose configuration and state objects rather than time-series metrics. The available programmatic reads for monitoring-adjacent data are:
+The current SDKs do not expose a general Insights time-series wrapper. The raw
+group API does expose `GET /ecgroup/vmUpgradeMetrics`, which returns aggregate
+release-channel and scheduled-upgrade telemetry with platform, release-channel,
+location, name, and upgrade-status filters
+(`vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md:24-28`;
+`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:33-48`). That
+operation does not establish a general Session, DNS, or Tunnel Insights
+time-series API. The remaining monitoring-adjacent programmatic reads are:
 
 ### 4.1 Go SDK
 

@@ -17,6 +17,7 @@ sources:
   - "vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md"
   - "vendor/zscaler-help/zsdk-deploying-zsdk-private-service-edges.md"
   - "vendor/zscaler-help/zsdk-about-zsdk-private-service-edge-groups.md"
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_private_service_edge_status.md"
@@ -162,7 +163,25 @@ Source: `vendor/zscaler-help/zsdk-deploying-zsdk-private-service-edges.md`; `ven
 
 ZPA PSEs are distributed as **virtual machine images** for deployment on enterprise hypervisors. Supported platforms include VMware (ESXi/vSphere). Cloud deployments are possible in private cloud environments that support the VM image format. Zscaler distributes the images; the operator provisions the VM and handles the enrollment step.
 
-This is distinct from ZIA's Virtual Service Edge (VSE), which runs on a broader range of platforms (VMware, Azure, AWS, Hyper-V, GCP) and does inline inspection. ZPA PSEs are not available on public cloud marketplaces in the same way as ZIA VSEs.
+This is distinct from ZIA's Virtual Service Edge (VSE), which runs on a broader range of platforms (VMware, Azure, AWS, Hyper-V, GCP) and does inline inspection. The captured ZPA release evidence establishes PSE Docker and RHEL 9 cloud images, including images for AWS, GCP, and Azure, but does not establish whether or how those images are distributed through public cloud marketplaces (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-53`).
+
+### July–August 2026 image and RPM releases
+
+The July 23 release supplies an updated PSE Docker image, updated RHEL 9 PSE
+images for AWS, GCP, and Azure, and updated PSE images for Nutanix AHV and
+VMware. The release says these image updates include a 4 GB boot partition for
+seamless operating-system updates
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-50`). It does
+not name updated Hyper-V or KVM images; that omission is not evidence that those
+platforms are unsupported
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:52-53`).
+
+The August 4 entry is a different distribution path: Manager version `26.56.1`
+provides PSE RPM packages for RHEL 8.x and 9.x, downloadable from the Zscaler
+repository
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-23`). It does
+not state that another PSE Docker, VM, hypervisor, or cloud-marketplace image was
+updated (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:25-28`).
 
 ### Sizing
 
@@ -572,7 +591,12 @@ The `ReadOnly` and `ZscalerManaged` fields on the `ServiceEdgeGroup` struct (Go 
 ## Open questions
 
 - **PSE VM sizing specifics** — the Deployment Prerequisites document referenced in help sources was not available in the captured vendor corpus. vCPU, vRAM, and disk requirements per PSE VM and per-instance session limits are not confirmed. Validate against the current Deployment Prerequisites doc before provisioning. (Tracked as [`zpa-47`](../_meta/clarifications.md#zpa-47-private-service-edge-vm-sizing-and-per-instance-session-limits).)
-- **Supported hypervisor list** — VMware (ESXi/vSphere) is confirmed. It is not confirmed whether OVA images are provided for Hyper-V, KVM, or cloud-native VM formats (AWS AMI, Azure image) for ZPA PSEs specifically. ZIA VSEs support those platforms, but ZPA PSEs may differ. (Tracked as [`zpa-49`](../_meta/clarifications.md#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses).)
+- **Residual image-format and distribution coverage** — the July 23 release
+  confirms current RHEL 9 PSE images for AWS, GCP, and Azure plus PSE images for
+  Nutanix AHV and VMware. It does not identify Hyper-V or KVM packages, the exact
+  file/image format used on each platform, or cloud Marketplace distribution
+  mechanics (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-53`).
+  (Tracked as [`zpa-49`](../_meta/clarifications.md#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses).)
 - **PSE hardware appliance** — the ZIA PSE product has dedicated hardware appliances (PSE 3, PSE 5 physical clusters). It is not confirmed whether ZPA PSEs are virtual-only or also available as dedicated hardware. The help sources describe only VM images. (Tracked as [`zpa-50`](../_meta/clarifications.md#zpa-50-zpa-pse-dedicated-hardware-appliance-availability).)
 - **Private Cloud Controller vs PSE Group — product positioning** — the SDK surface is now documented above: `/privateCloudControllerGroup` (group container) and `/privateCloudController` (member instance) form the same group/instance pairing as `/serviceEdgeGroup` ÷ `/serviceEdge`, with `site_id` and `privateBrokerGroupIds` linking the group to a ZPA site (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py:180`, `:201`). What the SDK source does **not** settle is the product semantics: whether the Private Cloud Controller family is a sovereign/private-cloud ZPA control-plane variant or simply an alternate PSE grouping type, and whether it is in scope for standard PSE deployments using Zscaler's public ZPA CA. Confirm against ZPA Private Cloud product docs before treating it as part of a standard PSE rollout. (Tracked as [`zpa-51`](../_meta/clarifications.md#zpa-51-private-cloud-controller-product-positioning).)
 - **`restart_private_controller` operational semantics** — the SDK exposes `PUT /privateCloudController/{id}/restart` (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_controller.py:245`, `:267`), but the source does not state whether the restart is graceful (drains sessions first) or hard, nor whether an equivalent restart action exists for ordinary `serviceEdge` instances (none is present in `service_edges.py` as captured). Confirm restart behavior and session impact before using it on a live controller. (Tracked as [`zpa-52`](../_meta/clarifications.md#zpa-52-restart_private_controller-operational-semantics).)

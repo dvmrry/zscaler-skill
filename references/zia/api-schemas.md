@@ -5,7 +5,7 @@ title: "ZIA API resource schemas"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: c26c394767d7344a4ac41658d1d5fb2c4b7d4716
+  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
 confidence: high
 source-tier: code
 sources:
@@ -1758,7 +1758,7 @@ Source: `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_exact_data_match_lit
 | DefaultRule | defaultRule | bool | ✓ |  |
 | CapturePCAP | capturePCAP | bool |  |  |
 | Predefined | predefined | bool | ✓ |  |
-| IsWebEUNEnabled | isWebEunEnabled | bool | ✓ |  |
+| IsWebEUNEnabled | isWebEUNEnabled | bool | ✓ | Go v3.8.44 corrected the non-standard `EUN` capitalization; `omitempty` still drops explicit `false` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:155-156`) |
 | DefaultDNSRuleNameUsed | defaultDnsRuleNameUsed | bool | ✓ |  |
 | ApplicationGroups | applicationGroups | []common.IDNameExtensions | ✓ |  |
 | DNSGateway | dnsGateway | *common.IDName | ✓ |  |

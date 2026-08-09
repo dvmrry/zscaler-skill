@@ -27,10 +27,11 @@ Runs six checks in a single pass:
        reference the prompt path and mention each dependency the prompt
        declares.
 
-  4. Resolved-clarification propagation
-       Resolved clarifications (per `_clarifications.md` § Status summary
-       § Resolved) are flagged if they still appear in any topical doc's
-       `## Open questions` section. Surfaces incomplete propagation of
+  4. Clarification-ledger consistency and resolved propagation
+       Every detailed clarification's explicit Status must agree with the exact
+       summary membership and recorded bucket counts. Resolved clarifications
+       are then flagged if they still appear in a topical doc's `## Open
+       questions` section. Surfaces stale rollups and incomplete propagation of
        resolutions back to source docs.
 
   5. Eval-doc cross-reference
@@ -62,6 +63,7 @@ import argparse
 import json
 import re
 import sys
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -122,6 +124,18 @@ FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 CLARIFICATION_ID_RE = re.compile(r"\b([a-z]+)-(\d+)\b")
 HEADING_RE = re.compile(r"^(#+)\s+(.+)$")
+CLARIFICATION_ENTRY_RE = re.compile(
+    r"^### (?P<id>[a-z][a-z0-9-]*-\d+) — .+$", re.MULTILINE
+)
+CLARIFICATION_STATUS_RE = re.compile(r"\*\*Status\*\*:\s*([^\n]+)", re.IGNORECASE)
+CLARIFICATION_SUMMARY_HEADINGS = {
+    "resolved": "Resolved",
+    "partial": "Partially resolved",
+    "open": "Open",
+}
+CLARIFICATION_SUMMARY_ID_RE = re.compile(
+    r"`(?P<id>[a-z][a-z0-9-]*-(?P<number>\d+))`"
+)
 
 
 @dataclass
@@ -365,23 +379,186 @@ def check_anchors(path: Path) -> list[Finding]:
     return findings
 
 
-# ----- check 3: resolved-clarification propagation -----
+# ----- check 3: clarification ledger + resolved propagation -----
+
+
+def normalize_clarification_status(raw_status: str) -> str | None:
+    """Map an entry's free-form status prefix to a summary bucket."""
+    status = raw_status.strip().lower()
+    if status.startswith(("partially resolved", "partial")):
+        return "partial"
+    if status.startswith(("resolved", "clarified")):
+        return "resolved"
+    if status.startswith(("open", "investigating")):
+        return "open"
+    return None
+
+
+def parse_clarification_detail_buckets(
+    content: str,
+) -> tuple[dict[str, set[str]], list[str]]:
+    """Parse every detailed entry and bucket it from its explicit Status."""
+    buckets = {name: set() for name in CLARIFICATION_SUMMARY_HEADINGS}
+    issues: list[str] = []
+    matches = list(CLARIFICATION_ENTRY_RE.finditer(content))
+    seen: set[str] = set()
+
+    for index, match in enumerate(matches):
+        clarification_id = match.group("id")
+        if clarification_id in seen:
+            issues.append(f"duplicate detailed entry {clarification_id}")
+            continue
+        seen.add(clarification_id)
+
+        block_end = matches[index + 1].start() if index + 1 < len(matches) else len(content)
+        statuses = CLARIFICATION_STATUS_RE.findall(content[match.end() : block_end])
+        if len(statuses) != 1:
+            issues.append(
+                f"{clarification_id} has {len(statuses)} explicit Status fields; expected 1"
+            )
+            continue
+
+        bucket = normalize_clarification_status(statuses[0])
+        if bucket is None:
+            issues.append(
+                f"{clarification_id} has unclassified Status value {statuses[0].strip()!r}"
+            )
+            continue
+        buckets[bucket].add(clarification_id)
+
+    return buckets, issues
+
+
+def clarification_summary_body(content: str) -> str | None:
+    match = re.search(
+        r"^## Status summary\s*$\n(.*?)(?=^##\s|\Z)",
+        content,
+        re.MULTILINE | re.DOTALL,
+    )
+    return match.group(1) if match else None
+
+
+def clarification_summary_subsection(summary: str, heading: str) -> str | None:
+    match = re.search(
+        rf"^### {re.escape(heading)}\s*$\n(.*?)(?=^###\s|\Z)",
+        summary,
+        re.MULTILINE | re.DOTALL,
+    )
+    return match.group(1) if match else None
+
+
+def expand_clarification_summary_ids(section: str) -> tuple[set[str], list[str]]:
+    """Return exact IDs from backticked tokens, expanding same-prefix en-dash ranges."""
+    tokens = list(CLARIFICATION_SUMMARY_ID_RE.finditer(section))
+    ids = [token.group("id") for token in tokens]
+    counts = Counter(ids)
+    issues: list[str] = []
+
+    for left, right in zip(tokens, tokens[1:], strict=False):
+        if section[left.end() : right.start()].strip() != "–":
+            continue
+        left_id = left.group("id")
+        right_id = right.group("id")
+        left_prefix, left_number_text = left_id.rsplit("-", 1)
+        right_prefix, right_number_text = right_id.rsplit("-", 1)
+        if left_prefix != right_prefix:
+            issues.append(f"mixed-prefix summary range {left_id}–{right_id}")
+            continue
+        left_number = int(left_number_text)
+        right_number = int(right_number_text)
+        if right_number < left_number:
+            issues.append(f"descending summary range {left_id}–{right_id}")
+            continue
+        # Preserve the range's minimum zero-padding while allowing a boundary
+        # such as zcc-87–zcc-101 to naturally expand through zcc-99/zcc-100.
+        width = min(len(left_number_text), len(right_number_text))
+        counts.update(
+            f"{left_prefix}-{number:0{width}d}"
+            for number in range(left_number + 1, right_number)
+        )
+
+    issues.extend(
+        f"duplicate summary ID {clarification_id}"
+        for clarification_id, count in sorted(counts.items())
+        if count > 1
+    )
+    return set(counts), issues
+
+
+def clarification_summary_issues(content: str) -> list[str]:
+    """Compare summary counts/membership to detailed Status fields."""
+    detail_buckets, issues = parse_clarification_detail_buckets(content)
+    summary = clarification_summary_body(content)
+    if summary is None:
+        return [*issues, "missing ## Status summary section"]
+
+    summary_buckets: dict[str, set[str]] = {}
+    for bucket, heading in CLARIFICATION_SUMMARY_HEADINGS.items():
+        section = clarification_summary_subsection(summary, heading)
+        if section is None:
+            issues.append(f"missing ### {heading} summary subsection")
+            summary_buckets[bucket] = set()
+            continue
+        ids, range_issues = expand_clarification_summary_ids(section)
+        summary_buckets[bucket] = ids
+        issues.extend(range_issues)
+
+    owners: dict[str, list[str]] = {}
+    for bucket, ids in summary_buckets.items():
+        for clarification_id in ids:
+            owners.setdefault(clarification_id, []).append(bucket)
+    for clarification_id, buckets in sorted(owners.items()):
+        if len(buckets) > 1:
+            issues.append(
+                f"{clarification_id} appears in multiple summary buckets: "
+                + ", ".join(sorted(buckets))
+            )
+
+    for bucket in CLARIFICATION_SUMMARY_HEADINGS:
+        missing = sorted(detail_buckets[bucket] - summary_buckets[bucket])
+        extra = sorted(summary_buckets[bucket] - detail_buckets[bucket])
+        if missing:
+            issues.append(f"{bucket} summary is missing: {', '.join(missing)}")
+        if extra:
+            issues.append(f"{bucket} summary has non-{bucket} IDs: {', '.join(extra)}")
+
+    count_match = re.search(
+        r"(?P<resolved>\d+) entries are resolved or clarified,\s*"
+        r"(?P<partial>\d+) are partially resolved, and\s*"
+        r"(?P<open>\d+) are open\.",
+        summary,
+        re.IGNORECASE,
+    )
+    if count_match is None:
+        issues.append("status-summary prose is missing the three explicit bucket counts")
+    else:
+        for bucket in CLARIFICATION_SUMMARY_HEADINGS:
+            recorded = int(count_match.group(bucket))
+            actual = len(detail_buckets[bucket])
+            if recorded != actual:
+                issues.append(
+                    f"status-summary {bucket} count is {recorded}; detailed entries total {actual}"
+                )
+
+    return issues
+
+
+def check_clarification_summary() -> list[Finding]:
+    if not CLARIFICATIONS.exists():
+        return []
+    content = CLARIFICATIONS.read_text(encoding="utf-8", errors="replace")
+    return [
+        Finding("error", CLARIFICATIONS, "clarification-summary", issue)
+        for issue in clarification_summary_issues(content)
+    ]
 
 
 def parse_resolved_clarifications() -> set[str]:
     if not CLARIFICATIONS.exists():
         return set()
     content = CLARIFICATIONS.read_text(encoding="utf-8", errors="replace")
-    # Find the "### Resolved" subsection inside "## Status summary".
-    # Stop at the next "###" or "## " heading.
-    m = re.search(
-        r"^### Resolved\s*\n(.*?)(?=^###\s|^##\s)",
-        content,
-        re.MULTILINE | re.DOTALL,
-    )
-    if not m:
-        return set()
-    return {f"{p}-{n}" for p, n in CLARIFICATION_ID_RE.findall(m.group(1))}
+    buckets, _issues = parse_clarification_detail_buckets(content)
+    return buckets["resolved"]
 
 
 def check_clarification_propagation(path: Path, resolved_ids: set[str]) -> list[Finding]:
@@ -835,6 +1012,7 @@ def run_all_checks(strict: bool = False) -> list[Finding]:
         findings.extend(check_anchors(path))
         findings.extend(check_agent_dependencies(path))
 
+    findings.extend(check_clarification_summary())
     resolved = parse_resolved_clarifications()
     for path in md_files:
         findings.extend(check_clarification_propagation(path, resolved))

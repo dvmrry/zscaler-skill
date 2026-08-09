@@ -18,22 +18,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Activation > Status - Activate configuration changes
 
-### POST {{ZIABase}}/status/activate
+### POST {{ZIABaseUrl}}/status/activate
 
 
 ## Activation > Status - Get activation status
 
-### GET {{ZIABase}}/status
+### GET {{ZIABaseUrl}}/status
 
 
 ## Admin & Role Management > Admin Roles  - Get all
 
-### GET {{ZIABase}}/adminRoles/lite
+### GET {{ZIABaseUrl}}/adminRoles/lite
 
 
 ## Admin & Role Management > Admin Users - Add
 
-### POST {{ZIABase}}/adminUsers
+### POST {{ZIABaseUrl}}/adminUsers
 
 **Request:**
 
@@ -57,17 +57,17 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin & Role Management > Admin Users - Delete
 
-### DELETE {{ZIABase}}/adminUsers/6794036
+### DELETE {{ZIABaseUrl}}/adminUsers/6794036
 
 
 ## Admin & Role Management > Admin Users - Get all
 
-### GET {{ZIABase}}/adminUsers
+### GET {{ZIABaseUrl}}/adminUsers
 
 
 ## Admin & Role Management > Admin Users - Update
 
-### PUT {{ZIABase}}/adminUsers/6794036
+### PUT {{ZIABaseUrl}}/adminUsers/6794036
 
 **Request:**
 
@@ -91,12 +91,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Delete
 
-### DELETE {{ZIABase}}/auditlogEntryReport
+### DELETE {{ZIABaseUrl}}/auditlogEntryReport
 
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Filter by actions
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -116,7 +116,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Filter by admin ID
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -133,7 +133,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Filter by category
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -150,7 +150,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Filter by client IP
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -167,7 +167,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Filter by interface
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -184,7 +184,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Filter by resource
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -201,7 +201,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Filter by result
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -218,7 +218,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Filter by sub-categories
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -238,17 +238,17 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Get report
 
-### GET {{ZIABase}}/auditlogEntryReport/download
+### GET {{ZIABaseUrl}}/auditlogEntryReport/download
 
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Get status
 
-### GET {{ZIABase}}/auditlogEntryReport
+### GET {{ZIABaseUrl}}/auditlogEntryReport
 
 
 ## Admin Audit Logs > Admin Audit Logs (advanced) - Request all
 
-### POST {{ZIABase}}/auditlogEntryReport
+### POST {{ZIABaseUrl}}/auditlogEntryReport
 
 **Request:**
 
@@ -264,12 +264,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Browser Isolation > Browser Isolation Profile - Get all
 
-### GET {{ZIABase}}/browserIsolation/profiles
+### GET {{ZIABaseUrl}}/browserIsolation/profiles
 
 
 ## Data Loss Prevention > DLP Dictionaries > DLP Dictionaries - Add
 
-### POST {{ZIABase}}/dlpDictionaries
+### POST {{ZIABaseUrl}}/dlpDictionaries
 
 **Request:**
 
@@ -292,32 +292,32 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Dictionaries > DLP Dictionaries - Delete
 
-### DELETE {{ZIABase}}/dlpDictionaries/1
+### DELETE {{ZIABaseUrl}}/dlpDictionaries/1
 
 
 ## Data Loss Prevention > DLP Dictionaries > DLP Dictionaries - Get 1
 
-### GET {{ZIABase}}/dlpDictionaries/1
+### GET {{ZIABaseUrl}}/dlpDictionaries/1
 
 
 ## Data Loss Prevention > DLP Dictionaries > DLP Dictionaries - Get all
 
-### GET {{ZIABase}}/dlpDictionaries
+### GET {{ZIABaseUrl}}/dlpDictionaries
 
 
 ## Data Loss Prevention > DLP Dictionaries > DLP Dictionaries - Get all (lite)
 
-### GET {{ZIABase}}/dlpDictionaries/lite
+### GET {{ZIABaseUrl}}/dlpDictionaries/lite
 
 
 ## Data Loss Prevention > DLP Dictionaries > DLP Dictionaries - Get predefined identifiers
 
-### GET {{ZIABase}}/dlpDictionaries/{dictId}/predefinedIdentifiers
+### GET {{ZIABaseUrl}}/dlpDictionaries/{dictId}/predefinedIdentifiers
 
 
 ## Data Loss Prevention > DLP Dictionaries > DLP Dictionaries - Update
 
-### PUT {{ZIABase}}/dlpDictionaries/1
+### PUT {{ZIABaseUrl}}/dlpDictionaries/1
 
 **Request:**
 
@@ -341,12 +341,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Dictionaries > DLP Dictionaries - Validate pattern
 
-### POST {{ZIABase}}/dlpDictionaries/validateDlpPattern
+### POST {{ZIABaseUrl}}/dlpDictionaries/validateDlpPattern
 
 
 ## Data Loss Prevention > DLP Engines > DLP Engines - Add
 
-### POST {{ZIABase}}/dlpEngines
+### POST {{ZIABaseUrl}}/dlpEngines
 
 **Request:**
 
@@ -362,27 +362,27 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Engines > DLP Engines - Delete
 
-### DELETE {{ZIABase}}/dlpEngines/25
+### DELETE {{ZIABaseUrl}}/dlpEngines/25
 
 
 ## Data Loss Prevention > DLP Engines > DLP Engines - Get 1
 
-### GET {{ZIABase}}/dlpEngines/60
+### GET {{ZIABaseUrl}}/dlpEngines/60
 
 
 ## Data Loss Prevention > DLP Engines > DLP Engines - Get all
 
-### GET {{ZIABase}}/dlpEngines
+### GET {{ZIABaseUrl}}/dlpEngines
 
 
 ## Data Loss Prevention > DLP Engines > DLP Engines - Get all (lite)
 
-### GET {{ZIABase}}/dlpEngines/lite
+### GET {{ZIABaseUrl}}/dlpEngines/lite
 
 
 ## Data Loss Prevention > DLP Engines > DLP Engines - Update
 
-### PUT {{ZIABase}}/dlpEngines/25
+### PUT {{ZIABaseUrl}}/dlpEngines/25
 
 **Request:**
 
@@ -399,32 +399,32 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Engines > DLP Engines - Validate expression
 
-### POST {{ZIABase}}/dlpEngines/validateDlpExpr
+### POST {{ZIABaseUrl}}/dlpEngines/validateDlpExpr
 
 
 ## Data Loss Prevention > DLP Incident Receiver > ICAP Servers - Get all
 
-### GET {{ZIABase}}/icapServers
+### GET {{ZIABaseUrl}}/icapServers
 
 
 ## Data Loss Prevention > DLP Incident Receiver > ICAP Servers - Get all (lite)
 
-### GET {{ZIABase}}/icapServers/lite
+### GET {{ZIABaseUrl}}/icapServers/lite
 
 
 ## Data Loss Prevention > DLP Incident Receiver > Incident Receiver Servers - Get all
 
-### GET {{ZIABase}}/incidentReceiverServers
+### GET {{ZIABaseUrl}}/incidentReceiverServers
 
 
 ## Data Loss Prevention > DLP Incident Receiver > Incident Receiver Servers - Get all (lite)
 
-### GET {{ZIABase}}/incidentReceiverServers/lite
+### GET {{ZIABaseUrl}}/incidentReceiverServers/lite
 
 
 ## Data Loss Prevention > DLP Notification Templates > Notification Templates - Add
 
-### POST {{ZIABase}}/dlpNotificationTemplates
+### POST {{ZIABaseUrl}}/dlpNotificationTemplates
 
 **Request:**
 
@@ -442,22 +442,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Notification Templates > Notification Templates - Delete
 
-### DELETE {{ZIABase}}/dlpNotificationTemplates/48
+### DELETE {{ZIABaseUrl}}/dlpNotificationTemplates/48
 
 
 ## Data Loss Prevention > DLP Notification Templates > Notification Templates - Get all
 
-### GET {{ZIABase}}/dlpNotificationTemplates
+### GET {{ZIABaseUrl}}/dlpNotificationTemplates
 
 
 ## Data Loss Prevention > DLP Notification Templates > Notification Templates - Get all (lite)
 
-### GET {{ZIABase}}/dlpNotificationTemplates/lite
+### GET {{ZIABaseUrl}}/dlpNotificationTemplates/lite
 
 
 ## Data Loss Prevention > DLP Notification Templates > Notification Templates - Update
 
-### PUT {{ZIABase}}/dlpNotificationTemplates/48
+### PUT {{ZIABaseUrl}}/dlpNotificationTemplates/48
 
 **Request:**
 
@@ -476,7 +476,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Rules > DLP Rules - Add (with content inspection)
 
-### POST {{ZIABase}}/webDlpRules
+### POST {{ZIABaseUrl}}/webDlpRules
 
 **Request:**
 
@@ -503,7 +503,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Rules > DLP Rules - Add (without content inspection)
 
-### POST {{ZIABase}}/webDlpRules
+### POST {{ZIABaseUrl}}/webDlpRules
 
 **Request:**
 
@@ -532,22 +532,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Rules > DLP Rules - Delete
 
-### DELETE {{ZIABase}}/webDlpRules/27496
+### DELETE {{ZIABaseUrl}}/webDlpRules/27496
 
 
 ## Data Loss Prevention > DLP Rules > DLP Rules - Get all
 
-### GET {{ZIABase}}/webDlpRules
+### GET {{ZIABaseUrl}}/webDlpRules
 
 
 ## Data Loss Prevention > DLP Rules > DLP Rules - Get all (lite)
 
-### GET {{ZIABase}}/webDlpRules/lite
+### GET {{ZIABaseUrl}}/webDlpRules/lite
 
 
 ## Data Loss Prevention > DLP Rules > DLP Rules - Update (with content inspection)
 
-### PUT {{ZIABase}}/webDlpRules/27496
+### PUT {{ZIABaseUrl}}/webDlpRules/27496
 
 **Request:**
 
@@ -574,7 +574,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > DLP Rules > DLP Rules - Update (without content inspection)
 
-### PUT {{ZIABase}}/webDlpRules/27498
+### PUT {{ZIABaseUrl}}/webDlpRules/27498
 
 **Request:**
 
@@ -603,37 +603,37 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Data Loss Prevention > Index Templates > Exact Data Match - Get all
 
-### GET {{ZIABase}}/dlpExactDataMatchSchemas
+### GET {{ZIABaseUrl}}/dlpExactDataMatchSchemas
 
 
 ## Data Loss Prevention > Index Templates > Exact Data Match - Get all (lite)
 
-### GET {{ZIABase}}/dlpExactDataMatchSchemas/lite
+### GET {{ZIABaseUrl}}/dlpExactDataMatchSchemas/lite
 
 
 ## Data Loss Prevention > Index Templates > Indexed Document Match - Get all
 
-### GET {{ZIABase}}/idmprofile
+### GET {{ZIABaseUrl}}/idmprofile
 
 
 ## Data Loss Prevention > Index Templates > Indexed Document Match - Get all (lite)
 
-### GET {{ZIABase}}/idmprofile/lite
+### GET {{ZIABaseUrl}}/idmprofile/lite
 
 
 ## Device Groups > Device Groups - Get all
 
-### GET {{ZIABase}}/deviceGroups
+### GET {{ZIABaseUrl}}/deviceGroups
 
 
 ## Device Groups > Devices - Get all
 
-### GET {{ZIABase}}/deviceGroups/devices
+### GET {{ZIABaseUrl}}/deviceGroups/devices
 
 
 ## Event Logs > Event  Logs - Generate report
 
-### POST {{ZIABase}}/eventlogEntryReport
+### POST {{ZIABaseUrl}}/eventlogEntryReport
 
 **Request:**
 
@@ -649,32 +649,32 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Event Logs > Event Logs  - Get status
 
-### GET {{ZIABase}}/eventlogEntryReport
+### GET {{ZIABaseUrl}}/eventlogEntryReport
 
 
 ## Event Logs > Event Logs - Delete report
 
-### DELETE {{ZIABase}}/eventlogEntryReport
+### DELETE {{ZIABaseUrl}}/eventlogEntryReport
 
 
 ## Event Logs > Event Logs - Get report
 
-### GET {{ZIABase}}/eventlogEntryReport/download
+### GET {{ZIABaseUrl}}/eventlogEntryReport/download
 
 
 ## Firewall Policies > Application Service Groups - Get all (lite)
 
-### GET {{ZIABase}}/appServiceGroups/lite
+### GET {{ZIABaseUrl}}/appServiceGroups/lite
 
 
 ## Firewall Policies > Application Services - Get all (lite)
 
-### GET {{ZIABase}}/appServices/lite
+### GET {{ZIABaseUrl}}/appServices/lite
 
 
 ## Firewall Policies > Firewall Filtering Rules  - Add
 
-### POST {{ZIABase}}/firewallFilteringRules
+### POST {{ZIABaseUrl}}/firewallFilteringRules
 
 **Request:**
 
@@ -696,22 +696,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > Firewall Filtering Rules  - Delete
 
-### DELETE {{ZIABase}}/firewallFilteringRules/123
+### DELETE {{ZIABaseUrl}}/firewallFilteringRules/123
 
 
 ## Firewall Policies > Firewall Filtering Rules  - Get 1
 
-### GET {{ZIABase}}/firewallFilteringRules/1234
+### GET {{ZIABaseUrl}}/firewallFilteringRules/1234
 
 
 ## Firewall Policies > Firewall Filtering Rules  - Get all
 
-### GET {{ZIABase}}/firewallFilteringRules
+### GET {{ZIABaseUrl}}/firewallFilteringRules
 
 
 ## Firewall Policies > Firewall Filtering Rules  - Update
 
-### PUT {{ZIABase}}/firewallFilteringRules/123
+### PUT {{ZIABaseUrl}}/firewallFilteringRules/123
 
 **Request:**
 
@@ -734,22 +734,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > IP Destination Groups  - Get 1
 
-### GET {{ZIABase}}/ipDestinationGroups/1234
+### GET {{ZIABaseUrl}}/ipDestinationGroups/1234
 
 
 ## Firewall Policies > IP Destination Groups  - Get all
 
-### GET {{ZIABase}}/ipDestinationGroups
+### GET {{ZIABaseUrl}}/ipDestinationGroups
 
 
 ## Firewall Policies > IP Destination Groups  - Get all (lite)
 
-### GET {{ZIABase}}/ipDestinationGroups/lite
+### GET {{ZIABaseUrl}}/ipDestinationGroups/lite
 
 
 ## Firewall Policies > IP Destination Groups - Add
 
-### POST {{ZIABase}}/ipDestinationGroups
+### POST {{ZIABaseUrl}}/ipDestinationGroups
 
 **Request:**
 
@@ -770,12 +770,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > IP Destination Groups - Delete
 
-### DELETE {{ZIABase}}/ipDestinationGroups/123
+### DELETE {{ZIABaseUrl}}/ipDestinationGroups/123
 
 
 ## Firewall Policies > IP Destination Groups - Update
 
-### PUT {{ZIABase}}/ipDestinationGroups/123
+### PUT {{ZIABaseUrl}}/ipDestinationGroups/123
 
 **Request:**
 
@@ -796,22 +796,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > IP Source Groups  - Get 1
 
-### GET {{ZIABase}}/ipSourceGroups/1234
+### GET {{ZIABaseUrl}}/ipSourceGroups/1234
 
 
 ## Firewall Policies > IP Source Groups  - Get all
 
-### GET {{ZIABase}}/ipSourceGroups
+### GET {{ZIABaseUrl}}/ipSourceGroups
 
 
 ## Firewall Policies > IP Source Groups  - Get all (lite)
 
-### GET {{ZIABase}}/ipSourceGroups/lite
+### GET {{ZIABaseUrl}}/ipSourceGroups/lite
 
 
 ## Firewall Policies > IP Source Groups - Add
 
-### POST {{ZIABase}}/ipSourceGroups
+### POST {{ZIABaseUrl}}/ipSourceGroups
 
 **Request:**
 
@@ -828,7 +828,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > IP Source Groups - Delete
 
-### DELETE {{ZIABase}}/ipSourceGroups/36872
+### DELETE {{ZIABaseUrl}}/ipSourceGroups/36872
 
 **Request:**
 
@@ -846,7 +846,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > IP Source Groups - Update
 
-### PUT {{ZIABase}}/ipSourceGroups/36872
+### PUT {{ZIABaseUrl}}/ipSourceGroups/36872
 
 **Request:**
 
@@ -864,27 +864,27 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > IPv6 Destination Groups - Get all
 
-### GET {{ZIABase}}/ipDestinationGroups/ipv6DestinationGroups
+### GET {{ZIABaseUrl}}/ipDestinationGroups/ipv6DestinationGroups
 
 
 ## Firewall Policies > IPv6 Destination Groups - Get all (lite)
 
-### GET {{ZIABase}}/ipDestinationGroups/ipv6DestinationGroups/lite
+### GET {{ZIABaseUrl}}/ipDestinationGroups/ipv6DestinationGroups/lite
 
 
 ## Firewall Policies > IPv6 Source Groups - Get all
 
-### GET {{ZIABase}}/ipSourceGroups/ipv6SourceGroups
+### GET {{ZIABaseUrl}}/ipSourceGroups/ipv6SourceGroups
 
 
 ## Firewall Policies > IPv6 Source Groups - Get all (lite)
 
-### GET {{ZIABase}}/ipSourceGroups/ipv6SourceGroups/lite
+### GET {{ZIABaseUrl}}/ipSourceGroups/ipv6SourceGroups/lite
 
 
 ## Firewall Policies > Network Application Groups  - Add
 
-### POST {{ZIABase}}/networkApplicationGroups
+### POST {{ZIABaseUrl}}/networkApplicationGroups
 
 **Request:**
 
@@ -901,17 +901,17 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > Network Application Groups  - Delete
 
-### DELETE {{ZIABase}}/networkApplicationGroups/123
+### DELETE {{ZIABaseUrl}}/networkApplicationGroups/123
 
 
 ## Firewall Policies > Network Application Groups  - Get all
 
-### GET {{ZIABase}}/networkApplicationGroups
+### GET {{ZIABaseUrl}}/networkApplicationGroups
 
 
 ## Firewall Policies > Network Application Groups  - Update
 
-### PUT {{ZIABase}}/networkApplicationGroups/123
+### PUT {{ZIABaseUrl}}/networkApplicationGroups/123
 
 **Request:**
 
@@ -929,22 +929,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > Network Applications  - Get all
 
-### GET {{ZIABase}}/networkApplications
+### GET {{ZIABaseUrl}}/networkApplications
 
 
 ## Firewall Policies > Network Applications  - Get all with description translation
 
-### GET {{ZIABase}}/networkApplications
+### GET {{ZIABaseUrl}}/networkApplications
 
 
 ## Firewall Policies > Network Service Groups  - Get all
 
-### GET {{ZIABase}}/networkServiceGroups
+### GET {{ZIABaseUrl}}/networkServiceGroups
 
 
 ## Firewall Policies > Network Service Groups - Add
 
-### POST {{ZIABase}}/networkServiceGroups
+### POST {{ZIABaseUrl}}/networkServiceGroups
 
 **Request:**
 
@@ -964,12 +964,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > Network Service Groups - Delete
 
-### DELETE {{ZIABase}}/networkServiceGroups/123
+### DELETE {{ZIABaseUrl}}/networkServiceGroups/123
 
 
 ## Firewall Policies > Network Service Groups - Update
 
-### PUT {{ZIABase}}/networkServiceGroups/123
+### PUT {{ZIABaseUrl}}/networkServiceGroups/123
 
 **Request:**
 
@@ -990,7 +990,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > Network Services  - Add
 
-### POST {{ZIABase}}/networkServices
+### POST {{ZIABaseUrl}}/networkServices
 
 **Request:**
 
@@ -1024,22 +1024,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > Network Services  - Delete
 
-### DELETE {{ZIABase}}/networkServices/123
+### DELETE {{ZIABaseUrl}}/networkServices/123
 
 
 ## Firewall Policies > Network Services  - Get all
 
-### GET {{ZIABase}}/networkServices
+### GET {{ZIABaseUrl}}/networkServices
 
 
 ## Firewall Policies > Network Services  - Get all with description translation
 
-### GET {{ZIABase}}/networkServices
+### GET {{ZIABaseUrl}}/networkServices
 
 
 ## Firewall Policies > Network Services  - Update
 
-### PUT {{ZIABase}}/networkServices/123
+### PUT {{ZIABaseUrl}}/networkServices/123
 
 **Request:**
 
@@ -1074,17 +1074,17 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Firewall Policies > Time Windows  - Get all
 
-### GET {{ZIABase}}/timeWindows
+### GET {{ZIABaseUrl}}/timeWindows
 
 
 ## Firewall Policies > Time Windows  - Get all (lite)
 
-### GET {{ZIABase}}/timeWindows/lite
+### GET {{ZIABaseUrl}}/timeWindows/lite
 
 
 ## Forwarding Control Policy > Forwarding Control Rule - Add
 
-### POST {{ZIABase}}/forwardingRules
+### POST {{ZIABaseUrl}}/forwardingRules
 
 **Request:**
 
@@ -1102,22 +1102,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Forwarding Control Policy > Forwarding Control Rule - Delete
 
-### DELETE {{ZIABase}}/forwardingRules/254329
+### DELETE {{ZIABaseUrl}}/forwardingRules/254329
 
 
 ## Forwarding Control Policy > Forwarding Control Rule - Get 1
 
-### GET {{ZIABase}}/forwardingRules/196633
+### GET {{ZIABaseUrl}}/forwardingRules/196633
 
 
 ## Forwarding Control Policy > Forwarding Control Rule - Get all
 
-### GET {{ZIABase}}/forwardingRules
+### GET {{ZIABaseUrl}}/forwardingRules
 
 
 ## Forwarding Control Policy > Forwarding Control Rule - Update
 
-### PUT {{ZIABase}}/forwardingRules/254329
+### PUT {{ZIABaseUrl}}/forwardingRules/254329
 
 **Request:**
 
@@ -1137,7 +1137,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Forwarding Control Policy > ZPA Gateway > ZPA Gateway - Add
 
-### POST {{ZIABase}}/zpaGateways
+### POST {{ZIABaseUrl}}/zpaGateways
 
 **Request:**
 
@@ -1154,22 +1154,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Forwarding Control Policy > ZPA Gateway > ZPA Gateway - Delete
 
-### DELETE {{ZIABase}}/zpaGateways/594407
+### DELETE {{ZIABaseUrl}}/zpaGateways/594407
 
 
 ## Forwarding Control Policy > ZPA Gateway > ZPA Gateway - Get 1
 
-### GET {{ZIABase}}/zpaGateways/418412
+### GET {{ZIABaseUrl}}/zpaGateways/418412
 
 
 ## Forwarding Control Policy > ZPA Gateway > ZPA Gateway - Get all
 
-### GET {{ZIABase}}/zpaGateways
+### GET {{ZIABaseUrl}}/zpaGateways
 
 
 ## Forwarding Control Policy > ZPA Gateway > ZPA Gateway - Update
 
-### PUT {{ZIABase}}/zpaGateways/594407
+### PUT {{ZIABaseUrl}}/zpaGateways/594407
 
 **Request:**
 
@@ -1187,7 +1187,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Add
 
-### POST {{ZIABase}}/intermediateCaCertificate
+### POST {{ZIABaseUrl}}/intermediateCaCertificate
 
 **Request:**
 
@@ -1203,27 +1203,27 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Delete
 
-### DELETE {{ZIABase}}/intermediateCaCertificate/certid
+### DELETE {{ZIABaseUrl}}/intermediateCaCertificate/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Download CSR
 
-### GET {{ZIABase}}/intermediateCaCertificate/downloadCsr/certid
+### GET {{ZIABaseUrl}}/intermediateCaCertificate/downloadCsr/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Download key attestation
 
-### GET {{ZIABase}}/intermediateCaCertificate/downloadAttestation/certid
+### GET {{ZIABaseUrl}}/intermediateCaCertificate/downloadAttestation/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Finalize certificate
 
-### POST {{ZIABase}}/intermediateCaCertificate/finalizeCert/certid
+### POST {{ZIABaseUrl}}/intermediateCaCertificate/finalizeCert/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Generate CSR
 
-### POST {{ZIABase}}/intermediateCaCertificate/generateCsr/certid
+### POST {{ZIABaseUrl}}/intermediateCaCertificate/generateCsr/certid
 
 **Request:**
 
@@ -1245,52 +1245,52 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Generate key pair
 
-### POST {{ZIABase}}/intermediateCaCertificate/keyPair/certId
+### POST {{ZIABaseUrl}}/intermediateCaCertificate/keyPair/certId
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Get all
 
-### GET {{ZIABase}}/intermediateCaCertificate
+### GET {{ZIABaseUrl}}/intermediateCaCertificate
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Get all (lite)
 
-### GET {{ZIABase}}/intermediateCaCertificate/lite
+### GET {{ZIABaseUrl}}/intermediateCaCertificate/lite
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Get by certificate ID
 
-### GET {{ZIABase}}/intermediateCaCertificate/1
+### GET {{ZIABaseUrl}}/intermediateCaCertificate/1
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Get ready-to-use certificates
 
-### GET {{ZIABase}}/intermediateCaCertificate/readyToUse
+### GET {{ZIABaseUrl}}/intermediateCaCertificate/readyToUse
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Make certificate as default
 
-### PUT {{ZIABase}}/intermediateCaCertificate/makeDefault/certid
+### PUT {{ZIABaseUrl}}/intermediateCaCertificate/makeDefault/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Show CSR
 
-### GET {{ZIABase}}/intermediateCaCertificate/showCsr/certid
+### GET {{ZIABaseUrl}}/intermediateCaCertificate/showCsr/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Show certificate
 
-### GET {{ZIABase}}/intermediateCaCertificate/showCert/certid
+### GET {{ZIABaseUrl}}/intermediateCaCertificate/showCert/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Show key pair
 
-### GET {{ZIABase}}/intermediateCaCertificate/downloadPublicKey/certid
+### GET {{ZIABaseUrl}}/intermediateCaCertificate/downloadPublicKey/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Update
 
-### PUT {{ZIABase}}/intermediateCaCertificate/certid
+### PUT {{ZIABaseUrl}}/intermediateCaCertificate/certid
 
 **Request:**
 
@@ -1306,72 +1306,72 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Upload intermediate certificate
 
-### POST {{ZIABase}}/intermediateCaCertificate/uploadCert/certid
+### POST {{ZIABaseUrl}}/intermediateCaCertificate/uploadCert/certid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Upload intermediate certificate chain
 
-### POST {{ZIABase}}/intermediateCaCertificate/uploadCertChain/cerid
+### POST {{ZIABaseUrl}}/intermediateCaCertificate/uploadCertChain/cerid
 
 
 ## Intermediate CA Certificates > Intermediate CA Certificates - Verify key attestation
 
-### POST {{ZIABase}}/intermediateCaCertificate/verifyKeyAttestation/certid
+### POST {{ZIABaseUrl}}/intermediateCaCertificate/verifyKeyAttestation/certid
 
 
 ## IoT Report > IoT Discovery - Get all categories
 
-### GET {{ZIABase}}/iotDiscovery/categories
+### GET {{ZIABaseUrl}}/iotDiscovery/categories
 
 
 ## IoT Report > IoT Discovery - Get all classifications
 
-### GET {{ZIABase}}/iotDiscovery/classifications
+### GET {{ZIABaseUrl}}/iotDiscovery/classifications
 
 
 ## IoT Report > IoT Discovery - Get all device list
 
-### GET {{ZIABase}}/iotDiscovery/deviceList
+### GET {{ZIABaseUrl}}/iotDiscovery/deviceList
 
 
 ## IoT Report > IoT Discovery - Get all device types
 
-### GET {{ZIABase}}/iotDiscovery/deviceTypes
+### GET {{ZIABaseUrl}}/iotDiscovery/deviceTypes
 
 
 ## Location Management > GRE Tunnel IP Addresses - Get all
 
-### GET {{ZIABase}}/orgProvisioning/ipGreTunnelInfo
+### GET {{ZIABaseUrl}}/orgProvisioning/ipGreTunnelInfo
 
 
 ## Location Management > IP Addresses - Get all
 
-### GET {{ZIABase}}/ipAddresses
+### GET {{ZIABaseUrl}}/ipAddresses
 
 
 ## Location Management > Location Groups > Location Groups - Get 1
 
-### GET {{ZIABase}}/locations/groups/123
+### GET {{ZIABaseUrl}}/locations/groups/123
 
 
 ## Location Management > Location Groups > Location Groups - Get all
 
-### GET {{ZIABase}}/locations/groups
+### GET {{ZIABaseUrl}}/locations/groups
 
 
 ## Location Management > Location Groups > Location Groups - Get all (lite)
 
-### GET {{ZIABase}}/locations/groups/lite
+### GET {{ZIABaseUrl}}/locations/groups/lite
 
 
 ## Location Management > Location Groups > Location Groups - Get total count
 
-### GET {{ZIABase}}/locations/groups/count
+### GET {{ZIABaseUrl}}/locations/groups/count
 
 
 ## Location Management > Locations - Add, Static IP
 
-### POST {{ZIABase}}/locations
+### POST {{ZIABaseUrl}}/locations
 
 **Request:**
 
@@ -1387,7 +1387,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Location Management > Locations - Add, VPN Credentials
 
-### POST {{ZIABase}}/locations
+### POST {{ZIABaseUrl}}/locations
 
 **Request:**
 
@@ -1407,7 +1407,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Location Management > Locations - Bulk delete
 
-### POST {{ZIABase}}/locations/bulkDelete
+### POST {{ZIABaseUrl}}/locations/bulkDelete
 
 **Request:**
 
@@ -1423,32 +1423,32 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Location Management > Locations - Delete
 
-### DELETE {{ZIABase}}/locations/1234
+### DELETE {{ZIABaseUrl}}/locations/1234
 
 
 ## Location Management > Locations - Get 1
 
-### GET {{ZIABase}}/locations/1234
+### GET {{ZIABaseUrl}}/locations/1234
 
 
 ## Location Management > Locations - Get all
 
-### GET {{ZIABase}}/locations
+### GET {{ZIABaseUrl}}/locations
 
 
 ## Location Management > Locations - Get all (lite)
 
-### GET {{ZIABase}}/locations/lite
+### GET {{ZIABaseUrl}}/locations/lite
 
 
 ## Location Management > Locations - Get all IoT locations
 
-### GET {{ZIABase}}/locations/lite
+### GET {{ZIABaseUrl}}/locations/lite
 
 
 ## Location Management > Locations - Update
 
-### PUT {{ZIABase}}/locations/1234
+### PUT {{ZIABaseUrl}}/locations/1234
 
 **Request:**
 
@@ -1468,7 +1468,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Location Management > Sub-locations - Add
 
-### POST {{ZIABase}}/locations
+### POST {{ZIABaseUrl}}/locations
 
 **Request:**
 
@@ -1485,17 +1485,17 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Location Management > Sub-locations - Delete
 
-### DELETE {{ZIABase}}/locations/1234
+### DELETE {{ZIABaseUrl}}/locations/1234
 
 
 ## Location Management > Sub-locations - Get all
 
-### GET {{ZIABase}}/locations/1234/sublocations
+### GET {{ZIABaseUrl}}/locations/1234/sublocations
 
 
 ## Location Management > Sub-locations - Update
 
-### PUT {{ZIABase}}/locations/6793982
+### PUT {{ZIABaseUrl}}/locations/6793982
 
 **Request:**
 
@@ -1513,7 +1513,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Rule Labels > Rule Labels - Add
 
-### POST {{ZIABase}}/ruleLabels
+### POST {{ZIABaseUrl}}/ruleLabels
 
 **Request:**
 
@@ -1527,22 +1527,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Rule Labels > Rule Labels - Delete
 
-### DELETE {{ZIABase}}/ruleLabels/64147
+### DELETE {{ZIABaseUrl}}/ruleLabels/64147
 
 
 ## Rule Labels > Rule Labels - Get 1
 
-### GET {{ZIABase}}/ruleLabels/54079
+### GET {{ZIABaseUrl}}/ruleLabels/54079
 
 
 ## Rule Labels > Rule Labels - Get all
 
-### GET {{ZIABase}}/ruleLabels
+### GET {{ZIABaseUrl}}/ruleLabels
 
 
 ## Rule Labels > Rule Labels - Update
 
-### PUT {{ZIABase}}/ruleLabels/64147
+### PUT {{ZIABaseUrl}}/ruleLabels/64147
 
 **Request:**
 
@@ -1557,32 +1557,32 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Sandbox Report > Sandbox Report - Get full
 
-### GET {{ZIABase}}/sandbox/report/8350dED6D39DF158E51D6CFBE36FB012
+### GET {{ZIABaseUrl}}/sandbox/report/8350dED6D39DF158E51D6CFBE36FB012
 
 
 ## Sandbox Report > Sandbox Report - Get quota
 
-### GET {{ZIABase}}/sandbox/report/quota
+### GET {{ZIABaseUrl}}/sandbox/report/quota
 
 
 ## Sandbox Report > Sandbox Report - Get summary
 
-### GET {{ZIABase}}/sandbox/report/4EE43B71BB89CB9CBF7784495AE8D0DF
+### GET {{ZIABaseUrl}}/sandbox/report/4EE43B71BB89CB9CBF7784495AE8D0DF
 
 
 ## Sandbox Settings > Custom MD5 Hash Values - Get full
 
-### GET {{ZIABase}}/behavioralAnalysisAdvancedSettings
+### GET {{ZIABaseUrl}}/behavioralAnalysisAdvancedSettings
 
 
 ## Sandbox Settings > Custom MD5 Hash Values - Get quota
 
-### GET {{ZIABase}}/behavioralAnalysisAdvancedSettings/fileHashCount
+### GET {{ZIABaseUrl}}/behavioralAnalysisAdvancedSettings/fileHashCount
 
 
 ## Sandbox Settings > Custom MD5 Hash Values - Update MD5 list
 
-### PUT {{ZIABase}}/behavioralAnalysisAdvancedSettings
+### PUT {{ZIABaseUrl}}/behavioralAnalysisAdvancedSettings
 
 **Request:**
 
@@ -1598,12 +1598,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Security Policy Settings > Allowlist URLs - Get all
 
-### GET {{ZIABase}}/security
+### GET {{ZIABaseUrl}}/security
 
 
 ## Security Policy Settings > Allowlist URLs - Update
 
-### PUT {{ZIABase}}/security
+### PUT {{ZIABaseUrl}}/security
 
 **Request:**
 
@@ -1619,7 +1619,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Security Policy Settings > Denylist URLs - Add incr
 
-### POST {{ZIABase}}/security/advanced/blacklistUrls
+### POST {{ZIABaseUrl}}/security/advanced/blacklistUrls
 
 **Request:**
 
@@ -1635,7 +1635,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Security Policy Settings > Denylist URLs - Delete incr
 
-### POST {{ZIABase}}/security/advanced/blacklistUrls
+### POST {{ZIABaseUrl}}/security/advanced/blacklistUrls
 
 **Request:**
 
@@ -1651,12 +1651,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Security Policy Settings > Denylist URLs - Get all
 
-### GET {{ZIABase}}/security/advanced
+### GET {{ZIABaseUrl}}/security/advanced
 
 
 ## Security Policy Settings > Denylist URLs - Update
 
-### PUT {{ZIABase}}/security/advanced
+### PUT {{ZIABaseUrl}}/security/advanced
 
 **Request:**
 
@@ -1672,7 +1672,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Shadow IT Report > Cloud Applications > Cloud Applications - Bulk update
 
-### PUT {{ZIABase}}/cloudApplications/bulkUpdate
+### PUT {{ZIABaseUrl}}/cloudApplications/bulkUpdate
 
 **Request:**
 
@@ -1693,17 +1693,17 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Shadow IT Report > Cloud Applications > Cloud Applications - Get all (lite)
 
-### GET {{ZIABase}}/cloudApplications/lite
+### GET {{ZIABaseUrl}}/cloudApplications/lite
 
 
 ## Shadow IT Report > Cloud Applications > Custom Tags - Get all
 
-### GET {{ZIABase}}/customTags
+### GET {{ZIABaseUrl}}/customTags
 
 
 ## Shadow IT Report > Shadow IT Report - Cloud applications
 
-### POST {{ZIABase}}/shadowIT/applications/export
+### POST {{ZIABaseUrl}}/shadowIT/applications/export
 
 **Request:**
 
@@ -1716,7 +1716,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Shadow IT Report > Shadow IT Report - Locations for a cloud application
 
-### POST {{ZIABase}}/shadowIT/applications/LOCATION/exportCsv
+### POST {{ZIABaseUrl}}/shadowIT/applications/LOCATION/exportCsv
 
 **Request:**
 
@@ -1732,7 +1732,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Shadow IT Report > Shadow IT Report - Users for a cloud application
 
-### POST {{ZIABase}}/shadowIT/applications/USER/exportCsv
+### POST {{ZIABaseUrl}}/shadowIT/applications/USER/exportCsv
 
 **Request:**
 
@@ -1748,17 +1748,17 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Traffic Forwarding > Data Center VIPs > Data Center VIPs - Get all
 
-### GET {{ZIABase}}/vips
+### GET {{ZIABaseUrl}}/vips
 
 
 ## Traffic Forwarding > Data Center VIPs > GRE Tunnels - Get available VIPs grouped by data center
 
-### GET {{ZIABase}}/vips/groupByDatacenter
+### GET {{ZIABaseUrl}}/vips/groupByDatacenter
 
 
 ## Traffic Forwarding > GRE Tunnels > GRE Tunnels - Add
 
-### POST {{ZIABase}}/greTunnels
+### POST {{ZIABaseUrl}}/greTunnels
 
 **Request:**
 
@@ -1782,37 +1782,37 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Traffic Forwarding > GRE Tunnels > GRE Tunnels - Delete
 
-### DELETE {{ZIABase}}/greTunnels/123
+### DELETE {{ZIABaseUrl}}/greTunnels/123
 
 
 ## Traffic Forwarding > GRE Tunnels > GRE Tunnels - Get 1
 
-### GET {{ZIABase}}/greTunnels/123
+### GET {{ZIABaseUrl}}/greTunnels/123
 
 
 ## Traffic Forwarding > GRE Tunnels > GRE Tunnels - Get all
 
-### GET {{ZIABase}}/greTunnels
+### GET {{ZIABaseUrl}}/greTunnels
 
 
 ## Traffic Forwarding > GRE Tunnels > GRE Tunnels - Get available IPs
 
-### GET {{ZIABase}}/staticIP
+### GET {{ZIABaseUrl}}/staticIP
 
 
 ## Traffic Forwarding > GRE Tunnels > GRE Tunnels - Get available VIPs
 
-### GET {{ZIABase}}/vips/recommendedList
+### GET {{ZIABaseUrl}}/vips/recommendedList
 
 
 ## Traffic Forwarding > GRE Tunnels > GRE Tunnels - Get available internal GRE IP ranges
 
-### GET {{ZIABase}}/greTunnels/availableInternalIpRanges
+### GET {{ZIABaseUrl}}/greTunnels/availableInternalIpRanges
 
 
 ## Traffic Forwarding > GRE Tunnels > GRE Tunnels - Update
 
-### PUT {{ZIABase}}/greTunnels/123
+### PUT {{ZIABaseUrl}}/greTunnels/123
 
 **Request:**
 
@@ -1837,37 +1837,37 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Traffic Forwarding > IPv6 > DNS64 Prefix - Get all
 
-### GET {{ZIABase}}/ipv6config/dns64prefix
+### GET {{ZIABaseUrl}}/ipv6config/dns64prefix
 
 
 ## Traffic Forwarding > IPv6 > IPv6 Configuration - Get details
 
-### GET {{ZIABase}}/ipv6config
+### GET {{ZIABaseUrl}}/ipv6config
 
 
 ## Traffic Forwarding > IPv6 > NAT64 Prefixes - Get all
 
-### GET {{ZIABase}}/ipv6config/nat64prefix
+### GET {{ZIABaseUrl}}/ipv6config/nat64prefix
 
 
 ## Traffic Forwarding > Static IP > City Geo Info - Get by IP address
 
-### GET {{ZIABase}}/region/byIPAddress/81.8.4.2
+### GET {{ZIABaseUrl}}/region/byIPAddress/81.8.4.2
 
 
 ## Traffic Forwarding > Static IP > City Geo Info - Get by city name
 
-### GET {{ZIABase}}/region/search
+### GET {{ZIABaseUrl}}/region/search
 
 
 ## Traffic Forwarding > Static IP > City Geo Info - Get by geo-coordinates
 
-### GET {{ZIABase}}/region/byGeoCoordinates
+### GET {{ZIABaseUrl}}/region/byGeoCoordinates
 
 
 ## Traffic Forwarding > Static IP > Static IPs - Add, Auto region
 
-### POST {{ZIABase}}/staticIP
+### POST {{ZIABaseUrl}}/staticIP
 
 **Request:**
 
@@ -1883,7 +1883,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Traffic Forwarding > Static IP > Static IPs - Add, Manual region
 
-### POST {{ZIABase}}/staticIP
+### POST {{ZIABaseUrl}}/staticIP
 
 **Request:**
 
@@ -1901,27 +1901,27 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Traffic Forwarding > Static IP > Static IPs - Delete
 
-### DELETE {{ZIABase}}/staticIP/123
+### DELETE {{ZIABaseUrl}}/staticIP/123
 
 
 ## Traffic Forwarding > Static IP > Static IPs - Get 1
 
-### GET {{ZIABase}}/staticIP/1234
+### GET {{ZIABaseUrl}}/staticIP/1234
 
 
 ## Traffic Forwarding > Static IP > Static IPs - Get all
 
-### GET {{ZIABase}}/staticIP
+### GET {{ZIABaseUrl}}/staticIP
 
 
 ## Traffic Forwarding > Static IP > Static IPs - Update
 
-### PUT {{ZIABase}}/staticIP/123
+### PUT {{ZIABaseUrl}}/staticIP/123
 
 
 ## Traffic Forwarding > Static IP > Static IPs - Validate
 
-### POST {{ZIABase}}/staticIP/validate
+### POST {{ZIABaseUrl}}/staticIP/validate
 
 **Request:**
 
@@ -1934,7 +1934,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Traffic Forwarding > VPN Credentials > VPN Credentials - Add
 
-### POST {{ZIABase}}/vpnCredentials
+### POST {{ZIABaseUrl}}/vpnCredentials
 
 **Request:**
 
@@ -1950,7 +1950,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Traffic Forwarding > VPN Credentials > VPN Credentials - Bulk delete
 
-### POST {{ZIABase}}/vpnCredentials/bulkDelete
+### POST {{ZIABaseUrl}}/vpnCredentials/bulkDelete
 
 **Request:**
 
@@ -1966,22 +1966,22 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Traffic Forwarding > VPN Credentials > VPN Credentials - Delete
 
-### DELETE {{ZIABase}}/vpnCredentials/1234
+### DELETE {{ZIABaseUrl}}/vpnCredentials/1234
 
 
 ## Traffic Forwarding > VPN Credentials > VPN Credentials - Get 1
 
-### GET {{ZIABase}}/vpnCredentials/1234
+### GET {{ZIABaseUrl}}/vpnCredentials/1234
 
 
 ## Traffic Forwarding > VPN Credentials > VPN Credentials - Get all
 
-### GET {{ZIABase}}/vpnCredentials
+### GET {{ZIABaseUrl}}/vpnCredentials
 
 
 ## Traffic Forwarding > VPN Credentials > VPN Credentials - Update
 
-### PUT {{ZIABase}}/vpnCredentials/1234
+### PUT {{ZIABaseUrl}}/vpnCredentials/1234
 
 **Request:**
 
@@ -1997,7 +1997,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## URL Categories > URL Categories - Add
 
-### POST {{ZIABase}}/urlCategories
+### POST {{ZIABaseUrl}}/urlCategories
 
 **Request:**
 
@@ -2018,7 +2018,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## URL Categories > URL Categories - Add URLs
 
-### PUT {{ZIABase}}/urlCategories/MUSIC
+### PUT {{ZIABaseUrl}}/urlCategories/MUSIC
 
 **Request:**
 
@@ -2037,37 +2037,37 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## URL Categories > URL Categories - Delete
 
-### DELETE {{ZIABase}}/urlCategories/CUSTOM_01
+### DELETE {{ZIABaseUrl}}/urlCategories/CUSTOM_01
 
 
 ## URL Categories > URL Categories - Get 1
 
-### GET {{ZIABase}}/urlCategories/MUSIC
+### GET {{ZIABaseUrl}}/urlCategories/MUSIC
 
 
 ## URL Categories > URL Categories - Get all
 
-### GET {{ZIABase}}/urlCategories
+### GET {{ZIABaseUrl}}/urlCategories
 
 
 ## URL Categories > URL Categories - Get all (lite)
 
-### GET {{ZIABase}}/urlCategories/lite
+### GET {{ZIABaseUrl}}/urlCategories/lite
 
 
 ## URL Categories > URL Categories - Get all custom
 
-### GET {{ZIABase}}/urlCategories
+### GET {{ZIABaseUrl}}/urlCategories
 
 
 ## URL Categories > URL Categories - Quota
 
-### GET {{ZIABase}}/urlCategories/urlQuota
+### GET {{ZIABaseUrl}}/urlCategories/urlQuota
 
 
 ## URL Categories > URL Categories - Remove URLs
 
-### PUT {{ZIABase}}/urlCategories/MUSIC
+### PUT {{ZIABaseUrl}}/urlCategories/MUSIC
 
 **Request:**
 
@@ -2086,7 +2086,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## URL Categories > URL Categories - Update
 
-### PUT {{ZIABase}}/urlCategories/CUSTOM_02
+### PUT {{ZIABaseUrl}}/urlCategories/CUSTOM_02
 
 **Request:**
 
@@ -2106,7 +2106,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## URL Categories > URL Lookup
 
-### POST {{ZIABase}}/urlLookup
+### POST {{ZIABaseUrl}}/urlLookup
 
 **Request:**
 
@@ -2136,27 +2136,27 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## URL Filtering Policies > URL Filtering Rules - Add
 
-### POST {{ZIABase}}/urlFilteringRules
+### POST {{ZIABaseUrl}}/urlFilteringRules
 
 
 ## URL Filtering Policies > URL Filtering Rules - Delete
 
-### DELETE {{ZIABase}}/urlFilteringRules/{{id}}
+### DELETE {{ZIABaseUrl}}/urlFilteringRules/{{id}}
 
 
 ## URL Filtering Policies > URL Filtering Rules - Get 1
 
-### GET {{ZIABase}}/urlFilteringRules/1234
+### GET {{ZIABaseUrl}}/urlFilteringRules/1234
 
 
 ## URL Filtering Policies > URL Filtering Rules - Get all
 
-### GET {{ZIABase}}/urlFilteringRules
+### GET {{ZIABaseUrl}}/urlFilteringRules
 
 
 ## URL Filtering Policies > URL Filtering Rules - Update
 
-### PUT {{ZIABase}}/urlFilteringRules/{{ruleid}}
+### PUT {{ZIABaseUrl}}/urlFilteringRules/{{ruleid}}
 
 **Request:**
 
@@ -2182,7 +2182,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## User Authentication Settings > Auth Bypass > Auth Bypass - Add to list
 
-### POST {{ZIABase}}/authSettings/exemptedUrls
+### POST {{ZIABaseUrl}}/authSettings/exemptedUrls
 
 **Request:**
 
@@ -2199,12 +2199,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## User Authentication Settings > Auth Bypass > Auth Bypass - Get all
 
-### GET {{ZIABase}}/authSettings/exemptedUrls
+### GET {{ZIABaseUrl}}/authSettings/exemptedUrls
 
 
 ## User Authentication Settings > Auth Bypass > Auth Bypass - Remove from list
 
-### POST {{ZIABase}}/authSettings/exemptedUrls
+### POST {{ZIABaseUrl}}/authSettings/exemptedUrls
 
 **Request:**
 
@@ -2220,7 +2220,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## User Authentication Settings > SSL Bypass > SSL Bypass - Add to list
 
-### POST {{ZIABase}}/sslSettings/exemptedUrls
+### POST {{ZIABaseUrl}}/sslSettings/exemptedUrls
 
 **Request:**
 
@@ -2237,12 +2237,12 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## User Authentication Settings > SSL Bypass > SSL Bypass - Get all
 
-### GET {{ZIABase}}/sslSettings/exemptedUrls
+### GET {{ZIABaseUrl}}/sslSettings/exemptedUrls
 
 
 ## User Authentication Settings > SSL Bypass > SSL Bypass - Remove from list
 
-### POST {{ZIABase}}/sslSettings/exemptedUrls
+### POST {{ZIABaseUrl}}/sslSettings/exemptedUrls
 
 **Request:**
 
@@ -2258,37 +2258,37 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## User Management > Auditors - Get all
 
-### GET {{ZIABase}}/users/auditors
+### GET {{ZIABaseUrl}}/users/auditors
 
 
 ## User Management > Departments - Get 1
 
-### GET {{ZIABase}}/departments/1234
+### GET {{ZIABaseUrl}}/departments/1234
 
 
 ## User Management > Departments - Get all
 
-### GET {{ZIABase}}/departments
+### GET {{ZIABaseUrl}}/departments
 
 
 ## User Management > Groups - Get 1
 
-### GET {{ZIABase}}/groups/1234
+### GET {{ZIABaseUrl}}/groups/1234
 
 
 ## User Management > Groups - Get all
 
-### GET {{ZIABase}}/groups
+### GET {{ZIABaseUrl}}/groups
 
 
 ## User Management > User References - Get all
 
-### GET {{ZIABase}}/users/references
+### GET {{ZIABaseUrl}}/users/references
 
 
 ## User Management > Users - Add
 
-### POST {{ZIABase}}/users
+### POST {{ZIABaseUrl}}/users
 
 **Request:**
 
@@ -2315,7 +2315,7 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## User Management > Users - Bulk delete
 
-### POST {{ZIABase}}/users/bulkDelete
+### POST {{ZIABaseUrl}}/users/bulkDelete
 
 **Request:**
 
@@ -2331,37 +2331,37 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## User Management > Users - Delete
 
-### DELETE {{ZIABase}}/users/1234
+### DELETE {{ZIABaseUrl}}/users/1234
 
 
 ## User Management > Users - Get 1
 
-### GET {{ZIABase}}/users/1234
+### GET {{ZIABaseUrl}}/users/1234
 
 
 ## User Management > Users - Get all
 
-### GET {{ZIABase}}/users
+### GET {{ZIABaseUrl}}/users
 
 
 ## User Management > Users - Search by department
 
-### GET {{ZIABase}}/users
+### GET {{ZIABaseUrl}}/users
 
 
 ## User Management > Users - Search by group
 
-### GET {{ZIABase}}/users
+### GET {{ZIABaseUrl}}/users
 
 
 ## User Management > Users - Search by name
 
-### GET {{ZIABase}}/users
+### GET {{ZIABaseUrl}}/users
 
 
 ## User Management > Users - Update
 
-### PUT {{ZIABase}}/users/1
+### PUT {{ZIABaseUrl}}/users/1
 
 **Request:**
 
@@ -2388,5 +2388,5 @@ Request and response examples extracted from the Zscaler OneAPI Postman collecti
 
 ## Workload Groups > Workload Groups - Get all
 
-### GET {{ZIABase}}/workloadGroups
+### GET {{ZIABaseUrl}}/workloadGroups
 

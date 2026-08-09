@@ -66,9 +66,10 @@ SDKs: Python `_zia_base_endpoint = "/zia/api/v1"` +
 `/workloadGroups` (`vendor/zscaler-sdk-python/zscaler/zia/workload_groups.py:31,69`)
 and Go `const workloadGroupsEndpoint = "/zia/api/v1/workloadGroups"`
 (`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:15`).
-The legacy Postman/OneAPI collection roots the same resource at
-`{{ZIABase}}/workloadGroups` (different, pre-OneAPI base) and carries only a
-GET-all read example with no request-body schema
+The current OneAPI Postman collection roots the same resource at
+`{{ZIABaseUrl}}/workloadGroups`; `ZIABaseUrl` expands to
+`{{oneAPIBaseUrl}}/zia/api/v1`. The collection carries only a GET-all read
+example with no request-body schema
 (`vendor/zscaler-api-specs/oneapi-postman-collection.json:9943-9982`) — so
 Postman confirms the resource exists but is **not** a useful source for the
 write/expression schema; the SDK remains source of truth there.

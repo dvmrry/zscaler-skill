@@ -435,7 +435,7 @@ Public Docusaurus doc site. **No login wall.** A Sonnet capture agent did a thor
   - `api-reference-zpa-from-postman.md` — **only ZPA documentation Zscaler publishes; web pages are absent**
   - `api-reference-index.md` — synthesized API reference structure
   - `tools-and-sdks.md` + `tools-postman-collection.md` + `postman-collection-note.md`
-- **Postman collection vendored** at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (14.14 MB, Postman v2.1.0). 7 products × 90 controllers total. ZPA's 36 controllers are the most extensive — and the only ZPA API doc Zscaler publishes anywhere on automate.zscaler.com.
+- **Postman collection vendored** at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (about 14.51 MiB, Postman v2.1.0). The current snapshot has 9 top-level product/service folders, 93 direct child folders, and 716 requests; ZPA's 36 direct children are the most extensive. The collection remains the only vendor-published machine-readable ZPA API reference currently captured by this repo.
 - **No public OpenAPI / Swagger spec exists.** Confirmed via thorough sweep — no `/swagger.json`, `/openapi.yaml`, or downloadable spec link. API reference data lives in Docusaurus JS bundles, not extractable as standard OpenAPI. Zscaler's chatbot was correct to be ambiguous.
 
 **Synthesis output:**

@@ -52,10 +52,10 @@ module. See [`tooling.md`](tooling.md).
 
 **What it answers:** "Is this tenant on a commercial cloud, a gov cloud, or unknown?"
 
-**Why agents need this:** gov clouds no longer imply a single auth answer. Current Go/Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, ZIA Terraform v4.7.25+ documents the same path, and ZPA Terraform `GOV` / `GOVUS` still requires legacy auth (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:21-28`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:34`). Pick the wrong path → 401 on every call.
+**Why agents need this:** gov clouds no longer imply a single auth answer. Current Go/Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`; ZIA Terraform v4.7.25+ and ZPA Terraform v4.4.6+ document the same lowercase OneAPI values (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133`). Uppercase ZPA `GOV` / `GOVUS` are legacy-client values (`vendor/terraform-provider-zpa/docs/index.md:214-218`). Routing support does not prove that a government tenant is entitled or has a ZIdentity API client configured. Agents must therefore confirm the tenant's auth path instead of inferring it from `gov` / `govus` alone.
 
 ```python
-GOV_CLOUDS = frozenset({"zscalergov", "zscalerten", "GOV", "GOVUS"})
+GOV_CLOUDS = frozenset({"gov", "govus", "zscalergov", "zscalerten", "GOV", "GOVUS"})
 COMMERCIAL_CLOUDS = frozenset({
     "zscaler.net", "zscalertwo.net", "zscalerthree.net",
     "zscloud.net", "zscalerbeta.net", "zscalerone.net",
@@ -91,6 +91,9 @@ def detect_cloud(env=None, admin_url=None):
 ```python
 detect_cloud(env={"ZSCALER_CLOUD": "zscalergov"})
 # → ('gov', {'cloud': 'zscalergov', 'source': 'env'})
+
+detect_cloud(env={"ZSCALER_CLOUD": "gov"})
+# → ('gov', {'cloud': 'gov', 'source': 'env'})
 
 detect_cloud(admin_url="admin.zscalerten.net")
 # → ('gov', {'admin_url': 'admin.zscalerten.net', 'source': 'url'})
