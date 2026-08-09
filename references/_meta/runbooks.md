@@ -230,10 +230,11 @@ Start
 │           Header: x-zscaler-mode: read-only is the explicit signal.
 │           See oneapi.md § Read-only mode.
 │
-├─ Cloud Connector activation needs a force?
-│  └─ POST /ztw/api/v1/ecAdminActivateStatus/forceActivate — but treat this as last-resort.
+├─ Cloud Connector forced activation was explicitly selected?
+│  └─ PUT /ztw/api/v1/ecAdminActivateStatus/forcedActivate exists, but captured static
+│           sources do not say it clears a lock or bypasses validation. Confirm the intended
+│           use with Zscaler; do not substitute it for coordination on a 409.
 │           See references/cloud-connector/api.md § Activation.
-│           ZIA only has /activate (no forceActivate) — that's a CBC-specific escape hatch.
 │
 └─ Activation just slow → typical complete time is 1-3 minutes. Don't poll faster than every 30s.
 ```
@@ -397,8 +398,8 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 
 | Product | Reversibility model | Rollback window | Pattern |
 |---|---|---|---|
-| **ZIA** | **Staged via activation gate** (changes are saved-but-not-live until activate) | Until you call `/zia/api/v1/status/activate` | Make changes, snapshot, **revert before activating** if needed. The activation gate IS the rollback window. |
-| **ZTW (Cloud Connector)** | Staged (ZIA-style activation gate, plus `forceActivate` escape hatch) | Until `activate` (or `forceActivate`) | Same as ZIA. `forceActivate` is last-resort and bypasses validation — see [`.../cloud-connector/api.md § Activation`](../cloud-connector/api.md). |
+| **ZIA** | **Staged via activation gate** (changes are saved-but-not-live until activation) | Until explicit activation or the API/admin session ends (timeout 5–20 minutes, default 5) | Make changes, snapshot, and **revert before either activation boundary** if needed. The pending window is bounded. |
+| **ZTW (Cloud Connector)** | Staged (ZIA-style activation gate, plus a separate `forcedActivate` operation) | Until normal or forced activation | Same as ZIA for staged changes. Captured static sources do not define validation-bypass or recovery semantics for `forcedActivate`; confirm intent before use — see [`.../cloud-connector/api.md § Activation`](../cloud-connector/api.md). |
 | **ZPA** | **Propagate on write** (no activation gate; changes are live immediately) | None — change is live as soon as the API returns 200 | **Snapshot-before-change**, manual revert. Atomic operations only safe at the per-resource level. |
 | **ZCC** | Propagate on write (web policy / forwarding profile changes apply on next ZCC agent check-in, but the API write is immediate) | None for the API; agent re-pulls on next check-in (Forwarding Profile / Trusted Network changes) or logout/restart (App Profile / Web Policy changes) | Snapshot-before-change. Plan for grace window before agents notice. |
 | **ZBI** | Propagate on write | None | Snapshot-before-change. |
@@ -410,7 +411,7 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 
 ### Pattern: ZIA staged-and-revert (the activation-gate workflow)
 
-ZIA's activation gate is a **rollback window built into the platform**. Use it deliberately.
+ZIA's activation gate provides a bounded rollback window, not an indefinite one. Pending changes autoactivate when the API/admin session ends; the API-session timeout is 5–20 minutes and defaults to 5 (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`). Revert within the same live session, and raise the timeout to 20 before a large planned apply.
 
 ```python
 # 1. Snapshot _data/snapshot/ before the change so you have a known-good baseline
@@ -435,13 +436,13 @@ if verified.action != "BLOCK":
     _, _, err = client.zia.url_filtering_rules.update_rule(rule_id=42, **original_rule.as_dict())
     raise RuntimeError("Sanity check failed; reverted before activation")
 
-# 5. Activate (or NOT — if you abort here, the staged changes are still pending
-#    and will activate on the NEXT person's apply. Be explicit.)
+# 5. Activate deliberately. If you abort, revert before this session ends;
+#    otherwise ZIA can autoactivate the staged changes at the session boundary.
 _, _, err = client.zia.activation.activate()
 if err: raise RuntimeError(f"activate: {err}")
 ```
 
-**Important** — staging is not isolation. **Anyone with admin access can activate your pending changes**, including a different automation script or a human admin. If you want to abort cleanly, you must revert the staged changes (re-PUT the original values) before walking away. There's no "drop my pending changes without activating" API.
+**Important** — staging is not isolation. **Anyone with admin access can activate your pending changes**, including a different automation script or a human admin, and the platform can autoactivate them when your session ends. If you want to abort cleanly, revert the staged changes (re-PUT the original values) before the session boundary. There's no "drop my pending changes without activating" API.
 
 ### Pattern: snapshot-before-change for propagate-on-write products
 

@@ -156,7 +156,7 @@ This is the product-grade BCP story. **Distinct from ZCC's fail-open behavior**,
 
 ### Activation mechanism
 
-ZIA config changes are **staged pending** until activation. Full mechanics in [`./activation.md`](./activation.md); recapping the API surface here:
+ZIA config changes are **staged pending** until activation. An explicit call is the deliberate path, but session end can also autoactivate pending changes; full mechanics are in [`./activation.md`](./activation.md). The explicit API surface is:
 
 | Method | Path | Purpose |
 |---|---|---|

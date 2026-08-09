@@ -13,6 +13,13 @@ sources:
   - vendor/terraform-provider-ztc/docs/resources/
   - vendor/terraform-provider-ztc/docs/data-sources/
   - vendor/terraform-provider-ztc/README.md
+  - vendor/terraform-provider-ztc/ztc/config.go
+  - vendor/terraform-provider-ztc/ztc/provider.go
+  - vendor/zscaler-sdk-go/zscaler/oneapiclient.go
+  - vendor/zscaler-terraformer/README.md
+  - vendor/zscaler-terraformer/cmd/root.go
+  - vendor/zscaler-terraform-skills/skills/best-practices-skill/references/import-and-brownfield.md
+  - vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md
 author-status: draft
 ---
 
@@ -37,7 +44,7 @@ Two auth frameworks are supported, controlled by `use_legacy_client`.
 
 #### OneAPI (recommended for new deployments)
 
-Uses Zscaler OAuth 2.0 Client Credentials via ZIdentity. Not supported for `zscalergov` and `zscalerten` clouds.
+Uses Zscaler OAuth 2.0 Client Credentials via ZIdentity. **FedRAMP support is not settled by the current static sources.** The provider accepts an unrestricted `zscaler_cloud` string and passes it to the Go SDK, whose shared OneAPI client maps `gov` and `govus` to dedicated government identity and API gateways (`vendor/terraform-provider-ztc/ztc/provider.go:44-49`; `vendor/terraform-provider-ztc/ztc/config.go:350-372`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`). However, the current ZTC provider is v0.2.0, its generated docs claim FedRAMP support only at the impossible-for-this-provider threshold `>=v4.7.25`, and Terraform Skills v0.3.1 says no released ZTC version supports OneAPI FedRAMP (`vendor/terraform-provider-ztc/CHANGELOG.md:3-12`; `vendor/terraform-provider-ztc/docs/index.md:143-152`; `vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md:5-16`). Those sources prove client-side route construction, not released/live ZTW acceptance. Keep a production government tenant on the legacy path unless a current ZTC release note, vendor confirmation, or tenant test establishes OneAPI acceptance; see [clarification `cloud-connector-19`](../_meta/clarifications.md#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-fedramp-behavior).
 
 ```hcl
 provider "ztc" {
@@ -54,7 +61,7 @@ provider "ztc" {
 | `client_secret` | `ZSCALER_CLIENT_SECRET` | Conflicts with `private_key` |
 | `private_key` | `ZSCALER_PRIVATE_KEY` | PKCS#1 or PKCS#8 unencrypted PEM; conflicts with `client_secret` |
 | `vanity_domain` | `ZSCALER_VANITY_DOMAIN` | Tenant's vanity domain |
-| `zscaler_cloud` | `ZSCALER_CLOUD` | Cloud instance name, e.g., `beta` |
+| `zscaler_cloud` | `ZSCALER_CLOUD` | OneAPI environment selector. `beta` is documented; `gov` / `govus` are accepted by the shared SDK route builder, but released/live ZTW acceptance remains open as described above. |
 
 #### Legacy API (backwards compatibility, v4.0.0+)
 
@@ -80,7 +87,7 @@ provider "ztc" {
 
 | Argument | Default | Notes |
 |---|---|---|
-| `parallelism` | 1 | Worker pool size for non-bulk operations |
+| `parallelism` | 1 | Effectively inert at the current pin: the provider reads it and sizes a global semaphore, but no resource acquires or releases that semaphore (`vendor/terraform-provider-ztc/ztc/config.go:146-152`; `vendor/terraform-provider-ztc/ztc/provider.go:193-197`). Do not use it as a throughput control. |
 | `max_retries` | 5 | Retries before returning an error |
 | `request_timeout` | 0 (unlimited) | Per-request timeout in seconds; max 300 |
 | `http_proxy` | — | Custom proxy URL; also `ZSCALER_HTTP_PROXY` |
@@ -549,13 +556,19 @@ The `ztc_activation_status` data source (read-only) exposes current status witho
 
 ## Import
 
-All resources support import via Zscaler-Terraformer (`github.com/zscaler/zscaler-terraformer`) or standard `terraform import`:
+Zscaler-Terraformer v2.1.21 supports generate/import for **14 of the provider's 16 managed resources**. Its executable inventory and README list the same 14 ZTC types (`vendor/zscaler-terraformer/cmd/root.go:170-183`; `vendor/zscaler-terraformer/README.md:884-911`); compared with the provider's 16-resource map, `ztc_activation_status` and `ztc_dns_gateway` are absent (`vendor/terraform-provider-ztc/ztc/provider.go:108-125`). Use the tool's own inventory as the capability check:
+
+```shell
+zscaler-terraformer --supported-resources="ztc"
+```
+
+The Terraform Skills v0.3.1 brownfield guide currently says ZTC has no Terraformer support (`vendor/zscaler-terraform-skills/skills/best-practices-skill/references/import-and-brownfield.md:37-45`); that table conflicts with the executable and README inventories above. Prefer the current Terraformer source for tool capability. For an unlisted resource, use standard `terraform import` where that provider resource implements import:
 
 ```shell
 terraform import ztc_<resource_type>.<local_name> <resource_id_or_name>
 ```
 
-Both numeric ID and name are accepted as the import identifier for all resources.
+Do not assume generated HCL and state will produce an empty first plan. Terraformer's own limitations say generated HCL may require manual repair and unsupported resources should use direct import (`vendor/zscaler-terraformer/README.md:588-598`). Review the provider's resource-specific import documentation for accepted identifiers rather than assuming every resource accepts both ID and name.
 
 ---
 

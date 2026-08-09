@@ -17,6 +17,7 @@ sources:
   - "vendor/zscaler-help/automate-zscaler/api-authentication-overview.md"
   - "vendor/zscaler-help/automate-zscaler/postman-collection-note.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
   - "vendor/zscaler-help/legacy-api-authentication.md"
   - "vendor/zscaler-help/legacy-getting-started-zia-api.md"
   - "vendor/zscaler-help/legacy-getting-started-zpa-api.md"
@@ -398,14 +399,14 @@ Both the `x-zscaler-mode` header and the `STATE_READONLY` code are reliable disc
 
 ## Activation gate (ZIA + Cloud & Branch Connector only)
 
-Source: `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`.
+Source: `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`; `vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:2-14`.
 
 See also: `references/shared/activation.md`.
 
-Configuration changes for ZIA and CBC do not take effect until **explicitly activated**. The relevant endpoints:
+Configuration changes for ZIA and CBC are staged behind an activation gate. The explicit activation endpoints are below; ZIA also autoactivates pending changes when an API/admin session ends, so an explicit call is not the only publication trigger (see `references/shared/activation.md`):
 
 - ZIA: `POST /zia/api/v1/status/activate`
-- CBC: `POST /ztw/api/v1/ecAdminActivateStatus/activate`
+- CBC: `PUT /ztw/api/v1/ecAdminActivateStatus/activate`
 
 ZPA, ZDX, ZIdentity, ZCC, and BI **do not have an activation gate** — config changes apply immediately on the underlying write.
 

@@ -21,6 +21,7 @@ sources:
   - "vendor/zscaler-help/legacy-api-response-codes-and-error-messages.md"
   - "vendor/zscaler-help/legacy-understanding-rate-limiting.md"
   - "vendor/zscaler-help/legacy-activation.md"
+  - "vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md"
   - "vendor/zscaler-help/legacy-api-authentication-zdx.md"
   - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
   - "vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.md"
@@ -169,9 +170,9 @@ PingFederate, Okta, and Microsoft Entra ID. ZIdentity is **not** used for this f
 
 ---
 
-## ZIA activation — required after write operations
+## ZIA activation gate after write operations
 
-ZIA configuration changes do not take effect until explicitly activated. This applies to all write operations (POST, PUT, DELETE) against most configuration endpoints.
+ZIA configuration changes are staged behind an activation gate after writes to most configuration endpoints. An explicit activation call publishes pending changes deliberately, but ZIA also autoactivates when an API/admin session ends; the API-session timeout is 5–20 minutes and defaults to 5 (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`). Do not treat the pending window as indefinite or assume that omitting an activation call prevents publication.
 
 ### `GET /status` — check activation status
 

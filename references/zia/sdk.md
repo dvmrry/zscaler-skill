@@ -31,6 +31,7 @@ sources:
   - vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go
   - vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go
   - vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go
+  - vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md
   - vendor/zscaler-sdk-python/zscaler/zia/dns_application_groups.py
   - vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py
   - vendor/zscaler-sdk-python/zscaler/zia/endpoint_custom_apps.py
@@ -1811,7 +1812,7 @@ Pagination remains a cross-SDK difference rather than a coverage gap: Python's n
 
 ### Activation lifecycle
 
-ZIA uses a staged-commit model. Every write operation queues a change; none take effect until activation is called. The `ActivationAPI.activate()` method commits all queued changes. When using `ZscalerClient` as a context manager (`with` statement), deauthentication at context exit triggers implicit activation.
+ZIA uses a staged-commit model. Configuration writes queue changes until an activation event. The `ActivationAPI.activate()` method commits all queued changes deliberately; using `ZscalerClient` as a context manager triggers implicit activation when the session exits. The platform also autoactivates pending changes when an API/admin session ends or reaches its configured timeout, so omitting an explicit SDK call does not preserve pending state indefinitely (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`).
 
 For scripts that must make changes without a context manager:
 

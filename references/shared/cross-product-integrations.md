@@ -270,7 +270,7 @@ See [`./cloud-architecture.md § Feed Central`](./cloud-architecture.md).
 
 ### Activation gate (ZIA-only) → propagation model
 
-**ZIA has an activation gate; ZPA does not.** ZIA config changes are staged pending until `POST /status/activate`. ZPA changes propagate on write. See [`./activation.md`](./activation.md).
+**ZIA has an activation gate; ZPA does not.** ZIA config changes are staged until activation; `POST /status/activate` publishes deliberately, while session end can also autoactivate pending changes. ZPA changes propagate on write. See [`./activation.md`](./activation.md).
 
 **Cross-product implication**: an admin who edits a ZIA rule and a ZPA rule in a single session sees the ZPA change take effect immediately and the ZIA change take effect only after activation. A skill answer that says "I just changed the rule, why isn't it working" needs to branch on product — check activation for ZIA, check rule evaluation for ZPA.
 
