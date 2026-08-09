@@ -11,7 +11,7 @@ verified-against:
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -57,5 +57,5 @@ author-status: draft
 | Python App Connector Config exposes get/create/delete methods under `/ztb/api/v3/appconnector/config`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/app_connector_config.py:24-35`, `:41-76`, `:78-148` |
 | Python Site2Site VPN exposes hub list and S2S get/create/update operations under `/ztb/api/v3/CloudGateway`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/site2site_vpn.py:32-40`, `:46-192` |
 | Go SDK Branch Connector files are adjacent ZPA services, not ZTB product service layers. | `overview.md` | `vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector/branch_connector.go:1-16`; `vendor/zscaler-sdk-go/zscaler/zpa/services/branch_connector_group/branch_connector_group.go:11-18` |
-| No ZTB product Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees, and no Go ZTB product service was found. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across the Go SDK, Terraform, Ansible, and Postman families; MCP portion rechecked 2026-07-30 against v0.14.0 for Zero Trust Branch / ZTB product surface. |
+| No ZTB product Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees, and no Go ZTB product service was found. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across the Go SDK, Terraform, Ansible, and Postman families; MCP portion rechecked 2026-07-30 against v0.15.0 for Zero Trust Branch / ZTB product surface. |
 | ZTB Python SDK auth-mode divergence and non-Python coverage remain unresolved. | `overview.md`, `clarifications.md` | OPEN QUESTION -> `references/_meta/clarifications.md#zero-trust-branch-01-ztb-python-sdk-auth-mode-divergence-and-non-python-coverage` |

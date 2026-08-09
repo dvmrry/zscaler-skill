@@ -5,7 +5,7 @@ title: "ZEASM Findings — field table, drill-down levels, and scoring-field cav
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 source-tier: code
 sources:
@@ -20,7 +20,7 @@ author-status: draft
 
 # ZEASM Findings — field table, drill-down levels, and scoring-field caveats
 
-> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.14.0 wraps the Python client with four read-only finding tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:68-93`, `:96-183`). The list tool unwraps the SDK collection's `results`, and all four tools return the full SDK model records through the shared record-preserving shapers; these are SDK-model records, not raw HTTP responses (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). There is no Go field column to compare. Several finding fields are declared by attribute name only, with no value enumeration or docstring in source; those allowed-value sets are recorded as unverified under [Open questions](#open-questions), not guessed.
+> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.15.0 wraps the Python client with four read-only finding tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:68-93`, `:96-183`). The list tool unwraps the SDK collection's `results`, and all four tools return the full SDK model records through the shared record-preserving shapers; these are SDK-model records, not raw HTTP responses (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). There is no Go field column to compare. Several finding fields are declared by attribute name only, with no value enumeration or docstring in source; those allowed-value sets are recorded as unverified under [Open questions](#open-questions), not guessed.
 
 ## Endpoint
 

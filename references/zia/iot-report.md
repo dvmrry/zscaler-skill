@@ -5,7 +5,7 @@ title: "ZIA IoT Report — device visibility, classification, policy"
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 source-tier: doc
 sources:
@@ -266,7 +266,7 @@ if err is None:
 zins_get_iot_device_stats(limit=100)
 ```
 
-MCP v0.14.0 accepts only `limit` (1–1000) and returns the full SDK stats record, including total/IoT/user/server/unclassified counts plus per-classification entries (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/iot.py:30-41`, `:56-82`). The tool is registered against the `zins` service and calls `client.zins.iot.get_device_stats(limit=...)` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/iot.py:56-82`). Its `shape_one` path preserves all SDK-model attributes; it does not expose a raw HTTP response (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-99`). The separate credential requirement remains grounded in the Analytics API guide: OneAPI credentials use the `Zscaler Insights Reader` role (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:27`).
+MCP v0.15.0 accepts only `limit` (1–1000) and returns the full SDK stats record, including total/IoT/user/server/unclassified counts plus per-classification entries (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/iot.py:30-41`, `:56-82`). The tool is registered against the `zins` service and calls `client.zins.iot.get_device_stats(limit=...)` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/iot.py:54-80`). Its `shape_one` path preserves all SDK-model attributes; it does not expose a raw HTTP response (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-99`). The separate credential requirement remains grounded in the Analytics API guide: OneAPI credentials use the `Zscaler Insights Reader` role (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:27`).
 
 ---
 

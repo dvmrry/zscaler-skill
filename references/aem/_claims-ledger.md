@@ -11,7 +11,7 @@ verified-against:
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
@@ -34,5 +34,5 @@ author-status: draft
 | Captured outegrations include Jira, ServiceNow, and Azure DevOps with webhooks. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.md:59-63` |
 | AEM marketing positions the product around a unified asset "golden record", coverage-gap analysis, CMDB health, remediation actions, and reporting/analytics. | `overview.md` | `vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:20-49` |
 | AEM informs Risk360 and UVM by improving asset context and risk quantification. | `overview.md` | `vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:55-59` |
-| No product-specific AEM Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across the Go/Python SDK, Terraform, Ansible, and Postman families; MCP portion rechecked 2026-07-30 against v0.14.0 for AEM / Asset Exposure Management / CAASM. |
+| No product-specific AEM Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across the Go/Python SDK, Terraform, Ansible, and Postman families; MCP portion rechecked 2026-07-30 against v0.15.0 for AEM / Asset Exposure Management / CAASM. |
 | AEM report/API/AnySource endpoint details are unresolved. | `overview.md`, `clarifications.md` | OPEN QUESTION -> `references/_meta/clarifications.md#aem-01-aem-anysource-report-and-api-endpoint-details` |

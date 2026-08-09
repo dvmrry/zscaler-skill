@@ -4,6 +4,8 @@ topic: "zms-overview"
 title: "ZMS — Zscaler Microsegmentation (workload east-west)"
 content-type: reasoning
 last-verified: "2026-06-14"
+verified-against:
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 source-tier: doc
 sources:

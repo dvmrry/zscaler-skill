@@ -5,7 +5,7 @@ title: "ZIA Workload Groups — policy-scoping primitive (sourced from SDK / TF;
 content-type: reasoning
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 source-tier: code
 sources:
@@ -196,20 +196,20 @@ param** on `/workloadGroups`. To resolve a group by name you list all groups and
 filter locally. The Go SDK's `GetByName` does exactly this — it calls
 `common.ReadAllPages` then filters in Go with `strings.EqualFold`
 (`vendor/zscaler-sdk-go/zscaler/zia/services/workloadgroups/workloadgroups.go:85-97`),
-which also makes the match **case-insensitive**. MCP v0.14.0's resource input
+which also makes the match **case-insensitive**. MCP v0.15.0's resource input
 model accepts `page` and `page_size`, forwards those pagination keys, and has no
 server-side name/search field (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py:22-24`, `:43-61`).
 The registry nevertheless marks collection-returning tools as query-capable, and
 the bridge adds an optional JMESPath `query` argument that filters/projects the
 rows after the API call (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:99-116`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:220-247`, `:295-301`).
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:248-279`, `:420-439`).
 The current lookup workflow's recommendation
 `zia_list_workload_groups(query="[?name=='...']")`
 (`vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md:55,176`),
 therefore matches the executable bridge, but it filters only the rows returned by
 the API call; it does not add a server-side name lookup or automatic all-page scan.
 Without `query`, the tool returns each full SDK model record through `shape_many`,
-not a curated subset or raw HTTP response (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py:43-61`;
+not a curated subset or raw HTTP response (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/workload_groups.py:41-59`;
 `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`).
 
 TF `zia_workload_groups` resource: supports create, read, update, delete, and

@@ -5,7 +5,7 @@ title: "ZIA SSL/TLS inspection — pipeline position and policy semantics"
 content-type: reasoning
 last-verified: "2026-07-26"
 verified-against:
-  vendor/zscaler-mcp-server: 1872e3bdad259457f9261801841b4a8d3f4a6074
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
 source-tier: doc
 sources:
@@ -178,7 +178,7 @@ the Python SDK constructs an `Action` model and emits it on requests
 `:123-132`), and Terraform models `action` and its nested configuration as
 lists/objects (`vendor/terraform-provider-zia/zia/resource_zia_ssl_inspection_rules.go:223-276`).
 
-**MCP automation surface (v0.14.0).** The list and get tools convert the SDK
+**MCP automation surface (v0.15.0).** The list and get tools convert the SDK
 models with `as_dict()` and return the full SDK-modeled records, so a nested
 `action`—including sub-action blocks—is retained whenever the SDK supplies it
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ssl_inspection.py:89-118`;
@@ -198,8 +198,8 @@ Because it is a collection tool, the MCP bridge adds an optional `query`
 parameter and applies that JMESPath expression after the SDK call; omitting it
 returns the full records
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:98-116`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:183-247`,
-`:272-301`; `vendor/zscaler-mcp-server/src/zscaler_mcp/common/jmespath_utils.py:25-55`).
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:248-279`,
+`:420-439`; `vendor/zscaler-mcp-server/src/zscaler_mcp/common/jmespath_utils.py:25-55`).
 
 Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The Go SDK's `validateSSLInspectionRule()` (`vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:234`) enforces per-type constraints:
 

@@ -4,6 +4,8 @@ topic: "zms-index"
 title: "ZMS reference hub"
 content-type: reference
 last-verified: "2026-06-14"
+verified-against:
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 sources:
   - "vendor/zscaler-help/about-application-catalog-microsegmentation.md"

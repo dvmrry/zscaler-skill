@@ -4,6 +4,8 @@ topic: "zia-sandbox"
 title: "ZIA Sandbox — what gets analyzed, what blocks, and why"
 content-type: reasoning
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 source-tier: mixed
 sources:
