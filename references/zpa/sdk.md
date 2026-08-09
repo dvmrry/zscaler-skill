@@ -837,7 +837,7 @@ Manages time-bounded access approvals for PRA sessions.
 |---|---|---|
 | `list_approval` | `(query_params=None) -> APIResult[List[PrivilegedRemoteAccessApproval]]` | `sort_by`, `sort_dir` (`ASC`\|`DESC`) supported |
 | `get_approval` | `(approval_id: str, query_params=None) -> APIResult[PrivilegedRemoteAccessApproval]` | |
-| `add_approval` | `(**kwargs) -> APIResult[PrivilegedRemoteAccessApproval]` | Uses `validate_and_convert_times` for time fields; v1.9.34 only serializes `workingHours` when `working_hours` is explicitly provided (`vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst:9-20`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:193-220`) |
+| `add_approval` | `(**kwargs) -> APIResult[PrivilegedRemoteAccessApproval]` | Uses `validate_and_convert_times` for time fields; v1.9.34 only serializes `workingHours` when `working_hours` is explicitly provided (`vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst:44-55`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:193-220`) |
 | `update_approval` | `(approval_id: str, **kwargs) -> APIResult[PrivilegedRemoteAccessApproval]` | Same `working_hours` behavior as create (`vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:285-312`) |
 | `delete_approval` | `(approval_id: str, microtenant_id=None) -> APIResult[None]` | |
 
@@ -1823,8 +1823,9 @@ This controller is read-only in the current Python surface:
 | `get_set_summary_stats` | `(policy_type: str, query_params=None)` — GET `/policyGroupSet/policyType/{policyType}/summaryStats` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:267-313`). |
 | `get_set` | `(group_set_id: str, query_params=None)` — GET `/policyGroupSet/{groupSetId}` (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py:315-340`). |
 
-Python v1.9.39 registers all three controllers on unified `ZPAService`
-(`vendor/zscaler-sdk-python/pyproject.toml:1-4`;
+Python v1.9.39 introduced all three controllers; they remain registered on the
+current unified `ZPAService`
+(`vendor/zscaler-sdk-python/CHANGELOG.md:115-139`;
 `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:504-517`). The equivalent
 legacy properties remain commented out, so these accessors are unified-client
 only (`vendor/zscaler-sdk-python/zscaler/zpa/legacy.py:1070-1098`).

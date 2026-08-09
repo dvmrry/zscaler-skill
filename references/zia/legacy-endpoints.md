@@ -5,13 +5,14 @@ title: "ZIA legacy API endpoint reference"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/**"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/security_ueba_alerts/alert_definitions/alert_definitions.go"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/zscaler/zia/zia_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
@@ -248,9 +249,9 @@ Complete endpoint surface for the ZIA legacy API. Extracted from hardcoded paths
 | `GET /zia/api/v1/webDlpGlobalOptions` | Read tenant-wide Web DLP advanced settings (`vendor/zscaler-sdk-python/zscaler/zia/web_dlp_global_options.py:37-80`) |
 | `PUT /zia/api/v1/webDlpGlobalOptions` | Update tenant-wide Web DLP advanced settings (`vendor/zscaler-sdk-python/zscaler/zia/web_dlp_global_options.py:82-112`) |
 
-Endpoint DLP additions in Go v3.8.41 and Python v1.9.39
-(`vendor/zscaler-sdk-go/CHANGELOG.md:60-61,71-121`;
-`vendor/zscaler-sdk-python/pyproject.toml:1-4`):
+Endpoint DLP additions introduced in Go v3.8.41 and Python v1.9.39
+(`vendor/zscaler-sdk-go/CHANGELOG.md:77-138`;
+`vendor/zscaler-sdk-python/CHANGELOG.md:32-113`):
 
 | Endpoint | Notes |
 |---|---|
@@ -568,7 +569,7 @@ Read-only geo/IP-to-region resolvers (city, state, country, coordinates).
 | `PUT /zia/api/v1/urlFilteringRules/{id}` | Update |
 | `DELETE /zia/api/v1/urlFilteringRules/{id}` | Delete |
 
-Go `GetAll` aggregates all pages with `ReadAllPages`; the current Python method sends one caller-selected `page`/`page_size` request (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:314-319`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:55-101`).
+Go `GetAll` aggregates all pages with `ReadAllPages`; the current Python method sends one caller-selected `page`/`page_size` request (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:333-338`; `vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:55-101`).
 
 ## User Management
 

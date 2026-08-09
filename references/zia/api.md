@@ -57,7 +57,7 @@ Environment variables (per SDK README):
 | `ZSCALER_CLOUD` | Cloud name for the API base URL. Optional; omit for default commercial. Current Python SDK releases use `gov` / `govus` for FedRAMP OneAPI gateways, not the commercial `api.<cloud>.zsapi.net` pattern. |
 | `ZSCALER_PARTNER_ID` | Optional partner ID; sets `x-partner-id` header |
 
-Government-cloud OneAPI support is client/version-specific. The vendored Python SDK v1.9.32+ models `cloud=gov` and `cloud=govus` by routing OAuth to `zidentitygov.net` / `zidentitygov.us` and API calls to `api.zscalergov.net` / `api.zscalergov.us` (`vendor/zscaler-sdk-python/CHANGELOG.md:21`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:495-499`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:176-185`). Do not extrapolate that to older SDKs, Terraform ZPA `GOV` / `GOVUS`, or tenants without ZIdentity.
+Government-cloud OneAPI support is client/version-specific. The vendored Python SDK v1.9.32+ models `cloud=gov` and `cloud=govus` by routing OAuth to `zidentitygov.net` / `zidentitygov.us` and API calls to `api.zscalergov.net` / `api.zscalergov.us` (`vendor/zscaler-sdk-python/CHANGELOG.md:353-361`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:495-499`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:176-185`). Do not extrapolate that to older SDKs, Terraform ZPA `GOV` / `GOVUS`, or tenants without ZIdentity.
 
 Python client instantiation:
 
@@ -326,9 +326,9 @@ Separate resource from Advanced Policy Settings (the console page is different t
 
 **SDK-level findings** (`zscaler/zia/models/url_filter_cloud_app_settings.py`):
 
-- **UCaaS one-click toggles**: `enable_zoom`, `enable_logmein`, `enable_ringcentral`, `enable_webex`, `enable_talkdesk`. These are distinct from the Microsoft O365 toggles (`enable_office365`, `enable_msft_o365`).
-- **Per-product AI prompt logging**: `enable_chat_gpt_prompt`, `enable_microsoft_copilot_prompt`, `enable_gemini_prompt`, `enable_poe_prompt`, `enable_meta_prompt`, `enable_perplexity_prompt`. All separate booleans, all default `False`.
-- **Client-enforced mutual exclusion** (`url_filtering.py:516-528`): when `enable_cipa_compliance=True`, these four settings **must be False** or the SDK raises `ValueError`:
+- **UCaaS one-click toggles**: `enable_ucaas_zoom`, `enable_ucaas_log_me_in`, `enable_ucaas_ring_central`, `enable_ucaas_webex`, `enable_ucaas_talkdesk`. These are distinct from the Microsoft O365 toggles (`enable_office365`, `enable_msft_o365`) (`url_filter_cloud_app_settings.py:42-48`).
+- **Per-product AI prompt logging in the typed Python model**: `enable_chat_gpt_prompt`, `enable_microsoft_copilot_prompt`, `enable_gemini_prompt`, `enable_poe_prompt`, `enable_meta_prompt`, `enable_perplexity_prompt`, `enable_google_ai_prompt`, and `enable_quillbot_ai_prompt`. All are separate booleans and default `False` (`url_filter_cloud_app_settings.py:49-66,79-90`). This is not the complete current service inventory; see the [cross-SDK divergence](./api-divergences.md#advanced-urlcloud-app-settings-have-asymmetric-sdk-models-and-update-semantics).
+- **Client-enforced mutual exclusion** (`url_filtering.py:522-535`): when `enable_cipa_compliance=True`, these four settings **must be False** or the SDK raises `ValueError`:
   - `enable_newly_registered_domains`
   - `consider_embedded_sites`
   - `enforce_safe_search`

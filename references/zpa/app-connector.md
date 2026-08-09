@@ -8,7 +8,7 @@ confidence: high
 source-tier: mixed
 verified-against:
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/terraform-aws-zpa-app-connector-modules: a866e4988f002d0b50dcc0db10c06e46db4bf0e7
   vendor/terraform-azurerm-zpa-app-connector-modules: a03b6651d45b80b774661b19acb8ae3954694aa5

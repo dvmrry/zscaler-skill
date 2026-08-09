@@ -7,8 +7,8 @@ confidence: medium
 source-tier: code
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"

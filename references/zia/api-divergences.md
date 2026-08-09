@@ -6,8 +6,8 @@ content-type: reference
 confidence: medium
 last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
@@ -50,14 +50,18 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol_test.go"
   - "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/url_categories.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go"
+  - "vendor/zscaler-sdk-python/zscaler/helpers.py"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/common/zia_helpers.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py"
   - "vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md"
   - "vendor/zscaler-mcp-server/tests/test_url_categories_tools.py"
+  - "vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go"
@@ -197,7 +201,7 @@ Use the rosetta table as the field-level index when a section below summarizes a
 
 **What each source says:**
 
-- **Go SDK:** documents and works around a live ZIA bug — GET-by-ID does NOT return the `cbiProfile` object for ISOLATE rules even though GET-all does. `Get()` falls back to `GetAll()` to repopulate it when `Action=='ISOLATE' && CBIProfile==nil && CBIProfileID!=0`. (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:240-254`) Go carries dual fields `CBIProfile` + `CBIProfileID json:"cbiProfileId"`, with a comment noting `cbiProfile` is required for ISOLATE and not applicable to other actions. (`urlfilteringpolicies.go:137-140`)
+- **Go SDK:** documents and works around a live ZIA bug — GET-by-ID does NOT return the `cbiProfile` object for ISOLATE rules even though GET-all does. `Get()` falls back to `GetAll()` to repopulate it when `Action=='ISOLATE' && CBIProfile==nil && CBIProfileID!=0`. (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:259-273`) Go carries dual fields `CBIProfile` + `CBIProfileID json:"cbiProfileId"`, with a comment noting `cbiProfile` is required for ISOLATE and not applicable to other actions. (`urlfilteringpolicies.go:137-140`)
 - **Python SDK:** `get_rule` does a plain GET with no such fallback. (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:114-148`) The Python `URLFilteringRule` model has no `cbi_profile_id` field at all — only `cbi_profile`. (`vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py:119-125`, `:222`)
 
 **Significance / which to trust:** High impact for ISOLATE rules. Python ISOLATE-rule reads via GET-by-ID can silently come back with an empty `cbiProfile`. Use the Go SDK's GET-all-fallback pattern (or read from GET-all directly) when you need the `cbiProfile` populated for an ISOLATE rule.
@@ -207,6 +211,42 @@ Use the rosetta table as the field-level index when a section below summarizes a
 The current Python and Go SDKs both expose `httpHeaderProfiles` and `httpHeaderActionProfiles` on URL Filtering rules. Python accepts the convenience arguments `http_header_profile_ids` and `http_header_action_profile_ids` on create/update, reshapes their ID lists to the wire fields, and round-trips the resulting name/ID objects in its rule model (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:205-215`, `:325-334`; `vendor/zscaler-sdk-python/zscaler/utils.py:92-93`; `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py:111-116`, `:230-231`). Go exposes the same two wire fields as optional `IDNameExtensions` lists (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:131-138`).
 
 **Significance / which to trust:** This is a resolved coverage gap, not a live divergence. New automation can bind HTTP-header match and action profiles through either SDK; callers should still use each SDK's native input shape (Python ID-list kwargs versus Go struct fields).
+
+### Advanced URL/cloud-app settings have asymmetric SDK models and update semantics
+
+Go v3.8.45 deliberately removed `omitempty` from the booleans in
+`URLAdvancedPolicySettings` so an explicit `false` reaches the service. The only
+exceptions are deprecated `blockSkype`, which the service rejects when present,
+and the `safeSearchApps` list, which the service locks while SafeSearch is
+disabled (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:149-255`).
+`UpdateUrlAndAppSettings` passes that entire struct directly to PUT
+(`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:351-376`).
+This makes the Go operation a full-state update in practice: a sparse
+zero-valued struct explicitly disables every other modeled boolean. Use a
+GET-modify-PUT pattern.
+
+Python v1.9.41 takes the opposite request-shape approach. Its update method
+passes caller kwargs through the common request executor, whose normal path
+camel-cases dictionary keys (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:471-549`;
+`vendor/zscaler-sdk-python/zscaler/request_executor.py:370-415`). That permits a
+sparse body and accepts exact camel-cased wire keys beyond the typed response
+model. Do not assume every inferred snake-case spelling is equivalent: the
+generic converter maps `enable_mistral_ai_prompt` to `enableMistralAiPrompt`,
+not the service field `enableMistralAIPrompt`; the exact wire-case key passes
+through unchanged (`vendor/zscaler-sdk-python/zscaler/helpers.py:326-342`). The
+response model itself reads and emits only eight of the 14 current prompt flags:
+ChatGPT, Microsoft Copilot, Gemini, Poe, Meta AI, Perplexity, Google AI, and
+QuillBot (`vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py:36-66,92-120`).
+It omits DeepSeek, WRITER, Grok, Mistral, Claude, and Grammarly even though the
+current Help and Go model enumerate all 14
+(`vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt:238-269`;
+`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:187-221,251-255`).
+
+**Significance / which to trust:** Go gives the more complete typed read model
+but requires full-state care on update. Python can send additional fields via
+exact wire keys, but not every snake-case inference is safe, and a subsequent
+typed read silently lacks six prompt flags. Do not use the Python model alone
+to inventory prompt-capture posture.
 
 ### MCP v0.15 URL-category listing fixes false pagination but exposes a contract conflict
 
@@ -219,6 +259,13 @@ unfiltered call still returns the entire matching collection
 respect: `/urlCategories` has no pagination parameters, so page-shaped inputs
 were false affordances rather than a way to cap the response
 (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:426535-426566`).
+
+Python v1.9.40 also adds a dedicated `list_categories_lite()` wrapper for
+`GET /urlCategories/lite` (`vendor/zscaler-sdk-python/CHANGELOG.md:21-30`;
+`vendor/zscaler-sdk-python/zscaler/zia/url_categories.py:107-162`). MCP v0.15
+still calls the full `list_categories()` method rather than that lightweight
+route (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:274`).
+That is a payload-efficiency gap, not an operation or entitlement claim.
 
 The sources still disagree on response trimming. Automate advertises
 `includeOnlyUrlKeywordCounts=true` and says it replaces custom-category URL and
@@ -271,18 +318,19 @@ a JMESPath projection after it; neither mechanism imposes a row limit. Use
 
 ### Python v1.9.39 closes the former service-coverage gap
 
-Python v1.9.39 now registers unified-client services for DNS application groups,
+Python v1.9.39 introduced unified-client services for DNS application groups,
 Endpoint DLP applications/custom apps/application groups/resources/resource
 groups/rules/sub-rules, Outbound Email DLP, the five EUN/user-confirmation
-template or status reads, Web DLP globals, IPS categories, and NSS collectors
-(`vendor/zscaler-sdk-python/pyproject.toml:1-4`;
+template or status reads, Web DLP globals, IPS categories, and NSS collectors;
+the current unified service still registers them
+(`vendor/zscaler-sdk-python/CHANGELOG.md:32-113`;
 `vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:841-943`;
 `vendor/zscaler-sdk-python/zscaler/zia/end_user_notification_templates.py:39-291`). The former
 Python-v1.9.38-versus-Go coverage divergence is therefore resolved at the SDK
 surface level. Python's new endpoint-application list methods still return only
 the current response page rather than reproducing Go's automatic aggregation
 (`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177`;
-`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:145-178`). SDK presence remains a code-surface observation, not proof that an endpoint is entitled or rolled out in a tenant (`vendor/zscaler-sdk-go/CHANGELOG.md:60-67`).
+`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:145-178`). SDK presence remains a code-surface observation, not proof that an endpoint is entitled or rolled out in a tenant (`vendor/zscaler-sdk-go/CHANGELOG.md:77-84`).
 
 ### Python custom-app create/update decode the wrong model
 
@@ -305,11 +353,11 @@ client's catalog.
 
 ### Release-note inventories remain incomplete
 
-The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:65-69,123-138`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:3-84`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
+The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:82-86,123-138`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:32-113`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
 
 The shared Go `EndPointApplications` model serializes requests as only `resourceId` and `zappId`, although its response model exposes descriptive/version fields (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-163`). It also models `versions` as one `Versions` struct, whereas the custom-app response uses `[]Versions` for the same wire key (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
-The generated reconciliation boundary confirms that the current Automate capture does not enumerate the new Endpoint DLP, Outbound Email DLP, DNS application-group, or EUN-template endpoint families, so these remain SDK/provider-surface observations; SDK presence must not be promoted into an entitlement or rollout claim (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:60-67`).
+The generated reconciliation boundary confirms that the current Automate capture does not enumerate the new Endpoint DLP, Outbound Email DLP, DNS application-group, or EUN-template endpoint families, so these remain SDK/provider-surface observations; SDK presence must not be promoted into an entitlement or rollout claim (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:77-84`).
 
 ---
 
@@ -319,9 +367,9 @@ The generated reconciliation boundary confirms that the current Automate capture
 
 Go v3.8.44 corrected the firewall-DNS field to `IsWebEUNEnabled` with wire key
 `isWebEUNEnabled`, but `omitempty` still removes an explicit `false` from the
-serialized request (`vendor/zscaler-sdk-go/CHANGELOG.md:3-10`;
+serialized request (`vendor/zscaler-sdk-go/CHANGELOG.md:20-27`;
 `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:151-160`).
-Python v1.9.39 instead parses and emits `isWebEunEnabled`; its request formatter
+Current Python v1.9.41 still parses and emits `isWebEunEnabled`; its request formatter
 uses that exact spelling even though recorded integration responses contain the
 uppercase-`EUN` form (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:57-58,240-264`;
 `vendor/zscaler-sdk-python/tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml:26,104,186`).

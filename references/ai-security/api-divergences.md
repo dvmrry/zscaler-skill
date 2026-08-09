@@ -5,8 +5,8 @@ title: "AI Guard API and integration divergences"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 confidence: medium
@@ -65,7 +65,7 @@ This page records the differences between public Help, the Python SDK, the recon
 
 ## Runtime API surface
 
-The Python SDK README lists **Zscaler AI Guard API** in the OneAPI-supported product list (`vendor/zscaler-sdk-python/README.md:256-273`). In SDK 1.9.39, the package moved to `zscaler.aiguard`; `client.aiguard` is canonical and `client.zguard` is a deprecated alias (`vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`). The current legacy client class is `LegacyAIGuardClient`; the prior `LegacyZGuardClient` entry-point name is removed (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:671-712`). `ZscalerClient` exposes six OneAPI configuration resources, while `LegacyAIGuardClient(...).aiguard.policy_detection` remains the separate runtime route (`vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:671-712`). This is Python-client routing; it is not evidence that the backend universally requires these exact authentication paths.
+The Python SDK README lists **Zscaler AI Guard API** in the OneAPI-supported product list (`vendor/zscaler-sdk-python/README.md:256-273`). In SDK 1.9.39, the package moved to `zscaler.aiguard`; `client.aiguard` is canonical and `client.zguard` is a deprecated alias (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`). The current v1.9.41 legacy client class remains `LegacyAIGuardClient`; the prior `LegacyZGuardClient` entry-point name is removed (`vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:671-712`). `ZscalerClient` exposes six OneAPI configuration resources, while `LegacyAIGuardClient(...).aiguard.policy_detection` remains the separate runtime route (`vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:671-712`). This is Python-client routing; it is not evidence that the backend universally requires these exact authentication paths.
 
 The legacy runtime methods are:
 
@@ -112,7 +112,7 @@ Source: `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json`; 
 
 The reconstructed Automate snapshot exposes **47 AI Guard operations across 29 paths with zero structural issues** (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). The live-snapshot comparison records 47 operations, 45 route-key matches, two added operations, and eight route changes (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:21-24`, `:40-43`). This resolves the earlier audit-scoped absence of a documented AI Guard admin-plane API.
 
-Python SDK 1.9.39 exposes six configuration resources and 39 callable methods:
+The configuration surface introduced in Python SDK 1.9.39 remains present in current v1.9.41: six resources and 39 callable methods (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; current version at `vendor/zscaler-sdk-python/pyproject.toml:3`):
 
 | Resource | Count | Source |
 |---|---:|---|
@@ -142,7 +142,7 @@ The July 20 capture resolves the earlier adjacent-template encoding defect in th
 
 Eight Automate-documented operations are not callable in the Python inventory: policy enable, disable, referential check, and summaries, plus referential checks for providers, provider credentials, applications, and application credentials (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`, `:1469-1481`, `:1954-1966`, `:3956-3968`, `:5229-5241`, `:6142-6154`, `:7166-7178`; Python inventories above). The application-credential regenerate action is callable in Python (`vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:290-333`) and remains documented by Automate (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:4021-4033`).
 
-The four resource referential-check implementations are commented out with notes that an SDK maintainer observed HTTP 404 responses even with Postman and known-good IDs (`vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:180-222`). Record this as an open live-acceptance discrepancy, not as proof that Automate is wrong or that the backend universally returns 404. The SDK changelog nevertheless claims full OneAPI support and lists all four referential checks, while the README presents three of them as available (`vendor/zscaler-sdk-python/CHANGELOG.md:112-163`; `vendor/zscaler-sdk-python/README.md:1445-1452`). For callable coverage, prefer the current source inventory over those broader documentation claims.
+The four resource referential-check implementations are commented out with notes that an SDK maintainer observed HTTP 404 responses even with Postman and known-good IDs (`vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:180-222`). Record this as an open live-acceptance discrepancy, not as proof that Automate is wrong or that the backend universally returns 404. The SDK changelog nevertheless claims full OneAPI support and lists all four referential checks, while the README presents three of them as available (`vendor/zscaler-sdk-python/CHANGELOG.md:141-192`; `vendor/zscaler-sdk-python/README.md:1445-1452`). For callable coverage, prefer the current source inventory over those broader documentation claims.
 
 ### Legacy runtime static regression cautions
 

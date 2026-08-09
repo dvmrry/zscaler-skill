@@ -5,12 +5,13 @@ title: "ZPA API resource schemas"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
@@ -375,6 +376,9 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | MicroTenantName | microtenantName | string | ✓ |  |
 | MatchStyle | matchStyle | string | ✓ |  |
 | ReadOnly | readOnly | bool | ✓ |  |
+| HBREnabled | hbrEnabled | bool | ✓ | Added in Go v3.8.45 |
+| StickyEntity | stickyEntity | string | ✓ | Added in Go v3.8.45 |
+| StickyGroup | stickyGroup | string | ✓ | Added in Go v3.8.45 |
 | RestrictionType | restrictionType | string | ✓ |  |
 | ZscalerManaged | zscalerManaged | bool | ✓ |  |
 | TCPPortRanges | tcpPortRanges | []string |  |  |
@@ -384,6 +388,7 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | ServerGroups | serverGroups | []servergroup.ServerGroup |  |  |
 | DefaultIdleTimeout | defaultIdleTimeout | string | ✓ |  |
 | DefaultMaxAge | defaultMaxAge | string | ✓ |  |
+| GuestDetails | guestDetails | []common.GuestDetails | ✓ | Added in Go v3.8.45 |
 | ClientlessApps | clientlessApps | []applicationsegmentbrowseraccess.ClientlessApps | ✓ |  |
 | ShareToMicrotenants | shareToMicrotenants | []string |  |  |
 | SharedMicrotenantDetails | sharedMicrotenantDetails | SharedMicrotenantDetails | ✓ |  |
@@ -521,8 +526,12 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | RestrictionType | restrictionType | string | ✓ |  |
 | ZscalerManaged | zscalerManaged | bool | ✓ |  |
 | WeightedLoadBalancing | weightedLoadBalancing | bool | ✓ |  |
+| HBREnabled | hbrEnabled | bool | ✓ | Added in Go v3.8.45 |
+| StickyEntity | stickyEntity | string | ✓ | Added in Go v3.8.45 |
+| StickyGroup | stickyGroup | string | ✓ | Added in Go v3.8.45 |
 | TCPPortRanges | tcpPortRanges | []string | ✓ |  |
 | UDPPortRanges | udpPortRanges | []string | ✓ |  |
+| GuestDetails | guestDetails | []common.GuestDetails | ✓ | Added in Go v3.8.45 |
 | TCPAppPortRange | tcpPortRange | []common.NetworkPorts | ✓ |  |
 | UDPAppPortRange | udpPortRange | []common.NetworkPorts | ✓ |  |
 | ClientlessApps | clientlessApps | []ClientlessApps | ✓ |  |
@@ -650,7 +659,11 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | ReadOnly | readOnly | bool | ✓ |  |
 | RestrictionType | restrictionType | string | ✓ |  |
 | ZscalerManaged | zscalerManaged | bool | ✓ |  |
+| HBREnabled | hbrEnabled | bool | ✓ | Added in Go v3.8.45 |
+| StickyEntity | stickyEntity | string | ✓ | Added in Go v3.8.45 |
+| StickyGroup | stickyGroup | string | ✓ | Added in Go v3.8.45 |
 | WeightedLoadBalancing | weightedLoadBalancing | bool | ✓ |  |
+| GuestDetails | guestDetails | []common.GuestDetails | ✓ | Added in Go v3.8.45 |
 | TCPPortRanges | tcpPortRanges | []string | ✓ |  |
 | UDPPortRanges | udpPortRanges | []string | ✓ |  |
 | TCPAppPortRange | tcpPortRange | []common.NetworkPorts | ✓ |  |
@@ -782,11 +795,15 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | TCPKeepAlive | tcpKeepAlive | string | ✓ |  |
 | IsIncompleteDRConfig | isIncompleteDRConfig | bool |  |  |
 | UseInDrMode | useInDrMode | bool |  |  |
+| HBREnabled | hbrEnabled | bool | ✓ | Added in Go v3.8.45 |
+| StickyEntity | stickyEntity | string | ✓ | Added in Go v3.8.45 |
+| StickyGroup | stickyGroup | string | ✓ | Added in Go v3.8.45 |
 | MicroTenantID | microtenantId | string | ✓ |  |
 | MicroTenantName | microtenantName | string | ✓ |  |
 | ReadOnly | readOnly | bool | ✓ |  |
 | RestrictionType | restrictionType | string | ✓ |  |
 | ZscalerManaged | zscalerManaged | bool | ✓ |  |
+| GuestDetails | guestDetails | []common.GuestDetails | ✓ | Added in Go v3.8.45 |
 | WeightedLoadBalancing | weightedLoadBalancing | bool | ✓ |  |
 | TCPAppPortRange | tcpPortRange | []common.NetworkPorts | ✓ |  |
 | UDPAppPortRange | udpPortRange | []common.NetworkPorts | ✓ |  |
@@ -1401,6 +1418,15 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 | ZiaErName | ziaErName | string | ✓ |  |
 | ZpnErID | zpnErId | string | ✓ |  |
 
+## GuestDetails
+
+**Service:** `common`
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| FederationID | federationId | string | ✓ |  |
+| PartnerInfo | partnerInfo | PartnerInfo | ✓ |  |
+
 ## LocationDTO
 
 **Service:** `common`
@@ -1439,6 +1465,18 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 |---|---|---|---|---|
 | From | from | string | ✓ |  |
 | To | to | string | ✓ |  |
+
+## PartnerInfo
+
+**Service:** `common`
+
+| Field | JSON tag | Type | Optional | Notes |
+|---|---|---|---|---|
+| ApprovalStatus | approvalStatus | string | ✓ |  |
+| FederationStatus | federationStatus | string | ✓ |  |
+| PartnerGid | partnerGid | string | ✓ |  |
+| PartnerName | partnerName | string | ✓ |  |
+| PartnerScopeName | partnerScopeName | string | ✓ |  |
 
 ## Rules
 
@@ -2247,9 +2285,9 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 
 ## Policy-group controller response routing
 
-Python v1.9.39 adds three unified controllers beneath
+Python v1.9.39 introduced three unified controllers, still present beneath
 `/zpa/mgmtconfig/v1/admin/customers/{customerId}`
-(`vendor/zscaler-sdk-python/pyproject.toml:1-4`;
+(`vendor/zscaler-sdk-python/CHANGELOG.md:115-139`;
 `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:504-517`;
 `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:32-36`). Their response
 model routing is:
@@ -3614,10 +3652,10 @@ The sections below record wire-level behavior, cross-SDK divergences, and serial
 All AppSegment variants (core, Browser Access, PRA, Inspection) share `/zpa/mgmtconfig/v1/admin/customers/{customerId}/application[/{id}]` for GET/POST/PUT/DELETE. The variant is determined by the presence of `inspectionApps`, `praApps`, or `clientlessApps` arrays in the payload, not by a different URL path. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:16`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:16`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:16`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:88-91`)
 
 **AppSegmentInspection — read vs. write duality for sub-apps.**
-GET returns sub-app details in `inspectionApps` (`[]InspectionAppDto`, `json:"inspectionApps,omitempty"`). POST/PUT sends sub-app configuration in `commonAppsDto.appsConfig` (`[]AppsConfig`). These are two distinct fields. `CommonAppsDto` on `AppSegmentInspection` carries `json:"commonAppsDto,omitempty"` — an empty struct is omitted from the wire. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:64-65`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:86-88`)
+GET returns sub-app details in `inspectionApps` (`[]InspectionAppDto`, `json:"inspectionApps,omitempty"`). POST/PUT sends sub-app configuration in `commonAppsDto.appsConfig` (`[]AppsConfig`). These are two distinct fields. `CommonAppsDto` on `AppSegmentInspection` carries `json:"commonAppsDto,omitempty"` — an empty struct is omitted from the wire. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:68-69`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:90-92`)
 
 **AppSegmentPRA — both sub-app fields always serialized (no omitempty).**
-`praApps` (`[]PRAApps`, `json:"praApps"`) and `commonAppsDto` (`CommonAppsDto`, `json:"commonAppsDto"`) both lack omitempty. An empty `CommonAppsDto{}` will appear on the wire as `{"commonAppsDto":{}}`. This contrasts with Inspection where `commonAppsDto` has omitempty. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:64-65`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:85-88`)
+`praApps` (`[]PRAApps`, `json:"praApps"`) and `commonAppsDto` (`CommonAppsDto`, `json:"commonAppsDto"`) both lack omitempty. An empty `CommonAppsDto{}` will appear on the wire as `{"commonAppsDto":{}}`. This contrasts with Inspection where `commonAppsDto` has omitempty. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:68-69`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:89-92`)
 
 **SegmentGroupID omitempty divergence across variants.**
 `AppSegmentPRA.SegmentGroupID` is `json:"segmentGroupId"` with no omitempty — an empty string is sent on the wire. `AppSegmentInspection.SegmentGroupID` and `BrowserAccess.SegmentGroupID` both carry omitempty. Core `ApplicationSegmentResource.SegmentGroupID` also has no omitempty. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:43`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:22`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:24`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:47`)
@@ -3626,19 +3664,33 @@ GET returns sub-app details in `inspectionApps` (`[]InspectionAppDto`, `json:"in
 In `AppSegmentInspection` both fields are `json:"adpEnabled,omitempty"` and `json:"autoAppProtectEnabled,omitempty"` — false is not sent. In `ApplicationSegmentResource` both have no omitempty — false is sent explicitly. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:31-33`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:31-32`)
 
 **ZPNERID field presence by variant.**
-`AppSegmentInspection` has no `ZPNERID` field at all. `AppSegmentPRA` and `BrowserAccess` both carry `ZPNERID *common.ZPNERID` with `json:"zpnErId"` (no omitempty) — a nil pointer serializes as JSON null. Core `ApplicationSegmentResource` also carries `ZPNERID` with no omitempty. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:68`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:65`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:74`)
+`AppSegmentInspection` has no `ZPNERID` field at all. `AppSegmentPRA` and `BrowserAccess` both carry `ZPNERID *common.ZPNERID` with `json:"zpnErId"` (no omitempty) — a nil pointer serializes as JSON null. Core `ApplicationSegmentResource` also carries `ZPNERID` with no omitempty. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:72`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:69`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:77`)
+
+**Application-segment federation/stickiness additions.**
+Go v3.8.45 adds `hbrEnabled`, `stickyEntity`, `stickyGroup`, and `guestDetails`
+to the base, Browser Access, Inspection, and PRA structs. `guestDetails` expands
+to the common `GuestDetails` and `PartnerInfo` schemas above
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:61-73`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:57-62`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:57-61`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:51-59`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:161-172`). The table
+records wire shape only; field semantics and accepted values are not established
+by the SDK source. Python v1.9.41 exposes the same top-level keys but cannot
+decode a populated `partnerInfo`; see
+[`api-divergences.md`](./api-divergences.md#python-v1941-cannot-decode-populated-guestdetailspartnerinfo).
 
 **Sub-app ID field names differ by variant.**
-Inspection `AppsConfig` uses `InspectAppID` (`json:"inspectAppId"`, no omitempty). PRA `AppsConfig` uses `PRAAppID` (`json:"praAppId"`, no omitempty). Both carry `AppID` (`json:"appId"`) referencing the parent segment. PRA `AppsConfig.Enabled` has omitempty (setting false is not sent); Inspection `AppsConfig.Enabled` has no omitempty (false is sent). (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:94,97`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:92-93,96`)
+Inspection `AppsConfig` uses `InspectAppID` (`json:"inspectAppId"`, no omitempty). PRA `AppsConfig` uses `PRAAppID` (`json:"praAppId"`, no omitempty). Both carry `AppID` (`json:"appId"`) referencing the parent segment. PRA `AppsConfig.Enabled` has omitempty (setting false is not sent); Inspection `AppsConfig.Enabled` has no omitempty (false is sent). (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:97-101`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:96-100`)
 
 **AppSegmentInspection Update — name-based ID injection; deletedInspectApps not auto-computed by Go SDK.**
-The Go SDK Update for Inspection does a pre-flight GET, builds a map of existing `inspectionApps` keyed by Name, and injects `AppID` and `InspectAppID` into each `AppsConfig` entry by name match. Sub-apps not found by name get no IDs injected. The Go SDK does NOT automatically populate `DeletedInspectApps` — callers must supply it manually. The Python SDK takes the opposite approach: it matches by domain (not name) and auto-computes `deleted_inspect_apps`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:168-203`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:415-433`)
+The Go SDK Update for Inspection does a pre-flight GET, builds a map of existing `inspectionApps` keyed by Name, and injects `AppID` and `InspectAppID` into each `AppsConfig` entry by name match. Sub-apps not found by name get no IDs injected. The Go SDK does NOT automatically populate `DeletedInspectApps` — callers must supply it manually. The Python SDK takes the opposite approach: it matches by domain (not name) and auto-computes `deleted_inspect_apps`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:172-207`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:415-433`)
 
 **AppSegmentPRA Update — name-based ID injection in Go SDK; domain-based in Python SDK; Go auto-computes deletedPraApps.**
-The Go SDK PRA Update builds a map of existing `praApps` keyed by Name, injects `AppID` and `PRAAppID` by name match, then auto-computes `DeletedPraApps` by comparing existing `PRAApps` against remaining `AppsConfig` entries. The Python SDK instead maps existing sub-apps by domain (fetched via `getAppsByType SECURE_REMOTE_ACCESS`), injects `pra_app_id` by domain match, and also auto-computes `deleted_pra_apps`. An engineer calling the Go SDK with mismatched sub-app names will fail to inject IDs; the Python SDK is insensitive to sub-app name but requires domain to match. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:199-247`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:370-394`)
+The Go SDK PRA Update builds a map of existing `praApps` keyed by Name, injects `AppID` and `PRAAppID` by name match, then auto-computes `DeletedPraApps` by comparing existing `PRAApps` against remaining `AppsConfig` entries. The Python SDK instead maps existing sub-apps by domain (fetched via `getAppsByType SECURE_REMOTE_ACCESS`), injects `pra_app_id` by domain match, and also auto-computes `deleted_pra_apps`. An engineer calling the Go SDK with mismatched sub-app names will fail to inject IDs; the Python SDK is insensitive to sub-app name but requires domain to match. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:203-251`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:370-394`)
 
 **BrowserAccess Update — index-based ID injection in Go SDK; domain-based in Python SDK v2.**
-The Go SDK BA Update fills in missing `clientlessApps[i].ID` by matching on array index position from `existingState.ClientlessApps[i]`, not by name or domain. Reordering `clientlessApps` in the payload will map wrong existing IDs. The Python SDK BA v2 (`AppSegmentsBAV2API`) instead matches by domain, injects `ba_app_id`, and auto-computes `deleted_ba_apps`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:151-159`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py:380-398`)
+The Go SDK BA Update fills in missing `clientlessApps[i].ID` by matching on array index position from `existingState.ClientlessApps[i]`, not by name or domain. Reordering `clientlessApps` in the payload will map wrong existing IDs. The Python SDK BA v2 (`AppSegmentsBAV2API`) instead matches by domain, injects `ba_app_id`, and auto-computes `deleted_ba_apps`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go:155-163`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py:380-398`)
 
 **Port zeroing on Python SDK update.**
 On any Python SDK update (`update_segment`, `update_segment_ba`, `update_segment_pra`, `update_segment_inspection`), unspecified port fields are explicitly set to empty arrays: `tcpPortRanges=[]`, `tcpPortRange=[]`, `udpPortRanges=[]`, `udpPortRange=[]`. Omitting ports in an update call clears all existing ports. The Go SDK does not perform this zeroing. (`vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:435-453`)
@@ -3647,19 +3699,19 @@ On any Python SDK update (`update_segment`, `update_segment_ba`, `update_segment
 `add_segment_pra` auto-adds `app_types=["SECURE_REMOTE_ACCESS"]` if missing; `add_segment_inspection` auto-adds `app_types=["INSPECT"]`; `AppSegmentsBAV2API.add_segment_ba` auto-adds `app_types=["BROWSER_ACCESS"]`. The original `ApplicationSegmentBAAPI` (`app_segments_ba.py`) does NOT auto-inject `app_types`. This injection is silent — no warning is emitted if `app_types` is missing. (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:255-260`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:163-164`)
 
 **ApplicationSegmentResource.ShareToMicrotenants — no omitempty; inadvertent share removal risk on PUT.**
-`json:"shareToMicrotenants"` with no omitempty. An empty slice serializes and can trigger removal of existing shares on an inadvertent PUT. The dedicated share endpoint is the intended mechanism for modifying shares. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:72`)
+`json:"shareToMicrotenants"` with no omitempty. An empty slice serializes and can trigger removal of existing shares on an inadvertent PUT. The dedicated share endpoint is the intended mechanism for modifying shares. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:75`)
 
 **BulkUpdateMultiMatch — applicationIds is []int not []string.**
-`BulkUpdateMultiMatchPayload.ApplicationIDs` is typed as `[]int` (`json:"applicationIds"`) despite ZPA IDs being strings elsewhere. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:128-131`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:971-974`)
+`BulkUpdateMultiMatchPayload.ApplicationIDs` is typed as `[]int` (`json:"applicationIds"`) despite ZPA IDs being strings elsewhere. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:131-134`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:971-974`)
 
 **ApplicationToServerGroupMapping.Weight is a string.**
-Numeric weight must be serialized as a JSON string. `UpdateWeightedLoadBalancerConfig` returns `(nil, resp, nil)` — the first return value (the config struct) is always nil; the function does not echo back the updated config. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:290,370-378`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:876-880`)
+Numeric weight must be serialized as a JSON string. `UpdateWeightedLoadBalancerConfig` returns `(nil, resp, nil)` — the first return value (the config struct) is always nil; the function does not echo back the updated config. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:293,373-381`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:876-880`)
 
 **Count endpoints — all fields are strings, not integers.**
-`GET /application/configured/count` returns `[]ApplicationCountResponse{appsConfigured string, configuredDateInEpochSeconds string}`. `GET /application/count/currentAndMaxLimit` returns `ApplicationCurrentMaxLimitResponse{currentAppsCount string, maxAppsLimit string}`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:133-142`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:1072-1116`)
+`GET /application/configured/count` returns `[]ApplicationCountResponse{appsConfigured string, configuredDateInEpochSeconds string}`. `GET /application/count/currentAndMaxLimit` returns `ApplicationCurrentMaxLimitResponse{currentAppsCount string, maxAppsLimit string}`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:136-145`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:1072-1116`)
 
 **GetApplicationSummary returns 400.**
-The Go SDK comment at `GetApplicationSummary` reads: "Need to review as the API is returning 400 error". Do not rely on `GET /application/summary`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:240-241`)
+The Go SDK comment at `GetApplicationSummary` reads: "Need to review as the API is returning 400 error". Do not rely on `GET /application/summary`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:243-244`)
 
 **Provision endpoint — Python SDK only.**
 `POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/application/provision` exists in the Python SDK only; there is no corresponding function in the Go SDK. (`vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:663,759-762`)
@@ -3671,7 +3723,7 @@ The Go SDK comment at `GetApplicationSummary` reads: "Need to review as the API 
 `BROWSER_ACCESS`, `INSPECT`, `SECURE_REMOTE_ACCESS`. Both SDKs validate against this exact set client-side before sending any HTTP request. (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbytype/applicationsegmentbytype.go:34-41`, `vendor/zscaler-sdk-python/zscaler/zpa/app_segment_by_type.py:44-45`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:10007`)
 
 **connectionSecurity valid values for PRA sub-apps.**
-Postman and Go SDK agree on: `ANY`, `TLS`, `RDP`, `NLA_EXT`, `VM_CONNECT`. Python SDK docstring additionally lists `NLA` as a valid value — not present in Postman or Go SDK struct. Treat `NLA` as potentially valid at the API level but unconfirmed by Postman examples. (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:188`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:101`)
+Postman and Go SDK agree on: `ANY`, `TLS`, `RDP`, `NLA_EXT`, `VM_CONNECT`. Python SDK docstring additionally lists `NLA` as a valid value — not present in Postman or Go SDK struct. Treat `NLA` as potentially valid at the API level but unconfirmed by Postman examples. (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:188`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:105`)
 
 **icmpAccessType valid values — Postman adds PING_TRACEROUTING.**
 Postman response examples show `PING_TRACEROUTING` as a valid value in addition to `PING` and `NONE`. Python SDK docstring lists only `PING` and `NONE`. Go SDK uses `icmpAccessType` as a plain string with no SDK-level enum validation. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:11008`, `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:687`, `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go:34`)
@@ -3875,7 +3927,7 @@ the Python SDK `ServerGroup` model carries these fields.
 `appservercontroller.Create` takes `ApplicationServer` by value (not `*ApplicationServer`). `servergroup.Create` takes `*ServerGroup`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appservercontroller/zpa_app_server_controller.go:57`, `vendor/zscaler-sdk-go/zscaler/zpa/services/servergroup/zpa_server_group.go:154`)
 
 **GetByName — special character stripping and multi-word fallback.**
-`GetByName` passes the name through `convertZPASearchToFilter`, which strips characters outside `[a-zA-Z0-9 _/-.] ` before building a `'name+EQ+{value}'` search param. A client-side EqualFold match is applied over the returned page. If the initial fetch returns a hard error and the name contains spaces, the SDK retries with only the first two words. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:477-521,339-378`)
+`GetByName` passes the name through `convertZPASearchToFilter`, which strips characters outside `[a-zA-Z0-9 _/-.] ` before building a `'name+EQ+{value}'` search param. A client-side EqualFold match is applied over the returned page. If the initial fetch returns a hard error and the name contains spaces, the SDK retries with only the first two words. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:490-534,352-391`; representative caller and client-side match at `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:165-176`)
 
 ### Posture Profiles and Trusted Networks
 
@@ -3912,16 +3964,16 @@ Go SDK: `string` (scalar, omitempty). Python SDK: `List[str]` via `ZscalerCollec
 Go struct has `Domain string json:"domain,omitempty"`. Postman v1 GET response body includes domain. Python `PostureProfile` model does not declare a domain attribute or map it in `request_format`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/postureprofile/zpa_posture_profile.go:28`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:81220`)
 
 **RemoveCloudSuffix regex uses \\s (whitespace class), not literal space.**
-Actual regex at `common.go:163`: `(.*)[\\ s]+\\([a-zA-Z0-9\\-_\\.]*\\)[\\s]*$` — tabs and any whitespace are also stripped, not just ASCII space. The trailing trim is `strings.Trim(res, " ")` (literal space only). (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:163-165`)
+Actual regex at `common.go:176`: `(.*)[\\ s]+\\([a-zA-Z0-9\\-_\\.]*\\)[\\s]*$` — tabs and any whitespace are also stripped, not just ASCII space. The trailing trim is `strings.Trim(res, " ")` (literal space only). (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:176-178`)
 
 **ZPA pagination — Go SDK default page size vs Postman default.**
 Go SDK `DefaultPageSize = 500` items per page (`common.go:18`). Postman collection documents default pagesize = 20, max = 500. Python `trusted_networks` docstring agrees with Postman. The Go SDK ignores the 20-item default and always requests 500. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:18`, `vendor/zscaler-sdk-python/zscaler/zpa/trusted_networks.py:47-48`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:81680`)
 
 **ZPA pagination envelope.**
-Response envelope has `'totalPages'` (parsed as `interface{}` via `strconv.Atoi` — if null/absent, only page 1 is returned) and `'list'` (`[]T`). Postman confirms: `currentCount (long)`, `list ([...])`, `totalCount (long)`, `totalPages (integer)`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:219-222,243-247`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:81754`)
+Response envelope has `'totalPages'` (parsed as `interface{}` via `strconv.Atoi` — if null/absent, only page 1 is returned) and `'list'` (`[]T`). Postman confirms: `currentCount (long)`, `list ([...])`, `totalCount (long)`, `totalPages (integer)`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:232-235,256-260`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:81754`)
 
-**MicroTenantName resolution triggers an extra round-trip.**
-If `MicroTenantID` is absent but `MicroTenantName` is set, the engine resolves name→ID via `GET /microtenants` before paginating. Posture and trusted network lookups using `MicroTenantName` will incur this extra call. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:313-323`)
+**Go `MicroTenantName` filter resolution is broken; pass `MicroTenantID`.**
+When `MicroTenantID` is absent and `MicroTenantName` is set, the helper calls `GET /microtenants`, but its success check is inverted: `if err == nil` immediately returns `(nil, resp, nil)` before the resolved ID is assigned or the requested resource is fetched. On lookup failure it falls through, assigning an ID only if the failed lookup nevertheless returned a non-nil microtenant. Callers using `GetAllPagesGenericWithCustomFilters` should resolve and pass `MicroTenantID` directly until the guard is corrected. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:311-351`)
 
 **GetClientSettings (Go) — response-decode bug.**
 `NewRequestDo(ctx, "GET", baseURL, nil, &settings, nil)` — the 5th param (body) is `&settings`, which gets JSON-marshalled and sent as the request body. The 6th param (response destination) is nil, so the HTTP response is never decoded into `settings`. `GetClientSettings` always returns an empty slice in the current Go SDK. (`vendor/zscaler-sdk-go/zscaler/zpa/services/client_settings/client_settings.go:47`)
@@ -4164,10 +4216,10 @@ The declared return type is `int` (status code) but the actual return is `(None,
 `GetMicrotenantByName` passes `Filter{MicroTenantID: service.MicroTenantID()}` as a URL query parameter to `GetAllPagesGenericWithPostSearch`. The filter serializes to query params, not into the POST body. (`vendor/zscaler-sdk-go/zscaler/zpa/services/microtenants/microtenants.go:140`)
 
 **POST search pagination: Go SDK always sends validPage=0, validPageSize=0.**
-`GetAllPagesGenericWithPostSearch` injects `SearchPageBy{page, pageSize=500, validPage=0, validPageSize=0}` into each request body. Postman documents `validPage` as integer while `page` and `pageSize` are typed as string — a type inconsistency in the Postman spec. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:575-615`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:72018`)
+`GetAllPagesGenericWithPostSearch` injects `SearchPageBy{page, pageSize=500, validPage=0, validPageSize=0}` into each request body. Postman documents `validPage` as integer while `page` and `pageSize` are typed as string — a type inconsistency in the Postman spec. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:588-628`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:72018`)
 
 **Go SDK POST search body nests filters inside filterBy.filterGroups — Postman shows flat filterBy array.**
-Go SDK `SearchRequest` uses `filterBy: {filterGroups: [{filters: [], operator}], operator}` — a two-level nesting. Postman documents `filterBy` as a flat array of filter objects with no `filterGroups` wrapper. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:532-566`, `vendor/zscaler-sdk-go/zscaler/zpa/services/microtenants/microtenants.go:122-139`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:72018`)
+Go SDK `SearchRequest` uses `filterBy: {filterGroups: [{filters: [], operator}], operator}` — a two-level nesting. Postman documents `filterBy` as a flat array of filter objects with no `filterGroups` wrapper. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:545-579`, `vendor/zscaler-sdk-go/zscaler/zpa/services/microtenants/microtenants.go:122-139`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:72018`)
 
 **SearchFilterItem.Operator: Go SDK uses 'EQ'; Python SDK docstring uses 'EQUALS' and 'LIKE'.**
 Go SDK hardcodes `Operator: 'EQ'`. Python SDK docstring examples show `'EQUALS'` and `'LIKE'`. The Go SDK executable path is the higher-trust reference. (`vendor/zscaler-sdk-go/zscaler/zpa/services/microtenants/microtenants.go:130`, `vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py:184-185`)
@@ -4345,7 +4397,7 @@ The Go SDK `np_client` service passes an empty `common.Filter{}` to both `GetAll
 The legacy `ZPAClient.machine_groups` is a `@property` that instantiates a fresh `MachineGroupsAPI` on every call (no caching). Code that accesses `client.zpa.machine_groups` in a tight loop on the legacy client creates N object instances. (`vendor/zscaler-sdk-python/zscaler/zpa/legacy.py:571-579`, `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:204-206`)
 
 **Pagination.Search vs Search2 — callers must set Filter.Search.**
-`Pagination` struct has `Search` (never serialized) and `Search2` (`url:"search"`, the actual wire field). `getAllPagesGenericWithCustomFilters` copies `Filter.Search` into `pagination.Search2` internally. Callers must set `filters.Search` on the `Filter` struct. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:24-25,233-234`)
+`Pagination` struct has `Search` (never serialized) and `Search2` (`url:"search"`, the actual wire field). `getAllPagesGenericWithCustomFilters` copies `Filter.Search` into `pagination.Search2` internally. Callers must set `filters.Search` on the `Filter` struct. (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:24-25,246-247`)
 
 **MachineGroup.creationTime, modifiedTime — string in Go SDK; integer in Postman.**
 Go SDK declares `CreationTime` and `ModifiedTime` as string. Postman documents them as `<integer>` (epoch seconds). `ModifiedBy`: string in Go SDK, `<long>` in Postman. (`vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go:23,25,26`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:67353`)
@@ -4361,8 +4413,8 @@ Both fields are typed as string in the Go SDK and deserialize as string in Pytho
 **IdpController.ssoType enum values.**
 `[]string` typed field. Known values are `'USER'` (end-user authentication) and `'ADMIN'` (ZPA admin console login). To retrieve SCIM groups or SCIM attribute headers you must first locate an IdP whose `ssoType` slice contains `'USER'`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/idpcontroller/zpa_idp_controller.go:43`, `vendor/zscaler-sdk-python/zscaler/zpa/models/idp.py:77`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:47255`)
 
-**IdpController.SignSamlRequest Go struct tag — double comma.**
-The Go struct tag is `json:"signSamlRequest,,omitempty"` — a double comma. Go's `encoding/json` silently ignores the extra comma. The same double-punctuation bug appears in `ScimAttributeHeader.CreationTime`: `json:"creationTime,omitempty,"` (trailing comma). (`vendor/zscaler-sdk-go/zscaler/zpa/services/idpcontroller/zpa_idp_controller.go:42`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go:23`)
+**IdpController.SignSamlRequest Go struct tag — corrected in v3.8.45.**
+The current Go tag is `json:"signSamlRequest,omitempty"`; v3.8.45 removes the former extra comma. The old punctuation did not change `encoding/json` behavior, so this is metadata cleanup rather than a wire-format migration. The separate `ScimAttributeHeader.CreationTime` tag still ends `json:"creationTime,omitempty,"` and remains unfixed (`vendor/zscaler-sdk-go/zscaler/zpa/services/idpcontroller/zpa_idp_controller.go:42`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go:23`).
 
 **IdpController v1/v2 endpoint split.**
 Single-item GET uses mgmtconfig v1. List, GetAll, and GetByName all use mgmtconfig v2. (`vendor/zscaler-sdk-go/zscaler/zpa/services/idpcontroller/zpa_idp_controller.go:13-15,68`, `vendor/zscaler-sdk-python/zscaler/zpa/idp.py:83-86,127-130`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:47255,48054`)
@@ -4420,7 +4472,7 @@ The parameter is named `userName` but the comparison field is `DisplayName`. If 
 `GetAllPagesScimGenericWithSearch` enforces a default `itemsPerPage=10` (when
 the input is nonpositive), clamps it to 100, and sends one-based `startIndex`
 plus `count`. Its response envelope is `{Resources: []T, totalResults: int}`
-(`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:408-456`). This is
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:421-469`). This is
 not a universal ZPA SCIM pagination limit: the separate Postman IdP-controller
 request uses `page` / `pagesize` and documents a default of 20 and maximum of
 500 (`vendor/zscaler-api-specs/oneapi-postman-collection.json:47282-47298`).

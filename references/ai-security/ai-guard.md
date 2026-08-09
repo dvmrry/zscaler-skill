@@ -7,8 +7,8 @@ last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
@@ -36,6 +36,7 @@ sources:
   - "vendor/zscaler-help/ai-guard-ai-guard-policy-testing.md"
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
   - "vendor/zscaler-sdk-python/pyproject.toml"
+  - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py"
   - "vendor/zscaler-sdk-python/zscaler/aiguard/legacy.py"
@@ -73,7 +74,7 @@ author-status: draft
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
 
-The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with Python SDK 1.9.39's OneAPI configuration and separately routed legacy policy-detection surfaces (`vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current portal separates its dashboard documentation into **AI Guard for Users** and **Apps & Infrastructure** surfaces (`vendor/zscaler-help/ai-guard-users-dashboard.md:8-16`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:8-16`); both dashboard bodies are captured. The broader 24-article AI Guard for Users tree remains only partially mined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Treat current Help coverage as indexed and partial rather than fully certified.
+The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with the Python SDK's 1.9.39-introduced OneAPI configuration and separately routed legacy policy-detection surfaces as retained in current v1.9.41 (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; `vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current portal separates its dashboard documentation into **AI Guard for Users** and **Apps & Infrastructure** surfaces (`vendor/zscaler-help/ai-guard-users-dashboard.md:8-16`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:8-16`); both dashboard bodies are captured. The broader 24-article AI Guard for Users tree remains only partially mined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Treat current Help coverage as indexed and partial rather than fully certified.
 
 This certification does not assert private roadmap features, tenant-specific entitlements, commercial packaging, unpublished admin APIs, or portal behavior not present in the captured public sources. Those remain explicit open questions rather than hidden assumptions.
 

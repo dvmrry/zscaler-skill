@@ -5,7 +5,7 @@ title: "Privileged Remote Access (PRA) — clientless RDP/SSH/VNC"
 content-type: reasoning
 last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-sdk-python: d2eb8096283e0aa32f88c0033bc77609caa0e5c9
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
@@ -241,7 +241,7 @@ Source: `vendor/zscaler-help/privileged-remote-access-captures.md`; `vendor/zsca
 
 3. **Approval windows are start+duration, not floating.** An approval granted for 2pm-4pm is usable only during that window. Users who miss the window need to re-request.
 
-4. **`working_hours` is optional in current Python SDK / Ansible clients.** Python SDK v1.9.34 fixes `pra_approval.working_hours`, defaults time conversion to UTC when working hours are omitted, and serializes `workingHours` only when a caller explicitly supplies it because the API rejects a partial or empty `workingHours` object (`vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst:350-361`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:193-220`, `:285-312`). The ZPA Ansible collection v2.2.5 carries the same operational fix for `zpa_pra_approval`, including truly optional `working_hours` and sending only the intended update payload (`vendor/zpacloud-ansible/CHANGELOG.md:67-75`; `vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:76-79`, `:366-405`).
+4. **`working_hours` is optional in current Python SDK / Ansible clients.** Python SDK v1.9.34 fixes `pra_approval.working_hours`, defaults time conversion to UTC when working hours are omitted, and serializes `workingHours` only when a caller explicitly supplies it because the API rejects a partial or empty `workingHours` object (`vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst:385-396`; `vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py:193-220`, `:285-312`). The ZPA Ansible collection v2.2.5 carries the same operational fix for `zpa_pra_approval`, including truly optional `working_hours` and sending only the intended update payload (`vendor/zpacloud-ansible/CHANGELOG.md:67-75`; `vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py:76-79`, `:366-405`).
 
 5. **Recording transcoding is async.** A session that just ended isn't immediately streamable. Check status before expecting playback; use prioritized transcoding for urgent forensic review.
 

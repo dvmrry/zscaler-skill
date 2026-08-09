@@ -96,8 +96,8 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-08-04:
-24 entries are resolved or clarified, 33 are partially resolved, and 405 are open.
+Skim this before reading the full entries. Summary refreshed 2026-08-09:
+24 entries are resolved or clarified, 33 are partially resolved, and 406 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -215,7 +215,7 @@ API semantics recorded below.
 
 - **zia**: `zia-02`, `zia-12`, `zia-14`–`zia-48`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-58`–`zia-67`, `zia-69`–`zia-71`
 - **log**: `log-03`, `log-05`–`log-22`
-- **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-82`
+- **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-83`
 - **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-39`
 - **zcc**: `zcc-08`–`zcc-11`, `zcc-13`–`zcc-79`, `zcc-81`–`zcc-85`, `zcc-87`–`zcc-101`
 - **zdx**: `zdx-01`–`zdx-34`, `zdx-36`–`zdx-44`
@@ -358,6 +358,7 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-80`](#zpa-80-zcczpa-trusted-network-signal-at-session-establishment) | ZCC→ZPA trusted-network signal at session establishment | zscaler doc not yet read / lab test |
 | [`zpa-81`](#zpa-81-pse-routing-off-network-fallback-when-is_public-false) | PSE routing / off-network fallback when `is_public = false` | zscaler doc not yet read / lab test |
 | [`zpa-82`](#zpa-82-pra-approval-identity-when-email-and-application-sets-match-but-time-windows-differ) | PRA approval identity when email/application sets match but time windows differ | API read / lab test |
+| [`zpa-83`](#zpa-83-application-segment-hbr-sticky-and-guestdetails-semantics) | Application-segment HBR, sticky, and `guestDetails` semantics | API read / lab test |
 
 The ZCC deep-dive refresh (2026-06-15) registered these open behavior questions surfaced in the per-doc **Open questions** sections — each links to its detailed entry below:
 
@@ -3694,7 +3695,7 @@ Whether audit logs generated within a microtenant are isolated to that microtena
 
 *Origin: `references/zpa/browser-access.md` § Open questions*
 
-Both fields are present on the SDK clientless-app model (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:771-772`), but the model is a passthrough struct — it does not document what the ZPA service does with each flag. The precise ingress behavior (whether `allow_options` blocks vs forwards an `OPTIONS` preflight to the backend, and whether `trust_untrusted_cert` suppresses the Browser Access web-server certificate error end-to-end or only on the backend leg) is inferred from the field names, not confirmed in vendor source.
+Both fields are present on the SDK clientless-app model (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:787-788`), but the model is a passthrough struct — it does not document what the ZPA service does with each flag. The precise ingress behavior (whether `allow_options` blocks vs forwards an `OPTIONS` preflight to the backend, and whether `trust_untrusted_cert` suppresses the Browser Access web-server certificate error end-to-end or only on the backend leg) is inferred from the field names, not confirmed in vendor source.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read / lab test (toggle each flag and observe ingress behavior)
@@ -4227,6 +4228,30 @@ or whether those records are distinguishable without an explicit ID.
 **Resolves with**: API read or lab test (create or retrieve same-email,
 same-application approvals with distinct time windows, then test lookup and
 update behavior without `approval_id`)
+
+---
+
+### zpa-83 — Application-segment HBR, sticky, and `guestDetails` semantics
+
+*Origin: `references/zpa/api-divergences.md` § Application Segments; `references/zpa/b2b-federation.md` § Segment-side SDK surface*
+
+Go v3.8.45 and Python v1.9.41 add `hbrEnabled`, `stickyEntity`,
+`stickyGroup`, and `guestDetails` to application-segment models
+(`vendor/zscaler-sdk-go/CHANGELOG.md:3-18`;
+`vendor/zscaler-sdk-python/CHANGELOG.md:3-19`). Go defines each guest record as
+a federation ID plus partner approval/federation status, GID, name, and scope
+name (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:161-172`).
+The static source does not define what HBR abbreviates here, accepted values for
+the sticky fields, how entity and group stickiness interact, which fields are
+server-computed versus writable, or the lifecycle that populates and removes
+guest details. The current Automate/Rosetta capture also has no entries for
+these four field names (audit-scoped search on 2026-08-09), so reconciliation
+cannot yet supply required/readonly/enum metadata.
+
+**Status**: open
+**Resolves with**: captured B2B/application-segment API bodies, current Help
+documentation for these fields, or tenant-side create/read/update observations
+that establish accepted values and server behavior
 
 ---
 

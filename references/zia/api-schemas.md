@@ -5,7 +5,7 @@ title: "ZIA API resource schemas"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 0d789caf9b79966cd1973cc227d6d2862e46e05d
+  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
 confidence: high
 source-tier: code
 sources:
@@ -3995,35 +3995,42 @@ This Cloud Browser Isolation profile struct now lives in the shared `common` pac
 
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
-| EnableDynamicContentCat | enableDynamicContentCat | bool | ✓ |  |
-| ConsiderEmbeddedSites | considerEmbeddedSites | bool | ✓ |  |
-| EnforceSafeSearch | enforceSafeSearch | bool | ✓ |  |
-| EnableOffice365 | enableOffice365 | bool | ✓ |  |
-| EnableMsftO365 | enableMsftO365 | bool | ✓ |  |
-| EnableUcaasZoom | enableUcaasZoom | bool | ✓ |  |
-| EnableUcaasLogMeIn | enableUcaasLogMeIn | bool | ✓ |  |
-| EnableUcaasRingCentral | enableUcaasRingCentral | bool | ✓ |  |
-| EnableUcaasWebex | enableUcaasWebex | bool | ✓ |  |
-| EnableUcaasTalkdesk | enableUcaasTalkdesk | bool | ✓ |  |
-| EnableChatGptPrompt | enableChatGptPrompt | bool | ✓ |  |
-| EnableMicrosoftCoPilotPrompt | enableMicrosoftCoPilotPrompt | bool | ✓ |  |
-| EnableGeminiPrompt | enableGeminiPrompt | bool | ✓ |  |
-| EnablePOEPrompt | enablePOEPrompt | bool | ✓ |  |
-| EnableMetaPrompt | enableMetaPrompt | bool | ✓ |  |
-| EnablePerPlexityPrompt | enablePerPlexityPrompt | bool | ✓ |  |
-| EnableDeepSeekPrompt | enableDeepSeekPrompt | bool | ✓ |  |
-| EnableWriterPrompt | enableWriterPrompt | bool | ✓ |  |
-| EnableGrokPrompt | enableGrokPrompt | bool | ✓ |  |
-| EnableMistralAIPrompt | enableMistralAIPrompt | bool | ✓ |  |
-| EnableClaudePrompt | enableClaudePrompt | bool | ✓ |  |
-| EnableGrammarlyPrompt | enableGrammarlyPrompt | bool | ✓ |  |
+| EnableDynamicContentCat | enableDynamicContentCat | bool |  |  |
+| ConsiderEmbeddedSites | considerEmbeddedSites | bool |  |  |
+| EnforceSafeSearch | enforceSafeSearch | bool |  |  |
+| EnableOffice365 | enableOffice365 | bool |  |  |
+| EnableMsftO365 | enableMsftO365 | bool |  |  |
+| EnableUcaasZoom | enableUcaasZoom | bool |  |  |
+| EnableUcaasLogMeIn | enableUcaasLogMeIn | bool |  |  |
+| EnableUcaasRingCentral | enableUcaasRingCentral | bool |  |  |
+| EnableUcaasWebex | enableUcaasWebex | bool |  |  |
+| EnableUcaasTalkdesk | enableUcaasTalkdesk | bool |  |  |
+| EnableChatGptPrompt | enableChatGptPrompt | bool |  |  |
+| EnableMicrosoftCoPilotPrompt | enableMicrosoftCoPilotPrompt | bool |  |  |
+| EnableGeminiPrompt | enableGeminiPrompt | bool |  |  |
+| EnablePOEPrompt | enablePOEPrompt | bool |  |  |
+| EnableMetaPrompt | enableMetaPrompt | bool |  |  |
+| EnablePerPlexityPrompt | enablePerPlexityPrompt | bool |  |  |
+| EnableDeepSeekPrompt | enableDeepSeekPrompt | bool |  |  |
+| EnableWriterPrompt | enableWriterPrompt | bool |  |  |
+| EnableGrokPrompt | enableGrokPrompt | bool |  |  |
+| EnableMistralAIPrompt | enableMistralAIPrompt | bool |  |  |
+| EnableClaudePrompt | enableClaudePrompt | bool |  |  |
+| EnableGrammarlyPrompt | enableGrammarlyPrompt | bool |  |  |
 | BlockSkype | blockSkype | bool | ✓ |  |
-| EnableNewlyRegisteredDomains | enableNewlyRegisteredDomains | bool | ✓ |  |
-| EnableBlockOverrideForNonAuthUser | enableBlockOverrideForNonAuthUser | bool | ✓ |  |
-| EnableCIPACompliance | enableCIPACompliance | bool | ✓ |  |
+| EnableNewlyRegisteredDomains | enableNewlyRegisteredDomains | bool |  |  |
+| EnableBlockOverrideForNonAuthUser | enableBlockOverrideForNonAuthUser | bool |  |  |
+| EnableCIPACompliance | enableCIPACompliance | bool |  |  |
 | SafeSearchApps | safeSearchApps | []string | ✓ |  |
-| ZveloDbLookupDisabled | zveloDbLookupDisabled | bool | ✓ |  |
-| EnableCreativeCommonsSearchResults | enableCreativeCommonsSearchResults | bool | ✓ |  |
+| ZveloDbLookupDisabled | zveloDbLookupDisabled | bool |  |  |
+| EnableCreativeCommonsSearchResults | enableCreativeCommonsSearchResults | bool |  |  |
+| EnableGoogleAIPrompt | enableGoogleAIPrompt | bool |  | Added in Go v3.8.45 |
+| EnableQuillbotAIPrompt | enableQuillbotAIPrompt | bool |  | Added in Go v3.8.45 |
+
+All non-optional booleans above intentionally omit `omitempty`, so Go sends
+their zero value as explicit `false`. `BlockSkype` and `SafeSearchApps` retain
+`omitempty` because the service rejects those fields in the states documented
+by the SDK (`vendor/zscaler-sdk-go/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go:149-255`).
 
 ## URLFilteringRule
 
