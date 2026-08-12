@@ -5,6 +5,8 @@ title: "AI Guard API and integration divergences"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
@@ -110,7 +112,7 @@ Do not generalize fail-open or fail-closed behavior across integrations:
 
 Source: `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md`; `vendor/zscaler-sdk-go`; `vendor/terraform-provider-zia`; `vendor/terraform-provider-zpa`; `vendor/terraform-provider-ztc`; `vendor/zscaler-mcp-server`; `vendor/zscaler-terraform-skills`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-The reconstructed Automate snapshot exposes **47 AI Guard operations across 29 paths with zero structural issues** (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). The live-snapshot comparison records 47 operations, 45 route-key matches, two added operations, and eight route changes (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:21-24`, `:40-43`). This resolves the earlier audit-scoped absence of a documented AI Guard admin-plane API.
+The retained Automate snapshot contains **47 AI Guard operations across 29 paths**, but the 2026-08-12 public route table contains no `aiguard` operations. The capture pipeline therefore preserves the last-known normalized contract and OpenAPI outside the current live validation set and marks the product `absent-from-current-public-route-table`; that publication state does not establish endpoint retirement or backend unavailability (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:19-23`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`, `:156-160`). This preserves evidence of the documented AI Guard admin plane without misrepresenting it as currently published.
 
 The configuration surface introduced in Python SDK 1.9.39 remains present in current v1.9.41: six resources and 39 callable methods (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; current version at `vendor/zscaler-sdk-python/pyproject.toml:3`):
 
@@ -123,7 +125,7 @@ The configuration surface introduced in Python SDK 1.9.39 remains present in cur
 | LLM applications | 6 | `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363` |
 | LLM application credentials, including regenerate | 7 | `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412` |
 
-Two read-only provider-type discovery operations are new in this capture:
+Two read-only provider-type discovery operations are present in the retained last-known capture:
 
 | Method | Path | Contract result |
 |---|---|---|
@@ -134,9 +136,9 @@ The single-type operation constrains `type` to 23 captured identifiers, from `op
 
 Do not conflate that contract with the newly captured **AI Security Public API**, which is a separate 11-operation read-only inventory/findings surface for data stores, identities, MCP servers/tools, workloads, and issues. See [`./asset-management-api.md`](./asset-management-api.md).
 
-That does **not** mean the client surfaces have full parity. Python wraps 39 of the 47 Automate operations; the same pass still found no matching Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected client/source classes. Treat the Automate contract as the documented method/path/field surface and each client inventory as its own coverage boundary. Do not infer tenant entitlement or live endpoint acceptance from either inventory. See [clarification ai-security-04](../_meta/clarifications.md#ai-security-04-ai-guard-admin-plane-programmability) for the broader wrapper boundary and [clarification ai-security-08](../_meta/clarifications.md#ai-security-08-python-sdk-ai-guard-admin-operation-gap) for the Python gap.
+That does **not** mean the client surfaces have full parity. Python wraps 39 of the 47 operations in the retained last-known contract; the same pass still found no matching Go SDK service, Terraform resource, MCP tool, Postman endpoint, or Automation Hub procedure in the inspected client/source classes. Treat the retained contract as last-known documented method/path/field evidence and each client inventory as its own coverage boundary. Do not infer tenant entitlement, live endpoint acceptance, endpoint retirement, or backend unavailability from either the wrapper inventory or current route-table absence. See [clarification ai-security-04](../_meta/clarifications.md#ai-security-04-ai-guard-admin-plane-programmability) for the broader wrapper boundary and [clarification ai-security-08](../_meta/clarifications.md#ai-security-08-python-sdk-ai-guard-admin-operation-gap) for the Python gap.
 
-The July 20 capture resolves the earlier adjacent-template encoding defect in the published contract. Enable/disable are now `/v1/detections/policies/{id}/enable` and `/v1/detections/policies/{id}/disable`, referential checks use `/{id}/referential-check`, and credential rotation uses `/{id}/regenerate` (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`, `:1469-1481`, `:4021-4033`). Structural validation now reports zero AI Guard path issues (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`). The previous `ai-security-05` clarification is closed for the documented Automate contract; live authorization and tenant acceptance remain separate concerns.
+The retained July 20 contract resolves the earlier adjacent-template encoding defect. Enable/disable are `/v1/detections/policies/{id}/enable` and `/v1/detections/policies/{id}/disable`, referential checks use `/{id}/referential-check`, and credential rotation uses `/{id}/regenerate` (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`, `:1469-1481`, `:4021-4033`). The previous `ai-security-05` clarification remains closed for the retained documented shape; current publication, live authorization, and tenant acceptance are separate concerns.
 
 ### Python SDK coverage gap
 
@@ -150,13 +152,13 @@ These are static-code cautions and have not been live-tested. The legacy helper'
 
 The runtime policy methods also look for `zguard_legacy_client` when handling throttling details (`vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py:124-131`, `:199-204`), while the executor stores the helper as `aiguard_legacy_client` (`vendor/zscaler-sdk-python/zscaler/request_executor.py:38-75`). This name mismatch may bypass helper-level throttling handling and needs a live or unit-level regression check; it does not change the response model's documented `throttlingDetails` fields.
 
-The same capture changed the enable/disable response from the prior full-policy shape to a `PolicyControlUpdateResult`: `enabled`, affected `matchRules[]` (`id`, `name`, `enabled`), `policyId`, and `updatedCount` (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:505-592`). This is documented-contract drift, not proof that older live tenants reject the previous response shape.
+The retained enable/disable response is a `PolicyControlUpdateResult`: `enabled`, affected `matchRules[]` (`id`, `name`, `enabled`), `policyId`, and `updatedCount` (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:505-592`). This is last-known documented shape, not proof of current publication or live tenant response behavior.
 
-The current LLM Application create/update/read schemas also omit `defaultPolicyId` and `applicationSettings.customerManagedKey.{kmsKeyId,kmsProviderType}`, which were present in the prior captured contract (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:135-148`). Treat this as published-schema drift only. It does not prove that the backend removed the fields, that existing stored values were deleted, or that tenant-level customer-managed-key configuration was removed.
+The retained LLM Application create/update/read schemas do not expose `defaultPolicyId` or `applicationSettings.customerManagedKey.{kmsKeyId,kmsProviderType}` (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:4464-4712`, `:4768-5073`, `:5294-5542`). Treat the omission as a last-known contract boundary only. It does not prove that the backend removed the fields, that existing stored values were deleted, or that tenant-level customer-managed-key configuration was removed.
 
 ## Help provider labels vs Automate provider types
 
-The 2026 Help chronology names supported applications/providers that do not all appear in the 23-value Automate `type` enum. Examples include GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`; Automate enum at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). These may represent User-mode application labels, built-in providers that are not customer-created admin objects, or documentation/API timing differences. Static sources do not establish a one-to-one mapping; track the boundary under [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
+The 2026 Help chronology names supported applications/providers that do not all appear in the retained last-known 23-value Automate `type` enum. Examples include GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`; retained Automate enum at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). These may represent User-mode application labels, built-in providers that are not customer-created admin objects, or documentation/API timing differences. Static sources do not establish a one-to-one mapping; track the boundary under [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 
 ## Cross-links
 

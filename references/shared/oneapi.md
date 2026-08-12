@@ -5,6 +5,8 @@ title: "OneAPI — unified API gateway, auth flows, rate limits, error model"
 content-type: reasoning
 last-verified: "2026-06-21"
 verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
 confidence: high
@@ -18,6 +20,10 @@ sources:
   - "vendor/zscaler-help/automate-zscaler/postman-collection-note.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/ai-security-api-reference.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md"
   - "vendor/zscaler-help/legacy-api-authentication.md"
   - "vendor/zscaler-help/legacy-getting-started-zia-api.md"
   - "vendor/zscaler-help/legacy-getting-started-zpa-api.md"
@@ -73,9 +79,9 @@ Zscaler maintains a public OneAPI documentation hub at `https://automate.zscaler
 
 We've vendored the relevant captures under `vendor/zscaler-help/automate-zscaler/`.
 
-**No standalone OpenAPI/Swagger spec is published.** Confirmed via thorough sweep — no `/swagger.json`, no `/openapi.yaml`, no downloadable spec link. The API reference data lives inside the Docusaurus JS bundle. This repository now has a best-effort extractor that rebuilds per-product OpenAPI-compatible snapshots from the embedded `frontMatter.api` objects, but those files are reconstructed artifacts, not vendor-published specifications (`scripts/automate-capture/README.md:110-141`; `vendor/zscaler-api-specs/automate-zscaler/rosetta.md:22-31`).
+**No standalone OpenAPI/Swagger spec is published.** Confirmed via thorough sweep — no `/swagger.json`, no `/openapi.yaml`, no downloadable spec link. The API reference data lives inside the Docusaurus JS bundle. This repository now has a best-effort extractor that rebuilds per-product OpenAPI-compatible snapshots from the embedded `frontMatter.api` objects, but those files are reconstructed artifacts, not vendor-published specifications (`scripts/automate-capture/README.md:13-30`).
 
-**The Postman collection remains useful, but no longer stands alone as the only machine-readable surface.** Vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (~14 MB, Postman v2.1.0 schema). The reconstructed Automate contracts feed the rosetta reconciliation for ZIA, ZPA, ZCC, and ZTW/Cloud Connector, while Postman is treated as reference-only rather than a constraint-bearing reconciliation leg (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:22-24`).
+**The Postman collection remains useful, but no longer stands alone as the only machine-readable surface.** Vendored at `vendor/zscaler-api-specs/oneapi-postman-collection.json` (~14 MB, Postman v2.1.0 schema). The reconstructed Automate contracts feed the rosetta reconciliation for ZIA, ZPA, ZCC, and ZTW/Cloud Connector, while Postman is treated as reference-only rather than a constraint-bearing reconciliation leg (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:181-183`).
 
 ## Authentication mechanisms (5 paths in the wild)
 
@@ -453,20 +459,25 @@ counts.
 | Zscaler EASM | 1 |
 | AI Security | 2 |
 
-The two AI Security children are distinct surfaces: **AI Red Teaming** exposes
-97 request definitions under `/aisecurity/airt/api/v2`, while **AI
-Infrastructure** exposes 11 read-only asset and issue requests under
-`/aisecurity/aispm/v1` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:139453-143529`).
-The Red Teaming entries contain no saved response examples, so the collection
-establishes published request coverage but not live response schemas, tenant
-entitlement, or endpoint acceptance.
+The current structured Automate publication combines **108 AI Security
+operations**: 97 AI Red Teaming operations under `/aisecurity/airt` and 11
+retained read-only AI Infrastructure asset/findings operations under
+`/aisecurity/aispm` (`vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:7-20`; Red Teaming addition inventory at `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:49`, `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:69-165`; both service URLs at `vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json:42816-42826`). The structured Red Teaming operations include request and response schema metadata where published; a representative create operation is captured at `vendor/zscaler-api-specs/automate-zscaler/ai-security-api-reference.json:2-701`.
+
+The Postman collection separately mirrors 97 Red Teaming requests under
+`/aisecurity/airt/api/v2`, while AI Infrastructure has 11 read-only asset and
+issue requests under `/aisecurity/aispm/v1`
+(`vendor/zscaler-api-specs/oneapi-postman-collection.json:139453-143529`). Its
+Red Teaming entries contain no saved response examples. Neither the structured
+capture nor Postman establishes tenant entitlement, authentication scopes,
+live endpoint acceptance, or backend/GA availability.
 
 **ZPA now has a reconstructed Automate contract in this repo.** The earlier
 2026-04-24 sitemap pass found no ZPA URLs, but the later Docusaurus-blob
 capture recovered ZPA operation metadata from automate.zscaler.com's embedded
-`frontMatter.api` objects. The current reconstructed snapshot records **188 ZPA
-operations across 125 paths with 0 structural validation issues**
-(`vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:7-19`)
+`frontMatter.api` objects. The current reconstructed snapshot records **208 ZPA
+operations across 137 paths with 0 structural validation issues**
+(`vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md:7-20`)
 and preserves per-operation source URLs and blob hashes
 (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:2-14`). The
 Postman collection is still useful as a published collection and historical

@@ -4,17 +4,20 @@ topic: "event-monitoring-api"
 title: "OneAPI Event Monitoring subscriptions and notification channels"
 content-type: reference
 last-verified: "2026-07-20"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
 confidence: high
 source-tier: doc
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/event-monitoring-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
 author-status: draft
 ---
 
 # OneAPI Event Monitoring subscriptions and notification channels
 
-Event Monitoring is a shared OneAPI surface for discovering event catalogs and delivering selected events to notification channels. The current Automate contract contains 15 operations: five catalog reads, five subscription CRUD/list operations, four channel-discovery reads, and one SNS verification action (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:27`, `:46`, `:70-74`).
+Event Monitoring is a shared OneAPI surface for discovering event catalogs and delivering selected events to notification channels. The current Automate contract contains 15 operations: five catalog reads, five subscription CRUD/list operations, four channel-discovery reads, and one SNS verification action (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:13`; channel operations at `vendor/zscaler-api-specs/automate-zscaler/event-monitoring-api-reference.json:995-1209`, `:1780-1984`, `:2431-2543`).
 
 ## Newly surfaced channel operations
 

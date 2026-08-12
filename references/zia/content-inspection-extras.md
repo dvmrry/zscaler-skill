@@ -4,6 +4,9 @@ topic: "content-inspection-extras"
 title: "FTP Control, File Type Control, and SSH handling"
 content-type: reasoning
 last-verified: "2026-06-18"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 confidence: high
 source-tier: mixed
 sources:
@@ -202,7 +205,7 @@ The per-rule `min_size`/`max_size` gate is **in KB** (`vendor/zscaler-sdk-python
 
 **`/fileTypeCategories` is an enum-lookup endpoint** returning predefined and custom file types for use as rule conditions, filterable by an `enums` query param with three values: `ZSCALERDLP` (Web DLP rules with content inspection), `EXTERNALDLP` (Web DLP rules without content inspection), and `FILETYPECATEGORYFORFILETYPECONTROL` (File Type Control policy). An `exclude_custom_file_types` boolean param drops custom types from the result (`vendor/zscaler-sdk-python/zscaler/zia/file_type_control_rule.py:346-414`).
 
-The Automate contract now provides a static captured file-type vocabulary for the rule body: `fileTypes` is a contract-only enum for `POST /zia/api/v1/fileTypeRules`, beginning with `ANY`, `NONE`, and `FTCATEGORY_*` values and ending at `FTCATEGORY_TS` in the generated reconciliation (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:4754-4757`, `:4795-4805`, `:5084-5091`). Terraform does not carry a corresponding `fileTypes` choice list in the reconciled resource (`:5091`).
+The Automate contract now provides a static captured file-type vocabulary for the rule body: `fileTypes` is a contract-only enum for `POST /zia/api/v1/fileTypeRules`, beginning with `ANY`, `NONE`, and `FTCATEGORY_*` values and ending at `FTCATEGORY_TS` in the generated reconciliation (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:5029-5032`, `:5082-5087`, `:5089-5380`). Terraform does not carry a corresponding `fileTypes` choice list in the reconciled resource (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:5378`).
 
 ### Custom file types
 
@@ -272,6 +275,6 @@ These came up while reconciling the help-doc framing against the SDK surface and
 
 2. **The File Type Control `filtering_action`-to-field dependency contract is not encoded in source.** The SDK accepts `min_size`/`max_size`/`operation`/`active_content`/`unscannable`/`password_protected` as flat kwargs (`vendor/zscaler-sdk-python/zscaler/zia/file_type_control_rule.py:149-156`) with no client-side validation tying any field to a specific `filtering_action` value. Which combinations the API accepts or rejects (e.g. whether `active_content`/`unscannable` are meaningful with `ALLOW`) is not stated in the Python SDK source examined.
 
-3. **The full `file_types` enum is not enumerated in the SDK, but is now captured from the Automate contract.** The model treats `file_types` as a free list of strings (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:77`), and `/fileTypeCategories` remains the runtime lookup endpoint (`vendor/zscaler-sdk-python/zscaler/zia/file_type_control_rule.py:346-414`). The generated contract reconciliation now gives the static documented list for `fileTypes` (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:4795-4805`, `:5084-5091`), so use that for source-backed vocabulary checks while still treating tenant-specific custom file types as runtime data.
+3. **The full `file_types` enum is not enumerated in the SDK, but is now captured from the Automate contract.** The model treats `file_types` as a free list of strings (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:77`), and `/fileTypeCategories` remains the runtime lookup endpoint (`vendor/zscaler-sdk-python/zscaler/zia/file_type_control_rule.py:346-414`). The generated contract reconciliation now gives the static documented list for `fileTypes` (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:5089-5380`), so use that for source-backed vocabulary checks while still treating tenant-specific custom file types as runtime data.
 
 4. **The `protocols` value set is only partially confirmed.** `HTTP_RULE` / `HTTPS_RULE` / `FTP_RULE` are confirmed for File Type Control (`vendor/zscaler-help/about-file-type-control.md:29`), but the Python model stores `protocols` as an unconstrained list of strings (`vendor/zscaler-sdk-python/zscaler/zia/models/filetyperules.py:49`) with no enum declared, so whether additional protocol tokens are accepted is not determinable from this source.

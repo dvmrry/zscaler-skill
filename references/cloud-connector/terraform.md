@@ -4,6 +4,8 @@ topic: cc-terraform
 title: Cloud Connector Terraform provider
 content-type: reference
 last-verified: "2026-07-06"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
 confidence: medium
 source-tier: code
 sources:
@@ -20,6 +22,7 @@ sources:
   - vendor/zscaler-terraformer/cmd/root.go
   - vendor/zscaler-terraform-skills/skills/best-practices-skill/references/import-and-brownfield.md
   - vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md
+  - vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json
 author-status: draft
 ---
 
@@ -215,7 +218,7 @@ Gotchas:
 - `src_workload_groups` IDs: use the native `ztc_workload_groups` data source — it is real compiled code (`vendor/terraform-provider-ztc/ztc/data_source_ztc_workload_groups.go`, registered at `provider.go:146`; schema fields `id`/`name`/`description`/`expression`/`expression_json` at `:17`,`:23`,`:28`,`:33`,`:38`). The vendor's own resource docs lag the code and still direct practitioners to the ZIA Terraform provider's `zia_workload_groups` data source (`vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md:52-53`), but code is the authoritative source here — the native ZTC data source is functional. The ZIA provider remains a valid alternative since workload groups are cross-shared between ZIA and ZTC and return the same IDs. There is no `ztc_workload_groups` *resource* for mutation — create/update/delete go through the raw API or are authored ZIA-side.
 - `zpa_application_segments` and `zpa_application_segment_groups` have no corresponding data sources in the ZTC provider. IDs must be obtained outside Terraform and hardcoded.
 - `wan_selection` is deprecated and no longer configurable: the SDK struct comment states verbatim "This parameter was deprecated and is no longer configurable." (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:49`). The values listed in that comment (`SMRULEF_ZPA_BROKERS_RULE`, `SMRULEF_APPC_DYNAMIC_SRC_IPGROUP`, `SMRULEF_EXCL_SRC_IP`, `BALANCED_RULE`, `BESTLINK_RULE`) are historical only.
-- Rule labels are an unresolved provider-coverage gap. The `ztc_traffic_forwarding_rule` Terraform schema has no `labels` / `rule_label` field in its top-level schema (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go:123-248`), while the reconstructed ZCloudConnector contract models a `labels` array on the `/ecRules/ecRdr` rule shape (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:22873-22880`, `:25052-25060`). Upstream issue [zscaler/terraform-provider-ztc#46](https://github.com/zscaler/terraform-provider-ztc/issues/46) asks for provider support. Static sources prove the provider gap and contract field, but not live backend write acceptance. See [clarification `cloud-connector-26`](../_meta/clarifications.md#cloud-connector-26-ztc_traffic_forwarding_rule-label-support).
+- Rule labels are an unresolved provider-coverage and documentation conflict. The `ztc_traffic_forwarding_rule` Terraform schema has no `labels` / `rule_label` field in its top-level schema (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go:123-248`). The reconstructed ZCloudConnector contract includes a `labels` array in the request shape for `POST /ecRules/ecRdr`, but the field description explicitly says it is "Not applicable to Cloud & Branch Connector" (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:88559-88571`; `vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:90749-90756`). Upstream issue [zscaler/terraform-provider-ztc#46](https://github.com/zscaler/terraform-provider-ztc/issues/46) reports GUI support and asks for provider support. Static sources prove the provider omission and the GUI-versus-contract conflict, but not live API write acceptance or that the generic field applies to this product. See [clarification `cloud-connector-26`](../_meta/clarifications.md#cloud-connector-26-ztc_traffic_forwarding_rule-label-support).
 
 ---
 

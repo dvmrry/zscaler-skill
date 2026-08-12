@@ -15,6 +15,7 @@ const PYTEST_FILES = [
   "scripts/automate-capture/test_build_openapi_from_blobs.py",
   "scripts/automate-capture/test_reconcile_contract.py",
   "scripts/automate-capture/test_rosetta.py",
+  "scripts/automate-capture/test_reference_anchors.py",
 ];
 
 const FULL_CHECKS = [

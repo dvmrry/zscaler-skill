@@ -5,6 +5,8 @@ title: "Zscaler Cellular / ZCell API, SDK, and MCP surface"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
@@ -12,8 +14,6 @@ verified-against:
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
-  vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
-  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
 confidence: medium
 source-tier: mixed
 sources:
@@ -62,7 +62,7 @@ author-status: draft
 
 # Zscaler Cellular / ZCell API, SDK, and MCP surface
 
-The captured Automate contract contains **36 ZCell operations** grouped under anomaly policy, audit data handling, customer data handling, customer region handling, network events, SIM analytics, SIM handling, SIM location groups, and tag handling (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`; family paths at `vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458`). The rosetta synthesis records ZCell as "Contract captured" but notes that DAV-21 did not establish a multi-surface reconciliation footprint (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:173`); that is the capture boundary of that pass, not the current repository state, which now includes both Python SDK and MCP implementations.
+The captured Automate contract contains **36 ZCell operations** grouped under anomaly policy, audit data handling, customer data handling, customer region handling, network events, SIM analytics, SIM handling, SIM location groups, and tag handling (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`; family paths at `vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458`). The rosetta synthesis records ZCell as "Contract captured" but notes that DAV-21 did not establish a multi-surface reconciliation footprint (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:190`); that is the capture boundary of that pass, not the current repository state, which now includes both Python SDK and MCP implementations.
 
 ## Authentication and customer scoping
 

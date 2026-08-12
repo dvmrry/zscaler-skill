@@ -4,6 +4,9 @@ topic: "zia-dlp"
 title: "ZIA Data Loss Prevention — dictionaries, engines, policy rules"
 content-type: reasoning
 last-verified: "2026-07-22"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 confidence: high
 source-tier: mixed
 sources:
@@ -221,7 +224,7 @@ The web-rule model (`vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.
 - **`dlp_download_scan_enabled`** (`:57`) — enable DLP on the download direction (the `Inspect Downloads` toggle; see the EDM/IDM exclusion footgun below).
 - **`match_only`** (`:51`) and **`min_size`** (`:48`, KB) — file-size gating: `match_only` controls whether a minimum file size is used to qualify a transaction for evaluation.
 - **`user_risk_score_levels`** (`:76-78`) — risk-based DLP: scope a rule to user risk-score bands.
-- **`dlp_content_locations_scopes`** (`dlpContentLocationsScopes`) — content-location match scopes. This field is documented in Automate for Web DLP create/read/update operations (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:81631-81638`, `:97694-97700`, `:121756-121762`) and modeled by both Go and Python SDKs (`vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go:163-164`; `vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py:79-80`, `:237`), but the 2026-06-21 overlay records it as absent from the Terraform provider (`vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md:40-42`).
+- **`dlp_content_locations_scopes`** (`dlpContentLocationsScopes`) — content-location match scopes. This field is documented in Automate for Web DLP create, read, and update operations (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:124071-124083`; `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:146797-146810`; `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:181309-181321`) and modeled by both Go and Python SDKs (`vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go:163-164`; `vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py:79-80`, `:237`), but the 2026-06-21 overlay records it as absent from the Terraform provider (`vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md:40-42`).
 - **`included_domain_profiles` / `excluded_domain_profiles`** (`:102-109`) and **`source_ip_groups`** (`:110-112`) — additional scoping dimensions (domain profiles, source IP groups) beyond the users/groups/departments/locations the prose lists.
 - **`zscaler_incident_receiver`** (`:66`), **`icap_server`** (`:137`), **`auditor`** (`:131`), **`external_auditor_email`** (`:67`, `dlp_web_rules.py:246`), **`notification_template`** (`:133-135`) — the per-rule handles wiring a rule to the forwarding surfaces in the `dlp_resources` / `dlp_templates` namespaces above.
 
