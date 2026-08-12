@@ -6,7 +6,8 @@ name: Doc hygiene
 #   - check-doc-links.py:        HTML link / asset path resolution in docs/**
 #   - check-citation-density.py: reference source-anchor coverage and Source: audit
 #   - check-workflow-metadata.mjs: workflow metadata and adapter-reference check
-#   - check-verified-against.py:   verified source pins and paths are valid; SHAs resolve in initialized submodules
+#   - check-verified-against.py:   verified source pins and paths are valid; SHAs resolve in initialized submodules;
+#                                  exact changed Help/API capture sources exist at their recorded superproject pin
 #   - check-reference-freshness.mjs: diff-aware date/pin and cited-root checks (advisory)
 #   - check-capability-registry.mjs: role-routing registry contract
 #   - node --test:            stdlib helper regressions for investigator gates
@@ -117,8 +118,10 @@ jobs:
       - name: Check release metadata agreement
         run: node scripts/check-release-state.mjs
 
-      - name: Check verified-against provenance
-        run: ./scripts/check-verified-against.py
+      - name: Check verified-against provenance and changed source paths
+        env:
+          REFERENCE_PROVENANCE_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: ./scripts/check-verified-against.py --base "${REFERENCE_PROVENANCE_BASE:-HEAD^}" --head HEAD
 
       - name: Check reference freshness semantics (advisory)
         continue-on-error: true
