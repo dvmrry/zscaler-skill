@@ -23,6 +23,8 @@ Status: functional. Two output modes:
     otherwise bump the issue's updated_at). With --bootstrap-if-missing,
     creates the sticky issue on first run if no existing issue carries the
     label. Designed for unattended GH Actions runs.
+    If any watched repository fetch fails, the sticky body and embedded marker
+    remain unchanged and the process exits nonzero.
 
 Run (local mode):
     ./scripts/issue-watch.py
@@ -57,30 +59,34 @@ import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import NamedTuple
 
 import httpx
 
+from issue_watch_config import WATCHED_REPOS as REPOS
 from runtime_data import runtime_data_path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_FILE = runtime_data_path("logs", "issue-watch-state.json", root=REPO_ROOT)
 OUTPUT = runtime_data_path("logs", "issues-new.md", root=REPO_ROOT)
 
-REPOS = [
-    "zscaler/zscaler-sdk-python",
-    "zscaler/zscaler-sdk-go",
-    "zscaler/terraform-provider-zia",
-    "zscaler/terraform-provider-zpa",
-    "zscaler/terraform-provider-zcc",
-    "zscaler/terraform-provider-ztc",
-    "zscaler/zscaler-mcp-server",
-    "zscaler/zguard-ai-integrations",
-]
-
 GITHUB_API = "https://api.github.com"
 FIRST_RUN_LOOKBACK_DAYS = 30
 STICKY_TITLE = "Upstream Issue Watch — running digest"
 LAST_CHECK_MARKER_RE = re.compile(r"<!--\s*last_check:\s*([^\s]+)\s*-->")
+
+
+class FetchResult(NamedTuple):
+    """Per-repository fetch outcome used by both persistence modes."""
+
+    new_issues: list[dict]
+    new_state: dict[str, str]
+    checked_repos: tuple[str, ...]
+    failed_repos: dict[str, str]
+
+
+class IncompleteFetchError(RuntimeError):
+    """A response was valid HTTP but could not be consumed completely."""
 
 
 # ----- CLI -----
@@ -244,6 +250,10 @@ def fetch_issues(client: httpx.Client, repo: str, since: str) -> list[dict]:
         r = client.get(f"{GITHUB_API}/repos/{repo}/issues", params=params)
         r.raise_for_status()
         batch = r.json()
+        if not isinstance(batch, list) or any(not isinstance(i, dict) for i in batch):
+            raise IncompleteFetchError(
+                f"GitHub returned a non-issue-list response for {repo}"
+            )
         if not batch:
             break
         issues.extend(i for i in batch if "pull_request" not in i)
@@ -251,20 +261,47 @@ def fetch_issues(client: httpx.Client, repo: str, since: str) -> list[dict]:
             break
         page += 1
         if page > 10:
-            print(f"WARN: hit page cap on {repo}; truncating", file=sys.stderr)
-            break
+            raise IncompleteFetchError(
+                f"hit the 10-page cap on {repo}; refusing to advance its marker"
+            )
     return issues
+
+
+def describe_status_error(error: httpx.HTTPStatusError) -> str:
+    """Return a concise status failure, retaining useful rate-limit metadata."""
+    response = error.response
+    detail = " ".join(response.text.split())[:200]
+    message = f"HTTP {response.status_code}"
+    if detail:
+        message += f": {detail}"
+
+    rate_metadata = []
+    if retry_after := response.headers.get("retry-after"):
+        rate_metadata.append(f"retry-after={retry_after}")
+    if reset_at := response.headers.get("x-ratelimit-reset"):
+        rate_metadata.append(f"rate-limit-reset={reset_at}")
+    if remaining := response.headers.get("x-ratelimit-remaining"):
+        rate_metadata.append(f"rate-limit-remaining={remaining}")
+    if rate_metadata:
+        message += f" ({', '.join(rate_metadata)})"
+    return message
 
 
 def fetch_for_repos(
     client: httpx.Client, since_per_repo: dict[str, str]
-) -> tuple[list[dict], dict[str, str]]:
-    """Fetch new issues across all repos. Returns (new_issues, new_state).
+) -> FetchResult:
+    """Fetch issues and surface successes, failures, and per-repo state.
 
     new_state maps each repo to the run timestamp on success, or to the previous
-    state value on failure (so failures don't lose the last-seen marker)."""
+    state value on failure (so failures don't lose the last-seen marker).
+    failed_repos is non-empty for HTTP status, network, malformed-response, or
+    incomplete-pagination failures; callers decide whether partial progress is
+    safe for their persistence mode.
+    """
     new_issues = []
     new_state = {}
+    checked_repos = []
+    failed_repos = {}
     current_run_at = datetime.now(timezone.utc).isoformat()
     for repo in REPOS:
         since = since_per_repo.get(repo, since_per_repo.get("__default__"))
@@ -272,23 +309,33 @@ def fetch_for_repos(
         try:
             issues = fetch_issues(client, repo, since)
         except httpx.HTTPStatusError as e:
-            code = e.response.status_code if e.response else "?"
-            msg = e.response.text[:200] if e.response else str(e)
-            print(f"  ERROR {code}: {msg}", file=sys.stderr)
-            # Preserve previous since on failure (so we retry next run) — fall
-            # back to the run's `since` if the per-repo value was missing.
-            new_state[repo] = since_per_repo.get(repo) or since
-            continue
+            failed_repos[repo] = describe_status_error(e)
+        except httpx.RequestError as e:
+            failed_repos[repo] = f"network error: {e}"
         except httpx.HTTPError as e:
-            print(f"  HTTP ERROR: {e}", file=sys.stderr)
+            failed_repos[repo] = f"HTTP client error: {e}"
+        except (IncompleteFetchError, ValueError) as e:
+            failed_repos[repo] = f"incomplete response: {e}"
+
+        if repo in failed_repos:
+            print(f"  ERROR: {failed_repos[repo]}", file=sys.stderr)
+            # Preserve the previous marker so local mode retries this repository.
+            # A missing per-repo marker falls back to the run's resolved `since`.
             new_state[repo] = since_per_repo.get(repo) or since
             continue
+
         for i in issues:
             i["_repo"] = repo
         new_issues.extend(issues)
         print(f"  Found {len(issues)} issues", file=sys.stderr)
         new_state[repo] = current_run_at
-    return new_issues, new_state
+        checked_repos.append(repo)
+    return FetchResult(
+        new_issues,
+        new_state,
+        tuple(checked_repos),
+        failed_repos,
+    )
 
 
 # ----- render -----
@@ -299,9 +346,13 @@ def render_digest(
     last_check: str | None,
     current_run_at: str,
     sticky_marker: bool = False,
+    checked_repos: int | None = None,
+    failed_repos: dict[str, str] | None = None,
 ) -> str:
     """Build the markdown digest. If sticky_marker is True, prepend an HTML
     comment with the current_run_at timestamp for the next run to read."""
+    checked_count = len(REPOS) if checked_repos is None else checked_repos
+    failures = failed_repos or {}
     lines = []
     if sticky_marker:
         lines.append(f"<!-- last_check: {current_run_at} -->")
@@ -315,7 +366,8 @@ def render_digest(
         lines.append(f"Looking at activity since {last_check[:19]}.")
     lines += [
         "",
-        f"- Repos checked: {len(REPOS)}",
+        f"- Repos checked: {checked_count} of {len(REPOS)}",
+        f"- Repos failed: {len(failures)}",
         f"- New / updated issues: {len(new_issues)}",
         "",
         "Triage workflow:",
@@ -330,6 +382,12 @@ def render_digest(
         "---",
         "",
     ]
+
+    if failures:
+        lines += ["Fetch failures (markers retained for retry):", ""]
+        for repo, failure in failures.items():
+            lines.append(f"- `{repo}` — {failure}")
+        lines += ["", "---", ""]
 
     if not new_issues:
         lines.append("**No new or updated issues since last run.**")
@@ -380,7 +438,7 @@ def make_client() -> httpx.Client:
     return httpx.Client(headers=headers, timeout=30.0)
 
 
-def run_local_mode():
+def run_local_mode() -> int:
     state = load_local_state()
     default_since = (
         datetime.now(timezone.utc) - timedelta(days=FIRST_RUN_LOOKBACK_DAYS)
@@ -392,16 +450,29 @@ def run_local_mode():
     current_run_at = datetime.now(timezone.utc).isoformat()
 
     with make_client() as client:
-        new_issues, new_state = fetch_for_repos(client, since_per_repo)
+        result = fetch_for_repos(client, since_per_repo)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(render_digest(new_issues, default_since, current_run_at, sticky_marker=False))
-    save_local_state(new_state)
+    OUTPUT.write_text(
+        render_digest(
+            result.new_issues,
+            default_since,
+            current_run_at,
+            sticky_marker=False,
+            checked_repos=len(result.checked_repos),
+            failed_repos=result.failed_repos,
+        )
+    )
+    save_local_state(result.new_state)
     print(f"Wrote {OUTPUT}")
-    print(f"  {len(new_issues)} new / updated issues across {len(REPOS)} repos")
+    print(
+        f"  {len(result.new_issues)} new / updated issues; "
+        f"checked {len(result.checked_repos)} of {len(REPOS)} repos"
+    )
+    return 0
 
 
-def run_sticky_mode(args: argparse.Namespace):
+def run_sticky_mode(args: argparse.Namespace) -> int:
     target_repo = args.target_repo or detect_target_repo()
     if not target_repo:
         print(
@@ -409,14 +480,14 @@ def run_sticky_mode(args: argparse.Namespace):
             "Set GITHUB_REPOSITORY or specify --target-repo OWNER/NAME.",
             file=sys.stderr,
         )
-        sys.exit(2)
+        return 2
 
     if not os.environ.get("GITHUB_TOKEN"):
         print(
             "ERROR: sticky mode requires GITHUB_TOKEN with issues:write permission.",
             file=sys.stderr,
         )
-        sys.exit(2)
+        return 2
 
     with make_client() as client:
         sticky = find_sticky_issue(client, target_repo, args.sticky_label, args.sticky_issue)
@@ -430,7 +501,7 @@ def run_sticky_mode(args: argparse.Namespace):
                     "Pass --bootstrap-if-missing with --sticky-label to create one.",
                     file=sys.stderr,
                 )
-                sys.exit(2)
+                return 2
 
         last_check = parse_last_check(sticky.get("body") or "")
         if last_check is None:
@@ -446,21 +517,49 @@ def run_sticky_mode(args: argparse.Namespace):
         # All repos use the same `since` in sticky mode (the embedded marker)
         since_per_repo = {"__default__": last_check}
         current_run_at = datetime.now(timezone.utc).isoformat()
-        new_issues, _ = fetch_for_repos(client, since_per_repo)
+        result = fetch_for_repos(client, since_per_repo)
 
-        new_body = render_digest(new_issues, last_check, current_run_at, sticky_marker=True)
+        if result.failed_repos:
+            failed_names = ", ".join(result.failed_repos)
+            print(
+                "ERROR: upstream issue fetch was incomplete; refusing to update "
+                f"sticky issue #{sticky['number']}.",
+                file=sys.stderr,
+            )
+            print(
+                f"  Checked {len(result.checked_repos)} of {len(REPOS)} repos; "
+                f"failed: {failed_names}",
+                file=sys.stderr,
+            )
+            print(
+                f"  last_check remains {last_check}; failed repositories will be "
+                "retried on the next run.",
+                file=sys.stderr,
+            )
+            return 1
+
+        new_body = render_digest(
+            result.new_issues,
+            last_check,
+            current_run_at,
+            sticky_marker=True,
+            checked_repos=len(result.checked_repos),
+        )
         patch_sticky_issue(client, target_repo, sticky["number"], new_body)
         print(f"Updated sticky issue #{sticky['number']} in {target_repo}")
-        print(f"  {len(new_issues)} new / updated issues across {len(REPOS)} repos")
+        print(
+            f"  {len(result.new_issues)} new / updated issues across "
+            f"{len(result.checked_repos)} repos"
+        )
+        return 0
 
 
-def main(argv: list[str] | None = None):
+def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv if argv is not None else sys.argv[1:])
     if args.sticky_label or args.sticky_issue:
-        run_sticky_mode(args)
-    else:
-        run_local_mode()
+        return run_sticky_mode(args)
+    return run_local_mode()
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

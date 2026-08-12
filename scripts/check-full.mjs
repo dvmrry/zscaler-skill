@@ -10,6 +10,7 @@ const referenceFreshnessBase = process.env.REFERENCE_FRESHNESS_BASE || "origin/m
 const PYTEST_FILES = [
   "scripts/test_check_hygiene.py",
   "scripts/test_check_vendor_drift.py",
+  "scripts/test_issue_watch.py",
   "scripts/automate-capture/test_extract_docusaurus_blobs.py",
   "scripts/automate-capture/test_build_openapi_from_blobs.py",
   "scripts/automate-capture/test_reconcile_contract.py",
@@ -64,6 +65,8 @@ const FULL_CHECKS = [
       "pytest",
       "--with",
       "pyyaml",
+      "--with",
+      "httpx",
       "python",
       "-m",
       "pytest",

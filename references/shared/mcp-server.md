@@ -16,6 +16,7 @@ sources:
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/security/hardening.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/security/auth.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/security/elicitation.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/security/audit.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/cloud/__init__.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/cloud/aws_secrets.py"
@@ -26,6 +27,8 @@ sources:
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/common/jmespath_utils.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py"
+  - "vendor/zscaler-sdk-python/zscaler/zpa/policies.py"
   - "vendor/zscaler-mcp-server/tests/test_cli.py"
   - "vendor/zscaler-mcp-server/tests/test_registry.py"
   - "vendor/zscaler-mcp-server/tests/test_shaping_helpers.py"
@@ -42,6 +45,8 @@ sources:
   - "vendor/zscaler-mcp-server/.github/conformance-baseline-next.yml"
   - "vendor/zscaler-mcp-server/requirements.txt"
   - "vendor/zscaler-mcp-server/uv.lock"
+  - "https://github.com/zscaler/zscaler-mcp-server/issues/95"
+  - "https://github.com/zscaler/zscaler-mcp-server/issues/96"
 author-status: draft
 ---
 
@@ -79,6 +84,22 @@ The word **full** is scoped to the SDK-modeled dict delivered to the shaper,
 after SDK decoding and any earlier tool cleanup or unwrapping. It is a
 field-preservation contract at that boundary, not a promise of byte-identical
 raw HTTP JSON (`vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`).
+
+## ZPA shared policy-rule pagination boundary
+
+The full-record contract does not imply a full collection. At v0.15.0, the
+access, forwarding, timeout, isolation, and app-protection rule-list tools share
+an input model with only `microtenant_id`, make one SDK request, and discard the
+response object that carries pagination state
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:1-9`;
+`:39-44`; `:86-94`). The SDK endpoint defaults to 20 rows and supports
+`page_size` up to 500 (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`).
+Issue [#96](https://github.com/zscaler/zscaler-mcp-server/issues/96) reports the
+matching first-20 symptom for access rules. Treat all five MCP list results as
+potentially truncated and use the direct SDK pagination loop documented in
+[`../zpa/api.md § Pagination`](../zpa/api.md#pagination) until the shared helper
+is fixed. Closure is tracked as
+[`zpa-84`](../_meta/clarifications.md#zpa-84-mcp-shared-zpa-policy-rule-list-pagination).
 
 ## Caller-directed JMESPath projection
 
@@ -122,6 +143,31 @@ applied after the enabled set so denial wins when an ID appears in both
 Unknown IDs produce a warning that names the unknown and known IDs, then boot
 continues (`vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:253-272`;
 `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/registry.py:61-67`).
+
+### OneAPI entitlement filtering and unmapped aliases
+
+OneAPI entitlement downscoping reads `service-info[].prd` once at startup and
+maps known product codes to MCP service IDs. At the v0.15.0 pin, the table maps
+`ZTW`, `ZIDENTITY` / `ZID` / `IDENTITY`, and `ZINS` / `INSIGHTS`, but not
+`CLOUD_CONNECTOR`, `ZIAM`, or `ZINSIGHTS`; unknown codes are silently skipped
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:53-79`;
+`:107-130`). Upstream issue
+[#95](https://github.com/zscaler/zscaler-mcp-server/issues/95) reports those
+three omitted aliases in one tenant's token and HTTP 200 responses from that
+same token for the corresponding `ztw`, `zid`, and `zins` tools when filtering
+was disabled. That is strong evidence for an immediate compatibility gap, but
+not proof that every tenant or token uses only those aliases.
+
+If expected `ztw`, `zid`, or `zins` tools disappear after successful OneAPI
+authentication, compare the startup entitlement log with the token's `prd`
+values. The emergency workaround is to restart with
+`--no-entitlement-filter` or
+`ZSCALER_MCP_DISABLE_ENTITLEMENT_FILTER=true`
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:275-300`; `:956-965`).
+This disables entitlement downscoping for the whole connection: tools for
+genuinely unentitled products can also be registered and then fail at call
+time. Track the canonical alias set and upstream mapping fix under
+[`shared-40`](../_meta/clarifications.md#shared-40-oneapi-entitlement-prd-aliases-for-ztw-zid-and-zins).
 
 ## Write-tool exposure: executable behavior
 

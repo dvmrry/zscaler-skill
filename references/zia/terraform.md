@@ -98,6 +98,7 @@ sources:
   - "vendor/terraform-provider-zia/zia/data_source_zia_ueba_alert_definitions.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_ueba_alert_definitions.go"
 author-status: draft
 ---
@@ -218,9 +219,14 @@ Singleton resource for URL and Cloud App Control advanced policy settings. Manag
 | `enable_msft_o365` | Bool | Optional |
 | `enforce_safe_search` | Bool | Optional |
 | `enable_ucaas_zoom` / `_webex` / `_ringcentral` / `_logmein` / `_talkdesk` | Bool | Optional |
-| `enable_chatgpt_prompt` / `_gemini_prompt` / `_microsoft_copilot_prompt` / `_poe_prompt` / `_meta_prompt` / `_perplexity_prompt` / `_deep_seek_prompt` / `_claude_prompt` / `_grok_prompt` / `_mistral_ai_prompt` / `_grammarly_prompt` / `_writer_prompt` | Bool | Optional; enable per-AI-app prompt logging |
+| `enable_chatgpt_prompt` / `enable_gemini_prompt` / `enable_microsoft_copilot_prompt` / `enable_poe_prompt` / `enable_meta_prompt` / `enable_per_plexity_prompt` / `enable_deep_seek_prompt` / `enable_claude_prompt` / `enable_grok_prompt` / `enable_mistral_ai_prompt` / `enable_grammarly_prompt` / `enable_writer_prompt` | Bool | Optional; enable per-AI-app prompt logging |
 
 Gotcha: Only one instance should exist per tenant. Import by the literal string `"app_setting"`.
+The executable schema's exact Perplexity field is
+`enable_per_plexity_prompt`
+(`vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go:129-134`);
+do not normalize it to `enable_perplexity_prompt` or abbreviate it as
+`_perplexity_prompt`.
 
 ### `zia_cloud_app_control_rule`
 

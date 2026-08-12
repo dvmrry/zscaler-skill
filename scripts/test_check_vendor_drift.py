@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 SCRIPT = Path(__file__).with_name("check-vendor-drift.py")
+REPO_ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("check_vendor_drift", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -62,3 +63,35 @@ def test_empty_relative_source_matches_whole_submodule_root():
     assert MODULE.source_matches_changed_path(
         "", "zscaler/zia/services/pacfiles/pacfiles.go"
     )
+
+
+def test_zia_cac_release_gate_requires_source_fix_and_stress_race_run():
+    reference = (REPO_ROOT / "references/zia/api-divergences.md").read_text()
+    maintenance = (REPO_ROOT / "scripts/README.md").read_text()
+    stress_command = (
+        "go test -race ./zia -run "
+        "'TestCloudAppRuleResourceType_DistinctKeysPerType|"
+        "TestReorder_CloudAppControl_PerTypeIsolation|"
+        "TestReorder_CloudAppControl_SharedKeyMixesTypes_Characterization' "
+        "-count=20 -v"
+    )
+
+    assert stress_command in reference
+    assert "single clean\n`-count=1` race run is insufficient" in reference
+    assert "copying `doneCh` while still holding the lock" in reference
+    assert "source-level\n   removal, locking, or copy-before-unlock check" in reference
+    assert "`-count=20` or a higher repeat count" in maintenance
+    assert "clean `-count=1` run is insufficient" in maintenance
+
+
+def test_pinned_zia_provider_still_has_post_unlock_reorder_done_read():
+    source = (
+        REPO_ROOT / "vendor/terraform-provider-zia/zia/common.go"
+    ).read_text()
+    function_start = source.index("func reorderWithBeforeReorder(")
+    function_end = source.index("\n}\n\n// waitForReorder", function_start)
+    function = source[function_start:function_end]
+
+    unlock = function.index("rules.Unlock()")
+    map_read = function.index("doneCh := rules.reorderDone[resourceType]")
+    assert unlock < map_read

@@ -7,6 +7,7 @@ last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 verified-against:
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
@@ -36,6 +37,7 @@ sources:
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-acvm-aws/variables.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/variables.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/main.tf"
+  - "https://github.com/zscaler/terraform-aws-zpa-app-connector-modules/issues/52"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-sg-aws/main.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-iam-aws/main.tf"
   - "vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/main.tf"
@@ -307,6 +309,23 @@ Zscaler publishes reference Terraform configurations in two vendor-maintained re
 | `base_ac_asg` | Greenfield | `base` + Auto Scaling Group; defaults: `min_size=2`, `max_size=4`, target CPU 50% (`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/variables.tf:113-184`) |
 | `ac` | Brownfield | 2 standalone App Connectors deployed into existing VPC/subnets |
 | `ac_asg` | Brownfield | ASG-based App Connectors deployed into existing infrastructure |
+
+**AWS v2.0.1 ASG launch-template rotation boundary.**
+
+At the pinned AWS module version 2.0.1, the App Connector Auto Scaling Group
+references a launch template but declares no `instance_refresh` block
+(`vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zsac-asg-aws/main.tf:65-76`;
+`:101-104`). Upstream issue
+[#52](https://github.com/zscaler/terraform-aws-zpa-app-connector-modules/issues/52)
+reports that changing user data / the launch template and running
+`terraform apply` updates configuration without automatically replacing the
+existing ASG instances. The issue proposes a rolling `instance_refresh`, but
+that proposal is not present at this pin.
+
+For v2.0.1 deployments, do not assume a successful apply has put changed user
+data onto already-running App Connectors. Include a separately planned and
+verified ASG instance rotation when the launch template change must reach the
+fleet, and re-check this caveat when upgrading the module.
 
 **Azure examples** (`vendor/terraform-azurerm-zpa-app-connector-modules/examples/`):
 

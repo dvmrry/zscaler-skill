@@ -89,15 +89,17 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 4. Link both ways:
    - Your doc: `See [clarification zia-07](clarifications.md#zia-07-cloud-application-risk-profile-composition).`
    - This file: `*Origin: references/<product>/<topic>.md § Open questions*` (placeholder path — substitute the real one)
-5. **When resolving**: fold the answer into the relevant reference doc body (that's where it's useful), update the doc's `last-verified` date, then delete the entry from this register. Git history preserves it.
-   - **Grandfather rule**: existing pre-2026-04-27 resolved entries (`zia-01`, `zia-03`, `zia-05`–`zia-07`, `zia-10`, `zia-13`, `zpa-02`, `zpa-03`, `zpa-05`–`zpa-08`, `shared-01`–`shared-05`) stay where they are; this policy applies to entries resolved on or after 2026-04-27.
+5. **When resolving**: fold the answer into the relevant reference doc body
+   (that's where it is useful), update that doc's `last-verified` date, then
+   keep this entry in its original position with `Status: resolved` and the
+   source-backed answer inline. Never recycle or renumber its stable ID.
 
 ---
 
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-08-12:
-24 entries are resolved or clarified, 33 are partially resolved, and 407 are open.
+24 entries are resolved or clarified, 33 are partially resolved, and 410 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -155,6 +157,15 @@ The 2026-08-12 Help refresh expanded resolved `cloud-connector-07` with the
 AWS managed-service boundary and opened `cloud-connector-29` for exact Azure
 Zero Trust Gateway deployment availability. Generic VNet/ExpressRoute product
 positioning remains insufficient to close that cloud-specific question.
+
+The 2026-08-12 upstream-issue sweep opened `zpa-84` for the MCP shared
+policy-rule pagination gap and `shared-40` for OneAPI entitlement aliases that
+the current MCP mapping omits. It also recorded the AWS App Connector module
+v2.0.1 ASG launch-template rotation caveat directly in the operational
+reference; that behavior is source-established rather than a new fact question.
+The same provider/cloud review opened `zia-72`: provider v4.8.5's serialized
+Creative Commons `false` is established, but its effect on a previously enabled
+tenant setting remains untested.
 
 ### Resolved
 
@@ -225,10 +236,10 @@ positioning remains insufficient to close that cloud-specific question.
 
 ### Open
 
-- **zia**: `zia-02`, `zia-12`, `zia-14`–`zia-48`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-58`–`zia-67`, `zia-69`–`zia-71`
+- **zia**: `zia-02`, `zia-12`, `zia-14`–`zia-48`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-58`–`zia-67`, `zia-69`–`zia-72`
 - **log**: `log-03`, `log-05`–`log-22`
-- **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-83`
-- **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-39`
+- **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-84`
+- **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-40`
 - **zcc**: `zcc-08`–`zcc-11`, `zcc-13`–`zcc-79`, `zcc-81`–`zcc-85`, `zcc-87`–`zcc-101`
 - **zdx**: `zdx-01`–`zdx-34`, `zdx-36`–`zdx-44`
 - **zms**: `zms-01`
@@ -2732,6 +2743,26 @@ Several ZPA resources reuse one Go struct for Create requests and Get responses,
 
 ---
 
+### shared-40 — OneAPI entitlement `prd` aliases for `ztw`, `zid`, and `zins`
+
+*Origin: `references/shared/mcp-server.md` § OneAPI entitlement filtering and unmapped aliases*
+
+MCP v0.15.0 silently skips unknown OneAPI `service-info[].prd` values while
+mapping entitlements to registered services. Its current map omits
+`CLOUD_CONNECTOR`, `ZIAM`, and `ZINSIGHTS`
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:53-79`;
+`:107-130`). Upstream issue
+[#95](https://github.com/zscaler/zscaler-mcp-server/issues/95) reports all
+three values in one tenant's token and successful live calls to the matching
+`ztw`, `zid`, and `zins` tools with the filter disabled. The immediate mapping
+gap is established for that token; what remains open is the canonical and
+complete alias set across ZIdentity tenants and token generations.
+
+**Status**: open — 2026-08-12
+**Resolves with**: an upstream mapping and regression tests for the three observed aliases, plus vendor entitlement documentation or additional token captures sufficient to establish the supported canonical/alias set
+
+---
+
 ### zcc-08 — ZCC 429 response body shape
 
 *Origin: `references/zcc/api-rate-limits.md` § Open questions*
@@ -4284,6 +4315,27 @@ that establish accepted values and server behavior
 
 ---
 
+### zpa-84 — MCP shared ZPA policy-rule list pagination
+
+*Origin: `references/zpa/api.md` § Pagination; `references/shared/mcp-server.md` § ZPA shared policy-rule pagination boundary*
+
+MCP v0.15.0 routes access, forwarding, timeout, isolation, and app-protection
+rule lists through one helper. The input exposes only `microtenant_id`, and the
+helper makes one SDK call while discarding the response object used to advance
+pages (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:1-9`;
+`:39-44`; `:86-94`). The SDK defaults this endpoint to 20 rows and supports
+explicit `page` / `page_size` values
+(`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`). Upstream issue
+[#96](https://github.com/zscaler/zscaler-mcp-server/issues/96) reports the
+matching first-20 truncation and rejected pagination inputs for access rules.
+Because all five public families share the helper, complete inventory behavior
+remains open for the whole shared surface until upstream fixes that boundary.
+
+**Status**: open — 2026-08-12
+**Resolves with**: upstream MCP code and regression tests that either iterate all SDK response pages or expose working pagination controls, covering more than 20 access rules and at least one other shared rule family
+
+---
+
 ### zcc-76 — OTP expiry / TTL server behavior
 
 *Origin: `references/zcc/otp.md` § Open questions*
@@ -4633,6 +4685,42 @@ the same as an explicit false remains unknown.
 **Resolves with**: lab test (set Web EUN true, update through Go with false and
 through Python/Ansible with false, then compare the read-back state and captured
 wire bodies)
+
+---
+
+### zia-72 — Provider v4.8.5 Creative Commons `false` backend effect
+
+*Origin: `references/zia/api-divergences.md` § Advanced URL/cloud-app settings have asymmetric SDK models and update semantics*
+
+Provider v4.8.5 removes `enable_creative_commons_search_results` from the
+resource schema, read path, and request builder, but its create and update paths
+construct `URLAdvancedPolicySettings` and call the Go SDK's full-state PUT
+([provider create lines 184-207](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_url_filtering_and_cloud_app_settings.go#L184-L207),
+[update and builder lines 258-318](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_url_filtering_and_cloud_app_settings.go#L258-L318)).
+That version's
+[`go.mod`](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/go.mod#L12)
+pins Go SDK v3.8.45, where
+`EnableCreativeCommonsSearchResults` has the JSON key
+`enableCreativeCommonsSearchResults` without `omitempty`; the SDK explicitly
+keeps boolean zero values in the request and passes the struct directly to PUT
+([model lines 149-255](https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.45/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go#L149-L255),
+[PUT lines 351-376](https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.45/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go#L351-L376)).
+The provider's unassigned zero value therefore
+serializes as `"enableCreativeCommonsSearchResults":false`. That client-side
+request effect is established.
+
+What remains open is the ZIA backend effect when the tenant starts with Creative
+Commons search results enabled: whether the full-state PUT disables the setting,
+ignores the field, or rejects the request. The v4.8.5 acceptance test does not
+configure or inspect Creative Commons
+([lines 11-76](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_url_filtering_and_cloud_app_settings_test.go#L11-L76)),
+and the reporter on [issue #598](https://github.com/zscaler/terraform-provider-zia/issues/598)
+had only agreed to try v4.8.5 when the issue closed. A requested upgrade is not
+backend-mutation evidence.
+
+**Status**: open — 2026-08-12
+**Resolves with**: lab test (start with Creative Commons search results enabled; apply an unrelated `zia_url_filtering_and_cloud_app_settings` change with provider v4.8.5; capture the PUT; then compare API and Admin Portal state before and after activation)
+**Blocks**: promotion of provider v4.8.5 for tenants that manage this singleton while Creative Commons search results are enabled
 
 ---
 
