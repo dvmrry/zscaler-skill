@@ -62,12 +62,12 @@ API_MDX_RE = re.compile(
     r'(?P<product>[^/]+)/(?P<rest>[^"]+)\.api\.mdx",'
     r'(?P<module>\d+(?:e\d+)?)\]'
 )
-ROUTE_RE = re.compile(
-    r'(?P<entry>(?:"[^"]+"|[A-Za-z0-9_$]+):\[\(\)=>.*?),'
-    r'"@site/docs/api-reference-and-guides/api-reference/'
-    r'(?P<product>[^/]+)/(?P<rest>[^"]+)\.api\.mdx",'
-    r'(?P<module>\d+(?:e\d+)?)\]',
-    re.DOTALL,
+ROUTE_ENTRY_START_RE = re.compile(
+    r'(?P<key>(?:"[^"]+"|[A-Za-z0-9_$]+)):\[\(\)=>'
+)
+LOADER_BIND_RE = re.compile(
+    r'\.then\((?P<runtime>[A-Za-z_$][A-Za-z0-9_$]*)\.bind\('
+    r'(?P=runtime),(?P<module>\d+(?:e\d+)?)\)\)$'
 )
 API_BLOB_RE = re.compile(r'api:"([A-Za-z0-9+/=]+)"')
 PRODUCT_PATH_PREFIXES = {
@@ -82,6 +82,7 @@ PRODUCT_PATH_PREFIXES = {
     "zdx": ["/zdx"],
     "zid": ["/ziam/admin/api/v1"],
 }
+OPENAPI_METHODS = {"get", "put", "post", "delete", "options", "head", "patch", "trace"}
 
 
 def webpack_int(raw: str) -> int:
@@ -95,12 +96,59 @@ def retryable_os_error(exc: OSError) -> bool:
     )
 
 
+def same_origin_https_url(raw_url: str, *, context: str) -> str:
+    """Resolve a site URL and reject scheme or origin changes.
+
+    The capture only needs public static assets owned by automate.zscaler.com.
+    Failing closed here prevents a compromised index or redirect from turning
+    the capture into an arbitrary cross-origin fetcher.
+    """
+    resolved = urllib.parse.urljoin(BASE_URL, raw_url)
+    expected = urllib.parse.urlsplit(BASE_URL)
+    actual = urllib.parse.urlsplit(resolved)
+    try:
+        expected_port = expected.port or 443
+        actual_port = actual.port or 443
+    except ValueError as exc:
+        raise RuntimeError(f"invalid {context} URL {resolved!r}: {exc}") from exc
+    if (
+        actual.scheme.lower() != "https"
+        or actual.username is not None
+        or actual.password is not None
+        or actual.hostname is None
+        or actual.hostname.lower() != (expected.hostname or "").lower()
+        or actual_port != expected_port
+    ):
+        raise RuntimeError(
+            f"refusing {context} URL outside {expected.scheme}://{expected.netloc}: "
+            f"{resolved}"
+        )
+    return resolved
+
+
+class SameOriginRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Reject redirects before urllib issues a request to their destination."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        safe_url = same_origin_https_url(newurl, context="redirect destination")
+        return super().redirect_request(req, fp, code, msg, headers, safe_url)
+
+
+def open_same_origin(request: urllib.request.Request, *, timeout: int):
+    opener = urllib.request.build_opener(SameOriginRedirectHandler())
+    return opener.open(request, timeout=timeout)
+
+
 def fetch_bytes(url: str, retries: int = 3) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    request_url = same_origin_https_url(url, context="request")
+    req = urllib.request.Request(request_url, headers={"User-Agent": USER_AGENT})
     last_error = None
     for attempt in range(retries + 1):
         try:
-            with urllib.request.urlopen(req, timeout=60) as response:
+            with open_same_origin(req, timeout=60) as response:
+                geturl = getattr(response, "geturl", None)
+                final_url = geturl() if callable(geturl) else request_url
+                same_origin_https_url(final_url, context="redirect destination")
                 return response.read()
         except urllib.error.HTTPError as exc:
             last_error = exc
@@ -123,12 +171,38 @@ def fetch_text(url: str) -> str:
 
 
 def site_scripts(index_html: str) -> list[str]:
-    return [urllib.parse.urljoin(BASE_URL, m.group(1)) for m in SCRIPT_RE.finditer(index_html)]
+    return [
+        same_origin_https_url(m.group(1), context="script")
+        for m in SCRIPT_RE.finditer(index_html)
+    ]
+
+
+def prepare_generated_output_dirs(out_dir: pathlib.Path) -> tuple[pathlib.Path, ...]:
+    """Create generated output directories, refusing to mix capture runs."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    generated_dirs = tuple(out_dir / name for name in ("reconstructed", "raw-blobs", "sheets"))
+    stale = []
+    for directory in generated_dirs:
+        if directory.exists():
+            stale.extend(sorted(str(path) for path in directory.iterdir()))
+        else:
+            directory.mkdir()
+    if stale:
+        preview = ", ".join(stale[:5])
+        if len(stale) > 5:
+            preview += f", ... ({len(stale)} entries total)"
+        raise RuntimeError(
+            "capture output directories are not empty; use a fresh --out-dir "
+            f"to prevent cross-run publication: {preview}"
+        )
+    return generated_dirs
 
 
 def chunk_maps(runtime_js: str) -> tuple[dict[int, str], dict[int, str]]:
     m = re.search(
-        r'r\.u=e=>"assets/js/"\+\((\{.*?\})\[e\]\|\|e\)\+"\."\+(\{.*?\})\[e\]\+".js"',
+        r'r\.u=(?P<parameter>[A-Za-z_$][A-Za-z0-9_$]*)=>"assets/js/"\+'
+        r'\((?P<prefix_map>\{.*?\})\[(?P=parameter)\]\|\|(?P=parameter)\)\+'
+        r'"\."\+(?P<hash_map>\{.*?\})\[(?P=parameter)\]\+".js"',
         runtime_js,
         re.DOTALL,
     )
@@ -138,7 +212,7 @@ def chunk_maps(runtime_js: str) -> tuple[dict[int, str], dict[int, str]]:
     def parse_obj(raw: str) -> dict[int, str]:
         return {webpack_int(k): v for k, v in re.findall(r'(\d+(?:e\d+)?):"([^"]+)"', raw)}
 
-    return parse_obj(m.group(1)), parse_obj(m.group(2))
+    return parse_obj(m.group("prefix_map")), parse_obj(m.group("hash_map"))
 
 
 def chunk_url(chunk_id: int, prefix_map: dict[int, str], hash_map: dict[int, str]) -> str:
@@ -150,14 +224,41 @@ def chunk_url(chunk_id: int, prefix_map: dict[int, str], hash_map: dict[int, str
 
 
 def api_routes(main_js: str) -> list[dict[str, object]]:
+    entry_starts = list(ROUTE_ENTRY_START_RE.finditer(main_js))
+    entry_index = 0
+    owner = None
     routes = []
-    for m in ROUTE_RE.finditer(main_js):
-        entry = m.group("entry")
-        chunks = [webpack_int(x) for x in re.findall(r"o\.e\((\d+(?:e\d+)?)\)", entry)]
+    for m in API_MDX_RE.finditer(main_js):
+        while entry_index < len(entry_starts) and entry_starts[entry_index].start() < m.start():
+            owner = entry_starts[entry_index]
+            entry_index += 1
+        if owner is None:
+            continue
+
+        # The route entry is the nearest preceding webpack route-array start.
+        # Slice only its loader expression so chunks from an earlier route can
+        # never be inherited by this API operation.
+        loader_with_separator = main_js[owner.end():m.start()]
+        if not loader_with_separator.endswith(","):
+            continue
+        loader = loader_with_separator[:-1]
+        binding = LOADER_BIND_RE.search(loader)
+        module_token = m.group("module")
+        if not binding or webpack_int(binding.group("module")) != webpack_int(module_token):
+            continue
+        runtime = binding.group("runtime")
+        chunks = [
+            webpack_int(chunk.group("chunk"))
+            for chunk in re.finditer(
+                rf"{re.escape(runtime)}\.e\((?P<chunk>\d+(?:e\d+)?)\)",
+                loader,
+            )
+        ]
+        if not chunks:
+            continue
         product = m.group("product")
         rest = m.group("rest")
         group, _, slug = rest.partition("/")
-        module_token = m.group("module")
         op = f"{product}/{rest}"
         routes.append(
             {
@@ -178,23 +279,54 @@ def api_routes(main_js: str) -> list[dict[str, object]]:
 
 
 def api_mdx_operations(main_js: str) -> list[str]:
-    return sorted({f"{m.group('product')}/{m.group('rest')}" for m in API_MDX_RE.finditer(main_js)})
+    return sorted(f"{m.group('product')}/{m.group('rest')}" for m in API_MDX_RE.finditer(main_js))
 
 
 def verify_route_completeness(main_js: str, routes: list[dict[str, object]]) -> dict[str, object]:
     """Hard guard against silent route under-counting when Docusaurus/webpack
-    changes shape. This is independent from ROUTE_RE's leading entry matcher: it
+    changes shape. This is independent from the owning-entry matcher: it
     scans every API MDX tail and compares that operation set to api_routes()."""
-    candidates = set(api_mdx_operations(main_js))
-    matched = {str(route["operation"]) for route in routes}
+    candidate_operations = api_mdx_operations(main_js)
+    route_operations = [str(route["operation"]) for route in routes]
+    candidate_counts = Counter(candidate_operations)
+    route_counts = Counter(route_operations)
+    duplicate_candidates = sorted(
+        operation for operation, count in candidate_counts.items() if count > 1
+    )
+    duplicate_routes = sorted(
+        operation for operation, count in route_counts.items() if count > 1
+    )
+    candidates = set(candidate_operations)
+    matched = set(route_operations)
     missing = sorted(candidates - matched)
     extra = sorted(matched - candidates)
     return {
-        "api_mdx_operations": len(candidates),
+        "api_mdx_operations": len(candidate_operations),
+        "api_mdx_unique_operations": len(candidates),
         "matched_routes": len(matched),
+        "matched_route_entries": len(route_operations),
+        "duplicate_api_mdx_operations": duplicate_candidates,
+        "duplicate_routes": duplicate_routes,
         "missing_routes": missing,
         "extra_routes": extra,
     }
+
+
+def require_complete_routes(route_completeness: dict[str, object]) -> None:
+    blocking_keys = (
+        "missing_routes",
+        "extra_routes",
+        "duplicate_api_mdx_operations",
+        "duplicate_routes",
+    )
+    if any(route_completeness.get(key) for key in blocking_keys):
+        raise RuntimeError(
+            "API route discovery mismatch: "
+            f"{len(route_completeness['missing_routes'])} missing, "
+            f"{len(route_completeness['extra_routes'])} extra, "
+            f"{len(route_completeness['duplicate_api_mdx_operations'])} duplicate candidates, "
+            f"{len(route_completeness['duplicate_routes'])} duplicate routes"
+        )
 
 
 def module_slice(js: str, module_id: int | str) -> str | None:
@@ -276,26 +408,10 @@ def operation_blob(
         if len(blobs) > 1:
             return None, f"ambiguous module api blobs: {len(blobs)}", None
 
-    blobs = []
-    blob_sources = []
-    for chunk_id in lazy_chunks:
-        js = get_chunk(chunk_id)
-        if js:
-            for blob in API_BLOB_RE.findall(js):
-                blobs.append(blob)
-                blob_sources.append(chunk_id)
-    if len(blobs) == 1:
-        chunk_id = blob_sources[0]
-        return decode_api_blob(blobs[0]), None, {
-            "module": module_id,
-            "chunk_id": chunk_id,
-            "chunk_url": chunk_urls[chunk_id],
-            "api_blob_sha256": hashlib.sha256(blobs[0].encode("ascii")).hexdigest(),
-            "module_match": False,
-        }
-    if not blobs:
-        return None, "no api blob found", None
-    return None, f"ambiguous route api blobs: {len(blobs)}", None
+    # Never fall back to a chunk-wide sole blob. A shared/prefetch chunk can
+    # contain another route's API module; only the requested module proves
+    # ownership of an operation blob.
+    return None, f"no api blob found for module {module_token}", None
 
 
 def normalize_enum(value: object) -> list[str] | None:
@@ -525,6 +641,101 @@ def response_sources(api: dict[str, object]) -> list[str]:
     return [str(status) for status, _ in selected_success_responses(api)]
 
 
+def _schema_annotation_nodes(
+    node: object,
+    path: str,
+    discriminators: list[dict[str, object]],
+    titles: list[dict[str, object]],
+) -> None:
+    """Collect comparison-safe schema annotations with stable structural paths.
+
+    The compiled blobs use OpenAPI discriminator ``mapping`` while the generated
+    OpenAPI preserves inline mappings as ``x-zscaler-inline-mapping``. Normalize
+    those equivalent shapes so the committed OpenAPI and a live blob can be
+    compared without retaining the full private comparison payload in the
+    normalized contracts.
+    """
+    if isinstance(node, list):
+        for index, item in enumerate(node):
+            _schema_annotation_nodes(item, f"{path}[{index}]", discriminators, titles)
+        return
+    if not isinstance(node, dict):
+        return
+
+    title = node.get("title")
+    if isinstance(title, str):
+        titles.append({"path": path, "title": title})
+
+    discriminator = node.get("discriminator")
+    if isinstance(discriminator, dict):
+        mapping = discriminator.get("mapping")
+        if not isinstance(mapping, dict):
+            mapping = discriminator.get("x-zscaler-inline-mapping")
+        mapping = mapping if isinstance(mapping, dict) else {}
+        discriminators.append(
+            {
+                "path": path,
+                "property_name": discriminator.get("propertyName"),
+                "mapping_keys": sorted(str(key) for key in mapping),
+            }
+        )
+        for key, value in sorted(mapping.items(), key=lambda item: str(item[0])):
+            _schema_annotation_nodes(
+                value,
+                f"{path}.discriminator.mapping.{key}",
+                discriminators,
+                titles,
+            )
+
+    for key, value in node.items():
+        if key == "discriminator":
+            continue
+        _schema_annotation_nodes(value, f"{path}.{key}", discriminators, titles)
+
+
+def schema_comparison_metadata(api: dict[str, object]) -> dict[str, object]:
+    """Return bounded schema annotations omitted by the flattened field view.
+
+    Coverage intentionally follows the normalized contract: request bodies and
+    selected success responses. Discriminator mapping keys and schema titles are
+    publication metadata; changes in them do not prove backend availability.
+    """
+    discriminators: list[dict[str, object]] = []
+    titles: list[dict[str, object]] = []
+    request_body = api.get("requestBody")
+    request_schema = content_schema(request_body if isinstance(request_body, dict) else None)
+    if request_schema:
+        _schema_annotation_nodes(request_schema, "request_body", discriminators, titles)
+    for status, response in selected_success_responses(api):
+        response_schema = content_schema(response)
+        if response_schema:
+            _schema_annotation_nodes(
+                response_schema,
+                f"response_schema[{status}]",
+                discriminators,
+                titles,
+            )
+    return {
+        "discriminators": sorted(
+            discriminators,
+            key=lambda item: (str(item.get("path")), str(item.get("property_name"))),
+        ),
+        "titles": sorted(titles, key=lambda item: (str(item.get("path")), str(item.get("title")))),
+    }
+
+
+def product_comparison_metadata(info: object) -> dict[str, object]:
+    if not isinstance(info, dict):
+        return {}
+    return {
+        key: info[key]
+        # The OpenAPI builder intentionally pins its generated version string;
+        # compare only vendor-authored product metadata preserved end to end.
+        for key in ("title",)
+        if info.get(key) is not None
+    }
+
+
 def parameter_fields(api: dict[str, object], location: str) -> list[dict[str, object]]:
     params = api.get("parameters")
     if not isinstance(params, list):
@@ -573,6 +784,8 @@ def normalize_operation(
         "response_sources": response_sources(api),
         "response_statuses": sorted(str(k) for k in (api.get("responses") or {}).keys()),
         "has_json_request_example": api.get("jsonRequestBodyExample") is not None,
+        "_schema_comparison": schema_comparison_metadata(api),
+        "_product_comparison": product_comparison_metadata(api.get("info")),
     }
 
 
@@ -580,8 +793,57 @@ def load_existing(path: pathlib.Path) -> dict[str, dict[str, dict[str, object]]]
     products = {}
     for file in sorted(path.glob("*-api-reference.json")):
         product = file.name.removesuffix("-api-reference.json")
-        products[product] = json.loads(file.read_text(encoding="utf-8"))
+        operations = json.loads(file.read_text(encoding="utf-8"))
+        openapi_path = path / "openapi" / f"{product}.openapi.json"
+        if not openapi_path.is_file():
+            raise RuntimeError(f"missing comparison OpenAPI for {product}: {openapi_path}")
+        spec = json.loads(openapi_path.read_text(encoding="utf-8"))
+        operation_index = {}
+        for path_item in (spec.get("paths") or {}).values():
+            if not isinstance(path_item, dict):
+                continue
+            for method, operation in path_item.items():
+                if str(method).lower() not in OPENAPI_METHODS or not isinstance(operation, dict):
+                    continue
+                operation_key = operation.get("x-zscaler-operation-key")
+                if isinstance(operation_key, str):
+                    if operation_key in operation_index:
+                        raise RuntimeError(
+                            f"duplicate x-zscaler-operation-key in {openapi_path}: {operation_key}"
+                        )
+                    operation_index[operation_key] = operation
+        missing = sorted(set(operations) - set(operation_index))
+        if missing:
+            raise RuntimeError(
+                f"{product}: {len(missing)} normalized operation(s) lack comparison OpenAPI metadata; "
+                f"first={missing[0]}"
+            )
+        product_metadata = product_comparison_metadata(spec.get("info"))
+        for operation_key, operation in operations.items():
+            openapi_operation = operation_index[operation_key]
+            operation["_schema_comparison"] = schema_comparison_metadata(openapi_operation)
+            source_info = openapi_operation.get("x-zscaler-source-info")
+            operation["_product_comparison"] = (
+                product_comparison_metadata(source_info)
+                if isinstance(source_info, dict)
+                else product_metadata
+            )
+        products[product] = operations
     return products
+
+
+def public_normalized_operations(
+    operations: dict[str, dict[str, object]],
+) -> dict[str, dict[str, object]]:
+    """Strip ephemeral comparison metadata from committed normalized contracts."""
+    return {
+        operation_key: {
+            key: value
+            for key, value in operation.items()
+            if not key.startswith("_")
+        }
+        for operation_key, operation in sorted(operations.items())
+    }
 
 
 def field_names(fields: list[dict[str, object]], top_level: bool = False) -> set[str]:
@@ -695,6 +957,115 @@ def schema_section_delta(
     }
 
 
+def _annotation_index(items: object, *keys: str) -> dict[tuple[object, ...], dict[str, object]]:
+    if not isinstance(items, list):
+        return {}
+    return {
+        tuple(item.get(key) for key in keys): item
+        for item in items
+        if isinstance(item, dict)
+    }
+
+
+def schema_annotation_delta(previous: object, current: object) -> dict[str, object]:
+    """Compare discriminator mappings and schema titles omitted by field flattening."""
+    previous = previous if isinstance(previous, dict) else {}
+    current = current if isinstance(current, dict) else {}
+    old_discriminators = _annotation_index(previous.get("discriminators"), "path")
+    new_discriminators = _annotation_index(current.get("discriminators"), "path")
+    discriminator_changes = []
+    for key in sorted(set(old_discriminators) | set(new_discriminators)):
+        old = old_discriminators.get(key)
+        new = new_discriminators.get(key)
+        if old is None:
+            discriminator_changes.append({"kind": "added", **new})
+            continue
+        if new is None:
+            discriminator_changes.append({"kind": "removed", **old})
+            continue
+        old_keys = set(old.get("mapping_keys") or [])
+        new_keys = set(new.get("mapping_keys") or [])
+        property_change = None
+        if old.get("property_name") != new.get("property_name"):
+            property_change = {
+                "old": old.get("property_name"),
+                "new": new.get("property_name"),
+            }
+        added_keys = sorted(new_keys - old_keys)
+        removed_keys = sorted(old_keys - new_keys)
+        if property_change or added_keys or removed_keys:
+            change = {
+                "kind": "changed",
+                "path": new.get("path"),
+                "property_name": new.get("property_name"),
+                "mapping_keys_added": added_keys,
+                "mapping_keys_removed": removed_keys,
+            }
+            if property_change:
+                change["property_name_change"] = property_change
+            discriminator_changes.append(change)
+
+    old_titles = _annotation_index(previous.get("titles"), "path")
+    new_titles = _annotation_index(current.get("titles"), "path")
+    title_changes = []
+    for key in sorted(set(old_titles) | set(new_titles)):
+        old = old_titles.get(key)
+        new = new_titles.get(key)
+        if old is None:
+            title_changes.append({"kind": "added", **new})
+        elif new is None:
+            title_changes.append({"kind": "removed", **old})
+        elif old.get("title") != new.get("title"):
+            title_changes.append(
+                {
+                    "kind": "changed",
+                    "path": new.get("path"),
+                    "old": old.get("title"),
+                    "new": new.get("title"),
+                }
+            )
+    return {
+        "discriminator_changes": discriminator_changes,
+        "title_changes": title_changes,
+    }
+
+
+def has_schema_annotation_delta(delta: dict[str, object]) -> bool:
+    return any(delta.get(key) for key in ("discriminator_changes", "title_changes"))
+
+
+def product_comparison_delta(
+    previous_operations: dict[str, dict[str, object]],
+    current_operations: dict[str, dict[str, object]],
+) -> dict[str, object]:
+    def value_counts(
+        operations: dict[str, dict[str, object]],
+        key: str,
+    ) -> Counter:
+        values = Counter()
+        for operation in operations.values():
+            metadata = operation.get("_product_comparison")
+            value = metadata.get(key) if isinstance(metadata, dict) else None
+            if value is not None:
+                values[str(value)] += 1
+        return values
+
+    changes = {}
+    for key in ("title",):
+        previous = value_counts(previous_operations, key)
+        current = value_counts(current_operations, key)
+        if not previous or not current or set(previous) == set(current):
+            continue
+        changes[key] = {
+            "added": sorted(set(current) - set(previous)),
+            "removed": sorted(set(previous) - set(current)),
+            "retained": sorted(set(previous) & set(current)),
+            "previous_counts": dict(sorted(previous.items())),
+            "current_counts": dict(sorted(current.items())),
+        }
+    return changes
+
+
 def operation_delta(
     product: str,
     strategy: str,
@@ -734,7 +1105,13 @@ def operation_delta(
         delta = schema_section_delta(previous.get(section) or [], current.get(section) or [])
         if delta["added"] or delta["removed"] or delta["changed"]:
             sections[section] = delta
-    if sections:
+    annotation_delta = schema_annotation_delta(
+        previous.get("_schema_comparison"),
+        current.get("_schema_comparison"),
+    )
+    if has_schema_annotation_delta(annotation_delta):
+        record["schema_annotations"] = annotation_delta
+    if sections or has_schema_annotation_delta(annotation_delta):
         change_types.append("schema")
     record["change_types"] = change_types
     record["sections"] = sections
@@ -760,6 +1137,7 @@ def compare_products(
         old_sig = {op_signature(product, operation) for operation in old.values()}
         live_loose_sig = {op_signature(product, operation, loose_params=True) for operation in live.values()}
         old_loose_sig = {op_signature(product, operation, loose_params=True) for operation in old.values()}
+        product_metadata_changes = product_comparison_delta(old, live)
         summary = Counter(
             {
                 "live_ops": len(live),
@@ -776,6 +1154,7 @@ def compare_products(
                 "matched_ops": sum(1 for _, old_key, live_key in pairs if old_key and live_key),
                 "added_operations": sum(1 for _, old_key, live_key in pairs if old_key is None and live_key),
                 "removed_operations": sum(1 for _, old_key, live_key in pairs if old_key and live_key is None),
+                "product_metadata_changed": int(bool(product_metadata_changes)),
             }
         )
         product_deltas = []
@@ -794,6 +1173,8 @@ def compare_products(
                 summary["route_key_changed_operations"] += 1
             if "schema" in delta["change_types"]:
                 summary["schema_changed_operations"] += 1
+            if delta.get("schema_annotations"):
+                summary["schema_annotation_changed_operations"] += 1
             for section in SCHEMA_SECTIONS:
                 old_names = field_names(previous.get(section) or [], top_level=True)
                 new_top = field_names(new.get(section) or [], top_level=True)
@@ -842,6 +1223,7 @@ def compare_products(
                 {"method": item.get("old_method"), "path": item.get("old_path"), "operation": item.get("old_operation")}
                 for item in product_deltas if item["kind"] == "removed"
             ][:20],
+            "product_metadata_changes": product_metadata_changes,
         }
         totals.update(summary)
     return {
@@ -852,6 +1234,147 @@ def compare_products(
     }
 
 
+def publication_absences(
+    published_products: set[str],
+    existing: dict[str, dict[str, dict[str, object]]],
+    existing_dir: pathlib.Path | None = None,
+) -> list[dict[str, object]]:
+    """Describe committed products absent from the current public route table.
+
+    An absent product is retained as a last-known contract snapshot. Publication
+    absence is not evidence that its backend endpoints were retired or are
+    unavailable to entitled tenants.
+    """
+    absences = []
+    for product in sorted(set(existing) - published_products):
+        record = {
+            "product": product,
+            "status": "absent-from-current-public-route-table",
+            "live_operations": 0,
+            "retained_snapshot_operations": len(existing[product]),
+            "retained_snapshot_paths": len(
+                {
+                    operation.get("path")
+                    for operation in existing[product].values()
+                    if operation.get("path")
+                }
+            ),
+            "retention": "preserve-last-known-contract",
+            "do_not_infer": (
+                "Public route-table absence does not establish endpoint retirement "
+                "or backend unavailability."
+            ),
+        }
+        if existing_dir is not None:
+            record["retained_artifacts"] = retained_artifact_metadata(existing_dir, product)
+        absences.append(record)
+    return absences
+
+
+def file_sha256(path: pathlib.Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def normalized_contract_counts(path: pathlib.Path) -> tuple[int, int]:
+    operations = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(operations, dict):
+        raise RuntimeError(f"invalid normalized contract object: {path}")
+    paths = {
+        operation.get("path")
+        for operation in operations.values()
+        if isinstance(operation, dict) and operation.get("path")
+    }
+    return len(operations), len(paths)
+
+
+def openapi_contract_counts(path: pathlib.Path) -> tuple[int, int]:
+    spec = json.loads(path.read_text(encoding="utf-8"))
+    paths = spec.get("paths") if isinstance(spec, dict) else None
+    if not isinstance(paths, dict):
+        raise RuntimeError(f"invalid OpenAPI paths object: {path}")
+    operations = sum(
+        1
+        for path_item in paths.values()
+        if isinstance(path_item, dict)
+        for method in path_item
+        if str(method).lower() in OPENAPI_METHODS
+    )
+    return operations, len(paths)
+
+
+def retained_artifact_metadata(existing_dir: pathlib.Path, product: str) -> dict[str, object]:
+    contract_path = existing_dir / f"{product}-api-reference.json"
+    openapi_path = existing_dir / "openapi" / f"{product}.openapi.json"
+    missing = [str(path) for path in (contract_path, openapi_path) if not path.is_file()]
+    if missing:
+        raise RuntimeError(f"missing baseline retained artifact(s): {', '.join(missing)}")
+    contract_counts = normalized_contract_counts(contract_path)
+    openapi_counts = openapi_contract_counts(openapi_path)
+    if contract_counts != openapi_counts:
+        raise RuntimeError(
+            f"baseline retained artifact count mismatch for {product}: "
+            f"normalized={contract_counts}, openapi={openapi_counts}"
+        )
+    return {
+        "normalized_contract": {
+            "relative_path": f"{product}-api-reference.json",
+            "sha256": file_sha256(contract_path),
+            "operations": contract_counts[0],
+            "paths": contract_counts[1],
+        },
+        "openapi": {
+            "relative_path": f"openapi/{product}.openapi.json",
+            "sha256": file_sha256(openapi_path),
+            "operations": openapi_counts[0],
+            "paths": openapi_counts[1],
+        },
+    }
+
+
+def validate_retained_publication_absences(
+    absences: list[dict[str, object]],
+    retained_dir: pathlib.Path,
+) -> None:
+    for item in absences:
+        product = str(item.get("product"))
+        expected_operations = int(item.get("retained_snapshot_operations") or 0)
+        expected_paths = int(item.get("retained_snapshot_paths") or 0)
+        artifacts = item.get("retained_artifacts")
+        if not isinstance(artifacts, dict):
+            raise RuntimeError(f"{product}: retained baseline artifact metadata is missing")
+        for kind, counter in (
+            ("normalized_contract", normalized_contract_counts),
+            ("openapi", openapi_contract_counts),
+        ):
+            metadata = artifacts.get(kind)
+            if not isinstance(metadata, dict):
+                raise RuntimeError(f"{product}: retained {kind} baseline metadata is missing")
+            relative_path = metadata.get("relative_path")
+            if not isinstance(relative_path, str):
+                raise RuntimeError(f"{product}: retained {kind} relative path is missing")
+            path = retained_dir / relative_path
+            if not path.is_file():
+                raise RuntimeError(f"{product}: retained artifact is missing: {path}")
+            actual_counts = counter(path)
+            recorded_counts = (int(metadata.get("operations") or 0), int(metadata.get("paths") or 0))
+            if recorded_counts != (expected_operations, expected_paths):
+                raise RuntimeError(
+                    f"{product}: retained {kind} baseline count {recorded_counts} does not match "
+                    f"absence count {(expected_operations, expected_paths)}"
+                )
+            if actual_counts != recorded_counts:
+                raise RuntimeError(
+                    f"{product}: retained {kind} current count {actual_counts} does not match "
+                    f"baseline count {recorded_counts}"
+                )
+            expected_hash = metadata.get("sha256")
+            actual_hash = file_sha256(path)
+            if not isinstance(expected_hash, str) or actual_hash != expected_hash:
+                raise RuntimeError(
+                    f"{product}: retained {kind} SHA-256 does not match selected baseline"
+                )
+
+
 def csv_cell(value: object) -> object:
     if value is None:
         return ""
@@ -860,6 +1383,19 @@ def csv_cell(value: object) -> object:
     if isinstance(value, (dict, list)):
         return json.dumps(value, sort_keys=True)
     return value
+
+
+def visible_removed_operations(
+    deltas: list[dict[str, object]],
+    absences: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    """Return true per-operation removals, excluding full publication absences."""
+    absent_products = {str(item.get("product")) for item in absences}
+    return [
+        item
+        for item in deltas
+        if item.get("kind") == "removed" and str(item.get("product")) not in absent_products
+    ]
 
 
 def write_table(rows: list[dict[str, object]], path_prefix: pathlib.Path, fieldnames: list[str]) -> None:
@@ -1082,11 +1618,12 @@ def change_radar_console_lines(comparison: dict[str, object]) -> list[str]:
                 "route_changed_operations",
                 "route_key_changed_operations",
                 "schema_changed_operations",
+                "product_metadata_changed",
             )
         )
         if not signal:
             continue
-        lines.append(
+        line = (
             f"{product}: ops +{stats.get('added_operations', 0)} "
             f"-{stats.get('removed_operations', 0)}; "
             f"routes Δ{stats.get('route_changed_operations', 0)}; "
@@ -1099,7 +1636,65 @@ def change_radar_console_lines(comparison: dict[str, object]) -> list[str]:
             f"-{stats.get('response_schema_fields_removed', 0)} "
             f"Δ{stats.get('response_schema_fields_changed', 0)}"
         )
+        if stats.get("schema_annotation_changed_operations"):
+            line += f"; schema annotations Δ{stats['schema_annotation_changed_operations']}"
+        if stats.get("product_metadata_changed"):
+            line += f"; product metadata Δ{stats['product_metadata_changed']}"
+        lines.append(line)
     return lines
+
+
+def schema_annotation_markdown_parts(annotations: dict[str, object]) -> list[str]:
+    discriminator_changes = annotations.get("discriminator_changes") or []
+    title_changes = annotations.get("title_changes") or []
+    parts = []
+    if discriminator_changes:
+        added = sorted({
+            str(value)
+            for change in discriminator_changes
+            if isinstance(change, dict)
+            for value in (change.get("mapping_keys_added") or [])
+        })
+        removed = sorted({
+            str(value)
+            for change in discriminator_changes
+            if isinstance(change, dict)
+            for value in (change.get("mapping_keys_removed") or [])
+        })
+        key_delta = ""
+        if added:
+            key_delta += " +" + ",+".join(added)
+        if removed:
+            key_delta += " -" + ",-".join(removed)
+        parts.append(
+            f"discriminator mappings{key_delta} across {len(discriminator_changes)} schema location(s)"
+        )
+    if title_changes:
+        parts.append(f"schema titles Δ{len(title_changes)}")
+    return parts
+
+
+def product_metadata_markdown(key: str, change: dict[str, object]) -> str:
+    added = list(change.get("added") or [])
+    removed = list(change.get("removed") or [])
+    retained = list(change.get("retained") or [])
+    if len(added) == 1 and len(removed) == 1 and not retained:
+        return f"`{key}`: `{removed[0]}` → `{added[0]}`"
+    parts = []
+    if added:
+        parts.append("added " + ", ".join(f"`{value}`" for value in added))
+    if removed:
+        parts.append("removed " + ", ".join(f"`{value}`" for value in removed))
+    if retained:
+        parts.append("retained " + ", ".join(f"`{value}`" for value in retained))
+    current_counts = change.get("current_counts") or {}
+    if current_counts:
+        distribution = ", ".join(
+            f"`{value}`={count}"
+            for value, count in current_counts.items()
+        )
+        parts.append(f"current operation distribution {distribution}")
+    return f"`{key}` values: " + "; ".join(parts)
 
 
 def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
@@ -1127,12 +1722,31 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
         f"**{compare['totals'].get('live_only_loose_path_signatures', 0)}**",
         f"- Existing-only loose method/path signatures: "
         f"**{compare['totals'].get('existing_only_loose_path_signatures', 0)}**",
+    ]
+    absences = report.get("publication_absences") or []
+    lines.extend(["", "## Retained Publication Absences", ""])
+    if absences:
+        lines.append(
+            "These products have no operations in the current public route table. "
+            "Their last-known committed snapshots are retained; publication absence "
+            "does not establish endpoint retirement or backend unavailability."
+        )
+        lines.append("")
+        for item in absences:
+            lines.append(
+                f"- `{item['product']}` — **{item['retained_snapshot_operations']}** "
+                f"last-known operations across **{item['retained_snapshot_paths']}** paths retained "
+                f"(`{item['status']}`)."
+            )
+    else:
+        lines.append("- None.")
+    lines.extend([
         "",
         "## Product Counts",
         "",
         "| product | live blobs | existing scrape | route-key common ops | loose path common sigs | live-only route keys | existing-only route keys | request nested | response nested |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
-    ]
+    ])
     for product, stats in products.items():
         lines.append(
             f"| `{product}` | {stats.get('live_ops', 0)} | {stats.get('existing_ops', 0)} | "
@@ -1148,10 +1762,20 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
         "## Contract Change Radar",
         "",
         "Route-key renames are paired by method/path before additions and removals are counted. "
-        "Schema changes compare flattened field names plus type, required, readonly, enum, and response status metadata.",
+        "Schema changes compare flattened field names plus type, required, readonly, enum, and response status metadata, "
+        "as well as discriminator mappings and titles from request and selected-success schemas. Schema or product metadata "
+        "drift describes the current public documentation; by itself it does not establish a feature launch, endpoint "
+        "availability, or tenant entitlement.",
+    ])
+    if absences:
+        lines.append(
+            "For products listed as retained publication absences, the `removed ops` count is only the "
+            "current-route-table versus retained-snapshot set difference; it is not an endpoint-retirement conclusion."
+        )
+    lines.extend([
         "",
-        "| product | matched | added ops | removed ops | route changes | route-key changes | schema-changed ops | request +/−/Δ | response +/−/Δ |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| product | matched | added ops | removed ops | route changes | route-key changes | schema-changed ops | schema annotation Δ | product metadata Δ | request +/−/Δ | response +/−/Δ |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ])
     for product, stats in products.items():
         request_counts = (
@@ -1168,11 +1792,27 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
             f"| `{product}` | {stats.get('matched_ops', 0)} | {stats.get('added_operations', 0)} | "
             f"{stats.get('removed_operations', 0)} | {stats.get('route_changed_operations', 0)} | "
             f"{stats.get('route_key_changed_operations', 0)} | {stats.get('schema_changed_operations', 0)} | "
+            f"{stats.get('schema_annotation_changed_operations', 0)} | "
+            f"{stats.get('product_metadata_changed', 0)} | "
             f"{request_counts} | {response_counts} |"
         )
+    metadata_changes = [
+        (product, stats.get("product_metadata_changes") or {})
+        for product, stats in products.items()
+        if stats.get("product_metadata_changes")
+    ]
+    lines.extend(["", "### Product metadata changes", ""])
+    if metadata_changes:
+        for product, changes in metadata_changes:
+            for key, change in changes.items():
+                lines.append(
+                    f"- `{product}` {product_metadata_markdown(key, change)}."
+                )
+    else:
+        lines.append("- None.")
     deltas = compare.get("operation_deltas", [])
     added = [item for item in deltas if item.get("kind") == "added"]
-    removed = [item for item in deltas if item.get("kind") == "removed"]
+    removed = visible_removed_operations(deltas, absences)
     route_changes = [item for item in deltas if "route" in item.get("change_types", [])]
     schema_changes = [item for item in deltas if "schema" in item.get("change_types", [])]
     lines.extend(["", "### Added operations", ""])
@@ -1184,7 +1824,7 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
             )
     else:
         lines.append("- None.")
-    lines.extend(["", "### Removed operations", ""])
+    lines.extend(["", "### Per-operation removals", ""])
     if removed:
         for item in removed:
             lines.append(
@@ -1212,6 +1852,7 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
                     f"`{section}` +{len(delta.get('added', []))} "
                     f"−{len(delta.get('removed', []))} Δ{len(delta.get('changed', []))}"
                 )
+            section_parts.extend(schema_annotation_markdown_parts(item.get("schema_annotations") or {}))
             lines.append(
                 f"- `{item['product']}` / `{item.get('new_operation')}` — " + "; ".join(section_parts)
             )
@@ -1225,6 +1866,19 @@ def write_markdown(report: dict[str, object], path: pathlib.Path) -> None:
                     lines.append(
                         f"  - `{section}` metadata changed: "
                         + ", ".join(f"`{value}`" for value in changed_fields[:20])
+                    )
+            for change in (item.get("schema_annotations") or {}).get("discriminator_changes", []):
+                added_keys = change.get("mapping_keys_added") or []
+                removed_keys = change.get("mapping_keys_removed") or []
+                if added_keys or removed_keys:
+                    key_parts = []
+                    if added_keys:
+                        key_parts.append("added " + ", ".join(f"`{value}`" for value in added_keys))
+                    if removed_keys:
+                        key_parts.append("removed " + ", ".join(f"`{value}`" for value in removed_keys))
+                    lines.append(
+                        f"  - Discriminator `{change.get('property_name')}` at `{change.get('path')}`: "
+                        + "; ".join(key_parts)
                     )
     else:
         lines.append("- None.")
@@ -1296,13 +1950,7 @@ def main() -> int:
     parser.add_argument("--workers", type=int, default=16)
     args = parser.parse_args()
 
-    args.out_dir.mkdir(parents=True, exist_ok=True)
-    reconstructed_dir = args.out_dir / "reconstructed"
-    raw_blob_dir = args.out_dir / "raw-blobs"
-    sheets_dir = args.out_dir / "sheets"
-    reconstructed_dir.mkdir(parents=True, exist_ok=True)
-    raw_blob_dir.mkdir(parents=True, exist_ok=True)
-    sheets_dir.mkdir(parents=True, exist_ok=True)
+    reconstructed_dir, raw_blob_dir, sheets_dir = prepare_generated_output_dirs(args.out_dir)
 
     index = fetch_text(BASE_URL)
     scripts = site_scripts(index)
@@ -1317,12 +1965,7 @@ def main() -> int:
     if not routes:
         raise RuntimeError("no API routes found")
     route_completeness = verify_route_completeness(main_js, routes)
-    if route_completeness["missing_routes"] or route_completeness["extra_routes"]:
-        raise RuntimeError(
-            "API route discovery mismatch: "
-            f"{len(route_completeness['missing_routes'])} missing, "
-            f"{len(route_completeness['extra_routes'])} extra"
-        )
+    require_complete_routes(route_completeness)
 
     chunk_ids = sorted({cid for route in routes for cid in route["chunks"]})
     # Some shared chunks are already installed by the runtime and have no lazy
@@ -1369,9 +2012,16 @@ def main() -> int:
             "api": api,
         }
 
+    if failures:
+        first = failures[0]
+        raise RuntimeError(
+            f"failed closed: {len(failures)} API route module(s) had no owned blob; "
+            f"first={first['operation']}: {first['error']}"
+        )
+
     for product, ops in sorted(rebuilt.items()):
         (reconstructed_dir / f"{product}-api-reference.json").write_text(
-            json.dumps(dict(sorted(ops.items())), indent=2) + "\n",
+            json.dumps(public_normalized_operations(ops), indent=2) + "\n",
             encoding="utf-8",
         )
     for product, ops in sorted(raw_blobs.items()):
@@ -1391,6 +2041,11 @@ def main() -> int:
         "route_completeness": route_completeness,
         "decoded_ops": sum(len(ops) for ops in rebuilt.values()),
         "decode_failures": failures,
+        "publication_absences": publication_absences(
+            {str(route["product"]) for route in routes},
+            existing,
+            args.existing_dir,
+        ),
         "comparison": comparison,
     }
     (args.out_dir / "compare-summary.json").write_text(

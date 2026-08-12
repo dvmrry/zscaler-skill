@@ -22,7 +22,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - Ansible enum: **6** match / **2** value-conflict / **6** one-sided
 
 - Python SDK surface: **16** present / **0** no surface
-- Python SDK presence: **37** contract-unmatched / **38** python-only fields
+- Python SDK presence: **37** contract-unmatched / **42** python-only fields
 
 - MCP tool surface: **12** present / **4** no surface (**10** with request-field surface)
 - MCP request-field presence: **166** contract-unmatched / **17** MCP-only fields
@@ -90,7 +90,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 ## application_segment
 
-`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/application` — contract 51 / Go 52 / TF 35 fields / Ansible 32 fields / Python 51 fields / MCP 5 tools
+`POST /zpa/mgmtconfig/v1/admin/customers/{customerId}/application` — contract 51 / Go 56 / TF 35 fields / Ansible 32 fields / Python 55 fields / MCP 5 tools
 
 **Type drift** — contract and Go SDK disagree on the primitive field category:
 
@@ -116,7 +116,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Contract fields unmatched in the Python SDK model/request surface:** `appRecommendationId`, `defaultIdleTimeout`, `defaultMaxAge`, `inconsistentConfigDetails`, `tcpProtocols`, `udpProtocols`
 
-**Python SDK fields absent from the contract:** `applicationGroup`, `policyStyle`, `readOnly`, `restrictionType`, `tags`, `zscalerManaged`
+**Python SDK fields absent from the contract:** `applicationGroup`, `guestDetails`, `hbrEnabled`, `policyStyle`, `readOnly`, `restrictionType`, `stickyEntity`, `stickyGroup`, `tags`, `zscalerManaged`
 
 **Contract fields unmatched in MCP request tools:** `adpEnabled`, `apiProtectionEnabled`, `appRecommendationId`, `autoAppProtectEnabled`, `bypassOnReauth`, `bypassType`, `clientlessApps`, `commonAppsDto`, `configSpace`, `creationTime`, `defaultIdleTimeout`, `defaultMaxAge`, `doubleEncrypt`, `extranetEnabled`, `fqdnDnsCheck`, `healthCheckType`, `healthReporting`, `icmpAccessType`, `id`, `inconsistentConfigDetails`, `inspectTrafficWithZia`, `inspectionApps`, `ipAnchored`, `isCnameEnabled`, `isIncompleteDRConfig`, `matchStyle`, `microtenantId`, `microtenantName`, `modifiedBy`, `modifiedTime`, `passiveHealthEnabled`, `praApps`, `segmentGroupName`, `selectConnectorCloseToApp`, `serverGroups`, `sharedMicrotenantDetails`, `tcpKeepAlive`, `tcpPortRange`, `tcpProtocols`, `udpPortRange`, `udpProtocols`, `useInDrMode`, `weightedLoadBalancing`, `zpnErId`
 
@@ -124,7 +124,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 
 **Contract fields absent from the Go SDK struct:** `commonAppsDto`, `inconsistentConfigDetails`, `inspectionApps`, `praApps`, `tcpProtocols`, `udpProtocols`
 
-**Go SDK fields absent from the contract:** `applications`, `policyStyle`, `readOnly`, `restrictionType`, `shareToMicrotenants`, `tags`, `zscalerManaged`
+**Go SDK fields absent from the contract:** `applications`, `guestDetails`, `hbrEnabled`, `policyStyle`, `readOnly`, `restrictionType`, `shareToMicrotenants`, `stickyEntity`, `stickyGroup`, `tags`, `zscalerManaged`
 
 **Terraform provider corroborates these non-contract client fields:** `policyStyle`, `shareToMicrotenants`
 

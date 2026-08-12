@@ -21,6 +21,7 @@ cd "${REPO_ROOT}"
 CAP="scripts/automate-capture"
 SPEC_DIR="vendor/zscaler-api-specs/automate-zscaler"
 OPENAPI_DIR="${SPEC_DIR}/openapi"
+EXISTING_DIR="${AUTOMATE_EXISTING_DIR:-${SPEC_DIR}}"
 
 echo "=== automate.zscaler.com Docusaurus snapshot sweep ==="
 echo ""
@@ -38,7 +39,34 @@ products=("$@")
 echo "--- extracting Docusaurus operation blobs ---"
 python3 "${CAP}/extract_docusaurus_blobs.py" \
     --out-dir "${snapshot_dir}" \
-    --existing-dir "${SPEC_DIR}"
+    --existing-dir "${EXISTING_DIR}"
+
+echo ""
+echo "--- checking retained public-route-table absences ---"
+python3 - "${snapshot_dir}/compare-summary.json" "${SPEC_DIR}" "${CAP}" <<'PY'
+import json
+import pathlib
+import sys
+
+report_path = pathlib.Path(sys.argv[1])
+spec_dir = pathlib.Path(sys.argv[2])
+sys.path.insert(0, sys.argv[3])
+from extract_docusaurus_blobs import validate_retained_publication_absences
+
+report = json.loads(report_path.read_text(encoding="utf-8"))
+absences = report.get("publication_absences") or []
+validate_retained_publication_absences(absences, spec_dir)
+if not absences:
+    print("(none)")
+for item in absences:
+    product = item["product"]
+    retained = item["retained_snapshot_operations"]
+    print(
+        f"retaining {product}: {retained} last-known operations; "
+        "artifacts match selected baseline; absent from current public route table "
+        "(not an endpoint-retirement conclusion)"
+    )
+PY
 
 echo ""
 echo "--- publishing normalized contract JSON ---"
@@ -64,7 +92,8 @@ mkdir -p "${OPENAPI_DIR}"
 python3 "${CAP}/build_openapi_from_blobs.py" \
     --raw-dir "${snapshot_dir}/raw-blobs" \
     --out-dir "${OPENAPI_DIR}" \
-    --version "docusaurus-blob-snapshot"
+    --version "docusaurus-blob-snapshot" \
+    --snapshot-report "${snapshot_dir}/compare-summary.json"
 cp "${OPENAPI_DIR}/openapi-validation-report.json" "${SPEC_DIR}/openapi-validation-report.json"
 cp "${OPENAPI_DIR}/openapi-validation-report.md" "${SPEC_DIR}/openapi-validation-report.md"
 

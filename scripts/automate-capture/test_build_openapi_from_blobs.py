@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import pathlib
 
 
@@ -177,6 +178,56 @@ def test_validate_spec_reports_product_path_prefix_anomalies():
     ]
 
 
+def test_validation_report_marks_retained_publication_absence(tmp_path):
+    report = {
+        "source": "automate-docusaurus-blobs",
+        "publication_absences": [
+            {
+                "product": "aiguard",
+                "status": "absent-from-current-public-route-table",
+                "retained_snapshot_operations": 47,
+                "retained_snapshot_paths": 29,
+            }
+        ],
+        "products": {"ai-security": {"operations": 108, "paths": 99, "issues": 0}},
+        "issue_counts": {},
+        "issues": [],
+    }
+
+    builder.write_validation_report(report, tmp_path)
+
+    markdown = (tmp_path / "openapi-validation-report.md").read_text(encoding="utf-8")
+    assert "## Retained Publication Absences" in markdown
+    assert (
+        "| `aiguard` | 47 | 29 | not revalidated | retained last-known snapshot; "
+        "`absent-from-current-public-route-table` |"
+    ) in markdown
+    assert "| `ai-security` | 108 | 99 | 0 | current public route table |" in markdown
+    assert "`aiguard` — **47** last-known operations across **29** paths retained" in markdown
+    assert "does not establish endpoint retirement" in markdown
+
+
+def test_load_publication_absences_reads_snapshot_report(tmp_path):
+    snapshot = tmp_path / "compare-summary.json"
+    snapshot.write_text(
+        json.dumps(
+            {
+                "publication_absences": [
+                    {
+                        "product": "aiguard",
+                        "status": "absent-from-current-public-route-table",
+                        "retained_snapshot_operations": 47,
+                        "retained_snapshot_paths": 29,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert builder.load_publication_absences(snapshot)[0]["product"] == "aiguard"
+
+
 def test_normalize_openapi_node_preserves_blob_recursion_as_extensions():
     unresolved_refs = set()
     normalized = builder.normalize_openapi_node(
@@ -286,3 +337,78 @@ def test_product_info_and_servers_are_stable():
 
     assert spec["info"] == {"title": "Product API", "version": "9", "description": "Product docs"}
     assert spec["servers"] == [{"url": "https://a.example"}, {"url": "https://b.example"}]
+
+
+def test_mixed_product_info_preserves_each_source_family_without_claiming_replacement():
+    def operation(key, path, title, description):
+        return raw_entry(
+            key,
+            {
+                "operationId": key,
+                "method": "get",
+                "path": path,
+                "responses": {"200": {"description": "ok"}},
+                "info": {
+                    "title": title,
+                    "description": description,
+                    "version": "0.0.0",
+                },
+            },
+        )
+
+    raw_ops = {
+        "ai-security/assets": operation(
+            "ai-security/assets",
+            "/aisecurity/aispm/v1/assets",
+            "AI Infrastructure",
+            "AI asset inventory APIs",
+        ),
+        "ai-security/red-team-one": operation(
+            "ai-security/red-team-one",
+            "/aisecurity/airt/api/v2/tests",
+            "AI Red Teaming",
+            "AI red-team APIs",
+        ),
+        "ai-security/red-team-two": operation(
+            "ai-security/red-team-two",
+            "/aisecurity/airt/api/v2/tests/{id}",
+            "AI Red Teaming",
+            "AI red-team APIs",
+        ),
+    }
+
+    spec, issues = builder.build_product_spec("ai-security", raw_ops, "snapshot")
+
+    assert issues == []
+    assert spec["info"] == {
+        "title": "AI Security APIs",
+        "version": "snapshot",
+        "description": (
+            "Combined reconstruction from automate.zscaler.com Docusaurus operation blobs "
+            "spanning multiple source API families."
+        ),
+        "x-zscaler-source-info": [
+            {
+                "title": "AI Infrastructure",
+                "description": "AI asset inventory APIs",
+                "version": "0.0.0",
+                "operation_count": 1,
+            },
+            {
+                "title": "AI Red Teaming",
+                "description": "AI red-team APIs",
+                "version": "0.0.0",
+                "operation_count": 2,
+            },
+        ],
+    }
+    assert spec["paths"]["/aisecurity/aispm/v1/assets"]["get"]["x-zscaler-source-info"] == {
+        "title": "AI Infrastructure",
+        "description": "AI asset inventory APIs",
+        "version": "0.0.0",
+    }
+    assert spec["paths"]["/aisecurity/airt/api/v2/tests"]["get"]["x-zscaler-source-info"] == {
+        "title": "AI Red Teaming",
+        "description": "AI red-team APIs",
+        "version": "0.0.0",
+    }

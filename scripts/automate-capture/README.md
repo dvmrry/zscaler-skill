@@ -28,8 +28,10 @@ semantics.
      The comparison includes a **Contract Change Radar** that pairs route-key
      renames by method/path, identifies true operation additions/removals,
      separates route corrections, and reports per-operation field additions,
-     removals, and material metadata changes for request/response schemas.
-     Schema-class title and description churn is intentionally excluded.
+     removals, and material metadata changes for request/response schemas. It
+     also fingerprints discriminator mappings and schema titles so bounded
+     publication metadata drift is visible; free-form description churn remains
+     excluded.
 2. **Publish OpenAPI** (`build_openapi_from_blobs.py`, Python stdlib) — converts
    the decoded blobs into product-scoped OpenAPI-compatible specs while preserving
    `x-zscaler-*` provenance extensions:
@@ -72,9 +74,15 @@ snapshot; the Docusaurus route discovery itself is always global.
 To keep the working snapshot for inspection:
 
 ```bash
-AUTOMATE_SNAPSHOT_DIR=/tmp/zscaler-automate-blob-proof \
+snapshot_dir="$(mktemp -d)"
+AUTOMATE_SNAPSHOT_DIR="${snapshot_dir}" \
   ./scripts/refresh-automate-zscaler.sh
 ```
+
+`AUTOMATE_SNAPSHOT_DIR` must be fresh (or have empty `reconstructed/`,
+`raw-blobs/`, and `sheets/` children). The extractor fails closed rather than
+mixing files from separate captures, because a stale product file could
+otherwise contradict a current public-route-table absence.
 
 Or drive stages directly:
 
@@ -93,8 +101,11 @@ python3 scripts/automate-capture/rosetta.py
 
 ## Scope
 
-Captured products: **AI Guard**, **BI**, **EASM**, **Event Monitoring**, **ZCC**,
-**ZCell**, **ZCloudConnector/ZTW**, **ZDX**, **ZIA**, **ZID**, and **ZPA**.
+Captured products: **AI Security**, **BI**, **EASM**, **Event Monitoring**,
+**ZCC**, **ZCell**, **ZCloudConnector/ZTW**, **ZDX**, **ZIA**, **ZID**, and
+**ZPA**. A last-known **AI Guard** snapshot is retained when the current public
+route table omits that product; the retained artifact is explicitly marked
+publication-absent and is not treated as proof of endpoint retirement.
 
 Reconciliation currently covers the mapped multi-surface resources for **ZIA**
 (54), **ZPA** (16), **ZCC** (4), and **ZCloudConnector/ZTW** (16); the other

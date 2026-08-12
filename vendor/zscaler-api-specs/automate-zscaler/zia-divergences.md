@@ -22,7 +22,7 @@ Diffs the compiled per-operation contract (`vendor/zscaler-api-specs/automate-zs
 - Ansible enum: **72** match / **18** value-conflict / **38** one-sided
 
 - Python SDK surface: **54** present / **0** no surface
-- Python SDK presence: **39** contract-unmatched / **48** python-only fields
+- Python SDK presence: **39** contract-unmatched / **50** python-only fields
 
 - MCP tool surface: **33** present / **21** no surface (**25** with request-field surface)
 - MCP request-field presence: **349** contract-unmatched / **30** MCP-only fields
@@ -874,7 +874,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## url_filtering_and_cloud_app_settings
 
-`PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings` — contract 21 / Go 29 / TF 28 fields / Ansible 20 fields / Python 20 fields / no MCP surface
+`PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings` — contract 21 / Go 31 / TF 28 fields / Ansible 20 fields / Python 22 fields / no MCP surface
 
 **Contract fields unmatched in the Ansible module:** `enableCIPACompliance`, `enableMicrosoftCoPilotPrompt`, `enablePOEPrompt`, `enablePerPlexityPrompt`, `safeSearchApps`
 
@@ -882,7 +882,9 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Contract fields unmatched in the Python SDK model/request surface:** `safeSearchApps`
 
-**Go SDK fields absent from the contract:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
+**Python SDK fields absent from the contract:** `enableGoogleAIPrompt`, `enableQuillbotAIPrompt`
+
+**Go SDK fields absent from the contract:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGoogleAIPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableQuillbotAIPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
 
 **Terraform provider corroborates these non-contract client fields:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
 
