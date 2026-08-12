@@ -4,6 +4,28 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.17.0](https://github.com/dvmrry/zscaler-skill/compare/v0.16.4...v0.17.0) (2026-08-12)
+
+
+### Features
+
+* refresh Automate API contract capture ([#266](https://github.com/dvmrry/zscaler-skill/issues/266)) ([10291a2](https://github.com/dvmrry/zscaler-skill/commit/10291a2d91e2d8d1188461c65bf67b8cb1b140cf))
+
+
+### Bug Fixes
+
+* backfill tracked capture provenance ([#265](https://github.com/dvmrry/zscaler-skill/issues/265)) ([84feefa](https://github.com/dvmrry/zscaler-skill/commit/84feefa2c74338372da9a303bef4fc57ac6067ca))
+* fail closed on incomplete vendor issue sweeps ([#264](https://github.com/dvmrry/zscaler-skill/issues/264)) ([f3c6e8b](https://github.com/dvmrry/zscaler-skill/commit/f3c6e8b2ea07bed129380990c583e89e624f4b2b))
+* reconcile Go SDK v3.8.46 contracts ([#256](https://github.com/dvmrry/zscaler-skill/issues/256)) ([e2de8ef](https://github.com/dvmrry/zscaler-skill/commit/e2de8efade0e6cf3bf3ee9477c5428dba24f6978))
+* reconcile product routing and API semantics ([#262](https://github.com/dvmrry/zscaler-skill/issues/262)) ([21dff09](https://github.com/dvmrry/zscaler-skill/commit/21dff098eac2abffb7f8dfdebd43a968971d6490))
+
+
+### Documentation
+
+* capture current Help surfaces ([#260](https://github.com/dvmrry/zscaler-skill/issues/260)) ([f25ce27](https://github.com/dvmrry/zscaler-skill/commit/f25ce272f7a62b45afbbabb6cf475cd325700201))
+* reconcile Automate contract refresh ([#267](https://github.com/dvmrry/zscaler-skill/issues/267)) ([66739b9](https://github.com/dvmrry/zscaler-skill/commit/66739b98b8a22436703ea86db46892dc69441b7a))
+* refresh Help-backed product guidance ([#261](https://github.com/dvmrry/zscaler-skill/issues/261)) ([5205c70](https://github.com/dvmrry/zscaler-skill/commit/5205c701fb091580ac41def38415a7d533643e79))
+
 ## [0.16.4](https://github.com/dvmrry/zscaler-skill/compare/v0.16.3...v0.16.4) (2026-08-09)
 
 
