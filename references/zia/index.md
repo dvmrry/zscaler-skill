@@ -8,6 +8,7 @@ confidence: high
 sources:
   - "vendor/zscaler-help/zia-about-backup-and-restore.md"
   - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md"
+  - "vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md"
 author-status: reviewed
 ---
 
@@ -34,7 +35,7 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 | **Authentication Policy** — auth gate before all other policy; SAML / Hosted DB / Kerberos methods; frequency model (Always / Daily / Weekly / Monthly / Custom); Surrogate IP binding + TTL; auth-required toggle per location/sublocation; exemption lists; step-up via ZIdentity | [`./authentication.md`](./authentication.md) | draft |
 | **Traffic forwarding methods — GRE / IPsec / PAC / ZCC** — how traffic gets INTO ZIA; static-IP/UFQDN credential model, GRE MTU/bandwidth/HA, IPsec credential object, PAC limits/auth-challenges, ZCC tunnel-mode summary, decision tree for choosing among the four | [`./traffic-forwarding-methods.md`](./traffic-forwarding-methods.md) | draft |
 | **Proxy modes — Explicit vs Transparent destination resolution** — how the Service Edge identifies the destination host once traffic arrives; CONNECT hostname (explicit) vs SNI / cert fallback (transparent); forwarding-method-to-proxy-mode mapping table; IP-category evaluation difference and its SSL bypass implications | [`./proxy-mode.md`](./proxy-mode.md) | draft |
-| **Forwarding Control + Source IP Anchoring (SIPA)** — egress routing after inspection (ZPA / DIRECT / DROP / PROXYCHAIN), SIPA mechanics (connector-as-egress for IP allowlisting), ZPA Gateway config, SIPA Direct DR mode, Z-Tunnel-1.0 gating, ZPA-side prerequisites | [`./forwarding-control.md`](./forwarding-control.md) | draft |
+| **Forwarding Control, Dedicated IP/BYOIP + Source IP Anchoring (SIPA)** — egress routing after inspection (ZPA / DIRECT / DROP / PROXYCHAIN), Support-assisted customer-owned Dedicated IP prefixes, SIPA mechanics (connector-as-egress for IP allowlisting), ZPA Gateway config, SIPA Direct DR mode, Z-Tunnel-1.0 gating, ZPA-side prerequisites | [`./forwarding-control.md`](./forwarding-control.md) | draft |
 | **Private Service Edge (PSE)** — on-prem cluster architecture (N+1, LB active-passive/CARP, DSR), three cluster tiers (PSE 3 / PSE 5 Integrated LB / PSE 5 Dedicated LB with throughput ceilings), IP/NAT requirements (public IPs required, 1:1 NAT disables IPv6), open-proxy risk when adding locations, ZDX dependency for Health Dashboard | [`./private-service-edge.md`](./private-service-edge.md) | draft |
 | ZIA API — endpoints, authentication, response shapes relevant to this skill | [`./api.md`](./api.md) | draft |
 | **Snapshot schema** — what's in `_data/snapshot/<cloud>/zia/*.json`, top-level shapes, common jq queries, wire-format gotchas | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |

@@ -19,7 +19,7 @@ Docs under `references/shared/` are **not tied to a single Zscaler product**. Th
 | Topic | File | Status |
 |---|---|---|
 | Policy evaluation meta-model — how ZIA and ZPA rule-evaluation differ (default-allow vs default-deny), what's shared, what isn't | [`./policy-evaluation.md`](./policy-evaluation.md) | draft |
-| Cloud architecture — Central Authority (ZIA active-passive vs ZPA active-active), Service Edge form factors, Nanolog, Feed Central, Business Continuity Cloud, Z-Tunnel vs M-Tunnel, PKI | [`./cloud-architecture.md`](./cloud-architecture.md) | draft |
+| Cloud architecture — public production cloud-name map, Central Authority (ZIA active-passive vs ZPA active-active), Service Edge form factors, Nanolog, Feed Central, Business Continuity Cloud, Z-Tunnel vs M-Tunnel, PKI | [`./cloud-architecture.md`](./cloud-architecture.md) | draft |
 | **Cross-product integrations** — the canonical catalog of hooks between ZIA, ZPA, ZCC, ZDX, ZBI, ZIdentity, Cloud Connector, ZWA — organized by direction of coupling, with failure-mode notes and a question-shape routing table | [`./cross-product-integrations.md`](./cross-product-integrations.md) | draft |
 | Activation lifecycle — ZIA staged-vs-live gate, API endpoints, EUSA, ZPA contrast | [`./activation.md`](./activation.md) | draft |
 | Terminology — legacy / current / log-field aliases across all products (ZEN, PSEN, Z-App, App Profile vs Web Policy, ZTW vs ZTC, etc.) | [`./terminology.md`](./terminology.md) | draft |

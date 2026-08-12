@@ -7,6 +7,7 @@ last-verified: "2026-04-27"
 confidence: medium
 source-tier: doc
 sources:
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md"
   - "vendor/zscaler-help/cbc-what-zscaler-zero-trust-sd-wan.md"
   - "vendor/zscaler-help/what-zscaler-cloud-connector.md"
   - "vendor/zscaler-help/cbc-about-traffic-forwarding.md"
@@ -151,7 +152,7 @@ For Branch Connector (branch sites):
 
 - **HA model not fully captured in available docs** — the help content covers hardware redundancy at a high level but does not specify failover timing or mode for physical Branch Connector appliances. The ZTE-side failover (primary/secondary gateway) is the same as Cloud Connector.
 
-Zero Trust Gateway availability is a separate surface from the customer-deployed Cloud Connector VM and from the broader ZTE PoP footprint. Current Help lists **18 AWS** and **16 GCP** ZTG regions and directs customers to Support for an unlisted region (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-53`). In GCP, ZTG is specifically a Zscaler-managed cloud-native service in Limited Availability, not merely a newer name for the customer-deployed Cloud Connector (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+Zero Trust Gateway availability is a separate surface from the customer-deployed Cloud Connector VM and from the broader ZTE PoP footprint. Current Help lists **18 AWS** and **16 GCP** ZTG regions and directs customers to Support for an unlisted region (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-53`). Cloud-specific Help describes both AWS and GCP ZTG as Zscaler-managed cloud-native services in Limited Availability, not merely newer names for the customer-deployed Cloud Connector (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 
 ### Security inspection at the ZTE
 
@@ -276,7 +277,7 @@ Zscaler documents device classification based on traffic profiles. The specifics
 
 5. **IoT classification engine specifics** — which OT/IoT device types are supported, what's the update mechanism, and what is the false-positive/false-negative characterization?
 
-6. **AWS parity with the documented GCP ZTG service boundary** — GCP Help now establishes a Zscaler-managed, Support-enabled service distinct from Cloud Connector VMs (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). Whether every AWS ZTG deployment has identical ownership, IAM, and interception semantics remains unconfirmed.
+6. **AWS/GCP ZTG contract parity** — cloud-specific Help now establishes a Zscaler-managed, Support-enabled service distinct from Cloud Connector VMs for both clouds (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). Whether they have identical IAM, endpoint, interception, control, and API semantics remains unconfirmed.
 
 7. **Fail-open toggle location in admin portal** — the HA docs mention "customers can change this configuration" but do not specify the admin-portal path. Where exactly is fail-open configured?
 

@@ -13,6 +13,7 @@ sources:
   - "vendor/zscaler-help/configuring-source-ip-anchoring.md"
   - "vendor/zscaler-help/understanding-source-ip-anchoring.md"
   - "vendor/zscaler-help/understanding-source-ip-anchoring-direct.md"
+  - "vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_rule.go"
   - "vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go"
@@ -77,6 +78,35 @@ Four predefined forwarding rules ship with every ZIA tenant. The TF provider enf
 | `Fallback mode of ZPA Forwarding` | Fallback handling when the primary ZPA forwarding path is unavailable. |
 | `Client Connector Traffic Direct` | Applies direct forwarding for ZCC-originated traffic matching defined criteria. |
 | `ZPA Pool For Stray Traffic` | Catches ZPA-destined traffic that doesn't match any configured forwarding rule. |
+
+## Dedicated IP with customer-owned addresses (BYOIP)
+
+ZIA's Dedicated IP service can use Zscaler-owned addresses or a customer-owned
+range brought into the Zscaler cloud. The Help article calls the customer-owned
+option **Bring Your Own IP (BYOIP)**. It requires the Dedicated IP subscription
+and at least one `/24` for each Zscaler data center where the organization wants
+the addresses provisioned. The prefix must be registered with the appropriate
+RIR and covered by a cryptographic Route Origin Authorization (ROA)
+(`vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md:8-20`).
+
+The ROA uses a regional Zscaler ASN: `AS53813` for APAC, `AS22616` for the
+Americas, and `AS62044` for EMEA; its prefix length must match the prefix
+announced from the data center
+(`vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md:22-33`).
+Provisioning is Support-assisted rather than documented as self-service: the
+customer publishes a self-signed X.509 public certificate in the RIR record,
+signs the documented version/prefix/expiry message with SHA-256 and RSA-PSS,
+and opens a Support ticket naming the requested data centers. Support validates
+the authorization, advertises the routes, and assigns addresses to the tenant
+(`vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md:35-49`).
+
+BYOIP is a Dedicated IP address-provisioning model, **not another name for
+SIPA**. BYOIP brings a customer-owned, ROA-authorized prefix into Zscaler's
+Dedicated IP service through Support-assisted provisioning
+(`vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md:8-49`).
+SIPA instead sends traffic through a ZPA App Connector so that the destination
+sees the connector's address (`vendor/zscaler-help/understanding-source-ip-anchoring.md:18-28`).
+Do not transfer SIPA licensing, topology, or failure-mode assumptions to BYOIP.
 
 ## Source IP Anchoring (SIPA)
 

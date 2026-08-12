@@ -13,8 +13,10 @@ sources:
   - "vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md"
   - "https://help.zscaler.com/cloud-branch-connector/about-cloud-connector-groups"
   - "vendor/zscaler-help/cbc-about-cloud-connector-groups.md"
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md"
   - "https://help.zscaler.com/cloud-branch-connector/about-google-cloud-platform-zero-trust-gateways"
   - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
+  - "vendor/zscaler-help/zero-trust-gateway-marketing.md"
 author-status: draft
 ---
 
@@ -50,7 +52,15 @@ A group is the unit of:
 - **Upgrade orchestration** — "Schedule Upgrade" applies at the group level; upgrades ripple through member VMs in a way that maintains redundancy (not all at once).
 - **Autoscaling scope** — an autoscaling group (ASG / VMSS / MIG) is one Cloud Connector Group.
 
-**Deployment types must not be collapsed into naming aliases.** Standard Cloud Connector is the customer-deployed VM model described throughout this document. GCP Zero Trust Gateway is a Zscaler cloud-native service that secures workload traffic without customer-managed security infrastructure; it is currently Limited Availability and Support-enabled (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). See [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md) for its separate creation and operating contract.
+**Deployment types must not be collapsed into naming aliases.** Standard Cloud Connector is the customer-deployed VM model described throughout this document. AWS and GCP Zero Trust Gateways are Zscaler cloud-native services that secure workload traffic without customer-managed security infrastructure; the cloud-specific Help pages mark both as Limited Availability and require Zscaler Support enablement (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). See [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md) for the separately captured GCP creation and operating contract.
+
+### Current Zero Trust Gateway product surface and availability boundary
+
+Source: `vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md`; `vendor/zscaler-help/zero-trust-gateway-marketing.md`.
+
+Zscaler's product page positions Zero Trust Gateway as a fully managed, highly available service for ingress, egress, east-west, and private workload traffic across multi-cloud environments (`vendor/zscaler-help/zero-trust-gateway-marketing.md:8-23`). It names AWS Direct Connect, Azure ExpressRoute, and GCP Interconnect as private-connectivity examples for VPC/VNet traffic (`vendor/zscaler-help/zero-trust-gateway-marketing.md:15-20`). Those connectivity terms describe intended traffic reach; they do **not** prove that Zscaler currently deploys a Zero Trust Gateway in each named cloud.
+
+For availability, the captured cloud-specific Help pages establish AWS and GCP gateways only: both are Limited Availability and require Support enablement (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-10`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). The product page does not state current per-cloud deployment availability, release stage, tenant entitlement, or an API contract (`vendor/zscaler-help/zero-trust-gateway-marketing.md:25-31`). Exact Azure Zero Trust Gateway deployment availability therefore remains unresolved.
 
 **Cloud Connector states** (per-VM):
 
@@ -187,7 +197,7 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md
 
 - **Existing sessions fail during failover.** The ~30-second failover time applies to new-session routing; existing sessions that were on the failed Cloud Connector or gateway may time out and require retry. Applications with long-lived connections (databases, streaming) see impact.
 - **Health check customization requires Support.** Default intervals (15s Azure, 30s AWS) are "optimized." Changing them requires Zscaler Support engagement.
-- **GCP Zero Trust Gateway is not a renamed Cloud Connector VM.** GCP ZTG is Zscaler-managed and cloud-native, while the Cloud Connector path in this document is customer-deployed (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). Do not reuse Cloud Connector VM lifecycle or ownership assumptions for GCP ZTG.
+- **AWS and GCP Zero Trust Gateways are not renamed Cloud Connector VMs.** Both documented ZTG surfaces are Zscaler-managed and cloud-native, while the Cloud Connector path in this document is customer-deployed (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). Do not reuse Cloud Connector VM lifecycle or ownership assumptions for ZTG.
 - **Disabled Cloud Connector vs deleted**: disabling stops traffic processing but keeps the VM in inventory and the VM running. Useful for staged rollouts or incident response without deprovisioning.
 - **Tertiary gateway is automatic, not user-configured.** A tenant that wants full control over failover sequencing has only primary/secondary configurable; tertiary is Zscaler's safety net.
 - **Horizontal scale is N+1-style redundancy**. Adding more Cloud Connectors to a group increases throughput; they're all active. Remove one and throughput drops accordingly — no spare capacity unless over-provisioned.
@@ -195,7 +205,8 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md
 
 ## Open questions
 
-- **AWS ZTG parity with the documented GCP service boundary** — GCP Help now distinguishes the Zscaler-managed gateway from a customer-deployed Cloud Connector VM (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`), but this capture does not establish that every AWS ZTG deployment has identical ownership, IAM, or interception semantics.
+- **Exact Azure Zero Trust Gateway deployment availability** — the generic product page mentions VNet traffic and Azure ExpressRoute as private connectivity, but explicitly does not establish where gateways can currently be created, their release stage, or tenant entitlement (`vendor/zscaler-help/zero-trust-gateway-marketing.md:15-20,25-31`). The captured cloud-specific Help pages establish AWS and GCP Limited Availability only; a first-party per-cloud deployment or availability matrix is still needed before documenting Azure ZTG as available. Filed as [clarification `cloud-connector-29`](../_meta/clarifications.md#cloud-connector-29-azure-zero-trust-gateway-deployment-availability).
+- **AWS/GCP operating-contract parity** — both captured cloud-specific Help pages describe a Zscaler-managed, cloud-native service, but they do not establish identical IAM, endpoint, interception, operational-control, or API semantics across AWS and GCP (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-33`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-54`).
 - **Whether Cloud Connector's `?cchealth` probe port is configurable** — the help article implies "configured during deployment" but doesn't specify range (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:30`). Filed with the other HA mechanics as [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
 - **Fail-open + fail-close toggle location** — help article mentions "customers can change this configuration" but doesn't name the admin-portal path (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). See [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
 - **What the fail-open egress path actually is** — the source says fail-open lets "workloads that are accessing the internet to continue doing so" and that "the egressing traffic is flowing through Zscaler for inspection and policy control" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:51`). These two clauses are hard to reconcile: if no Cloud Connector in the group can reach a Service Edge (the precondition for fail-open to matter), it's unclear how that same traffic would still flow "through Zscaler for inspection." Whether fail-open routes direct-to-internet (no inspection) or via some retained/degraded Zscaler path is not resolved by the captured text; needs a lab test or a clearer source. Do not document either reading as fact. See [clarification `cloud-connector-08`](../_meta/clarifications.md#cloud-connector-08-ha-mechanics-cchealth-port-fail-openclose-toggle-fail-open-egress-path).
@@ -203,7 +214,7 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md
 ## Cross-links
 
 - Traffic forwarding — [`./forwarding.md`](./forwarding.md)
-- GCP Zero Trust Gateway managed-service boundary — [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md)
+- Zero Trust Gateway managed-service boundary and availability guardrails — this overview; detailed GCP creation and operation — [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md)
 - API / SDK / TF surface — [`./api.md`](./api.md)
 - ZPA App Connector (the other outbound-only Zscaler VM) — [`../zpa/app-segments.md`](../zpa/app-segments.md) (app connectors referenced in segment config)
 - ZCC forwarding profile (the endpoint-side equivalent) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)

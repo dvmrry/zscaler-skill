@@ -15,6 +15,8 @@ sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
   - "vendor/zscaler-help/ai-guard-help-index.md"
   - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md"
+  - "vendor/zscaler-help/ai-guard-users-and-user-groups.md"
   - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
@@ -48,6 +50,7 @@ sources:
   - "vendor/zguard-ai-integrations/README.md"
   - "https://www.zscaler.com/products-and-solutions/ai-security"
   - "vendor/zscaler-help/ai-security-marketing.md"
+  - "vendor/zscaler-help/ai-access-security-marketing.md"
   - "https://www.zscaler.com/products-and-solutions/ai-guardrails"
   - "vendor/zscaler-help/ai-guardrails-marketing.md"
 author-status: draft
@@ -55,26 +58,26 @@ author-status: draft
 
 # AI Security family — AI Guard, AI Guardrails, AI Red Teaming, governance
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
-Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; help-portal docs treat individual sub-products (AI Guard, AI Guardrails, AI Red Teaming) as discrete services. This page maps the family so the skill can route a user's question to the right component before claiming depth.
+Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; current first-party surfaces name AI Access Security, AI Guard, AI Guardrails, and AI Red Teaming within that family. This page maps the family so the skill can route a user's question to the right component before claiming depth; publication of a named product page is not by itself evidence of GA, entitlement, or tenant enablement (`vendor/zscaler-help/ai-access-security-marketing.md:8-31`).
 
-**Confidence is high for the captured AI Guard runtime API, the Python configuration surface introduced in 1.9.39 and retained in current v1.9.41, the Automate admin contract, and the legacy May Help tree.** The six Python resources and their method inventories are exposed at `vendor/zscaler-sdk-python/CHANGELOG.md:141-206`, current version at `vendor/zscaler-sdk-python/pyproject.toml:3`, `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`, `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`, `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`, and `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`. The current July AI Guard for Users tree contains 24 indexed articles, but several newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Automate documents 47 AI Guard operations plus a separate 11-operation AI Security asset/findings API (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). The current Postman snapshot also publishes a 97-request AI Red Teaming surface, but without saved response examples (`vendor/zscaler-api-specs/oneapi-postman-collection.json:139453-143529`). **Confidence remains medium for the current Help operating model and broader AI Security family**: Red Teaming request coverage is now machine-readable, while response schemas, tenant entitlement, live acceptance, and its interlock with AI Guard remain unresolved; Python also lacks eight Automate-documented operations, and other client wrappers remain gaps.
+**Confidence is high for the captured AI Guard runtime API, the Python configuration surface introduced in 1.9.39 and retained in current v1.9.41, the Automate admin contract, and the legacy May Help tree.** The six Python resources and their method inventories are exposed at `vendor/zscaler-sdk-python/CHANGELOG.md:141-206`, current version at `vendor/zscaler-sdk-python/pyproject.toml:3`, `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`, `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`, `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`, and `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`. The current AI Guard for Users tree contains 25 indexed articles—six Getting Started, eight Configuration, two Best Practices, seven Monitoring, and two Troubleshooting—and now has current bodies captured for custom block messages and user/group synchronization; several other newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-48`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md:8-24`; `vendor/zscaler-help/ai-guard-users-and-user-groups.md:8-24`). Automate documents 47 AI Guard operations plus a separate 11-operation AI Security asset/findings API (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`). The current Postman snapshot also publishes a 97-request AI Red Teaming surface, but without saved response examples (`vendor/zscaler-api-specs/oneapi-postman-collection.json:139453-143529`). **Confidence remains medium for the current Help operating model and broader AI Security family**: Red Teaming request coverage is now machine-readable, while response schemas, tenant entitlement, live acceptance, and its interlock with AI Guard remain unresolved; Python also lacks eight Automate-documented operations, and other client wrappers remain gaps.
 
 ## The four pillars
 
-Source: `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 From the AI Security product page, Zscaler's framing covers the full enterprise-AI lifecycle:
 
 | Pillar | What it covers | Closest sub-product |
 |---|---|---|
 | **AI Asset Management** | Discovery of shadow AI apps, mapping AI models / dev tools, posture assessment across infrastructure and data pipelines. | The new AI Security Public API exposes data stores, identities, MCP servers/tools, workloads, and cross-asset issues. Packaging and tenant entitlement remain unresolved. |
-| **Secure Access to AI Apps** | Warn / block / isolate user access to public AI apps (ChatGPT, Claude, Gemini, etc.); enforce DLP on prompts; content moderation. | Closest routing targets in this skill are **ZIA URL Filtering**, **ZIA DLP**, and **ZBI**. Treat exact product behavior as owned by those product references, not by AI Guard. |
+| **Secure Access to AI Apps** | Discover and classify public AI, embedded SaaS AI, agents, and developer tools; provide prompt/response insights; allow, block, coach/warn, or isolate access; apply inline DLP and content moderation. | **AI Access Security** is the current named positioning surface. Route implementation-level web-control, DLP, and isolation mechanics to **ZIA URL Filtering**, **ZIA DLP**, and **ZBI** where captured. |
 | **Secure AI Apps and Infrastructure** | Automated vulnerability assessment of customer-deployed LLM apps; 25+ prebuilt probes; custom risk scanning; remediation tracking. | **AI Red Teaming** (sub-product). |
 | **AI Governance** | Real-time compliance monitoring, framework alignment, audit reporting. | Spans **AI Guard** (runtime enforcement) + reporting layer. |
 
-The "Secure Access to AI Apps" pillar is where the existing skill already has deep policy coverage. AI Asset Management has a documented read-only API surface, and AI Red Teaming now has machine-readable request coverage; governance workflows, Red Teaming response behavior, and live operating semantics remain thinner.
+The current AI Access Security page explicitly spans public generative-AI applications, AI embedded in SaaS, AI agents, and developer tools, and names discovery/classification, prompt/response insight, user/group access controls, inline DLP using more than 100 dictionaries, content moderation, and AI-IDE controls (`vendor/zscaler-help/ai-access-security-marketing.md:8-24`). That establishes a current product-positioning and capability surface, not GA or rollout stage, a tenant's entitlement or feature enablement, API/schema parity, or cloud-specific availability (`vendor/zscaler-help/ai-access-security-marketing.md:28-31`). The skill has deeper implementation-level policy coverage in the adjacent ZIA and ZBI references. AI Asset Management has a documented read-only API surface, and AI Red Teaming has machine-readable request coverage; governance workflows, Red Teaming response behavior, and live operating semantics remain thinner.
 
 ## AI Security asset inventory and findings
 
@@ -204,7 +207,7 @@ be applied to AI Guard automatically.
 
 ## Where AI Security fits relative to existing skill content
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 | Existing reference | AI Security touchpoint |
 |---|---|
