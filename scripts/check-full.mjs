@@ -35,6 +35,11 @@ const FULL_CHECKS = [
   },
   { name: "documentation hygiene", command: "./scripts/check-hygiene.py", args: [] },
   {
+    name: "changed reference source-pin paths",
+    command: "./scripts/check-verified-against.py",
+    args: ["--base", referenceFreshnessBase],
+  },
+  {
     name: "pure agent-pattern regression tests",
     command: "uv",
     args: ["run", "python", "scripts/agent_patterns.test.py"],
