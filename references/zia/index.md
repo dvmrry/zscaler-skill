@@ -4,6 +4,8 @@ topic: "zia-index"
 title: "ZIA reference hub"
 content-type: reference
 last-verified: "2026-04-24"
+verified-against:
+  vendor/zscaler-help: 21dff098eac2abffb7f8dfdebd43a968971d6490
 confidence: high
 sources:
   - "vendor/zscaler-help/zia-about-backup-and-restore.md"

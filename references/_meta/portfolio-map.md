@@ -4,6 +4,9 @@ topic: "portfolio-map"
 title: "Zscaler product portfolio map"
 content-type: reference
 last-verified: "2026-07-20"
+verified-against:
+  vendor/zscaler-api-specs: 21dff098eac2abffb7f8dfdebd43a968971d6490
+  vendor/zscaler-help: 21dff098eac2abffb7f8dfdebd43a968971d6490
 confidence: medium
 source-tier: mixed
 sources:

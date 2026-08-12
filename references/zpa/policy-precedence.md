@@ -4,6 +4,8 @@ topic: "zpa-policy-precedence"
 title: "ZPA access policy precedence"
 content-type: reasoning
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-help: 21dff098eac2abffb7f8dfdebd43a968971d6490
 confidence: high
 source-tier: doc
 sources:
