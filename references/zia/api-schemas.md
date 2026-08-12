@@ -3,13 +3,17 @@ product: zia
 topic: "api-schemas"
 title: "ZIA API resource schemas"
 content-type: reference
-last-verified: "2026-07-20"
+last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/**"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/pac_files.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/common.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json"
 author-status: draft
 ---
 
@@ -1159,13 +1163,13 @@ Source: `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:21-24`
 
 **Service:** `common`
 
-Source: `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:15-19`. Referenced throughout this document wherever a field type is `common.IDNameExtensions`.
+Source: `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:17-21`. Referenced throughout this document wherever a field type is `common.IDNameExtensions`.
 
 | Field | JSON tag | Type | Optional | Notes |
 |---|---|---|---|---|
-| ID | id | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:16` |
-| Name | name | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:17` |
-| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:18` |
+| ID | id | int | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:18` |
+| Name | name | string | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:19` |
+| Extensions | extensions | map[string]interface{} | ✓ | `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:20` |
 
 ## IDNameExternalID
 
@@ -2786,16 +2790,6 @@ Source: `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/
 | UpdatedAtTimestamp | updatedAtTimestamp | int |  |  |
 | Subscribed | subscribed | bool |  |  |
 
-## LastModifiedBy (pacfiles)
-
-**Service:** `pacfiles`
-
-| Field | JSON tag | Type | Optional | Notes |
-|---|---|---|---|---|
-| ID | id | int | ✓ |  |
-| Name | name | string | ✓ |  |
-| ExternalID | externalId | string | ✓ |  |
-
 ## PACFileConfig
 
 **Service:** `pacfiles`
@@ -2817,8 +2811,18 @@ Source: `vendor/zscaler-sdk-go/zscaler/zia/services/location/locationmanagement/
 | PACCommitMessage | pacCommitMessage | string | ✓ |  |
 | TotalHits | totalHits | int | ✓ |  |
 | LastModificationTime | lastModificationTime | int64 | ✓ |  |
-| LastModifiedBy | lastModifiedBy | LastModifiedBy | ✓ |  |
+| LastModifiedBy | lastModifiedBy | *common.IDNameExtensions | ✓ |  |
 | CreateTime | createTime | int64 | ✓ |  |
+
+This row records the Go v3.8.46 response model, not a confirmed service-side
+schema change. Replacing the former package-local type with
+`common.IDNameExtensions` removes `externalId` from Go decoding, while Python's
+`CommonBlocks` and the captured Automate response schema still retain that
+field (`vendor/zscaler-sdk-python/zscaler/zia/models/pac_files.py:56-64`;
+`vendor/zscaler-sdk-python/zscaler/zia/models/common.py:85-107`;
+`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247484-247509`).
+Whether current PAC responses populate it remains unverified; see the
+[PAC divergence note](./api-divergences.md#pac-version-action-body-go-sends-a-raw-commit-message-string-python-sends-an-object-automate-declares-no-body).
 
 ## PacResult
 

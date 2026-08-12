@@ -20,7 +20,7 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md"
 verified-against:
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
-  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
 author-status: draft
 ---
 

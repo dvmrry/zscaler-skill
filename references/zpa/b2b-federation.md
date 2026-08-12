@@ -3,9 +3,9 @@ product: zpa
 topic: "b2b-federation"
 title: "ZPA Business-to-Business Federation"
 content-type: reference
-last-verified: "2026-08-09"
+last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: medium
 source-tier: mixed
@@ -52,7 +52,7 @@ HTTP methods, or request and response bodies
 
 Go v3.8.45 and Python v1.9.41 add a `guestDetails` field to application
 segments alongside `hbrEnabled`, `stickyEntity`, and `stickyGroup`
-(`vendor/zscaler-sdk-go/CHANGELOG.md:3-18`;
+(`vendor/zscaler-sdk-go/CHANGELOG.md:16,23-27`;
 `vendor/zscaler-sdk-python/CHANGELOG.md:3-19`). In Go, the new field is present
 on the base, Browser Access, Inspection, and PRA segment variants. Each guest
 record contains `federationId`; its nested partner record exposes approval and

@@ -4,6 +4,9 @@ topic: "zia-cloud-app-control"
 title: "ZIA Cloud App Control and URL filtering interaction"
 content-type: reasoning
 last-verified: "2026-04-24"
+verified-against:
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
 confidence: medium
 source-tier: doc
 sources:
@@ -17,6 +20,11 @@ sources:
   - "vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt"
   - "https://help.zscaler.com/zia/about-policy-enforcement"
   - "vendor/zscaler-help/Understanding_Policy_Enforcement.txt"
+  - "vendor/zscaler-sdk-go/CHANGELOG.md"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go"
+  - "vendor/terraform-provider-zia/go.mod"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rule_actions.go"
+  - "vendor/terraform-provider-zia/docs/data-sources/zia_cloud_app_control_rule_actions.md"
 author-status: draft
 ---
 
@@ -128,7 +136,28 @@ Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc
 
 - **`Actions` is a slice (`[]string`), not a single string**. A single CAC rule can specify multiple concurrent action behaviors — useful for rules that combine e.g. "allow access AND log" or "block AND alert-admin" semantics. The rule's `action` field in snapshot JSON is an array; `jq '.action[]'` enumerates what a rule actually does.
 - **`CreateDuplicate` method** (Go SDK `cloudappcontrol.go:204`) — dedicated endpoint for cloning CAC rules. Useful for "create a rule like this one but with different scope" workflows. Python SDK doesn't expose this; operators have to `get_rule` → edit → `create_rule` manually.
-- **`AllAvailableActions` API method** — queries which action values are valid for a given (rule type, cloud application) combination. Relevant when debugging "why isn't action X selectable in the console for this app?" — different cloud apps support different action sets (e.g., some apps don't support Cautious, some don't support Isolate). The API surfaces the valid combinations; the console UI is driven by this same lookup.
+- **Two Go action-discovery methods.** Go v3.8.46 names the old
+  `POST /{rule_type}/availableActions` wrapper `AvailableActions` and adds
+  `AllAvailableActions` for `POST /{rule_type}/allAvailableActions`
+  (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:219-277`).
+  The release describes the new path as retrieving all available actions for
+  each application type (`vendor/zscaler-sdk-go/CHANGELOG.md:3-14`). Both
+  methods accept the same `cloudApps`/`type` request and return a flat string
+  list. Static source does not define how their results differ.
+- **Multi-app semantics and completeness remain open.** The Terraform
+  data-source guide says its multi-app request returns the intersection
+  supported by all supplied apps, but also warns that some newly introduced
+  actions may be missing while
+  `ONEAPI-2421` is investigated
+  (`vendor/terraform-provider-zia/docs/data-sources/zia_cloud_app_control_rule_actions.md:16-18`).
+  Provider v4.8.3 pins Go SDK v3.8.44, so this documents the provider's current
+  old-endpoint behavior, not the new endpoint's aggregation contract.
+- **Provider dependency caveat.** Provider v4.8.3 calls the exported
+  `AllAvailableActions` symbol (`vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rule_actions.go:80-88`)
+  but pins Go SDK v3.8.44 (`vendor/terraform-provider-zia/go.mod:12`), where that
+  symbol still selects the old endpoint. A future dependency-only bump to Go
+  v3.8.46 changes the provider's selected endpoint without changing this call
+  site; review that upgrade as behavior-bearing.
 
 ## Edge cases
 

@@ -4,9 +4,9 @@ topic: "api-divergences"
 title: "ZIA API source divergences"
 content-type: reference
 confidence: medium
-last-verified: "2026-07-22"
+last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
@@ -49,6 +49,11 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol_test.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/pacfiles/pacfiles.go"
+  - "vendor/zscaler-sdk-python/zscaler/zia/pac_files.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/pac_files.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/models/common.py"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/url_categories.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/url_filter_cloud_app_settings.py"
@@ -82,7 +87,10 @@ This historical prose pass began with Cloud App Control (CAC), URL Filtering, SS
 **Quick trust hierarchy (applies unless an entry below overrides it):**
 
 - For wire shape: trust the SDK source you're actually calling. Where the two SDKs disagree on a request body, check the Go SDK's json struct tags: fields carry `,omitempty` (e.g. the CAC `WebApplicationRules` struct, `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:18-32`), so a zero-valued field is dropped from the serialized body — meaning the field one SDK omits is optional on the wire, and the other SDK proves the call round-trips without it.
-- The CAC `availableActions` endpoint returns a flat `List[str]` of category-level actions; neither SDK exposes per-app action validity.
+- CAC action discovery returns flat string lists. Go v3.8.46 exposes both
+  `availableActions` and the new `allAvailableActions`; Python exposes only the
+  former. Their static wrappers establish the two paths and shared request
+  shape, not their semantic relationship or multi-app aggregation behavior.
 - MCP docstring claims about API error codes and behavioral quirks are observations pending live-tenant confirmation, not SDK-backed facts.
 
 **Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, SDKs for wrapper behavior, and Postman for examples/fallback evidence (`references/_meta/verification-protocol.md:114-118`). The generated ZIA reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:7-11`). Its current totals are 0 contract-vs-Go primitive type drifts, 47 contract-vs-Terraform required-flag drifts, 11 enum value conflicts, 37 one-sided enum constraints, and 9 readonly fields with no Terraform disagreement (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:13-18`).
@@ -93,36 +101,46 @@ Use the rosetta table as the field-level index when a section below summarizes a
 
 ## Cloud App Control (CAC)
 
-### CAC endpoints — both SDKs agree; `rule_type` is mandatory on every call
+### CAC endpoints — Go now has two action-discovery paths; Python has one
 
 **What each source says:**
 
 - **Python SDK:** all CAC ops are category-scoped under the `webApplicationRules` base. `availableActions` is `POST /{rule_type}/availableActions` (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:67-70`); list is `GET /{rule_type}` (`cloudappcontrol.py:119-122`); get is `GET /{rule_type}/{rule_id}` (`cloudappcontrol.py:166-169`); `ruleTypeMapping` is `GET /ruleTypeMapping` (`cloudappcontrol.py:207-210`); create is `POST /{rule_type}` (`cloudappcontrol.py:396-399`); update is `PUT /{rule_type}/{rule_id}` — full replacement (`cloudappcontrol.py:594-598`); delete is `DELETE /{rule_type}/{rule_id}` (`cloudappcontrol.py:645-648`); duplicate is `POST /{rule_type}/duplicate/{rule_id}` (`cloudappcontrol.py:728-731`).
-- **Go SDK:** the endpoint constant is at `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:15`, with the matching op paths at `:149`, `:159`, `:169`, `:184` (UpdateWithPut), `:195`, `:205`, `:229`.
+- **Go SDK:** the endpoint constant is at `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:15`, with the matching rule-operation paths at `:149`, `:159`, `:169`, `:184` (UpdateWithPut), `:195`, and `:205`. Go v3.8.46 names the old `POST /{rule_type}/availableActions` wrapper `AvailableActions` (`:219-247`) and adds `AllAvailableActions` for `POST /{rule_type}/allAvailableActions` (`:249-277`).
 
-**Significance / which to trust:** Both SDKs agree. There is no fetch-by-`rule_id`-alone path — `rule_type` (the category) is mandatory on every call. Update is a PUT (full replacement), so any field omitted from an update body is dropped, not preserved.
+**Significance / which to trust:** The CRUD paths still agree. There is no fetch-by-`rule_id`-alone path — `rule_type` (the category) is mandatory on every call. Update is a PUT (full replacement), so any field omitted from an update body is dropped, not preserved. Action discovery no longer has cross-SDK parity: only Go exposes `allAvailableActions`. The Go release preserved the exported `AllAvailableActions` name but reassigned it from the old endpoint to the new one, so an existing Go caller can compile unchanged while selecting a different endpoint after upgrading.
 
 ---
 
-### `availableActions` request body — Python sends `{cloudApps}` only; Go adds a `type` field
+### Action-discovery request body — Python sends `{cloudApps}` only; Go can add `type`
 
 **What each source says:**
 
 - **Python SDK:** POSTs body `{'cloudApps': cloud_apps}` to `.../availableActions` — no `type` key. (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:72`) The result must be a list. (`cloudappcontrol.py:84-91`)
-- **Go SDK:** `AvailableActionsRequest` struct has both `CloudApps` AND a `Type` field tagged `json:"type,omitempty"`. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:142-145`)
+- **Go SDK:** the request shared by both Go discovery methods has `CloudApps` AND a `Type` field tagged `json:"type,omitempty"`. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:142-145`, method payloads at `:219-262`)
 - **Go SDK test:** populates `Type:"ANY"` alongside `CloudApps:["DROPBOX"]`. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol_test.go:175-177`)
 
 **Significance / which to trust:** Trust the source you're calling. The endpoint accepts the call without `type` — the Python path proves it round-trips — and `type` is `omitempty`, so it appears optional. Go callers can send a `type` discriminator that the Python path never sends.
 
 ---
 
-### `availableActions` response shape — flat `List[str]`, category-level only
+### Action-discovery response shape — two Go paths, both returning flat lists
 
 **What each source says:**
 
 - **Python SDK:** the signature returns `List[str]` (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`); the discovery POST goes to `.../availableActions` with body `{cloudApps: [...]}` (`cloudappcontrol.py:66-72`), and the result is validated as a list (`cloudappcontrol.py:84-91`).
+- **Go SDK:** both methods unmarshal to `[]string`; `AvailableActions` uses the old path (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:229-246`) and `AllAvailableActions` uses the new path (`:259-276`). The v3.8.46 release describes the latter as retrieving all available actions for each application type (`vendor/zscaler-sdk-go/CHANGELOG.md:3-14`).
+- **Automate capture:** publishes only `POST /{rule_type}/availableActions`; the captured operation says it fetches granular actions for the supplied applications and has no `allAvailableActions` sibling (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:37447-37459`).
 
-**Significance / which to trust:** Action vocabulary is surfaced at the CATEGORY level (the path segment `rule_type`), not per-app. The apps in the body act only as a filter. The endpoint does not return per-app action validity — there is no read path that enumerates which actions are valid for a single given app. The Automate contract now supplies the captured category-level action vocabulary for the rule body: `actions` is a contract-only enum on `POST /zia/api/v1/webApplicationRules/:rule_type`, with examples spanning AI/ML actions through webmail actions (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2134-2137`, `:2174-2186`, `:2356-2362`).
+**Significance / which to trust:** The source proves that callers may send one
+or more `cloudApps` to either Go method and receive a flat list. It does not
+define whether the paths return the same set, whether a one-app result is a
+complete validity set, or whether a multi-app result is a union, intersection,
+or another aggregation. The provider guide describes intersection behavior for
+its data source, but provider v4.8.3 pins an older Go SDK where its
+`AllAvailableActions` call still selects the old endpoint; that statement
+cannot be transferred to the new endpoint without a dependency update and live
+verification. The Automate capture publishes only the old path.
 
 ---
 
@@ -184,7 +202,7 @@ Use the rosetta table as the field-level index when a section below summarizes a
 
 ---
 
-### Application / CloudApp catalog model — defined in both SDKs but NOT the `availableActions` response shape
+### Application / CloudApp catalog model — defined in both SDKs but NOT either action-discovery response shape
 
 **What each source says:**
 
@@ -192,6 +210,38 @@ Use the rosetta table as the field-level index when a section below summarizes a
 - **Go SDK:** defines the equivalent `CloudApp` struct with the same fields. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:129-140`)
 
 **Significance / which to trust:** The Python comment is misleading — the catalog model is NOT the response shape for `availableActions` (which returns `List[str]`). The `deprecated`/`underMigration`/`appNotReady` flags are real catalog attributes, but they surface through a different path, not `availableActions`.
+
+---
+
+## PAC Files
+
+### PAC-version action body — Go sends a raw commit-message string; Python sends an object; Automate declares no body
+
+**What each source says:**
+
+- **Go SDK v3.8.46:** `UpdatePacFile` now accepts `commitMessage string` and sends it as the raw request body. Its source says serializing an object corrupts the stored commit message (`vendor/zscaler-sdk-go/zscaler/zia/services/pacfiles/pacfiles.go:194-217`); the release note identifies this as a bug fix (`vendor/zscaler-sdk-go/CHANGELOG.md:12-14`).
+- **Python SDK v1.9.41:** `update_pac_file` still accepts arbitrary keyword fields, documents `pac_commit_message` among them, builds a dictionary from all kwargs, and passes that object as the request body (`vendor/zscaler-sdk-python/zscaler/zia/pac_files.py:509-574`); the request executor assigns ordinary bodies to the JSON payload slot (`vendor/zscaler-sdk-python/zscaler/request_executor.py:346-355`).
+- **Automate capture:** publishes the same `PUT /pacFiles/{pacId}/version/{pacVersion}/action/{pacVersionAction}` path and optional `newLKGVer` query parameter, but records `request_body: []` (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:368985-369041`).
+
+**Significance / which to trust:** For Go callers, use the v3.8.46 signature
+and pass only the version commit message. This is a three-way contract
+divergence: Python serializes an object, while Automate declares no body. The
+Go change is source-backed wrapper behavior, not an independently reproduced
+tenant test; do not infer that Python fails, or that the service accepts only
+one representation, until a live request trace establishes that boundary.
+
+The same release changes Go's `PACFileConfig.LastModifiedBy` from a
+package-local value type to nullable `*common.IDNameExtensions`
+(`vendor/zscaler-sdk-go/zscaler/zia/services/pacfiles/pacfiles.go:21-78`;
+shared type at `vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:17-21`).
+This is a Go response-model change, not proof that the service stopped returning
+`externalId`: the new Go type omits that field, while Python still decodes
+`lastModifiedBy` through `CommonBlocks`, which retains it, and the captured
+Automate response schema also retains it
+(`vendor/zscaler-sdk-python/zscaler/zia/models/pac_files.py:56-64`;
+`vendor/zscaler-sdk-python/zscaler/zia/models/common.py:85-107`;
+`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247484-247509`).
+Whether current PAC tenant responses populate `externalId` remains unverified.
 
 ---
 
@@ -330,7 +380,7 @@ Python-v1.9.38-versus-Go coverage divergence is therefore resolved at the SDK
 surface level. Python's new endpoint-application list methods still return only
 the current response page rather than reproducing Go's automatic aggregation
 (`vendor/zscaler-sdk-python/zscaler/zia/endpoint_applications.py:79-106,150-177`;
-`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:145-178`). SDK presence remains a code-surface observation, not proof that an endpoint is entitled or rolled out in a tenant (`vendor/zscaler-sdk-go/CHANGELOG.md:77-84`).
+`vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go:145-178`). SDK presence remains a code-surface observation, not proof that an endpoint is entitled or rolled out in a tenant (`vendor/zscaler-sdk-go/CHANGELOG.md:90-97`).
 
 ### Python custom-app create/update decode the wrong model
 
@@ -353,11 +403,11 @@ client's catalog.
 
 ### Release-note inventories remain incomplete
 
-The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:82-86,123-138`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:32-113`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
+The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:95-99,136-151`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:32-113`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
 
 The shared Go `EndPointApplications` model serializes requests as only `resourceId` and `zappId`, although its response model exposes descriptive/version fields (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-163`). It also models `versions` as one `Versions` struct, whereas the custom-app response uses `[]Versions` for the same wire key (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
-The generated reconciliation boundary confirms that the current Automate capture does not enumerate the new Endpoint DLP, Outbound Email DLP, DNS application-group, or EUN-template endpoint families, so these remain SDK/provider-surface observations; SDK presence must not be promoted into an entitlement or rollout claim (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:77-84`).
+The generated reconciliation boundary confirms that the current Automate capture does not enumerate the new Endpoint DLP, Outbound Email DLP, DNS application-group, or EUN-template endpoint families, so these remain SDK/provider-surface observations; SDK presence must not be promoted into an entitlement or rollout claim (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:32-46`; `vendor/zscaler-sdk-go/CHANGELOG.md:90-97`).
 
 ---
 
@@ -367,7 +417,7 @@ The generated reconciliation boundary confirms that the current Automate capture
 
 Go v3.8.44 corrected the firewall-DNS field to `IsWebEUNEnabled` with wire key
 `isWebEUNEnabled`, but `omitempty` still removes an explicit `false` from the
-serialized request (`vendor/zscaler-sdk-go/CHANGELOG.md:20-27`;
+serialized request (`vendor/zscaler-sdk-go/CHANGELOG.md:33-40`;
 `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:151-160`).
 Current Python v1.9.41 still parses and emits `isWebEunEnabled`; its request formatter
 uses that exact spelling even though recorded integration responses contain the
@@ -467,8 +517,8 @@ The CAC workflow says the table is evaluated top-to-bottom, first-match-wins, an
 
 ## Open questions
 
-- **No source enumerates per-app action validity.** The CAC action vocabulary is now captured at the contract/category level (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2174-2186`, `:2356-2362`), but which actions are individually valid for a given app is genuinely not exposed by any read path in the vendored sources; `availableActions` returns a flat category-level `List[str]` only (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`). Needs live-tenant probing to resolve. (Tracked as `zia-49` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-49-cac-per-app-action-validity).)
+- **The new Go action-discovery path does not settle per-app validity.** Go v3.8.46 adds `allAvailableActions`, but both Go paths return an unlabeled flat `[]string`, and neither source defines their semantic relationship. The captured Automate contract and Python SDK expose only the old path. Live verification is still needed for single-app completeness and union/intersection/order behavior with multiple apps. (Tracked as `zia-49` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-49-cac-per-app-action-validity).)
 - **CAC atomic-validation contract is observation-only.** The `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications" whole-create-rejection behavior and the one-rule-per-app pattern are in the MCP workflow skill, not the v0.15.0 executable validator, and are absent from both SDKs. Confirm against a live tenant before treating them as product behavior. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
-- **Representative-app behavior is generic and workflow-only.** The current workflow skill mentions representative-app surfacing generically, while the executable tool forwards the requested apps without probing. Specific app examples and action counts have no current MCP equivalent. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)
-- **Postman / oneapi-specs not consulted for ZIA in this pass.** A Postman cross-check would raise confidence on two divergences in particular: the `availableActions` `type` field and the 31-char CAC name limit. The ZPA divergences doc uses Postman as a third source; ZIA has no such cross-check yet. *(Methodology/coverage note, not a ZIA-behavior question — not registered.)*
+- **Representative-app guidance is not resolved by the new path.** The MCP workflow's generic representative-app workaround predates Go's `allAvailableActions` surface, but static code does not establish that the new endpoint removes the need for it. Compare both endpoints and single-/multi-app requests before replacing the workflow guidance. (Tracked with the atomic-validation remainder as `zia-53`.)
+- **Postman / oneapi-specs not consulted for ZIA in this pass.** A Postman cross-check would raise confidence on the two action-discovery request shapes, the PAC-version action body, and the 31-char CAC name limit. The ZPA divergences doc uses Postman as a third source; ZIA has no such cross-check yet. *(Methodology/coverage note, not a ZIA-behavior question — not registered.)*
 - **Python `cloudAppRiskProfile` list-vs-single inconsistency not executed.** The model decodes a list (`models/cloudappcontrol.py:115-117`) but `request_format` calls `.request_format()` as a single object (`:220`). This is a code-shape observation; it was not run to confirm it actually raises at runtime. (Tracked as `zia-54` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-54-python-cloudappriskprofile-list-vs-single-shape).)
