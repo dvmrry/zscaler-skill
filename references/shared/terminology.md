@@ -4,6 +4,8 @@ topic: "terminology"
 title: "Zscaler terminology — marketing names, legacy names, log field names"
 content-type: reference
 last-verified: "2026-04-28"
+verified-against:
+  vendor/zscaler-help: 21dff098eac2abffb7f8dfdebd43a968971d6490
 confidence: high
 source-tier: doc
 sources:
