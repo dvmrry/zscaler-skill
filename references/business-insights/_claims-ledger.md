@@ -1,7 +1,7 @@
 ---
 product: business-insights
 topic: "business-insights-claims-ledger"
-title: "Business Insights claims ledger - Tier 3 thin-stub refresh"
+title: "Business Insights claims ledger - Tier 2 programmable-surface refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
@@ -32,7 +32,7 @@ author-status: draft
 
 # Business Insights claims ledger
 
-This ledger covers the Tier 3 thin-stub refresh for Business Insights. Rows either cite exact source lines, identify an open question, or mark an audit-scoped absence from the checked source families.
+This ledger covers the Tier 2 programmable-surface refresh for Business Insights. Rows either cite exact source lines, identify an open question, or mark an audit-scoped absence from the checked source families.
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|

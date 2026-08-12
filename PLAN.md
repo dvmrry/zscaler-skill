@@ -2,20 +2,20 @@
 
 **Purpose of this file:** crash-recovery artifact. If the session dies, read this to know what the project is, what's been done, and what's next without reconstructing from a 99MB transcript.
 
-Last updated: 2026-07-09 (release-state repair, portable runtime coverage, and
-onboarding/state cleanup).
+Last updated: 2026-08-12 (semantic-consistency correction for routing, product
+tiers, programmable-surface boundaries, and source-derived snapshot guidance).
 
 ## TL;DR for new fork admins
 
 If you are maintaining a fork, the parts you actually need to know are:
 
-1. **The skill is substantial and usable, but coverage is intentionally tiered.** `SKILL.md` routes the committed reference corpus and 25 behavioral evals pin the highest-value answer shapes. Hygiene checks still report high-confidence references without eval coverage and sections that need denser source attribution; do not describe the corpus as exhaustively evaluated.
+1. **The skill is substantial and usable, but coverage is intentionally tiered.** `SKILL.md` routes the committed reference corpus and 31 behavioral evals pin the highest-value answer shapes. Hygiene checks still report high-confidence references without eval coverage and sections that need denser source attribution; do not describe the corpus as exhaustively evaluated.
 2. **Use the portfolio map for current scope.** [`references/_meta/portfolio-map.md`](./references/_meta/portfolio-map.md) is the canonical product/depth inventory. Tier 1 has six products with operational depth; Tier 2 and Tier 3 include additional programmable or conceptual coverage such as ZBI, ZWA, AI Guard, ZMS, and EASM. Do not copy a static product list into onboarding docs.
 3. **`_data/` is a runtime-data mount.** Public upstream does not track tenant data. Create `_data/` with `scripts/setup-data-mount.mjs`, verify it with `scripts/check-data-contract.mjs`, then populate it out of band from a private overlay or read-only `zscalerctl` dump. Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
 4. **Credentialed live-tenant diagnostics are out of scope here.** The never-validated SDK diagnostic scripts were removed; this repo keeps reference hygiene, data-mount checks, Automate capture maintenance, and the `splunk-query.sh` stub. Tenant reads belong in the read-only `zscalerctl` companion or another private data-populator.
 5. **Known API / documentation blind spots** — all have operator-level workarounds documented:
-   - **Malware Protection and ATP block diagnosis** — no API, console-only (workflow codified in `references/zia/malware-and-atp.md`).
-   - **Snapshot schema docs** — deferred until post-fork (decided; see §4 below). Postman collection at `vendor/zscaler-api-specs/oneapi-postman-collection.json` is now an additional spec source for stitching response-shape detail before tenant data exists.
+   - **Malware Protection and ATP block diagnosis** — settings are queryable/configurable through the SDK/API, but identifying the engine for one transaction still requires Web Insights or equivalent logs (workflow codified in `references/zia/malware-and-atp.md`).
+   - **Snapshot schema docs** — source-derived, medium-confidence guides now exist for ZIA, ZPA, ZCC, and ZIdentity; tenant validation remains deferred until real output exists. The Postman collection at `vendor/zscaler-api-specs/oneapi-postman-collection.json` is an additional spec source for stitching response-shape detail before tenant data exists.
    - **Z-Tunnel wire-format protocol internals** — permanently deferred after targeted search confirmed no public docs (operational layer codified in `references/zcc/z-tunnel.md`).
    - **ZCC int-enum semantic mappings** (`zcc-01` through `zcc-04`, `zcc-06`) — datatype resolved via Go SDK; integer-to-meaning mapping pending first tenant snapshot.
    - **Lab-testable clarifications** (6 remaining) — see §Pending lab tests.

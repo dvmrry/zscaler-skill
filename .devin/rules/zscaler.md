@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Use for Zscaler, ZIA, ZPA, ZCC, ZDX, ZIdentity, Cloud Connector, Zscaler logs, policy evaluation, URL filtering, app segments, tenant snapshots, Zscaler API, SDK, or Terraform questions.
+description: Use for Zscaler, ZIA, ZPA, ZCC, ZDX, ZIdentity, Cloud Connector, AI Guard, ZMS, EASM, ZCell, Business Insights, Zscaler logs, policy evaluation, URL filtering, app segments, tenant snapshots, Zscaler API, SDK, or Terraform questions.
 ---
 
 # Zscaler Skill Loader
