@@ -6,10 +6,12 @@ import test from "node:test";
 import {
   checkDataRuntimeMount,
   checkGitHooksPath,
+  checkNodeVersion,
   checkRepoLayout,
   compareVersions,
   exitCodeForChecks,
   formatJsonReport,
+  MIN_NODE_VERSION,
   parseArgs,
   runChecks,
   versionAtLeast,
@@ -26,12 +28,23 @@ function makeLayout(root) {
   }
 }
 
-test("version comparison handles the Node 20.11 boundary", () => {
-  assert.equal(compareVersions("20.11.0", "20.11.0"), 0);
-  assert.equal(compareVersions("20.12.0", "20.11.0"), 1);
-  assert.equal(compareVersions("20.10.9", "20.11.0"), -1);
-  assert.equal(versionAtLeast("v22.0.0", "20.11.0"), true);
-  assert.equal(versionAtLeast("20.10.0", "20.11.0"), false);
+test("version comparison and doctor enforce the Node 24.19 boundary", () => {
+  assert.equal(compareVersions("24.19.0", MIN_NODE_VERSION), 0);
+  assert.equal(compareVersions("24.20.0", MIN_NODE_VERSION), 1);
+  assert.equal(compareVersions("24.18.9", MIN_NODE_VERSION), -1);
+  assert.equal(versionAtLeast("v25.0.0"), true);
+  assert.equal(versionAtLeast("24.18.9"), false);
+  assert.equal(checkNodeVersion("24.19.0").status, "ok");
+  assert.equal(checkNodeVersion("24.18.9").status, "FAIL");
+});
+
+test("Node runtime declarations match the doctor minimum", () => {
+  const root = path.resolve(import.meta.dirname, "..");
+  const versionFile = fs.readFileSync(path.join(root, ".node-version"), "utf8").trim();
+  const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+
+  assert.equal(versionFile, MIN_NODE_VERSION);
+  assert.equal(packageJson.engines.node, `>=${MIN_NODE_VERSION}`);
 });
 
 test("repo layout check accepts the expected top-level files and directories", () => {
@@ -56,7 +69,7 @@ test("repo layout check reports missing entries against a temp dir", () => {
 
 test("JSON report includes checks array and overall ok flag", () => {
   const checks = [
-    { name: "Node version", status: "ok", detail: "20.11.0 >= 20.11.0" },
+    { name: "Node version", status: "ok", detail: "24.19.0 >= 24.19.0" },
     {
       name: "_data runtime mount",
       status: "skip",
@@ -71,7 +84,7 @@ test("JSON report includes checks array and overall ok flag", () => {
       {
         name: "Node version",
         status: "ok",
-        detail: "20.11.0 >= 20.11.0",
+        detail: "24.19.0 >= 24.19.0",
         next: null,
       },
       {
@@ -174,7 +187,7 @@ test("references profile skips local runtime and hook checks", () => {
   fs.mkdirSync(path.join(root, "vendor/example"), { recursive: true });
   fs.writeFileSync(path.join(root, "vendor/example/README.md"), "present\n", "utf8");
 
-  const checks = runChecks({ root, profile: "references", nodeVersion: "20.11.0" });
+  const checks = runChecks({ root, profile: "references", nodeVersion: "24.19.0" });
   assert.deepEqual(checks.map((check) => check.name), [
     "Node version",
     "Repo layout",

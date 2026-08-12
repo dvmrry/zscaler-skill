@@ -1,6 +1,6 @@
 # `scripts/` — skill tooling
 
-Python executables that need third-party packages use [uv](https://docs.astral.sh/uv/) with [PEP 723 inline script metadata](https://peps.python.org/pep-0723/). Library modules, test modules, and some stdlib-only executables intentionally omit inline metadata. The top-level `pyproject.toml` records the aggregate third-party dependency set.
+Python executables that need third-party packages use [uv](https://docs.astral.sh/uv/) with [PEP 723 inline script metadata](https://peps.python.org/pep-0723/). Library modules, test modules, and some stdlib-only executables intentionally omit inline metadata. The top-level `pyproject.toml` records the aggregate executable dependency set; `pytest` is test-only tooling supplied ephemerally by the full gate and CI.
 
 ## Running
 
@@ -22,7 +22,7 @@ checks; advisory findings remain non-blocking. Node helpers use only the
 standard library. It compares reference freshness against `origin/main` by
 default; set `REFERENCE_FRESHNESS_BASE` to use a different base ref.
 
-Optionally install all script deps once via `uv sync --extra scripts` (reads the aggregated list from the top-level `pyproject.toml`).
+Optionally install all executable script dependencies once via `uv sync --extra scripts` (reads the aggregated list from the top-level `pyproject.toml`). The Python regression suite still supplies `pytest` per run with `uv run --with pytest`; it is not part of the executable dependency aggregate.
 
 The public support boundary is functional, snapshot-backed tooling plus
 reference hygiene. Credentialed live-tenant diagnostics are out of scope here —
@@ -37,7 +37,9 @@ use the read-only `zscalerctl` CLI for tenant reads.
   list or a direct Python shebang; library and test modules omit script metadata.
 - **Library files** (no shebang) are imported by other scripts:
   `agent_patterns.py` contains pure classification and error-interpretation
-  helpers only; credentialed tenant reads belong to `zscalerctl`.
+  helpers only, while `runtime_data.py` is the Python runtime-data path library
+  kept aligned with `lib.mjs` by `runtime-data-parity.test.mjs`; credentialed
+  tenant reads belong to `zscalerctl`.
 - **Bash scripts** (`check-citations.sh`, `check-staleness.sh`, etc.) are direct-invokable (`./scripts/<name>.sh`).
 - **Node helpers** use only Node standard libraries when they exist to support
   runtime workflow gates without adding a project install step.
@@ -56,7 +58,7 @@ use the read-only `zscalerctl` CLI for tenant reads.
 
 ## Aggregated dependencies
 
-Listed in [`../pyproject.toml`](../pyproject.toml) under `[project.optional-dependencies] scripts`. Mirrors the union of per-script PEP 723 declarations for discoverability.
+Listed in [`../pyproject.toml`](../pyproject.toml) under `[project.optional-dependencies] scripts`. Mirrors the union of executable per-script PEP 723 declarations for discoverability. The test-only `pytest` runner is intentionally supplied ephemerally with `uv run --with pytest` by CI and `check-full.mjs`.
 
 Currently used:
 

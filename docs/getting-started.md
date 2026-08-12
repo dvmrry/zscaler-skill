@@ -14,9 +14,9 @@ relative mount path in the committed `zscaler-skill-runtime.json`.
   skill conventions, but Claude Code is what this walkthrough assumes.
 - **Python 3.10+** with [`uv`](https://docs.astral.sh/uv/) on `PATH`. Executable
   Python scripts with third-party dependencies use uv inline metadata; an
-  aggregated dependency list is also available in `pyproject.toml`.
-- **Node 20.11+** for deterministic workflow helpers such as case-intake,
-  runtime-data setup, data-contract checks, and artifact handling.
+  aggregated executable dependency list is also available in `pyproject.toml`.
+- **Node 24.19+ (Node 24 LTS)** for deterministic workflow helpers such as
+  case-intake, runtime-data setup, data-contract checks, and artifact handling.
 - **Git** for submodule fetch.
 - **ZIA and ZPA admin access** to create the API client credentials used below.
 

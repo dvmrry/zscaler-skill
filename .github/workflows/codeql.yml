@@ -14,6 +14,10 @@ on:
     - cron: "23 5 * * 1" # weekly, Monday 05:23 UTC
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   security-events: write

@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Serialize with the manual repair workflow: both may update tags/releases for main.
+concurrency:
+  group: release-main
+  queue: max
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pull-requests: write
