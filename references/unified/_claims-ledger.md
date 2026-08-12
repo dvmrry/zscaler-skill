@@ -5,7 +5,7 @@ title: "Zscaler Experience Center claims ledger - Tier 3 thin-stub refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
@@ -18,6 +18,7 @@ confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/unified-what-zscaler-experience-center.md"
+  - "vendor/zscaler-help/understanding-zscaler-cloud-names.md"
 author-status: draft
 ---
 
@@ -33,6 +34,7 @@ This ledger covers the Tier 3 thin-stub refresh for the `unified` / Zscaler Expe
 | Experience Center mechanisms include unified identity, integrated navigation, common policy framework, Copilot interactions, and unified data/analytics. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:14-18` |
 | Feature themes include centralized management, guided workflows, AI-powered operations, and persona-focused insights. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:20-25` |
 | The `/unified` help path maps to "Getting Started with Zscaler" documentation, not only Experience Center product pages. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:27-29` |
+| The `/unified` cloud-name article publishes a cross-service public production name map, but its Help location does not make those cloud names Experience Center features. | `overview.md`, `references/shared/cloud-architecture.md` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:16-30` |
 | Go SDK has no standalone Experience Center / unified-console service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Experience Center or unified-console service found in `vendor/zscaler-sdk-go` during the 2026-06-16 surface sweep. |
 | Python SDK has no standalone Experience Center / unified-console service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Experience Center or unified-console service found in `vendor/zscaler-sdk-python` during the 2026-06-16 surface sweep. |
 | Terraform has no standalone Experience Center / unified-console resource or data source in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Experience Center or unified-console resource/data-source surface found in `vendor/terraform-provider-zia` or `vendor/terraform-provider-zpa` during the 2026-06-16 surface sweep. |

@@ -97,7 +97,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-08-12:
-24 entries are resolved or clarified, 33 are partially resolved, and 406 are open.
+24 entries are resolved or clarified, 33 are partially resolved, and 407 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -151,6 +151,11 @@ relationship, single-app completeness, multi-app aggregation, or whether the
 new path removes the MCP representative-app concern. Those behaviors and the
 atomic mixed-validity create contract still require tenant evidence.
 
+The 2026-08-12 Help refresh expanded resolved `cloud-connector-07` with the
+AWS managed-service boundary and opened `cloud-connector-29` for exact Azure
+Zero Trust Gateway deployment availability. Generic VNet/ExpressRoute product
+positioning remains insufficient to close that cloud-specific question.
+
 ### Resolved
 
 | ID | Title |
@@ -177,7 +182,7 @@ atomic mixed-validity create contract still require tenant evidence.
 | [`zcc-12`](#zcc-12-requestexecutor-zcc-rate-limit-retry-behavior) | `RequestExecutor` backs off on the ZCC-specific rate-limit header |
 | [`zpa-21`](#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope) | Current Postman response examples establish the observed ten-value PRA application-protocol set |
 | [`zpa-48`](#zpa-48-pse-provisioning-key-apiterraform-support) | PSE provisioning keys are supported through the generic Terraform resource |
-| [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | GCP ZTG is a Zscaler-managed service; standard GCP Cloud Connector is a customer-deployed VM path |
+| [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | AWS and GCP ZTG are Zscaler-managed services; standard Cloud Connector is the customer-deployed VM path |
 | [`zcc-86`](#zcc-86-get_web_privacy-returns-none-on-error) | Python `get_web_privacy` returns `None` on request, execution, or response-parse failure |
 
 ### Partially resolved
@@ -228,7 +233,7 @@ atomic mixed-validity create contract still require tenant evidence.
 - **zdx**: `zdx-01`–`zdx-34`, `zdx-36`–`zdx-44`
 - **zms**: `zms-01`
 - **easm**: `easm-01`, `easm-02`
-- **cloud-connector**: `cloud-connector-01`–`cloud-connector-06`, `cloud-connector-08`, `cloud-connector-10`–`cloud-connector-17`, `cloud-connector-19`–`cloud-connector-21`, `cloud-connector-23`–`cloud-connector-28`
+- **cloud-connector**: `cloud-connector-01`–`cloud-connector-06`, `cloud-connector-08`, `cloud-connector-10`–`cloud-connector-17`, `cloud-connector-19`–`cloud-connector-21`, `cloud-connector-23`–`cloud-connector-29`
 - **zid**: `zid-01`–`zid-36`
 - **ai-security**: `ai-security-01`–`ai-security-03`, `ai-security-06`–`ai-security-09`
 - **risk360**: `risk360-01`, `risk360-02`
@@ -4701,11 +4706,12 @@ Two related gaps on source IP groups: (1) whether groups created in ZIA (`creato
 
 *Origin: `references/cloud-connector/overview.md` § Open questions*
 
-The capability distinction is now documented. GCP Zero Trust Gateway is a
-Zscaler cloud-native service that secures workload traffic without requiring
+The capability distinction is now documented. AWS and GCP Zero Trust Gateway are
+Zscaler cloud-native services that secure workload traffic without requiring
 the customer to manage the security infrastructure
-(`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`),
-and its intercept endpoint groups provide project access to a Zscaler-managed
+(`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`;
+`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+For GCP specifically, intercept endpoint groups provide project access to a Zscaler-managed
 security service
 (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:51-54`).
 Standard GCP Cloud Connector is the customer-deployed VM path: Help directs the
@@ -4716,10 +4722,11 @@ Whether the backend happens to represent the two surfaces with related group
 objects is not a remaining capability question and must not be used to collapse
 the managed-service and customer-VM operating models.
 
-**Status**: resolved (2026-08-04)
-**Answer**: GCP ZTG is the Zscaler-managed SaaS surface; standard GCP Cloud
-Connector is a customer-deployed VM surface.
-**Resolved by**: current GCP ZTG and GCP Cloud Connector deployment Help
+**Status**: resolved (2026-08-04; AWS boundary expanded 2026-08-12)
+**Answer**: AWS and GCP ZTG are Zscaler-managed SaaS surfaces; standard Cloud
+Connector remains the customer-deployed VM surface. Exact cross-cloud operating
+contract parity and Azure ZTG deployment availability are separate questions.
+**Resolved by**: current AWS/GCP ZTG and GCP Cloud Connector deployment Help
 
 ---
 
@@ -5015,6 +5022,31 @@ managed/default template or whether one source is stale.
 **Status**: open
 **Resolves with**: vendor clarification or a versioned deployment-template
 mapping that explains which implementation uses the 10-minute default
+
+---
+
+### cloud-connector-29 — Azure Zero Trust Gateway deployment availability
+
+*Origin: `references/cloud-connector/overview.md` § Current Zero Trust Gateway product surface and availability boundary*
+
+The current generic Zero Trust Gateway product page describes private VPC/VNet
+traffic and names Azure ExpressRoute alongside AWS Direct Connect and GCP
+Interconnect (`vendor/zscaler-help/zero-trust-gateway-marketing.md:15-20`). That
+is connectivity and product-positioning evidence, not a per-cloud deployment
+matrix; the page does not state where customers can currently create gateways,
+their release stage, tenant entitlement, or an API contract
+(`vendor/zscaler-help/zero-trust-gateway-marketing.md:25-31`). The cloud-specific
+Help captured in this pass establishes AWS and GCP Zero Trust Gateways as
+Limited Availability and Support-enabled, but no equivalent Azure deployment
+article or first-party availability matrix was found
+(`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-10`;
+`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+
+**Status**: open
+**Resolves with**: a first-party cloud-specific Azure Zero Trust Gateway Help
+article, an explicit per-cloud deployment/availability matrix, or tenant/vendor
+confirmation that distinguishes Azure-hosted gateway deployment from Azure
+ExpressRoute connectivity to a gateway service
 
 ---
 

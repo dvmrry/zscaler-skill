@@ -5,7 +5,9 @@ title: "Primer — the Zscaler platform on one page"
 content-type: primer
 last-verified: "2026-04-24"
 confidence: high
-sources: []
+sources:
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md"
+  - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
 author-status: draft
 audience: "non-networking professional who needs to orient on Zscaler quickly"
 ---
@@ -73,8 +75,8 @@ Replaces VPN. Users authenticate per-app (not per-network), each app has its own
 
 ### Workload / branch traffic layer
 
-#### **Cloud & Branch Connector (CBC / ZTW / ZTC)** — workload-side traffic forwarding
-VM-based gateway for cloud workloads (AWS / Azure / GCP) and branch offices. It plays an analogous forwarding role for workload and branch traffic, but is implemented as VM/appliance infrastructure rather than the ZCC endpoint agent. Five marketing names for the same product family.
+#### **Cloud & Branch Connector / Zero Trust Gateway (CBC / ZTW / ZTC / ZTG)** — workload-side traffic forwarding
+The family includes customer-deployed Cloud Connector VMs for AWS, Azure, and GCP and branch appliances, plus a distinct Zscaler-managed Zero Trust Gateway service. Current cloud-specific Help establishes AWS and GCP ZTG as Limited Availability and Support-enabled; exact Azure ZTG deployment availability is not established (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 
 ### Observability layer
 

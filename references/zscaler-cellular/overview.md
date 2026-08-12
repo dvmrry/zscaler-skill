@@ -13,12 +13,17 @@ verified-against:
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
-  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
   - "vendor/zscaler-help/zscaler-cellular-help-index.md"
+  - "vendor/zscaler-help/cellular-about-sims.md"
+  - "vendor/zscaler-help/cellular-understanding-anomaly-detection.md"
+  - "vendor/zscaler-help/cellular-configuring-deployment-credentials.md"
+  - "vendor/zscaler-help/cellular-about-network-events.md"
+  - "vendor/zscaler-help/cellular-about-audit-logs.md"
   - "vendor/zscaler-help/zscaler-cellular-marketing.md"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
@@ -50,7 +55,7 @@ This began as a thin Tier-C reference, but the current source set now includes a
 | Ansible | No Zscaler Cellular modules found in the audited ZIA or ZPA collections. |
 | MCP | v0.15 exposes 20 read-only tools across nine ZCell toolsets plus three guided prompts (`vendor/zscaler-mcp-server/tests/test_docgen.py:119-123`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:141-153`; prompt registrations at `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-27`, `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-26`, and `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-27`; prompt coverage at `vendor/zscaler-mcp-server/tests/test_prompts.py:166-244`). |
 | Automate contract | 36 ZCell operations captured (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`). |
-| Help | The live index exposes 21 articles, while only the What Is and Architecture bodies are captured. The captured body describes Zscaler SIM and Zscaler Cellular Edge; the remaining titles establish a capture backlog, not article semantics (`vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; `vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`). |
+| Help | The live index exposes 21 articles. Seven bodies are captured: What Is, Architecture, About SIMs, deployment credentials, About Network Events, Understanding Anomaly Detection, and About Audit Logs. The other 14 titles establish a capture backlog, not article semantics (`vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; What Is and Architecture capture at `vendor/zscaler-help/cellular-what-zscaler-cellular.md:1-67`; new operational-body boundaries at `vendor/zscaler-help/cellular-about-sims.md:1-27`, `vendor/zscaler-help/cellular-understanding-anomaly-detection.md:1-19`, `vendor/zscaler-help/cellular-configuring-deployment-credentials.md:1-24`, `vendor/zscaler-help/cellular-about-network-events.md:1-25`, and `vendor/zscaler-help/cellular-about-audit-logs.md:1-24`). |
 
 ## What it is
 
@@ -64,6 +69,22 @@ The Help capture says policy enforcement can be based on IP address, IMEI, or IM
 
 The marketing capture lists Zscaler Cellular Service and Zscaler Cellular Partner Service as the two deployment/service motions (`vendor/zscaler-help/zscaler-cellular-marketing.md:26-27`).
 
+## SIM inventory and state
+
+The SIM inventory includes both physical SIMs and eSIMs, with identifiers and device/inventory fields such as ICCID, IMEI, IMSI, MSISDN, IP address, form factor, device metadata, operating system, usage, country, and tags (`vendor/zscaler-help/cellular-about-sims.md:8-17`). Administrative status and connection state are separate: status is **Active** or **Inactive**, while connection state is **Online**, **Offline**, or **Inventory**. **Inventory** applies only to eSIMs and means the profile is ready for assignment or is assigned but awaiting device registration; after an eSIM is returned to inventory, its connection state can remain stale until an administrator opens the detail view to refresh it (`vendor/zscaler-help/cellular-about-sims.md:19-24`).
+
+## Deployment credential dependency
+
+The captured deployment procedure uses Cloud & Branch Connector credentials to initiate regional Cellular Service deployment. It directs an administrator to supply the Cloud & Branch Connector super-admin username and password plus a legacy Cloud & Branch Connector API key (`vendor/zscaler-help/cellular-configuring-deployment-credentials.md:8-17`). If those super-admin credentials change, the Cellular Configuration page must be updated; the article warns that leaving them stale can disrupt connectivity for devices using Zscaler SIMs (`vendor/zscaler-help/cellular-configuring-deployment-credentials.md:19-21`). This legacy credential procedure does not establish whether OneAPI replaces it or whether a non-super-admin deployment role exists (`vendor/zscaler-help/cellular-configuring-deployment-credentials.md:23-24`).
+
+## Monitoring and anomaly surface
+
+The Network Events page centralizes network and authorization events for provisioned SIMs and supports filtered, time-bounded inspection. Rows expose ICCID, EID, IMSI, timestamp, country, operator, and a category of session start, session end, online/offline status, or authorization (`vendor/zscaler-help/cellular-about-network-events.md:8-22`). The captured article states page-size controls but no retention period, so it does not establish retention, export, or streaming behavior (`vendor/zscaler-help/cellular-about-network-events.md:24-25`).
+
+The anomaly body is specifically geofence-oriented: administrators define a geofence and tracked SIM-enabled devices in a SIM Location Group, link that group to a policy, enable it, and receive violations when tracked movement crosses the permitted boundary (`vendor/zscaler-help/cellular-understanding-anomaly-detection.md:8-15`). It does not document non-geofence anomaly types (`vendor/zscaler-help/cellular-understanding-anomaly-detection.md:17-19`).
+
+Cellular audit logs record administrative configuration actions. Captured fields include timestamp, principal ID, action, resource type, resource name, resource ID, and a change-detail view (`vendor/zscaler-help/cellular-about-audit-logs.md:8-21`). The article does not state audit retention, export, or streaming behavior (`vendor/zscaler-help/cellular-about-audit-logs.md:23-24`).
+
 ## Programmability posture
 
 ZCell has a documented API surface, a Python SDK wrapper, and a read-only MCP layer. The contract covers anomaly policies, audit search/metadata, customer data, customer regions, network events, SIM analytics, SIM actions/search/details, SIM location groups, and tags (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-14`, `:1506-1518`, `:1956-2079`, `:2430-2583`, `:2812-2824`, `:3280-3713`, `:3801-5594`, `:5673-6458`). The Python SDK exposes the same product as `client.zcell`; its README states that ZCell uses OneAPI OAuth2 credentials and a separate `zcellCustomerId` / `ZCELL_CUSTOMER_ID` value for `/customers/{id}` scoping (`vendor/zscaler-sdk-python/README.md:385-402`). MCP enforces that separate customer ID at client construction and does not ask callers to pass it into each tool (`vendor/zscaler-mcp-server/src/zscaler_mcp/client.py:24-40`, `:48-98`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:17-19`).
@@ -74,7 +95,7 @@ MCP covers SIM inventory/detail, analytics, location-group reads, anomaly reads,
 
 - `zscaler-cellular-01`: The contract, Python SDK, and MCP read layer resolve the broad surface question, but tenant entitlement, live backend acceptance, and exact ZIA/ZPA policy-object mapping for IP/IMEI/IMSI identifiers remain open. See [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
 - MCP request/response divergences for anomaly violations, SIM pagination, and audit filters are tracked in [`./api.md`](./api.md#mcp-v015-divergences-and-test-boundary) and clarifications `zscaler-cellular-02`–`zscaler-cellular-04`.
-- Nineteen current Help article bodies remain uncaptured across setup, deployment/credentials, SIM/eSIM lifecycle, network events, anomaly/geofence operations, and audit logs (`vendor/zscaler-help/zscaler-cellular-help-index.md:12-47`).
+- Fourteen current Help article bodies remain uncaptured across the step-by-step setup guide, dashboards and Cellular Edge deployment, remaining SIM/eSIM lifecycle tasks, network-event detail, and anomaly/geofence management tasks (`vendor/zscaler-help/zscaler-cellular-help-index.md:10-47`).
 
 ## Cross-links
 

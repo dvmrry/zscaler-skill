@@ -13,12 +13,17 @@ verified-against:
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
-  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
   - "vendor/zscaler-help/zscaler-cellular-help-index.md"
+  - "vendor/zscaler-help/cellular-about-sims.md"
+  - "vendor/zscaler-help/cellular-understanding-anomaly-detection.md"
+  - "vendor/zscaler-help/cellular-configuring-deployment-credentials.md"
+  - "vendor/zscaler-help/cellular-about-network-events.md"
+  - "vendor/zscaler-help/cellular-about-audit-logs.md"
   - "vendor/zscaler-help/zscaler-cellular-marketing.md"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
@@ -61,13 +66,18 @@ author-status: draft
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
 | Zscaler Cellular is a zero trust connectivity solution for IoT/mobile devices and includes Zscaler SIM plus Zscaler Cellular Edge. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:8` |
-| The current public ZCell Help index exposes 21 articles; only two article bodies are captured, so 19 remain a body-level coverage gap. | `index.md`, `overview.md` | `vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; `ARTICLE-BODY GAP -> references/zscaler-cellular/index.md#scope-boundary` |
+| The current public ZCell Help index exposes 21 articles; seven bodies are captured, so 14 remain a body-level coverage gap. | `index.md`, `overview.md` | `vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; What Is and Architecture capture at `vendor/zscaler-help/cellular-what-zscaler-cellular.md:1-67`; captured operational-body boundaries at `vendor/zscaler-help/cellular-about-sims.md:1-27`, `vendor/zscaler-help/cellular-understanding-anomaly-detection.md:1-19`, `vendor/zscaler-help/cellular-configuring-deployment-credentials.md:1-24`, `vendor/zscaler-help/cellular-about-network-events.md:1-25`, and `vendor/zscaler-help/cellular-about-audit-logs.md:1-24`; `ARTICLE-BODY GAP -> references/zscaler-cellular/index.md#scope-boundary` |
 | Zscaler SIM devices connect to 4G/5G, traffic routes to Cellular Edge, and Cellular Edge forwards to ZTE for inspection and policy enforcement. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:10-15` |
 | Policy enforcement can use IP address, IMEI, or IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:26-29` |
 | Zscaler SIM is a data-only SIM for IoT devices where agents are not feasible, and can enforce policy via ZIA/ZPA based on IP/IMEI/IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:45-53` |
 | Cellular Edge forwards traffic from or to a Zscaler SIM to the ZTE and provides traffic aggregation, bidirectional control, HA, and telemetry insights. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:56-63` |
 | Cellular Admin Portal capabilities include SIM management, eSIM assignment/activation, network events, anomaly detection, SIM location groups, geofence policies, and Cellular Edge deployment/monitoring. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67` |
 | Marketing capture lists Zscaler Cellular Service and Zscaler Cellular Partner Service as two service motions. | `overview.md` | `vendor/zscaler-help/zscaler-cellular-marketing.md:26-27` |
+| SIM administrative status is Active or Inactive, while connection state is Online, Offline, or Inventory. Inventory applies only to eSIMs, and a returned eSIM can show stale connection state until its detail view refreshes it. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-sims.md:19-24` |
+| The captured Cellular deployment procedure uses Cloud & Branch Connector super-admin credentials plus a legacy API key; stale super-admin credentials can disrupt cellular-device connectivity. The article does not establish a OneAPI replacement or non-super-admin deployment role. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-configuring-deployment-credentials.md:8-24` |
+| Network Events exposes ICCID, EID, IMSI, timestamp, country, operator, and session/status/authorization categories. The captured article states no retention period and does not establish export or streaming behavior. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-network-events.md:8-25` |
+| Cellular anomaly detection is documented around geofences, tracked devices, SIM Location Groups, enabled policies, and out-of-boundary violations; the captured article does not describe non-geofence anomaly types. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-understanding-anomaly-detection.md:8-19` |
+| Cellular audit logs expose principal, action, resource, identifier, and change-detail fields. The captured article does not state retention, export, or streaming behavior. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-audit-logs.md:8-24` |
 | ZCell has a captured Automate API contract with 36 operations across nine families. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`; `vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458` |
 | Python SDK exposes `client.zcell` as a OneAPI-only service with nine subclients. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:279-285`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-106` |
 | ZCell API calls are customer-scoped with `zcellCustomerId` / `ZCELL_CUSTOMER_ID`, separate from ZPA `customerId`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/config/config_setter.py:23-28`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:156-171`; `vendor/zscaler-sdk-python/README.md:385-402` |

@@ -7,6 +7,7 @@ last-verified: "2026-08-04"
 confidence: high
 source-tier: doc
 sources:
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md"
   - "https://help.zscaler.com/cloud-branch-connector/about-google-cloud-platform-zero-trust-gateways"
   - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
   - "https://help.zscaler.com/cloud-branch-connector/adding-google-cloud-platform-zero-trust-gateway"
@@ -77,7 +78,7 @@ The current Help table lists 16 GCP Zero Trust Gateway regions spanning the Unit
 - **GA timing and default entitlement** — the captured service is Limited Availability and Support-enabled; no GA date or default-entitlement contract is documented (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:12-13`).
 - **Non-web Private Access** — the captured service supports Private Access only for web traffic; no roadmap or fallback for non-web private applications is documented (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:14-17`).
 - **Cross-surface region parity** — the source does not state that the 16 GCP ZTG regions equal standard Cloud Connector deployment regions or workload-discovery supported regions (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:31-53`).
-- **AWS parity** — this document establishes the managed-service boundary for GCP (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). It does not prove that every AWS Zero Trust Gateway deployment has identical ownership, IAM, interception, or service restrictions.
+- **AWS/GCP contract parity** — cloud-specific Help establishes a Zscaler-managed, Support-enabled service boundary for both AWS and GCP (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). It does not prove identical IAM, endpoint, interception, control, API, or service-restriction semantics across the two clouds.
 
 ## Cross-links
 

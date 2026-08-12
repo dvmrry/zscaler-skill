@@ -14,6 +14,8 @@ sources:
   - "vendor/zscaler-help/ai-guard-what-is.md"
   - "vendor/zscaler-help/ai-guard-help-index.md"
   - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md"
+  - "vendor/zscaler-help/ai-guard-users-and-user-groups.md"
   - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
@@ -72,9 +74,9 @@ author-status: draft
 
 ## Certification scope
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-users-help-index.md`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md`; `vendor/zscaler-help/ai-guard-users-and-user-groups.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zguard-ai-integrations/README.md`.
 
-The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with the Python SDK's 1.9.39-introduced OneAPI configuration and separately routed legacy policy-detection surfaces as retained in current v1.9.41 (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; `vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current portal separates its dashboard documentation into **AI Guard for Users** and **Apps & Infrastructure** surfaces (`vendor/zscaler-help/ai-guard-users-dashboard.md:8-16`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:8-16`); both dashboard bodies are captured. The broader 24-article AI Guard for Users tree remains only partially mined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-47`). Treat current Help coverage as indexed and partial rather than fully certified.
+The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with the Python SDK's 1.9.39-introduced OneAPI configuration and separately routed legacy policy-detection surfaces as retained in current v1.9.41 (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; `vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current public `/secure-ai-users` root contains 25 AI Guard for Users articles—six Getting Started, eight Configuration, two Best Practices, seven Monitoring, and two Troubleshooting (`vendor/zscaler-help/ai-guard-users-help-index.md:1-48`). The portal separates dashboard documentation into **AI Guard for Users** and **Apps & Infrastructure** surfaces (`vendor/zscaler-help/ai-guard-users-dashboard.md:8-16`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:8-16`); both dashboard bodies are captured, as are current custom-block-message and user/group-sync bodies (`vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md:8-24`; `vendor/zscaler-help/ai-guard-users-and-user-groups.md:8-24`). The rest of the current tree remains only partially mined. Treat current Help coverage as indexed and partial rather than fully certified.
 
 This certification does not assert private roadmap features, tenant-specific entitlements, commercial packaging, unpublished admin APIs, or portal behavior not present in the captured public sources. Those remain explicit open questions rather than hidden assumptions.
 
@@ -179,7 +181,7 @@ Policy Testing lets an admin select a provider credential, policy, LLM model, an
 
 ## Tenant and provider configuration
 
-Source: `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-managing-llm-providers-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-llm-provider-credentials-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`.
+Source: `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md`; `vendor/zscaler-help/ai-guard-users-and-user-groups.md`; `vendor/zscaler-help/ai-guard-managing-llm-providers-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-llm-provider-credentials-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`.
 
 Tenant settings expose the tenant name, deployment mode (`Proxy` or `DaaS`), UUID, and Zscaler AWS Account ID. The AWS account ID is used for optional AWS integrations such as S3 log exports and customer-managed keys.
 
@@ -189,9 +191,8 @@ Operational tenant controls include:
 - Custom request headers, including a conversation ID header and sensitive-header marking.
 - Security settings to store prompts/responses for 90 days, enable event-detection feedback, encrypt sensitive custom headers, and use customer-managed content encryption.
 - Customer-managed-key configuration; the captured page lists AWS as the currently supported KMS provider type.
-- ZIA end-user and group sync, including an immediate `Start Sync` action outside the scheduled batch window.
-- Custom block messages for prompt blocks and response blocks.
-- Optional deletion of conversation history when a provider response is blocked.
+- User- or group-scoped policy evaluation requires a linked ZIA tenant. AI Guard can import ZIA users, groups, and domains, and `Advanced Actions > Start Sync` triggers an immediate synchronization outside the scheduled batch window (`vendor/zscaler-help/ai-guard-users-and-user-groups.md:8-20`). Imported users and user groups appear on separate **AI Users** tabs, while Policy Control is the documented surface for applying policies to them (`vendor/zscaler-help/ai-guard-users-and-user-groups.md:22-24`).
+- Custom prompt and response block messages can replace blocked content, and response blocking can optionally delete the conversation history (`vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md:8-20`). AI Guard sends the configured message to the LLM with an instruction to return it; the Help article warns that an LLM can treat the instruction as malicious, refuse it, or return an unexpected response (`vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md:22-24`).
 
 Proxy mode also requires LLM Provider and LLM Provider Credential objects. Provider fields include provider name, provider type, public/private deployment, and provider-specific server selection. Credential fields include credential name, associated LLM provider, optional expiration date, and API key copied from the provider dashboard.
 

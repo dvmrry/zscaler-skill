@@ -7,6 +7,7 @@ last-verified: "2026-07-22"
 confidence: medium
 source-tier: doc
 sources:
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md"
   - "vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md"
   - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
   - "vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md"
@@ -31,7 +32,7 @@ author-status: draft
 
 Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`; `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
-This document separates three region surfaces that must not be conflated: customer-deployed Cloud Connector availability, the documented Zscaler-managed **GCP** Zero Trust Gateway availability, and the workload-discovery supported-region API. The current source set does not establish the same ownership model for AWS ZTG.
+This document separates three region surfaces that must not be conflated: customer-deployed Cloud Connector availability, the documented Zscaler-managed **AWS and GCP** Zero Trust Gateway availability, and the workload-discovery supported-region API. Current cloud-specific Help establishes the managed-service boundary for both AWS and GCP; it does not establish an Azure-hosted Zero Trust Gateway deployment surface (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 
 > **Confidence note.** The Help capture dated 2026-08-04 explicitly lists 18 AWS and 16 GCP **Zero Trust Gateway** regions (`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-53`). Those lists do not establish standard Cloud Connector VM deployment availability or the values returned by workload discovery.
 
@@ -42,7 +43,7 @@ This document separates three region surfaces that must not be conflated: custom
 Source: `vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-deploying-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md`.
 
 1. **Standard Cloud Connector deployment** is the customer-deployed VM path. GCP Help documents Terraform deployment and a Marketplace image, but does not enumerate a GCP standard-CC region list (`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-10`; `vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:38-42`).
-2. **GCP Zero Trust Gateway deployment** is a separate managed-service surface. GCP ZTG is Zscaler cloud-native, Limited Availability, and Support-enabled (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). The current static region article includes both AWS and GCP availability, but it does not establish that AWS uses the same managed-service ownership model.
+2. **AWS and GCP Zero Trust Gateway deployment** is a separate managed-service surface. Cloud-specific Help describes both as Zscaler cloud-native, Limited Availability, and Support-enabled (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). The shared service boundary does not prove identical IAM, interception, controls, or API contracts across the two clouds, and neither cloud-specific page establishes Azure deployment availability.
 3. **Workload discovery** exposes a live per-cloud supported-region set through `/publicCloudInfo/supportedRegions`. That set governs discovery and is not documented as equal to either deployment surface (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:13,33-53`).
 
 Subcloud/PSE selection is another independent control; see [`../shared/subclouds.md`](../shared/subclouds.md). Nothing in the current ZTG matrix proves one-to-one parity with Public Service Edge locations.

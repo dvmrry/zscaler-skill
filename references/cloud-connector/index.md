@@ -9,10 +9,12 @@ source-tier: mixed
 sources:
   - "vendor/zscaler-help/what-zscaler-cloud-connector.md"
   - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md"
   - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
   - "vendor/zscaler-help/cbc-adding-google-cloud-platform-zero-trust-gateway.md"
   - "vendor/zscaler-help/cbc-analyzing-google-cloud-platform-zero-trust-gateway-details.md"
   - "vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md"
+  - "vendor/zscaler-help/zero-trust-gateway-marketing.md"
   - "vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md"
   - "vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.md"
   - "vendor/zscaler-help/cbc-configuring-workload-discovery-workloads-google-cloud-platform.md"
@@ -28,7 +30,7 @@ author-status: draft
 
 Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/provider.go`.
 
-Entry point for the Cloud Connector / Branch Connector / Zero Trust Gateway product family. Cloud Connector is the customer-deployed VM path for **cloud workloads**; GCP Zero Trust Gateway is a distinct Zscaler-managed, cloud-native service and must not be treated as merely a newer name for that VM (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+Entry point for the Cloud Connector / Branch Connector / Zero Trust Gateway product family. Cloud Connector is the customer-deployed VM path for **cloud workloads**; AWS and GCP Zero Trust Gateways are distinct Zscaler-managed, cloud-native services and must not be treated as merely newer names for that VM (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 
 ## Naming — one product, several names
 
@@ -38,12 +40,14 @@ Source: `vendor/zscaler-help/what-zscaler-cloud-connector.md`; `vendor/zscaler-h
 |---|---|
 | **Cloud Connector** | Marketing for the cloud-workload VM |
 | **Branch Connector** | Marketing for the branch-office sibling appliance |
-| **GCP Zero Trust Gateway (ZTG)** | GCP's managed-gateway deployment model. GCP ZTG is a Zscaler cloud-native service, is in Limited Availability, and requires Support enablement (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). AWS ownership and deployment parity remain unconfirmed. |
+| **Zero Trust Gateway (ZTG)** | Zscaler-managed, cloud-native gateway service. Current product-specific Help identifies both AWS and GCP gateways as Limited Availability and requiring Zscaler Support enablement (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-10`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`). |
 | **Zero Trust Workload (ZTW)** | Go SDK module path: `vendor/zscaler-sdk-go/zscaler/ztw/` |
 | **Zero Trust Cloud (ZTC)** | Terraform provider path: `vendor/terraform-provider-ztc/ztc/` |
 | **Cloud & Branch Connector (CBC)** | Help-site URL path: `help.zscaler.com/cloud-branch-connector/...` |
 
-These names occur in one product family, but they do not all describe the same ownership or deployment shape. Translate SDK/provider names to the product family while preserving the documented distinction between a customer-managed Cloud Connector VM and the Zscaler-managed **GCP** Zero Trust Gateway (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+These names occur in one product family, but they do not all describe the same ownership or deployment shape. Translate SDK/provider names to the product family while preserving the documented distinction between a customer-managed Cloud Connector VM and the Zscaler-managed **AWS and GCP** Zero Trust Gateway services (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+
+The Zero Trust Gateway product page describes a generic multi-cloud service spanning ingress, egress, east-west, and private VPC/VNet traffic, including private-connectivity examples using AWS Direct Connect, Azure ExpressRoute, and GCP Interconnect (`vendor/zscaler-help/zero-trust-gateway-marketing.md:8-23`). That product positioning does **not** establish that an Azure-hosted gateway can currently be created, that any gateway is generally available or automatically entitled, or that a deployment or API surface exists for every named cloud. Current cloud-specific Help establishes only the AWS and GCP Limited Availability surfaces in this capture (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-10`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`); exact Azure Zero Trust Gateway deployment availability remains unresolved (`vendor/zscaler-help/zero-trust-gateway-marketing.md:25-31`).
 
 **Python SDK now has ZTW coverage in the current capture.** Older guidance said Python had no Cloud Connector module; that is stale. Current programmatic surfaces are the Python SDK `zscaler.ztw` service, the Go SDK `zscaler/ztw` service packages, and the Zscaler Terraform provider.
 
@@ -104,7 +108,7 @@ In scope:
 Not in scope (explicitly deferred):
 
 - **Branch Connector zero-trust appliance specifics** — referenced in the shared help section but not deeply covered here. The configuration model is similar to Cloud Connector; Branch-specific details (hardware, zero-touch provisioning) are operational and vendor-specific.
-- **Per-cloud deployment guides** — Azure, AWS, and customer-deployed GCP Cloud Connector are covered at [`./azure-deployment.md`](./azure-deployment.md), [`./aws-deployment.md`](./aws-deployment.md), and [`./gcp-deployment.md`](./gcp-deployment.md). The separate managed GCP Zero Trust Gateway surface is covered at [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md) (`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+- **Per-cloud deployment guides** — Azure, AWS, and customer-deployed GCP Cloud Connector are covered at [`./azure-deployment.md`](./azure-deployment.md), [`./aws-deployment.md`](./aws-deployment.md), and [`./gcp-deployment.md`](./gcp-deployment.md). The separate managed Zero Trust Gateway service boundary is summarized in [`./overview.md`](./overview.md); the detailed GCP creation and operating contract is covered at [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md) (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
 - **VMSS / ASG / MIG operational tuning** — help articles cover this; captured at architecture level only.
 - **Zscaler Zero Trust SD-WAN** — now covered at [`./zero-trust-sdwan.md`](./zero-trust-sdwan.md). Covers positioning vs traditional SD-WAN, Cloud/Branch Connector roles, capabilities and limits, vendor comparison by axis, and operational gotchas.
 

@@ -9,6 +9,8 @@ verified-against:
 confidence: high
 source-tier: doc
 sources:
+  - "https://help.zscaler.com/unified/understanding-zscaler-cloud-names"
+  - "vendor/zscaler-help/understanding-zscaler-cloud-names.md"
   - "https://help.zscaler.com/zia/understanding-zscaler-cloud-architecture"
   - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.md"
   - "https://help.zscaler.com/zpa/understanding-private-access-architecture"
@@ -31,7 +33,7 @@ Component-level picture of how a Zscaler cloud is put together — Central Autho
 
 ## Summary
 
-Each Zscaler cloud is a self-contained deployment (`zscaler.net`, `zscalertwo.net`, `zscalerthree.net`, etc.) consisting of:
+Each Zscaler cloud is a self-contained deployment. Zscaler's current public production naming inventory distinguishes ZIA (`zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`) from the names used by ZPA, ZDX, Client Connector, Cloud & Branch Connector, Zero Trust Branch, Zscaler Cellular, Risk360, and the Authentication Service (`vendor/zscaler-help/understanding-zscaler-cloud-names.md:16-26`). A cloud consists of:
 
 - **Central Authority (CA)** — the control plane. Holds configuration, policy, threat-intel, and software-update state.
 - **Service Edges** — the data plane. Public (Zscaler-operated), Private (customer-premise hardware), and Virtual (customer-operated VMs) variants. Process traffic, enforce policy.
@@ -43,6 +45,26 @@ Each Zscaler cloud is a self-contained deployment (`zscaler.net`, `zscalertwo.ne
 ZIA and ZPA are separate services running on **separate multi-tenant infrastructure** (ZPA was built "from the ground up" to be isolated from ZIA per the ZPA architecture doc). A tenant using both services has separate CA, Service Edge, and LSS/Nanolog instances per product, linked via the shared Zscaler PKI and Zscaler Identity layer.
 
 **Provisioning scope** (from *Understanding the Zscaler Cloud Architecture*): an organization is provisioned on **one cloud only**, and all of that org's traffic is processed by that cloud. There is no cross-cloud failover at the tenant level — failover within a cloud is handled by Service Edge active-active load balancing, and catastrophic-cloud failure is handled by the [Business Continuity Cloud](#business-continuity-cloud).
+
+### Public production cloud-name map
+
+The unified Help article records this service-specific public production map:
+
+| Service | Documented cloud name(s) | Source |
+|---|---|---|
+| Internet & SaaS (ZIA) | `zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:18` |
+| Private Access (ZPA) | `private.zscaler.com`, `zpatwo.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:19` |
+| Digital Experience (ZDX) | `zdxcloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:20` |
+| Client Connector | `mobile.zscaler.net`, `mobile.zscalerone.net`, `mobile.zscalertwo.net`, `mobile.zscalerthree.net`, `mobile.zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:21` |
+| Cloud & Branch Connector | `connector.zscaler.net`, `connector.zscalerone.net`, `connector.zscalertwo.net`, `connector.zscalerthree.net`, `connector.zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:22` |
+| Zero Trust Branch | `goairgap.com` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:23` |
+| Zscaler Cellular | `ztsim.com` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:24` |
+| Risk360 | `zscalerrisk.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:25` |
+| Authentication Service | `zslogin.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:26` |
+
+Client Connector and Cloud & Branch Connector names are derived from the organization's ZIA cloud: for example, a tenant on `zscaler.net` uses `mobile.zscaler.net` and `connector.zscaler.net` for those services (`vendor/zscaler-help/understanding-zscaler-cloud-names.md:28-30`).
+
+**Scope boundary:** use this as a public production naming map, not as a government-cloud matrix. The list does not by itself identify a tenant's assigned cloud, select an API/SDK/provider endpoint, or establish product availability; retain the relevant tenant configuration and product-specific government-host routing as separate evidence (`vendor/zscaler-help/understanding-zscaler-cloud-names.md:8-12`, `vendor/zscaler-help/understanding-zscaler-cloud-names.md:32-34`).
 
 ## Mechanics
 

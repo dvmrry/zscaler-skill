@@ -5,7 +5,7 @@ title: "Zscaler Experience Center - unified administration console"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
@@ -18,6 +18,7 @@ confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/unified-what-zscaler-experience-center.md"
+  - "vendor/zscaler-help/understanding-zscaler-cloud-names.md"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/zscaler-mcp-server/docsrc/skills/index.rst"
   - "vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md"
@@ -59,6 +60,8 @@ This refresh did not find a separate Experience Center API in the audited SDK, T
 
 The `/unified` help path maps to top-level "Getting Started with Zscaler" documentation, including onboarding flows, Experience Center, cloud naming, data privacy, user import, URL filtering, SSL inspection, threat protection, and data-protection policies (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:27-29`). Do not assume every `/unified` help article describes the Experience Center product itself; some pages are shared getting-started material.
 
+The current **Understanding Zscaler Cloud Names** article is one such shared page. It publishes the public production cloud-name map for ZIA, ZPA, ZDX, Client Connector, Cloud & Branch Connector, Zero Trust Branch, Zscaler Cellular, Risk360, and the Authentication Service (`vendor/zscaler-help/understanding-zscaler-cloud-names.md:16-30`). The canonical operational map and its government-cloud/endpoint-selection guardrails live in [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md#public-production-cloud-name-map); its presence under `/unified` does not make those cloud names Experience Center features.
+
 ## What Experience Center Is Not
 
 - It is not evidenced as a separate packet-processing cloud or proxy in this capture; it is described as an administrative and operations console (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`).
@@ -77,3 +80,4 @@ The `/unified` help path maps to top-level "Getting Started with Zscaler" docume
 - ZDX: [`../zdx/index.md`](../zdx/index.md)
 - ZCC: [`../zcc/index.md`](../zcc/index.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
+- Public production cloud-name map: [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md#public-production-cloud-name-map)
