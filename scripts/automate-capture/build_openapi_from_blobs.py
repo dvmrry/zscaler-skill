@@ -299,10 +299,11 @@ def add_unresolved_ref_stubs(spec: dict[str, object], refs: set[str]) -> None:
         )
 
 
-def product_info(product: str, raw_ops: dict[str, dict[str, object]], version: str) -> dict[str, str]:
+def product_info(product: str, raw_ops: dict[str, dict[str, object]], version: str) -> dict[str, object]:
     titles = Counter()
     descriptions = Counter()
     versions = Counter()
+    source_info = Counter()
     for entry in raw_ops.values():
         api = entry.get("api") if isinstance(entry.get("api"), dict) else {}
         info = api.get("info") if isinstance(api.get("info"), dict) else {}
@@ -312,13 +313,45 @@ def product_info(product: str, raw_ops: dict[str, dict[str, object]], version: s
             descriptions[str(info["description"])] += 1
         if info.get("version"):
             versions[str(info["version"])] += 1
+        source_info[
+            (
+                str(info.get("title") or ""),
+                str(info.get("description") or ""),
+                str(info.get("version") or ""),
+            )
+        ] += 1
     title = titles.most_common(1)[0][0] if titles else f"Zscaler Automate {product.upper()} API"
     description = descriptions.most_common(1)[0][0] if descriptions else "Reconstructed from automate.zscaler.com Docusaurus operation blobs."
-    return {
+    info: dict[str, object] = {
         "title": title,
         "version": version if version else (versions.most_common(1)[0][0] if versions else "0.0.0"),
         "description": description,
     }
+    if len(titles) > 1:
+        display = {"ai-security": "AI Security", "zdx": "ZDX"}.get(
+            product,
+            product.replace("-", " ").title(),
+        )
+        info.update(
+            {
+                "title": f"{display} APIs",
+                "description": (
+                    "Combined reconstruction from automate.zscaler.com Docusaurus operation blobs "
+                    "spanning multiple source API families."
+                ),
+                "x-zscaler-source-info": [
+                    {
+                        **({"title": source_title} if source_title else {}),
+                        **({"description": source_description} if source_description else {}),
+                        **({"version": source_version} if source_version else {}),
+                        "operation_count": count,
+                    }
+                    for (source_title, source_description, source_version), count
+                    in sorted(source_info.items())
+                ],
+            }
+        )
+    return info
 
 
 def product_servers(raw_ops: dict[str, dict[str, object]]) -> list[dict[str, object]]:
@@ -346,6 +379,8 @@ def build_product_spec(product: str, raw_ops: dict[str, dict[str, object]], vers
     }
     build_issues: list[dict[str, object]] = []
     paths: dict[str, dict[str, object]] = spec["paths"]  # type: ignore[assignment]
+    info = spec["info"] if isinstance(spec.get("info"), dict) else {}
+    mixed_source_info = isinstance(info.get("x-zscaler-source-info"), list)
     unresolved_refs: set[str] = set()
 
     for operation_key, entry in sorted(raw_ops.items()):
@@ -362,13 +397,21 @@ def build_product_spec(product: str, raw_ops: dict[str, dict[str, object]], vers
         if method in path_item:
             build_issues.append({"product": product, "operation": operation_key, "issue": "duplicate_method_path", "method": method, "path": path})
             continue
-        path_item[method] = clean_operation(
+        operation = clean_operation(
             api,
             operation_key,
             str(entry.get("source_url") or ""),
             entry.get("docusaurus") if isinstance(entry.get("docusaurus"), dict) else {},
             unresolved_refs,
         )
+        if mixed_source_info and isinstance(api.get("info"), dict):
+            source_info = api["info"]
+            operation["x-zscaler-source-info"] = {
+                key: deepcopy(source_info[key])
+                for key in ("title", "description", "version")
+                if source_info.get(key) is not None
+            }
+        path_item[method] = operation
 
     add_unresolved_ref_stubs(spec, unresolved_refs)
     return spec, build_issues
@@ -484,6 +527,9 @@ def validate_spec(product: str, spec: dict[str, object], build_issues: list[dict
 
 def write_validation_report(report: dict[str, object], out_dir: pathlib.Path) -> None:
     (out_dir / "openapi-validation-report.json").write_text(sorted_json(report), encoding="utf-8")
+    publication_absences = report.get("publication_absences") or []
+    absence_by_product = {item["product"]: item for item in publication_absences}
+    products = report["products"]  # type: ignore[index]
     lines = [
         "# OpenAPI Snapshot Validation Report",
         "",
@@ -491,11 +537,23 @@ def write_validation_report(report: dict[str, object], out_dir: pathlib.Path) ->
         "",
         "## Summary",
         "",
-        "| product | operations | paths | issues |",
-        "|---|---:|---:|---:|",
+        "| product | operations | paths | issues | publication |",
+        "|---|---:|---:|---:|---|",
     ]
-    for product, stats in sorted(report["products"].items()):  # type: ignore[index]
-        lines.append(f"| `{product}` | {stats['operations']} | {stats['paths']} | {stats['issues']} |")
+    for product in sorted(set(products) | set(absence_by_product)):  # type: ignore[arg-type]
+        if product in products:
+            stats = products[product]
+            lines.append(
+                f"| `{product}` | {stats['operations']} | {stats['paths']} | "
+                f"{stats['issues']} | current public route table |"
+            )
+            continue
+        item = absence_by_product[product]
+        lines.append(
+            f"| `{product}` | {item['retained_snapshot_operations']} | "
+            f"{item.get('retained_snapshot_paths', '—')} | not revalidated | "
+            f"retained last-known snapshot; `{item['status']}` |"
+        )
     lines.extend(["", "## Issue Counts", ""])
     issue_counts = report.get("issue_counts", {})
     if issue_counts:
@@ -506,7 +564,34 @@ def write_validation_report(report: dict[str, object], out_dir: pathlib.Path) ->
     lines.extend(["", "## Issues", ""])
     for issue in report.get("issues", []):
         lines.append(f"- `{issue.get('product')}` `{issue.get('issue')}` {json.dumps(issue, sort_keys=True)}")
+    lines.extend(["", "## Retained Publication Absences", ""])
+    if publication_absences:
+        lines.append(
+            "These products have no operations in the current public route table. "
+            "Their last-known contract and OpenAPI snapshots are retained outside "
+            "this live validation set; publication absence does not establish endpoint "
+            "retirement or backend unavailability."
+        )
+        lines.append("")
+        for item in publication_absences:
+            lines.append(
+                f"- `{item['product']}` — **{item['retained_snapshot_operations']}** "
+                f"last-known operations across **{item.get('retained_snapshot_paths', 'unknown')}** "
+                f"paths retained (`{item['status']}`)."
+            )
+    else:
+        lines.append("- None.")
     (out_dir / "openapi-validation-report.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def load_publication_absences(snapshot_report: pathlib.Path | None) -> list[dict[str, object]]:
+    if snapshot_report is None:
+        return []
+    report = json.loads(snapshot_report.read_text(encoding="utf-8"))
+    absences = report.get("publication_absences") or []
+    if not isinstance(absences, list) or not all(isinstance(item, dict) for item in absences):
+        raise ValueError(f"invalid publication_absences in {snapshot_report}")
+    return absences
 
 
 def main() -> int:
@@ -514,6 +599,11 @@ def main() -> int:
     parser.add_argument("--raw-dir", type=pathlib.Path, default=DEFAULT_RAW_BLOBS)
     parser.add_argument("--out-dir", type=pathlib.Path, default=DEFAULT_OUT)
     parser.add_argument("--version", default="docusaurus-blob-snapshot")
+    parser.add_argument(
+        "--snapshot-report",
+        type=pathlib.Path,
+        help="Snapshot comparison report carrying retained public-route-table absences.",
+    )
     args = parser.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -534,6 +624,7 @@ def main() -> int:
 
     report = {
         "source": "automate-docusaurus-blobs",
+        "publication_absences": load_publication_absences(args.snapshot_report),
         "products": product_stats,
         "issue_counts": dict(Counter(str(issue.get("issue")) for issue in issues)),
         "issues": issues,

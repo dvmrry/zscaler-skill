@@ -16,6 +16,7 @@ from rosetta import (  # noqa: E402
     build_contract_change_radar,
     build_issue_routing,
     build_rosetta,
+    render_issue_markdown,
     render_rosetta_markdown,
 )
 
@@ -211,6 +212,17 @@ def test_contract_change_radar_is_carried_into_rosetta_markdown():
                     "route_changed_operations": 1,
                     "route_key_changed_operations": 0,
                     "schema_changed_operations": 1,
+                    "schema_annotation_changed_operations": 1,
+                    "product_metadata_changed": 1,
+                    "product_metadata_changes": {
+                        "title": {
+                            "added": ["Digital Experience API"],
+                            "removed": ["Zscaler Digital Experience API"],
+                            "retained": [],
+                            "previous_counts": {"Zscaler Digital Experience API": 1},
+                            "current_counts": {"Digital Experience API": 1},
+                        }
+                    },
                     "request_body_fields_added": 0,
                     "request_body_fields_removed": 0,
                     "request_body_fields_changed": 0,
@@ -243,6 +255,16 @@ def test_contract_change_radar_is_carried_into_rosetta_markdown():
                             "changed": [{"field": "id", "changes": {"type": {"old": "int64", "new": "string"}}}],
                         }
                     },
+                    "schema_annotations": {
+                        "discriminator_changes": [{
+                            "kind": "changed",
+                            "path": "request_body",
+                            "property_name": "type",
+                            "mapping_keys_added": ["WEB"],
+                            "mapping_keys_removed": [],
+                        }],
+                        "title_changes": [],
+                    },
                 },
             ],
         },
@@ -255,9 +277,89 @@ def test_contract_change_radar_is_carried_into_rosetta_markdown():
     assert radar["products"][0]["added_operations"] == 2
     schema_change = radar["products"][0]["operations"][1]
     assert schema_change["sections"]["response_schema"]["changed"] == ["id"]
+    assert schema_change["schema_annotations"]["discriminator_changes"][0]["mapping_keys_added"] == ["WEB"]
+    assert radar["products"][0]["schema_annotation_changed_operations"] == 1
+    assert radar["products"][0]["product_metadata_changes"]["title"]["added"] == ["Digital Experience API"]
     assert "## Contract change radar" in markdown
     assert "`GET /v1/llm-provider-types`" in markdown
     assert "`response_schema` +1 −0 Δ1" in markdown
+    assert "Product metadata `title`: `Zscaler Digital Experience API` → `Digital Experience API`" in markdown
+    assert "discriminator mappings +WEB across 1 schema location(s)" in markdown
+    assert "does not by itself establish a feature launch" in markdown
+
+
+@case
+def test_contract_change_radar_marks_and_suppresses_full_product_publication_absence():
+    snapshot = {
+        "captured_at": "2026-08-12T00:00:00+00:00",
+        "publication_absences": [
+            {
+                "product": "aiguard",
+                "status": "absent-from-current-public-route-table",
+                "retention": "preserve-last-known-contract",
+                "do_not_infer": "No retirement inference.",
+                "retained_snapshot_operations": 47,
+                "retained_snapshot_paths": 29,
+            }
+        ],
+        "comparison": {
+            "products": {
+                "aiguard": {
+                    "live_ops": 0,
+                    "existing_ops": 47,
+                    "matched_ops": 0,
+                    "added_operations": 0,
+                    "removed_operations": 47,
+                }
+            },
+            "operation_deltas": [
+                {
+                    "product": "aiguard",
+                    "kind": "removed",
+                    "change_types": ["removed"],
+                    "old_method": "GET",
+                    "old_path": "/v1/policies",
+                    "old_operation": "aiguard/policies/list",
+                    "sections": {},
+                }
+            ],
+        },
+    }
+
+    radar = build_contract_change_radar(snapshot)
+    rosetta = build_rosetta(FIXTURE_REPORTS, FIXTURE_CONTRACT_FIELDS, radar)
+    markdown = render_rosetta_markdown(rosetta)
+
+    assert radar["publication_absences"][0]["product"] == "aiguard"
+    assert radar["products"][0]["operations"] == []
+    assert radar["products"][0]["removed_operations"] == 0
+    assert radar["products"][0]["publication_status"] == "absent-from-current-public-route-table"
+    assert radar["products"][0]["retention"] == "preserve-last-known-contract"
+    assert "### Retained publication absences" in markdown
+    assert "`aiguard`: 47 last-known operations retained" in markdown
+    assert "does not establish endpoint retirement" in markdown
+    assert "Publication-absent rows report zero true removals" in markdown
+    assert "| `aiguard` | `absent-from-current-public-route-table` | 0/47 | 0 | 0 |" in markdown
+    assert "Removed from capture" not in markdown
+    assert "`aiguard` (AI Guard): 47 retained last-known operations" in markdown
+    assert "`absent-from-current-public-route-table`" in markdown
+
+    worklist = build_issue_routing(FIXTURE_REPORTS, FIXTURE_CONTRACT_FIELDS, radar)
+    issue_markdown = render_issue_markdown(worklist)
+    assert worklist["publication_absences"][0]["product"] == "aiguard"
+    ai_guard_boundary = next(
+        item for item in worklist["boundaries"]["contract_only_products"]
+        if item["product"] == "aiguard"
+    )
+    assert ai_guard_boundary["publication_status"] == "absent-from-current-public-route-table"
+    assert ai_guard_boundary["retention"] == "preserve-last-known-contract"
+    assert not [
+        row for row in worklist["rows"]
+        if row["product"] == "aiguard" and "remov" in row["divergence_type"]
+    ]
+    assert "## Retained publication absences" in issue_markdown
+    assert "No operation-removal tickets are emitted" in issue_markdown
+    assert "`aiguard`: 47 operations retained" in issue_markdown
 
 
 @case

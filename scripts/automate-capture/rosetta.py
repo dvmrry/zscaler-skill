@@ -324,6 +324,8 @@ def _project_radar_operation(operation: dict) -> dict:
         }
     if sections:
         projected["sections"] = sections
+    if operation.get("schema_annotations"):
+        projected["schema_annotations"] = operation["schema_annotations"]
     return projected
 
 
@@ -332,9 +334,12 @@ def build_contract_change_radar(snapshot_report: dict | None) -> dict:
     snapshot_report = snapshot_report or {}
     comparison = snapshot_report.get("comparison") or {}
     deltas = comparison.get("operation_deltas") or []
+    publication_absences = snapshot_report.get("publication_absences") or []
+    absence_by_product = {item.get("product"): item for item in publication_absences}
     products = []
     for product, stats in sorted((comparison.get("products") or {}).items()):
-        changed = [
+        publication_absence = absence_by_product.get(product)
+        changed = [] if publication_absence else [
             _project_radar_operation(item)
             for item in deltas
             if item.get("product") == product
@@ -347,20 +352,26 @@ def build_contract_change_radar(snapshot_report: dict | None) -> dict:
                 "route_changed_operations",
                 "route_key_changed_operations",
                 "schema_changed_operations",
+                "product_metadata_changed",
             )
         )
         if not signal:
             continue
-        products.append({
+        row = {
             "product": product,
             "live_operations": stats.get("live_ops", 0),
             "previous_operations": stats.get("existing_ops", 0),
             "matched_operations": stats.get("matched_ops", 0),
             "added_operations": stats.get("added_operations", 0),
-            "removed_operations": stats.get("removed_operations", 0),
+            "removed_operations": 0 if publication_absence else stats.get("removed_operations", 0),
             "route_changed_operations": stats.get("route_changed_operations", 0),
             "route_key_changed_operations": stats.get("route_key_changed_operations", 0),
             "schema_changed_operations": stats.get("schema_changed_operations", 0),
+            "schema_annotation_changed_operations": stats.get(
+                "schema_annotation_changed_operations", 0
+            ),
+            "product_metadata_changed": stats.get("product_metadata_changed", 0),
+            "product_metadata_changes": stats.get("product_metadata_changes") or {},
             "request_fields_added": stats.get("request_body_fields_added", 0),
             "request_fields_removed": stats.get("request_body_fields_removed", 0),
             "request_fields_changed": stats.get("request_body_fields_changed", 0),
@@ -368,9 +379,21 @@ def build_contract_change_radar(snapshot_report: dict | None) -> dict:
             "response_fields_removed": stats.get("response_schema_fields_removed", 0),
             "response_fields_changed": stats.get("response_schema_fields_changed", 0),
             "operations": changed,
-        })
+        }
+        if publication_absence:
+            row.update({
+                "publication_status": publication_absence.get("status"),
+                "retention": publication_absence.get("retention"),
+                "do_not_infer": publication_absence.get("do_not_infer"),
+                "retained_snapshot_operations": publication_absence.get("retained_snapshot_operations"),
+                "retained_snapshot_paths": publication_absence.get("retained_snapshot_paths"),
+            })
+        else:
+            row["publication_status"] = "current-public-route-table"
+        products.append(row)
     return {
         "captured_at": snapshot_report.get("captured_at"),
+        "publication_absences": publication_absences,
         "products": products,
     }
 
@@ -403,7 +426,10 @@ def build_rosetta(
         "generator": "scripts/automate-capture/rosetta.py",
         "legend": LEGEND,
         "surfaces": list(SURFACES),
-        "boundaries": build_boundaries(reports),
+        "boundaries": build_boundaries(
+            reports,
+            (contract_change_radar or {}).get("publication_absences") or [],
+        ),
         "contract_change_radar": contract_change_radar or {"captured_at": None, "products": []},
         "summary": {
             "products": len(reports),
@@ -414,7 +440,14 @@ def build_rosetta(
     }
 
 
-def build_boundaries(reports: dict[str, dict]) -> dict:
+def build_boundaries(
+    reports: dict[str, dict],
+    publication_absences: list[dict] | None = None,
+) -> dict:
+    absence_by_product = {
+        item.get("product"): item
+        for item in (publication_absences or [])
+    }
     contract_only = []
     client_surfaces_without_contract = []
     for product, report in sorted(reports.items()):
@@ -423,13 +456,23 @@ def build_boundaries(reports: dict[str, dict]) -> dict:
     for product, display in sorted(THIN_PRODUCTS.items()):
         path = SPEC_DIR / f"{product}-api-reference.json"
         operations = len(_read_json(path)) if path.exists() else 0
-        contract_only.append({
+        boundary = {
             "product": product,
             "display": display,
             "contract_json": str(path.relative_to(ROOT)),
             "operations": operations,
             "reason": "Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.",
-        })
+        }
+        if publication_absence := absence_by_product.get(product):
+            boundary.update({
+                "publication_status": publication_absence.get("status"),
+                "live_operations": publication_absence.get("live_operations", 0),
+                "retained_snapshot_operations": publication_absence.get("retained_snapshot_operations"),
+                "retained_snapshot_paths": publication_absence.get("retained_snapshot_paths"),
+                "retention": publication_absence.get("retention"),
+                "do_not_infer": publication_absence.get("do_not_infer"),
+            })
+        contract_only.append(boundary)
     return {
         "reconciled_products": sorted(reports),
         "contract_only_products": contract_only,
@@ -758,7 +801,9 @@ def route_readonly(product: str, resource: dict, rows: list[dict]) -> None:
 def build_issue_routing(
     reports: dict[str, dict],
     contract_fields: dict[tuple[str, str], dict[str, dict]],
+    contract_change_radar: dict | None = None,
 ) -> dict:
+    publication_absences = (contract_change_radar or {}).get("publication_absences") or []
     rows = []
     for product in sorted(reports):
         for resource in sorted(reports[product]["resources"], key=lambda item: item["resource"]):
@@ -802,11 +847,12 @@ def build_issue_routing(
         by_repo[row["target_repo"]] += 1
     return {
         "generator": "scripts/automate-capture/rosetta.py",
+        "publication_absences": publication_absences,
         "summary": {
             "rows": len(rows),
             "target_repos": _sorted_dict(dict(by_repo)),
         },
-        "boundaries": build_boundaries(reports),
+        "boundaries": build_boundaries(reports, publication_absences),
         "rows": rows,
     }
 
@@ -823,6 +869,29 @@ def _md_cell(row: dict, surface: str) -> str:
     if surface == "contract" and cell == "—":
         return f"**{_md_escape(cell)}**"
     return _md_escape(cell)
+
+
+def _render_product_metadata(key: str, change: dict) -> str:
+    added = list(change.get("added") or [])
+    removed = list(change.get("removed") or [])
+    retained = list(change.get("retained") or [])
+    if len(added) == 1 and len(removed) == 1 and not retained:
+        return f"`{key}`: `{removed[0]}` → `{added[0]}`"
+    parts = []
+    if added:
+        parts.append("added " + ", ".join(f"`{value}`" for value in added))
+    if removed:
+        parts.append("removed " + ", ".join(f"`{value}`" for value in removed))
+    if retained:
+        parts.append("retained " + ", ".join(f"`{value}`" for value in retained))
+    current_counts = change.get("current_counts") or {}
+    if current_counts:
+        distribution = ", ".join(
+            f"`{value}`={count}"
+            for value, count in current_counts.items()
+        )
+        parts.append(f"current operation distribution {distribution}")
+    return f"`{key}` values: " + "; ".join(parts)
 
 
 def render_rosetta_markdown(rosetta: dict) -> str:
@@ -844,31 +913,60 @@ def render_rosetta_markdown(rosetta: dict) -> str:
         out.append(f"- `{marker}` — {meaning}")
     radar = rosetta.get("contract_change_radar") or {}
     radar_products = radar.get("products") or []
-    if radar_products:
+    publication_absences = radar.get("publication_absences") or []
+    if radar_products or publication_absences:
         out.extend([
             "",
             "## Contract change radar",
             "",
             "This section carries true operation additions/removals, route corrections, and field-level body drift "
-            "from the latest Automate snapshot comparison into the cross-surface view.",
-            "",
-            "| product | current/previous ops | added | removed | route Δ | route-key Δ | schema Δ | request +/−/Δ | response +/−/Δ |",
-            "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+            "from the latest Automate snapshot comparison into the cross-surface view. Schema annotations and product "
+            "titles are public-documentation metadata; their drift does not by itself establish a feature launch, "
+            "endpoint availability, or tenant entitlement.",
         ])
+        if publication_absences:
+            out.extend([
+                "",
+                "### Retained publication absences",
+                "",
+                "The following last-known contract snapshots are retained even though their products have no "
+                "operations in the current public route table. This publication state does not establish endpoint "
+                "retirement or backend unavailability. Publication-absent rows report zero true removals below.",
+                "",
+            ])
+            for item in publication_absences:
+                out.append(
+                    f"- `{item['product']}`: {item['retained_snapshot_operations']} last-known operations "
+                    f"retained (`{item['status']}`)."
+                )
+        if radar_products:
+            out.extend([
+                "",
+                "| product | publication | current/previous ops | added | removed | route Δ | route-key Δ | schema Δ | schema annotation Δ | product metadata Δ | request +/−/Δ | response +/−/Δ |",
+                "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+            ])
         for item in radar_products:
             out.append(
-                f"| `{item['product']}` | {item['live_operations']}/{item['previous_operations']} | "
+                f"| `{item['product']}` | `{item['publication_status']}` | "
+                f"{item['live_operations']}/{item['previous_operations']} | "
                 f"{item['added_operations']} | {item['removed_operations']} | "
                 f"{item['route_changed_operations']} | {item['route_key_changed_operations']} | "
                 f"{item['schema_changed_operations']} | "
+                f"{item['schema_annotation_changed_operations']} | "
+                f"{item['product_metadata_changed']} | "
                 f"{item['request_fields_added']}/{item['request_fields_removed']}/{item['request_fields_changed']} | "
                 f"{item['response_fields_added']}/{item['response_fields_removed']}/{item['response_fields_changed']} |"
             )
         for item in radar_products:
             operations = item.get("operations") or []
-            if not operations:
+            metadata_changes = item.get("product_metadata_changes") or {}
+            if not operations and not metadata_changes:
                 continue
             out.extend(["", f"### `{item['product']}` changes", ""])
+            for key, change in metadata_changes.items():
+                out.append(
+                    f"- Product metadata {_render_product_metadata(key, change)}."
+                )
             for operation in operations:
                 kinds = operation.get("change_types") or []
                 if operation.get("kind") == "added":
@@ -899,6 +997,33 @@ def render_rosetta_markdown(rosetta: dict) -> str:
                                 f"`{section}` +{len(delta.get('added', []))} "
                                 f"−{len(delta.get('removed', []))} Δ{len(delta.get('changed', []))}"
                             )
+                        annotations = operation.get("schema_annotations") or {}
+                        discriminator_changes = annotations.get("discriminator_changes") or []
+                        title_changes = annotations.get("title_changes") or []
+                        if discriminator_changes:
+                            added = sorted({
+                                str(value)
+                                for change in discriminator_changes
+                                if isinstance(change, dict)
+                                for value in (change.get("mapping_keys_added") or [])
+                            })
+                            removed = sorted({
+                                str(value)
+                                for change in discriminator_changes
+                                if isinstance(change, dict)
+                                for value in (change.get("mapping_keys_removed") or [])
+                            })
+                            key_delta = ""
+                            if added:
+                                key_delta += " +" + ",+".join(added)
+                            if removed:
+                                key_delta += " -" + ",-".join(removed)
+                            section_counts.append(
+                                f"discriminator mappings{key_delta} across "
+                                f"{len(discriminator_changes)} schema location(s)"
+                            )
+                        if title_changes:
+                            section_counts.append(f"schema titles Δ{len(title_changes)}")
                         out.append(
                             f"- Schema: `{operation.get('new_method')} {operation.get('new_path')}` — "
                             + "; ".join(section_counts) + "."
@@ -906,7 +1031,19 @@ def render_rosetta_markdown(rosetta: dict) -> str:
     out.extend(["", "## Boundaries", ""])
     out.append("- Postman: reference-only; not a constraint-bearing reconciliation leg.")
     out.append("- Contract-only products:")
+    publication_absences_by_product = {
+        item["product"]: item
+        for item in publication_absences
+    }
     for item in rosetta["boundaries"]["contract_only_products"]:
+        publication_absence = publication_absences_by_product.get(item["product"])
+        if publication_absence:
+            out.append(
+                f"  - `{item['product']}` ({item['display']}): "
+                f"{publication_absence['retained_snapshot_operations']} retained last-known operations; "
+                f"`{publication_absence['status']}`; {item['reason']}"
+            )
+            continue
         out.append(
             f"  - `{item['product']}` ({item['display']}): {item['operations']} captured operations; {item['reason']}"
         )
@@ -980,6 +1117,22 @@ def render_issue_markdown(worklist: dict) -> str:
         "Rows are grouped by `target_repo`; `source_repo` identifies the surface that proved the divergence.",
         "",
     ]
+    publication_absences = worklist.get("publication_absences") or []
+    if publication_absences:
+        out.extend([
+            "## Retained publication absences",
+            "",
+            "These last-known artifacts are retained even though their products have no operations in the "
+            "current public route table. No operation-removal tickets are emitted for this state, and it does "
+            "not establish endpoint retirement or backend unavailability.",
+            "",
+        ])
+        for item in publication_absences:
+            out.append(
+                f"- `{item['product']}`: {item['retained_snapshot_operations']} operations retained "
+                f"(`{item['status']}`; `{item['retention']}`)."
+            )
+        out.append("")
     by_repo: dict[str, list[dict]] = defaultdict(list)
     for row in worklist["rows"]:
         by_repo[row["target_repo"]].append(row)
@@ -1003,7 +1156,10 @@ def build_all() -> tuple[dict, dict]:
     snapshot_path = SPEC_DIR / "docusaurus-snapshot-compare-summary.json"
     snapshot_report = _read_json(snapshot_path) if snapshot_path.exists() else {}
     radar = build_contract_change_radar(snapshot_report)
-    return build_rosetta(reports, contract_fields, radar), build_issue_routing(reports, contract_fields)
+    return (
+        build_rosetta(reports, contract_fields, radar),
+        build_issue_routing(reports, contract_fields, radar),
+    )
 
 
 def main() -> None:
