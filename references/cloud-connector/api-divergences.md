@@ -7,7 +7,7 @@ confidence: medium
 source-tier: code
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
   vendor/zscaler-terraform-skills: d8226c37f7fc7c544cbf60a9faf59eaa49051980

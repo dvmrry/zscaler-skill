@@ -4,12 +4,17 @@ topic: "snapshot-schema"
 title: "ZIA _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/models/"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/terraform-provider-zia/zia/"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go"
 author-status: draft
 ---
 
@@ -283,7 +288,15 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py` (`Clou
 
 Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py` (`CloudApplicationControl`).
 
-**`type` enum** controls per-rule action validity. The full `type` set is enumerated by `GET /zia/api/v1/webApplicationRules/ruleTypeMapping`. Per-type valid actions queryable via `GET /zia/api/v1/webApplicationRules/availableActions`.
+**`type` enum** controls per-rule action validity. The full `type` set is
+enumerated by `GET /zia/api/v1/webApplicationRules/ruleTypeMapping`. Action
+discovery uses POST, not GET: Go v3.8.46 exposes
+`POST /zia/api/v1/webApplicationRules/{rule_type}/availableActions` and the new
+`POST /zia/api/v1/webApplicationRules/{rule_type}/allAvailableActions`, both
+with a cloud-app request body and flat string-list response
+(`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:219-277`).
+The wrappers do not define whether either result is per-app, a union, an
+intersection, or another aggregation for multi-app input.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py` (`CloudApplicationControl`).
 

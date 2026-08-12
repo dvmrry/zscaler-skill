@@ -96,7 +96,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-08-09:
+Skim this before reading the full entries. Summary refreshed 2026-08-12:
 24 entries are resolved or clarified, 33 are partially resolved, and 406 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
@@ -143,6 +143,13 @@ narrowed `cloud-connector-18`, `cloud-connector-22`, `zia-68`, and `zpa-49`,
 and opened `cloud-connector-27`, `cloud-connector-28`, `zia-71`, and `zpa-82`.
 The remaining questions are bounded to the specific source conflicts and live
 API semantics recorded below.
+
+The 2026-08-12 Go SDK v3.8.46 refresh narrowed `zia-49` and `zia-53` again:
+Go now exposes both `availableActions` and `allAvailableActions`, with the same
+request and flat response shape. Static source does not define their semantic
+relationship, single-app completeness, multi-app aggregation, or whether the
+new path removes the MCP representative-app concern. Those behaviors and the
+atomic mixed-validity create contract still require tenant evidence.
 
 ### Resolved
 
@@ -194,8 +201,8 @@ API semantics recorded below.
 | [`shared-17`](#shared-17-public-service-edge-selection-algorithm) | Public Service Edge selection algorithm | Selection-signal weighting, failover timing, and DC-exclusion mechanics remain open |
 | [`shared-18`](#shared-18-end-to-end-authentication-timeline-across-the-request-chain) | End-to-end authentication timeline across the request chain | Auth-source precedence, surrogate-IP clock anchoring, and trusted-network transitions remain open |
 | [`shared-19`](#shared-19-modern-http-response-side-re-evaluation-http2-websocket-http3-streaming-rpc) | Modern HTTP response-side re-evaluation | Per-stream and non-DLP inspection semantics for modern protocols remain open |
-| [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity | Contract now supplies the category-level `actions` vocabulary; no read path exposes per-app validity |
-| [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app quirk | Contract narrows the action vocabulary; whole-create rejection and representative-app behavior remain MCP-observation/lab-test questions |
+| [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity | Go exposes two discovery paths; their semantic relationship, single-app completeness, and multi-app aggregation remain unverified |
+| [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app quirk | The new path does not statically resolve representative-app or whole-create-rejection behavior |
 | [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | Contract now supplies the static `fileTypes` vocabulary; field dependencies, protocol acceptance, and FTP per-site scope remain open |
 | [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform URL-category, sandbox, and static-IP questions | `/staticIP` guidance is now documented by the provider; URL-category EA eligibility, sandbox v1/v2 mapping, and primary rate-limit confirmation remain open |
 | [`zpa-49`](#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses) | Supported hypervisor / cloud-image formats for ZPA PSEs | RHEL 9 on AWS/GCP/Azure, Docker, Nutanix AHV, and VMware are confirmed; Hyper-V/KVM, exact formats, and distribution paths remain open |
@@ -247,7 +254,7 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 |---|---|---|
 | [`zia-47`](#zia-47-dns-control-block_response_code-accepted-values) | DNS Control `block_response_code` accepted-value set | lab test / tenant snapshot |
 | [`zia-48`](#zia-48-dns-control-redirect_ip-action-binding) | DNS Control `redirect_ip` action-binding (all `REDIR_*` vs `REDIR_RES` only) | lab test |
-| [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity (which actions a given app accepts) | lab test |
+| [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity (which actions a given app accepts) | code read completed; live completeness test remains |
 | [`zpa-20`](#zpa-20-zpn_status_pending-as-a-real-runtime-status) | Whether `ZPN_STATUS_PENDING` is a real App Connector runtime status | tenant snapshot / lab test |
 | [`zcc-76`](#zcc-76-otp-expiry-ttl-server-behavior) | Whether ZCC one-time passwords expire server-side (TTL) | lab test / zscaler doc not yet read |
 | [`zdx-01`](#zdx-01-probe-id-non-portability-server-behavior) | ZDX probe-ID non-portability — server behavior on a cross-pair probe ID | lab test |
@@ -273,7 +280,7 @@ The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions s
 | [`zia-50`](#zia-50-ruletype-filter-endpoint-rest-backing) | `ruleType` filter endpoint REST backing | zscaler doc not yet read / lab test |
 | [`zia-51`](#zia-51-cross-sdk-parity-drift-and-python-devicegroups-write-path) | Cross-SDK parity drift and Python `devicegroups` write-path | code read / lab test |
 | [`zia-52`](#zia-52-ipssignaturerules-import-wire-behavior-and-multipart-field-name) | `ipsSignatureRules` import wire behavior and multipart field name | lab test |
-| [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app action quirk (MCP-docstring-only) | lab test |
+| [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app action quirk | lab test |
 | [`zia-54`](#zia-54-python-cloudappriskprofile-list-vs-single-shape) | Python `cloudAppRiskProfile` list-vs-single code shape | code read / lab test |
 | [`zia-55`](#zia-55-admin-audit-report-pagination-and-targetorgid-semantics) | Admin audit report pagination and `targetOrgId` MSP semantics | lab test / tenant snapshot |
 | [`zia-56`](#zia-56-bandwidth-class-type-enum-vs-ui-predefined-classes-and-cap-enforcement) | Bandwidth class `type` enum vs UI predefined classes, and cap enforcement | zscaler doc not yet read / lab test |
@@ -3495,12 +3502,29 @@ The commented Go validator binds `redirect_ip` only to `REDIR_RES` (`vendor/zsca
 
 *Origin: `references/zia/api-divergences.md` § Open questions*
 
-For Cloud App Control, which individual actions are valid for a given cloud application is not exposed by any read path in the vendored sources — `availableActions` returns a flat category-level `List[str]` only (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`). The whole-create-rejection contract (`INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications") and the one-rule-per-app safe pattern are MCP-docstring claims, confirmed absent from both SDKs. Needs live-tenant probing to resolve which per-app action combinations the API actually accepts.
+For Cloud App Control, Go v3.8.46 now exposes an `allAvailableActions` read
+path in addition to the older `availableActions` path. Both accept the same
+`cloudApps`/`type` request and return a flat `[]string`
+(`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:219-277`).
+Python v1.9.41 and the captured Automate contract still expose only the older
+path (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34-91`;
+`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:37447-37459`).
 
-**Status**: partially resolved — last updated 2026-06-18
-**Resolves with**: lab test (probe a live tenant with per-app action combinations, capture the validation responses)
+**Status**: partially resolved — last updated 2026-08-12
+**Resolves with**: lab test (query one and multiple apps, compare returned actions with accepted create payloads, and capture any omissions)
 
 **2026-06-18 narrowing**: the Automate contract now gives a static category-level `actions` vocabulary for `POST /zia/api/v1/webApplicationRules/:rule_type`, including the generated contract-only action list in the ZIA divergence report (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2134-2137`, `:2174-2186`, `:2356-2362`). That closes the "what is the captured documented action vocabulary?" part. It does **not** close per-app validity: the contract still describes a rule body, not a read path that maps each app to its individually accepted actions.
+
+**2026-08-12 narrowing**: the Go release establishes a second callable path,
+but the wrappers do not define its relationship to the old path. The Terraform
+provider guide says its multi-app discovery returns an intersection and warns
+that some newly introduced actions may be omitted while `ONEAPI-2421` is
+investigated
+(`vendor/terraform-provider-zia/docs/data-sources/zia_cloud_app_control_rule_actions.md:16-18`).
+Provider v4.8.3 still pins Go v3.8.44, so that statement describes the old
+endpoint selected by its current `AllAvailableActions` call; it does not prove
+the new endpoint's aggregation behavior. Resolve with a tenant matrix across
+both paths: app A, app B, `[A,B]`, and `[B,A]`.
 
 ---
 
@@ -4237,7 +4261,7 @@ update behavior without `approval_id`)
 
 Go v3.8.45 and Python v1.9.41 add `hbrEnabled`, `stickyEntity`,
 `stickyGroup`, and `guestDetails` to application-segment models
-(`vendor/zscaler-sdk-go/CHANGELOG.md:3-18`;
+(`vendor/zscaler-sdk-go/CHANGELOG.md:16,23-27`;
 `vendor/zscaler-sdk-python/CHANGELOG.md:3-19`). Go defines each guest record as
 a federation ID plus partner approval/federation status, GID, name, and scope
 name (`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:161-172`).
@@ -4347,12 +4371,27 @@ The Go SDK defines the custom IPS signature rules import + import-status path (`
 
 *Origin: `references/zia/api-divergences.md` § Open questions*
 
-Two Cloud App Control behaviors remain workflow-skill observations, confirmed absent from both SDKs, and so require live-tenant confirmation. First, the create workflow says a per-app-invalid action rejects the whole multi-app create with `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications", motivating one rule per app (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:44-73,268-274`). Second, the workflow says action discovery may depend on a category "representative" app, but only in generic terms (`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:150-163`); MCP v0.15.0's executable list tool forwards `rule_type` directly and does not implement representative-app probing (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:136-149`). The former AZURE_DEVOPS/GITHUB example and "11 actions" count have no current MCP equivalent and are not retained as current behavior. This is the API-divergence framing of the same gap `zia-49` tracks at the action-validity level.
+The create workflow says a per-app-invalid action rejects the whole multi-app
+create with `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected
+applications", motivating one rule per app
+(`vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md:44-73,268-274`).
+That atomic-rejection claim is still absent from executable client validation
+and requires tenant confirmation. The same workflow's generic
+"representative" app guidance (`:150-163`) predates Go v3.8.46's
+`allAvailableActions` surface, but the new wrapper alone does not establish
+that the guidance is obsolete. MCP v0.15.0 itself still forwards the requested
+rule type without a representative-app probe
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_app_control.py:136-149`).
 
-**Status**: partially resolved — last updated 2026-06-18
-**Resolves with**: lab test (probe a live tenant: submit a mixed-validity multi-app create to observe the atomic-rejection behavior; call `list_available_actions` with multiple apps from one category to establish whether representative-app behavior exists)
+**Status**: partially resolved — last updated 2026-08-12
+**Resolves with**: lab test (submit a mixed-validity multi-app create to observe atomic rejection; compare old and new action-discovery paths for one and multiple apps)
 
 **2026-06-18 narrowing**: the Automate contract now corroborates a broad category-level Cloud App Control action vocabulary on `webApplicationRules/:rule_type`, with `actions` represented as a contract-only enum in the generated ZIA divergence report (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:2134-2137`, `:2174-2186`, `:2356-2362`). That improves the static action-vocabulary footing, but the atomic multi-app rejection and representative-app behaviors remain workflow-skill observations until tested against a tenant.
+
+**2026-08-12 narrowing**: `allAvailableActions` supplies a second comparison
+surface. It does not settle the representative-app workaround or atomic create
+contract, and the provider's `ONEAPI-2421` warning leaves action-list
+completeness as an operational question.
 
 ---
 

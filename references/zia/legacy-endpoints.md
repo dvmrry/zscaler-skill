@@ -3,9 +3,9 @@ product: zia
 topic: "legacy-endpoints"
 title: "ZIA legacy API endpoint reference"
 content-type: reference
-last-verified: "2026-07-22"
+last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
 source-tier: code
@@ -132,10 +132,15 @@ Complete endpoint surface for the ZIA legacy API. Extracted from hardcoded paths
 
 | Endpoint | Notes |
 |---|---|
-| `GET /zia/api/v1/webApplicationRules` | Cloud app control rules |
-| `POST /zia/api/v1/webApplicationRules` | Create rule |
-| `PUT /zia/api/v1/webApplicationRules/{id}` | Update rule |
-| `DELETE /zia/api/v1/webApplicationRules/{id}` | Delete rule |
+| `GET /zia/api/v1/webApplicationRules/{rule_type}` | List rules for one Cloud App Control category |
+| `POST /zia/api/v1/webApplicationRules/{rule_type}` | Create a rule in one category |
+| `GET /zia/api/v1/webApplicationRules/{rule_type}/{id}` | Get a rule by category and ID |
+| `PUT /zia/api/v1/webApplicationRules/{rule_type}/{id}` | Full rule replacement |
+| `DELETE /zia/api/v1/webApplicationRules/{rule_type}/{id}` | Delete a rule |
+| `POST /zia/api/v1/webApplicationRules/{rule_type}/duplicate/{id}?name={name}` | Duplicate a rule |
+| `POST /zia/api/v1/webApplicationRules/{rule_type}/availableActions` | Legacy action discovery (`AvailableActions` in Go v3.8.46) |
+| `POST /zia/api/v1/webApplicationRules/{rule_type}/allAvailableActions` | Second action-discovery path added in Go v3.8.46; its relationship to `availableActions` is not defined by the wrapper |
+| `GET /zia/api/v1/webApplicationRules/ruleTypeMapping` | Rule-type mapping |
 | `GET /zia/api/v1/cloudApplicationInstances` | Cloud app instances (tenancy restrictions) |
 | `POST /zia/api/v1/cloudApplicationInstances` | Create cloud app instance |
 | `PUT /zia/api/v1/cloudApplicationInstances/{id}` | Update |
@@ -250,7 +255,7 @@ Complete endpoint surface for the ZIA legacy API. Extracted from hardcoded paths
 | `PUT /zia/api/v1/webDlpGlobalOptions` | Update tenant-wide Web DLP advanced settings (`vendor/zscaler-sdk-python/zscaler/zia/web_dlp_global_options.py:82-112`) |
 
 Endpoint DLP additions introduced in Go v3.8.41 and Python v1.9.39
-(`vendor/zscaler-sdk-go/CHANGELOG.md:77-138`;
+(`vendor/zscaler-sdk-go/CHANGELOG.md:90-151`;
 `vendor/zscaler-sdk-python/CHANGELOG.md:32-113`):
 
 | Endpoint | Notes |
@@ -457,8 +462,11 @@ Custom IPS signature rules (Suricata/Snort rule text). Distinct from the IPS Con
 |---|---|
 | `GET /zia/api/v1/pacFiles` | List PAC files |
 | `POST /zia/api/v1/pacFiles` | Create PAC file |
-| `GET /zia/api/v1/pacFiles/{id}` | Get PAC file |
-| `PUT /zia/api/v1/pacFiles/{id}` | Update |
+| `GET /zia/api/v1/pacFiles/{id}/version` | List versions under one PAC-file parent |
+| `GET /zia/api/v1/pacFiles/{id}/version/{version}` | Get one PAC-file version |
+| `PUT /zia/api/v1/pacFiles/{id}/version/{version}/action/{action}` | Deploy, stage, unstage, or change LKG state; Go v3.8.46 sends the commit message as the raw body |
+| `POST /zia/api/v1/pacFiles/{id}/version/{cloned_version}` | Clone/branch a PAC-file version |
+| `POST /zia/api/v1/pacFiles/validate` | Validate raw PAC content |
 | `DELETE /zia/api/v1/pacFiles/{id}` | Delete |
 
 ## Risk Profiles

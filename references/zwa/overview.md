@@ -5,7 +5,7 @@ title: "ZWA overview - incidents, workflows, templates"
 content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
 source-tier: mixed

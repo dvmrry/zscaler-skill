@@ -34,6 +34,7 @@ Run:
 """
 
 import argparse
+from fnmatch import fnmatchcase
 import json
 import re
 import subprocess
@@ -99,6 +100,44 @@ def changed_files(submodule_path: str, old_sha: str, new_sha: str) -> set[str]:
         text=True,
     )
     return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+
+
+def source_matches_changed_path(source: str, changed_path: str) -> bool:
+    """Return whether one submodule-relative source covers a changed path.
+
+    Sources may name one file, a directory prefix, or a glob such as
+    ``zscaler/zia/services/**``. The drift report must treat wildcard and
+    directory declarations as coverage roots; comparing them as literal file
+    names silently understates behavior-bearing drift.
+    """
+    # A source equal to ``vendor/<submodule>/`` becomes the empty string after
+    # its submodule prefix is removed. Preserve that as an explicit whole-root
+    # declaration rather than misclassifying every change as low priority.
+    if source == "":
+        return True
+    if source.endswith("/"):
+        return changed_path.startswith(source)
+    if any(char in source for char in "*?["):
+        source_parts = source.split("/")
+        changed_parts = changed_path.split("/")
+
+        def matches(source_index: int, changed_index: int) -> bool:
+            if source_index == len(source_parts):
+                return changed_index == len(changed_parts)
+            source_part = source_parts[source_index]
+            if source_part == "**":
+                return matches(source_index + 1, changed_index) or (
+                    changed_index < len(changed_parts)
+                    and matches(source_index, changed_index + 1)
+                )
+            return (
+                changed_index < len(changed_parts)
+                and fnmatchcase(changed_parts[changed_index], source_part)
+                and matches(source_index + 1, changed_index + 1)
+            )
+
+        return matches(0, 0)
+    return source == changed_path
 
 
 def main() -> int:
@@ -182,7 +221,14 @@ def main() -> int:
             relative_srcs = [
                 s[len(sm) + 1:] if s.startswith(sm + "/") else s for s in srcs
             ]
-            touched = [r for r in relative_srcs if r in changed]
+            touched = sorted(
+                changed_path
+                for changed_path in changed
+                if any(
+                    source_matches_changed_path(source, changed_path)
+                    for source in relative_srcs
+                )
+            )
 
             if touched:
                 drifted_high.append({

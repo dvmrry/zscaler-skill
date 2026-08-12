@@ -4,9 +4,9 @@ topic: "api-divergences"
 title: "ZPA API source divergences"
 content-type: reference
 confidence: medium
-last-verified: "2026-07-26"
+last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-sdk-go: 8a73a5fcf0bbb8507a47c09e9a6f379447ce3807
+  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
@@ -151,7 +151,7 @@ omission semantics.
 
 Go v3.8.45 and Python v1.9.41 both add `hbrEnabled`, `stickyEntity`,
 `stickyGroup`, and `guestDetails` to application segments
-(`vendor/zscaler-sdk-go/CHANGELOG.md:3-18`;
+(`vendor/zscaler-sdk-go/CHANGELOG.md:16,23-27`;
 `vendor/zscaler-sdk-python/CHANGELOG.md:3-19`). Go exposes the four fields on
 the base, Browser Access, Inspection, and PRA structs and types each guest as a
 `federationId` plus nested partner approval/federation metadata
