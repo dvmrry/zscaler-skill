@@ -1,7 +1,7 @@
 ---
 product: zscaler-cellular
 topic: "zscaler-cellular-claims-ledger"
-title: "Zscaler Cellular claims ledger - Tier 3 misc refresh"
+title: "Zscaler Cellular claims ledger - Tier 2 programmable-surface refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:

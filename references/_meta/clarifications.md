@@ -1222,7 +1222,7 @@ Rationale:
 - **Faithfulness over friendliness.** Paraphrased markdown risks going stale against API changes or drifting from the SDK's model. Raw JSON is source-of-truth; any transformation is downstream.
 - **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")' _data/snapshot/<cloud>/zia/url-categories.json`) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
 - **Model consumption concerns are real but bounded.** Consumers should be selective — extract only the fields relevant to the question rather than passing the full JSON blob to the model. Reasoning docs under `references/` carry the narrative; snapshot answers "what does this tenant actually have configured" in raw form.
-- **Deferred `snapshot-schema.md` docs** are the answer to "noisy for model consumption" — once the first fork-admin run produces real output, write camelCase-key tables and jq cheatsheets per-product (tracked in PLAN.md § 4).
+- **Source-derived `snapshot-schema.md` docs now exist** for [ZIA](../zia/snapshot-schema.md), [ZPA](../zpa/snapshot-schema.md), [ZCC](../zcc/snapshot-schema.md), and [ZIdentity](../zidentity/snapshot-schema.md), with key tables and jq examples where applicable. They remain medium-confidence/anticipatory until a fork-admin run validates them against real tenant output (historical rationale in PLAN.md § 4).
 
 A paraphrased-markdown post-processing step remains an option for the future if a fork team wants it, but no current skill answer requires one.
 
@@ -1230,9 +1230,9 @@ A paraphrased-markdown post-processing step remains an option for the future if 
 
 ### log-04 — MP/ATP blocked-policy-type log field
 
-*Origin: `references/zia/malware-and-atp.md` § Console-only diagnosis workflow*
+*Origin: `references/zia/malware-and-atp.md` § Console diagnosis workflow (log-based)*
 
-Malware Protection and Advanced Threat Protection blocks have no public API surface. Diagnosis relies on Web Insights log fields indicating which policy module fired.
+Malware Protection and Advanced Threat Protection **settings** have public SDK/API surfaces. Those endpoints do not return per-transaction verdicts, so attribution of an individual block still relies on Web Insights or equivalent log fields indicating which policy module fired.
 
 **Status**: partially resolved (2026-04-24).
 

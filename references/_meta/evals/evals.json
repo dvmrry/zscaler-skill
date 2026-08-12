@@ -604,6 +604,135 @@
         "401 proves the create operation works",
         "Automate is always authoritative over Help"
       ]
+    },
+    {
+      "id": 27,
+      "prompt": "Use grounded ad-hoc Zscaler routing. A teammate says AI Guard, ZMS, EASM, Zscaler Cellular, and Business Insights are all Tier 3 portal-only products. Correct the tier classification and route each product to its captured programmable surface, including any read-only or naming caveat.",
+      "expected_output": "All five are Tier 2 programmable-but-shallow, not Tier 3. AI Guard has Python `client.aiguard` OneAPI configuration plus a separately authenticated legacy policy-detection path. ZMS uses read-only `client.zms` GraphQL. EASM uses read-only `client.zeasm` for organizations/findings/lookalikes, with additional raw Postman asset reads. ZCell uses `client.zcell` and has an Automate contract, while its MCP tools are read-only. Business Insights uses Python `client.zbi` for custom-app/report-config CRUD and report retrieval; this accessor is Business Insights, not Zero Trust Browser. State exact parity gaps rather than implying every Tier 2 surface is writable.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "Tier 2",
+        "client.aiguard",
+        "client.zms",
+        "client.zeasm",
+        "client.zcell",
+        "client.zbi",
+        "read-only",
+        "Business Insights"
+      ],
+      "must_cite_files": [
+        "references/_meta/portfolio-map.md",
+        "references/business-insights/overview.md"
+      ],
+      "must_not_say": [
+        "AI Guard has no SDK module",
+        "ZMS has no SDK module",
+        "EASM is Tier 4",
+        "Business Insights is portal-only",
+        "Zscaler Cellular is Tier 3"
+      ]
+    },
+    {
+      "id": 28,
+      "prompt": "Can I automate Cloud Connector from the Zscaler Python SDK? Our team is considering moving the integration to the Python 2.0.0 beta; identify the correct accessor and supported release line.",
+      "expected_output": "Yes. Cloud Connector/ZTW is available from the Python v1.x GA line through `client.ztw.*`; the current captured version is v1.9.41. The 2.0.0bN beta does not include ZTW, so do not migrate Cloud Connector automation to that beta expecting parity. Go also exposes `zscaler/ztw`, and Terraform uses `ztc_*` resources.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "client.ztw",
+        "v1.x",
+        "v1.9.41",
+        "2.0.0",
+        "does not include",
+        "ztc_"
+      ],
+      "must_cite_files": [
+        "references/cloud-connector/api.md",
+        "references/cloud-connector/sdk.md"
+      ],
+      "must_not_say": [
+        "Python SDK has no Cloud Connector coverage",
+        "ZTW was added in Python SDK v2.0.0",
+        "migrate to v2.0.0 for ZTW"
+      ]
+    },
+    {
+      "id": 29,
+      "prompt": "We have no ZIdentity API clients yet. Explain how to bootstrap the first client, how later clients and secrets are managed in Python, and whether either Python or Go can mutate resource servers. Include the exact Python accessor.",
+      "expected_output": "The first API client must be bootstrapped in the admin portal because no credential exists yet. With a sufficiently scoped client, later API clients and their secret lifecycle are full CRUD through singular `client.zid.api_client` (or raw REST). Go has no API-client service. Resource servers are a read-only registry in both Python and Go; neither SDK creates, updates, or deletes them.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "first",
+        "portal",
+        "client.zid.api_client",
+        "full CRUD",
+        "secret",
+        "read-only",
+        "both"
+      ],
+      "must_cite_files": [
+        "references/zidentity/api-clients.md",
+        "references/zidentity/api.md",
+        "references/zidentity/api-divergences.md"
+      ],
+      "must_not_say": [
+        "client.zid.api_clients",
+        "all API clients must be created in the portal",
+        "API client creation is not exposed via API",
+        "Go has full CRUD on resource servers"
+      ]
+    },
+    {
+      "id": 30,
+      "prompt": "Can automation read or update ZIA Malware Protection and Advanced Threat Protection policy? Separately, can those settings endpoints tell me which engine blocked one user's transaction yesterday?",
+      "expected_output": "Separate settings from transaction evidence. ATP settings are available through GET/PUT and Python `client.zia.atp_policy`; Malware Protection has four singleton settings families through `client.zia.malware_protection_policy`, with matching Go services. Those endpoints configure or inspect policy but do not return per-transaction verdicts. Attribute the individual block with Web Insights or equivalent logs, especially the Blocked Policy Type/`ruletype` field.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "settings",
+        "GET/PUT",
+        "client.zia.atp_policy",
+        "client.zia.malware_protection_policy",
+        "per-transaction",
+        "Blocked Policy Type",
+        "Web Insights"
+      ],
+      "must_cite_files": [
+        "references/zia/malware-and-atp.md",
+        "references/zia/sandbox.md"
+      ],
+      "must_not_say": [
+        "Malware Protection and ATP have no API coverage",
+        "Malware Protection settings are console-only",
+        "ATP settings are console-only",
+        "the settings endpoint returns transaction verdicts"
+      ]
+    },
+    {
+      "id": 31,
+      "prompt": "Which actions can I send in a Cloud Connector `traffic_dns_rules` API or Terraform resource? Is `OVERWRITE` / 'Overwrite DNS response' a valid fifth action?",
+      "expected_output": "The captured Terraform constraint and SDK model support exactly four rule actions: `ALLOW`, `BLOCK`, `REDIR_REQ` (bind a DNS Gateway), and `REDIR_ZPA` (bind a ZPA IP group). There is no `OVERWRITE` token in the captured ZTW SDK or ZTC provider. Help capability wording about overwriting responses may describe another feature or redirect behavior, but it is not a fifth `traffic_dns_rules` action.",
+      "tenant_data_required": false,
+      "expected_confidence": "high",
+      "assertions": [
+        "exactly four",
+        "ALLOW",
+        "BLOCK",
+        "REDIR_REQ",
+        "REDIR_ZPA",
+        "not a fifth"
+      ],
+      "must_cite_files": [
+        "references/cloud-connector/dns-subsystem.md",
+        "references/cloud-connector/api-divergences.md"
+      ],
+      "must_not_say": [
+        "OVERWRITE is a supported action",
+        "Overwrite DNS response is a traffic_dns_rules action",
+        "five traffic_dns_rules actions"
+      ]
     }
   ]
 }

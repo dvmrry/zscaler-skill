@@ -28,7 +28,10 @@ The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`,
 
 ## What you are doing
 
-- Answering grounded ad-hoc questions about Zscaler products (ZIA, ZPA, ZDX, ZIdentity, Cloud Connector, ZWA, ZBI), tenant configuration, and log/event semantics.
+- Answering grounded ad-hoc questions about Zscaler products (including ZIA,
+  ZPA, ZDX, ZIdentity, Cloud Connector, ZWA, Zero Trust Browser / ZBI, AI
+  Guard, ZMS, EASM, Zscaler Cellular / ZCell, and Business Insights), tenant
+  configuration, programmable-surface boundaries, and log/event semantics.
 - Citing the reference, snapshot, or operational-knowledge record read for each
   claim. Tier markers (A / B / C / D) appear in reference content where they
   apply — surface them when you cite so the reader sees where the source sits
@@ -46,7 +49,23 @@ The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`,
 
 ## Where things live (one line, not a directory map)
 
-Reference content is under `references/` organised by product (`zia/`, `zpa/`, `zdx/`, `cloud-connector/`, `zidentity/`, `zwa/`, `zbi/`) plus `shared/` for cross-product material and `_meta/` for clarifications, evals, and skill metadata. Cross-product clarifications and open questions live in `references/_meta/clarifications.md`. Shared terminology, disambiguations, and naming conventions are in `references/shared/terminology.md`. Tenant-specific data (policies, config, log samples) is under `_data/snapshot/<cloud>/` by default. If root `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets `runtimeData.mountPath`, treat that configured relative path as the runtime-data mount and substitute it for `_data` in tenant-data paths. Use targeted `rg` searches against these directories to locate the specific content the question needs; do not enumerate them upfront. Exclude stale local runtime copies (`--glob '!.claude/worktrees/**'`) and skip `vendor/**` unless the current question explicitly needs source verification, SDK/TF/API surface checks, or citation repair.
+Reference content is under `references/` organised by product (`zia/`, `zpa/`,
+`zdx/`, `cloud-connector/`, `zidentity/`, `zwa/`, `zbi/`, `ai-security/`,
+`zms/`, `easm/`, `zscaler-cellular/`, `business-insights/`, and the other
+portfolio directories) plus `shared/` for cross-product material and `_meta/`
+for clarifications, evals, and skill metadata. Cross-product clarifications and
+open questions live in `references/_meta/clarifications.md`. Shared terminology,
+disambiguations, and naming conventions are in
+`references/shared/terminology.md`. Tenant-specific data (policies, config, log
+samples) is under `_data/snapshot/<cloud>/` by default. If root
+`zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
+`runtimeData.mountPath`, treat that configured relative path as the runtime-data
+mount and substitute it for `_data` in tenant-data paths. Use targeted `rg`
+searches against these directories to locate the specific content the question
+needs; do not enumerate them upfront. Exclude stale local runtime copies
+(`--glob '!.claude/worktrees/**'`) and skip `vendor/**` unless the current
+question explicitly needs source verification, SDK/TF/API surface checks, or
+citation repair.
 
 ## Operational knowledge
 

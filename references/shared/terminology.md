@@ -24,6 +24,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py"
   - "vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py"
+  - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell"
 author-status: draft
 ---
 
@@ -57,7 +60,7 @@ Zscaler has renamed several core components over time without fully purging the 
 | Authentication Level | Auth Level, AL1-AL4 | `acr` claim in OIDC tokens | ZIdentity hierarchical tier of auth strength. Referenced by ZIA Conditional and ZPA Require Approval actions for step-up auth. Max 32 levels, max depth 4. |
 | Step-Up Authentication | Conditional Access, Require Approval | — | ZIdentity feature: re-prompt for stronger auth when accessing sensitive resources. **OIDC-only** — SAML IdPs don't support it. Prompts delivered via ZCC. |
 | OneAPI | Zero Trust Cloud API, Zscaler OneAPI | Endpoint prefix: `/{product}/api/v1/` behind a single OAuth gateway | Unified API framework across all Zscaler products with OAuth 2.0 via ZIdentity. Replaces per-product legacy auth. |
-| API Client | OneAPI API Client | `ZSCALER_CLIENT_ID` env var | ZIdentity OAuth 2.0 client-credentials identity used for programmatic API access. Portal-only creation. |
+| API Client | OneAPI API Client | `ZSCALER_CLIENT_ID` env var | ZIdentity OAuth 2.0 client-credentials identity used for programmatic API access. The first client requires portal bootstrap; subsequent clients and secrets are manageable through Python `client.zid.api_client` or raw REST when the caller has the required ZIdentity admin scope. See [ZIdentity API Clients](../zidentity/api-clients.md#summary). |
 | Resource Server | API Resource | — | OneAPI term for a Zscaler service accessible via the gateway (ZIA, ZPA, ZDX each = one resource server). API client scopes reference resource servers. |
 | Cloud Connector | CC, Cloud Connector VM, Zscaler for Workloads | Help URL: `cloud-branch-connector`; SDK: `ztw`; TF: `ztc` | VM-based traffic forwarder deployed in AWS/Azure/GCP to extend ZIA and ZPA to cloud workloads. See `references/cloud-connector/`. |
 | Branch Connector | BC | Same SDK / TF path as Cloud Connector | Physical / virtual appliance for branch offices. Same backend as Cloud Connector; different form factor. |
@@ -93,9 +96,9 @@ Zscaler has renamed several core components over time without fully purging the 
 | Identity Protection (ITDR) | Zscaler Identity Protection, ITDR | Help URL: `identity-protection/` | Real-time identity threat detection and response — DCSync, Kerberoasting, credential theft. Distinct from ZIdentity (IdP layer). See `references/identity-protection/`. |
 | Data Security Posture Management (DSPM) | (same) | Help URL: `dspm/` | Agentless at-rest data security for IaaS/SaaS. Distinct from ZIA DLP (in-motion). See `references/dspm/`. |
 | Zero Trust Branch | (same) | Help URL: `zero-trust-branch/` | SD-WAN + device segmentation for branch offices via ZTB appliances. See `references/zero-trust-branch/`. |
-| Zero Trust Browser (ZTB) | Cloud Browser Isolation, Zscaler Isolation | Help URL: `zero-trust-browser/` | Remote browser isolation. **Current marketing name (ZTB).** The same product is called ZBI (Zscaler Browser Isolation) in older docs; SDK module is `zbi`. Canonical reference: `references/zbi/`. |
-| Zscaler Cellular | ZCell | Help URL: `zscaler-cellular/`; Automate product key `zcell` | SIM-based ZIA enforcement for IoT/OT cellular devices. IMEI/IMSI-based policy. No on-device software required. GA August 2025. Captured API + Python SDK surface exists; no Terraform/Ansible/MCP surface is currently documented. See `references/zscaler-cellular/`. |
-| Business Insights | Zscaler Business Insights | Help URL: `business-insights/` | SaaS spend analytics and workplace utilization reporting. Requires ZIA. No API surface. See `references/business-insights/`. |
+| Zero Trust Browser (ZTB) | Cloud Browser Isolation, Zscaler Isolation | Help URL: `zero-trust-browser/` | Remote browser isolation. **Current marketing name (ZTB).** The same product is called ZBI (Zscaler Browser Isolation) in older docs, but Python `client.zbi` is **Business Insights**; the captured browser-isolation SDK paths are ZIA/ZPA services. Canonical reference: `references/zbi/`. |
+| Zscaler Cellular | ZCell | Help URL: `zscaler-cellular/`; Automate product key `zcell` | SIM-based ZIA enforcement for IoT/OT cellular devices. IMEI/IMSI-based policy. No on-device software required. GA August 2025. The captured surface includes the Automate API, Python `client.zcell`, and a narrower read-only MCP layer; no Go SDK, Terraform, or Ansible surface was found in the prior audited trees. See `references/zscaler-cellular/`. |
+| Business Insights | Zscaler Business Insights | Help URL: `business-insights/`; Python `client.zbi` | SaaS spend analytics and workplace utilization reporting. Requires ZIA. Python exposes custom-app and report-configuration CRUD plus report listing/download; this accessor is not Zero Trust Browser. See `references/business-insights/`. |
 | Unified (Experience Center) | Zscaler Experience Center | Help URL: `unified/` | Unified admin console across all Zscaler products. Includes Copilot AI assistant. Replaces per-product admin portals progressively. See `references/unified/`. |
 | Zscaler Internet Access (ZIA) | Internet & SaaS (ZIA) is the newer rename; legacy was just "ZIA" | — | Internet security product line |
 | Zscaler Private Access (ZPA) | (same) | — | Private app access product line |

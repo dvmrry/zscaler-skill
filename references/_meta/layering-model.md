@@ -173,5 +173,5 @@ When training data flows from this skill into a fine-tuned model on RockAI:
   be stated without citing private overlay evidence.
 - `docs/data-contract/knowledge.md` — structured private Layer 3 records and
   their loading and promotion boundary.
-- `PLAN.md § 4. Snapshot schema docs` — Layer 2 schema deferral rationale.
+- `PLAN.md § 4. Snapshot schema docs` — historical Layer 2 schema-design rationale; the source-derived schema guides now exist, while tenant-output validation remains pending.
 - `README.md § Fork-admin first-run walkthrough` — how a fork-team operationalizes Layer 2 in their environment.

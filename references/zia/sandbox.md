@@ -16,8 +16,12 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go"
   - "vendor/zscaler-sdk-python/zscaler/zia/sandbox.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/sandbox_rules.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/atp_policy.py"
+  - "vendor/zscaler-sdk-python/zscaler/zia/malware_protection_policy.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/sandbox.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/sandboxrules.py"
   - "vendor/terraform-provider-zia/zia/resource_zia_sandbox_rules.go"
@@ -100,17 +104,17 @@ After a file receives a BENIGN verdict on one Public Service Edge, other PSEs ma
 
 ## "Blocked by Sandbox" vs "Blocked by Malware Protection" vs "Blocked by ATP"
 
-Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-mcp-server/commands/investigate-sandbox.md`.
+Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `vendor/zscaler-mcp-server/commands/investigate-sandbox.md`; `vendor/zscaler-sdk-python/zscaler/zia/atp_policy.py`; `vendor/zscaler-sdk-python/zscaler/zia/malware_protection_policy.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go`; `vendor/zscaler-sdk-go/zscaler/zia/services/malware_protection/malware_protection.go`.
 
-The ZIA Insights log's **Blocked Policy Type** field is the discriminator. Each has dramatically different API surface:
+The ZIA Insights log's **Blocked Policy Type** field is the per-transaction discriminator. Keep settings/report APIs separate from transaction verdicts:
 
-| Blocked Policy Type | API coverage | Skill can diagnose? |
+| Blocked Policy Type | Settings/report API coverage | Per-transaction diagnosis |
 |---|---|---|
-| **Sandbox** | Full — `zia_get_sandbox_report`, `zia_get_sandbox_quota`, `zia_get_sandbox_behavioral_analysis` | Yes |
-| **Malware Protection** | **None** — API-blind area | No — direct to portal |
-| **Advanced Threat Protection (ATP)** | **None** — API-blind area | No — direct to portal |
+| **Sandbox** | Report, quota, behavioral-analysis, rule, and settings surfaces | Use the logged MD5/transaction context to retrieve the Sandbox report |
+| **Malware Protection** | Python `client.zia.malware_protection_policy` and matching Go service expose four singleton settings families | No transaction-verdict endpoint; use Web Insights or equivalent logs |
+| **Advanced Threat Protection (ATP)** | Python `client.zia.atp_policy` and matching Go service expose GET/PUT settings plus malicious-URL/exception lists | No transaction-verdict endpoint; use Web Insights or equivalent logs |
 
-If a user says "ZIA blocked my file," the first clarification to ask is which policy type logged the block. Sandbox is the only one we can introspect via API; Malware Protection and ATP require console access — the operator workflow (Security Dashboard, Web Insights, category-based remediation) is in [`./malware-and-atp.md § Console-only diagnosis workflow`](./malware-and-atp.md).
+If a user says "ZIA blocked my file," the first clarification to ask is which policy type logged the block. MP/ATP configuration can be inspected or changed via API, but those settings do not identify the engine for one request. The transaction workflow (Security Dashboard, Web Insights, category-based remediation) is in [`./malware-and-atp.md § Console diagnosis workflow (log-based)`](./malware-and-atp.md#console-diagnosis-workflow-log-based).
 
 ## A BENIGN Sandbox verdict is not a clean bill of health
 
@@ -125,7 +129,7 @@ The Sandbox verdict covers only the Sandbox engine's analysis. A file that Sandb
 
 Conversely, a file blocked by Sandbox is blocked before any other engine sees it.
 
-When answering "why is this file blocked when Sandbox says it's clean," the usual answer is Malware Protection or ATP — both with no API coverage.
+When answering "why is this file blocked when Sandbox says it's clean," the usual answer is Malware Protection or ATP. Their settings APIs can confirm tenant policy, but Web Insights or equivalent logs are still needed to attribute the individual transaction.
 
 ## Troubleshooting decision tree (from MCP skill)
 
@@ -137,7 +141,7 @@ File unexpectedly blocked?
 │  ├─ Fetch report via MD5 → threat details, behavioral analysis
 │  └─ Check Sandbox Detail Report for confidence score
 ├─ Blocked Policy Type = Malware Protection or ATP?
-│  └─ No API diagnosis. Direct to ZIA Admin Console.
+│  └─ Inspect settings via SDK/API; diagnose this transaction in Web Insights/logs.
 │     See malware-and-atp.md for the console workflow (Security Dashboard
 │     → Web Insights filter → category identification → remediation).
 └─ Not blocked per logs?

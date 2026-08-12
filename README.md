@@ -114,9 +114,9 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 
 ## Known boundaries
 
-- Malware Protection and ATP blocks have no API coverage — diagnosing a specific block still needs the ZIA Admin Console.
+- Malware Protection and ATP **settings** are queryable/configurable through the SDK/API; diagnosing which engine blocked a specific transaction still requires Web Insights or equivalent transaction logs.
 - Some clarifications stay open pending tenant-specific lab tests (see [PLAN.md](./PLAN.md)).
-- Snapshot schema docs are deferred until real tenant output exists.
+- Snapshot schema docs exist for ZIA, ZPA, ZCC, and ZIdentity as medium-confidence, source-derived guides; validate their anticipated shapes against real tenant output before treating them as tenant-confirmed.
 - Z-Tunnel wire-format internals are not customer-documented.
 - Tier 3 / Tier 4 portfolio areas can be routed and explained, but the skill will not invent SDK, Terraform, or API behavior for them.
 

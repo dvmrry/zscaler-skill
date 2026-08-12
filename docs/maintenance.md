@@ -106,9 +106,10 @@ empty.
 
 ## Known Gaps
 
-- **Malware Protection and ATP blocks have no API coverage.**
-  `references/zia/malware-and-atp.md` covers the operational and console-only
-  layer; diagnosis of specific blocks still requires the ZIA Admin Console.
+- **Malware Protection and ATP settings are programmable, but transaction
+  verdicts are not returned by those settings endpoints.**
+  `references/zia/malware-and-atp.md` covers the GET/PUT settings surfaces and
+  the separate Web Insights / log workflow needed to diagnose a specific block.
 - **Credentialed live-tenant diagnostics are out of scope.** Tenant reads are
   handled by the read-only `zscalerctl` CLI; the never-validated SDK diagnostic
   scaffolds were removed (2026-06), as were the SDK snapshot / lookup / simulator
@@ -116,21 +117,23 @@ empty.
   overlay or `zscalerctl` dump); the references reason over it.
 - **Several clarifications remain open** because they require tenant-specific
   lab tests. See `PLAN.md`.
-- **Snapshot schema docs are deferred** and should be written against real
-  tenant output, not inferred pre-fork.
+- **Snapshot schema docs are anticipatory, not tenant-validated.** The ZIA,
+  ZPA, ZCC, and ZIdentity schema guides are derived from SDK, Postman, and
+  provider sources at medium confidence; validate them against real tenant
+  output before promoting their wire-shape claims.
 - **Z-Tunnel wire-format internals are not customer-documented.**
   `references/zcc/z-tunnel.md` covers the operational layer. Protocol-level
   questions remain Zscaler Support territory.
 - **Tier 2 has programmable but shallow coverage.** ZBI, ZWA, AI Guard, ZMS,
-  EASM, and Zscaler Cellular / ZCell have documented product behavior and
-  programmable surface, but thinner operational depth than Tier 1 policy and
-  traffic-control planes.
-- **Tier 3 has reasoning coverage, no verified API surface.** Deception,
+  EASM, Zscaler Cellular / ZCell, and Business Insights have documented product
+  behavior and programmable surfaces, but thinner operational depth than Tier 1
+  policy and traffic-control planes. ZMS and EASM are read-only/query-only;
+  do not imply write parity across the tier.
+- **Tier 3 has reasoning coverage, no verified SDK/TF management surface.** Deception,
   Risk360, AI Security family beyond AI Guard, ZSDK, ITDR / Identity
-  Protection, DSPM, AEM, UVM, SOC Workbench, Breach Predictor, Business
-  Insights, Zero Trust Branch, and Experience Center / unified topics can be
-  answered conceptually, but the skill must avoid inventing SDK, Terraform, or
-  API behavior.
+  Protection, DSPM, AEM, UVM, SOC Workbench, Breach Predictor, Zero Trust
+  Branch, and Experience Center / unified topics can be answered conceptually,
+  but the skill must avoid inventing SDK, Terraform, or API behavior.
 - **Tier 4 has paragraph-level awareness only.** The skill can route these
   topics, answer breadth questions, and redirect to Zscaler's help site, but
   will not claim operational depth.

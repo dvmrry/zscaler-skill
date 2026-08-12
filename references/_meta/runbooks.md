@@ -16,6 +16,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/legacy.py"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py"
+  - "vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py"
   - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
   - "vendor/terraform-provider-zia/docs/index.md"
   - "vendor/terraform-provider-zpa/docs/index.md"
@@ -402,12 +404,13 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 | **ZTW (Cloud Connector)** | Staged (ZIA-style activation gate, plus a separate `forcedActivate` operation) | Until normal or forced activation | Same as ZIA for staged changes. Captured static sources do not define validation-bypass or recovery semantics for `forcedActivate`; confirm intent before use — see [`.../cloud-connector/api.md § Activation`](../cloud-connector/api.md). |
 | **ZPA** | **Propagate on write** (no activation gate; changes are live immediately) | None — change is live as soon as the API returns 200 | **Snapshot-before-change**, manual revert. Atomic operations only safe at the per-resource level. |
 | **ZCC** | Propagate on write (web policy / forwarding profile changes apply on next ZCC agent check-in, but the API write is immediate) | None for the API; agent re-pulls on next check-in (Forwarding Profile / Trusted Network changes) or logout/restart (App Profile / Web Policy changes) | Snapshot-before-change. Plan for grace window before agents notice. |
-| **ZBI** | Propagate on write | None | Snapshot-before-change. |
+| **Zero Trust Browser / Cloud Browser Isolation** | Propagate on write | None | Snapshot-before-change. Do not confuse the product's ZBI abbreviation with Python `client.zbi`, which is Business Insights. |
 | **ZIdentity** | Propagate on write | None | Snapshot-before-change. RBAC changes are particularly sensitive. |
 | **ZWA** | Propagate on write (workflow runs on next DLP incident) | None for config; in-flight incidents continue with their original workflow | Snapshot-before-change for config. |
-| **Deception / Risk360 / AI Security / ZMS** | Portal-only — no programmatic rollback | N/A | Manual revert via portal. |
+| **AI Guard** | Python `client.aiguard` exposes configuration reads and writes; no activation/commit operation appears in the captured service | No staged rollback window established | Snapshot the resource before a write and prepare the corresponding inverse update/delete. Validate tenant behavior before relying on the API as a rollback mechanism. |
+| **Deception / Risk360 / AI Security beyond AI Guard / ZMS** | No verified SDK/TF configuration rollback path | N/A | Use the product-specific reference boundary; ZMS configuration changes remain portal-only. |
 
-> Note: ZMS exposes a **read-only** GraphQL API (`client.zms.*`) and AI Guard a policy-detection API (`client.zaiguard`); neither provides a programmatic write or rollback path, so config changes remain portal-only. See [`../zms/api.md`](../zms/api.md).
+> Note: ZMS exposes a **read-only** GraphQL API (`client.zms.*`). AI Guard is different: Python `client.aiguard` exposes six OneAPI configuration resources, while `LegacyAIGuardClient(...).aiguard.policy_detection` is the separately routed runtime-detection surface. See [`../zms/api.md`](../zms/api.md) and [`../ai-security/api-divergences.md`](../ai-security/api-divergences.md#runtime-api-surface).
 
 ### Pattern: ZIA staged-and-revert (the activation-gate workflow)
 
@@ -446,7 +449,7 @@ if err: raise RuntimeError(f"activate: {err}")
 
 ### Pattern: snapshot-before-change for propagate-on-write products
 
-For ZPA / ZCC / ZBI / ZIdentity, the only rollback path is to capture state before the change and re-write it after if you need to revert.
+For ZPA, ZCC, Zero Trust Browser / Cloud Browser Isolation, and ZIdentity, the only rollback path is to capture state before the change and re-write it after if you need to revert.
 
 ```python
 # 1. Snapshot the specific resource(s) you're touching

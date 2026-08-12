@@ -247,7 +247,6 @@ These semantics apply identically across Access, Forwarding, and Timeout policie
 
 - Deception policy broader interaction model — [clarification `zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction) (resolved 2026-04-24)
 - Alias mapping for "Require Approval" vs "Conditional Access" vs "Allow with Privileged Approval" — [clarification `zpa-06`](../_meta/clarifications.md#zpa-06-require-approval-action-semantics) (partially resolved)
-- `snapshot-schema.md` objectType enum is labelled "19-value" but is missing `CHROME_POSTURE_PROFILE` (and the full Terraform `common.go` switch enumerates additional object types such as `LOCATION`, `CONSOLE`, `USER_PORTAL`, `PRIVILEGE_PORTAL`, `BRANCH_CONNECTOR_GROUP`). The authoritative enum count needs re-deriving and re-pinning in snapshot-schema.md (out of scope for this doc); source for the count lives in `terraform-provider-zpa/zpa/common.go:1339-1341`.
 - Whether the ZPA API (not just the Terraform provider) enforces the `CHROME_POSTURE_PROFILE` = `values` vs `CHROME_ENTERPRISE` = `entry_values` operand-form split, or whether the Terraform provider validation is stricter than the backend. The split is confirmed at the provider layer (`terraform-provider-zpa/zpa/common.go:1217-1239`); backend behavior for a mismatched form is unconfirmed in the SDK service layer. (Tracked as [`zpa-46`](../_meta/clarifications.md#zpa-46-api-enforcement-of-the-chrome_posture_profile-vs-chrome_enterprise-operand-form-split).)
 
 Resolved while writing this doc:
@@ -259,4 +258,4 @@ Resolved while writing this doc:
 - Application segment matching (the stage that runs *before* access policy) — [`./app-segments.md`](./app-segments.md)
 - LSS access log schema — for observational validation of which rule matched — [`./logs/access-log-schema.md`](./logs/access-log-schema.md) — the `Policy` field carries the fired rule name.
 - Cross-product policy evaluation mental model — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
-- Wire-format schema for `_data/snapshot/<cloud>/zpa/access-policy-rules.json` (ruleOrder-as-string, operand tree, objectType enum) — [`./snapshot-schema.md`](./snapshot-schema.md). Note: the enum there is currently labelled "19-value" but does not include `CHROME_POSTURE_PROFILE` (a distinct object type in current source — `terraform-provider-zpa/zpa/common.go:1217`), so that count needs re-verification in snapshot-schema.md.
+- Wire-format schema for `_data/snapshot/<cloud>/zpa/access-policy-rules.json` (ruleOrder-as-string, operand tree, and the current TF-validated objectType set, including `CHROME_POSTURE_PROFILE`) — [`./snapshot-schema.md`](./snapshot-schema.md).
