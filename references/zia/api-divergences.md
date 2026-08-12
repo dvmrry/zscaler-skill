@@ -6,7 +6,7 @@ content-type: reference
 confidence: medium
 last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-api-specs: dd3f2f75286d09b6fc6fc6eb93ec7071733b3a90
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
@@ -110,7 +110,7 @@ This historical prose pass began with Cloud App Control (CAC), URL Filtering, SS
 
 **Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, SDKs for wrapper behavior, and Postman for examples/fallback evidence (`references/_meta/verification-protocol.md:114-118`). The generated ZIA reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:7-11`). Its current totals are 0 contract-vs-Go primitive type drifts, 47 contract-vs-Terraform required-flag drifts, 11 enum value conflicts, 37 one-sided enum constraints, and 9 readonly fields with no Terraform disagreement (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:13-18`).
 
-Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`) and begins the ZIA resource table at `admin_role` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:509-518`). The generated ZIA report also records captured contract groups that are outside Terraform's managed-resource scope, such as `api-authentication`, `event-logs`, `pac-files`, `service-edges`, `time`, and `time-intervals`; those are coverage boundaries, not missing Terraform mappings (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:30-47`).
+Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`) and begins the ZIA resource table at `admin_role` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:683-692`). The generated ZIA report also records captured contract groups that are outside Terraform's managed-resource scope, such as `api-authentication`, `event-logs`, `pac-files`, `service-edges`, `time`, and `time-intervals`; those are coverage boundaries, not missing Terraform mappings (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:30-47`).
 
 ---
 

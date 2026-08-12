@@ -4,6 +4,8 @@ topic: "zcc-api"
 title: "ZCC API surface — endpoints, wire format, SDK methods"
 content-type: reference
 last-verified: "2026-06-18"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
 confidence: medium
 source-tier: code
 sources:
@@ -111,7 +113,7 @@ Three ZCC resource groups have a newer surface under `/zcc/papi/public/v2`. Unli
 
 These v2 families are currently surfaced in the Go SDK (`zscaler-sdk-go/zscaler/zcc/services/{notification_template,zia_posture,trusted_network_v2}/`); the Python SDK's `client.zcc.trusted_networks` still targets the v1 path.
 
-The Automate contract currently does **not** reconcile the v2 trusted-network resource: the generated ZCC divergence report notes that Terraform uses the Go SDK v2 trusted-network API (`/zcc/papi/public/v2/trusted-networks`), while the captured Automate contract exposes only older v1 `webTrustedNetwork` operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:30-33`). Treat this as a documented contract boundary, not as proof that v2 supersedes v1.
+The Automate contract currently does **not** reconcile the v2 trusted-network resource: the generated ZCC divergence report notes that Terraform uses the Go SDK v2 trusted-network API (`/zcc/papi/public/v2/trusted-networks`), while the captured Automate contract exposes only older v1 `webTrustedNetwork` operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:34`). Treat this as a documented contract boundary, not as proof that v2 supersedes v1.
 
 ## Rate limits
 
@@ -208,4 +210,4 @@ For troubleshooting these patterns, see [`../_meta/runbooks.md § Troubleshootin
 See also `../_meta/clarifications.md` entries `zcc-01` through `zcc-06` — enum values on key fields are all inferred from field names and not validated by the SDK.
 
 - How are forwarding profiles assigned to users/devices? Partly answered: App Profiles **are** now exposed as `client.zcc.application_profiles` (`/application-profiles`, list + get-by-id + PATCH update), so the earlier "not exposed under `client.zcc` at all" framing is wrong. What remains unconfirmed: the exact field on an application profile that binds it to a forwarding profile vs. to users/device-groups, and whether the forwarding-profile-to-app-profile link is set on the app profile side or elsewhere. Track as [`clarification zcc-07`](../_meta/clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
-- v2 surface depth. The `/zcc/papi/public/v2` families (notification-templates, zia-posture-profiles, trusted-networks) are confirmed in the Go SDK but their request/response field schemas are not yet documented here, and the Python SDK does not expose them. The captured Automate contract still exposes the older v1 trusted-network operations rather than the Terraform/Go v2 path (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:30-33`). Whether these v2 endpoints supersede or coexist with their v1 equivalents long-term is still not stated by source. Track as [clarification `zcc-80`](../_meta/clarifications.md#zcc-80-zcc-v1-vs-v2-endpoint-coexistence).
+- v2 surface depth. The `/zcc/papi/public/v2` families (notification-templates, zia-posture-profiles, trusted-networks) are confirmed in the Go SDK but their request/response field schemas are not yet documented here, and the Python SDK does not expose them. The captured Automate contract still exposes the older v1 trusted-network operations rather than the Terraform/Go v2 path (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:34`). Whether these v2 endpoints supersede or coexist with their v1 equivalents long-term is still not stated by source. Track as [clarification `zcc-80`](../_meta/clarifications.md#zcc-80-zcc-v1-vs-v2-endpoint-coexistence).

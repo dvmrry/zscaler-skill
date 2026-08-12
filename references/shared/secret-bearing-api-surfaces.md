@@ -4,6 +4,9 @@ topic: "secret-bearing-api-surfaces"
 title: "Secret-bearing API read surfaces — which GETs reveal secrets vs protect them"
 content-type: reasoning
 last-verified: "2026-07-17"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 confidence: medium
 source-tier: mixed
 author-status: draft
@@ -26,6 +29,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/zid.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json"
+  - "vendor/zscaler-help/legacy-managing-cloud-service-api-key.md"
 ---
 
 # Secret-bearing API read surfaces — which GETs reveal secrets vs protect them
@@ -74,7 +78,7 @@ Absence findings ("this GET has no secret field") are Tier A when the SDK model 
 
 ### Reveals — ZPA provisioning keys (strongest case: consumer-confirmed)
 
-The App Connector / Service Edge enrollment key is returned in cleartext on GET and single-GET, and the Terraform provider stores it into state. The GET model carries `ProvisioningKey string json:"provisioningKey,omitempty"` (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:36`), retrieved via `Get` at `mgmtconfig/.../associationType/{type}/provisioningKey/{id}` (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:51-61`). The Automate contract confirms `provisioningKey` in the 200 response schema for both the single-GET and the list op (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json` — operations `gets-details-of-the-provisioning-key-for-the-specified-id` and `...all-configured-provisioning-keys...`, `provisioningKey` field `readonly: false`).
+The App Connector / Service Edge enrollment key is returned in cleartext on GET and single-GET, and the Terraform provider stores it into state. The GET model carries `ProvisioningKey string json:"provisioningKey,omitempty"` (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:36`), retrieved via `Get` at `mgmtconfig/.../associationType/{type}/provisioningKey/{id}` (`vendor/zscaler-sdk-go/zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go:51-61`). The reconstructed Automate contract publishes the same list and by-ID GET paths (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:103046-103058`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:103268-103280`), but labels the corresponding non-readonly string fields `list[].nonceValue` and `nonceValue`, not `provisioningKey` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:103195-103204`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:103390-103399`). Treat that as a contract-versus-Go/Terraform field-name divergence, not as contract corroboration of the consumer's JSON spelling.
 
 The clinching link is the Terraform provider: its Read fetches the key and writes it into state — `resp, _, err := provisioningkey.Get(...)` (`vendor/terraform-provider-zpa/zpa/resource_zpa_provisioning_key.go:196`) then `_ = d.Set("provisioning_key", resp.ProvisioningKey)` (`vendor/terraform-provider-zpa/zpa/resource_zpa_provisioning_key.go:219`). The schema marks the field `Sensitive: true` but its own description states the value is nonetheless persisted to the state file and retrievable via `terraform output` (`vendor/terraform-provider-zpa/zpa/resource_zpa_provisioning_key.go:119-124`). Because a real consumer reads the value back and relies on it, this is not a documented-but-empty placeholder — the GET returns a usable enrollment key. See also [`../zpa/app-connector.md`](../zpa/app-connector.md).
 

@@ -4,6 +4,8 @@ topic: "zidentity-users"
 title: "ZIdentity users — CRUD, fields, filters, IdP-sourced vs internal"
 content-type: reference
 last-verified: "2026-06-21"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
 confidence: high
 source-tier: code
 sources:
@@ -76,7 +78,7 @@ Variable `{{ZIAMBaseUrl}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zsc
 | POST | `{{ZIAMBaseUrl}}/users/:id:setskipmfa` | Set skip MFA — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
 | PUT | `{{ZIAMBaseUrl}}/users/:id:updatepassword` | Update password — live ZIAM API op, **NOT in SDK** |
 
-The reconstructed Automate snapshot independently carries the same three user-action operations using slash-delimited paths (`/users/{id}/resetpassword`, `/users/{id}/setskipmfa`, `/users/{id}/updatepassword`) (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5525`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5931`). This corrects the earlier malformed adjacent-template capture and the refreshed contract passes structural path validation (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:14`). The Postman collection still uses colon-suffix action routes, so action existence is corroborated while the exact live URL spelling remains an open cross-source question; see [clarification `zid-36`](../_meta/clarifications.md#zid-36-zidentity-user-action-path-template-encoding).
+The reconstructed Automate snapshot independently carries the same three user-action operations using slash-delimited paths (`/users/{id}/resetpassword`, `/users/{id}/setskipmfa`, `/users/{id}/updatepassword`) (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5525`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5931`). This corrects the earlier malformed adjacent-template capture and the refreshed contract passes structural path validation (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:19`). The Postman collection still uses colon-suffix action routes, so action existence is corroborated while the exact live URL spelling remains an open cross-source question; see [clarification `zid-36`](../_meta/clarifications.md#zid-36-zidentity-user-action-path-template-encoding).
 
 There is no bulk-delete on the ZIAM users surface. The only `users/bulkDelete` in the Postman collection is `{{ZIABaseUrl}}/users/bulkDelete` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:9928`) — that is the **ZIA** users API, not ZIdentity. ZIdentity exposes per-user delete only (`DELETE {{ZIAMBaseUrl}}/users/:id`). A grep for `{{ZIAMBaseUrl}}/users/bulkDelete` returns zero matches.
 

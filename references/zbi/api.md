@@ -5,6 +5,7 @@ title: "ZBI API — split Zero Trust Browser / CBI surface and Business Insights
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
@@ -56,6 +57,7 @@ sources:
   - vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py
   - vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json
   - vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json
+  - vendor/zscaler-api-specs/automate-zscaler/openapi/zpa.openapi.json
   - vendor/zscaler-api-specs/oneapi-postman-collection.json
 author-status: draft
 ---
@@ -66,7 +68,7 @@ This reference covers the programmable surface for Zero Trust Browser / Cloud Br
 
 **Naming guardrail:** Python `client.zbi` is **Zscaler Business Insights**, not Zero Trust Browser. The service wrapper names Zscaler Business Insights and exposes its custom-app, report-configuration, and reports APIs; the OneAPI `zbi` property instantiates that wrapper (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-51`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:331-335`). Its custom-app/report endpoints use `/bi/api/v1` (`vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:28-34`, `:70-74`). Do not cite `client.zbi.*` as browser-isolation policy/profile management.
 
-**Automate contract scope:** Zero Trust Browser / CBI does not have a standalone `zbi-api-reference.json` contract file. The captured operation contract appears under the parent ZIA and ZPA products: ZIA exposes the read-only `GET /zia/api/v1/browserIsolation/profiles` operation with four response fields (`id`, `name`, `url`, `defaultProfile`) (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11448-11457`, `:11459-11488`), while ZPA exposes the CBI banner, certificate, profile, region, ZPA-profile, and management isolation-profile paths under `/zpa/cbiconfig/...` and `/zpa/mgmtconfig/...` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10056-10060`, `:10439-10444`, `:10573-10578`, `:10641-10646`). Treat the contract as authoritative for documented method/path and field metadata, then use SDK/Terraform/Ansible/MCP sources below for wrapper behavior and client-side constraints.
+**Automate contract scope:** Zero Trust Browser / CBI does not have a standalone `zbi-api-reference.json` contract file. The captured operation contract appears under the parent ZIA and ZPA products: ZIA exposes the read-only `GET /browserIsolation/profiles` operation with four response fields (`id`, `name`, `url`, `defaultProfile`) (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:29190-29253`), while representative ZPA operation entries expose the CBI banner, certificate, profile, region, ZPA-profile, and management isolation-profile paths (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:82132-82144`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:82425-82437`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:82718-82730`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:82913-82925`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:82965-82977`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:83034-83046`). Treat the contract as authoritative for documented method/path and field metadata, then use SDK/Terraform/Ansible/MCP sources below for wrapper behavior and client-side constraints.
 
 ---
 
@@ -541,17 +543,17 @@ The Postman collection mirrors the split surface:
 - ZPA CBI controllers include banner, certificate, and profile controller sections under `{{ZPABaseUrl}}/cbiconfig/cbi/api/customers/:customerId/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:15801-15817`, `:17106-17133`, `:19193-19209`, `:21046-21059`, `:21392-21397`).
 - The separate ZPA mgmtconfig isolation-profile read path is also present at `{{ZPABaseUrl}}/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:61255`).
 
-The Automate contract corroborates both ZPA profile-list paths as documented GET operations: `/zpa/cbiconfig/cbi/api/customers/:customerId/zpaprofiles` for `get-all-zpa-profiles` and `/zpa/mgmtconfig/v1/admin/customers/:customerId/isolation/profiles` for `get-profiles-for-customer` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10602-10608`, `:10640-10646`). It also confirms that the ZIA-side `defaultProfile` flag is server-set: the field description says "Zscaler sets this field" (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11483-11488`).
+The Automate contract corroborates both ZPA profile-list paths as documented GET operations: `/cbiconfig/cbi/api/customers/{customerId}/zpaprofiles` for `get-all-zpa-profiles` and `/mgmtconfig/v1/admin/customers/{customerId}/isolation/profiles` for `get-profiles-for-customer` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:82965-82977`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:83034-83046`). It also confirms that the ZIA-side `defaultProfile` flag is server-set: the field description says "Zscaler sets this field" (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:29190-29219`).
 
 ---
 
 ## Open questions
 
-- **`cbizpaprofile` vs `isolationprofile` preferred endpoint** — Both paths are now confirmed in the Automate contract, not just SDK/Postman artifacts (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10602-10608`, `:10640-10646`). Which endpoint the ZPA admin console uses, whether their contents differ at runtime, and which one should be preferred for lookups in policy workflows remains unresolved. See [clarification `zbi-02`](../_meta/clarifications.md#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint).
+- **`cbizpaprofile` vs `isolationprofile` preferred endpoint** — Both paths are now confirmed in the Automate contract, not just SDK/Postman artifacts (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:82965-82977`; `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:83034-83046`). Which endpoint the ZPA admin console uses, whether their contents differ at runtime, and which one should be preferred for lookups in policy workflows remains unresolved. See [clarification `zbi-02`](../_meta/clarifications.md#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint).
 
-- **Auto-created default profile lifecycle** — ZIA-side `defaultProfile` is documented as set by Zscaler (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:11483-11488`). The remaining open piece is ZPA-side `isDefault`: whether it can be set or cleared via profile CRUD, and exactly how default profile creation is triggered, still needs vendor documentation or a tenant-side test. See [clarification `zbi-03`](../_meta/clarifications.md#zbi-03-auto-created-default-profile-lifecycle-and-isdefault-mutability).
+- **Auto-created default profile lifecycle** — ZIA-side `defaultProfile` is documented as set by Zscaler (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:29190-29219`). The ZPA OpenAPI example shows an `isDefault` profile flag, but does not explain its mutability or lifecycle (`vendor/zscaler-api-specs/automate-zscaler/openapi/zpa.openapi.json:1808`). Whether that flag can be set or cleared via profile CRUD, and exactly how default profile creation is triggered, still needs vendor documentation or a tenant-side test. See [clarification `zbi-03`](../_meta/clarifications.md#zbi-03-auto-created-default-profile-lifecycle-and-isdefault-mutability).
 
-- **`copyPaste` and `uploadDownload` enum values** — The SecurityControls struct declares these as `string` type; SDK and Automate examples corroborate `all` and `none` (`vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json:10760-10766`, `:10805-10812`). Whether other valid enum values exist (e.g., directional copy/paste options) is not formally enumerated in the captured contract. See [clarification `zbi-04`](../_meta/clarifications.md#zbi-04-copypaste-and-uploaddownload-enum-completeness).
+- **`copyPaste` and `uploadDownload` enum values** — The SecurityControls struct declares these as `string` type; reconstructed OpenAPI examples corroborate `none` in a profile read and `all` in an update request (`vendor/zscaler-api-specs/automate-zscaler/openapi/zpa.openapi.json:1808`; `vendor/zscaler-api-specs/automate-zscaler/openapi/zpa.openapi.json:2572`). Whether other valid enum values exist (e.g., directional copy/paste options) is not formally enumerated in the captured contract. See [clarification `zbi-04`](../_meta/clarifications.md#zbi-04-copypaste-and-uploaddownload-enum-completeness).
 
 ---
 

@@ -7,6 +7,8 @@ last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
@@ -57,6 +59,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/aiguard/models/llm_application_credentials.py"
   - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
   - "vendor/zguard-ai-integrations/README.md"
   - "vendor/zguard-ai-integrations/github-actions/README.md"
   - "vendor/zguard-ai-integrations/github-actions/config/test-prompts.yaml"
@@ -230,8 +233,8 @@ AI Guard has an API surface:
 - **DaaS policy detection API**: The captured DAS Help page uses the global host `https://api.zseclipse.net` for both `POST /v1/detection/execute-policy` and `POST /v1/detection/resolve-and-execute-policy` (`vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md:50`, `:100`, `:158`). Some SDK and integration examples still construct regional hosts such as `https://api.us1.zseclipse.net` or `https://api.{cloud}.zseclipse.net`; treat host selection as an open source divergence rather than proof that either spelling is universally accepted.
 - **Python SDK routing**: `client.aiguard` is canonical and `client.zguard` is a deprecated alias. `ZscalerClient` routes the six configuration resources through OneAPI, while `LegacyAIGuardClient(...).aiguard.policy_detection` retains the two runtime methods (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`). Treat this as Python-client routing, not as a universal backend authentication or availability rule.
 - **Legacy runtime detection**: `PolicyDetectionAPI` exposes `execute_policy(content, direction, policy_id=None, transaction_id=None)` and `resolve_and_execute_policy(content, direction, transaction_id=None)` (`vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py:57-63`, `:138-143`). The legacy helper defaults to `AIGUARD_CLOUD=us1`, constructs `https://api.<cloud>.zseclipse.net`, and allows `AIGUARD_OVERRIDE_URL` for an explicit host (`vendor/zscaler-sdk-python/zscaler/aiguard/legacy.py:58`, `:75`, `:78-81`).
-- **Admin/config APIs**: Automate validates a 47-operation, 29-path admin contract with zero structural issues, while Python exposes 39 callable configuration methods; no Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper is captured for that contract (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; Python inventories below; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`).
-- **Provider-type discovery**: `GET /v1/llm-provider-types` and `GET /v1/llm-provider-types/{type}` return the supported admin-plane provider identifiers plus public/private server-key and allowed-value guidance (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7486-7703`, `:7720-7903`).
+- **Admin/config APIs**: The last-known Automate snapshot contains 47 operations across 29 paths, while Python exposes 39 callable configuration methods; no Go SDK, Terraform, MCP, Postman, or Automation Hub wrapper is captured for that contract. The current public route table publishes no AI Guard operations, so the 47-operation snapshot is retained and the publication absence must not be presented as endpoint retirement or backend unavailability (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:19-23`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:10`, `:156-160`; Python inventories below; `references/ai-security/api-divergences.md#automate-admin-plane-contract-vs-client-surfaces`).
+- **Provider-type discovery**: In the retained last-known contract, `GET /v1/llm-provider-types` and `GET /v1/llm-provider-types/{type}` return the supported admin-plane provider identifiers plus public/private server-key and allowed-value guidance (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7486-7703`, `:7720-7903`).
 
 The callable OneAPI configuration inventory is:
 
@@ -273,7 +276,7 @@ The OneAPI configuration models expose these principal Python-attribute/wire-key
 
 When a policy ID is supplied, examples call `execute-policy`. When no policy ID is supplied, examples call `resolve-and-execute-policy`, relying on the API key's associated application and policy to resolve the effective policy. The Python SDK model also shows that the resolved-policy response can include `policyId`, `policyName`, and `policyVersion`, while the explicit execution response model does not expose those fields as top-level attributes.
 
-The public Python SDK now exposes the six configuration resources above as well as separately routed runtime policy detection. It does not provide full Automate parity: the eight documented actions listed above remain outside the callable Python inventory.
+The public Python SDK now exposes the six configuration resources above as well as separately routed runtime policy detection. It does not provide full parity with the retained last-known Automate snapshot: the eight documented actions listed above remain outside the callable Python inventory. Current public-route absence is a separate publication state, not evidence that those backend operations were retired.
 
 For implementation caveats, see [`./api-divergences.md`](./api-divergences.md): it records the SDK-vs-Help direction literal mismatch, `policyId` ambiguity for `execute-policy`, detector-taxonomy differences, integration failure posture, Python-to-Automate operation gaps, documentation drift, and static legacy-routing regression cautions.
 

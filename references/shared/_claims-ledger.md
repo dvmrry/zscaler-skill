@@ -5,6 +5,8 @@ title: "Shared claims ledger — Tier 2 first-pass refresh"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
@@ -98,5 +100,5 @@ This ledger covers the shared claims changed or explicitly guarded in the Tier 2
 | ZPA Go SDK SCIM group functions verified in this pass: `GetGroup`, `GetGroupByName`, `CreateGroup`, `UpdateGroup`, `PatchGroup`, `DeleteGroup`, `GetAllGroups`. | `scim-provisioning.md` | `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:42`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:52`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:71`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:82`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:91`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:100`, `vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_group_api.go:110` |
 | Python SDK ZPA SCIM read surfaces verified in this pass: group list/get and attribute list/get/value retrieval. | `scim-provisioning.md` | `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:26`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:37`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py:120`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:26`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:38`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:101`, `vendor/zscaler-sdk-python/zscaler/zpa/scim_attributes.py:137` |
 | UNSUPPORTED moved to Open questions: whether a current or future Python SDK release exposes ZIA SCIM provisioning wrappers. | `scim-provisioning.md`, `clarifications.md` | `UNSUPPORTED -> references/_meta/clarifications.md#shared-28-python-zia-scim-wrapper-surface` |
-| The current Event Monitoring contract adds five notification-channel operations: list channels, get email/webhook/SNS details, and verify SNS topic access. | `event-monitoring.md` | `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:46`, `:70-74` |
+| The current Event Monitoring contract contains five notification-channel operations: list channels, get email/webhook/SNS details, and verify SNS topic access. | `event-monitoring.md` | `vendor/zscaler-api-specs/automate-zscaler/event-monitoring-api-reference.json:995-1209`, `:1780-1984`, `:2431-2543` |
 | SNS discovery returns the Zscaler role ARN, required permissions, and a topic-policy template; verification accepts `topic_arn` and optional `region` and returns a `verified` result. | `event-monitoring.md` | `vendor/zscaler-api-specs/automate-zscaler/event-monitoring-api-reference.json:1092-1198`, `:2431-2529` |

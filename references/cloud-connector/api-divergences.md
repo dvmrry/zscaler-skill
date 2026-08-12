@@ -7,6 +7,8 @@ confidence: medium
 source-tier: code
 last-verified: "2026-07-20"
 verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
@@ -63,7 +65,7 @@ This product carries an extra wrinkle the ZIA/ZPA divergence docs do not: the sa
 
 The generated report also marks contract groups outside Terraform's managed-resource scope (`admin-and-role-management`, `authentication`, `cloud-branch-connector-groups`, `public`, and `workload-groups`) and notes that `ztc_location_management` is registered only as a data source in the captured provider map, not a managed resource (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-divergences.md:30-42`).
 
-One structural caveat remains on the reconstructed OpenAPI snapshot: the validation report flags 124 ZCloudConnector operations where the exporter used a schema-bearing `default` response as the success schema because no explicit `2xx` schema was present (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:24`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:37-71`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:151-160`). The method/path/field contract is still useful for reconciliation, but HTTP-status semantics for those operations should be treated as an extraction caveat until a vendor spec or live response confirms the intended success status. See [clarification `cloud-connector-25`](../_meta/clarifications.md#cloud-connector-25-zcloudconnector-default-response-success-schema-semantics).
+One structural caveat remains on the reconstructed OpenAPI snapshot: the validation report flags 124 ZCloudConnector operations where the exporter used a schema-bearing `default` response as the success schema because no explicit `2xx` schema was present (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:16`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:24`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:29-152`). The method/path/field contract is still useful for reconciliation, but HTTP-status semantics for those operations should be treated as an extraction caveat until a vendor spec or live response confirms the intended success status. See [clarification `cloud-connector-25`](../_meta/clarifications.md#cloud-connector-25-zcloudconnector-default-response-success-schema-semantics).
 
 ---
 
