@@ -22,47 +22,14 @@ name: Doc hygiene
 # Errors fail the build; warnings are advisory and don't block.
 #
 # Triggers:
-#   - PRs touching references/, agents/, portable skills (.agents), runtime
-#     adapters (.claude, .devin), plans, evals, docs, vendor submodules, or
-#     the scripts
+#   - Every PR. This workflow is a required check, so path filtering would leave
+#     omitted-path PRs waiting forever for a status that can never report.
 #   - Pushes to main on the same paths
-#   - Top-level framing docs (README, PLAN, IMPROVEMENTS) — hygiene runs on
-#     them so structural / link claims stay valid
 #   - Weekly Monday cron (catches drift from upstream PRs / external edits)
 #   - workflow_dispatch for manual runs
 
 on:
   pull_request:
-    paths:
-      - 'references/**'
-      - 'references/_meta/evals/**'
-      - 'agents/**'
-      - '.agents/**'
-      - '.devin/**'
-      - '.claude/**'
-      - '.github/workflows/**'
-      - 'docs/**'
-      - 'plans/**'
-      - '.gitmodules'
-      - '.gitignore'
-      - 'vendor/**'
-      - 'README.md'
-      - 'zscaler-skill-runtime.json'
-      - 'PLAN.md'
-      - 'IMPROVEMENTS.md'
-      - 'scripts/**'
-      - 'references/_meta/evals/workflow-evals.json'
-      - 'zscaler'
-      # Release-please metadata files: without these, the required hygiene
-      # check never reports on metadata-only release PRs and they deadlock.
-      - 'CHANGELOG.md'
-      - 'VERSION'
-      - '.release-please-manifest.json'
-      - 'pyproject.toml'
-      - 'package.json'
-      - '.node-version'
-      - 'uv.lock'
-      - 'release-please-config.json'
   push:
     branches: [main]
     paths:
@@ -85,8 +52,7 @@ on:
       - 'scripts/**'
       - 'references/_meta/evals/workflow-evals.json'
       - 'zscaler'
-      # Release-please metadata files: without these, the required hygiene
-      # check never reports on metadata-only release PRs and they deadlock.
+      # Keep push-to-main validation aligned with release metadata updates.
       - 'CHANGELOG.md'
       - 'VERSION'
       - '.release-please-manifest.json'
@@ -99,6 +65,10 @@ on:
     # Mondays 13:00 UTC — aligns with issue-watch + Renovate cadence
     - cron: '0 13 * * 1'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   hygiene:
