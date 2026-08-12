@@ -56,6 +56,61 @@ use the read-only `zscalerctl` CLI for tenant reads.
 | **Maintenance** | `issue-watch.py`, `maintenance-digest.py`, `refresh-postman.sh`, `refresh-automate-zscaler.sh`, `convert-pdf-sources.sh`, `splunk-query.sh` (stub) |
 | **Build** | `render-skill-pdf.py` |
 
+`issue-watch.py` loads its upstream repository set from
+`fixtures/issue-watch-repos.json`. `test_issue_watch.py` requires every
+vendored `github.com/zscaler/*` repository to be classified as either watched
+or intentionally issue-disabled, so adding a submodule or shrinking coverage
+cannot silently leave a repository unclassified.
+Sticky mode is fail-closed: any watched-repository HTTP or network failure
+leaves the digest and global `last_check` marker unchanged and exits nonzero.
+Local mode retains the failed repository's own marker while advancing markers
+for repositories that completed successfully.
+
+### Provider and Cloud Connector module drift snapshot (2026-08-12)
+
+The checked-in gitlinks below remain authoritative for reference claims. The
+reviewed upstream heads are maintenance evidence only; this snapshot does not
+change a pin.
+
+| Upstream | Authoritative pin | Reviewed head and tag state | Disposition |
+|---|---|---|---|
+| ZIA provider | [`cfe618f` (v4.8.3)](https://github.com/zscaler/terraform-provider-zia/commit/cfe618fa7cb6f88939ec703520cfa230ec35bf0a) | [`d4eef8a`](https://github.com/zscaler/terraform-provider-zia/commit/d4eef8ab7ed69f575e4dfc94effcf9879e90469e), two commits ahead and tagged [v4.8.5](https://github.com/zscaler/terraform-provider-zia/releases/tag/v4.8.5) | Defer the pin until the CAC source predicate and stress race gate pass and `zia-72` resolves the advanced-settings Creative Commons backend effect. |
+| AWS Cloud Connector modules | [`d991f87`](https://github.com/zscaler/terraform-aws-cloud-connector-modules/commit/d991f875dfdcd470af2f2fa4e94f1cf96278c6ab) | [`6f8318d`](https://github.com/zscaler/terraform-aws-cloud-connector-modules/commit/6f8318d759e72a7cb8194d6efb9f18c55e6528f4), three commits ahead and untagged; newest listed tag is [`v1.4.3` at `26de1a1`](https://github.com/zscaler/terraform-aws-cloud-connector-modules/releases/tag/v1.4.3) | Issues are disabled. Monitor tags/releases separately; review the ASG, Terraform 1.1.9, and FIPS changes together before any pin proposal. |
+| Azure Cloud Connector modules | [`8714f88`](https://github.com/zscaler/terraform-azurerm-cloud-connector-modules/commit/8714f88d1ac2827b40900b11bd52243919af2ae5) | [`abdd217`](https://github.com/zscaler/terraform-azurerm-cloud-connector-modules/commit/abdd217051e014544de376442521a4d20934ef5a), six commits ahead and untagged; newest listed tag is [`v0.8.0` at `4c65a1c`](https://github.com/zscaler/terraform-azurerm-cloud-connector-modules/releases/tag/v0.8.0) | Issues are disabled. Monitor tags/releases separately; defer pending a tagged release and combined limits, VM-size, Terraform 1.1.9, FIPS, and provider-constraint review. |
+| GCP Cloud Connector modules | [`0e8a8b8`](https://github.com/zscaler/terraform-gcp-cloud-connector-modules/commit/0e8a8b82c45c7317d00f052a0b036396a1a184d8) | [`a2d31dc`](https://github.com/zscaler/terraform-gcp-cloud-connector-modules/commit/a2d31dca952f1b82906a31a1a818a1829baf2e6f), six commits ahead and untagged; newest listed tag is [`v0.4.1` at `51f84bf`](https://github.com/zscaler/terraform-gcp-cloud-connector-modules/releases/tag/v0.4.1) | Issue-watch covers Issues, not tags/releases. Defer pending a tagged release and review of the untagged IAM/default, download-integrity, ASG, Terraform 1.1.9, and FIPS changes; assign no remediation status to untagged head. |
+
+The ZIA-provider CAC gate is source-plus-stress. The helper must eliminate its
+post-unlock `rules.reorderDone` map read by removing the shared access, keeping
+it under lock, or copying `doneCh` before unlock; then the documented
+`go test -race` suite must pass with `-count=20` or a higher repeat count. One
+clean `-count=1` run is insufficient and does not override the source predicate.
+See the exact command and current failure evidence in
+[`references/zia/api-divergences.md`](../references/zia/api-divergences.md#terraform-provider-release-gate--cac-type-key-isolation-passes-but-the-shared-reorder-helper-races).
+
+For module-head review, use Terraform 1.1.9 as the compatibility-test floor:
+all three pinned READMEs say their deployment scripts leverage 1.1.9 while
+0.13.7 should generally remain supported
+(`vendor/terraform-aws-cloud-connector-modules/README.md:20-23`;
+`vendor/terraform-azurerm-cloud-connector-modules/README.md:19-21`;
+`vendor/terraform-gcp-cloud-connector-modules/README.md:20-23`), and each
+reviewed head contains an explicit fix for expressions that accidentally
+required Terraform 1.9 or later
+([AWS `34eb909`](https://github.com/zscaler/terraform-aws-cloud-connector-modules/commit/34eb90938143118060320d57592db9a3096e3b20),
+[Azure `497d990`](https://github.com/zscaler/terraform-azurerm-cloud-connector-modules/commit/497d99088e4bad03b80e8212a6c72e075f0755de),
+[GCP `c035b8b`](https://github.com/zscaler/terraform-gcp-cloud-connector-modules/commit/c035b8b87829c648cdb9c3dce27553393a73a8c2)).
+This is a maintenance validation floor, not a rewrite of the modules' declared
+`required_version`, which remains `>= 0.13.7, < 2.0.0` in the pinned module
+sources
+(`vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-workload-aws/versions.tf:12`;
+`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/versions.tf:16`;
+`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-iam-service-account-gcp/versions.tf:9`).
+
+`issue-watch.py` now covers GitHub Issues for the ZIA provider and GCP modules,
+but it does not poll tags or releases. AWS and Azure are intentionally
+classified as issue-disabled rather than errors. Their tag/release drift—and
+tag/release drift for watched repositories—requires a separate monitor or
+manual sweep.
+
 ## Aggregated dependencies
 
 Listed in [`../pyproject.toml`](../pyproject.toml) under `[project.optional-dependencies] scripts`. Mirrors the union of executable per-script PEP 723 declarations for discoverability. The test-only `pytest` runner is intentionally supplied ephemerally with `uv run --with pytest` by CI and `check-full.mjs`.

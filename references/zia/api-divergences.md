@@ -6,6 +6,8 @@ content-type: reference
 confidence: medium
 last-verified: "2026-08-12"
 verified-against:
+  vendor/zscaler-api-specs: dd3f2f75286d09b6fc6fc6eb93ec7071733b3a90
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
@@ -16,6 +18,7 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/errorx/errors.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/v2_client.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/v2_config.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziarequests.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go"
@@ -36,6 +39,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/zia_service.py"
   - "vendor/terraform-provider-zia/CHANGELOG.md"
+  - "vendor/terraform-provider-zia/zia/common.go"
   - "vendor/terraform-provider-zia/zia/data_source_zia_ips_categories.go"
   - "vendor/terraform-provider-zia/zia/data_source_zia_ueba_alert_definitions.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go"
@@ -73,6 +77,17 @@ sources:
   - "vendor/zscaler-help/legacy-authentication-settings.md"
   - "vendor/zscaler-mcp-server/skills/zia/create-ssl-inspection-rule/SKILL.md"
   - "vendor/zscaler-mcp-server/skills/zia/look-up-rule-targets/SKILL.md"
+  - "https://github.com/zscaler/terraform-provider-zia/issues/598"
+  - "https://github.com/zscaler/terraform-provider-zia/pull/599"
+  - "https://github.com/zscaler/terraform-provider-zia/releases/tag/v4.8.5"
+  - "https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/common.go"
+  - "https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_cloud_app_control_rules.go"
+  - "https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/common_reorder_test.go"
+  - "https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/go.mod"
+  - "https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_url_filtering_and_cloud_app_settings.go"
+  - "https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_url_filtering_and_cloud_app_settings_test.go"
+  - "https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.45/zscaler/ziarequests.go"
+  - "https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.45/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go"
 author-status: draft
 ---
 
@@ -245,6 +260,73 @@ Whether current PAC tenant responses populate `externalId` remains unverified.
 
 ---
 
+## Terraform provider release gate — CAC type-key isolation passes, but the shared reorder helper races
+
+The pinned provider v4.8.3 registers every CAC type under the same
+`cloud_app_control_rules` reorder key even though each callback reads only the
+current rule type (`vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:290-307`,
+`:527-537`). When two types are created concurrently, one type can therefore be
+invisible to the delegated reorder cycle and retain create-time order. Provider
+v4.8.4 changed the registry key to `cloud_app_control_rules:<type>`; the same fix
+is present in the reviewed v4.8.5 tag at commit
+[`d4eef8ab7ed69f575e4dfc94effcf9879e90469e`](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_cloud_app_control_rules.go#L20-L34),
+and create and update both use that type-scoped key
+([create lines 301-313](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_cloud_app_control_rules.go#L301-L313),
+[update lines 541-544](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_cloud_app_control_rules.go#L541-L544)).
+
+At the exact v4.8.5 commit, the following ordinary, non-race-instrumented
+command was run locally on 2026-08-12:
+
+```bash
+go test ./zia -run 'TestCloudAppRuleResourceType_DistinctKeysPerType|TestReorder_CloudAppControl_PerTypeIsolation|TestReorder_CloudAppControl_SharedKeyMixesTypes_Characterization' -count=1 -v
+```
+
+All three tests passed. That result establishes only the intended type-key
+semantics. The fixed-path test registered two five-rule types
+concurrently, converged both to order 1–5, and recorded exactly five PUTs per
+type; the old shared-key characterization registered 10 rules against a
+five-rule type-scoped API view and reported five skipped rules with no PUTs for
+the invisible type
+([test source lines 634-715](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/common_reorder_test.go#L634-L715),
+[characterization lines 717-778](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/common_reorder_test.go#L717-L778)).
+It does not establish concurrency safety or live ZIA backend ordering.
+
+The shared reorder helper is byte-for-byte identical between the authoritative
+v4.8.3 pin and reviewed v4.8.5. It writes
+`rules.reorderDone[resourceType]` while holding `rules.Lock()` at
+`common.go:1552`, unlocks at `:1558`, and reads the same map again after the
+unlock at `:1561`
+(`vendor/terraform-provider-zia/zia/common.go:1526-1565`;
+[v4.8.5 lines 1526-1565](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/common.go#L1526-L1565)).
+That post-unlock read can overlap another goroutine's locked write. Passing the
+v4.8.5 release gate therefore requires **both** of these independent conditions:
+
+1. **Source predicate:** remove the post-unlock map access. Acceptable fixes
+   include copying `doneCh` while still holding the lock, keeping the map read
+   under the same lock as every write, or removing/redesigning the shared map
+   access. A race-detector result cannot substitute for this source-level
+   removal, locking, or copy-before-unlock check.
+2. **Stress race run:** after the source predicate is satisfied, run the exact
+   suite at least 20 times under the race detector:
+
+```bash
+go test -race ./zia -run 'TestCloudAppRuleResourceType_DistinctKeysPerType|TestReorder_CloudAppControl_PerTypeIsolation|TestReorder_CloudAppControl_SharedKeyMixesTypes_Characterization' -count=20 -v
+```
+
+On 2026-08-12, separate `-count=1` runs at the same v4.8.5 source produced both
+a race failure and a clean exit, while `-count=20` failed with the same read at
+`common.go:1561` and previous write at `common.go:1552`. A single clean
+`-count=1` race run is insufficient: scheduling can simply miss the extant
+source race. Use `-count=20` or a higher repeat count, and require the source
+predicate independently. Treat this as provider tooling/release triage, not a
+ZIA backend-behavior claim. Keep v4.8.3 as the authoritative pin without
+interpreting it as race-free, and keep v4.8.5 deferred until the post-unlock
+access is fixed, the stress race run passes, and
+[clarification `zia-72`](../_meta/clarifications.md#zia-72-provider-v485-creative-commons-false-backend-effect)
+is resolved.
+
+---
+
 ## URL Filtering
 
 ### ISOLATE `cbiProfile` on GET-by-ID — Go works around a live ZIA bug; Python has neither the workaround nor the field
@@ -297,6 +379,44 @@ but requires full-state care on update. Python can send additional fields via
 exact wire keys, but not every snake-case inference is safe, and a subsequent
 typed read silently lacks six prompt flags. Do not use the Python model alone
 to inventory prompt-capture posture.
+
+#### v4.8.5 upgrade caveat — Creative Commons serializes as `false`; backend effect untested
+
+The reviewed provider v4.8.5 removes the source-level legacy-client PUT bypass
+reported in [issue #598](https://github.com/zscaler/terraform-provider-zia/issues/598) by
+returning to the SDK's `UpdateUrlAndAppSettings` path; that SDK transport routes
+`UpdateWithPut` through the legacy ZIA client when legacy mode is enabled
+([v3.8.45 transport lines 82-90](https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.45/zscaler/ziarequests.go#L82-L90)).
+In the same version, the
+provider removes `enable_creative_commons_search_results` from its schema,
+read, and request builder. Create and update build a
+`URLAdvancedPolicySettings` value and pass it to the SDK, while the builder does
+not assign the Creative Commons field
+([create lines 184-207](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_url_filtering_and_cloud_app_settings.go#L184-L207),
+[update and builder lines 258-318](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_url_filtering_and_cloud_app_settings.go#L258-L318)).
+
+That omission does **not** omit the wire field. The v4.8.5
+[`go.mod`](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/go.mod#L12)
+pins Go SDK v3.8.45, whose `EnableCreativeCommonsSearchResults` field is tagged
+`json:"enableCreativeCommonsSearchResults"` without `omitempty`; the tagged SDK
+source explicitly documents that these booleans send `false` and passes the
+full struct directly to PUT
+([model lines 149-255](https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.45/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go#L149-L255),
+[PUT lines 351-376](https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.45/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go#L351-L376)).
+The provider's unassigned Go zero value therefore
+serializes as `"enableCreativeCommonsSearchResults":false`. This request shape
+is source-confirmed.
+
+The backend effect is not. The v4.8.5 acceptance test never configures or
+checks Creative Commons
+([test lines 11-76](https://github.com/zscaler/terraform-provider-zia/blob/d4eef8ab7ed69f575e4dfc94effcf9879e90469e/zia/resource_zia_url_filtering_and_cloud_app_settings_test.go#L11-L76)),
+and the issue reporter had not posted a successful v4.8.5 tenant retest when
+the issue closed. Until [clarification `zia-72`](../_meta/clarifications.md#zia-72-provider-v485-creative-commons-false-backend-effect)
+is resolved, do not upgrade this singleton resource to v4.8.5 in a tenant where
+Creative Commons search results are enabled. Defer the provider upgrade or
+first reproduce it in a non-production tenant while capturing the PUT and
+post-apply readback; the v4.8.5 resource has no HCL field with which to preserve
+`true`.
 
 ### MCP v0.15 URL-category listing fixes false pagination but exposes a contract conflict
 
@@ -516,6 +636,12 @@ The CAC workflow says the table is evaluated top-to-bottom, first-match-wins, an
 ---
 
 ## Open questions
+
+- **Provider v4.8.5 Creative Commons backend effect** — the provider and SDK
+  deterministically serialize `enableCreativeCommonsSearchResults:false`, but
+  no source-backed tenant test establishes whether a previously enabled value
+  is disabled, ignored, or rejected. See
+  [clarification `zia-72`](../_meta/clarifications.md#zia-72-provider-v485-creative-commons-false-backend-effect).
 
 - **The new Go action-discovery path does not settle per-app validity.** Go v3.8.46 adds `allAvailableActions`, but both Go paths return an unlabeled flat `[]string`, and neither source defines their semantic relationship. The captured Automate contract and Python SDK expose only the old path. Live verification is still needed for single-app completeness and union/intersection/order behavior with multiple apps. (Tracked as `zia-49` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-49-cac-per-app-action-validity).)
 - **CAC atomic-validation contract is observation-only.** The `INVALID_INPUT_ARGUMENT` / "Invalid action provided for selected applications" whole-create-rejection behavior and the one-rule-per-app pattern are in the MCP workflow skill, not the v0.15.0 executable validator, and are absent from both SDKs. Confirm against a live tenant before treating them as product behavior. (Tracked as `zia-53` in [`references/_meta/clarifications.md`](../_meta/clarifications.md#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk).)

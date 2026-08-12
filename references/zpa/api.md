@@ -19,6 +19,9 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/lss.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_policy_rules.py"
+  - "https://github.com/zscaler/zscaler-mcp-server/issues/96"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
@@ -400,11 +403,31 @@ Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, val
 
 ## Pagination
 
-Source: `vendor/zscaler-sdk-python/README.md`.
+Source: `vendor/zscaler-sdk-python/README.md`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py`.
 
 Per SDK README: built-in `resp.has_next()` / `resp.next()`. Same idiom as ZIA.
 
 For ZPA's POST-search endpoints (some list APIs use POST with `filterBy`/`pageBy`/`sortBy` in the body), use `_post_search_all_pages` or `CommonFilterSearch` per SDK README.
+
+### MCP v0.15.0 shared policy-rule list truncation
+
+Do not treat the MCP policy-rule list tools as complete inventories at the
+current pin. Access, forwarding, timeout, isolation, and app-protection rules
+all use the same `ListRulesInput`, which exposes only `microtenant_id`; the
+shared helper makes one SDK `list_rules` call and discards the response object
+that carries pagination state
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:1-9`;
+`:39-44`; `:86-94`). The underlying SDK accepts `page` and `page_size`, defaults
+to 20 rows, allows up to 500, and returns the response object needed to advance
+pages (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`; `:506-525`).
+
+[Upstream issue #96](https://github.com/zscaler/zscaler-mcp-server/issues/96)
+reports the resulting access-policy symptom: only the first 20 rules are
+returned and the MCP input rejects `page` / `page_size`. Until the
+shared helper iterates pages or exposes pagination controls, use the direct SDK
+`resp.has_next()` / `resp.next()` loop shown above for complete rule inventories.
+Track the upstream closure criteria under
+[`zpa-84`](../_meta/clarifications.md#zpa-84-mcp-shared-zpa-policy-rule-list-pagination).
 
 ## JMESPath client-side filtering
 

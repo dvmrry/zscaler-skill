@@ -8,6 +8,7 @@ confidence: high
 source-tier: mixed
 verified-against:
   vendor/terraform-gcp-cloud-connector-modules: 0e8a8b82c45c7317d00f052a0b036396a1a184d8
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 sources:
   - "vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md"
   - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
@@ -17,6 +18,9 @@ sources:
   - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
   - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/README.md"
   - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf"
+  - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-iam-service-account-gcp/README.md"
+  - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-iam-service-account-gcp/main.tf"
+  - "vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-iam-service-account-gcp/variables.tf"
   - "vendor/zscaler-upstream-notes/terraform-gcp-cloud-connector-pr-33.md"
 author-status: draft
 ---
@@ -38,6 +42,21 @@ The deployment separates three identities:
 3. Autoscaling deployments use a separate service account for the Cloud Run functions (`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:12-18`).
 
 The VM identity reads credentials from GCP Secret Manager or HashiCorp Vault and, for autoscaling, writes monitoring metrics. The function identity receives the compute, monitoring, logging, invocation, and secret-access roles needed for Health Monitor and Resource Sync (`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:20-29`).
+
+#### Pinned-module least-privilege caveat: Pub/Sub Editor defaults on
+
+At the current pinned GCP module commit, `grant_pubsub_editor` defaults to
+`true` and is documented as a project-scope `roles/pubsub.editor` grant
+(`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-iam-service-account-gcp/variables.tf:52-55`;
+`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-iam-service-account-gcp/README.md:47-54`).
+When enabled, the module creates that project IAM binding for either the
+module-created CCVM service account or a caller-supplied service account; using
+a bring-your-own account does not by itself avoid the grant
+(`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-iam-service-account-gcp/main.tf:66-90`).
+Set `grant_pubsub_editor = false` unless the deployment's Pub/Sub workflow
+explicitly requires Editor, and review the project-scope binding before apply
+when it is required. The pinned gitlink is the operational contract; do not
+assume an untagged upstream head changes this default.
 
 ### Network and routing shape
 
