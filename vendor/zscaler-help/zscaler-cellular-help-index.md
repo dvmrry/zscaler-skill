@@ -1,7 +1,7 @@
 # Zscaler Cellular Help
 
 **Source:** https://help.zscaler.com/zscaler-cellular
-**Captured:** 2026-07-20 via Codex Browser.
+**Captured:** 2026-08-12 via Zscaler Help `/zapi/fetch-data` JSON category-tree extraction.
 
 ---
 
@@ -45,4 +45,3 @@ Current public Zscaler Cellular Help category tree after expanding every section
 ## Audit logs
 
 - About Zscaler Cellular Audit Logs
-
