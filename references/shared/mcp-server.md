@@ -185,7 +185,8 @@ values. The emergency workaround is to restart with
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:275-300`; `:956-965`).
 This disables entitlement downscoping for the whole connection: tools for
 genuinely unentitled products can also be registered and then fail at call
-time. Track the canonical alias set and upstream mapping fix under
+time. The three observed mappings are fixed; track the remaining canonical,
+cross-tenant alias-set question under
 [`shared-40`](../_meta/clarifications.md#shared-40-oneapi-entitlement-prd-aliases-for-ztw-zid-and-zins).
 
 ### Tenant-scope IDs are separate from OneAPI credentials

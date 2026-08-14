@@ -6,6 +6,7 @@ content-type: reference
 last-verified: "2026-06-15"
 verified-against:
   vendor/terraform-provider-zcc: 37aaa1f69786ee5263b358c5248a5b4ce014ebb8
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 confidence: medium
 source-tier: mixed
 sources:

@@ -20,10 +20,10 @@ sources:
   - "vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go"
   - "vendor/zscaler-terraformer/CHANGELOG.md"
   - "vendor/zscaler-terraformer/README.md"
+  - "vendor/zscaler-terraformer/cmd/generate.go"
   - "vendor/zscaler-terraformer/terraformutils/helpers/helpers.go"
   - "vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go"
   - "vendor/zscaler-terraformer/terraformutils/nesting/nesting.go"
-  - "vendor/zscaler-terraformer/tests/unit/processing/datasource_processor_test.go"
 author-status: draft
 ---
 
@@ -191,7 +191,27 @@ From the feature-parity caveat above, plus direct observation:
 
 Terraformer v2.1.22 fixes the prior ZIA DLP nested-attribute spelling/HCL-shape defect: its mapping and special-block list now use `excluded_users` and `excluded_groups`, matching the current ZIA provider schema and expand/flatten paths (`vendor/zscaler-terraformer/CHANGELOG.md:3-13`; `vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:146-162`; `vendor/zscaler-terraformer/terraformutils/nesting/nesting.go:226-264`; `vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go:265-266,618-624,832-833`). This is a Terraformer output correction, not evidence about ZIA product behavior.
 
-The executable Terraformer path also scopes data-source name resolution by resource type: a duplicate name within one type falls back to an ID, while the covered cross-type numeric-ID collision test keeps the same numeric ID mapped to each type's own name/reference (`vendor/zscaler-terraformer/terraformutils/helpers/helpers.go:40-120`; `vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:699-739`; `vendor/zscaler-terraformer/tests/unit/processing/datasource_processor_test.go:477-526,612-673`). Treat the prior spelling mismatch and any duplicate-name or cross-type-ID collision edge as Terraformer tooling defects/operational warnings: generated HCL still requires inspection and possible manual repair under the tool's own limitations (`vendor/zscaler-terraformer/README.md:588-598`), and neither behavior should be promoted to ZIA API or policy semantics.
+The type-aware name registry added around this path is not yet reached for the
+real DLP keys. `RegisterNestedIDNames()` builds its lookup from snake-case
+mapping names such as `excluded_users` and `excluded_groups`, while HCL
+generation reads the lower-camel API keys `excludedUsers` and
+`excludedGroups` through `MapTfFieldNameToAPI()`
+(`vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:146-162`;
+`vendor/zscaler-terraformer/cmd/generate.go:2541-2542`;
+`vendor/zscaler-terraformer/terraformutils/helpers/helpers.go:149-175`;
+`vendor/zscaler-terraformer/terraformutils/nesting/nesting.go:226-264,835-860`).
+The list helper therefore records those names only in the type-agnostic ID map;
+duplicate names can still generate multiple by-name lookups, and a numeric ID
+reused by a user and group can leak one type's name into the other. The final
+replacement pass is also keyed by ID alone, so one of two type-specific
+references sharing an ID can remain raw
+(`vendor/zscaler-terraformer/terraformutils/helpers/helpers.go:604-632`;
+`vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:699-739,1043-1055,1165-1223`).
+These are Terraformer tooling defects and operational warnings, not evidence
+about ZIA behavior. Inspect both generated resource blocks and `datasource.tf`,
+and repair ambiguous name or reused-ID references before applying, consistent
+with Terraformer's own generated-HCL caveat
+(`vendor/zscaler-terraformer/README.md:588-598`).
 
 ## Schema patterns worth knowing
 

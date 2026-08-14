@@ -4,6 +4,8 @@ topic: "zpa-api"
 title: "ZPA API surface"
 content-type: reference
 last-verified: "2026-07-06"
+verified-against:
+  vendor/zscaler-mcp-server: 1b9d63a3e00e9bd7878da4dd436ec897c0c425bf
 confidence: high
 source-tier: code
 sources:
