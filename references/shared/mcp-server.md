@@ -5,11 +5,13 @@ title: "Zscaler MCP server — transport hardening, write gating, and inventory"
 content-type: reference
 last-verified: "2026-08-09"
 verified-against:
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-mcp-server: 1b9d63a3e00e9bd7878da4dd436ec897c0c425bf
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-mcp-server/pyproject.toml"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/__init__.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/client.py"
   - "vendor/zscaler-mcp-server/CHANGELOG.md"
   - "vendor/zscaler-mcp-server/README.md"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/server.py"
@@ -40,6 +42,9 @@ sources:
   - "vendor/zscaler-mcp-server/tests/test_aws_secrets.py"
   - "vendor/zscaler-mcp-server/tests/test_encoding.py"
   - "vendor/zscaler-mcp-server/tests/test_dependency_caps.py"
+  - "vendor/zscaler-mcp-server/tests/test_client_scope_errors.py"
+  - "vendor/zscaler-mcp-server/tests/test_entitlements.py"
+  - "vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/zscaler-mcp-server/.github/conformance-baseline.yml"
   - "vendor/zscaler-mcp-server/.github/conformance-baseline-next.yml"
@@ -54,8 +59,10 @@ author-status: draft
 
 ## Release boundary
 
-The checked tree declares MCP server v0.15.0 and requires Python
-`>=3.11,<4.0` (`vendor/zscaler-mcp-server/pyproject.toml:1-6`). Version 0.15 is
+The checked tree declares MCP server v0.15.2 and requires Python
+`>=3.11,<4.0` (`vendor/zscaler-mcp-server/pyproject.toml:1-6`). The v0.15.2
+release notes cover the ZPA pagination, entitlement-alias, and tenant-scope
+corrections (`vendor/zscaler-mcp-server/CHANGELOG.md:3-15`). Version 0.15 is
 a protocol and security-boundary release: it moves to MCP 2.x and the
 `2026-07-28` revision, restores the documented two-part write gate, introduces
 native human elicitation for deletes, protects multi-round request state, and
@@ -85,21 +92,32 @@ after SDK decoding and any earlier tool cleanup or unwrapping. It is a
 field-preservation contract at that boundary, not a promise of byte-identical
 raw HTTP JSON (`vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`).
 
-## ZPA shared policy-rule pagination boundary
+## ZPA caller-directed pagination boundary
 
-The full-record contract does not imply a full collection. At v0.15.0, the
-access, forwarding, timeout, isolation, and app-protection rule-list tools share
-an input model with only `microtenant_id`, make one SDK request, and discard the
-response object that carries pagination state
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:1-9`;
-`:39-44`; `:86-94`). The SDK endpoint defaults to 20 rows and supports
-`page_size` up to 500 (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`).
-Issue [#96](https://github.com/zscaler/zscaler-mcp-server/issues/96) reports the
-matching first-20 symptom for access rules. Treat all five MCP list results as
-potentially truncated and use the direct SDK pagination loop documented in
-[`../zpa/api.md § Pagination`](../zpa/api.md#pagination) until the shared helper
-is fixed. Closure is tracked as
-[`zpa-84`](../_meta/clarifications.md#zpa-84-mcp-shared-zpa-policy-rule-list-pagination).
+The full-record contract does not imply a full collection. At v0.15.2, five
+policy-rule families — access, timeout, forwarding, isolation, and
+app-protection — share a `ListRulesInput` that exposes `page`, `page_size`, and
+`search`. The shared helper forwards only the values the caller supplied to one
+SDK `list_rules` request; it does not walk the response object's pagination
+state (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:39-56`;
+`:103-119`). The SDK endpoint defaults to 20 rows and supports `page_size` up to
+500 (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`).
+
+The v0.15.2 sweep covers these 16 ZPA list tools: the five policy-rule tools
+above, plus `zpa_list_ba_certificates`, `zpa_list_pra_credentials`,
+`zpa_list_pra_portals`, `zpa_list_provisioning_keys`,
+`get_zpa_saml_attribute`, `get_zpa_scim_attribute`, `get_zpa_scim_group`,
+`get_zpa_app_protection_profile`, `get_zpa_posture_profile`,
+`get_zpa_trusted_network`, and `get_zpa_enrollment_certificate`
+(`vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py:23-48`,
+`:108-127`).
+
+This is **manual page selection**, not automatic page walking or cursor
+pagination: callers choose `page` and `page_size` for each request, and omitted
+values leave the API defaults in control (`vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py:85-105`).
+The implementation and tests prove this input/forwarding boundary only; they do
+not by themselves establish upstream issue [#96](https://github.com/zscaler/zscaler-mcp-server/issues/96)
+closure, backend result completeness, or an all-pages guarantee.
 
 ## Caller-directed JMESPath projection
 
@@ -147,16 +165,17 @@ continues (`vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:253-272`;
 ### OneAPI entitlement filtering and unmapped aliases
 
 OneAPI entitlement downscoping reads `service-info[].prd` once at startup and
-maps known product codes to MCP service IDs. At the v0.15.0 pin, the table maps
-`ZTW`, `ZIDENTITY` / `ZID` / `IDENTITY`, and `ZINS` / `INSIGHTS`, but not
-`CLOUD_CONNECTOR`, `ZIAM`, or `ZINSIGHTS`; unknown codes are silently skipped
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:53-79`;
-`:107-130`). Upstream issue
-[#95](https://github.com/zscaler/zscaler-mcp-server/issues/95) reports those
-three omitted aliases in one tenant's token and HTTP 200 responses from that
-same token for the corresponding `ztw`, `zid`, and `zins` tools when filtering
-was disabled. That is strong evidence for an immediate compatibility gap, but
-not proof that every tenant or token uses only those aliases.
+maps known product codes to MCP service IDs. At the v0.15.2 pin, the table maps
+`CLOUD_CONNECTOR` to `ztw`, `ZIAM` to `zid`, and `ZINSIGHTS` to `zins`, alongside
+the existing aliases. Unmapped values are still skipped, but now named in a
+warning; the focused tests cover both the three mappings and warning behavior
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:53-88`;
+`:116-155`; `vendor/zscaler-mcp-server/tests/test_entitlements.py:78-124`).
+The release notes attribute those values to ZIdentity's `service-info` claim
+(`vendor/zscaler-mcp-server/CHANGELOG.md:11-14`). This proves the current MCP
+mapping and diagnostic behavior; it does not prove that every tenant or token
+uses the same aliases, nor does it by itself establish upstream issue [#95](https://github.com/zscaler/zscaler-mcp-server/issues/95)
+closure.
 
 If expected `ztw`, `zid`, or `zins` tools disappear after successful OneAPI
 authentication, compare the startup entitlement log with the token's `prd`
@@ -168,6 +187,21 @@ This disables entitlement downscoping for the whole connection: tools for
 genuinely unentitled products can also be registered and then fail at call
 time. Track the canonical alias set and upstream mapping fix under
 [`shared-40`](../_meta/clarifications.md#shared-40-oneapi-entitlement-prd-aliases-for-ztw-zid-and-zins).
+
+### Tenant-scope IDs are separate from OneAPI credentials
+
+The client now validates OneAPI credentials first, then validates the
+product-specific tenant-scope ID only for `zpa` (`ZSCALER_CUSTOMER_ID`) or
+`zcell` (`ZCELL_CUSTOMER_ID`). A missing scope ID produces a product-specific
+message that calls it a tenant/customer ID, says authentication is unaffected,
+and notes that the value may not exist when the tenant is not entitled to that
+product (`vendor/zscaler-mcp-server/src/zscaler_mcp/client.py:62-95`). The new
+tests keep missing credentials as a credential error, distinguish both scope
+errors, and confirm that ZIA does not require either scope ID
+(`vendor/zscaler-mcp-server/tests/test_client_scope_errors.py:34-76`). This is
+the exact validation and wording boundary; it does not establish whether a
+particular tenant has a valid scope ID or by itself establish upstream issue
+[#98](https://github.com/zscaler/zscaler-mcp-server/issues/98) closure.
 
 ## Write-tool exposure: executable behavior
 
@@ -332,8 +366,9 @@ repeated field-name overhead without flattening real structure
 `:132-147`; `vendor/zscaler-mcp-server/tests/test_encoding.py:87-124`).
 
 The server also passes its package version into MCP initialization; clients now
-see `0.15.0` in `serverInfo` instead of an empty version
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:374-406`;
+see the package's current `0.15.2` value in `serverInfo` instead of an empty version
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/__init__.py:12`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:374-406`;
 `vendor/zscaler-mcp-server/tests/test_cli.py:224-241`).
 
 ## Cloud credential loading
@@ -366,12 +401,17 @@ and tests also prohibit importing it or instructing operators to install a
 prerelease manually (`vendor/zscaler-mcp-server/pyproject.toml:20-37`;
 `:90-107`; `vendor/zscaler-mcp-server/tests/test_dependency_caps.py:57-136`).
 
-The generated requirements and lock now agree on MCP 2.0.0 and
-`zscaler-sdk-python` 1.9.41, and the editable root in the lock correctly reports
-0.15.0. The v0.14 FastMCP and root-version consistency gaps are retired
+The generated requirements and lock continue to agree on MCP 2.0.0 and
+`zscaler-sdk-python` 1.9.41
 (`vendor/zscaler-mcp-server/requirements.txt:94-110`;
 `vendor/zscaler-mcp-server/requirements.txt:255`;
-`vendor/zscaler-mcp-server/uv.lock:894-913`;
+`vendor/zscaler-mcp-server/uv.lock:894-913`). However, the editable root in
+the captured lock still reports `0.15.0` while `pyproject.toml` declares
+`0.15.2` (`vendor/zscaler-mcp-server/pyproject.toml:1-6`;
+`vendor/zscaler-mcp-server/uv.lock:2442-2445`). Treat that as a tooling/release
+metadata advisory, not Zscaler product behavior; it does not invalidate the
+v0.15.2 source evidence pin. The v0.14 FastMCP gap remains retired
+(`vendor/zscaler-mcp-server/requirements.txt:94-110`;
 `vendor/zscaler-mcp-server/uv.lock:2325-2397`).
 
 ## Open questions

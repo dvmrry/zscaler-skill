@@ -21,6 +21,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_policy_rules.py"
+  - "vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py"
   - "https://github.com/zscaler/zscaler-mcp-server/issues/96"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go"
@@ -409,25 +410,25 @@ Per SDK README: built-in `resp.has_next()` / `resp.next()`. Same idiom as ZIA.
 
 For ZPA's POST-search endpoints (some list APIs use POST with `filterBy`/`pageBy`/`sortBy` in the body), use `_post_search_all_pages` or `CommonFilterSearch` per SDK README.
 
-### MCP v0.15.0 shared policy-rule list truncation
+### MCP v0.15.2 caller-directed ZPA list pagination
 
-Do not treat the MCP policy-rule list tools as complete inventories at the
-current pin. Access, forwarding, timeout, isolation, and app-protection rules
-all use the same `ListRulesInput`, which exposes only `microtenant_id`; the
-shared helper makes one SDK `list_rules` call and discards the response object
-that carries pagination state
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:1-9`;
-`:39-44`; `:86-94`). The underlying SDK accepts `page` and `page_size`, defaults
-to 20 rows, allows up to 500, and returns the response object needed to advance
-pages (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`; `:506-525`).
+The v0.15.2 MCP surface exposes `page` and `page_size` on 16 ZPA list tools.
+The five shared policy-rule families — access, timeout, forwarding, isolation,
+and app-protection — also expose `search` through `ListRulesInput`; the helper
+passes supplied values to one SDK request and omits values the caller did not
+set (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:39-56`;
+`:103-119`). The exact 16-tool sweep is enumerated by the upstream regression
+test (`vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py:23-48`).
 
-[Upstream issue #96](https://github.com/zscaler/zscaler-mcp-server/issues/96)
-reports the resulting access-policy symptom: only the first 20 rules are
-returned and the MCP input rejects `page` / `page_size`. Until the
-shared helper iterates pages or exposes pagination controls, use the direct SDK
-`resp.has_next()` / `resp.next()` loop shown above for complete rule inventories.
-Track the upstream closure criteria under
-[`zpa-84`](../_meta/clarifications.md#zpa-84-mcp-shared-zpa-policy-rule-list-pagination).
+The API defaults to 20 rows and allows `page_size` up to 500
+(`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`). Pagination here
+means **manual page selection**: the caller chooses `page` and `page_size` for
+each call. The MCP tools do not automatically walk pages, expose a cursor, or
+promise an all-pages inventory; the forwarding and omission tests make that
+boundary explicit (`vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py:85-127`).
+This exact code/test evidence addresses the former missing-input behavior, but
+does not by itself establish upstream issue [#96](https://github.com/zscaler/zscaler-mcp-server/issues/96)
+closure or backend completeness.
 
 ## JMESPath client-side filtering
 

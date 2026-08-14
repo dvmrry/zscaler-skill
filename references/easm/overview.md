@@ -5,7 +5,8 @@ title: "External Attack Surface Management (ZEASM) — SDK surface, org scoping,
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-mcp-server: 1b9d63a3e00e9bd7878da4dd436ec897c0c425bf
 confidence: medium
 source-tier: mixed
 sources:
@@ -23,6 +24,7 @@ sources:
   - "vendor/zscaler-mcp-server/docsrc/tools/easm/index.rst"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md"
+  - "vendor/zscaler-mcp-server/tests/test_provenance.py"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -72,7 +74,7 @@ Both the SDK and current MCP tool call it the EASM Admin Portal (`vendor/zscaler
 
 ### Organizations collection
 
-The SDK organizations collection carries `next_page`, `prev_page`, `results`, and `total_results` (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:39-42`) — it is the only ZEASM collection in source that models page cursors (see [Open questions](#open-questions)). The `results` list holds `CommonIDName` items, which currently carry **only `id` and `name`** (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:41`; `vendor/zscaler-sdk-python/zscaler/zeasm/models/common.py:37-38`). MCP v0.15.0 unwraps the collection's `results` wrapper and returns one full SDK-modeled item dictionary per organization (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/organizations.py:38-60`). The passthrough contract preserves every field carried by the SDK item, but it is not raw HTTP and does not promise fields beyond the current SDK model (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). The current organization rows may therefore still contain only `id` and `name`. Bundled MCP documentation still describes the old `results` / `total_results` wrapper, which contradicts the current implementation (`vendor/zscaler-mcp-server/docsrc/tools/easm/index.rst:49-63`). No scan-date or asset-count fields exist on the current SDK organization item model.
+The SDK organizations collection carries `next_page`, `prev_page`, `results`, and `total_results` (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:39-42`) — it is the only ZEASM collection in source that models page cursors (see [Open questions](#open-questions)). The `results` list holds `CommonIDName` items, which currently carry **only `id` and `name`** (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:41`; `vendor/zscaler-sdk-python/zscaler/zeasm/models/common.py:37-38`). MCP v0.15.2 unwraps the collection's `results` wrapper and returns one full SDK-modeled item dictionary per organization (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/organizations.py:38-60`). The passthrough contract preserves every field carried by the SDK item, but it is not raw HTTP and does not promise fields beyond the current SDK model (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). The current organization rows may therefore still contain only `id` and `name`. Bundled MCP documentation still describes the old `results` / `total_results` wrapper, which contradicts the current implementation (`vendor/zscaler-mcp-server/docsrc/tools/easm/index.rst:49-63`). No scan-date or asset-count fields exist on the current SDK organization item model.
 
 ### Asset inventory in the OneAPI Postman collection
 
@@ -150,13 +152,28 @@ The Findings and LookalikeDomains resources are documented in detail in their ow
 - [`findings.md`](findings.md) — finding field table, the three-level drill-down (details / evidence / scan-output), and what the SDK does and does not say about the risk/scoring fields.
 - [`lookalike-domains.md`](lookalike-domains.md) — the lookalike model field set, the raw-domain key, and the signals that exist only in illustrative narrative (not as source fields).
 
+### MCP provenance metadata boundary
+
+At v0.15.2, the MCP metadata marks exactly three EASM tools as carrying content
+from outside the customer's trust boundary: `zeasm_get_finding_evidence`,
+`zeasm_get_finding_scan_output`, and `zeasm_get_lookalike_domain`
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:125-170`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:67-105`).
+The provenance test pins that exact set and confirms the banner is text-only,
+leaving structured records unchanged
+(`vendor/zscaler-mcp-server/tests/test_provenance.py:20-30`,
+`:55-93`). The omission of the EASM list tools from that set is an MCP
+tooling/release advisory about metadata coverage, not a statement about EASM
+product trust semantics or the provenance of every returned field. It is not a
+reason to reject the v0.15.2 evidence pin.
+
 ## Client-side filtering
 
 The SDK response objects support client-side filtering and projection via `resp.search(expression)`, with JMESPath expression syntax (`vendor/zscaler-sdk-python/zscaler/zeasm/findings.py:66-71`).
 
 ## Open questions
 
-- **Normal multi-org tenancy remains unestablished.** The SDK wrapper exposes `results` and `total_results`; MCP v0.15.0 unwraps `results` and returns a list of full SDK-modeled organization items. Both are list-shaped evidence, but neither explicitly establishes normal multi-org tenancy (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:39-42`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/organizations.py:38-60`).
+- **Normal multi-org tenancy remains unestablished.** The SDK wrapper exposes `results` and `total_results`; MCP v0.15.2 unwraps `results` and returns a list of full SDK-modeled organization items. Both are list-shaped evidence, but neither explicitly establishes normal multi-org tenancy (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:39-42`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/organizations.py:38-60`).
 - **Org `last scan date` / `monitored domains/assets`.** The SKILL.md narrative says to note these (`vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md:31-34`), but the org result item model (`CommonIDName`) carries only `id` and `name` (`vendor/zscaler-sdk-python/zscaler/zeasm/models/common.py:37-38`; `vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:41`). No such fields exist on the org object in source. Unverified.
 - **Pagination on findings/lookalike collections.** Page cursors are modeled only on Organizations (`vendor/zscaler-sdk-python/zscaler/zeasm/models/organizations.py:39-40`). The Findings collection (`models/findings.py:38-39`) and LookalikeDomains collection (`models/lookalike_domains.py:38-41`) expose only `results` + `total_results` with no page cursors. This is a model-shape observation, not proof of server behavior.
 
