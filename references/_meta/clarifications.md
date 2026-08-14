@@ -101,8 +101,8 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 
 ## Status summary
 
-Skim this before reading the full entries. Summary refreshed 2026-08-12:
-24 entries are resolved or clarified, 33 are partially resolved, and 410 are open.
+Skim this before reading the full entries. Summary refreshed 2026-08-14:
+25 entries are resolved or clarified, 34 are partially resolved, and 408 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -170,6 +170,20 @@ The same provider/cloud review opened `zia-72`: provider v4.8.5's serialized
 Creative Commons `false` is established, but its effect on a previously enabled
 tenant setting remains untested.
 
+The 2026-08-14 MCP v0.15.2 refresh resolves `zpa-84`: all 16 affected list
+tools now expose working caller-selected `page` / `page_size` controls, while
+remaining explicitly one-request-per-call rather than auto-walking pages. It
+partially resolves `shared-40`: the three observed aliases now map correctly
+and carry regression coverage, while a canonical, complete cross-tenant alias
+taxonomy remains unpublished.
+
+The 2026-08-14 ZCC provider refresh narrows `zcc-06` and `zcc-80` without
+closing either one. The provider now maps `ALL` / `ANY` to its v1 numeric
+representation and adapts trusted-network operations between v2 and v1, but
+those client-side choices do not establish the live backend enum or the
+authority, shared-state, and migration relationship between the endpoint
+families.
+
 ### Resolved
 
 | ID | Title |
@@ -196,6 +210,7 @@ tenant setting remains untested.
 | [`zcc-12`](#zcc-12-requestexecutor-zcc-rate-limit-retry-behavior) | `RequestExecutor` backs off on the ZCC-specific rate-limit header |
 | [`zpa-21`](#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope) | Current Postman response examples establish the observed ten-value PRA application-protocol set |
 | [`zpa-48`](#zpa-48-pse-provisioning-key-apiterraform-support) | PSE provisioning keys are supported through the generic Terraform resource |
+| [`zpa-84`](#zpa-84-mcp-shared-zpa-policy-rule-list-pagination) | MCP exposes caller-selected pagination controls across all 16 affected ZPA list tools |
 | [`cloud-connector-07`](#cloud-connector-07-ztg-vs-cloud-connector-group-type-semantics) | AWS and GCP ZTG are Zscaler-managed services; standard Cloud Connector is the customer-deployed VM path |
 | [`zcc-86`](#zcc-86-get_web_privacy-returns-none-on-error) | Python `get_web_privacy` returns `None` on request, execution, or response-parse failure |
 
@@ -215,11 +230,12 @@ tenant setting remains untested.
 | [`zcc-03`](#zcc-03-forwardingprofile-action_type-enum) | ForwardingProfile `action_type` enum | Integer datatype known; semantic mapping remains open |
 | [`zcc-04`](#zcc-04-forwardingprofile-primary_transport-enum) | ForwardingProfile `primary_transport` enum | Integer datatype known; semantic mapping remains open |
 | [`zcc-05`](#zcc-05-systemproxydata-vs-native-forwarding-action-precedence) | `systemProxyData` vs native forwarding action precedence | Cross-surface precedence still requires a lab test or public documentation |
-| [`zcc-06`](#zcc-06-trustednetwork-condition_type-enum) | TrustedNetwork `condition_type` enum | Integer datatype known; semantic mapping remains open |
+| [`zcc-06`](#zcc-06-trustednetwork-condition_type-enum) | TrustedNetwork `condition_type` enum | Provider maps `ALL` ↔ `0` and `ANY` ↔ `1`; live backend meaning remains open |
 | [`zcc-07`](#zcc-07-forwarding-profile-assignment-to-usersdevices) | Forwarding-profile assignment to users/devices | WebPolicy is the known assignment surface; sole-surface completeness needs tenant confirmation |
 | [`shared-17`](#shared-17-public-service-edge-selection-algorithm) | Public Service Edge selection algorithm | Selection-signal weighting, failover timing, and DC-exclusion mechanics remain open |
 | [`shared-18`](#shared-18-end-to-end-authentication-timeline-across-the-request-chain) | End-to-end authentication timeline across the request chain | Auth-source precedence, surrogate-IP clock anchoring, and trusted-network transitions remain open |
 | [`shared-19`](#shared-19-modern-http-response-side-re-evaluation-http2-websocket-http3-streaming-rpc) | Modern HTTP response-side re-evaluation | Per-stream and non-DLP inspection semantics for modern protocols remain open |
+| [`shared-40`](#shared-40-oneapi-entitlement-prd-aliases-for-ztw-zid-and-zins) | OneAPI entitlement aliases for `ztw`, `zid`, and `zins` | The three observed aliases are mapped and tested; a complete cross-tenant alias taxonomy remains unpublished |
 | [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity | Go exposes two discovery paths; their semantic relationship, single-app completeness, and multi-app aggregation remain unverified |
 | [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app quirk | The new path does not statically resolve representative-app or whole-create-rejection behavior |
 | [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | Contract now supplies the static `fileTypes` vocabulary; field dependencies, protocol acceptance, and FTP per-site scope remain open |
@@ -229,7 +245,7 @@ tenant setting remains untested.
 | [`cloud-connector-09`](#cloud-connector-09-forwarding-method-semantics-and-the-true-backend-forwardmethod-enum) | `ENATDEDIP`/`GEOIP`/`PROXYCHAIN` semantics + true `forwardMethod` enum | Automate contract now gives an independent contract enum and records Terraform disagreement; runtime semantics and backend acceptance remain open |
 | [`cloud-connector-18`](#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth) | ZTW API paths, cloud discovery, and Go auth | Admin/role, activation, Azure discovery, and Go OAuth paths are resolved; only a public GCP discovery REST family remains open |
 | [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage and deployment boundaries | GCP ZTG regions and standard deployment architecture are documented; standard-CC regions, WDS/ZTG parity, sovereign clouds, VM-size regionality, and Azure Flex gaps remain open |
-| [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | Reconciler confirms Automate currently exposes only older v1 `webTrustedNetwork` while Terraform uses Go SDK v2 trusted networks; supersession/migration remains open |
+| [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | Provider probes v2 and can fall back to a v1 adapter; endpoint authority, shared state, and migration remain open |
 | [`zdx-35`](#zdx-35-share_snapshot-obfuscation-transmission) | `share_snapshot` obfuscation transmission | Automate contract now confirms `obfuscation` is a request-body field; Python wrapper transmission remains open |
 | [`ai-security-04`](#ai-security-04-ai-guard-admin-plane-programmability) | AI Guard admin-plane programmability | Automate contract now exposes the admin-plane API; captured client wrappers remain absent |
 | [`zbi-02`](#zbi-02-cbizpaprofile-vs-isolationprofile-preferred-endpoint) | `cbizpaprofile` vs `isolationprofile` preferred endpoint | Automate contract confirms both paths are first-class documented GET operations; preference and runtime divergence remain open |
@@ -241,8 +257,8 @@ tenant setting remains untested.
 
 - **zia**: `zia-02`, `zia-12`, `zia-14`–`zia-48`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-58`–`zia-67`, `zia-69`–`zia-72`
 - **log**: `log-03`, `log-05`–`log-22`
-- **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-84`
-- **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-40`
+- **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-83`
+- **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-39`
 - **zcc**: `zcc-08`–`zcc-11`, `zcc-13`–`zcc-79`, `zcc-81`–`zcc-85`, `zcc-87`–`zcc-101`
 - **zdx**: `zdx-01`–`zdx-34`, `zdx-36`–`zdx-44`
 - **zms**: `zms-01`
@@ -1685,7 +1701,15 @@ Parallel to `zcc-01` but at the TrustedNetwork entity level: how do this Trusted
 
 **Type confirmed (2026-04-24)**: Go SDK (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go:28`) types the field as `int`, not string.
 
-**Resolves with**: lab test with two obvious criteria (one correct, one incorrect) toggling `condition_type` between 0 and 1. **Status**: partially resolved — type known (`int`), semantic mapping still open.
+**Provider narrowing (2026-08-14)**: the refreshed ZCC Terraform provider
+converts canonical `ALL` to v1 value `0` and `ANY` to `1`, reverses that mapping
+on reads, and preserves unknown numeric values as decimal strings
+(`vendor/terraform-provider-zcc/internal/framework/tnbackend/convert.go:12-54`;
+`vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go:14-66`).
+This establishes the provider's adapter contract and its tests, not the live
+backend's enum meaning.
+
+**Resolves with**: lab test with two obvious criteria (one correct, one incorrect) toggling `condition_type` between 0 and 1. **Status**: partially resolved — last updated 2026-08-14; provider mapping known, backend semantics still open.
 
 ---
 
@@ -2750,19 +2774,24 @@ Several ZPA resources reuse one Go struct for Create requests and Get responses,
 
 *Origin: `references/shared/mcp-server.md` § OneAPI entitlement filtering and unmapped aliases*
 
-MCP v0.15.0 silently skips unknown OneAPI `service-info[].prd` values while
-mapping entitlements to registered services. Its current map omits
-`CLOUD_CONNECTOR`, `ZIAM`, and `ZINSIGHTS`
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:53-79`;
-`:107-130`). Upstream issue
-[#95](https://github.com/zscaler/zscaler-mcp-server/issues/95) reports all
-three values in one tenant's token and successful live calls to the matching
-`ztw`, `zid`, and `zins` tools with the filter disabled. The immediate mapping
-gap is established for that token; what remains open is the canonical and
-complete alias set across ZIdentity tenants and token generations.
+MCP v0.15.2 maps `CLOUD_CONNECTOR` to `ztw`, `ZIAM` to `zid`, and
+`ZINSIGHTS` to `zins`, and it now warns with the names of any still-unmapped
+`service-info[].prd` values
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:53-88`;
+`:116-155`). The regression tests exercise all three aliases and the warning
+path (`vendor/zscaler-mcp-server/tests/test_entitlements.py:78-124`). Upstream
+issue [#95](https://github.com/zscaler/zscaler-mcp-server/issues/95) supplies
+the original one-tenant token observation and successful calls with filtering
+disabled.
 
-**Status**: open — 2026-08-12
-**Resolves with**: an upstream mapping and regression tests for the three observed aliases, plus vendor entitlement documentation or additional token captures sufficient to establish the supported canonical/alias set
+**Status**: partially resolved — last updated 2026-08-14
+**Resolves with**: vendor entitlement documentation or additional token captures sufficient to establish the complete supported canonical/alias set across tenants and token generations
+
+**Partial answer (2026-08-14)**: the concrete three-alias compatibility gap is
+fixed in the current MCP implementation and protected by tests. What remains is
+the deliberately broader taxonomy question: current public evidence does not
+establish that these and the existing aliases are exhaustive for every
+ZIdentity tenant or token generation.
 
 ---
 
@@ -4320,22 +4349,30 @@ that establish accepted values and server behavior
 
 ### zpa-84 — MCP shared ZPA policy-rule list pagination
 
-*Origin: `references/zpa/api.md` § Pagination; `references/shared/mcp-server.md` § ZPA shared policy-rule pagination boundary*
+*Origin: `references/zpa/api.md` § Pagination; `references/shared/mcp-server.md` § ZPA caller-directed pagination boundary*
 
-MCP v0.15.0 routes access, forwarding, timeout, isolation, and app-protection
-rule lists through one helper. The input exposes only `microtenant_id`, and the
-helper makes one SDK call while discarding the response object used to advance
-pages (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:1-9`;
-`:39-44`; `:86-94`). The SDK defaults this endpoint to 20 rows and supports
-explicit `page` / `page_size` values
-(`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`). Upstream issue
-[#96](https://github.com/zscaler/zscaler-mcp-server/issues/96) reports the
-matching first-20 truncation and rejected pagination inputs for access rules.
-Because all five public families share the helper, complete inventory behavior
-remains open for the whole shared surface until upstream fixes that boundary.
+MCP v0.15.2 exposes `page` and `page_size` on 16 ZPA list tools. The five
+shared policy-rule families also expose `search`; their helper forwards the
+supplied values to one SDK request and omits values the caller did not set
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:39-56`;
+`:103-119`). The regression suite checks forwarding and omission through that
+shared helper, while its 16-tool schema sweep verifies that every affected
+registered input model advertises `page` and `page_size`; source inspection
+confirms the remaining tool-specific forwarding paths
+(`vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py:23-48`;
+`:85-127`).
 
-**Status**: open — 2026-08-12
-**Resolves with**: upstream MCP code and regression tests that either iterate all SDK response pages or expose working pagination controls, covering more than 20 access rules and at least one other shared rule family
+**Status**: resolved — 2026-08-14
+**Resolves with**: satisfied by the v0.15.2 code and regression coverage
+
+**Answer**: the former rejected-input boundary is closed through explicit
+caller-selected pagination controls. This is manual page selection: each MCP
+call still makes one request, so a caller that needs an all-pages inventory
+must request successive pages. It is not cursor pagination or automatic page
+walking, and it does not make one call an all-pages guarantee. That bounded
+behavior satisfies this entry's original “iterate or expose working controls”
+closure condition without overclaiming backend completeness or the state of
+upstream issue [#96](https://github.com/zscaler/zscaler-mcp-server/issues/96).
 
 ---
 
@@ -5180,12 +5217,26 @@ The full `WebPolicy` field set is modeled from UI request-body captures (`payloa
 
 The `/zcc/papi/public/v2` families are confirmed in the Go SDK — notification-templates (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:15`), zia-posture-profiles (`vendor/zscaler-sdk-go/zscaler/zcc/services/zia_posture/zia_posture.go:15`), and trusted-networks (`vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go:15`). The Python SDK does not expose these v2 services. Whether the v2 endpoints supersede or coexist with their v1 equivalents long-term — and whether a tenant should migrate — is not stated in the SDK source.
 
-**Status**: partially resolved — last updated 2026-06-18
+**Status**: partially resolved — last updated 2026-08-14
 **Resolves with**: zscaler doc not yet read (vendor API changelog / deprecation notice) OR lab test (compare v1 and v2 responses for the same tenant object)
 
 **2026-06-18 narrowing**: the generated ZCC reconciliation documents the current contract boundary: `zcc_trusted_network` is not reconciled because Terraform uses the Go SDK v2 trusted-network API at `/zcc/papi/public/v2/trusted-networks`, while the captured Automate contract currently exposes only older v1 `webTrustedNetwork` operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:34`). That confirms the v1/v2 split in the public contract corpus; it does not establish deprecation, supersession, or migration timing.
 
 **2026-06-18 live-fetch data point**: a live ZCC fetch of the v2 endpoints `/zcc/papi/public/v2/notification-templates` and `/zcc/papi/public/v2/zia-posture-profiles` returned HTTP 404 on the tested OneAPI gateway. Both families are exposed as Terraform Plugin Framework resources but have no matching captured Automate contract operation (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:35`), so the 404 indicates the v2 routes are unavailable on the tested gateway/cloud — not that they are globally unmounted, superseded, or deprecated. It adds a data point to the v1/v2-coexistence question; global availability and any deprecation/supersession timing remain open.
+
+**2026-08-14 provider narrowing**: the refreshed provider now probes the v2
+trusted-network list once per SDK service, caches the selected adapter, and
+falls back to its v1 implementation for responses it classifies as
+endpoint-unavailable. That classification includes generic `400` and `403`
+responses as well as `404`, `405`, `501`, and `resource.not.found`; focused
+tests explicitly preserve the `400` / `403` fallback
+(`vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go:155-199`;
+`vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go:258-292`;
+`vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v1.go:13-125`).
+This establishes provider compatibility behavior only. It does not establish
+why a live tenant returned any one of those statuses, that fallback is safe for
+every response, that v1 and v2 share state, or that either family supersedes
+the other.
 
 ---
 

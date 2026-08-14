@@ -4,6 +4,8 @@ topic: "terraform-provider"
 title: "Zscaler Terraform providers (ZIA + ZPA)"
 content-type: reference
 last-verified: "2026-07-06"
+verified-against:
+  vendor/zscaler-terraformer: 626d940e1d6a474abe154d08a1fad38f07b82987
 confidence: medium
 source-tier: mixed
 sources:
@@ -18,6 +20,9 @@ sources:
   - "vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go"
   - "vendor/zscaler-terraformer/CHANGELOG.md"
   - "vendor/zscaler-terraformer/README.md"
+  - "vendor/zscaler-terraformer/cmd/generate.go"
+  - "vendor/zscaler-terraformer/terraformutils/helpers/helpers.go"
+  - "vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go"
   - "vendor/zscaler-terraformer/terraformutils/nesting/nesting.go"
 author-status: draft
 ---
@@ -184,7 +189,29 @@ From the feature-parity caveat above, plus direct observation:
 
 `zscaler/zscaler-terraformer` (separate repo at `https://github.com/zscaler/zscaler-terraformer`) converts existing ZIA, ZPA, and a bounded ZTC resource set into Terraform HCL and import commands. It is useful for brownfield onboarding, but its own documentation warns that generated HCL is not guaranteed to be perfect and may need manual repair (`vendor/zscaler-terraformer/README.md:588-598`). Check `--supported-resources=<product>` before assuming a provider resource is covered.
 
-Terraformer v2.1.21 adds name-based data-source conversion for nested `zia_dlp_web_rules` attributes (`vendor/zscaler-terraformer/CHANGELOG.md:3-13`). One edge remains at the current pin: the new special-block list spells `exclude_users`, while the provider schema and expand/flatten paths use `excluded_users` (`vendor/zscaler-terraformer/terraformutils/nesting/nesting.go:257-261`; `vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go:264-269`, `:618-624`, `:832-838`). Treat generated `excluded_users` HCL as a Terraformer tooling limitation: inspect and repair that block manually rather than inferring anything about ZIA's API behavior.
+Terraformer v2.1.22 fixes the prior ZIA DLP nested-attribute spelling/HCL-shape defect: its mapping and special-block list now use `excluded_users` and `excluded_groups`, matching the current ZIA provider schema and expand/flatten paths (`vendor/zscaler-terraformer/CHANGELOG.md:3-13`; `vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:146-162`; `vendor/zscaler-terraformer/terraformutils/nesting/nesting.go:226-264`; `vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go:265-266,618-624,832-833`). This is a Terraformer output correction, not evidence about ZIA product behavior.
+
+The type-aware name registry added around this path is not yet reached for the
+real DLP keys. `RegisterNestedIDNames()` builds its lookup from snake-case
+mapping names such as `excluded_users` and `excluded_groups`, while HCL
+generation reads the lower-camel API keys `excludedUsers` and
+`excludedGroups` through `MapTfFieldNameToAPI()`
+(`vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:146-162`;
+`vendor/zscaler-terraformer/cmd/generate.go:2541-2542`;
+`vendor/zscaler-terraformer/terraformutils/helpers/helpers.go:149-175`;
+`vendor/zscaler-terraformer/terraformutils/nesting/nesting.go:226-264,835-860`).
+The list helper therefore records those names only in the type-agnostic ID map;
+duplicate names can still generate multiple by-name lookups, and a numeric ID
+reused by a user and group can leak one type's name into the other. The final
+replacement pass is also keyed by ID alone, so one of two type-specific
+references sharing an ID can remain raw
+(`vendor/zscaler-terraformer/terraformutils/helpers/helpers.go:604-632`;
+`vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:699-739,1043-1055,1165-1223`).
+These are Terraformer tooling defects and operational warnings, not evidence
+about ZIA behavior. Inspect both generated resource blocks and `datasource.tf`,
+and repair ambiguous name or reused-ID references before applying, consistent
+with Terraformer's own generated-HCL caveat
+(`vendor/zscaler-terraformer/README.md:588-598`).
 
 ## Schema patterns worth knowing
 

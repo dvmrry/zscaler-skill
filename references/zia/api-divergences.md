@@ -10,7 +10,7 @@ verified-against:
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-mcp-server: 1b9d63a3e00e9bd7878da4dd436ec897c0c425bf
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
 sources:
@@ -70,7 +70,9 @@ sources:
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py"
   - "vendor/zscaler-mcp-server/skills/zia/create-cloud-app-control-rule/SKILL.md"
   - "vendor/zscaler-mcp-server/tests/test_url_categories_tools.py"
+  - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt"
+  - "vendor/zscaler-help/url-format-guidelines.md"
   - "vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/authentication_settings.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/auth_settings/auth_settings.go"
@@ -418,23 +420,24 @@ first reproduce it in a non-production tenant while capturing the PUT and
 post-apply readback; the v4.8.5 resource has no HCL field with which to preserve
 `true`.
 
-### MCP v0.15 URL-category listing fixes false pagination but exposes a contract conflict
+### MCP v0.15.2 URL-category listing fixes false pagination but exposes a contract conflict
 
-MCP v0.15.0 replaces the former `page` / `page_size` inputs with `custom_only`,
-`type`, and `search`. It forwards `custom_only` and `type` for upstream
-filtering and passes `search` for the Python SDK's local name filtering; an
-unfiltered call still returns the entire matching collection
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:44-97`;
-`:220-277`). This aligns with the captured Automate operation in one important
-respect: `/urlCategories` has no pagination parameters, so page-shaped inputs
-were false affordances rather than a way to cap the response
+MCP v0.15.2 exposes `custom_only`, `type`, `search`, and `contains_url` instead
+of the former `page` / `page_size` inputs. It forwards `custom_only` and `type`
+for upstream filtering and passes `search` for the Python SDK's local name
+filtering; an unfiltered call still returns the entire matching collection
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:44-115`;
+`:348-368`; `vendor/zscaler-mcp-server/tests/test_url_categories_tools.py:58-81`).
+This aligns with the captured Automate operation in one important respect:
+`/urlCategories` has no pagination parameters, so page-shaped inputs were false
+affordances rather than a way to cap the response
 (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:426535-426566`).
 
 Python v1.9.40 also adds a dedicated `list_categories_lite()` wrapper for
 `GET /urlCategories/lite` (`vendor/zscaler-sdk-python/CHANGELOG.md:21-30`;
-`vendor/zscaler-sdk-python/zscaler/zia/url_categories.py:107-162`). MCP v0.15
+`vendor/zscaler-sdk-python/zscaler/zia/url_categories.py:107-162`). MCP v0.15.2
 still calls the full `list_categories()` method rather than that lightweight
-route (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:274`).
+route (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:359-362`).
 That is a payload-efficiency gap, not an operation or entitlement claim.
 
 The sources still disagree on response trimming. Automate advertises
@@ -450,10 +453,64 @@ count-only failure as the scope of that observation, not proof that every ZIA
 tenant ignores the documented parameter.
 
 **Operational consequence:** use `custom_only` or `type` before the request and
-a JMESPath projection after it; neither mechanism imposes a row limit. Use
-`zia_url_lookup` for “which category contains this URL?” and
+`contains_url` only with the understanding that its matcher runs in the MCP
+process after the full SDK listing; it is not a ZIA API filter and does not reduce
+what the SDK fetched. A JMESPath projection still runs after the call. Use
+`zia_url_lookup` for Zscaler's predefined classification and
 `zia_get_url_category` for one category rather than downloading the inventory
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:228-277`).
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:252-275`;
+`:348-368`; `vendor/zscaler-mcp-server/tests/test_url_categories_tools.py:262-287`).
+
+### MCP `contains_url` matcher diverges from the captured URL-format Help contract
+
+The captured ZIA Help contract is more specific than a host-only suffix match.
+It says a leading period is a wildcard to the left of the named URL up to five
+subdomain levels, while omitting the period exactly matches the stated domain or
+subdomain; it also says exact matches take priority over wildcard matches and
+that a leading `*` is not a permitted wildcard
+(`vendor/zscaler-help/url-format-guidelines.md:28-45`). For paths, the capture
+states that a no-trailing-slash path matches the exact string, while a trailing
+slash matches anything below that directory
+(`vendor/zscaler-help/url-format-guidelines.md:50-53`).
+
+The v0.15.2 MCP implementation instead normalizes both the query and every
+configured entry to a bare, lower-case host by stripping schemes, paths,
+queries, ports, and leading/trailing periods, then accepts either an exact host
+or any suffix at a dot-labelled boundary
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:222-249`).
+It searches the returned `urls`, `db_categorized_urls`, and
+`dbCategorizedUrls` fields and appends every matching row with an additive
+`_url_match` explanation; it does not sort matches or apply Help's exact-match
+priority (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:252-275`).
+
+The bundled supported-tools guide separately says that this matcher understands
+ZIA's domain semantics and gives `.app.box.com` covering `app.box.com` as its
+example (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:109`). Keep
+that as a documentation claim: the exact helper and focused tests establish the
+client behavior recorded below, while the captured Help contract establishes a
+different set of boundaries.
+
+| Boundary | Captured Help contract | MCP implementation at v0.15.2 |
+|---|---|---|
+| Leading dot vs bare domain | `.safemarch.com` covers the named domain, paths, and up to five left-hand subdomain levels; `safemarch.com` does not wildcard subdomains. | `_url_host` removes the leading dot and `_entry_matches_host` gives both forms the same exact-or-any-depth-suffix rule. |
+| Path and trailing slash | `safemarch.com/resources` is exact; `safemarch.com/resources/` covers descendants; a bare domain implicitly covers right-side paths. | Path and slash are stripped before matching, so a path-scoped entry collapses to host scope. |
+| Wildcard depth and `*` | A leading-period wildcard is limited to five subdomain levels; a leading asterisk is invalid. | The suffix check has no depth limit and no special `*` validation or wildcard interpretation. |
+| Exact vs wildcard priority | An exact category match takes priority over wildcard matches. | Matching rows are retained in input order; no priority or conflict resolution is implemented. |
+
+Useful pure-MCP counterexamples follow directly from the helper (they do not
+call a tenant): a bare `safemarch.com` entry matches
+`atlanta.safemarch.com`; `safemarch.com/resources` matches the root host after
+path stripping; and a six-label prefix such as
+`a.b.c.d.e.f.safemarch.com` is accepted by the unlimited suffix check. The
+focused tests exercise the intended `.box.com`/bare-domain and label-boundary
+cases, but patch the SDK list call rather than probing the live backend
+(`vendor/zscaler-mcp-server/tests/test_url_categories_tools.py:262-315`).
+
+**Evidence boundary:** this is an MCP implementation-versus-captured-Help
+divergence. It establishes how this client-side matcher behaves and what the
+Help capture says; it does not establish that a live ZIA backend accepts,
+rejects, prioritizes, or otherwise evaluates these counterexamples the same
+way.
 
 ---
 

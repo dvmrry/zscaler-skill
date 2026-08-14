@@ -10,11 +10,14 @@ verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/terraform-provider-zcc: 37aaa1f69786ee5263b358c5248a5b4ce014ebb8
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/**"
   - "vendor/zscaler-sdk-python/zscaler/zcc/**"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go"
 author-status: draft
 ---
 
@@ -33,7 +36,7 @@ ZCC is the most divergence-rich of the Zscaler SDK pairs. Two pressures drive it
 
 **Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, and SDKs remain authoritative for wrapper behavior (`references/_meta/verification-protocol.md:114-118`). The generated ZCC reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:7-11`). It currently covers 4 mapped resources, with 6 contract-vs-Go primitive type drifts, 1 contract-vs-Terraform required-flag drift, 3 one-sided enum constraints, no enum value conflicts, no Ansible surface, Python present for all 4 resources, and MCP present for 1 (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:13-28`).
 
-The generated report also records the ZCC boundary conditions that the prose below should not paper over: `zcc_trusted_network` is not reconciled because Terraform uses the v2 trusted-network API while Automate currently exposes only older v1 `webTrustedNetwork` operations, and `zcc_notification_template` / `zcc_zia_posture` have Terraform resources but no matching captured Automate operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:32-35`).
+The generated report also records the ZCC boundary conditions that the prose below should not paper over: `zcc_trusted_network` is not reconciled because Automate currently exposes only older v1 `webTrustedNetwork` operations. The refreshed Terraform provider probes its v2 path and falls back to a v1 adapter for statuses it classifies as endpoint-unavailable, including generic 400/403 responses; this is a provider classification, not a resolution of v1/v2 authority or backend state (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:32-35`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go:155-199`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go:258-292`). `zcc_notification_template` and `zcc_zia_posture` still have Terraform resources but no matching captured Automate operations.
 
 ---
 
