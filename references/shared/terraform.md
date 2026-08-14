@@ -4,6 +4,8 @@ topic: "terraform-provider"
 title: "Zscaler Terraform providers (ZIA + ZPA)"
 content-type: reference
 last-verified: "2026-07-06"
+verified-against:
+  vendor/zscaler-terraformer: 626d940e1d6a474abe154d08a1fad38f07b82987
 confidence: medium
 source-tier: mixed
 sources:
@@ -18,7 +20,10 @@ sources:
   - "vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go"
   - "vendor/zscaler-terraformer/CHANGELOG.md"
   - "vendor/zscaler-terraformer/README.md"
+  - "vendor/zscaler-terraformer/terraformutils/helpers/helpers.go"
+  - "vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go"
   - "vendor/zscaler-terraformer/terraformutils/nesting/nesting.go"
+  - "vendor/zscaler-terraformer/tests/unit/processing/datasource_processor_test.go"
 author-status: draft
 ---
 
@@ -184,7 +189,9 @@ From the feature-parity caveat above, plus direct observation:
 
 `zscaler/zscaler-terraformer` (separate repo at `https://github.com/zscaler/zscaler-terraformer`) converts existing ZIA, ZPA, and a bounded ZTC resource set into Terraform HCL and import commands. It is useful for brownfield onboarding, but its own documentation warns that generated HCL is not guaranteed to be perfect and may need manual repair (`vendor/zscaler-terraformer/README.md:588-598`). Check `--supported-resources=<product>` before assuming a provider resource is covered.
 
-Terraformer v2.1.21 adds name-based data-source conversion for nested `zia_dlp_web_rules` attributes (`vendor/zscaler-terraformer/CHANGELOG.md:3-13`). One edge remains at the current pin: the new special-block list spells `exclude_users`, while the provider schema and expand/flatten paths use `excluded_users` (`vendor/zscaler-terraformer/terraformutils/nesting/nesting.go:257-261`; `vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go:264-269`, `:618-624`, `:832-838`). Treat generated `excluded_users` HCL as a Terraformer tooling limitation: inspect and repair that block manually rather than inferring anything about ZIA's API behavior.
+Terraformer v2.1.22 fixes the prior ZIA DLP nested-attribute spelling/HCL-shape defect: its mapping and special-block list now use `excluded_users` and `excluded_groups`, matching the current ZIA provider schema and expand/flatten paths (`vendor/zscaler-terraformer/CHANGELOG.md:3-13`; `vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:146-162`; `vendor/zscaler-terraformer/terraformutils/nesting/nesting.go:226-264`; `vendor/terraform-provider-zia/zia/resource_zia_dlp_web_rules.go:265-266,618-624,832-833`). This is a Terraformer output correction, not evidence about ZIA product behavior.
+
+The executable Terraformer path also scopes data-source name resolution by resource type: a duplicate name within one type falls back to an ID, while the covered cross-type numeric-ID collision test keeps the same numeric ID mapped to each type's own name/reference (`vendor/zscaler-terraformer/terraformutils/helpers/helpers.go:40-120`; `vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go:699-739`; `vendor/zscaler-terraformer/tests/unit/processing/datasource_processor_test.go:477-526,612-673`). Treat the prior spelling mismatch and any duplicate-name or cross-type-ID collision edge as Terraformer tooling defects/operational warnings: generated HCL still requires inspection and possible manual repair under the tool's own limitations (`vendor/zscaler-terraformer/README.md:588-598`), and neither behavior should be promoted to ZIA API or policy semantics.
 
 ## Schema patterns worth knowing
 

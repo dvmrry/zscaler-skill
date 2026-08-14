@@ -6,6 +6,7 @@ content-type: reference
 last-verified: "2026-06-18"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/terraform-provider-zcc: 37aaa1f69786ee5263b358c5248a5b4ce014ebb8
 confidence: medium
 source-tier: code
 sources:
@@ -13,6 +14,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/"
   - "vendor/zscaler-sdk-python/docsrc/zs/zcc/"
   - "vendor/terraform-provider-zcc/docs/index.md"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go"
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md"
 author-status: draft
 ---
@@ -113,7 +116,7 @@ Three ZCC resource groups have a newer surface under `/zcc/papi/public/v2`. Unli
 
 These v2 families are currently surfaced in the Go SDK (`zscaler-sdk-go/zscaler/zcc/services/{notification_template,zia_posture,trusted_network_v2}/`); the Python SDK's `client.zcc.trusted_networks` still targets the v1 path.
 
-The Automate contract currently does **not** reconcile the v2 trusted-network resource: the generated ZCC divergence report notes that Terraform uses the Go SDK v2 trusted-network API (`/zcc/papi/public/v2/trusted-networks`), while the captured Automate contract exposes only older v1 `webTrustedNetwork` operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:34`). Treat this as a documented contract boundary, not as proof that v2 supersedes v1.
+The Automate contract currently does **not** reconcile the v2 trusted-network resource: the generated ZCC divergence report notes that the captured Automate contract exposes only older v1 `webTrustedNetwork` operations (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:34`). The refreshed Terraform provider probes `/zcc/papi/public/v2/trusted-networks` and uses its v1 adapter when the probe returns a status it classifies as endpoint-unavailable; that classification includes 400, 403, 404, 405, 501, and `resource.not.found` (`vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go:155-199`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go:258-292`). This is provider behavior and a documented contract boundary, not proof that v2 supersedes v1 or that the two families share state.
 
 ## Rate limits
 

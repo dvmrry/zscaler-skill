@@ -4,6 +4,8 @@ topic: "zcc-trusted-networks"
 title: "ZCC trusted networks — detection criteria and evaluation"
 content-type: reference
 last-verified: "2026-06-15"
+verified-against:
+  vendor/terraform-provider-zcc: 37aaa1f69786ee5263b358c5248a5b4ce014ebb8
 confidence: medium
 source-tier: mixed
 sources:
@@ -11,6 +13,12 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go"
   - "vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v1.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v2.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/convert.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go"
+  - "vendor/terraform-provider-zcc/internal/framework/resources/trusted_network.go"
 author-status: draft
 ---
 
@@ -92,6 +100,16 @@ The `condition_type` field on a TrustedNetwork decides whether ZCC requires **al
 |---|---|
 | OR semantics | A user on a guest Wi-Fi that matches any single criterion (e.g., SSID = "CorpGuest") is classified as trusted. Broad; common misconfiguration. |
 | AND semantics | All configured criteria must match. More secure but a single misconfigured criterion (wrong IP, unused SSID field left empty-but-non-null) causes the TrustedNetwork to never match. |
+
+### Terraform provider adapter boundary (provider behavior only)
+
+Source: `vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v1.go`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v2.go`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/convert.go`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go`; `vendor/terraform-provider-zcc/internal/framework/resources/trusted_network.go`.
+
+The refreshed provider snapshot (`v0.1.2-beta.3`) presents a canonical Terraform `condition_type` string while adapting to either backend. On the v1 path, its conversion is `ALL` ↔ `0` and `ANY` ↔ `1`; unknown numeric values remain numeric strings. The provider tests verify that mapping, but neither the provider snapshot nor the SDK sources establish the backend's enum semantics. Keep [`clarification zcc-06`](../_meta/clarifications.md#zcc-06-trustednetwork-condition_type-enum) open and lab-test the live tenant before treating those values as an API contract. (`convert.go:12-54`; `tnbackend_test.go:14-66`)
+
+The same adapter splits v1 CSV criteria into Terraform lists and joins them on write, converts numeric v1 IDs through its canonical integer model, and selects v2 or v1 using a one-page v2 list probe. Its unavailable classification includes 400, 403, 404, 405, 501, and `resource.not.found`; this is broad provider fallback behavior, not proof that those responses mean the v2 endpoint is absent. Exact names win over one partial case-insensitive match, while ambiguous partial matches fail. (`convert.go:56-146`; `tnbackend.go:86-199`; `tnbackend_test.go:68-292,302-344`)
+
+The provider's v1 lifecycle adapter has no GET-by-ID, requires a name for create, scans list pages, and handles update/delete through the legacy SDK shape. These constraints describe the provider integration; they do not resolve whether v1 and v2 share state or lifecycle semantics. (`backend_v1.go:13-30,32-125`; `resources/trusted_network.go:260-318`)
 
 ---
 

@@ -5,7 +5,7 @@ title: "ZCC Terraform provider — resource and data-source surface"
 content-type: reference
 last-verified: "2026-06-02"
 verified-against:
-  vendor/terraform-provider-zcc: 76f0f4933752a4bead4055de2c3fcda48dc7b22e
+  vendor/terraform-provider-zcc: 37aaa1f69786ee5263b358c5248a5b4ce014ebb8
 confidence: medium
 source-tier: code
 sources:
@@ -32,6 +32,13 @@ sources:
   - "vendor/terraform-provider-zcc/docs/data-sources/zcc_web_app_service.md"
   - "vendor/terraform-provider-zcc/docs/data-sources/zcc_web_privacy.md"
   - "vendor/terraform-provider-zcc/docs/data-sources/zcc_zia_posture.md"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v1.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v2.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/convert.go"
+  - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go"
+  - "vendor/terraform-provider-zcc/internal/framework/resources/trusted_network.go"
+  - "vendor/terraform-provider-zcc/internal/framework/datasources/trusted_network.go"
 author-status: draft
 ---
 
@@ -92,6 +99,22 @@ Source: `vendor/terraform-provider-zcc/docs/data-sources/zcc_forwarding_profile.
 | `zcc_predefined_ip_apps` | Predefined IP apps | Reads predefined IP application definitions. |
 | `zcc_process_based_apps` | Process-based apps | Reads process-based app definitions. |
 | `zcc_web_app_service` | Web app service | Reads web app service entries. |
+
+## Trusted-network provider compatibility boundary
+
+Source: `vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v1.go`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v2.go`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/convert.go`; `vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go`; `vendor/terraform-provider-zcc/internal/framework/resources/trusted_network.go`; `vendor/terraform-provider-zcc/internal/framework/datasources/trusted_network.go`.
+
+At the refreshed `terraform-provider-zcc` snapshot (`v0.1.2-beta.3`), the trusted-network resource and data source use a provider-side backend selector. It probes the v2 list endpoint once per SDK service and caches the selected v2 or v1 adapter; the following dispositions describe provider behavior only, not backend contract truth.
+
+| Concern | Current provider disposition |
+|---|---|
+| Generic 400/403 v2 fallback | The provider classifies `400`, `403`, `404`, `405`, `501`, and `resource.not.found` as v2 endpoint-unavailable and falls back to v1; its tests explicitly cover 400 and 403. This remains a broad client-side fallback classification. (`tnbackend.go:123-199`; `tnbackend_test.go:258-292`) |
+| `ALL` / `ANY` enum | The refreshed commit changes the v1 adapter to encode `ALL` as `0` and `ANY` as `1`, decode those values back, and preserve unknown numeric values as decimal strings. This narrows the provider conversion defect, but does not prove the backend's enum meaning or establish v1/v2 equivalence. (`convert.go:12-54`; `tnbackend_test.go:14-66`) |
+| Numeric state round-trip | The adapter parses v1 string IDs into the canonical integer model and serializes them back; the resource stores the canonical ID as Terraform string state. Unit coverage demonstrates an ordinary canonical→v1→canonical ID round-trip, not live API or backend stability. (`convert.go:78-146`; `tnbackend_test.go:107-256`; `resources/trusted_network.go:357-400`) |
+| Substring lookup | Exact case-insensitive name matches win; a single case-insensitive partial match is accepted, while multiple partial matches return ambiguity. v1 scans paginated results locally and v2 delegates keyword/filter search before applying the same selector. (`tnbackend.go:86-121`; `backend_v1.go:32-65`; `backend_v2.go:29-45`; `tnbackend_test.go:302-344`) |
+| v1 lifecycle | The v1 adapter has no GET-by-ID, requires a name on create, re-lists after mutations, injects the ID on update, and skips the v2-only pre-delete read. These are provider/SDK lifecycle constraints, not evidence that the v1 and v2 backend lifecycles are interchangeable. (`backend_v1.go:13-30,91-125`; `resources/trusted_network.go:260-318`) |
+
+The refreshed commit also adds `UseStateForUnknown` plan modifiers for `hostname` and `ssid`; that is a Terraform planning change, not a server-side contract correction. The unresolved questions remain whether a 400/403 probe response means endpoint absence or an ordinary API error, what the v1/v2 `conditionType` values mean on a live tenant, and whether the two endpoint families share backing state. See [`./trusted-networks.md`](./trusted-networks.md) and [`./api-divergences.md`](./api-divergences.md) for the retained contract boundary.
 
 ## Coverage boundaries
 
