@@ -5,7 +5,7 @@ title: "Zscaler MCP server — transport hardening, write gating, and inventory"
 content-type: reference
 last-verified: "2026-08-09"
 verified-against:
-  vendor/zscaler-mcp-server: 1b9d63a3e00e9bd7878da4dd436ec897c0c425bf
+  vendor/zscaler-mcp-server: ee6354bfd20f797f3e77b69566f500e83c04f723
 confidence: medium
 source-tier: code
 sources:
@@ -27,6 +27,8 @@ sources:
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/decorator.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py"
+  - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/get_sandbox_info.py"
+  - "vendor/zscaler-mcp-server/commands/investigate-sandbox.md"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/common/jmespath_utils.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py"
@@ -45,6 +47,7 @@ sources:
   - "vendor/zscaler-mcp-server/tests/test_client_scope_errors.py"
   - "vendor/zscaler-mcp-server/tests/test_entitlements.py"
   - "vendor/zscaler-mcp-server/tests/test_zpa_policy_pagination.py"
+  - "vendor/zscaler-mcp-server/tests/test_provenance.py"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/zscaler-mcp-server/.github/conformance-baseline.yml"
   - "vendor/zscaler-mcp-server/.github/conformance-baseline-next.yml"
@@ -59,14 +62,15 @@ author-status: draft
 
 ## Release boundary
 
-The checked tree declares MCP server v0.15.2 and requires Python
-`>=3.11,<4.0` (`vendor/zscaler-mcp-server/pyproject.toml:1-6`). The v0.15.2
-release notes cover the ZPA pagination, entitlement-alias, and tenant-scope
-corrections (`vendor/zscaler-mcp-server/CHANGELOG.md:3-15`). Version 0.15 is
+The checked tree declares MCP server v0.15.3 and requires Python
+`>=3.11,<4.0` (`vendor/zscaler-mcp-server/pyproject.toml:1-6`). The v0.15.3
+release labels Sandbox detonation reports as untrusted content, while the
+v0.15.2 notes cover the ZPA pagination, entitlement-alias, and tenant-scope
+corrections (`vendor/zscaler-mcp-server/CHANGELOG.md:3-25`). Version 0.15 is
 a protocol and security-boundary release: it moves to MCP 2.x and the
 `2026-07-28` revision, restores the documented two-part write gate, introduces
 native human elicitation for deletes, protects multi-round request state, and
-removes the confirmation bypass (`vendor/zscaler-mcp-server/CHANGELOG.md:3-39`).
+removes the confirmation bypass (`vendor/zscaler-mcp-server/CHANGELOG.md:39-93`).
 
 ## Full SDK-record return contract
 
@@ -75,8 +79,8 @@ server advertises no `outputSchema`; explicit output views are reserved for
 synthetic results constructed by the server. This keeps an API-owned attribute
 set from becoming a stale server-side enumeration
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/decorator.py:33-60`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:71-100`).
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/decorator.py:33-61`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:93-122`).
 
 At the shaping boundary, a dict is copied and an SDK model is converted with
 `as_dict()` when available. `shape_one` then overlays any normalized or
@@ -92,9 +96,34 @@ after SDK decoding and any earlier tool cleanup or unwrapping. It is a
 field-preservation contract at that boundary, not a promise of byte-identical
 raw HTTP JSON (`vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`).
 
+## Externally authored response content
+
+At v0.15.3, the exact `untrusted_content` set contains three EASM tools plus
+`zia_get_sandbox_report`. The Sandbox tool adds a response-specific note that
+locates sample-authored strings chiefly in behavior-section `SignatureSources`
+arrays and certificate-related `FileProperties`, while identifying
+`Classification.Type`, `Classification.Category`, and `Classification.Score`
+as Zscaler's verdict fields
+(`vendor/zscaler-mcp-server/tests/test_provenance.py:20-33`, `:114-128`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/get_sandbox_info.py:78-115`).
+The investigation command applies the same rule: malicious/benign conclusions
+come only from `Classification`, and sample-derived strings remain data rather
+than instructions
+(`vendor/zscaler-mcp-server/commands/investigate-sandbox.md:25-44`).
+
+For every flagged tool, the bridge prepends the common notice and any
+tool-specific note to the text block before the records, but leaves
+`structuredContent` unchanged. This is a client-dependent spotlighting hint,
+not an enforcement gate or a field whitelist
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:78-90`,
+`:152-164`; `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:63-83`;
+`vendor/zscaler-mcp-server/tests/test_provenance.py:59-111`). The exact set is
+therefore an MCP metadata boundary, not evidence that every field returned by
+an unflagged tool is inherently trustworthy.
+
 ## ZPA caller-directed pagination boundary
 
-The full-record contract does not imply a full collection. At v0.15.2, five
+The full-record contract does not imply a full collection. At v0.15.3, five
 policy-rule families — access, timeout, forwarding, isolation, and
 app-protection — share a `ListRulesInput` that exposes `page`, `page_size`, and
 `search`. The shared helper forwards only the values the caller supplied to one
@@ -103,7 +132,7 @@ state (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:39
 `:103-119`). The SDK endpoint defaults to 20 rows and supports `page_size` up to
 500 (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:453-476`).
 
-The v0.15.2 sweep covers these 16 ZPA list tools: the five policy-rule tools
+The v0.15.3 surface covers these 16 ZPA list tools: the five policy-rule tools
 above, plus `zpa_list_ba_certificates`, `zpa_list_pra_credentials`,
 `zpa_list_pra_portals`, `zpa_list_provisioning_keys`,
 `get_zpa_saml_attribute`, `get_zpa_scim_attribute`, `get_zpa_scim_group`,
@@ -126,12 +155,12 @@ as list tools or are list-style reads returning an envelope; writes, single
 object gets, and tools with synthetic output views do not. The bridge removes
 `query` from the tool input, invokes the tool first, and only then applies the
 JMESPath expression before encoding and token accounting
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:98-116`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:248-309`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:415-439`).
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:121-139`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:281-313`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:453-472`).
 JMESPath is therefore caller-side, post-fetch filtering and projection, not an
 API query sent to Zscaler
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:420-439`).
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:453-472`).
 
 The result-shape rules are stable: omitting `query` or passing an empty string
 returns the fetched data unchanged; no match becomes `[]`; a scalar is wrapped
@@ -165,14 +194,14 @@ continues (`vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:253-272`;
 ### OneAPI entitlement filtering and unmapped aliases
 
 OneAPI entitlement downscoping reads `service-info[].prd` once at startup and
-maps known product codes to MCP service IDs. At the v0.15.2 pin, the table maps
+maps known product codes to MCP service IDs. At the v0.15.3 pin, the table maps
 `CLOUD_CONNECTOR` to `ztw`, `ZIAM` to `zid`, and `ZINSIGHTS` to `zins`, alongside
 the existing aliases. Unmapped values are still skipped, but now named in a
 warning; the focused tests cover both the three mappings and warning behavior
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:53-88`;
 `:116-155`; `vendor/zscaler-mcp-server/tests/test_entitlements.py:78-124`).
 The release notes attribute those values to ZIdentity's `service-info` claim
-(`vendor/zscaler-mcp-server/CHANGELOG.md:11-14`). This proves the current MCP
+(`vendor/zscaler-mcp-server/CHANGELOG.md:23`). This proves the current MCP
 mapping and diagnostic behavior; it does not prove that every tenant or token
 uses the same aliases, nor does it by itself establish upstream issue [#95](https://github.com/zscaler/zscaler-mcp-server/issues/95)
 closure.
@@ -225,7 +254,7 @@ selection behavior is:
 The v0.14 documentation-versus-code contradiction is closed at this pin: the
 README and the executable boundary now agree that both controls are mandatory
 (`vendor/zscaler-mcp-server/README.md:114-145`;
-`vendor/zscaler-mcp-server/CHANGELOG.md:11-18`). This is a behavioral change
+`vendor/zscaler-mcp-server/CHANGELOG.md:49-53`). This is a behavioral change
 from v0.13–v0.14, where either half could expose writes and the switch with an
 empty allowlist exposed every write tool.
 
@@ -234,10 +263,10 @@ empty allowlist exposed every write tool.
 After write exposure is enabled, create and update calls execute without a
 second confirmation channel. Only delete tools receive the bridge-owned
 confirmation channels, and the gate runs before any SDK mutation
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:281-309`;
-`:441-479`). Version 0.15 also removes `ZSCALER_MCP_SKIP_CONFIRMATIONS`; the
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:314-342`;
+`:474-505`). Version 0.15 also removes `ZSCALER_MCP_SKIP_CONFIRMATIONS`; the
 supported way to deny deletion is to omit delete patterns from the write
-allowlist (`vendor/zscaler-mcp-server/CHANGELOG.md:11-18`).
+allowlist (`vendor/zscaler-mcp-server/CHANGELOG.md:49-53`).
 
 For a client advertising MCP elicitation, the server returns a native
 `delete`/`cancel` question. On revision `2026-07-28` that question travels as
@@ -262,8 +291,8 @@ ledger live only in the process that minted the token. A retry routed to another
 replica, or sent after a restart, cannot complete that confirmation and must ask
 again. Run one write-enabled replica when any client depends on the fallback;
 `ZSCALER_MCP_REQUEST_STATE_KEYS` protects native `requestState` and does not make
-HMAC tokens portable (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/elicitation.py:66-78`;
-`vendor/zscaler-mcp-server/CHANGELOG.md:67-73`).
+HMAC tokens portable (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/elicitation.py:25-41`,
+`:66-78`).
 
 ### Request-state protection and replay boundary
 
@@ -315,16 +344,16 @@ Every bridged tool receives annotations derived from its single action: reads
 are read-only; creates are non-destructive and non-idempotent; updates and
 deletes are destructive and idempotent. All tools set `openWorldHint=false`;
 read tools leave the write-only destructive and idempotent hints unset
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:118-152`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:173-205`;
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:141-175`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:206-238`;
 `vendor/zscaler-mcp-server/tests/test_tool_annotations.py:61-116`;
 `vendor/zscaler-mcp-server/tests/test_tool_annotations.py:149-179`).
 
 These annotations are advisory client metadata, not authorization or
 confirmation controls. The server-side write-selection and delete-confirmation
 gates still apply regardless of the advertised hints
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:173-205`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:441-470`).
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:206-238`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:474-505`).
 
 ## HTTP authentication changes
 
@@ -335,7 +364,7 @@ an OIDC client secret. The `oidcproxy` and `oauth-proxy` mode spellings remain a
 aliases, but clients need an ID registered at the IdP because dynamic client
 registration against this server is gone
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/auth.py:715-751`;
-`:1135-1156`; `vendor/zscaler-mcp-server/CHANGELOG.md:13-16`).
+`:1135-1156`; `vendor/zscaler-mcp-server/CHANGELOG.md:51`).
 
 API-key mode accepts either `Authorization: Bearer <key>` or `X-Api-Key` and
 derives a stable one-way principal fingerprint rather than embedding the secret
@@ -344,7 +373,7 @@ in request state (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/auth.py:24
 platforms that authenticate every caller but cannot forward another credential;
 it applies only to API-key and Zscaler auth modes and must not be enabled on a
 directly reachable deployment (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/auth.py:80-106`;
-`vendor/zscaler-mcp-server/CHANGELOG.md:37-39`).
+`vendor/zscaler-mcp-server/CHANGELOG.md:73`).
 
 ## Operational logging and response encoding
 
@@ -357,7 +386,7 @@ redacted. Non-empty JMESPath projections are logged separately with row counts
 before and after filtering
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/audit.py:64-98`;
 `:124-145`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:430-438`).
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:461-471`).
 
 Automatic wire encoding now treats empty lists, dictionaries, tuples, and sets
 as CSV-safe cells while preserving them as `[]` or `{}`. A non-empty nested
@@ -367,7 +396,7 @@ repeated field-name overhead without flattening real structure
 `:132-147`; `vendor/zscaler-mcp-server/tests/test_encoding.py:87-124`).
 
 The server also passes its package version into MCP initialization; clients now
-see the package's current `0.15.2` value in `serverInfo` instead of an empty version
+see the package's current `0.15.3` value in `serverInfo` instead of an empty version
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/__init__.py:12`;
 `vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:374-406`;
 `vendor/zscaler-mcp-server/tests/test_cli.py:224-241`).
@@ -406,18 +435,18 @@ The generated requirements and lock continue to agree on MCP 2.0.0 and
 `zscaler-sdk-python` 1.9.41
 (`vendor/zscaler-mcp-server/requirements.txt:94-110`;
 `vendor/zscaler-mcp-server/requirements.txt:255`;
-`vendor/zscaler-mcp-server/uv.lock:894-913`). However, the editable root in
-the captured lock still reports `0.15.0` while `pyproject.toml` declares
-`0.15.2` (`vendor/zscaler-mcp-server/pyproject.toml:1-6`;
-`vendor/zscaler-mcp-server/uv.lock:2442-2445`). Treat that as a tooling/release
+`vendor/zscaler-mcp-server/uv.lock:979-1002`, `:2508-2527`). However, the editable
+root in the captured lock still reports `0.15.2` while `pyproject.toml` declares
+`0.15.3` (`vendor/zscaler-mcp-server/pyproject.toml:1-6`;
+`vendor/zscaler-mcp-server/uv.lock:2437-2440`). Treat that as a tooling/release
 metadata advisory, not Zscaler product behavior; it does not invalidate the
-v0.15.2 source evidence pin. The v0.14 FastMCP gap remains retired
+v0.15.3 source evidence pin. The v0.14 FastMCP gap remains retired
 (`vendor/zscaler-mcp-server/requirements.txt:94-110`;
-`vendor/zscaler-mcp-server/uv.lock:2325-2397`).
+`vendor/zscaler-mcp-server/uv.lock:2437-2505`).
 
 ## Open questions
 
-> - **Client-certificate enforcement** - The v0.13.2 release note describes `ZSCALER_MCP_TLS_CA_CERTS` as mutual-TLS client validation, but the implementation and test only establish that the CA-bundle path is forwarded as `ssl_ca_certs` (`vendor/zscaler-mcp-server/CHANGELOG.md:126-138`; `vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:505-509`; `vendor/zscaler-mcp-server/tests/test_cli.py:368-384`) - *unverified, requires a client-certificate enforcement test or explicit Uvicorn client-cert requirement configuration*
+> - **Client-certificate enforcement** - The v0.13.2 release note describes `ZSCALER_MCP_TLS_CA_CERTS` as mutual-TLS client validation, but the implementation and test only establish that the CA-bundle path is forwarded as `ssl_ca_certs` (`vendor/zscaler-mcp-server/CHANGELOG.md:162-170`; `vendor/zscaler-mcp-server/src/zscaler_mcp/server.py:505-509`; `vendor/zscaler-mcp-server/tests/test_cli.py:368-384`) - *unverified, requires a client-certificate enforcement test or explicit Uvicorn client-cert requirement configuration*
 
 ## Cross-links
 
