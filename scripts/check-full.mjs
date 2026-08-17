@@ -11,6 +11,7 @@ const PYTEST_FILES = [
   "scripts/test_check_hygiene.py",
   "scripts/test_check_vendor_drift.py",
   "scripts/test_issue_watch.py",
+  "scripts/test_maintenance_digest.py",
   "scripts/automate-capture/test_extract_docusaurus_blobs.py",
   "scripts/automate-capture/test_build_openapi_from_blobs.py",
   "scripts/automate-capture/test_reconcile_contract.py",

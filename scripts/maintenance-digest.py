@@ -67,6 +67,14 @@ def rel(path: Path) -> str:
     return str(path.relative_to(REPO_ROOT))
 
 
+def display_path(path: Path) -> str:
+    """Return a repo-relative path when possible, otherwise an absolute path."""
+    try:
+        return rel(path)
+    except ValueError:
+        return str(path)
+
+
 def stale_refs(threshold_days: int) -> tuple[list[tuple[str, str]], int]:
     cutoff = date.today() - timedelta(days=threshold_days)
     stale: list[tuple[str, str]] = []
@@ -298,7 +306,7 @@ def main() -> int:
         path = args.output if args.output.is_absolute() else REPO_ROOT / args.output
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(body, encoding="utf-8")
-        print(f"Wrote {path.relative_to(REPO_ROOT)}", file=sys.stderr)
+        print(f"Wrote {display_path(path)}", file=sys.stderr)
     if args.sticky_label:
         upsert_sticky_issue(body, args.sticky_label, args.bootstrap_if_missing)
     if not args.output and not args.sticky_label:
