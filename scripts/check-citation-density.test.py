@@ -15,6 +15,10 @@ inspected the one character before ``vendor``/``scripts``, so the ``/`` before a
 nested ``scripts/`` segment defeated the ``(?<!`)`` lookbehind and a fully
 backticked path was wrongly reported as unquoted.
 
+The internal-source rule must likewise recognize only root-relative
+``references/`` and ``agents/`` paths. A vendor directory whose name ends in
+``-agents`` is not an internal workflow source.
+
 Run directly: ``./scripts/check-citation-density.test.py``
 """
 
@@ -57,6 +61,15 @@ class UnquotedSourcePathTest(unittest.TestCase):
             if issue.kind == "unquoted-source-path"
         ]
 
+    def _internal_findings(self, source_line: str) -> list[str]:
+        path = Path(self._tmp.name) / "doc.md"
+        path.write_text(f"# Doc\n\n{source_line}\n", encoding="utf-8")
+        return [
+            issue.text
+            for issue in ccd.audit_source_quality(path)
+            if issue.kind == "internal-source"
+        ]
+
     def test_backticked_path_with_nested_scripts_segment_not_flagged(self) -> None:
         findings = self._unquoted_findings(
             "Source: `vendor/zguard-ai-integrations/github-actions/scripts/scan_policy.py`."
@@ -81,6 +94,44 @@ class UnquotedSourcePathTest(unittest.TestCase):
             "Source: `vendor/a/b.md` and scripts/loose_helper.py."
         )
         self.assertTrue(findings)
+
+    def test_vendor_directory_ending_in_agents_not_internal(self) -> None:
+        findings = self._internal_findings(
+            "Source: `vendor/zguard-ai-integrations/AWS/strands-agents/README.md`."
+        )
+        self.assertEqual(findings, [])
+
+    def test_root_agents_path_still_internal(self) -> None:
+        findings = self._internal_findings("Source: `agents/researcher/workflow.md`.")
+        self.assertTrue(findings)
+
+    def test_root_references_path_still_internal(self) -> None:
+        findings = self._internal_findings("Source: `references/zpa/api.md`.")
+        self.assertTrue(findings)
+
+    def test_dot_slash_root_agents_path_still_internal(self) -> None:
+        findings = self._internal_findings("Source: `./agents/researcher/workflow.md`.")
+        self.assertTrue(findings)
+
+    def test_dot_slash_root_references_path_still_internal(self) -> None:
+        findings = self._internal_findings("Source: `./references/zpa/api.md`.")
+        self.assertTrue(findings)
+
+    def test_parent_relative_agents_path_not_treated_as_repository_root(self) -> None:
+        findings = self._internal_findings("Source: `../agents/researcher/workflow.md`.")
+        self.assertEqual(findings, [])
+
+    def test_nested_agents_directory_not_treated_as_repository_root(self) -> None:
+        findings = self._internal_findings("Source: `vendor/example/agents/workflow.md`.")
+        self.assertEqual(findings, [])
+
+    def test_unicode_letter_prefix_not_treated_as_repository_root(self) -> None:
+        findings = self._internal_findings("Source: `éagents/researcher/workflow.md`.")
+        self.assertEqual(findings, [])
+
+    def test_unicode_dash_prefix_not_treated_as_repository_root(self) -> None:
+        findings = self._internal_findings("Source: `strands‑agents/README.md`.")
+        self.assertEqual(findings, [])
 
 
 if __name__ == "__main__":
