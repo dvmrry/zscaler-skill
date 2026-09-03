@@ -4,6 +4,9 @@ topic: "zidentity-api-clients"
 title: "ZIdentity API Clients — OneAPI OAuth 2.0 authentication"
 content-type: reasoning
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: high
 source-tier: doc
 sources:
@@ -12,6 +15,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/api_client.py"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
   - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go"
 author-status: draft
 ---
 
@@ -24,7 +28,9 @@ The OAuth 2.0 client object that every OneAPI-authenticated script, SDK, Terrafo
 - **API Clients are OAuth 2.0 client-credentials identities.** An API client authenticates to ZIdentity (the authorization server), receives an access token, and uses the token against the OneAPI gateway.
 - **Role-based access control**: each API client is assigned one or more roles that define which endpoints / operations it can access.
 - **Scope-limited**: the scopes on the client determine which Zscaler service APIs (ZIA, ZPA, ZDX, etc.) it can reach. A client scoped only to `zia.*` can't call ZPA endpoints.
-- **Bootstrapping the FIRST client is a human step; thereafter API clients are CRUD-able via API.** The very first API client is created in the admin portal (Administration > API Configuration > OneAPI > API Clients) because there is no token yet to authenticate with — the chicken-and-egg bootstrap. Once you hold a client with ZIdentity-admin scope, API clients are fully managed programmatically: the Python SDK exposes `add_api_client` (POST), `update_api_client` (PUT), `delete_api_client` (DELETE), plus the secret lifecycle `add_api_client_secret` / `get_api_client_secret` / `delete_api_client_secret`, all against `/ziam/admin/api/v1/api-clients` (vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31,156,265,355,436). The Go SDK has no `api_client` service — this surface is Python-SDK-only (see [`./api.md § 4.1`](./api.md)). Portal create/edit/delete remains available too (Tier A — vendor/zscaler-help/zidentity-about-api-clients.md).
+- **Bootstrapping the FIRST client is a human step; thereafter API clients are CRUD-able via API.** The very first API client is created in the admin portal (Administration > API Configuration > OneAPI > API Clients) because there is no token yet to authenticate with — the chicken-and-egg bootstrap. Once you hold a client with ZIdentity-admin scope, API clients are represented programmatically in both SDKs: the Python SDK exposes its full client/secret lifecycle, and the refreshed Go SDK exposes typed client CRUD plus `GetSecrets` / `AddSecret` / `DeleteSecret` against `/ziam/admin/api/v1/api-clients` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31,156,265,355,436`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:16-18,181-201,249-306,312-385`). This is client-side SDK coverage only; do not infer backend availability or tenant entitlement from the declarations. Portal create/edit/delete remains available too (Tier A — vendor/zscaler-help/zidentity-about-api-clients.md).
+
+The Go `ziam/services/api_clients` package also exposes `GetPage`, which preserves the generic pagination envelope, and a client-side `GetByName` substring search (`vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:197-247`). Its model makes `Status` a `*bool` and `ClientAuthentication` a pointer so explicit false and absent authentication blocks survive `omitempty` (`vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:47-85`). Secret timestamps are `int64` Unix epochs and `AddSecret` uses raw request execution to preserve the one-time `value` response (`vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:140-177,312-375`). These are representations and client behavior; they do not establish which tenants permit API-client administration.
 
 ## API client types
 
@@ -54,7 +60,7 @@ grant_type=client_credentials
 &audience=https://api.zscaler.com    # required — see audience note below
 ```
 
-> **`audience` is injected automatically for SDK callers.** Both SDKs hardcode `audience=https://api.zscaler.com` on every token exchange (secret and JWT): Python at vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:298 (secret) and :375/:389 (JWT), Go at vendor/zscaler-sdk-go/zscaler/oneapiclient.go:260 (secret) and :321/:335 (JWT). So "forgot the audience" can only happen to a hand-rolled raw-HTTP caller — SDK, Terraform, and MCP users never hit it (this is misconfig #3 below).
+> **`audience` is injected automatically for SDK callers.** Both SDKs hardcode `audience=https://api.zscaler.com` on every token exchange (secret and JWT): Python at vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:298 (secret) and :375/:389 (JWT), Go at vendor/zscaler-sdk-go/zscaler/oneapiclient.go:255 (secret) and :316/:330 (JWT). So "forgot the audience" can only happen to a hand-rolled raw-HTTP caller — SDK, Terraform, and MCP users never hit it (this is misconfig #3 below).
 
 ZIdentity returns a bearer token with an `expires_in` field. Read `expires_in` — don't hardcode a TTL assumption. The SDK falls back to 3600 seconds if the field is absent (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:461); the **tenant-wide default** TTL is configurable via Authentication Session settings (Tier A — closed). Distinct and still open: whether the per-client `access_token_life_time` field overrides that tenant default — its semantics are unresolved (the field name says TTL but the SDK docstring labels it an active flag) — see [clarification `zid-11`](../_meta/clarifications.md#zid-11-access_token_life_time-field-semantics).
 
@@ -71,8 +77,8 @@ grant_type=client_credentials
 
 When you authenticate with a private key, the SDK builds and signs the client assertion for you. The concrete behavior (identical in both SDKs):
 
-- **Algorithm**: RS256 (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:381; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:318).
-- **Assertion lifetime**: `exp = now + 600` — a 10-minute assertion window (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:376; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:322). This 10-minute window is the actual clock-skew tolerance budget (see misconfig #6).
+- **Algorithm**: RS256 (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:381; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:313).
+- **Assertion lifetime**: `exp = now + 600` — a 10-minute assertion window (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:376; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:317). This 10-minute window is the actual clock-skew tolerance budget (see misconfig #6).
 - **Claims**: `iss` and `sub` are both the `client_id`; `aud` is `https://api.zscaler.com` (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:373-375).
 - **Minimum key strength**: the Python SDK rejects RSA keys below 2048 bits, raising `ValueError` before any network call — `MIN_RSA_KEY_SIZE = 2048`, validated in `validate_rsa_key_strength` (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:24,43-51; addresses CWE-326). The Go SDK does not enforce a minimum key size.
 - **`privateKey` accepts three forms**: a raw PEM string (`BEGIN PRIVATE KEY`), a JWK JSON string (starts with `{`), or a filesystem path to a PEM file (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:344-365).
@@ -186,7 +192,7 @@ API clients use `client_credentials` exclusively. If a caller attempts to use `a
 A client scoped to `zia.*` calling ZPA APIs will get 403 from OneAPI. The token exchange to ZIdentity succeeds (the token is valid), but the scope check fails at the OneAPI gateway. Symptom: successful `POST /oauth2/v1/token`, then immediate 403 on the first API call. Fix: add the required ZPA scope to the API client in the admin portal.
 
 **3. `audience` parameter missing from token request (raw-HTTP callers only).**
-Tokens issued without `audience=https://api.zscaler.com` succeed at exchange but fail at OneAPI with 401. This is a subtle misconfiguration that looks like an authentication failure but is actually a token-content issue. **This can only happen to a hand-rolled raw-HTTP caller** — both SDKs hardcode the audience on every token exchange (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:298; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:260), so SDK, Terraform, and MCP users never hit this. (Tier A — `references/shared/oneapi.md § The audience parameter is REQUIRED`.)
+Tokens issued without `audience=https://api.zscaler.com` succeed at exchange but fail at OneAPI with 401. This is a subtle misconfiguration that looks like an authentication failure but is actually a token-content issue. **This can only happen to a hand-rolled raw-HTTP caller** — both SDKs hardcode the audience on every token exchange (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:298; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:255), so SDK, Terraform, and MCP users never hit this. (Tier A — `references/shared/oneapi.md § The audience parameter is REQUIRED`.)
 
 **4. Disabled client + cached token.**
 Disabling a client in the portal doesn't immediately invalidate outstanding tokens. There's a window (up to the token TTL) where a disabled client's in-flight token still works. For urgent revocation, use the Revoke Access Tokens flow. *(The specific 30–60 minute survival window is inferred from standard OAuth 2.0 bearer-token TTL behavior, not confirmed against a captured Zscaler page — see Open questions, revocation/disable timing.)*
@@ -195,7 +201,7 @@ Disabling a client in the portal doesn't immediately invalidate outstanding toke
 Rotating the secret in the portal invalidates the old secret immediately for new token requests. Existing tokens (issued against the old secret) remain valid until TTL expires. After rotation, callers using the old secret will fail to get new tokens once their current token expires. Update all callers before tokens expire to avoid a service gap. *(Immediate new-token failure on the old secret and the TTL grace for already-issued tokens are inferred from OAuth 2.0 semantics; the exact Zscaler timing — including the "~1 hour" figure — is not confirmed against a captured source — see Open questions, revocation/disable timing.)*
 
 **6. JWT auth clock skew.**
-The SDK signs each client assertion with `exp = now + 600`, a 10-minute window (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:376; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:322). That 10 minutes is the entire tolerance budget: if the caller's clock is more than ~10 minutes fast, the assertion can arrive already-expired and ZIdentity rejects it. If a freshly-issued JWT is rejected, check system time sync.
+The SDK signs each client assertion with `exp = now + 600`, a 10-minute window (vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:376; vendor/zscaler-sdk-go/zscaler/oneapiclient.go:317). That 10 minutes is the entire tolerance budget: if the caller's clock is more than ~10 minutes fast, the assertion can arrive already-expired and ZIdentity rejects it. If a freshly-issued JWT is rejected, check system time sync.
 
 **7. Insufficient roles — correct scope, wrong endpoint.**
 Roles restrict which specific endpoints/operations are accessible. A client with `zpa.read` scope but no role granting access to `GET /appSegments` will fail at the ZPA API level (not at the token level). Roles and scopes are complementary controls; both must be correct.

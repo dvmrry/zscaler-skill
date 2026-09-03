@@ -5,6 +5,8 @@ title: "Browser Access — clientless ZPA via a web browser"
 content-type: reference
 last-verified: "2026-07-26"
 verified-against:
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd (Browser Access Groups surface)
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
@@ -19,6 +21,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/browser_access_groups/browser_access_groups.go"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/app_segments_ba.py"
   - "vendor/zscaler-mcp-server/skills/zpa/application_segment-ba-onboard/SKILL.md"
@@ -226,6 +229,18 @@ zscaler-mcp-server v0.15.0 retains five dedicated BA tools for list/get/create/u
 | MCP v0.15.0 | `zpa_list_application_segments_ba`, `zpa_get_application_segment_ba`, `zpa_create_application_segment_ba`, `zpa_update_application_segment_ba`, `zpa_delete_application_segment_ba` | Agent-facing tools; create/update accept optional `clientless_app_ids` and forward provided values without BA-specific preflight validation; non-delete results preserve the full SDK-modeled record. |
 
 Go SDK parity: `applicationsegmentbrowseraccess/` package.
+
+### 9.1.1 Go-only Browser Access Groups package
+
+The refreshed Go SDK also declares a separate admin-customer
+`/browserAccessGroups` resource with a typed `BrowserAccessGroups` model and
+read-only `GetAll`/`Get` methods (`vendor/zscaler-sdk-go/zscaler/zpa/services/browser_access_groups/browser_access_groups.go:28-67,179-195`).
+This is distinct from the Python application-segment Browser Access wrappers
+above; no corresponding `browser_access_groups.py` service is captured in the
+Python tree (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py:19-31`).
+The Go package is client-surface evidence only. It does not establish that the
+resource is enabled for a tenant or that a Browser Access entitlement exists;
+see the cross-SDK gaps in [`./api-divergences.md`](./api-divergences.md#pr-456-zpa-additions-executable-go-surface-versus-python-and-changelog).
 
 ### 9.2 Certificates API
 

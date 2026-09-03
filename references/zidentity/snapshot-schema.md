@@ -4,6 +4,9 @@ topic: "snapshot-schema"
 title: "ZIdentity _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: medium
 source-tier: code
 sources:
@@ -12,9 +15,10 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py"
   - "vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py"
   - "vendor/zscaler-sdk-python/zscaler/zid/models/common.py"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go"
   - "vendor/zscaler-sdk-go/zscaler/oneapiconfig.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
@@ -35,9 +39,11 @@ _data/snapshot/<cloud>/zidentity/resource-servers.json
 
 ## Wire-format conventions for ZIdentity
 
-- **Base URL + path prefix depend on which SDK made the call** — the same logical API has two hostnames and two prefixes:
+Source: `vendor/zscaler-sdk-python/zscaler/request_executor.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/common.py`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go`; `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
+- **Current base URL + path prefix are aligned across the SDKs** — both model the OneAPI ZIAM route:
   - **Python SDK** → host `https://api.zsapi.net` (non-prod: `https://api.{cloud}.zsapi.net`), prefix `/ziam/admin/api/v1` (vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177; vendor/zscaler-sdk-python/zscaler/zid/users.py:31). Postman uses `{{ZIAMBaseUrl}}` for this.
-  - **Go SDK** → host `https://{vanity}-admin.zslogin.net` (non-prod: `https://{vanity}-admin.zslogin{cloud}.net`), prefix `/admin/api/v1` — no `/ziam` (vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:436-448; the Go zid endpoint constants carry no `/ziam`, e.g. vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16). So a raw-HTTP caller's URL differs by language; the JSON body shape is the same either way.
+  - **Go SDK** → host `https://api.zsapi.net` for production with cloud-specific mappings, prefix `/ziam/admin/api/v1` (vendor/zscaler-sdk-go/zscaler/oneapiclient.go:385-410,441-455; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:18-20`). Its request builder treats ZIAM as a normal OneAPI service (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:408-449`). Legacy Go releases used a different vanity-admin pairing; SDK declarations do not establish whether that alias remains live.
 - **camelCase JSON keys** (consistent with ZIA / ZPA).
 - **String IDs** — `id: "..."`, not integers. Same as ZPA, different from ZIA.
 - **List endpoints return a single paginated object** (not an array of pages) with this shape:
@@ -58,9 +64,11 @@ _data/snapshot/<cloud>/zidentity/resource-servers.json
 
 ## `users.json`
 
-API: `GET {prefix}/users` (Python `/ziam/admin/api/v1/users` // Go `/admin/api/v1/users`)
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-Field set verified against the Go struct (vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:19-32), the Python `UserRecord` model (vendor/zscaler-sdk-python/zscaler/zid/models/users.py:84-122), and the Postman `ZIdentity > users > list` sample.
+API: `GET {prefix}/users` (`/ziam/admin/api/v1/users` in both current SDKs)
+
+Field set verified against the Go struct (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:22-43`), the Python `UserRecord` model (vendor/zscaler-sdk-python/zscaler/zid/models/users.py:84-122), and the Postman `ZIdentity > users > list` sample. In Go, `Status` is `*bool`, preserving explicit false under `omitempty` (`users.go:32-38`).
 
 ```json
 {
@@ -81,7 +89,7 @@ Field set verified against the Go struct (vendor/zscaler-sdk-go/zscaler/zid/serv
       "status": true,                           // active vs disabled
 
       "source": "SCIM",                          // flat STRING: UI | API | SCIM | JIT
-                                                 // (users.py docstring:187; Go users.go:21)
+                                                 // (users.py docstring:187; Go users.go:24)
 
       "idp": {                                   // identity-provider context — CommonIDNameDisplayName
         "id": "...",
@@ -98,7 +106,7 @@ Field set verified against the Go struct (vendor/zscaler-sdk-go/zscaler/zid/serv
       "customAttrsInfo": {                       // ARBITRARY key-value map of IdP extension attrs,
         "employeeId": "...",                     // NOT a fixed schema. Postman sample keys are
         "costCenter": "..."                      // opaque (e.g. "sita2", "ea_9_"). Typed as
-      }                                          // map[string]interface{} in Go (users.go:31).
+      }                                          // map[string]interface{} in Go (users.go:42).
     }
   ]
 }
@@ -127,9 +135,11 @@ jq '.records[] | select(.customAttrsInfo.costCenter == "ENG-1") | .loginName' _d
 
 ## `groups.json`
 
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
 API: `GET {prefix}/groups`
 
-Same outer wrapper shape. Field set verified against the Go struct (vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:21-31), the Python `Groups` model (vendor/zscaler-sdk-python/zscaler/zid/models/groups.py:84-94), and the Postman `ZIdentity > groups > list` record. There is **no `displayName`** and **no `memberCount`** on a group record:
+Same outer wrapper shape. Field set verified against the Go struct (vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go:20-31), the Python `Groups` model (vendor/zscaler-sdk-python/zscaler/zid/models/groups.py:84-94), and the Postman `ZIdentity > groups > list` record. There is **no `displayName`** and **no `memberCount`** on a group record:
 
 ```json
 {
@@ -147,7 +157,7 @@ Same outer wrapper shape. Field set verified against the Go struct (vendor/zscal
 
 The entitlement flags let you find admin-bearing or service-bearing groups without a second call. Dynamic-group *criteria* are not in the record (portal-only); only the `isDynamicGroup`/`dynamicGroup` flags surface here.
 
-Group memberships are accessed via `GET /groups/{id}/users` — a separate endpoint, not embedded in the list response (vendor/zscaler-sdk-python/zscaler/zid/groups.py membership ops; vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:92-93; Postman `Groups Ops get Group Members` → `{{ZIAMBaseUrl}}/groups/:id/users`). The response is the standard paginated wrapper of **full user records**, so the same `users.json` field set and jq apply.
+Group memberships are accessed via `GET /groups/{id}/users` — a separate endpoint, not embedded in the list response (vendor/zscaler-sdk-python/zscaler/zid/groups.py membership ops; vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go:118-129; Postman `Groups Ops get Group Members` → `{{ZIAMBaseUrl}}/groups/:id/users`). The response is the standard paginated wrapper of **full user records**; Go's `GetUsers` now returns typed `[]GroupUser` across all pages and `GetUsersPage` preserves the envelope.
 
 ### Common jq queries
 
@@ -166,7 +176,9 @@ jq '.records[] | select(.idp.name == "Okta-Production") | .name' _data/snapshot/
 
 ## `api-clients.json`
 
-API: `GET {prefix}/api-clients` — **Python SDK only.** The Go SDK has no api-client service at all (vendor/zscaler-sdk-go/zscaler/zid/services/ holds only common, groups, resource_servers, user_entitlement, users), so client/secret automation requires the **Python SDK or raw API** — not Terraform (the vendored TF providers expose no ZIdentity api-client resource, and Terraform itself needs an API client to authenticate first).
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
+API: `GET {prefix}/api-clients` — Python and the refreshed Go SDK both expose client/secret operations. Go's `ziam/services/api_clients` package provides typed list/get/page/search, CRUD, and secret operations (`vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:181-201,214-247,249-306,312-385`). This is SDK client-side coverage only; it does not prove backend availability or tenant entitlement.
 
 The record carries only the fields below (vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:86-114; Postman `Apiclient Ops list`). There are **no** top-level `roles`, `scopes`, `audience`, `ipRestrictions`, `timeRestrictions`, `createdAt`, or `lastUsedAt` fields — scope grants live under `clientResources`, and secrets are a separate sub-resource (below).
 
@@ -238,9 +250,11 @@ If the snapshot writer also dumps the secrets sub-resource per client (e.g. to `
 
 ## `resource-servers.json`
 
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
 API: `GET {prefix}/resource-servers`
 
-Resource Servers are the OAuth-defined services that API Clients can be scoped to (each Zscaler product is a Resource Server in OAuth terms). Field set verified against the Go struct (vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:16-42) and the Python model (vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:84-101). The aud field is `primaryAud` (not `audience`); scopes are **grouped under `serviceScopes[].service`**, not flat; and there are **no `roles`** on a resource server (roles live on the Entitlement object — see user-entitlements.md):
+Resource Servers are the OAuth-defined services that API Clients can be scoped to (each Zscaler product is a Resource Server in OAuth terms). Field set verified against the Go struct (vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go:16-50) and the Python model (vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:84-101). The aud field is `primaryAud` (not `audience`); scopes are **grouped under `serviceScopes[].service`**, not flat; and there are **no `roles`** on a resource server (roles live on the Entitlement object — see user-entitlements.md). Go additionally carries `externalName` and `zapsOnboarded` on nested services; the latter is undocumented and not a product-entitlement signal.
 
 ```json
 {
@@ -277,7 +291,7 @@ Resource Servers are the OAuth-defined services that API Clients can be scoped t
 
 The `serviceScopes[].service` grouping is the useful insight: scopes are partitioned by the underlying service (ZIA/ZPA/etc.) with `cloudName`/`orgName` context.
 
-**Note**: resource-servers is **read-only in Python, Go, AND the API** — Python exposes only list/get (vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py), Go exposes only Get/GetAll/GetByName (vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:46-96, no Create/Update/Delete), and Postman exposes only list+get. There is no SDK or API path to modify a resource server. (See gotcha #7 for the api-clients counterpart asymmetry.)
+**Note**: resource-servers is **read-only in Python, Go, AND the API** — Python exposes only list/get (vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py), Go exposes only Get/GetAll/GetByName (vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go:60-109, no Create/Update/Delete), and Postman exposes only list+get. There is no SDK or API path to modify a resource server. (The refreshed Go API-client package is the counterpart write surface.)
 
 ### Common jq queries
 
@@ -294,6 +308,8 @@ jq '.records[] | {product: .name, services: [.serviceScopes[] | {service: .servi
 
 ## Adjacent surfaces NOT in the four-file snapshot above
 
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+
 These are real, source-confirmed ZIdentity surfaces that a snapshot could add — the strongest candidates for "who is admin where" answer the entitlement question that the user/group records only hint at via flags.
 
 | Resource | API path | Backing | Why useful |
@@ -302,9 +318,11 @@ These are real, source-confirmed ZIdentity surfaces that a snapshot could add �
 | Per-user service entitlements | `/users/{id}/service-entitlements` | Python+Go SDK (read-only) | Which products a user is entitled to (user_entitlement.py:101-102) |
 | Per-user group membership | `/users/{id}/groups` | Python+Go SDK | User→group resolution without scanning every group (vendor/zscaler-sdk-python/zscaler/zid/users.py:378) |
 
-**ZIdentity colon-suffix verb endpoints** — a wire quirk distinct from REST sub-paths: user actions use a `:verb` suffix rather than a sub-resource path — `/users/{id}:resetpassword`, `/users/{id}:setskipmfa`, `/users/{id}:updatepassword` (Postman `ZIdentity > users`; commented-out Go stubs at vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:134-150). These are mutation actions, not snapshot reads, and are unimplemented in both active SDKs — listed here only to document the URL convention.
+**ZIdentity user-action paths** — Postman uses colon-suffix forms (`/users/{id}:resetpassword`, `/users/{id}:setskipmfa`, `/users/{id}:updatepassword`), while the refreshed Go wrappers send slash forms (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:200-241`). The reconstructed Automate contract also uses slash forms. These actions are mutation operations, not snapshot reads; Python still has no corresponding wrappers. Exact live route acceptance remains open.
 
 ## Wire-format gotchas (ZIdentity-specific)
+
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 1. **The list response is a single paginated object**, not an array of pages. Use `.records[]`. The `[ { ... } ]` one-element-array wrap appears only in some captured Postman fixtures; the live `GET .../users` body is the bare paginated object (vendor/zscaler-sdk-python/zscaler/zid/models/users.py:36-67). Only use `.[0].records[]` if the snapshot writer itself wraps pages in an array.
 
@@ -316,11 +334,11 @@ These are real, source-confirmed ZIdentity surfaces that a snapshot could add �
 
 5. **`authType` enum**: `SECRET` (shared secret), `PUBKEYCERT` (uploaded certificate → `clientCertificates[].certContent`), `JWKS` (`clientJWKsUrl` + `publicKeys[]`) (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:167`). Earlier `PRIVATE_KEY_JWT`/`JWKS_URL`/`PUBLIC_KEY` values were invented — they do not appear in the SDK or Postman.
 
-6. **`source` on users is a flat string**, not a nested object. Values: `UI`, `API`, `SCIM`, `JIT` (vendor/zscaler-sdk-python/zscaler/zid/users.py:187; Go users.go:21). Tracks how the user entered ZIdentity.
+6. **`source` on users is a flat string**, not a nested object. Values: `UI`, `API`, `SCIM`, `JIT` (vendor/zscaler-sdk-python/zscaler/zid/users.py:187; Go users.go:24). Tracks how the user entered ZIdentity.
 
-7. **Cross-SDK CRUD asymmetry** (high-value): (a) **resource-servers is read-only everywhere** — Python, Go, and the API all expose only list/get; no SDK can modify a resource server. (b) **api-clients is Python-SDK-only** — the Go SDK has no api-client service at all, so client and secret automation requires the Python SDK or raw API (no ZIdentity api-client Terraform resource exists).
+7. **Cross-SDK CRUD asymmetry** (high-value): (a) **resource-servers is read-only everywhere** — Python, Go, and the API all expose only list/get; no SDK can modify a resource server. (b) **api-clients now have parity at the SDK layer** — the refreshed Go SDK adds typed client and secret operations alongside Python (`vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:181-201,249-306,312-385`). This is client-side coverage only; no ZIdentity API-client Terraform resource is captured, and SDK declarations do not prove backend availability or tenant entitlement.
 
-8. **Wire host + path differ by SDK** — same logical API: Python → `api.zsapi.net` + `/ziam/admin/api/v1`; Go → `{vanity}-admin.zslogin.net` + `/admin/api/v1` (vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:436-448; vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177). The JSON body is identical; only the URL the snapshot writer hits changes.
+8. **Current wire host + path are aligned** — both current SDKs model `api.zsapi.net` + `/ziam/admin/api/v1` for production (Go routing and service constants: `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:385-410,441-455`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:18-20`; Python: `vendor/zscaler-sdk-python/zscaler/request_executor.py:175-177`). Older Go releases used a vanity-admin/bare-prefix pairing; whether that legacy alias remains accepted is unverified. The JSON body shape is otherwise independent of the client language.
 
 ## Open questions
 

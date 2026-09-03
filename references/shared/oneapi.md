@@ -7,7 +7,7 @@ last-verified: "2026-06-21"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
 confidence: high
 source-tier: doc
@@ -281,7 +281,7 @@ Single host, per-product paths:
 | ZIA | `/zia/api/v1` | `https://api.zsapi.net/zia/api/v1` |
 | ZPA | `/zpa/mgmtconfig/v1`, `v2`, `/zpa/userconfig/v1` | `https://api.zsapi.net/zpa/mgmtconfig/v1` etc. |
 | ZDX | `/zdx/v1` | `https://api.zsapi.net/zdx/v1` |
-| ZIdentity | `/ziam/admin/api/v1` (Python/Postman); `/admin/api/v1` (Go — different host) | `https://api.zsapi.net/ziam/admin/api/v1` (Python/Postman); `https://{vanity}-admin.zslogin.net/admin/api/v1` (Go SDK) — see [api-divergences](../zidentity/api-divergences.md#base-path-and-host-differ-by-sdk) |
+| ZIdentity | `/ziam/admin/api/v1` (Python, Go, and Postman) | `https://api.zsapi.net/ziam/admin/api/v1` in production; current Go `ziam` routing uses the shared OneAPI base (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:385-410,441-455`; `oneapiconfig.go:408-449`). The older Go `/admin/api/v1` + vanity-admin pairing is historical; whether legacy aliases remain accepted is an open compatibility question ([ZIdentity divergences](../zidentity/api-divergences.md#oneapi-route-is-aligned-legacy-go-routing-is-historical)). |
 | ZCC | `/zcc/papi/public/v1` | `https://api.zsapi.net/zcc/papi/public/v1` |
 | Cloud & Branch Connector | `/ztw/api/v1` | `https://api.zsapi.net/ztw/api/v1` |
 | Business Insights | `/bi/api/v1` | `https://api.zsapi.net/bi/api/v1` |

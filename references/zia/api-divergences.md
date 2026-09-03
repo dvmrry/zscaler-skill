@@ -8,7 +8,7 @@ last-verified: "2026-08-12"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: ee6354bfd20f797f3e77b69566f500e83c04f723
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
@@ -123,7 +123,7 @@ Use the rosetta table as the field-level index when a section below summarizes a
 **What each source says:**
 
 - **Python SDK:** all CAC ops are category-scoped under the `webApplicationRules` base. `availableActions` is `POST /{rule_type}/availableActions` (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:67-70`); list is `GET /{rule_type}` (`cloudappcontrol.py:119-122`); get is `GET /{rule_type}/{rule_id}` (`cloudappcontrol.py:166-169`); `ruleTypeMapping` is `GET /ruleTypeMapping` (`cloudappcontrol.py:207-210`); create is `POST /{rule_type}` (`cloudappcontrol.py:396-399`); update is `PUT /{rule_type}/{rule_id}` — full replacement (`cloudappcontrol.py:594-598`); delete is `DELETE /{rule_type}/{rule_id}` (`cloudappcontrol.py:645-648`); duplicate is `POST /{rule_type}/duplicate/{rule_id}` (`cloudappcontrol.py:728-731`).
-- **Go SDK:** the endpoint constant is at `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:15`, with the matching rule-operation paths at `:149`, `:159`, `:169`, `:184` (UpdateWithPut), `:195`, and `:205`. Go v3.8.46 names the old `POST /{rule_type}/availableActions` wrapper `AvailableActions` (`:219-247`) and adds `AllAvailableActions` for `POST /{rule_type}/allAvailableActions` (`:249-277`).
+- **Go SDK:** the endpoint constant is at `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:14-16`, with the matching rule-operation paths at `:151-153` (GET by ID), `:161-164` (GET by type), `:172-174` (create), `:187-189` (update), `:198-200` (delete), and `:208-210` (duplicate). Go v3.8.46 names the old `POST /{rule_type}/availableActions` wrapper `AvailableActions` (`:223-250`) and adds `AllAvailableActions` for `POST /{rule_type}/allAvailableActions` (`:253-280`).
 
 **Significance / which to trust:** The CRUD paths still agree. There is no fetch-by-`rule_id`-alone path — `rule_type` (the category) is mandatory on every call. Update is a PUT (full replacement), so any field omitted from an update body is dropped, not preserved. Action discovery no longer has cross-SDK parity: only Go exposes `allAvailableActions`. The Go release preserved the exported `AllAvailableActions` name but reassigned it from the old endpoint to the new one, so an existing Go caller can compile unchanged while selecting a different endpoint after upgrading.
 
@@ -134,7 +134,7 @@ Use the rosetta table as the field-level index when a section below summarizes a
 **What each source says:**
 
 - **Python SDK:** POSTs body `{'cloudApps': cloud_apps}` to `.../availableActions` — no `type` key. (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:72`) The result must be a list. (`cloudappcontrol.py:84-91`)
-- **Go SDK:** the request shared by both Go discovery methods has `CloudApps` AND a `Type` field tagged `json:"type,omitempty"`. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:142-145`, method payloads at `:219-262`)
+- **Go SDK:** the request shared by both Go discovery methods has `CloudApps` AND a `Type` field tagged `json:"type,omitempty"`. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:146-149`, method payloads at `:223-280`)
 - **Go SDK test:** populates `Type:"ANY"` alongside `CloudApps:["DROPBOX"]`. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol_test.go:175-177`)
 
 **Significance / which to trust:** Trust the source you're calling. The endpoint accepts the call without `type` — the Python path proves it round-trips — and `type` is `omitempty`, so it appears optional. Go callers can send a `type` discriminator that the Python path never sends.
@@ -146,7 +146,7 @@ Use the rosetta table as the field-level index when a section below summarizes a
 **What each source says:**
 
 - **Python SDK:** the signature returns `List[str]` (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`); the discovery POST goes to `.../availableActions` with body `{cloudApps: [...]}` (`cloudappcontrol.py:66-72`), and the result is validated as a list (`cloudappcontrol.py:84-91`).
-- **Go SDK:** both methods unmarshal to `[]string`; `AvailableActions` uses the old path (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:229-246`) and `AllAvailableActions` uses the new path (`:259-276`). The v3.8.46 release describes the latter as retrieving all available actions for each application type (`vendor/zscaler-sdk-go/CHANGELOG.md:3-14`).
+- **Go SDK:** both methods unmarshal to `[]string`; `AvailableActions` uses the old path (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:223-250`) and `AllAvailableActions` uses the new path (`:253-280`). The v3.8.46 release describes the latter as retrieving all available actions for each application type (`vendor/zscaler-sdk-go/CHANGELOG.md:3-14`).
 - **Automate capture:** publishes only `POST /{rule_type}/availableActions`; the captured operation says it fetches granular actions for the supplied applications and has no `allAvailableActions` sibling (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:37447-37459`).
 
 **Significance / which to trust:** The source proves that callers may send one
@@ -190,10 +190,19 @@ verification. The Automate capture publishes only the old path.
 **What each source says:**
 
 - **Go-only field:** the Go `WebApplicationRules` struct carries `numberOfApplications` (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:32`), which the Python read-model does not parse. (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:43-120`)
-- **Python-only live fields:** the Python read-model parses `sharing_domain_profiles` (json `sharingDomainProfiles`) and `form_sharing_domain_profiles` (json `formSharingDomainProfiles`) (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:107-114`) and emits them in `request_format` (`models/cloudappcontrol.py:218-219`). In the Go struct these two fields appear only as commented-out lines, so Go neither parses nor sends them. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:94-95`)
+- **Python-only live fields:** the Python read-model parses `sharing_domain_profiles` (json `sharingDomainProfiles`) and `form_sharing_domain_profiles` (json `formSharingDomainProfiles`) (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:107-114`) and emits them in `request_format` (`models/cloudappcontrol.py:218-219`). In the Go struct these two fields appear only as commented-out lines, so Go neither parses nor sends them. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:98-99`)
 - **Fields that agree:** Python parses `tenancy_profile_ids`, which Go has live as `TenancyProfileIDs`. Both also carry `CascadingEnabled`, `AccessControl`, `Predefined`, `EunEnabled`/`EunTemplateId`/`BrowserEunTemplateId`, and `UserRiskScoreLevels`.
 
 **Significance / which to trust:** A Python read of a CAC rule silently drops `numberOfApplications`; a Go read silently drops the sharing-domain-profile fields and does not send them on write.
+
+### CAC prompt capture — Go-only `promptCaptureEnabled`
+
+**What each source says:**
+
+- **Go SDK:** `WebApplicationRules` carries the `promptCaptureEnabled` JSON field as a Go `bool`. The source comment says it controls whether end-user prompts for generative-AI applications are allowed or blocked, and that it applies only when the Gen AI Applications Access setting is `Allow` (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:43-45`).
+- **Python SDK:** the `CloudApplicationControl` model has no `prompt_capture_enabled` attribute and does not parse or emit the `promptCaptureEnabled` wire key (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:40-120,175-224`).
+
+**Significance / which to trust:** This is an accepted model/wire-surface divergence: a Go caller can carry the field while a Python model round-trip drops it. The SDK declarations establish only client-side model coverage; they do not prove that prompt capture is enabled, available, or entitled in a tenant. The source does not document how the field interacts with a denied Gen AI Applications Access setting beyond the applicability note above.
 
 ---
 
@@ -201,7 +210,7 @@ verification. The Automate capture publishes only the old path.
 
 **What each source says:**
 
-- **Go SDK:** declares `CloudAppRiskProfile *common.IDCustom` — a single pointer object. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:97`)
+- **Go SDK:** declares `CloudAppRiskProfile *common.IDCustom` — a single pointer object. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:101`)
 - **Python SDK:** decodes the same `cloudAppRiskProfile` key as a LIST via `ZscalerCollection.form_list(... ResourceReference)` (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:115-117`), but then `request_format` calls `self.cloud_app_risk_profile.request_format()` as if it were a single object. (`models/cloudappcontrol.py:220`)
 
 **Significance / which to trust:** A single-object-vs-list type mismatch between SDKs. The Python side is internally inconsistent (a list has no `.request_format()`) — flagged as a latent Python-SDK bug surface, not a product contract. The runtime behavior was not executed to confirm it raises (see Open questions).
@@ -213,7 +222,7 @@ verification. The Automate capture publishes only the old path.
 **What each source says:**
 
 - **Python SDK:** `add_duplicate_rule` sends `name` as a QUERY PARAM (`params={'name': name}`) AND a kwargs body (`body=kwargs`), with the `enabled`->`state` transform and id-field reformatting applied to that body. (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:726-746`; `enabled`->`state` at `:736-737`, `transform_common_id_fields` at `:739`)
-- **Go SDK:** `CreateDuplicate` puts `name` in the URL query string (`?name=%s`) and sends a NIL body. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:204-206`)
+- **Go SDK:** `CreateDuplicate` puts `name` in the URL query string (`?name=%s`) and sends a NIL body. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:208-210`)
 
 **Significance / which to trust:** Materially different behavior for the same `/duplicate/{rule_id}` endpoint. A Go duplicate copies the source rule as-is server-side; a Python duplicate can simultaneously mutate fields via its body.
 
@@ -224,7 +233,7 @@ verification. The Automate capture publishes only the old path.
 **What each source says:**
 
 - **Python SDK:** defines a rich `Application` catalog model with `val`/`webApplicationClass`/`backendName`/`originalName`/`deprecated`/`misc`/`appNotReady`/`underMigration`/`appCatModified`, prefixed by a comment `# USED IN /webApplicationRules/{rule_type}/availableActions`. (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:227-254`, comment at `:227`) But `availableActions` actually returns a flat `List[str]`. (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34`, `:84-91`)
-- **Go SDK:** defines the equivalent `CloudApp` struct with the same fields. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:129-140`)
+- **Go SDK:** defines the equivalent `CloudApp` struct with the same fields. (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:133-144`)
 
 **Significance / which to trust:** The Python comment is misleading — the catalog model is NOT the response shape for `availableActions` (which returns `List[str]`). The `deprecated`/`underMigration`/`appNotReady` flags are real catalog attributes, but they surface through a different path, not `availableActions`.
 

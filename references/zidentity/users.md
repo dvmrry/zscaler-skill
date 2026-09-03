@@ -6,13 +6,14 @@ content-type: reference
 last-verified: "2026-06-21"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/users.py"
   - "vendor/zscaler-sdk-python/zscaler/zid/models/users.py"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
@@ -25,7 +26,7 @@ The ZIdentity Users API manages user lifecycle, group membership, and entitlemen
 
 Base endpoint:
 - **Python SDK**: `/ziam/admin/api/v1` (`vendor/zscaler-sdk-python/zscaler/zid/users.py:31`)
-- **Go SDK**: `/admin/api/v1` (`vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`)
+- **Go SDK**: `/ziam/admin/api/v1` (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:18-20`)
 
 ## Python SDK methods
 
@@ -44,19 +45,23 @@ Class `UsersAPI` in `zscaler/zid/users.py`. All methods return a 3-tuple `(resul
 
 ## Go SDK functions
 
-Source: `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+Source: `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
-Package `users` in `zscaler/zid/services/users/users.go`. All functions are package-level with `ctx context.Context, service *zscaler.Service` as first two parameters.
+Package `users` in `zscaler/ziam/services/users/users.go`. All functions are package-level with `ctx context.Context, service *zscaler.Service` as first two parameters.
 
 | Function | Returns | HTTP method | Endpoint | Citation |
 |---|---|---|---|---|
-| `GetUser(ctx, service, userID string)` | `(*Users, error)` | GET | `/admin/api/v1/users/{userID}` | `users.go:36` |
-| `GetAll(ctx, service, queryParams)` | `([]Users, error)` | GET | `/admin/api/v1/users` | `users.go:47` |
-| `GetByName(ctx, service, name string)` | `([]Users, error)` | GET | `/admin/api/v1/users` (paginated, client-side filter) | `users.go:53` |
-| `Create(ctx, service, user *Users)` | `(*Users, *http.Response, error)` | POST | `/admin/api/v1/users` | `users.go:94` |
-| `Update(ctx, service, userID, user *Users)` | `(*Users, *http.Response, error)` | PUT | `/admin/api/v1/users/{userID}` | `users.go:109` |
-| `Delete(ctx, service, userID)` | `(*http.Response, error)` | DELETE | `/admin/api/v1/users/{userID}` | `users.go:120` |
-| `GetGroupsByUser(ctx, service, userID, queryParams)` | `(*PaginationResponse[Groups], error)` | GET | `/admin/api/v1/users/{userID}/groups` | `users.go:129` |
+| `GetUser(ctx, service, userID string)` | `(*Users, error)` | GET | `/ziam/admin/api/v1/users/{userID}` | `users.go:47-56` |
+| `GetAll(ctx, service, queryParams)` | `([]Users, error)` | GET | `/ziam/admin/api/v1/users` | `users.go:58-61` |
+| `GetByName(ctx, service, name string)` | `([]Users, error)` | GET | `/ziam/admin/api/v1/users` (paginated, client-side filter) | `users.go:63-97` |
+| `Create(ctx, service, user *Users)` | `(*Users, *http.Response, error)` | POST | `/ziam/admin/api/v1/users` | `users.go:99-112` |
+| `Update(ctx, service, userID, user *Users)` | `(*Users, *http.Response, error)` | PUT | `/ziam/admin/api/v1/users/{userID}` | `users.go:114-135` |
+| `Delete(ctx, service, userID)` | `(*http.Response, error)` | DELETE | `/ziam/admin/api/v1/users/{userID}` | `users.go:137-144` |
+| `GetGroupsByUser(ctx, service, userID, queryParams)` | `([]groups.Groups, error)` | GET | `/ziam/admin/api/v1/users/{userID}/groups` (all pages) | `users.go:146-155` |
+| `GetGroupsByUserPage(ctx, service, userID, queryParams)` | `(*PaginationResponse[groups.Groups], error)` | GET | `/ziam/admin/api/v1/users/{userID}/groups` (single page) | `users.go:157-163` |
+| `SetSkipMFA(ctx, service, userID, timestamp)` | `(*http.Response, error)` | POST | `/ziam/admin/api/v1/users/{userID}/setskipmfa` | `users.go:181-214` |
+| `ResetPassword(ctx, service, userID)` | `(*http.Response, error)` | POST | `/ziam/admin/api/v1/users/{userID}/resetpassword` | `users.go:216-226` |
+| `UpdatePassword(ctx, service, userID, payload)` | `(*http.Response, error)` | PUT | `/ziam/admin/api/v1/users/{userID}/updatepassword` | `users.go:228-241` |
 
 ## Postman collection endpoints
 
@@ -74,9 +79,9 @@ Variable `{{ZIAMBaseUrl}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zsc
 | GET | `{{ZIAMBaseUrl}}/users/:id/groups` | Get groups for user |
 | GET | `{{ZIAMBaseUrl}}/users/:id/admin-entitlements` | Admin entitlements — see [`admin-rbac.md`](./admin-rbac.md) |
 | GET | `{{ZIAMBaseUrl}}/users/:id/service-entitlements` | Service entitlements — see [`admin-rbac.md`](./admin-rbac.md) |
-| POST | `{{ZIAMBaseUrl}}/users/:id:resetpassword` | Reset password — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
-| POST | `{{ZIAMBaseUrl}}/users/:id:setskipmfa` | Set skip MFA — live ZIAM API op, **NOT in SDK** (Go stub commented out) |
-| PUT | `{{ZIAMBaseUrl}}/users/:id:updatepassword` | Update password — live ZIAM API op, **NOT in SDK** |
+| POST | `{{ZIAMBaseUrl}}/users/:id:resetpassword` | Reset password — Postman colon-suffix form; Go exposes a slash-form wrapper |
+| POST | `{{ZIAMBaseUrl}}/users/:id:setskipmfa` | Set skip MFA — Postman colon-suffix form; Go exposes a slash-form wrapper |
+| PUT | `{{ZIAMBaseUrl}}/users/:id:updatepassword` | Update password — Postman colon-suffix form; Go exposes a slash-form wrapper |
 
 The reconstructed Automate snapshot independently carries the same three user-action operations using slash-delimited paths (`/users/{id}/resetpassword`, `/users/{id}/setskipmfa`, `/users/{id}/updatepassword`) (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5525`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5931`). This corrects the earlier malformed adjacent-template capture and the refreshed contract passes structural path validation (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:19`). The Postman collection still uses colon-suffix action routes, so action existence is corroborated while the exact live URL spelling remains an open cross-source question; see [clarification `zid-36`](../_meta/clarifications.md#zid-36-zidentity-user-action-path-template-encoding).
 
@@ -84,30 +89,30 @@ There is no bulk-delete on the ZIAM users surface. The only `users/bulkDelete` i
 
 ## User model fields
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go`.
 
-Python model: `UserRecord` in `zscaler/zid/models/users.py`. Go struct: `Users` in `zscaler/zid/services/users/users.go`.
+Python model: `UserRecord` in `zscaler/zid/models/users.py`. Go struct: `Users` in `zscaler/ziam/services/users/users.go`.
 
 | Python attr | Go field | Wire key (JSON) | Type | Notes | Citation |
 |---|---|---|---|---|---|
-| `id` | `ID` | `id` | string | Auto-generated on create | `models/users.py:92`, `users.go:20` |
-| `source` | `Source` | `source` | string | Values: `UI`, `API`, `SCIM`, `JIT` | `models/users.py:93`, `users.go:21` |
-| `login_name` | `LoginName` | `loginName` | string | | `models/users.py:85`, `users.go:22` |
-| `display_name` | `DisplayName` | `displayName` | string | | `models/users.py:86`, `users.go:23` |
-| `first_name` | `FirstName` | `firstName` | string | | `models/users.py:87`, `users.go:24` |
-| `last_name` | `LastName` | `lastName` | string | | `models/users.py:88`, `users.go:25` |
-| `primary_email` | `PrimaryEmail` | `primaryEmail` | string | | `models/users.py:89`, `users.go:26` |
-| `secondary_email` | `SecondaryEmail` | `secondaryEmail` | string | | `models/users.py:90`, `users.go:27` |
-| `status` | `Status` | `status` | boolean | `true` = active, `false` = disabled | `models/users.py:91`, `users.go:28` |
-| `department` | `Department` | `department` | nested struct (`IDNameDisplayName`) | | `models/users.py:115`, `users.go:29` |
-| `idp` | `IDP` | `idp` | nested struct (`IDNameDisplayName`) | Populated for IdP-sourced users | `models/users.py:104`, `users.go:30` |
-| `custom_attrs_info` | `CustomAttrsInfo` | `customAttrsInfo` | dict / `map[string]interface{}` | Free-form key-value pairs. **Python caveat**: the model attribute is assigned the entire raw record, not the `customAttrsInfo` sub-key — see Known bugs. | `models/users.py:100`, `users.go:31` |
+| `id` | `ID` | `id` | string | Auto-generated on create | `models/users.py:92`, `users.go:23` |
+| `source` | `Source` | `source` | string | Values: `UI`, `API`, `SCIM`, `JIT` | `models/users.py:93`, `users.go:24` |
+| `login_name` | `LoginName` | `loginName` | string | | `models/users.py:85`, `users.go:25` |
+| `display_name` | `DisplayName` | `displayName` | string | | `models/users.py:86`, `users.go:26` |
+| `first_name` | `FirstName` | `firstName` | string | | `models/users.py:87`, `users.go:27` |
+| `last_name` | `LastName` | `lastName` | string | | `models/users.py:88`, `users.go:28` |
+| `primary_email` | `PrimaryEmail` | `primaryEmail` | string | | `models/users.py:89`, `users.go:29` |
+| `secondary_email` | `SecondaryEmail` | `secondaryEmail` | string | | `models/users.py:90`, `users.go:30` |
+| `status` | `Status` | `status` | Python `bool`; Go `*bool` | `true` = active, `false` = disabled; Go pointer preserves explicit false under `omitempty` | `models/users.py:91`, `users.go:32-38` |
+| `department` | `Department` | `department` | nested struct (`IDNameDisplayName`) | | `models/users.py:115`, `users.go:40` |
+| `idp` | `IDP` | `idp` | nested struct (`IDNameDisplayName`) | Populated for IdP-sourced users | `models/users.py:104`, `users.go:41` |
+| `custom_attrs_info` | `CustomAttrsInfo` | `customAttrsInfo` | dict / `map[string]interface{}` | Free-form key-value pairs. **Python caveat**: the model attribute is assigned the entire raw record, not the `customAttrsInfo` sub-key — see Known bugs. | `models/users.py:100`, `users.go:42` |
 | `is_dynamic_group` | — | `isDynamicGroup` | boolean | Python only | `models/users.py:94` |
 | `dynamic_group` | — | `dynamicGroup` | object | Python only | `models/users.py:95` |
 | `admin_entitlement_enabled` | — | `adminEntitlementEnabled` | boolean | Python only | `models/users.py:96` |
 | `service_entitlement_enabled` | — | `serviceEntitlementEnabled` | boolean | Python only | `models/users.py:97` |
 
-The `IDNameDisplayName` nested struct (Go) has fields `ID string`, `Name string`, `DisplayName string`. (`vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:14`)
+The `IDNameDisplayName` nested struct (Go) has fields `ID string`, `Name string`, `DisplayName string`. (`vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go:14-18`)
 
 ### Pagination envelope
 
@@ -124,9 +129,9 @@ The Python `Users` wrapper object (returned by `list_users`) carries pagination 
 
 ## Filter / query parameters
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
-`PaginationQueryParams` struct in `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:32`. Python docstring at `users.py:47`.
+`PaginationQueryParams` struct in `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go:31-44`. Python docstring at `users.py:47`.
 
 | Wire param | Go field | Type | Purpose | Citation |
 |---|---|---|---|---|
@@ -145,21 +150,21 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go
 
 ## CRUD notes
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
-Full CRUD is supported. No activation step is exposed for ZIdentity user writes in the SDK surface; changes are submitted directly through the ZID users service.
+Full CRUD is supported. No activation step is exposed for ZIdentity user writes in the SDK surface; changes are submitted directly through the ZIAM users service. The refreshed Go package also wraps the three password/MFA action routes, using raw request execution because their documented success body is a bare string (`users.go:169-179,200-265`).
 
 **Creating a user**: `add_user` accepts `id` as a kwarg but the docstring example shows it as caller-supplied. It is not documented whether omitting `id` triggers server-side auto-generation. (`users.py:186`)
 
-**Deleting a user**: `delete_user` / `Delete` return `(None, response, None)` / `(*http.Response, nil)` on success — no body. (`users.py:297`, `users.go:120`)
+**Deleting a user**: `delete_user` / `Delete` return `(None, response, None)` / `(*http.Response, nil)` on success — no body. (`users.py:297`, `users.go:137-144`)
 
 **Activating / deactivating**: Toggle the `status` boolean field via `update_user` / `Update`. There is no separate workflow endpoint. (`models/users.py:91`)
 
 ## IdP-sourced vs ZIdentity-internal users
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
-Both types appear in the same list endpoint. Distinguish by the `source` field: (`models/users.py:93`, `users.go:21`)
+Both types appear in the same list endpoint. Distinguish by the `source` field: (`models/users.py:93`, `users.go:24`)
 
 | User type | `source` values | `idp` field |
 |---|---|---|
@@ -172,23 +177,27 @@ Filter to IdP-sourced users using the `idpname` query parameter. (`users.py:61`)
 
 ## SDK divergences
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go`.
 
 | Aspect | Python | Go |
 |---|---|---|
 | List return type | `(Users envelope, response, error)` — pagination metadata in wrapper object | `([]Users, error)` — Go flattens to slice; metadata consumed internally |
 | Get return type | `(UserRecord, response, error)` | `(*Users, error)` — Go pointer, no raw response |
-| GetByName | Not exposed | `GetByName(name)` — fetches all pages, `strings.Contains` on `DisplayName`; expensive for large tenants (`users.go:53`) |
-| Group association | `list_user_group_details()` returns `List[UserRecord]` | `GetGroupsByUser()` returns `*PaginationResponse[Groups]` — different return shapes |
+| GetByName | Not exposed | `GetByName(name)` — fetches all pages, `strings.Contains` on `DisplayName`; expensive for large tenants (`users.go:63-97`) |
+| Group association | `list_user_group_details()` returns `List[UserRecord]` | `GetGroupsByUser()` returns all pages as `[]groups.Groups`; `GetGroupsByUserPage()` returns `*PaginationResponse[groups.Groups]` (`users.go:146-163`) |
 | Error tuple | 3-tuple `(result, response, error)` | Standard Go `(result, error)` or `(result, *http.Response, error)` |
 
 ## Known bugs and edge cases
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
-**Go — variable-shadowing bug in `GetUsers`**: The local declaration `usersEndpoint := fmt.Sprintf(...)` on line 90 shadows the package-level `usersEndpoint` constant, making the function build the wrong path (`/admin/api/v1/users/{userID}/users`). This function is not listed in the primary CRUD surface and appears vestigial — `GetGroupsByUser` is the correct group-association function. (`users.go:88`)
+**Go — prior `GetUsers` shadowing bug is removed**: the refreshed package no longer defines the invalid `/users/{userID}/users` helper; the supported inverse lookup is `GetGroupsByUser`, with all-page and single-page variants (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:146-163`). The old bug is retained here as historical context only; do not cite it as current behavior.
 
-**Go — `GetByName` cost**: `GetByName` fetches all pages client-side and filters with `strings.Contains` on `DisplayName`. For large tenants this is expensive. Prefer server-side `displayname[like]` via `GetAll` with query params. (`users.go:53`)
+**Go — `GetByName` cost**: `GetByName` fetches all pages client-side and filters with `strings.Contains` on `DisplayName`. For large tenants this is expensive. Prefer server-side `displayname[like]` via `GetAll` with query params. (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:63-97`)
+
+**Go — explicit status false is now representable**: `Users.Status` is a `*bool`, so `nil` omits the key while a pointer to `false` transmits an explicit disable operation (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:32-38`). This fixes the prior plain-bool-plus-`omitempty` loss of false.
+
+**Go — empty successful update is handled**: `Update` checks for a nil or non-`*Users` response and returns a nil model without an error, avoiding the prior 204 dereference panic (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:114-135`).
 
 **Python — `list_user_group_details` return type**: Despite the function name suggesting groups, the function returns `List[UserRecord]` (not group objects). (`users.py:333`)
 
@@ -196,13 +205,15 @@ Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go
 
 ## Gaps
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-These are **live ZIdentity API operations** (present in the Postman collection on the `{{ZIAMBaseUrl}}` surface) that are **not implemented in either active SDK** — i.e. SDK gaps, not API gaps. Anyone scripting against the raw API can call them; SDK users cannot:
+These are **Postman-declared ZIdentity API operations** (captured on the `{{ZIAMBaseUrl}}` surface) with a cross-SDK implementation divergence:
 
-1. **Password reset** — `POST /users/:id:resetpassword` — real ZIAM API op (`oneapi-postman-collection.json:133836`); Go stub scaffolded then commented out (`users.go:134`)
-2. **Set skip MFA** — `POST /users/:id:setskipmfa` — real ZIAM API op (`oneapi-postman-collection.json:133974`), a per-user MFA-bypass capability; Go stub scaffolded then commented out (`users.go:143`)
-3. **Update password** — `PUT /users/:id:updatepassword` — real ZIAM API op (`oneapi-postman-collection.json:134154`), admin-driven password set; no SDK coverage
+1. **Password reset** — Postman uses `POST /users/:id:resetpassword` (`oneapi-postman-collection.json:133836`), while the refreshed Go wrapper sends `POST /users/{id}/resetpassword` (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:216-226`).
+2. **Set skip MFA** — Postman uses `POST /users/:id:setskipmfa` (`oneapi-postman-collection.json:133974`), while the refreshed Go wrapper sends `POST /users/{id}/setskipmfa` (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:200-214`).
+3. **Update password** — Postman uses `PUT /users/:id:updatepassword` (`oneapi-postman-collection.json:134154`), while the refreshed Go wrapper sends `PUT /users/{id}/updatepassword` (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:228-241`).
+
+The reconstructed Automate contract independently uses the slash-delimited forms (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421,5525,5931`). The Go wrappers use raw `ExecuteRequest` because the operation responses are bare strings (`users.go:169-179`); Python still has no corresponding action methods. Exact live route acceptance remains an open cross-source question, not a claim about backend availability.
 
 The following are genuine SDK + API gaps for the ZIdentity users surface:
 
