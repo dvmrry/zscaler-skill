@@ -8,7 +8,7 @@ verified-against:
   vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
   vendor/zpacloud-ansible: ff0fec2d53073e33b3d4b289e9126f4a29f89f4e
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
-  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-help: dbe545d5918392c4067ff897e748698c80220fef
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
 confidence: high
@@ -20,6 +20,8 @@ sources:
   - "vendor/zscaler-help/Understanding_Application_Access.txt"
   - "https://help.zscaler.com/zpa/using-app-segment-multimatch"
   - "vendor/zscaler-help/Using_Application_Segment_Multimatch.txt"
+  - "vendor/zscaler-help/zpa-configuring-defined-application-segments.md"
+  - "vendor/zscaler-help/zpa-using-app-segment-multimatch.md"
   - "https://www.zscaler.com/resources/reference-architectures"
   - "vendor/zscaler-help/zpa-user-to-app-segmentation-refarch.txt"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
@@ -46,7 +48,7 @@ How ZPA picks which application segment handles a request when two or more segme
 
 ## Summary
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.md`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.md`; `vendor/zscaler-help/Understanding_Application_Access.txt`.
 
 From *Configuring Defined Application Segments*, p.10:
 
@@ -54,13 +56,13 @@ From *Configuring Defined Application Segments*, p.10:
 
 So the default matching rule is **most-specific-segment-wins**, evaluated client-side by Zscaler Client Connector. And — critically — **failure to match within the selected segment causes a direct bypass**, not fallback to a less-specific segment.
 
-Multimatch (opt-in) changes this: a segment in `INCLUSIVE` mode allows a request to match multiple segments simultaneously. Segments in the default `EXCLUSIVE` mode match only one at a time.
+The current Help capture defines Multimatch as an inclusive policy that allows an application request to match multiple application segments (`vendor/zscaler-help/zpa-configuring-defined-application-segments.md:48-52`). A segment in `INCLUSIVE` mode therefore allows a request to match multiple segments simultaneously; segments in the default `EXCLUSIVE` mode match only one at a time.
 
 Separate precedence rules apply to the **Bypass** setting: if a segment containing the FQDN has `Bypass = Always`, that segment's bypass takes priority over any client forwarding policy rule.
 
 ## Mechanics
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.md`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md`.
 
 ### What defines an application segment
 
@@ -210,7 +212,7 @@ And p.15:
 
 ## The specificity-wins rule (covers eval Q6)
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.md`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
 
 From *Configuring Defined Application Segments* p.10 and *Understanding Application Access* p.1, the definitive rule:
 
@@ -262,6 +264,8 @@ So for same-FQDN overlap resolution:
 
 ### Multimatch (INCLUSIVE mode)
 
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.md:48-65`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.md:14-67`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+
 From *Using Application Segment Multimatch* p.4:
 
 > Multimatch allows admins to create new application segments without the risk of unwanted access failure if a user attempts to access a FQDN with undefined ports. After Multimatch is enabled, the wildcard application segment catches all UDP or TCP ports that are not configured in the more specific application segment.
@@ -291,16 +295,14 @@ When Multimatch is on across the specificity chain, multiple segments match. As 
 
 **Policy evaluation under Multimatch.** From pp.5–8: with Multimatch enabled, the **access policy** search runs across all matched segments' rules. A block rule on a specific segment stops traffic even when the wildcard segment's rule would allow. Example from p.8: Rule 1 = Allow Server1_AS for Admin; Rule 2 = Block Server1_AS for All; Rule 3 = Allow Wildcard_AS for All. User `user3` (non-admin) requesting `server1.example.com:443` → matches Server1_AS + Wildcard_AS → Rule 2 Block fires first by top-down order → blocked.
 
-**Multimatch prerequisites** (p.1):
+**Multimatch prerequisites** (p.1; current Help capture `vendor/zscaler-help/zpa-using-app-segment-multimatch.md:19-29`):
 
 - App Connectors or Private Service Edges on version 24.298.1+
 - Zscaler Client Connector: Windows 4.6.0.282+ or 4.7.0.88+; macOS 4.5.2.98+; iOS 4.4.1+ (requires "Use Tunnel SDK Version 4.3 or above" setting); Android 3.10+; Linux 4.2+.
 
-**Multimatch disallowed features** (*Configuring Defined Application Segments* p.16 + *Using Application Segment Multimatch* p.2):
+**Current Help restrictions.** The current defined-segment article states that Multimatch is not supported for applications with Source IP Anchoring and that Health Reporting can only be set to On Access or None when Multimatch is enabled (`vendor/zscaler-help/zpa-configuring-defined-application-segments.md:48-65`). The current Multimatch article states that Multimatch must be disabled if the configuration contains applications using Double Encryption and Source IP Anchor (`vendor/zscaler-help/zpa-using-app-segment-multimatch.md:31-36`). It explicitly does not repeat the former blanket list covering Browser Access, AppProtection, Privileged Remote Access, and Inspect Traffic with ZIA; it also records the separate release-summary entry for support for Internet & SaaS Inspection with Multimatch (`vendor/zscaler-help/zpa-using-app-segment-multimatch.md:38-42`). The current captures do not establish a complete feature-compatibility matrix, so the former blanket list is not retained as current behavior.
 
-> Multimatch must be disabled if the configuration contains applications using the Access Type of Browser Access, AppProtection, or Privileged Remote Access. Additionally, Multimatch must be disabled if the configuration contains applications using Double Encryption, Inspect Traffic with Internet & SaaS (ZIA), and Source IP Anchor.
-
-Plus from *Configuring Defined Application Segments* p.16: "If Multimatch is enabled, Health Reporting on an app segment can only be set to On Access or None."
+**Current matching and connector selection.** With Multimatch disabled, the more granular application segment is selected. With Multimatch enabled, a wildcard segment can catch ports not configured on a more-specific FQDN segment; wildcard and specific FQDN segments both using Multimatch select the specific segment's server group, while multiple Multimatch segments for one FQDN with different ports must use the same server group or any server group can be randomly selected (`vendor/zscaler-help/zpa-using-app-segment-multimatch.md:56-64`).
 
 **IP-based Multimatch.** From *Using Application Segment Multimatch* pp.10–11, the same rules apply to IP subnets and individual IPs — a `/32` is carved out of a containing `/24` by default, and Multimatch restores the catch-fallthrough behavior for ports not defined on the `/32`.
 
