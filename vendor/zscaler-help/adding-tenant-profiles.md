@@ -1,7 +1,13 @@
 # Adding Tenant Profiles
 
 **Source:** https://help.zscaler.com/zia/adding-tenant-profiles
-**Captured:** 2026-04-23 via Playwright MCP (bundled chromium rendering the JS-served page; `innerText` extraction of `article`).
+**Captured:** 2026-09-03 via Zscaler Help `/zapi/fetch-data` JSON (`data.info` and `data.body.content` extraction).
+**Status:** 200
+**Canonical:** https://help.zscaler.com/zia/adding-tenant-profiles
+**Help node:** `1401746`
+**Help revision:** `3229787`
+**Body content length:** 45,085 HTML characters
+**Public PDF:** https://help.zscaler.com/pdf/gov/en/1401746.pdf
 
 ---
 
@@ -11,7 +17,7 @@ Zscaler's tenancy restriction feature allows you to restrict access either to pe
 
 To add a tenant profile:
 
-1. Go to Administration > Tenant Profiles.
+1. Go to Policies > Access Control > Internet & SaaS > Tenant Profiles.
 2. Click Add Tenant Profile. The Add Tenant Profile page appears.
 3. In the **Cloud Application** field, select one of the following applications and configure it accordingly:
    - YouTube
@@ -27,6 +33,11 @@ To add a tenant profile:
    - IBM SmartCloud
    - GitHub
    - ChatGPT
+   - Claude
+
+The current Help body uses **Claude** as the cloud-application display name. It
+does not document an API token or SDK enum named `CLAUDE_AI`; any mapping from
+the Help label to that token belongs to the separately pinned SDK source.
 
    Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated. However, for **YouTube** and **Amazon Web Services**, subsequent policies are evaluated, so an explicit block policy is required to block other tenants for them.
 
