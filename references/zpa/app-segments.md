@@ -5,8 +5,10 @@ title: "ZPA application segment matching"
 content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
-  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
+  vendor/zpacloud-ansible: ff0fec2d53073e33b3d4b289e9126f4a29f89f4e
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
 confidence: high
@@ -23,6 +25,10 @@ sources:
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
+  - "vendor/zpacloud-ansible/CHANGELOG.md"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py"
   - "vendor/zscaler-mcp-server/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"
@@ -124,6 +130,53 @@ class added by the release is local to the application-segment model
 (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:20-23,1164-1208`).
 Use a raw response or the Go model when `partnerInfo` can be present; see
 [`./api-divergences.md`](./api-divergences.md#python-v1941-cannot-decode-populated-guestdetailspartnerinfo).
+
+### Ansible 2.2.12 child reconciliation is parent-scoped and domain-based
+
+The Ansible Browser Access v2 and PRA modules now resolve child IDs only from
+the current parent segment. Creates leave parent/child IDs empty and emit no
+cross-parent deletion IDs; updates can delete stale children owned by that
+parent. Both modules compare declared and live child domains in both directions
+using trimmed, case-folded values, so removing a child outside Ansible or
+declaring an empty child list is treated as drift
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:547-565,606-651`;
+`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-457,499-543`).
+Both modules compute merged parent `domain_names` and TCP ports in
+`desired_app`, but the update payloads take TCP ports from raw `existing_app`
+and the create payloads take them from raw `app`; neither sends the merged
+`desired_app["tcp_port_range"]`
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:601-604,653-670,705-710,772-773`;
+`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:494-497,545-562,597-602,666-667`).
+`convert_ports_list(None)` returns `[]`
+(`vendor/zpacloud-ansible/plugins/module_utils/utils.py:126-134`), so omitted
+parent port values can clear ports. This is an ineffective intermediate merge
+in the Ansible modules, not resolved port preservation.
+
+The child-domain comparison trims and case-folds values, while each module's
+parent-owned child-ID/deletion map uses raw exact domain keys
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:547-565,620-647`;
+`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-457,512-539`).
+Consequently, case or whitespace variants can compare equal yet fail ID lookup
+on an update, leaving a child ID empty and making the owned child appear stale
+for deletion/replacement. The focused tests exercise exact domain spelling, not
+this normalization/ownership boundary
+(`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_ba_v2.py:230-308`;
+`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py:161-238`).
+
+This is integration-tool reconciliation behavior, not a change to ZPA's
+application-segment matching semantics. The child comparison is intentionally
+narrow: `common_apps_dto` is excluded from the general comparison, and the
+dedicated check compares only normalized domains. The sources do not establish
+that a change to a live child's port, protocol, certificate, or other nested
+field is detected (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:544-565`;
+`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:437-457`).
+Inspection remains a separate unresolved case: its parent-scoped child lookup
+is update-only (create skips the lookup), its detector, child recovery,
+deletion field, and update/read client calls do not yet establish successful
+reconciliation. It also computes a domain/port merge into `desired_app` but
+sends raw `existing_app`/`app` ports on update/create
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:467-470,472-506,534-552,587-591,654-655`). See
+[`api-divergences.md`](./api-divergences.md#ansible-2212-bapra-child-ownership-changes-port-merge-and-inspection-repair-remain-unproven).
 
 The Go serialization fix for `bypassOnReauth` is segment-type-specific. Base
 and Browser Access segments now always send the boolean, while Inspection and

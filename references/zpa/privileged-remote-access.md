@@ -6,9 +6,10 @@ content-type: reasoning
 last-verified: "2026-07-22"
 verified-against:
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
-  vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
-  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/zpacloud-ansible: ff0fec2d53073e33b3d4b289e9126f4a29f89f4e
+  vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 confidence: medium
 source-tier: mixed
 sources:
@@ -197,7 +198,7 @@ require a user to complete additional authentication before application access,
 and the Zscaler Admin Console supports conditional access for this flow
 (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:70-77`).
 
-### Ansible 2.2.11 reconciliation boundaries
+### Ansible PRA approval and 2.2.12 reconciliation boundaries
 
 The ZPA Ansible collection now uses both `email_ids` and, when supplied,
 `application_ids` to select an existing PRA approval. An approval for the same
@@ -207,26 +208,43 @@ can be created instead of overwriting the unrelated one
 coverage at
 `vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_pra_approval.py:148-191`).
 
-PRA sub-application reconciliation is also parent-scoped in 2.2.11. On update,
+PRA sub-application reconciliation is parent-scoped in 2.2.12. On update,
 the module resolves `pra_app_id` only from `pra_apps` belonging to the parent
 segment; on create it leaves the parent and child IDs empty, and it emits
 `deleted_pra_apps` only for stale children of that parent
-(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:502-546`).
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:499-543`).
 The new tests cover avoiding a foreign child ID, resolving an owned child,
 deleting a stale child, recreating a missing child, and preserving idempotence
 when the child remains present
 (`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py:97-159`,
-`:161-238`, `:302-325`). Missing-child detection is domain-presence checking,
+`:161-238`, `:302-313,315-347`, `:349-359`). Missing-child detection is domain-presence checking,
 not full nested-object reconciliation: it does not establish that changes to a
 live child's port, protocol, certificate, or other nested fields will be
-detected (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-452`).
+detected (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:437-457`).
 
-Do not extend the PRA result to Inspection segments. The Inspection module now
-detects a declared domain with no live `inspection_apps` child, but its update
-payload still places deletion IDs under `deleted_pra_apps` and then invokes the
-PRA update and read clients
-(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:418-430`,
-`:532-538`, `:591-605`). The changelog labels Inspection orphan repair as fixed,
+The 2.2.12 comparison is symmetric for child domains: removing a live PRA child
+outside Ansible, or declaring an empty `common_apps_dto.apps_config`, marks the
+segment changed. The module computes a merge of declared parent domains and TCP
+ports in `desired_app`, but its update payload uses raw `existing_app` ports and
+its create payload uses raw `app` ports; neither sends the merged
+`desired_app["tcp_port_range"]`
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-457,494-497,545-562,597-602,666-667`).
+`convert_ports_list(None)` returns `[]`
+(`vendor/zpacloud-ansible/plugins/module_utils/utils.py:126-134`), so omitted
+parent port values can clear ports. Do not describe this intermediate merge as
+effective or resolved. The normalized comparison and raw exact child-ID/deletion
+map also create a boundary: case or whitespace variants can compare equal but
+fail ownership lookup on an update, leaving `pra_app_id` empty and making an
+owned child appear stale for deletion/replacement
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-457,512-539`).
+
+Do not extend the PRA result to Inspection segments. The Inspection module's
+parent-scoped child lookup is inside `if existing_app`, so update performs the
+lookup but create skips it; create leaves child IDs empty
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:472-506,512-532,658-662`). It detects a declared domain with no live
+`inspection_apps` child, but its update payload still places deletion IDs under
+`deleted_pra_apps` and then invokes the PRA update and read clients
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:418-430,508-532,597-619`). The changelog labels Inspection orphan repair as fixed,
 but these executable payload and client paths do not establish that result
 (`vendor/zpacloud-ansible/CHANGELOG.md:12-16`). Treat the end-to-end repair as
 unproven; the runtime consequence requires an upstream fix or live validation.
