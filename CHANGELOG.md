@@ -9,28 +9,21 @@ the skill as a whole, not any single script.
 
 ### Bug Fixes
 
-* scope internal source detection to repository roots ([02dd8bd](https://github.com/dvmrry/zscaler-skill/commit/02dd8bd339fa7b989efeb6826e1a5607942587fb))
-* scope internal source detection to repository roots ([c3d3bb6](https://github.com/dvmrry/zscaler-skill/commit/c3d3bb6ba1ecc6e3b3c2ec3ac90b1c99de15fa5a))
+* scope internal source detection to repository roots ([#282](https://github.com/dvmrry/zscaler-skill/pull/282)) ([02dd8bd](https://github.com/dvmrry/zscaler-skill/commit/02dd8bd339fa7b989efeb6826e1a5607942587fb))
 
 
 ### Documentation
 
-* capture September Help updates ([b4d933c](https://github.com/dvmrry/zscaler-skill/commit/b4d933c9c4095d4bb8dcfc15753d70e44a898d0a))
-* capture September Help updates ([dbe545d](https://github.com/dvmrry/zscaler-skill/commit/dbe545d5918392c4067ff897e748698c80220fef))
-* fold current Help guidance into references ([71075ce](https://github.com/dvmrry/zscaler-skill/commit/71075ce420e0d7dd4f404c649a8effa2f92c627a))
-* fold current Help guidance into references ([5fcce82](https://github.com/dvmrry/zscaler-skill/commit/5fcce82281f31464a903f3b7d77851e13a314173))
-* refresh Automate contract coverage ([4a8b366](https://github.com/dvmrry/zscaler-skill/commit/4a8b366958b3b29425cfd7708ceebe02a01dc4fb))
-* refresh Automate contract coverage ([affa09e](https://github.com/dvmrry/zscaler-skill/commit/affa09e1ab8bb0cfa41dbdc89f29b55a6cc6c32d))
-* refresh Cloud Connector module guidance ([baaacfa](https://github.com/dvmrry/zscaler-skill/commit/baaacfad88033d8ea00f464a16fa704611cd17f4))
-* refresh Cloud Connector module guidance ([4a67fc2](https://github.com/dvmrry/zscaler-skill/commit/4a67fc2fc1d3f385af2800b660522dfbca5820fa))
-* refresh Go SDK ZIdentity and ZPA coverage ([a58c9ec](https://github.com/dvmrry/zscaler-skill/commit/a58c9ec65be274c3df3ddb23fb332a975f1ef777))
-* refresh Go SDK ZIdentity and ZPA coverage ([633a440](https://github.com/dvmrry/zscaler-skill/commit/633a440154f8d083bc7e90153311da84e680f569))
-* refresh MCP server v0.15.4 ([#276](https://github.com/dvmrry/zscaler-skill/issues/276)) ([cbab753](https://github.com/dvmrry/zscaler-skill/commit/cbab7532b11961c808857b0117f2d9094f948442))
-* refresh Python SDK v1.9.44 coverage ([#277](https://github.com/dvmrry/zscaler-skill/issues/277)) ([41b2eaa](https://github.com/dvmrry/zscaler-skill/commit/41b2eaa1e862b5557877d22093ed8b6038c582f8))
-* refresh zguard integrations v0.2.0 ([fc2f6fb](https://github.com/dvmrry/zscaler-skill/commit/fc2f6fbc795ae893d0feb05c5ab35c5b7c9d7d76))
-* refresh zguard integrations v0.2.0 ([c85dbee](https://github.com/dvmrry/zscaler-skill/commit/c85dbeea8a3577e2e1479893d193d682be2c9d06))
-* refresh ZIA provider v4.8.8 behavior ([#286](https://github.com/dvmrry/zscaler-skill/issues/286)) ([886e8dc](https://github.com/dvmrry/zscaler-skill/commit/886e8dc11b68558c828e9b2b6a0c5de66507d8b4))
-* refresh ZPA provider and Ansible coverage ([#285](https://github.com/dvmrry/zscaler-skill/issues/285)) ([956810e](https://github.com/dvmrry/zscaler-skill/commit/956810e583d78d1d6afa9f9ff00e2bdf3bb8aaf8))
+* capture September Help updates ([#281](https://github.com/dvmrry/zscaler-skill/pull/281)) ([b4d933c](https://github.com/dvmrry/zscaler-skill/commit/b4d933c9c4095d4bb8dcfc15753d70e44a898d0a))
+* fold current Help guidance into references ([#287](https://github.com/dvmrry/zscaler-skill/pull/287)) ([71075ce](https://github.com/dvmrry/zscaler-skill/commit/71075ce420e0d7dd4f404c649a8effa2f92c627a))
+* refresh Automate contract coverage ([#288](https://github.com/dvmrry/zscaler-skill/pull/288)) ([4a8b366](https://github.com/dvmrry/zscaler-skill/commit/4a8b366958b3b29425cfd7708ceebe02a01dc4fb))
+* refresh Cloud Connector module guidance ([#283](https://github.com/dvmrry/zscaler-skill/pull/283)) ([baaacfa](https://github.com/dvmrry/zscaler-skill/commit/baaacfad88033d8ea00f464a16fa704611cd17f4))
+* refresh Go SDK ZIdentity and ZPA coverage ([#284](https://github.com/dvmrry/zscaler-skill/pull/284)) ([a58c9ec](https://github.com/dvmrry/zscaler-skill/commit/a58c9ec65be274c3df3ddb23fb332a975f1ef777))
+* refresh MCP server v0.15.4 ([#276](https://github.com/dvmrry/zscaler-skill/pull/276)) ([cbab753](https://github.com/dvmrry/zscaler-skill/commit/cbab7532b11961c808857b0117f2d9094f948442))
+* refresh Python SDK v1.9.44 coverage ([#277](https://github.com/dvmrry/zscaler-skill/pull/277)) ([41b2eaa](https://github.com/dvmrry/zscaler-skill/commit/41b2eaa1e862b5557877d22093ed8b6038c582f8))
+* refresh zguard integrations v0.2.0 ([#279](https://github.com/dvmrry/zscaler-skill/pull/279)) ([fc2f6fb](https://github.com/dvmrry/zscaler-skill/commit/fc2f6fbc795ae893d0feb05c5ab35c5b7c9d7d76))
+* refresh ZIA provider v4.8.8 behavior ([#286](https://github.com/dvmrry/zscaler-skill/pull/286)) ([886e8dc](https://github.com/dvmrry/zscaler-skill/commit/886e8dc11b68558c828e9b2b6a0c5de66507d8b4))
+* refresh ZPA provider and Ansible coverage ([#285](https://github.com/dvmrry/zscaler-skill/pull/285)) ([956810e](https://github.com/dvmrry/zscaler-skill/commit/956810e583d78d1d6afa9f9ff00e2bdf3bb8aaf8))
 
 ## [0.17.1](https://github.com/dvmrry/zscaler-skill/compare/v0.17.0...v0.17.1) (2026-08-17)
 
