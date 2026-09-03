@@ -66,25 +66,24 @@ leaves the digest and global `last_check` marker unchanged and exits nonzero.
 Local mode retains the failed repository's own marker while advancing markers
 for repositories that completed successfully.
 
-### Provider and Cloud Connector module drift snapshot (2026-08-12)
+### Provider and Cloud Connector module drift snapshot (2026-09-03)
 
-The checked-in gitlinks below remain authoritative for reference claims. The
-reviewed upstream heads are maintenance evidence only; this snapshot does not
-change a pin.
+The checked-in gitlinks below remain authoritative for reference claims. This
+snapshot records the reviewed pins that landed with their reference updates;
+it does not turn provider or Terraform behavior into a service guarantee.
 
 | Upstream | Authoritative pin | Reviewed head and tag state | Disposition |
 |---|---|---|---|
-| ZIA provider | [`cfe618f` (v4.8.3)](https://github.com/zscaler/terraform-provider-zia/commit/cfe618fa7cb6f88939ec703520cfa230ec35bf0a) | [`d4eef8a`](https://github.com/zscaler/terraform-provider-zia/commit/d4eef8ab7ed69f575e4dfc94effcf9879e90469e), two commits ahead and tagged [v4.8.5](https://github.com/zscaler/terraform-provider-zia/releases/tag/v4.8.5) | Defer the pin until the CAC source predicate and stress race gate pass and `zia-72` resolves the advanced-settings Creative Commons backend effect. |
-| AWS Cloud Connector modules | [`d991f87`](https://github.com/zscaler/terraform-aws-cloud-connector-modules/commit/d991f875dfdcd470af2f2fa4e94f1cf96278c6ab) | [`6f8318d`](https://github.com/zscaler/terraform-aws-cloud-connector-modules/commit/6f8318d759e72a7cb8194d6efb9f18c55e6528f4), three commits ahead and untagged; newest listed tag is [`v1.4.3` at `26de1a1`](https://github.com/zscaler/terraform-aws-cloud-connector-modules/releases/tag/v1.4.3) | Issues are disabled. Monitor tags/releases separately; review the ASG, Terraform 1.1.9, and FIPS changes together before any pin proposal. |
-| Azure Cloud Connector modules | [`8714f88`](https://github.com/zscaler/terraform-azurerm-cloud-connector-modules/commit/8714f88d1ac2827b40900b11bd52243919af2ae5) | [`abdd217`](https://github.com/zscaler/terraform-azurerm-cloud-connector-modules/commit/abdd217051e014544de376442521a4d20934ef5a), six commits ahead and untagged; newest listed tag is [`v0.8.0` at `4c65a1c`](https://github.com/zscaler/terraform-azurerm-cloud-connector-modules/releases/tag/v0.8.0) | Issues are disabled. Monitor tags/releases separately; defer pending a tagged release and combined limits, VM-size, Terraform 1.1.9, FIPS, and provider-constraint review. |
-| GCP Cloud Connector modules | [`0e8a8b8`](https://github.com/zscaler/terraform-gcp-cloud-connector-modules/commit/0e8a8b82c45c7317d00f052a0b036396a1a184d8) | [`a2d31dc`](https://github.com/zscaler/terraform-gcp-cloud-connector-modules/commit/a2d31dca952f1b82906a31a1a818a1829baf2e6f), six commits ahead and untagged; newest listed tag is [`v0.4.1` at `51f84bf`](https://github.com/zscaler/terraform-gcp-cloud-connector-modules/releases/tag/v0.4.1) | Issue-watch covers Issues, not tags/releases. Defer pending a tagged release and review of the untagged IAM/default, download-integrity, ASG, Terraform 1.1.9, and FIPS changes; assign no remediation status to untagged head. |
+| ZIA provider | [`38fd97d` (v4.8.8)](https://github.com/zscaler/terraform-provider-zia/commit/38fd97d795537682434cd1d4ffbdd02d2f3b4576) | Same reviewed, tagged commit | Pinned after source review. The CAC helper now captures `doneCh` under lock and bounds non-improving reorder passes; `zia-72` remains open because source-level request serialization does not establish the Creative Commons backend effect. |
+| AWS Cloud Connector modules | [`6f8318d`](https://github.com/zscaler/terraform-aws-cloud-connector-modules/commit/6f8318d759e72a7cb8194d6efb9f18c55e6528f4) | Same reviewed untagged head; 16 commits after `v1.4.3` | Pinned after combined module/helper review. The references preserve the direct 1–16 versus helper/wrapper 1–10 scaling boundary and avoid inferring a product-wide FIPS guarantee. |
+| Azure Cloud Connector modules | [`abdd217`](https://github.com/zscaler/terraform-azurerm-cloud-connector-modules/commit/abdd217051e014544de376442521a4d20934ef5a) | Same reviewed untagged head; 27 commits after `v0.8.0` | Pinned after combined source review. The references record the DS2 validator mismatch, generated provider-floor drift, and seven topologies whose helper FIPS answer is not wired into root Terraform. |
+| GCP Cloud Connector modules | [`e54dbca`](https://github.com/zscaler/terraform-gcp-cloud-connector-modules/commit/e54dbcac71c0779a49999cd11c279ee78ba31c97) | Same reviewed untagged head; 9 commits after `v0.4.1` | Pinned after combined source review. The references record Pub/Sub/scaling differences, malformed non-HCP ILB payloads, and the existing-object ZIP helper defect as Terraform behavior rather than service behavior. |
 
-The ZIA-provider CAC gate is source-plus-stress. The helper must eliminate its
-post-unlock `rules.reorderDone` map read by removing the shared access, keeping
-it under lock, or copying `doneCh` before unlock; then the documented
-`go test -race` suite must pass with `-count=20` or a higher repeat count. One
-clean `-count=1` run is insufficient and does not override the source predicate.
-See the exact command and current failure evidence in
+The v4.8.8 ZIA-provider pin clears the source-level CAC map-read predicate by
+copying `doneCh` while `rules.Lock()` is held and using the captured channel
+after unlock. No repeated race-detector run is recorded, so the reference makes
+no race-test claim. The remaining multi-delete ordering behavior and `zia-72`
+backend effect stay open independently of that source fix; see
 [`references/zia/api-divergences.md`](../references/zia/api-divergences.md#terraform-provider-release-gate--cac-type-key-isolation-passes-but-the-shared-reorder-helper-races).
 
 For module-head review, use Terraform 1.1.9 as the compatibility-test floor:

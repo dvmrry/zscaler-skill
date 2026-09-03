@@ -5,7 +5,7 @@ title: "ZIA Terraform provider resource catalog"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
+  vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
 confidence: medium
 source-tier: mixed
 sources:
@@ -90,22 +90,34 @@ sources:
   - "vendor/terraform-provider-zia/docs/resources/zia_virtual_service_edge_node.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_workload_groups.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rule_actions.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_pac_files.go"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_pac_files.go"
+  - "vendor/terraform-provider-zia/docs/resources/zia_pac_files.md"
+  - "vendor/terraform-provider-zia/docs/data-sources/zia_pac_files.md"
+  - "vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_browser_control_policy.go"
+  - "vendor/terraform-provider-zia/zia/config.go"
+  - "vendor/terraform-provider-zia/zia/provider.go"
+  - "vendor/terraform-provider-zia/go.mod"
+  - "vendor/terraform-provider-zia/zia/data_source_zia_url_filtering_and_cloud_app_settings.go"
+  - "https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.48/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go"
   - "https://github.com/zscaler/terraform-provider-zia/issues/585"
   - "vendor/terraform-provider-zia/zia/resource_zia_url_categories.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_user_management_users.go"
-  - "vendor/terraform-provider-zia/zia/provider.go"
   - "vendor/terraform-provider-zia/zia/data_source_zia_ips_categories.go"
   - "vendor/terraform-provider-zia/zia/data_source_zia_ueba_alert_definitions.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_firewall_dns_rules.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_forwarding_control_zpa_gateway.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_ueba_alert_definitions.go"
+  - "https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.48/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go"
 author-status: draft
 ---
 
 # ZIA Terraform provider resource catalog
 
-Catalog of resources and data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, current pin v4.8.3; `vendor/terraform-provider-zia/CHANGELOG.md:3-45`). Resources are grouped by ZIA functional area. Most configuration resources require activation to take effect; action-style resources such as `zia_sandbox_file_submission` are not staged policy configuration. See the [Activation lifecycle](#activation-lifecycle) section.
+Catalog of resources and data sources in the `zscaler/zia` Terraform provider (registry source `zscaler/zia`, current pin v4.8.8; `vendor/terraform-provider-zia/CHANGELOG.md:3-45`). Resources are grouped by ZIA functional area. Most configuration resources require activation to take effect; action-style resources such as `zia_sandbox_file_submission` are not staged policy configuration. See the [Activation lifecycle](#activation-lifecycle) section. This provider refresh is source-verified at `38fd97d795537682434cd1d4ffbdd02d2f3b4576`; the other reference pins and their last-verified dates are intentionally unchanged.
 
 > **For HCL authoring guidance** — best practices, decision tables, anti-patterns, CI/CD with the activation step, secret hygiene — see Zscaler's official skill bundle, vendored at [`vendor/zscaler-terraform-skills/skills/zia-skill/`](../../vendor/zscaler-terraform-skills/skills/zia-skill/) (upstream: `zscaler/zscaler-terraform-skills`, MIT). This doc covers the resource catalog and provider internals; their skill covers how to *write* HCL against the catalog.
 
@@ -127,6 +139,8 @@ provider "zia" {
 ```
 
 Environment variables: `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_PRIVATE_KEY`, `ZSCALER_VANITY_DOMAIN`, `ZSCALER_CLOUD`.
+
+**Configuration-only / no-credential mode:** `skip_credentials_validation = true` (or `ZSCALER_SKIP_CREDENTIALS_VALIDATION=true`) prevents the provider from constructing the ZIA API client. Configure it only when every ZIA resource and data source is conditionally disabled, such as `count = 0`, in an environment where Zscaler is absent. Provider configuration returns a warning; any resource, data source, or importer that does attempt an API call returns an explanatory error because no client exists. This is an inert-client lifecycle mode, not a way to make API calls without credentials (`vendor/terraform-provider-zia/zia/provider.go:94-103,340-348,376-465`; `vendor/terraform-provider-zia/zia/config.go:40-45,60-67,94-98`).
 
 FedRAMP OneAPI is available in the current provider through `zscaler_cloud = "gov"` or `"govus"`; the provider docs say this requires provider version `>= v4.7.25` (`vendor/terraform-provider-zia/docs/index.md:35`; `vendor/terraform-provider-zia/docs/index.md:140-149`). The older legacy cloud names (`zscalergov`, `zscalerten`) remain legacy-mode values, not OneAPI `ZSCALER_CLOUD` values.
 
@@ -219,7 +233,7 @@ Singleton resource for URL and Cloud App Control advanced policy settings. Manag
 | `enable_msft_o365` | Bool | Optional |
 | `enforce_safe_search` | Bool | Optional |
 | `enable_ucaas_zoom` / `_webex` / `_ringcentral` / `_logmein` / `_talkdesk` | Bool | Optional |
-| `enable_chatgpt_prompt` / `enable_gemini_prompt` / `enable_microsoft_copilot_prompt` / `enable_poe_prompt` / `enable_meta_prompt` / `enable_per_plexity_prompt` / `enable_deep_seek_prompt` / `enable_claude_prompt` / `enable_grok_prompt` / `enable_mistral_ai_prompt` / `enable_grammarly_prompt` / `enable_writer_prompt` | Bool | Optional; enable per-AI-app prompt logging |
+| `enable_chatgpt_prompt` / `enable_gemini_prompt` / `enable_microsoft_copilot_prompt` / `enable_poe_prompt` / `enable_meta_prompt` / `enable_per_plexity_prompt` / `enable_deep_seek_prompt` / `enable_claude_prompt` / `enable_grok_prompt` / `enable_mistral_ai_prompt` / `enable_grammarly_prompt` / `enable_writer_prompt` / `enable_google_ai_prompt` / `enable_quillbot_ai_prompt` | Bool | Optional; enable per-AI-app prompt logging |
 
 Gotcha: Only one instance should exist per tenant. Import by the literal string `"app_setting"`.
 The executable schema's exact Perplexity field is
@@ -227,6 +241,16 @@ The executable schema's exact Perplexity field is
 (`vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go:129-134`);
 do not normalize it to `enable_perplexity_prompt` or abbreviate it as
 `_perplexity_prompt`.
+
+The resource's create and update paths build a typed `URLAdvancedPolicySettings`
+value from the provider schema and pass it to `UpdateUrlAndAppSettings`, a
+full typed PUT rather than a sparse patch. A service field absent from the
+provider schema is absent on the wire only when the SDK JSON model also omits
+that field; an SDK member without `omitempty` still serializes the builder's
+unassigned zero value. The current provider SDK v3.8.48 still serializes
+`enableCreativeCommonsSearchResults=false`: its model's comments state that the
+booleans deliberately omit `omitempty`, and the field itself has no such tag
+([model comment lines 149-155](https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.48/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go#L149-L155); [field lines 248-249](https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.48/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go#L248-L249)), while the provider builder leaves it unassigned (`vendor/terraform-provider-zia/go.mod:12`; `vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go:184-207,258-318`). The backend effect remains unverified and [clarification `zia-72`](../_meta/clarifications.md#zia-72-provider-v485-creative-commons-false-backend-effect) remains open. The resource source defines the Google AI and QuillBot prompt fields and both reads them back (`vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go:170-179,184-207,210-249,286-317`). The data-source source is not symmetric: it still exposes the computed `enable_creative_commons_search_results` field and does not define the Google/QuillBot fields (`vendor/terraform-provider-zia/zia/data_source_zia_url_filtering_and_cloud_app_settings.go:136-150,155-197`). Treat those executable schemas as authoritative over generated provider markdown.
 
 ### `zia_cloud_app_control_rule`
 
@@ -242,8 +266,11 @@ Cloud App Control policy rules that allow, block, or isolate access to specific 
 | `actions` | List(String) | Allow, Block, or Isolate per activity type |
 | `applications` | List(String) | Optional; specific cloud app IDs |
 | `cbi_profile` | Block | Optional; Cloud Browser Isolation profile |
+| `prompt_capture_enabled` | Bool | Optional on the resource, computed on the matching data source; provider note says it applies only when the Gen AI Applications Access field is set to Allow while configuring the rule |
 
-Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with other action types in the same rule. Provider v4.7.23 removed local `MaxItems` caps from `tenancy_profile_ids` and `cloud_app_instances` after [zscaler/terraform-provider-zia#577](https://github.com/zscaler/terraform-provider-zia/issues/577) showed API responses with more than eight tenancy profile IDs; treat their effective limits as API-owned, not provider-owned. Upstream issue [zscaler/terraform-provider-zia#585](https://github.com/zscaler/terraform-provider-zia/issues/585) reports a tenant case where deleting multiple `zia_cloud_app_control_rule` objects from one category in a single apply failed with HTTP 400 "Rule is not allowed at order N" while one-at-a-time deletion or `terraform apply -parallelism=1` succeeded; provider maintainers had not reproduced it, so treat this as a tracked sequencing caveat rather than a confirmed provider defect. The resource code serializes create/update/delete through a package-level lock and invokes reorder logic after updates, while delete calls the rule-type delete endpoint directly (`vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:20-31`, `:527-558`, `:574-590`). Import by compound key `rule_type:rule_id`.
+Gotcha: ISOLATE actions require a CBI subscription and cannot be mixed with other action types in the same rule. The `prompt_capture_enabled` description's Gen AI Applications Access prerequisite is provider-schema wording; it is not a claim about backend or Help entitlement behavior (`vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:199-204`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rules.go:132-135,421-424`). The provider assigns the field on create/update, but the current Go SDK v3.8.48 tags `promptCaptureEnabled` with `omitempty`, so configured `false` is omitted from the serialized request; no request-marshal or live-tenant test here establishes a disable path ([v3.8.48 SDK model](https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.48/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go#L43-L45); `vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:679-716`). Provider v4.7.23 removed local `MaxItems` caps from `tenancy_profile_ids` and `cloud_app_instances` after [zscaler/terraform-provider-zia#577](https://github.com/zscaler/terraform-provider-zia/issues/577) showed API responses with more than eight tenancy profile IDs; treat their effective limits as API-owned, not provider-owned. Public issue [zscaler/terraform-provider-zia#585](https://github.com/zscaler/terraform-provider-zia/issues/585) is currently closed, but the reported multi-delete sequence remains behaviorally unresolved by the available evidence. In v4.8.8, create/update registrations are isolated by `cloud_app_control_rules:<type>`, and the common reorder loop has a six-pass non-improving PUT breaker; when it gives up, apply may finish with a warning and the remaining order differences surface on the next plan. The delete path still calls the type-scoped delete endpoint directly, so the bounded helper is not proof that #585's backend/ordering sequence is resolved (`vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:20-34,308-352,548-580,596-627`; `vendor/terraform-provider-zia/zia/common.go:1311-1322,1502-1527`). Import by compound key `rule_type:rule_id`.
+
+The helper's source-level done-channel race is fixed by copying the channel while `rules.Lock()` is held before unlocking; this refresh does not claim race-detector proof (`vendor/terraform-provider-zia/zia/common.go:1577-1620`).
 
 ### `zia_cloud_application_instance`
 
@@ -1193,6 +1220,12 @@ Source: `vendor/terraform-provider-zia/docs/resources/zia_browser_control_policy
 
 Singleton resource for browser control settings including plugin check frequency, browser version block lists, and Smart Browser Isolation profile assignment.
 
+When the Browser Control API returns a `smart_isolation_profile` object whose
+`id`, `name`, and `url` are all empty (the no-profile response), the provider
+flattens it as no block. This avoids recording an undeclared empty profile and
+then attempting to remove it on a later plan; a real profile is recorded only
+when at least one identifying value is present (`vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go:388-428,431-468`; `vendor/terraform-provider-zia/zia/data_source_zia_browser_control_policy.go:152-184`).
+
 | Field | Type | Notes |
 |---|---|---|
 | `plugin_check_frequency` | String | Optional |
@@ -1277,6 +1310,29 @@ Rule label objects used to tag and categorize rules for bulk management and repo
 | `description` | String | Optional |
 
 Import: by numeric ID or name.
+
+### `zia_pac_files` (added in v4.8.6)
+
+Source: `vendor/terraform-provider-zia/docs/resources/zia_pac_files.md`; `vendor/terraform-provider-zia/docs/data-sources/zia_pac_files.md`.
+
+The provider manages one hosted PAC-file parent and one immutable version at a time. `pac_content` is validated before create or version save. On create, the provider rejects any `pac_version_status` other than `DEPLOYED` and sends `pacVersionStatus=DEPLOYED`; these are provider-local validation/request facts, not proof of backend deployment. The captured Automate contract says the creation operation only adds a PAC file and that a separate Deploy transition is required for deployment (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:367221-367225`), so the creation-versus-deploy contradiction and resulting backend state remain unverified. Declaring `pac_version` on create fails before the API call. On update, when `pac_version` is not declared, changing any of `pac_content`, `name`, `description`, `domain`, or `pac_url_obfuscated` clones the currently tracked version into a new version of the same parent, then applies the declared status (`DEPLOYED`, `STAGE`, `LKG`, or `UNSTAGED`). When `pac_version` is declared, it selects an existing version: changes to `name`, `description`, `domain`, or `pac_url_obfuscated` are rejected; a `pac_content` change is accepted only when it exactly matches the selected version's content, and that matching content is not cloned. A status-only change acts on the selected existing version and does not clone. These pin/clone rules are implemented in `vendor/terraform-provider-zia/zia/resource_zia_pac_files.go:257-264,381-447`. The provider also rejects a transition from the currently deployed version to `STAGE` or `UNSTAGED`; that is a provider-local guard, not a claim about backend capability (`vendor/terraform-provider-zia/zia/resource_zia_pac_files.go:203-246`). `pac_version` is therefore an existing-version selector; when declared with a content change, its `pac_content` must match that version exactly or the provider rejects the combination rather than creating a new version. `UNSTAGED` maps to removal of the current status, including `REMOVE_LKG` when the selected version is LKG. Import accepts a numeric PAC-file ID or name and adopts that file's deployed version. Read refreshes the tracked version and falls back to the deployed version only when the tracked version no longer exists (`vendor/terraform-provider-zia/zia/resource_zia_pac_files.go:18-28,53-179,182-246,248-361,364-470,473-506`).
+
+| Field | Type | Notes |
+|---|---|---|
+| `name` | String | Required |
+| `pac_content` | String | Required; validated before create/new-version save |
+| `pac_version_status` | String | Optional; `DEPLOYED`, `STAGE`, `LKG`, `UNSTAGED`; defaults to `DEPLOYED` |
+| `pac_version` | Int | Optional/computed; selects an existing version for a status transition, never creates one |
+| `pac_commit_message` | String | Optional; changing only this does not clone a version |
+| `description` / `domain` | String | Optional |
+| `pac_url_obfuscated` | Bool | Optional/computed; controls whether `pac_sub_url` is returned |
+| `delete_version` | Int | Optional; version removed only when a new-version save needs capacity |
+
+The matching `zia_pac_files` data source lists deployed-state PAC files,
+including default and custom entries. Supplying `id` or `name` narrows it to one
+file; `filter = "pac_content"` omits the body. Its computed `pac_files` entries
+include the version/status, validation, URL, hit-count, timestamps, and
+last-modified-admin fields (`vendor/terraform-provider-zia/zia/data_source_zia_pac_files.go:14-153,155-248`). The provider's PAC action uses the SDK version-action call with a commit-message string; the raw-body/API-schema divergence remains documented in [`api-divergences.md`](./api-divergences.md#pac-version-action-body-go-sends-a-raw-commit-message-string-python-sends-an-object-automate-declares-no-body).
 
 ### `zia_activation_status`
 
@@ -1546,6 +1602,7 @@ Data sources have the same names as corresponding resources (prefix `data.zia_*`
 | `zia_advanced_threat_settings` | ATP advanced settings singleton |
 | `zia_security_settings` | URL allowlist and denylist |
 | `zia_browser_control_policy` | Browser control settings singleton |
+| `zia_pac_files` | Deployed hosted PAC files, or one file selected by ID/name; `filter = "pac_content"` omits content |
 | `zia_end_user_notification` | End user notification settings singleton |
 | `zia_ftp_control_policy` | FTP control policy singleton |
 | `zia_mobile_malware_protection_policy` | Mobile malware protection policy singleton |
