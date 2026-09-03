@@ -57,12 +57,24 @@ sources:
   - "vendor/zscaler-mcp-server/tests/test_docgen.py"
   - "vendor/zscaler-mcp-server/tests/test_prompts.py"
   - "vendor/zscaler-mcp-server/tests/test_shaping_helpers.py"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/sim-management/sim-resource-get-tower-location-history"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/network-events/network-event-resource-search-network-events"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/sim-management/sim-resource-lock-sims"
 author-status: draft
 ---
 
 # Zscaler Cellular / ZCell API, SDK, and MCP surface
 
-The captured Automate contract contains **36 ZCell operations** grouped under anomaly policy, audit data handling, customer data handling, customer region handling, network events, SIM analytics, SIM handling, SIM location groups, and tag handling (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`; family paths at `vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458`). The rosetta synthesis records ZCell as "Contract captured" but notes that DAV-21 did not establish a multi-surface reconciliation footprint (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:190`); that is the capture boundary of that pass, not the current repository state, which now includes both Python SDK and MCP implementations.
+The current Automate comparison remains at **36 ZCell operations**, but the
+family composition changed: a new tower-location-history read was published,
+while the former audit-metadata operation is not present in the current route
+table. The durable contract still records the earlier family paths and count
+(`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`;
+`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458`).
+The rosetta synthesis records ZCell as "Contract captured" but notes that DAV-21
+did not establish a multi-surface reconciliation footprint
+(`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:190`); that is a capture
+boundary, not evidence that the current SDK or MCP surface has disappeared.
 
 ## Authentication and customer scoping
 
@@ -73,14 +85,69 @@ The Python SDK exposes `client.zcell` as a OneAPI-only service and constructs it
 | Contract family | Operations | Representative documented path |
 |---|---:|---|
 | Anomaly policy | 8 | `POST /api/v1/customers/{id}/anomaly-policy`; `GET /api/v1/customers/{id}/anomaly-policy`; `PATCH /api/v1/customers/{id}/anomaly-policy/{policyId}/status` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-14`, `:175-187`, `:1437-1449`) |
-| Audit data handling | 2 | `POST /api/v1/audit/customers/{id}/search`; `GET /api/v1/audit/metadata` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:1506-1518`, `:1890-1902`) |
+| Audit data handling | 1 in current Automate publication | `POST /api/v1/audit/customers/{id}/search`; the prior `GET /api/v1/audit/metadata` operation is absent from the current route table, although SDK/MCP source still retains it. |
 | Customer data handling | 2 | `GET /api/v1/customers/{id}`; `PUT /api/v1/customers/{id}` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:1956-1968`, `:2067-2079`) |
 | Customer region handling | 3 | `GET /api/v1/customers/{id}/regions`; `PUT /api/v1/customers/{id}/regions`; `GET /api/v1/customers/{id}/regions/operational-status` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2430-2442`, `:2487-2499`, `:2571-2583`) |
 | Network events | 1 | `POST /api/v1/network-events/{id}/search/startTime/{startTime}/endTime/{endTime}` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2812-2824`) |
 | SIM analytics | 5 | `POST /api/v1/customers/{id}/sim/analytics/map`; `GET /api/v1/customers/{id}/sim/analytics/summary`; usage-by-country/day/SIM endpoints (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:3280-3292`, `:3504-3516`, `:3601-3713`) |
-| SIM handling | 8 | SIM search/details/download, tag assignment, lock, status update, eSIM assignment, and eSIM state refresh (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:3801-3813`, `:3911-3923`, `:4188-4200`, `:4910-4922`, `:5412-5594`) |
+| SIM handling | 9 | SIM search/details/download, tag assignment, lock, status update, eSIM assignment, eSIM state refresh, and tower-location history (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:3801-3813`, `:3911-3923`, `:4188-4200`, `:4910-4922`, `:5412-5594`; current [tower-history operation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/sim-management/sim-resource-get-tower-location-history)) |
 | SIM location groups | 5 | CRUD over `/api/v1/customers/{id}/sim-location-groups` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:5673-5685`, `:5814-5826`, `:5874-5886`, `:6045-6057`, `:6262-6274`) |
 | Tag handling | 2 | `GET /api/v1/customers/{id}/tag`; `POST /api/v1/customers/{id}/tag` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:6378-6390`, `:6446-6458`) |
+
+## Current Automate publication delta
+
+### Tower-location history
+
+The current [Get Tower Location History](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/sim-management/sim-resource-get-tower-location-history)
+operation is:
+
+```text
+GET /api/v1/customers/{id}/sims/{iccid}/tower-locations
+```
+
+It requires `id:string` and `iccid:string` path parameters. Optional query
+parameters are `days:int32` (deprecated; 1–60, default 30, ignored when date
+bounds are provided), `startDate:int64`, and `endDate:int64`; the dates are
+epoch seconds. The response has top-level `iccid` and a newest-first
+`history[]` array. Each history item carries `eventName:string`, `lat:double`,
+`lng:double`, `locCid:string`, `locLac:string`, `locMcc:string`,
+`locMnc:string`, `operatorName:string`, and `timestamp:int64` in Unix epoch
+milliseconds. No request body is published. No corresponding Python or MCP
+tower-history wrapper was found, so this is an Automate-publication addition,
+not an MCP parity claim.
+
+### Audit metadata boundary
+
+The current Automate route table still publishes audit-log search under
+`POST /api/v1/audit/customers/{id}/search`, but does not list the earlier
+`GET /api/v1/audit/metadata` operation. The Python SDK continues to construct
+`/zcell/config/api/v1/audit/metadata` and MCP retains its audit-data tool
+surface (`vendor/zscaler-sdk-python/zscaler/zcell/audit_data_handling.py:36-138`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:31-113`).
+Treat this as publication-versus-client divergence. It does **not** prove that
+the backend retired the operation or that a tenant will reject it.
+
+### Published field and body changes
+
+The current operation pages also change several field-level contracts:
+
+- [Network-event search](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/network-events/network-event-resource-search-network-events)
+  adds `content[].apnUsername`, `imei`, `location`, `msisdn`, `sessionTime:int32`,
+  `status`, `subStatus`, and `vplmnTadig` to the response.
+- [SIM lock](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/sim-management/sim-resource-lock-sims)
+  adds optional `simLockDetails[].locked:boolean`; `dataAuthorize:boolean` is
+  optional and deprecated in favor of that per-SIM field. The nested
+  `iccid` and `imei` fields remain required.
+- SIM-location-group, anomaly-policy, violation-detail, audit-search, SIM
+  search, and CSV-download pages narrow or normalize their `sortBy` enums to
+  the current documented field names and retain `sortDir: ASC|DESC`.
+- The customer response's `mvnoIds[].type` enum is now `Webbing|Transatel` in
+  the current page; the older `iBasis` value is no longer published.
+- The current tag-list response no longer publishes `content[].mvnoCustomerId`.
+
+These are static publication-schema observations. They do not, without a live
+tenant check, establish write-side acceptance or prove that a previously
+returned field is deleted from stored data.
 
 ## Python SDK surface
 
@@ -139,7 +206,7 @@ The ZCell surface landed in MCP v0.13.0 and remains present in the pinned v0.15 
 | Family | MCP read tools | Captured contract/SDK operations not exposed by MCP |
 |---|---:|---|
 | Anomaly policy | 4 | Create, update, delete, and enable/disable status (`vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:117-241`, `:311-347`) |
-| Audit data | 2 | No operation-count gap; MCP narrows request fields (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:31-58`), while responses follow the decoded-record boundary below |
+| Audit data | 2 | SDK/MCP still expose search and metadata, while current Automate publishes only audit search; MCP narrows request fields (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:31-58`), and responses follow the decoded-record boundary below |
 | Customer data | 1 | Customer activation/update (`vendor/zscaler-sdk-python/zscaler/zcell/customer_data_handling.py:74-108`) |
 | Customer regions | 2 | Update configured regions (`vendor/zscaler-sdk-python/zscaler/zcell/customer_region_handling.py:85-116`) |
 | Network events | 1 | No operation-count gap |
