@@ -5,7 +5,9 @@ title: "ZIdentity API — endpoint catalog, API clients, and auth flow"
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: high
 source-tier: mixed
 sources:
@@ -15,7 +17,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go"
   - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/"
   - "vendor/zscaler-mcp-server/docs/guides/toolsets.md"
@@ -27,14 +30,14 @@ author-status: draft
 
 The ZIdentity API provides programmatic access to identity lifecycle management and API client management for the ZIdentity platform. It is accessed through the same OneAPI gateway as ZIA, ZPA, and ZDX, using OAuth 2.0 token auth issued by ZIdentity itself.
 
-ZIdentity API base path **and host** both differ between the two SDKs — this is a headline wire divergence (see [`./api-divergences.md § 1`](./api-divergences.md)):
+ZIdentity API calls now use the OneAPI path in both current SDKs. The service package and request-routing implementation changed at the Go refresh; the Go source no longer has a ZIdentity-only vanity-admin URL (see [`./api-divergences.md § 1`](./api-divergences.md)):
 
-- **Python SDK:** `/ziam/admin/api/v1` (`_zidentity_base_endpoint` in all five service files — `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`, `api_client.py:31`, `groups.py:31`, `resource_servers.py:31`, `user_entitlement.py:29`).
-- **Go SDK:** `/admin/api/v1` — no `/ziam` prefix (`usersEndpoint = "/admin/api/v1/users"` `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:16`; `groupsEndpoint` `groups.go:17`; `resourceServerEndpoint` `resource_servers.go:13`; `entitlementEndpoint = "/admin/api/v1/users"` `user_entitlement.go:12`).
+- **Python SDK:** `/ziam/admin/api/v1` (`_zidentity_base_endpoint` in the service files — `vendor/zscaler-sdk-python/zscaler/zid/users.py:31`, `api_client.py:31`, `groups.py:31`, `resource_servers.py:31`, `user_entitlement.py:29`).
+- **Go SDK:** `/ziam/admin/api/v1` in the renamed `ziam/services` packages (`usersEndpoint`, `groupsEndpoint`, `resourceServerEndpoint`, `entitlementEndpoint`, and `apiClientsEndpoint`; for example `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:18-20` and `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:16-18`).
 
-The request URLs differ in **both host and path**: Python POSTs `https://api.zsapi.net/ziam/admin/api/v1/users`; Go rewrites the host to `https://{vanity}-admin.zslogin.net` and POSTs `https://{vanity}-admin.zslogin.net/admin/api/v1/users` (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:422,436-448`). The `/admin` prefix is also how the Go client detects a ZIdentity call — `detectServiceType` maps a `/admin` path prefix to the `"admin"` service type (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:398-399`) — then substitutes the vanity-admin host. If you write a raw-HTTP caller, match **both** host and prefix to the SDK you are mirroring. The endpoint tables in §1 and §4 below use the Python `/ziam`-prefixed form against `api.zsapi.net`; strip `/ziam` and swap the host for the Go equivalents.
+The current Go OneAPI client recognizes `ziam` before `zia` when routing a `/ziam/...` request (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:385-410`) and resolves production API traffic through `https://api.zsapi.net` (government and non-production mappings are separate cases in `GetAPIBaseURL`, `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:441-455`). Its request builder treats ZIAM like the other OneAPI services (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:408-449`). Thus the current SDK source supports the same logical OneAPI host+prefix pairing as Python/Postman; do not retain the prior Go-only vanity-admin URL as current behavior.
 
-Source: `vendor/zscaler-help/understanding-zidentity-apis.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
+Source: `vendor/zscaler-help/understanding-zidentity-apis.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go`; `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
 
 ---
 
@@ -44,16 +47,16 @@ ZIdentity exposes four top-level feature categories via its API (Tier A — vend
 
 | Category | Purpose | Python SDK | Go SDK | MCP server |
 |---|---|---|---|---|
-| **API Clients** | Create and manage OAuth 2.0 API clients; secret lifecycle | Full CRUD | Not available | Not available |
+| **API Clients** | Create and manage OAuth 2.0 API clients; secret lifecycle | Full CRUD | Full CRUD + secret operations | Not available |
 | **Users** | User directory CRUD; group membership | Full CRUD | Full CRUD | Read-only (5 tools) |
 | **Groups** | Group CRUD; member management | Full CRUD | Full CRUD | Read-only (5 tools) |
 | **Resource Servers** | Introspect available API resources and scopes | Read-only | Read-only | Not available |
 
-The MCP server implements a read-only slice of ZIdentity: five group tools and five user tools (`vendor/zscaler-mcp-server/docs/guides/toolsets.md:109-114`), with all ten marked read-only in the complete generated catalog (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`). The only product tool modules under `src/zscaler_mcp/tools/zid/` are `groups.py` and `users.py` alongside `__init__.py`; there is no API-client, resource-server, or entitlement tool. The v0.15 implementations return full SDK-modeled group and user records rather than the older curated views (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/groups.py:143-187`, `:195-281`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/users.py:183-321`). Therefore, the only captured SDK/MCP convenience surface for API-client management is Python `client.zid.api_client`; Go has no dedicated `api-clients` package and MCP exposes no such tool. Raw REST remains a programmatic option.
+The MCP server implements a read-only slice of ZIdentity: five group tools and five user tools (`vendor/zscaler-mcp-server/docs/guides/toolsets.md:109-114`), with all ten marked read-only in the complete generated catalog (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`). The only product tool modules under `src/zscaler_mcp/tools/zid/` are `groups.py` and `users.py` alongside `__init__.py`; there is no API-client, resource-server, or entitlement tool. The v0.15 implementations return full SDK-modeled group and user records rather than the older curated views (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/groups.py:143-187`, `:195-281`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/users.py:183-321`). The Go SDK now has a dedicated `ziam/services/api_clients` package, but MCP still exposes no API-client tool. SDK declarations establish client-side coverage only; they do not establish backend availability or tenant entitlement.
 
-Source: `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/groups.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/users.py`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:109-114`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:46`.
+Source: `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/groups.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zid/users.py`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:109-114`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:16-18,181-201`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go:60-74`.
 
-Each category has a corresponding base path (shown in the **Python** `/ziam`-prefixed form; the Go SDK omits the `/ziam` prefix — see base-path divergence at the top of this doc):
+Each category has a corresponding `/ziam/admin/api/v1` base path in the current Python and Go SDKs (the Go package constants now carry the full OneAPI prefix):
 
 | Category | Base path |
 |---|---|
@@ -114,7 +117,7 @@ The issued access token is a Bearer token, passed as `Authorization: Bearer <tok
 - `access_token_life_time` is an SDK-accepted integer field at API client creation (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:164`, `:195`). Its semantics are unresolved: the field name implies a per-client token-TTL override (seconds), but the field's docstring reads "Whether the client is active" — an active-flag description that contradicts the name. Whether it actually controls token lifetime is not determinable from SDK source alone — see [clarification `zid-11`](../_meta/clarifications.md#zid-11-access_token_life_time-field-semantics).
 - No refresh token flow is documented for the client credentials grant in available SDK source.
 - Token revocation: a "Revoking Access Tokens" capability is referenced in the related-articles list of the captured API-clients help page (`vendor/zscaler-help/zidentity-about-api-clients.md:47`), but that page itself is **not captured** in `vendor/zscaler-help/` — treat revocation behavior as an uncaptured reference, not confirmed source. No SDK-level revocation endpoint exists in the `api_client` service (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py` — methods are limited to client + secret CRUD).
-- Secrets (`client_secret`) are managed via the `api_client` SDK service — `get_api_client_secret`, `add_api_client_secret`, `delete_api_client_secret` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`). The secret model carries `id`, `expires_at` (Unix epoch string), `created_at`, and `value` (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:301-310`). Whether `value` is populated only on creation versus also on read is an API-server behavior not determinable from SDK source — see Open questions.
+- Secrets (`client_secret`) are managed via the `api_client` SDK service — Python exposes `get_api_client_secret`, `add_api_client_secret`, and `delete_api_client_secret`, while refreshed Go exposes `GetSecrets`, `AddSecret`, and `DeleteSecret` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:312-385`). The secret model carries `id`, `expires_at` (Unix epoch string), `created_at`, and `value` (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:301-310`); Go models the timestamps as `int64` epochs (`vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:140-177`). Whether `value` is populated only on creation versus also on read is an API-server behavior not determinable from SDK source — see Open questions.
 
 ---
 
@@ -179,9 +182,9 @@ API client **creation** is available via the admin portal (Administration > API 
 
 ## 4. SDK services under `client.zid.*`
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`.
 
-The ZIdentity SDK is accessed via `client.zid.<service>`. The endpoint tables below use the **Python** base endpoint `/ziam/admin/api/v1` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:31`). The Go SDK uses `/admin/api/v1` (no `/ziam` prefix) **and a different host** — `https://{vanity}-admin.zslogin.net`, not `api.zsapi.net` (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:438-448`). For the Go equivalent of each path below, strip `/ziam` **and** swap the host (see base-path divergence at the top of this doc).
+The ZIdentity SDK is accessed via `client.zid.<service>` in Python and the renamed `ziam/services/*` packages in Go. The endpoint tables use `/ziam/admin/api/v1`; the current Go constants and OneAPI request builder use the same prefix (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:18-20`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:16-18`; `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:408-449`).
 
 ### 4.1 `api_client` — `APIClientAPI`
 
@@ -198,7 +201,7 @@ Full CRUD for OAuth2 API clients registered in ZIdentity, including secret lifec
 | `add_api_client_secret(client_id, **kwargs)` | POST | `/ziam/admin/api/v1/api-clients/{client_id}/secrets` |
 | `delete_api_client_secret(client_id, secret_id)` | DELETE | `/ziam/admin/api/v1/api-clients/{client_id}/secrets/{secret_id}` |
 
-Go SDK parity: No dedicated `api-clients` Go package identified. API client CRUD is Python-only in the SDK.
+Go SDK parity: the refreshed Go SDK adds `ziam/services/api_clients`, with typed list/get/page/search, create/update/delete, and secret get/add/delete functions (`vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:181-201,214-247,249-306,312-385`). This confirms SDK client-side coverage; it is not evidence that every tenant exposes or permits the resource.
 
 ### 4.2 `groups` — `GroupsAPI`
 
@@ -217,7 +220,7 @@ Full CRUD for groups plus group membership management.
 | `replace_users_groups(group_id, **kwargs)` | PUT | `/ziam/admin/api/v1/groups/{group_id}/users` |
 | `remove_user_from_group(group_id, user_id)` | DELETE | `/ziam/admin/api/v1/groups/{group_id}/users/{user_id}` |
 
-`replace_users_groups` performs a full membership replacement — existing members not in the new list are removed. The SDK auto-transforms `["id1", "id2"]` to `[{"id": "id1"}, {"id": "id2"}]` before sending. Go SDK parity: full CRUD plus `GetUsers`.
+`replace_users_groups` performs a full membership replacement — existing members not in the new list are removed. The SDK auto-transforms `["id1", "id2"]` to `[{"id": "id1"}, {"id": "id2"}]` before sending. Go SDK parity: full CRUD plus typed, all-page `GetUsers` and metadata-preserving `GetUsersPage` (`vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go:118-129`).
 
 ### 4.3 `users` — `UsersAPI`
 
@@ -243,7 +246,7 @@ Read-only per-user entitlement lookups.
 | `get_admin_entitlement(user_id)` | GET | `/ziam/admin/api/v1/users/{user_id}/admin-entitlements` |
 | `get_service_entitlement(user_id)` | GET | `/ziam/admin/api/v1/users/{user_id}/service-entitlements` |
 
-`get_admin_entitlement` returns the product roles (ZIA admin, ZPA admin, etc.) assigned to the user. `get_service_entitlement` returns which Zscaler service/tenant the user is provisioned into. Both are read-only; no list-all endpoint exists — always per-user lookups.
+`get_admin_entitlement` returns the product roles (ZIA admin, ZPA admin, etc.) assigned to the user. `get_service_entitlement` returns which Zscaler service/tenant the user is provisioned into. Both are read-only; no list-all endpoint exists — always per-user lookups. In Go, service entitlement elements are `ServiceEntitlement` envelopes containing `Service`, not bare `Service` values (`vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go:30-39,61-74`).
 
 ### 4.5 `resource_servers` — `ResourceServersAPI`
 
@@ -254,7 +257,7 @@ Introspection of resource server (OAuth2 protected API) registrations.
 | `list_resource_servers(query_params=None)` | GET | `/ziam/admin/api/v1/resource-servers` |
 | `get_resource_server(resource_id)` | GET | `/ziam/admin/api/v1/resource-servers/{resource_id}` |
 
-Both SDKs are read-only here. The Go package exposes only `Get`, `GetAll`, `GetByName` — there are no `Create`/`Update`/`Delete` methods (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:46`, `:58`, `:63`). A resource server record includes: `id`, `name`, `display_name`, `description`, `primary_aud`, `default_api`, `service_scopes` (list of service + scope associations). Use this to discover available scope IDs for `add_api_client`.
+Both SDKs are read-only here. The Go package exposes only `Get`, `GetAll`, `GetByName` (`vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go:60-74,76-109`) — there are no `Create`/`Update`/`Delete` methods. A resource server record includes: `id`, `name`, `display_name`, `description`, `primary_aud`, `default_api`, `service_scopes` (list of service + scope associations). Its nested service additionally carries Go-only `externalName` and `zapsOnboarded` fields (`vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go:31-50`). Use the scope data to construct an API-client request, but do not infer tenant entitlement from declarations.
 
 ---
 
@@ -266,7 +269,7 @@ ZIdentity uses `offset`/`limit` pagination — distinct from ZIA (`page`/`pageSi
 
 **Go SDK:** `common.ReadAllPagesWithPagination[T]` iterates pages using `offset`/`limit` and stops when `next_link` is empty or `len(records) < limit`. `ReadAllPagesWithCursor` chases `next_link` directly.
 
-Query params for `list_users` / `list_group_users_details` differ on the wire between the two SDKs — and neither sends the SDK's own snake_case method-argument spelling. The **Python** SDK does *not* pass the `query_params` dict through verbatim: `create_request` routes every params dict through `_prepare_params`, and because a ZIdentity URL (`/ziam/admin/api/v1`) resolves to a non-ZPA service type (`"ziam"`, `vendor/zscaler-sdk-python/zscaler/request_executor.py:196-197`), it falls into the non-ZPA else-branch (`vendor/zscaler-sdk-python/zscaler/request_executor.py:503-506`) which calls `convert_keys_to_camel_case(params)` (`:505`). That helper lower-camelCases every key via `to_lower_camel_case` (`vendor/zscaler-sdk-python/zscaler/helpers.py:162-342`, `:357-374`), so Python emits **camelCase** wire keys: `login_name`→`loginName`, the bracket form `login_name[like]`→`loginName[like]`, `exclude_dynamic_groups`→`excludeDynamicGroups`. The **Go** SDK emits **run-together (no-underscore) lowercase** wire keys via its `url` struct tags (`vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go:32-42`) and the matching `ToURLValues` emitter (`:103-145`):
+Query params for `list_users` / `list_group_users_details` still diverge on the wire between the two SDKs — and neither sends the SDK's own snake_case method-argument spelling. The **Python** SDK does *not* pass the `query_params` dict through verbatim: `create_request` routes every params dict through `_prepare_params`, and because a ZIdentity URL (`/ziam/admin/api/v1`) resolves to a non-ZPA service type (`"ziam"`, `vendor/zscaler-sdk-python/zscaler/request_executor.py:196-197`), it falls into the non-ZPA else-branch (`vendor/zscaler-sdk-python/zscaler/request_executor.py:503-506`) which calls `convert_keys_to_camel_case(params)` (`:505`). That helper lower-camelCases every key via `to_lower_camel_case` (`vendor/zscaler-sdk-python/zscaler/helpers.py:162-342`, `:357-374`), so Python emits **camelCase** wire keys. The **Go** SDK emits **run-together (no-underscore) lowercase** wire keys via its `url` struct tags (`vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go:31-44`) and matching `ToURLValues` emitter (`:102-145`):
 
 | Filter | SDK method arg (snake_case) | Python wire key (camelCase) | Go wire key (run-together) |
 |---|---|---|---|
@@ -282,7 +285,7 @@ Query params for `list_users` / `list_group_users_details` differ on the wire be
 
 Both keep the bracket suffix for `[like]` partial-match params on the wire — Python carries the `[like]` through unchanged while camelCasing the field token (`name[like]` has no underscore so it passes through verbatim, `helpers.py:301-302`); Go declares the bracket form literally in its `url` tags (`common.go:35`, `:39`) and emits it via `values.Set(...)` (`:113`, `:125`). A direct-HTTP caller must pick one spelling deliberately and cannot copy the SDK's snake_case argument names: send Python's camelCase form (`loginName`, `excludeDynamicGroups`) or Go's run-together form (`loginname`, `excludedynamicgroups`); the underscored snake_case spelling appears on the wire from neither SDK. This is a real Python-vs-Go wire divergence: the two SDKs send different query strings for the same logical filter.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`.
 
 ---
 
@@ -296,15 +299,15 @@ Rate limit specifics for ZIdentity endpoints are not documented in available SDK
 
 | Service | Python | Go | MCP server | Gap |
 |---|---|---|---|---|
-| `api_client` | Full CRUD + secret lifecycle | None identified | None | Only captured SDK convenience surface; raw REST remains possible |
+| `api_client` | Full CRUD + secret lifecycle | Full CRUD + secret lifecycle (`ziam/services/api_clients`) | None | Go parity is client-side only; backend availability/entitlement remains unverified |
 | `groups` | Full CRUD + membership management | Full CRUD + membership management (`GetUsers` + `AddUserToGroup`/`AddUserListToGroup`/`ReplaceUserListInGroup`/`DeleteUserFromGroup`) | Read-only (5 tools) | SDKs functionally equivalent; MCP read-only |
-| `users` | Full CRUD + `list_user_group_details` | Full CRUD + `GetGroupsByUser` | Read-only (5 tools) | SDKs functionally equivalent; MCP read-only |
-| `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | Same (read-only) | None | SDK parity, both read-only |
+| `users` | Full CRUD + `list_user_group_details` | Full CRUD + `GetGroupsByUser`/`GetGroupsByUserPage` + password/MFA actions | Read-only (5 tools) | Go adds wrappers for source-confirmed action routes; exact colon-vs-slash live path remains a source divergence |
+| `user_entitlement` | `get_admin_entitlement`, `get_service_entitlement` | Same read-only functions; service result is `[]ServiceEntitlement` envelopes | None | Admin parity; service response model differs |
 | `resource_servers` | Read-only (`list`, `get`) | Read-only (`Get`, `GetAll`, `GetByName`) | None | Read-only everywhere — no write surface in either SDK |
 
-Note the wire divergences beyond method parity: base path (`/ziam/admin/api/v1` Python vs `/admin/api/v1` Go, top of doc) and query-param key spelling (§5).
+Note the wire divergence beyond method parity: query-param key spelling (§5). Current Go and Python ZIdentity routes both use `/ziam/admin/api/v1` through OneAPI; the former Go bare-prefix/vanity-host claim is historical, not current behavior.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`.
 
 ---
 
@@ -324,7 +327,7 @@ For API client creation in the context of setting up OneAPI credentials for ZPA 
 - Acceptable range for `add_api_client_secret` `expires_at` parameter; behavior when omitted.
 - Whether the API client secret `value` is returned only at creation versus also on `get_api_client_secret`. The SDK secret model deserializes `value` whenever it is present in the response (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:305`), so this is a server-side behavior the SDK does not constrain; needs live confirmation.
 - Token revocation mechanics and the API Client Access Policy rule model are referenced in the captured API-clients help page's related-articles list (`vendor/zscaler-help/zidentity-about-api-clients.md:47-49`) but the underlying help pages are not captured — capture "About Access Tokens", "Revoking Access Tokens", "About the API Client Access Policy", and "Adding API Client Access Policy Rule" to back these claims.
-- Whether the base-path/host divergence (Python `https://api.zsapi.net/ziam/admin/api/v1` vs Go `https://{vanity}-admin.zslogin.net/admin/api/v1`, `oneapiconfig.go:438-448`) means a live tenant serves both forms or the two SDKs target genuinely distinct front-ends — source pins each SDK to its own host+prefix; only live testing confirms whether the other form also resolves.
+- Whether a tenant accepts legacy Go releases that still emit the bare `/admin/api/v1` vanity-admin URL is a migration/compatibility question. The refreshed Go source targets `/ziam/admin/api/v1` through OneAPI (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:408-449`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:18-20`); SDK declarations do not establish which legacy URL aliases remain live.
 
 ---
 

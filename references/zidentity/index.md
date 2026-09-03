@@ -35,11 +35,11 @@ Questions that land here: "how do I create API client credentials?", "why is ste
 | **Users** — full CRUD users API, 17 fields, 8 filter params, IdP-sourced (SCIM) vs ZIdentity-internal users distinguished by `source` field | [`./users.md`](./users.md) | draft |
 | **Groups** — full CRUD on groups, dual `is_dynamic_group`/`dynamic_group` flags, group-as-policy-principal cross-product semantics, four membership-mutation operations (+ member-list read) | [`./groups.md`](./groups.md) | draft |
 | **Resource servers** — read-only OAuth resource registry, service-grouped scopes (no scope mutation API), OneAPI client linkage via `clientResources` field | [`./resource-servers.md`](./resource-servers.md) | draft |
-| **User entitlements** — read-only admin & service entitlement query API, observed role+scope values from test fixtures, Python-wraps-vs-Go-slice return divergence | [`./user-entitlements.md`](./user-entitlements.md) | draft |
+| **User entitlements** — read-only admin & service entitlement query API, observed role+scope values from test fixtures, Python wrapper vs Go slice/envelope return divergence | [`./user-entitlements.md`](./user-entitlements.md) | draft |
 | API surface — `client.zid.*` methods, Python vs Go SDK parity, wire format | [`./api.md`](./api.md) | draft |
 | **Snapshot schema (anticipatory)** — anticipated `_data/snapshot/<cloud>/zidentity/*.json` shapes for users / groups / api-clients / resource-servers; array-of-one-page wrap, pagination quirks, secret-material-never-returned | [`./snapshot-schema.md`](./snapshot-schema.md) | draft |
 | **ZIdentity SDK** — Python and Go service catalog (`client.zid.*`); method summary; parity gaps between language SDKs | [`./sdk.md`](./sdk.md) | draft |
-| **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree on the `zid` surface; base path + host split, resource-servers read-only everywhere, api-clients Python-only, `authType` enum, auto-injected audience, wire param naming; which source to trust per area | [`./api-divergences.md`](./api-divergences.md) | draft |
+| **API source divergences** — where the Go SDK, Python SDK, and Postman collection disagree on the ZIdentity (`ziam`) surface; current OneAPI route alignment, resource-servers read-only everywhere, api-client parity, entitlement return shapes, `authType` enum, auto-injected audience, wire param naming, and legacy compatibility gaps | [`./api-divergences.md`](./api-divergences.md) | draft |
 
 ## What this hub does NOT cover yet
 

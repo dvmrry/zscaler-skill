@@ -4,6 +4,8 @@ topic: zpa-sdk
 title: "ZPA SDK — service and method catalog"
 content-type: reference
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd (new ZPA service surface section)
 confidence: medium
 source-tier: code
 sources:
@@ -1292,14 +1294,20 @@ Uses `CommonFilterSearch` POST-search pattern internally.
 | **Property** | `client.zpa.customer_domain` |
 | **Class** | `CustomerDomainControllerAPI` |
 | **File** | `zscaler/zpa/customer_domain.py` |
-| **Go parity** | ⚠ not confirmed in Go SDK listing |
+| **Go parity** | ✅ `customer_domain_controller/` (read-only at the refreshed Go pin) |
 
 **Methods**
 
-| Method | Signature |
+| Method | Signature and endpoint |
 |---|---|
-| `get_customer_domain` | `() -> APIResult[dict]` |
-| `list_customer_domains` | `(query_params=None) -> APIResult[List[dict]]` |
+| `list_domains` | `(type: str, query_params=None)` — GET `/v2/associationtype/{type}/domains` (`vendor/zscaler-sdk-python/zscaler/zpa/customer_domain.py:26-90`; Go: `vendor/zscaler-sdk-go/zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go:12-40`). |
+| `add_update_domain` | `(type: str, domain_list: list, microtenant_id=None)` — POST `/v2/associationtype/{type}/domains`; Python-only write method at this pin (`vendor/zscaler-sdk-python/zscaler/zpa/customer_domain.py:92-171`). |
+
+The Go package decodes the GET response as a bare `[]CustomerDomainController`
+and does not export a POST wrapper. The Go changelog nevertheless lists both
+GET and POST for this endpoint (`vendor/zscaler-sdk-go/CHANGELOG.md:88-90`), so
+the write-operation parity and the changelog wording remain an open contract
+question. SDK presence is not evidence of tenant entitlement.
 
 ---
 
@@ -1832,6 +1840,41 @@ only (`vendor/zscaler-sdk-python/zscaler/zpa/legacy.py:1070-1098`).
 
 ---
 
+### 2.72 Go SDK additions at 4b710120
+
+The Go pin adds several ZPA packages, some of which overlap Python modules with
+different paths, methods, or models and some of which have no corresponding
+Python service module. They are source-level client wrappers only: a package,
+method, or changelog entry does not establish backend availability or tenant
+entitlement. The detailed reconciliation and live-verification questions are
+tracked in [`./api-divergences.md`](./api-divergences.md#pr-456-zpa-additions-executable-go-surface-versus-python-and-changelog).
+
+| Go package | Current source-declared surface | Cross-SDK / release-note difference |
+|---|---|---|
+| `b2b_policy_controller` | Admin-customer `GET /policySet/rules/policyType/GLOBAL_POLICY/guest/{guestID}` through the shared all-pages paginator; returns typed `[]PolicyRule` (`vendor/zscaler-sdk-go/zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go:13-35`; `vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:231-260`). | Python uses the non-admin customer base, also uses GET, and returns a raw response (`vendor/zscaler-sdk-python/zscaler/zpa/b2b_policy.py:23-59`). The Go changelog says PUT (`vendor/zscaler-sdk-go/CHANGELOG.md:83-87`). |
+| `federated_application` | Typed paginated `GET /application/host/{hostID}` and `PUT /application/federate` (`vendor/zscaler-sdk-go/zscaler/zpa/services/federated_application/federated_application.go:28-66`). | Python lists `/application/host` without an ID and updates `/application/{application_id}` (`vendor/zscaler-sdk-python/zscaler/zpa/application_federation.py:26-68,70-104`). |
+| `customer_domain_controller` | Admin-customer GET `/v2/associationtype/{type}/domains`, bare-array response; no Go write method (`vendor/zscaler-sdk-go/zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go:12-40`). | Python also exposes POST `add_update_domain`, and the Go changelog lists GET plus POST (`vendor/zscaler-sdk-python/zscaler/zpa/customer_domain.py:26-90,92-171`; `vendor/zscaler-sdk-go/CHANGELOG.md:88-90`). |
+| `browser_access_groups` | Admin-customer `/browserAccessGroups`; typed model with read-only `GetAll` and `Get` (`vendor/zscaler-sdk-go/zscaler/zpa/services/browser_access_groups/browser_access_groups.go:28-67,179-195`). | No corresponding Python service module is captured; the closest Python Browser Access package is for application segments (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py:19-31`). The PR #456 changelog list is silent (`vendor/zscaler-sdk-go/CHANGELOG.md:57-90`). |
+| `one_identity_controller` | Admin-customer GET `/iamidpmapping`, returned as one typed object (`vendor/zscaler-sdk-go/zscaler/zpa/services/one_identity_controller/one_identity_controller.go:11-42`). | Python treats the same path as a list and models nested `syncVersion`, absent from the Go type (`vendor/zscaler-sdk-python/zscaler/zpa/one_identity.py:26-68`; `vendor/zscaler-sdk-python/zscaler/zpa/models/one_identity.py:59-89`). |
+| `policy_group`, `policy_group_rule`, `policy_group_set` | Typed policy-group reads/update/delete/all/reorder, rule list/create/get/delete/reorder, and read-only set/rule/summary/statistics methods (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:37-159`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_rule/policy_group_rule.go:31-133`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go:29-166`). | Go `CreateRule` posts to `/policyGroupSet/{set}/rule` and Go `ReorderGroup` uses `PUT .../rule/{group}/reorder`; Python creates at `POST .../group` and reorders at `PUT .../group/{group}/reorder`, while the Go changelog describes `GET .../group` as "Add a new Policy Group" and lists reorder as POST (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:102-150`; `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-77,364-388`; `vendor/zscaler-sdk-go/CHANGELOG.md:57-73`). |
+
+The policy additions share `DesktopPolicyMappings`, and the v2 policy model
+includes `groupId`, `linkText`, and `url` (`vendor/zscaler-sdk-go/zscaler/zpa/services/policycommon/policycommon.go:1-22`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:124-166`). The method/path conflicts above are unresolved client-contract gaps, not evidence that the service is enabled.
+
+### 2.73 Go/Python/changelog gaps to resolve
+
+- Confirm the B2B method and whether `/admin/customers` or `/customers` is the
+  canonical base.
+- Confirm whether customer-domain POST is supported even though the Go wrapper
+  omits it.
+- Confirm whether federated-application host-ID and application-ID routes are
+  alternate operations or one SDK's stale path.
+- Confirm whether Browser Access Groups is intentionally Go-only and whether
+  the One Identity response is a single object or list; also resolve Python's
+  `syncVersion` model field versus Go's omission.
+- Confirm whether Go `CreateRule` is intentionally a policy-group-set rule
+  operation and whether `ReorderGroup` should use `/rule/` or `/group/`.
+
 ## 3. Cross-cutting patterns
 
 ### 3.1 Pagination
@@ -1934,4 +1977,4 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/emergency_access.py`.
 
 **zpa-sdk-09** — Resolved 2026-04-26. `emergency_access.py` uses `page_id` (not `page`) as its pagination parameter. Line 45 docstring explicitly lists `page_id` as the page number parameter. This appears to be specific to the emergency access endpoint's pagination contract; it is not a defect.
 
-**zpa-sdk-10** — Go SDK parity for `customer_domain`, `zia_customer_config`, `user_portal_aup`, `workload_tag_group` was not confirmed in the reviewed Go SDK directory listing. These remain marked as `⚠` where uncertain.
+**zpa-sdk-10** — Go SDK parity for `zia_customer_config`, `user_portal_aup`, and `workload_tag_group` was not confirmed in the reviewed Go SDK directory listing. `customer_domain` is now confirmed by `customer_domain_controller/` at Go `4b710120`; its write-operation parity remains an open question (see §2.46 and §2.72).

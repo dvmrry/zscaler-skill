@@ -5,7 +5,8 @@ title: "ZIA Cloud App Control and URL filtering interaction"
 content-type: reasoning
 last-verified: "2026-04-24"
 verified-against:
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
 confidence: medium
 source-tier: doc
@@ -134,12 +135,24 @@ Operational consequence: CAC rules for these categories are enforced against wha
 
 Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc missed:
 
+- **`promptCaptureEnabled` is Go-only at the refreshed pin.** The Go
+  `WebApplicationRules` model carries `PromptCaptureEnabled bool` with the
+  `promptCaptureEnabled` wire key. Its source comment says the field controls
+  whether end-user prompts for generative-AI applications are allowed or
+  blocked, and applies only when Gen AI Applications Access is `Allow`
+  (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:43-45`).
+  The Python `CloudApplicationControl` model has no corresponding attribute or
+  request-format key (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:40-120,175-224`).
+  This proves a client-model divergence only; it does not establish tenant
+  availability or entitlement, and the interaction with a denied Gen AI Access
+  setting remains undocumented.
+
 - **`Actions` is a slice (`[]string`), not a single string**. A single CAC rule can specify multiple concurrent action behaviors — useful for rules that combine e.g. "allow access AND log" or "block AND alert-admin" semantics. The rule's `action` field in snapshot JSON is an array; `jq '.action[]'` enumerates what a rule actually does.
-- **`CreateDuplicate` method** (Go SDK `cloudappcontrol.go:204`) — dedicated endpoint for cloning CAC rules. Useful for "create a rule like this one but with different scope" workflows. Python SDK doesn't expose this; operators have to `get_rule` → edit → `create_rule` manually.
+- **`CreateDuplicate` method** (Go SDK `cloudappcontrol.go:208-210`) — dedicated endpoint for cloning CAC rules. Useful for "create a rule like this one but with different scope" workflows. Python SDK doesn't expose this; operators have to `get_rule` → edit → `create_rule` manually.
 - **Two Go action-discovery methods.** Go v3.8.46 names the old
   `POST /{rule_type}/availableActions` wrapper `AvailableActions` and adds
   `AllAvailableActions` for `POST /{rule_type}/allAvailableActions`
-  (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:219-277`).
+  (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:223-280`).
   The release describes the new path as retrieving all available actions for
   each application type (`vendor/zscaler-sdk-go/CHANGELOG.md:3-14`). Both
   methods accept the same `cloudApps`/`type` request and return a flat string

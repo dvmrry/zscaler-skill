@@ -3573,7 +3573,7 @@ The commented Go validator binds `redirect_ip` only to `REDIR_RES` (`vendor/zsca
 For Cloud App Control, Go v3.8.46 now exposes an `allAvailableActions` read
 path in addition to the older `availableActions` path. Both accept the same
 `cloudApps`/`type` request and return a flat `[]string`
-(`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:219-277`).
+(`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:223-280`).
 Python v1.9.41 and the captured Automate contract still expose only the older
 path (`vendor/zscaler-sdk-python/zscaler/zia/cloudappcontrol.py:34-91`;
 `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:37447-37459`).
@@ -5961,7 +5961,7 @@ It is unclear whether a ZIdentity "User Admin" role combined with Full Administr
 
 *Origin: `references/zidentity/admin-rbac.md` § Open questions*
 
-Neither SDK exposes an endpoint to list role definitions, create custom roles, assign roles, or query the permission matrix at runtime — the Go ZIdentity service catalog contains only `common`, `groups`, `resource_servers`, `user_entitlement`, and `users` (see `zid/sdk.md` item 1, resolved), and the Python `zid/` package has no role-management module. Whether role management is portal-only, or served by an admin endpoint the SDKs simply do not wrap, is not determinable from source.
+Neither SDK exposes an endpoint to list role definitions, create custom roles, assign roles, or query the permission matrix at runtime — the refreshed Go ZIdentity service catalog contains `common`, `api_clients`, `groups`, `resource_servers`, `user_entitlement`, and `users` (see `zid/sdk.md` item 1, resolved), and the Python `zid/` package has no role-management module. Whether role management is portal-only, or served by an admin endpoint the SDKs simply do not wrap, is not determinable from source.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read OR live API trace against a tenant
@@ -5972,7 +5972,7 @@ Neither SDK exposes an endpoint to list role definitions, create custom roles, a
 
 *Origin: `references/zidentity/admin-rbac.md` § Open questions*
 
-No audit endpoint for ZIdentity role-assignment changes is wrapped in either SDK (the Python `zid/` package and Go `zid/services/` catalog carry no audit-log service). Whether ZIdentity records who-assigned-which-role-when, and where that record is read from, is not determinable from the SDK surface.
+No audit endpoint for ZIdentity role-assignment changes is wrapped in either SDK (the Python `zid/` package and Go `ziam/services/` catalog carry no audit-log service). Whether ZIdentity records who-assigned-which-role-when, and where that record is read from, is not determinable from the SDK surface.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read OR live API trace against a tenant
@@ -5983,7 +5983,7 @@ No audit endpoint for ZIdentity role-assignment changes is wrapped in either SDK
 
 *Origin: `references/zidentity/user-entitlements.md` § Open questions; `references/zidentity/admin-rbac.md` § Open questions*
 
-The entitlement `scope` field is populated by both SDKs (Python `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py:52-60`; the Go `Entitlements` struct carries `Scope common.IDNameDisplayName`) but no value enum or operational definition is documented in either SDK. Fixture examples include `Global`, `Limited`, and `AllResources`, yet what `Limited` actually restricts — which resources, at which granularity — is not stated. This is the same field surfaced from two docs (admin-rbac calls it `Entitlement.scope`; user-entitlements calls it `scope`).
+The entitlement `scope` field is populated by both SDKs (Python `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py:52-60`; the refreshed Go `Entitlements` struct carries optional `*common.IDNameDisplayName` at `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go:24-28`) but no value enum or operational definition is documented in either SDK. Fixture examples include `Global`, `Limited`, and `AllResources`, yet what `Limited` actually restricts — which resources, at which granularity — is not stated. This is the same field surfaced from two docs (admin-rbac calls it `Entitlement.scope`; user-entitlements calls it `scope`).
 
 **Status**: open
 **Resolves with**: vendor documentation OR tenant-side check (read live entitlements and correlate each `scope` value with the access it grants)
@@ -6005,7 +6005,7 @@ Both `get_service_entitlement` and `get_admin_entitlement` exist in the Python S
 
 *Origin: `references/zidentity/user-entitlements.md` § Open questions*
 
-The Go SDK returns `[]Service` for service entitlements, but the Python SDK constructs a single `Service` object from the raw body at `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:118` (`Service(self.form_response_body(response.get_body()))`). A single `Service.__init__` over an array-shaped body would parse it oddly rather than yield a list. The live wire shape for a user holding multiple service entitlements is undemonstrated in the vendored fixtures, so the Python behavior for that case is unverified.
+The refreshed Go SDK returns `[]ServiceEntitlement`, where each element wraps a `Service` object (`vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go:30-39,61-74`), while the Python SDK constructs a single `Service` object from the raw body at `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:118` (`Service(self.form_response_body(response.get_body()))`). A single `Service.__init__` over an array-shaped body would parse it oddly rather than yield a list. The live wire shape for a user holding multiple service entitlements is undemonstrated in the vendored fixtures, so the Python behavior for that case is unverified.
 
 **Status**: open
 **Resolves with**: lab test (read service entitlements for a multi-service user, observe the body shape)
@@ -6027,7 +6027,7 @@ Whether the entitlement endpoints return different results for SCIM-provisioned 
 
 *Origin: `references/zidentity/user-entitlements.md` § Open questions*
 
-The Go SDK declares an unused `Scope` struct wrapping a *list* — `type Scope struct { Scope []common.IDNameDisplayName }` (`vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:21-23`) — while the live `Entitlements` struct carries a single `Scope common.IDNameDisplayName` object. The unused list-shaped struct suggests a list-of-scopes design was considered or planned. Whether the wire format will change from a single scope object to a list is unknown.
+The refreshed Go package no longer declares the old unused `Scope` wrapper. Its `Entitlements` struct carries an optional single `*common.IDNameDisplayName` (`vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go:24-28`). Whether the wire format could change from a single scope object to a list is still unknown; the current source provides no list-shaped model.
 
 **Status**: open
 **Resolves with**: vendor API spec OR changelog review
@@ -6038,7 +6038,7 @@ The Go SDK declares an unused `Scope` struct wrapping a *list* — `type Scope s
 
 *Origin: `references/zidentity/user-entitlements.md` § Open questions*
 
-Observed entitlement role names in test fixtures (`SuperAdmin`, `Admin`, `ReadOnly`, `PolicyAdmin`, `Auditor`) may not be exhaustive — no enum constants are exported in either SDK (`vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go` uses `omitempty` strings with no enumeration). The full set of valid role names cannot be confirmed from source.
+Observed entitlement role names in test fixtures (`SuperAdmin`, `Admin`, `ReadOnly`, `PolicyAdmin`, `Auditor`) may not be exhaustive — no enum constants are exported in either SDK; the Go entitlement fields use the shared free-form `IDNameDisplayName` type (`vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go:24-28`; `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go:14-18`) with no enumeration. The full set of valid role names cannot be confirmed from source.
 
 **Status**: open
 **Resolves with**: vendor role documentation OR live API enumeration
@@ -6093,7 +6093,7 @@ The `JWKS` `authType` value is documented in the Python SDK docstring (`vendor/z
 
 *Origin: `references/zidentity/api-divergences.md` § Open questions*
 
-The two SDKs pair a path prefix with a host and neither crosses over: the Python SDK uses `api.zsapi.net` with a `/ziam/admin/api/v1` prefix, while the Go SDK uses `{vanity}-admin.zslogin.net` with a bare `/admin/api/v1` prefix (no `/ziam`). Whether the API accepts the bare `/admin/api/v1` prefix on the `api.zsapi.net` host (or only on the vanity-login host) is not determinable from source alone.
+The refreshed SDK sources no longer pair ZIdentity with two different routes: Python and Go both use `/ziam/admin/api/v1` through the OneAPI path. The older Go release used a bare `/admin/api/v1` prefix with a vanity-admin host. Whether a tenant still accepts that legacy alias, or whether it must be migrated to the current OneAPI route, is not determinable from the refreshed source alone (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:385-410,441-455`; `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:408-449`).
 
 **Status**: open
 **Resolves with**: live API trace (send a bare-prefix request to `api.zsapi.net`, observe acceptance)
@@ -6104,7 +6104,7 @@ The two SDKs pair a path prefix with a host and neither crosses over: the Python
 
 *Origin: `references/zidentity/resource-servers.md` § Open questions*
 
-The Go SDK builds requests against `{vanity_domain}-admin.zslogin.net` (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:436-448`) while the Python SDK uses `https://api.zsapi.net` as its base (`vendor/zscaler-sdk-python/zscaler/request_executor.py:32`). Both hosts are present in current vendor source, so both are presumably live, but whether a tenant routes them identically (one an edge/login-host alias, the other a gateway alias) or whether one is transitional cannot be determined from the SDKs alone. This is the host-routing twin of the prefix question in `zid-15`.
+The refreshed Go client resolves production ZIAM traffic to the shared OneAPI base (`https://api.zsapi.net`) and maps government/non-production cases separately (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:441-455`), matching the Python production host. Whether a tenant still serves the old `{vanity_domain}-admin.zslogin.net` alias from an earlier Go release, and whether that alias behaves identically, cannot be determined from SDK declarations. This is the host-routing compatibility twin of the legacy-prefix question in `zid-15`.
 
 **Status**: open
 **Resolves with**: live API trace against a tenant (resolve both hosts, compare responses)
@@ -6115,7 +6115,7 @@ The Go SDK builds requests against `{vanity_domain}-admin.zslogin.net` (`vendor/
 
 *Origin: `references/zidentity/groups.md` § Open questions*
 
-The group record carries two separate dynamic-group booleans — `isDynamicGroup` and `dynamicGroup` (`vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go:26-27`; Python mirrors both at `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py:89-90`). What the server does when the two flags disagree is undocumented; the Go test only ever sets `DynamicGroup: true`, so the relationship between the two is unverified.
+The group record carries two separate dynamic-group booleans — `isDynamicGroup` and `dynamicGroup` (`vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go:26-27`; Python mirrors both at `vendor/zscaler-sdk-python/zscaler/zid/models/groups.py:89-90`). The current Go unit fixtures marshal both as `false` and unmarshal/assert both as `true` (`vendor/zscaler-sdk-go/tests/unit/ziam/services/groups_test.go:21-75`); response fixtures also cover matching false/true pairs (`vendor/zscaler-sdk-go/tests/unit/ziam/services/groups_test.go:109-163`). What the server does when the two flags disagree is undocumented, so their relationship under conflicting values remains unverified.
 
 **Status**: open
 **Resolves with**: API spec review OR lab test (set the two flags to conflicting values, observe server behavior)
@@ -6192,7 +6192,7 @@ The meaning of a resource server with an empty `serviceScopes` slice (vs a popul
 
 *Origin: `references/zidentity/resource-servers.md` § Open questions*
 
-The `defaultApi` boolean on the resource-server record is present in both SDKs (`vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go:22`; `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:90`) but its operational meaning — which clients it applies to, what it overrides — is not described in any vendored source.
+The `defaultApi` boolean on the resource-server record is present in both SDKs (`vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go:16-24`; `vendor/zscaler-sdk-python/zscaler/zid/models/resource_servers.py:90`) but its operational meaning — which clients it applies to, what it overrides — is not described in any vendored source.
 
 **Status**: open
 **Resolves with**: vendor documentation OR lab test
@@ -6203,7 +6203,7 @@ The `defaultApi` boolean on the resource-server record is present in both SDKs (
 
 *Origin: `references/zidentity/sdk.md` § Open questions (item 6)*
 
-Whether `list_resource_servers` enumerates *all* resource servers in a tenant, or whether some are Zscaler-internal and hidden from the list, is not confirmed from source. Both SDKs hit the resource-servers endpoint with no filter parameter that would distinguish tenant-created from system-provided entries — via different host+prefix (Python `api.zsapi.net/ziam/admin/api/v1/resource-servers`, `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; Go `{vanity}-admin.zslogin.net/admin/api/v1/resource-servers`, `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go` + `oneapiconfig.go:438-448`).
+Whether `list_resource_servers` enumerates *all* resource servers in a tenant, or whether some are Zscaler-internal and hidden from the list, is not confirmed from source. Both SDKs hit the resource-servers endpoint with no filter parameter that would distinguish tenant-created from system-provided entries — using the current OneAPI path (`/ziam/admin/api/v1/resource-servers`) in both SDKs (`vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go:12-14`) and the shared Go API base (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:441-455`).
 
 **Status**: open
 **Resolves with**: tenant-side check (list resource servers on a live tenant, compare against the console) OR vendor documentation

@@ -4,6 +4,10 @@ topic: "zidentity-admin-rbac"
 title: "ZIdentity admin RBAC — role model, federation, entitlements API"
 content-type: reasoning
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: high
 source-tier: mixed
 sources:
@@ -11,8 +15,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py"
   - "vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py"
   - "vendor/zscaler-sdk-python/zscaler/zid/users.py"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
 author-status: draft
 ---
@@ -76,7 +80,7 @@ Documented module list (`vendor/zscaler-help/admin-rbac-captures.md:126`):
 
 ## Role assignment workflow
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
 1. Create the user or user group in ZIdentity (Users API or group provisioning) (`vendor/zscaler-help/admin-rbac-captures.md:116`)
 2. Assign the admin role through the **Zscaler Admin Console** (not ZIdentity UI) (`vendor/zscaler-help/admin-rbac-captures.md:118`)
@@ -91,7 +95,7 @@ Not supported. ZIdentity provides only the four system-defined roles documented 
 
 ## API surface — entitlements
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 The ZIdentity SDK supports **reading** admin and service entitlements. Role management (listing role definitions, assigning roles, modifying permissions) is not exposed via SDK or documented API.
 
@@ -99,9 +103,9 @@ The ZIdentity SDK supports **reading** admin and service entitlements. Role mana
 
 | Operation | Python SDK function | Go SDK function | HTTP method + path | Python citation | Go citation |
 |---|---|---|---|---|---|
-| Get admin entitlements for user | `user_entitlement.get_admin_entitlement(user_id)` | `user_entitlement.GetAdminEntitlement(ctx, service, userID)` | `GET /admin/api/v1/users/{id}/admin-entitlements` | `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:37-79` | `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:34-43` |
-| Get service entitlements for user | `user_entitlement.get_service_entitlement(user_id)` | `user_entitlement.GetServiceEntitlement(ctx, service, userID)` | `GET /admin/api/v1/users/{id}/service-entitlements` | `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:81-123` | `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go:45-54` |
-| List users | `users.list_users(query_params)` | `users.GetAll(ctx, service, queryParams)` | `GET /admin/api/v1/users` | `vendor/zscaler-sdk-python/zscaler/zid/users.py:37-80` | `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go:48-50` |
+| Get admin entitlements for user | `user_entitlement.get_admin_entitlement(user_id)` | `user_entitlement.GetAdminEntitlement(ctx, service, userID)` | `GET /ziam/admin/api/v1/users/{id}/admin-entitlements` | `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:37-79` | `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go:50-58` |
+| Get service entitlements for user | `user_entitlement.get_service_entitlement(user_id)` | `user_entitlement.GetServiceEntitlement(ctx, service, userID)` | `GET /ziam/admin/api/v1/users/{id}/service-entitlements` | `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py:81-123` | `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go:61-74` |
+| List users | `users.list_users(query_params)` | `users.GetAll(ctx, service, queryParams)` | `GET /ziam/admin/api/v1/users` | `vendor/zscaler-sdk-python/zscaler/zid/users.py:37-80` | `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:58-61` |
 
 The Postman collection documents the same entitlement endpoints using the `{{ZIAMBaseUrl}}` variable (`vendor/zscaler-api-specs/oneapi-postman-collection.json`):
 
@@ -153,7 +157,7 @@ Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python
 
 ## Open questions
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`.
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`.
 
 - **Full permission matrix (25+ modules × 4 levels) not captured** — the vendor doc capture explicitly defers to the live help portal for the authoritative matrix. (`vendor/zscaler-help/admin-rbac-captures.md:128`) — *requires re-capture of live article* — see [clarification `zid-35`](../_meta/clarifications.md#zid-35-admin-roles-permissions-module-level-matrix-uncaptured)
 

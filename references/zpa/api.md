@@ -5,6 +5,7 @@ title: "ZPA API surface"
 content-type: reference
 last-verified: "2026-07-06"
 verified-against:
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd (new ZPA service surface section)
   vendor/zscaler-mcp-server: ee6354bfd20f797f3e77b69566f500e83c04f723
 confidence: high
 source-tier: code
@@ -27,6 +28,16 @@ sources:
   - "https://github.com/zscaler/zscaler-mcp-server/issues/96"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/scim_user_api.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/browser_access_groups/browser_access_groups.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/federated_application/federated_application.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/one_identity_controller/one_identity_controller.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_rule/policy_group_rule.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/policycommon/policycommon.go"
+  - "vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_pra.go"
@@ -235,6 +246,40 @@ additional pages (`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:98-165`
 `vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py:37-104`). These
 properties are unified-only: the corresponding legacy properties are commented
 out (`vendor/zscaler-sdk-python/zscaler/zpa/legacy.py:1070-1098`).
+
+### New Go service packages at 4b710120
+
+The refreshed Go SDK adds client wrappers for B2B guest policy, federated
+applications, customer domains, Browser Access Groups, One Identity mappings,
+and policy groups/rules/sets. Their source declarations are useful for
+cross-SDK comparison, but do not establish backend availability or tenant
+entitlement. The current Go/Python/changelog disagreements are catalogued in
+[`./api-divergences.md`](./api-divergences.md#pr-456-zpa-additions-executable-go-surface-versus-python-and-changelog).
+
+The most consequential executable paths are:
+
+- B2B guest policy: Go uses the admin-customer base and paginated `GET
+  /policySet/rules/policyType/GLOBAL_POLICY/guest/{guestID}`; Python uses the
+  non-admin base and returns a raw response (`vendor/zscaler-sdk-go/zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go:13-35`;
+  `vendor/zscaler-sdk-python/zscaler/zpa/b2b_policy.py:23-59`).
+- Federated application: Go provides paginated `GET /application/host/{hostID}`
+  and `PUT /application/federate`, while Python lists `/application/host` and
+  updates `/application/{application_id}` (`vendor/zscaler-sdk-go/zscaler/zpa/services/federated_application/federated_application.go:28-66`;
+  `vendor/zscaler-sdk-python/zscaler/zpa/application_federation.py:26-68,70-104`).
+- Customer domains: Go provides only admin-customer `GET
+  /v2/associationtype/{type}/domains` and decodes a bare array; Python also
+  exposes POST (`vendor/zscaler-sdk-go/zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go:12-40`;
+  `vendor/zscaler-sdk-python/zscaler/zpa/customer_domain.py:26-90,92-171`).
+- Policy groups: Go's `CreateRule` posts to `/policyGroupSet/{set}/rule` and
+  `ReorderGroup` uses `PUT .../rule/{group}/reorder`, unlike Python's group
+  create/reorder paths (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:102-150`;
+  `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-77,364-388`).
+
+The Go-only Browser Access Groups and the Go/Python One Identity return/model
+differences are also source-backed; keep them as open client-contract gaps,
+not product-status conclusions (`vendor/zscaler-sdk-go/zscaler/zpa/services/browser_access_groups/browser_access_groups.go:28-67,179-195`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/one_identity_controller/one_identity_controller.go:11-42`;
+`vendor/zscaler-sdk-python/zscaler/zpa/one_identity.py:26-68`).
 
 ### LSS (Log Streaming Service) config
 

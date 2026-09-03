@@ -8,7 +8,7 @@ last-verified: "2026-08-12"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
@@ -16,6 +16,7 @@ verified-against:
 sources:
   - "vendor/zscaler-sdk-go/CHANGELOG.md"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
+  - "vendor/zscaler-sdk-go/zscaler/oneapiclient.go"
   - "vendor/zscaler-sdk-go/zscaler/zparequests.go"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
@@ -345,7 +346,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 **What each source says:**
 
-- **Go SDK (v2):** `path = fmt.Sprintf(mgmtConfigV2+...)` at line 282. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:282`)
+- **Go SDK (v2):** `path = fmt.Sprintf(mgmtConfigV2+...)` at line 278. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:278`)
 - **Postman:** documents `PUT /mgmtconfig/v2/.../rule/:ruleId`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:77032`)
 
 **Significance / which to trust:** The v2 package UpdateRule correctly uses the v2 URL. Any cached claim to the contrary is wrong. Callers constructing URLs manually must use the v2 path for update.
@@ -390,7 +391,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 **What each source says:**
 
-- **Go SDK:** `BulkReorder` (v1 and v2) detects any rule named exactly `Default_Rule` and appends its ID last regardless of caller input. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:378-396`)
+- **Go SDK:** `BulkReorder` (v1 and v2) detects any rule named exactly `Default_Rule` and appends its ID last regardless of caller input. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:300-317`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:374-391`)
 - **Python SDK:** `bulk_reorder_rules` sends the caller-supplied list without modification. (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:4132-4147`)
 
 **Significance / which to trust:** High impact. Omitting `Default_Rule` from the end of a bulk reorder in the Python SDK can break policy evaluation. Python SDK callers must manually place the `Default_Rule` ID last.
@@ -412,7 +413,7 @@ The Python SDK confirms segment group membership is managed from the application
 
 **What each source says:**
 
-- **Go SDK (both v1 and v2):** `disabled` as `string` with `omitempty`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:51,130`)
+- **Go SDK (both v1 and v2):** `disabled` as `string` with `omitempty`; the v1 request, v2 response, and v2 request declarations are in `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:46` and `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:51,132`.
 - **Postman:** explicitly types `disabled` as `<integer>`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:73629`)
 
 **Significance / which to trust:** Postman is likely authoritative on wire type. The field's zero-value (0/false/empty string) is the common case; mismatch only affects explicit enable/disable operations.
@@ -439,7 +440,7 @@ The Python SDK confirms segment group membership is managed from the application
 **What each source says:**
 
 - **Go v1:** `Conditions` struct (line 101) has `MicroTenantID string` with `omitempty`. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontroller/policysetcontroller.go:93-102`)
-- **Go v2:** `PolicyRuleResourceConditions` struct (lines 162-170) has no `MicroTenantID` field. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:162-170`)
+- **Go v2:** `PolicyRuleResourceConditions` struct (lines 168-176) has no `MicroTenantID` field. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:168-176`)
 - **Postman:** consistent with Go — v1 conditions include `microtenantId`; v2 conditions include `setIds` instead. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:73629`)
 
 **Significance / which to trust:** Serializing a v1 condition object with `microtenantId` to a v2 endpoint sends an unrecognized field.
@@ -477,11 +478,145 @@ client-surface divergence.
 
 ---
 
+### PR #456 ZPA additions — executable Go surface versus Python and changelog
+
+The refreshed Go pin adds the B2B policy, Browser Access Groups, customer-domain,
+federated-application, One Identity, policy-group, policy-group-rule,
+policy-group-set, and shared-policy packages. These are client-side wrappers:
+their presence in the SDK does **not** prove that a tenant exposes the route or
+that a product entitlement is active. The executable source is separated below
+from changelog wording, which is release metadata rather than an API contract.
+
+**B2B policy controller.** Go builds an admin-customer URL and sends the guest
+ID to `/policySet/rules/policyType/GLOBAL_POLICY/guest/{guestID}` through the
+shared all-pages `GET` helper, returning typed `[]PolicyRule`
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go:13-35`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:231-260,325-411`).
+Python uses the non-admin `/zpa/mgmtconfig/v1/customers/{customerId}` base and a
+`GET` for the same guest suffix, but returns the raw response and duplicates it
+in both result slots (`vendor/zscaler-sdk-python/zscaler/zpa/b2b_policy.py:23-59`).
+The Go changelog labels that operation `PUT`
+(`vendor/zscaler-sdk-go/CHANGELOG.md:83-87`), so the method disagreement is
+between release prose and both executable clients; the admin-versus-non-admin
+base and typed-versus-raw response differences remain unresolved.
+
+**Federated application.** Go exposes a typed host listing that pages
+`GET /application/host/{hostID}` and a separate `PUT /application/federate`
+request carrying `applicationGid` and `guestGids`
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/federated_application/federated_application.go:28-66`).
+Python instead lists `GET /application/host` without a host ID and updates
+`PUT /application/{application_id}`
+(`vendor/zscaler-sdk-python/zscaler/zpa/application_federation.py:26-68,70-104`).
+The Go changelog agrees with the Go paths for this pair
+(`vendor/zscaler-sdk-go/CHANGELOG.md:83-86`), but the two SDKs do not expose
+the same operation/path model. Treat the two forms as an open contract
+question, not as evidence that either route is available to a particular
+tenant.
+
+**Customer-domain controller.** Go declares only a read method: an admin-
+customer `GET /v2/associationtype/{type}/domains` decoded as a bare
+`[]CustomerDomainController`
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go:12-40`).
+Python lists the same path but also exposes `POST` `add_update_domain` on that
+path, including the empty-list removal behavior in its docstring
+(`vendor/zscaler-sdk-python/zscaler/zpa/customer_domain.py:26-90,92-171`).
+The Go changelog advertises both `GET` and `POST`
+(`vendor/zscaler-sdk-go/CHANGELOG.md:88-90`), so the POST is a changelog/Python
+surface with no executable Go method at this pin. Whether the POST is a
+supported service operation, and whether Go intentionally omitted it, remains
+unverified.
+
+**Browser Access Groups.** The new Go package declares an admin-customer
+`/browserAccessGroups` endpoint, a large typed `BrowserAccessGroups` model, and
+only `GetAll` and `Get` readers with a microtenant filter
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/browser_access_groups/browser_access_groups.go:28-67,179-195`).
+The captured Python ZPA tree has no corresponding `browser_access_groups.py`
+service; its Browser Access modules concern application-segment variants
+instead (`vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py:19-31`).
+The Go changelog's PR #456 list does not name this package
+(`vendor/zscaler-sdk-go/CHANGELOG.md:57-90`). This is a Go-only captured client
+surface and a release-documentation gap, not proof of backend availability or
+Browser Access entitlement.
+
+**One Identity controller.** Go exposes one typed `GET /iamidpmapping` object
+under the admin-customer base, with `deliveryTag`, `orgId`, and typed mapping
+records (`vendor/zscaler-sdk-go/zscaler/zpa/services/one_identity_controller/one_identity_controller.go:11-42`).
+Python calls the same path as `list_iamidpmappings` and iterates response
+results, while its nested model additionally carries `syncVersion`
+(`vendor/zscaler-sdk-python/zscaler/zpa/one_identity.py:26-68`;
+`vendor/zscaler-sdk-python/zscaler/zpa/models/one_identity.py:59-89`).
+Thus Go's single-object return, Python's list return, and the Python-only
+captured `syncVersion` field are model/response-shape divergences. The changelog
+does not mention this package, so the live response envelope and the intended
+parity are open.
+
+**Policy Group, Rule, and Set controllers.** Go adds separate admin-customer
+packages. The executable Go policy-group package has read, update, delete,
+all-groups, and reorder methods, but its exported `CreateRule` sends `POST
+/policyGroupSet/{groupSetId}/rule` and accepts a `PolicyGroupResource`; it has
+no `CreateGroup` method (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:37-45,102-159`).
+Its `ReorderGroup` sends `PUT /policyGroupSet/{groupSetId}/rule/{groupID}/reorder/{order}`
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:140-150`).
+The Go rule package separately provides typed list/create/get/delete/reorder
+under `/group/{groupId}/rule`, with no update method
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_rule/policy_group_rule.go:31-133`),
+and the set package is read-only for set, policy-type, rule, summary, and
+summary-stats reads (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go:29-166`).
+The shared policy package supplies `DesktopPolicyMappings`, and the v2 policy
+model carries `groupId`, `linkText`, and `url`
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/policycommon/policycommon.go:1-22`;
+`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:124-166`).
+
+This does not line up with either the Python executable surface or the Go
+changelog: Python `add_group` is `POST .../group` and Python group reorder is
+`PUT .../group/{groupId}/reorder`, while the changelog describes `GET .../group`
+as "Add a new Policy Group" and lists reorder as `POST
+.../group/{groupId}/reorder`
+(`vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-77,364-388`;
+`vendor/zscaler-sdk-go/CHANGELOG.md:57-73`). The source-level Go path and
+method mismatch is a potential wrapper defect; without a live response or an
+upstream test, do not promote it to a backend claim.
+
+**Release metadata is internally inconsistent.** At this Go pin,
+`oneapiclient.VERSION` still says `3.8.48`, while the changelog begins with
+`3.8.49` and its PR #460 entry
+(`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:45-51`;
+`vendor/zscaler-sdk-go/CHANGELOG.md:3-16`). Record this as tooling/open
+metadata. It must not be used to infer product behavior, route availability, or
+tenant entitlement.
+
+**Open questions / gaps introduced by the new Go surface.**
+
+1. **B2B method and base:** Does the live B2B guest-policy operation accept the
+   Go/Python `GET`, and which `/customers` versus `/admin/customers` base is
+   canonical? Neither SDK's wrapper alone settles this.
+2. **Customer-domain write:** Is `POST /v2/associationtype/{type}/domains`
+   supported, despite the Go omission, or is it a Python/changelog-only
+   declaration? A captured response is required.
+3. **Federated-application paths:** Are host listing and federation represented
+   by both SDK path forms, or is one SDK using a stale/alternate route? Confirm
+   host-ID semantics and the update target with a contract or live call.
+4. **Browser Access Groups:** Is the Go-only read surface intentionally
+   unsupported in Python, or merely not yet ported? The source tree does not
+   answer whether the service is enabled for a tenant.
+5. **One Identity envelope:** Does `/iamidpmapping` return one object or a
+   list, and is `syncVersion` part of the current wire payload? The SDKs model
+   different answers.
+6. **Policy Group operations:** Is Go `CreateRule` intentionally a policy-group
+   set rule operation, and should `ReorderGroup` use `/rule/` or `/group/`? The
+   executable Go code, Python code, and changelog disagree on both operation
+   names and HTTP paths.
+
+These gaps are deliberately phrased as client-contract questions. No SDK
+declaration above is an entitlement or backend-availability assertion.
+
+---
+
 ### Field observations (Policy)
 
 **`operands.name` rewritten by API (corroborated):** Go SDK v1 UpdateRule explicitly clears `operand.Name` before PUT (`policysetcontroller.go:198-202`). This confirms the operator observation that the API always rewrites operand name to the referenced object's display name. The SDK strips it silently to prevent 400 errors.
 
-**`priority` and `rule_order` — server-computed (partially corroborated):** Both fields are present in Go v2 `PolicyRule` request struct (lines 139, 142) but sending them on creates/updates is likely ignored or causes drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:139,142`) (Corroborating operator field observation from production Terraform usage.)
+**`priority` and `rule_order` — server-computed (partially corroborated):** Both fields are present in Go v2 `PolicyRule` request struct (lines 141, 144) but sending them on creates/updates is likely ignored or causes drift. (`vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go:141,144`) (Corroborating operator field observation from production Terraform usage.)
 
 **`capabilities.file_upload=False` maps to `INSPECT_FILE_UPLOAD` — Python SDK bug confirmed:** `policies.py:3216-3217` maps `priv_caps_map.get('file_upload') is False` to `'INSPECT_FILE_UPLOAD'`. Setting `file_upload=False` to mean inspect-uploads is counter-intuitive. `inspect_file_upload=True` independently also maps to `INSPECT_FILE_UPLOAD` (line 3222). (`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:3214-3222`)
 

@@ -7,7 +7,8 @@ last-verified: "2026-07-20"
 confidence: medium
 source-tier: code
 verified-against:
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 sources:
   - "vendor/zscaler-help/about-log-streaming-service.md"
@@ -22,7 +23,7 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/admin_users/admin_users.go"
   - "vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go"
-  - "vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go"
+  - "vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go"
 author-status: draft
 ---
 
@@ -158,7 +159,7 @@ ZIdentity serves as the identity plane for ZIA and ZPA in modern (OneAPI) deploy
 - The **Administrative Entitlements** module in ZIdentity controls which ZIA/ZPA products an admin can access. Changes to entitlements are presumably captured in ZIdentity's own audit log.
 - ZIA audit logs include a **Trace ID** column (`vendor/zscaler-help/admin-rbac-captures.md:78`). Whether the same Trace ID is surfaced consistently across ZPA, ZIdentity, ZDX, ZCC, or ZWA audit contexts is not confirmed; treat cross-product Trace ID correlation as an open question rather than a guaranteed join key. See [clarification shared-37](../_meta/clarifications.md#shared-37-cross-product-trace-id-propagation).
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
 ZIdentity audit log field schema and API access are not exposed in available SDK sources. The ZIdentity module is present in the ZIdentity admin permission matrix as a permission-gated view, implying a portal UI but not confirming an API.
 
@@ -221,7 +222,7 @@ No push-based streaming documented. Integration requires periodic POST calls to 
 
 ## Open questions register
 
-Source: `vendor/zscaler-sdk-go/zscaler/zid/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/zid/services/users/users.go`.
+Source: `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
 1. **ZIdentity audit log API** — no SDK implementation found for querying ZIdentity audit logs programmatically. The inspected Go ZID service files cover `common`, `groups`, `resource_servers`, `user_entitlement`, and `users` — no audit package. Whether a REST endpoint exists is unknown.
 
