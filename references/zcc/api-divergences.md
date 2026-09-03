@@ -9,13 +9,14 @@ last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/terraform-provider-zcc: 37aaa1f69786ee5263b358c5248a5b4ce014ebb8
 sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/**"
   - "vendor/zscaler-sdk-python/zscaler/zcc/**"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_response.py"
   - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go"
   - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend_test.go"
 author-status: draft
@@ -33,6 +34,14 @@ ZCC is the most divergence-rich of the Zscaler SDK pairs. Two pressures drive it
 - For **reads** (decoding a GET/listByCompany response), trust whichever SDK models the richer / more permissively-typed shape — frequently this is the one using a string-or-number tolerant type.
 - For **writes**, trust the Go SDK or direct HTTP: several Python ZCC write methods send hardcoded empty bodies (see Entitlements below) and are effectively no-ops.
 - When the GET and POST/PUT shapes of the *same* resource disagree on a field's type, that is the API's own contract — not an SDK bug. Build write bodies from the request struct, never by echoing back the GET struct.
+
+## Python SDK flat-array pagination (v1.9.42+, reverified at v1.9.44)
+
+The Python SDK's former flat-list handling is no longer a reason to treat a ZCC list response as complete. In v1.9.42, retained in the v1.9.44 source pinned in front matter, `ZscalerAPIResponse` stopped marking ZCC JSON arrays as non-paginated (`vendor/zscaler-sdk-python/CHANGELOG.md:23-31`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py:173-192`). `has_next()`/`next()` can therefore traverse a ZCC flat-array list such as `list_devices`; a caller-provided `page` initializes the internal one-based counter so continuation starts at the following page (`oneapi_response.py:90-96,364-447`).
+
+The SDK-side page metadata is default 50, minimum 1, and maximum 5000 (`oneapi_response.py:21-26`). A supplied `page_size` is normalized to the outbound `pageSize` key, but its value is not rewritten or rejected (`vendor/zscaler-sdk-python/zscaler/request_executor.py:504-509`). The response wrapper separately clamps only its local continuation limit to [1, 5000]; because selection is truthiness-based, explicit zero remains `pageSize=0` on the wire while the local limit is treated as unset (`oneapi_response.py:98-106`, `:126-142`). If no page size is supplied, the wrapper leaves it unset and lets the API choose its default (`oneapi_response.py:126-134`). With no response total, `has_next()` uses page fullness: any non-empty first page is a candidate for continuation even when short, a subsequent explicitly sized page continues only when it meets the local limit, and an omitted size can result in one extra empty-page probe (`oneapi_response.py:449-503`). An empty speculative fetch returns `(None, response, None)` rather than raising `StopIteration`; `StopIteration` applies only when `next()` starts with no candidate page (`oneapi_response.py:364-389`).
+
+This corrects any older claim that a ZCC flat array is inherently non-paginated or that the Python SDK cannot walk it. It does **not** certify a backend guarantee for every ZCC list endpoint. The retained Automate contract documents `page`/`pageSize`, default 50, and max 5000 for `GET /papi/public/v1/getDevices`, but does not document a minimum, total-page metadata, or a universal rule for every ZCC list response (`vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json:7761-7790`). The wrapper has no total, duplicate-page detection, or maximum-page guard, so a backend that ignores `page` and repeats a non-empty response can sustain an unbounded naïve loop (`oneapi_response.py:391-503`). Use bounded, duplicate-aware collection and verify endpoint/tenant response semantics separately.
 
 **Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, and SDKs remain authoritative for wrapper behavior (`references/_meta/verification-protocol.md:114-118`). The generated ZCC reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:7-11`). It currently covers 4 mapped resources, with 6 contract-vs-Go primitive type drifts, 1 contract-vs-Terraform required-flag drift, 3 one-sided enum constraints, no enum value conflicts, no Ansible surface, Python present for all 4 resources, and MCP present for 1 (`vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:13-28`).
 
@@ -439,6 +448,8 @@ So the casing is **inverted between the two SDKs for both macOS and Windows.**
 - **The three v2 services** (`notification_template`, `zia_posture`, `trusted_network_v2`) use offset-based pagination: `QueryParamsV2{Skip, PerPage}` returned in a `PaginatedResponseV2[T]` envelope. (`vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go:167-169,268`)
 
 **Significance / which to trust:** Paginate v2 endpoints with `skip`/`perPage`, not `page`/`pageSize`. The two families share no pagination shape.
+
+For the Python v1 flat-array traversal and its client-side heuristics, see [Python SDK flat-array pagination](#python-sdk-flat-array-pagination-v1942-reverified-at-v1944).
 
 ---
 

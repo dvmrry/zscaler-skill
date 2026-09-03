@@ -6,11 +6,13 @@ content-type: reference
 last-verified: "2026-06-18"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/terraform-provider-zcc: 37aaa1f69786ee5263b358c5248a5b4ce014ebb8
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_response.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/"
   - "vendor/zscaler-sdk-python/docsrc/zs/zcc/"
   - "vendor/terraform-provider-zcc/docs/index.md"
@@ -162,16 +164,39 @@ from zscaler import ZscalerClient
 
 client = ZscalerClient({...})  # OneAPI; for legacy use LegacyZCCClient (apiKey + secretKey)
 
-# Pattern 1: list-and-paginate
-def list_all(method, **kwargs):
+# Pattern 1: list-and-paginate defensively. ZCC flat-array pagination is
+# heuristic, so impose a page budget and reject repeated known identities.
+def zcc_identity(item):
+    for field in ("id", "udid"):
+        value = item.get(field) if isinstance(item, dict) else getattr(item, field, None)
+        if value is not None:
+            return (field, value)
+    return None
+
+
+def list_all(method, *, max_pages=100, identity=zcc_identity, **kwargs):
     items, resp, err = method(**kwargs)
     if err: raise RuntimeError(f"{method.__qualname__}: {err}")
     out = list(items)
-    while resp.has_next():
+    initial_ids = [identity(item) for item in out]
+    known_initial_ids = [value for value in initial_ids if value is not None]
+    if len(known_initial_ids) != len(set(known_initial_ids)):
+        raise RuntimeError("pagination returned a duplicate item identity")
+    seen_ids = set(known_initial_ids)
+    for _ in range(max_pages):
+        if not resp.has_next():
+            return out
         more, resp, err = resp.next()
         if err: raise RuntimeError(f"pagination: {err}")
+        if more is None:  # speculative empty-page probe
+            return out
+        page_ids = [identity(item) for item in more]
+        known_page_ids = [value for value in page_ids if value is not None]
+        if len(known_page_ids) != len(set(known_page_ids)) or seen_ids & set(known_page_ids):
+            raise RuntimeError("pagination returned a duplicate item identity")
+        seen_ids.update(known_page_ids)
         out.extend(more)
-    return out
+    raise RuntimeError(f"pagination exceeded {max_pages} pages")
 
 profiles = list_all(client.zcc.forwarding_profile.list_by_company)
 devices = list_all(client.zcc.devices.list_devices)

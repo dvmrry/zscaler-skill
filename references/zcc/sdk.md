@@ -4,6 +4,9 @@ topic: zcc-sdk
 title: "ZCC SDK reference — Python and Go service catalog"
 content-type: reference
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-api-specs: "10291a2d91e2d8d1188461c65bf67b8cb1b140cf"
+  vendor/zscaler-sdk-python: "e7f5f7efb56b6e24667f183e5dff3da03e039cc9"
 confidence: medium
 source-tier: code
 sources:
@@ -12,8 +15,10 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/_serialize.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/_field_introspect.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_response.py"
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go"
 author-status: draft
@@ -97,9 +102,17 @@ ZCC requires ZCC-scoped API credentials. When using OneAPI, the token request mu
 
 ### Pagination — Python
 
-Source: `vendor/zscaler-sdk-python/zscaler/utils.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`.
+Source: `vendor/zscaler-sdk-python/zscaler/utils.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`; `vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json`.
 
-List endpoints accept `page` (1-indexed) and `page_size` (default 50, max 5000) as `query_params` keys. The `@zcc_param_mapper` decorator translates snake_case OS and registration type names to their numeric API equivalents before the request is sent.
+For ZCC list methods that expose pagination, callers pass `page` and `page_size` in `query_params`. The `list_devices` docstring identifies a default page size of 50 and a maximum of 5000 (`vendor/zscaler-sdk-python/zscaler/zcc/devices.py:290-308`); the retained `getDevices` Automate contract independently documents `page`/`pageSize`, the same default of 50, and the same maximum of 5000 (`vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json:7761-7790`). The parameter conversion sends the Python `page_size` spelling as the API's `pageSize` key (`vendor/zscaler-sdk-python/zscaler/request_executor.py:504-509`).
+
+The Python response wrapper records the SDK-side ZCC limits as default 50, minimum 1, and maximum 5000 (`vendor/zscaler-sdk-python/zscaler/oneapi_response.py:21-26`). When a caller supplies a page size, `validate_page_size()` clamps only the wrapper's local continuation limit into [1, 5000] (`oneapi_response.py:98-106`, `:126-142`). It does **not** rewrite, reject, or clamp the outbound `pageSize`: the request keeps the caller's value after key conversion (`vendor/zscaler-sdk-python/zscaler/request_executor.py:504-509`). An explicit `page_size=0` is especially asymmetric—the request retains `pageSize=0`, while truthiness-based local limit selection treats zero as unset. When the caller omits the parameter entirely, the wrapper leaves it unset and delegates the default to the API (`oneapi_response.py:126-134`); the `default: 50` metadata does not mean the SDK inserts `pageSize=50` into every request.
+
+As of the v1.9.42 pagination fix, present in the v1.9.44 source pinned above, a ZCC flat JSON array is treated as a page that can be paginated rather than as a completed, non-paginated response (`vendor/zscaler-sdk-python/zscaler/oneapi_response.py:173-192`). A caller-supplied `page` seeds the internal counter, and `next()` requests the following one-based page; the SDK does not reject zero or negative starting pages (`oneapi_response.py:90-96`, `:391-447`). `has_next()` is heuristic because a flat array carries no total-pages metadata in this wrapper: **any non-empty first page triggers a probe**, even when shorter than the requested size; after a fetch, an explicitly sized page continues only when it meets the wrapper's local limit, while an omitted size can cause one additional empty-page probe (`oneapi_response.py:449-503`). Calling `next()` when `has_next()` is already false raises `StopIteration`, but a speculative request that returns an empty page instead returns `(None, response, None)` (`oneapi_response.py:364-389`).
+
+These are Python SDK traversal semantics, not a blanket backend guarantee. The captured Automate entry confirms `page`/`pageSize`, default 50, and max 5000 for `getDevices`, but does not provide total-page metadata, a minimum, or a statement that every ZCC list endpoint uses the same response shape (`zcc-api-reference.json:7761-7790`). The wrapper also has no duplicate-page detection or maximum-page guard, so a backend that ignores `page` and repeats a non-empty page can keep `has_next()` true indefinitely (`oneapi_response.py:391-503`). Use a bounded, duplicate-aware collector and validate endpoint-specific tenant behavior; draining this heuristic alone is not proof of complete backend inventory.
+
+The pagination statements in this section were reverified against Python SDK v1.9.44 at gitlink `e7f5f7efb56b6e24667f183e5dff3da03e039cc9`; unrelated historical version-qualified field notes in this page were not broadened.
 
 The raw `response` object returned from every call supports client-side JMESPath filtering via `resp.search(expression)` (`vendor/zscaler-sdk-python/zscaler/oneapi_response.py:274`).
 
