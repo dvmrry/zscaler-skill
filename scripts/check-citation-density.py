@@ -57,7 +57,9 @@ BARE_MD_RE = re.compile(r"(?<![/A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.md)(?![/A-Za-z0-
 BARE_SOURCE_FILE_RE = re.compile(
     r"(?<![/A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.(?:md|py|go|sh|json|ya?ml))(?![/A-Za-z0-9_.-])"
 )
-INTERNAL_SOURCE_RE = re.compile(r"\b(?:references|agents)/[A-Za-z0-9_./# -]+")
+INTERNAL_SOURCE_RE = re.compile(
+    r"(?<![\w./\-\u2010-\u2015])(?:\./)?(?:references|agents)/[A-Za-z0-9_./# -]+"
+)
 VAGUE_SOURCE_RE = re.compile(
     r"(?i)\b(?:listed in frontmatter|sources? listed in frontmatter|sections above|same section|this section|linked in (?:the )?table|topical references|listed vendor sources|summary index|synthesis index)\b"
 )
