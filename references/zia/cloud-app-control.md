@@ -7,7 +7,7 @@ last-verified: "2026-04-24"
 verified-against:
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
-  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
+  vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
 confidence: medium
 source-tier: doc
 sources:
@@ -25,6 +25,8 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go"
   - "vendor/terraform-provider-zia/go.mod"
   - "vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rule_actions.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go"
+  - "vendor/terraform-provider-zia/zia/common.go"
   - "vendor/terraform-provider-zia/docs/data-sources/zia_cloud_app_control_rule_actions.md"
 author-status: draft
 ---
@@ -157,20 +159,18 @@ Cross-SDK sweep (2026-04-24) surfaced details the earlier Python-SDK-derived doc
   each application type (`vendor/zscaler-sdk-go/CHANGELOG.md:3-14`). Both
   methods accept the same `cloudApps`/`type` request and return a flat string
   list. Static source does not define how their results differ.
-- **Multi-app semantics and completeness remain open.** The Terraform
-  data-source guide says its multi-app request returns the intersection
-  supported by all supplied apps, but also warns that some newly introduced
-  actions may be missing while
-  `ONEAPI-2421` is investigated
-  (`vendor/terraform-provider-zia/docs/data-sources/zia_cloud_app_control_rule_actions.md:16-18`).
-  Provider v4.8.3 pins Go SDK v3.8.44, so this documents the provider's current
-  old-endpoint behavior, not the new endpoint's aggregation contract.
-- **Provider dependency caveat.** Provider v4.8.3 calls the exported
-  `AllAvailableActions` symbol (`vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rule_actions.go:80-88`)
-  but pins Go SDK v3.8.44 (`vendor/terraform-provider-zia/go.mod:12`), where that
-  symbol still selects the old endpoint. A future dependency-only bump to Go
-  v3.8.46 changes the provider's selected endpoint without changing this call
-  site; review that upgrade as behavior-bearing.
+- **Provider v4.8.8 action-discovery behavior.** The provider data source calls
+  `AllAvailableActions` first and falls back to `AvailableActions` only when a
+  typed error response carries HTTP 404 or 405. Other typed statuses and
+  unstructured errors are returned to Terraform. The source then preserves the
+  flat response order while splitting ISOLATE actions and applying optional
+  filters (`vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rule_actions.go:17-41,97-125,127-180`).
+- **Multi-app semantics and completeness remain open.** Neither Go wrapper nor
+  the provider source defines whether the complete endpoint returns a union,
+  intersection, or another aggregation across `cloudApps`, whether list order
+  is meaningful, or whether a result is valid for each individual app. The
+  generated provider guide's intersection wording is not sufficient evidence;
+  keep the per-app and multi-app behavior open pending live verification.
 
 ## Edge cases
 
