@@ -7,7 +7,8 @@ last-verified: "2026-07-26"
 verified-against:
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd (Browser Access Groups surface)
-  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
+  vendor/zpacloud-ansible: ff0fec2d53073e33b3d4b289e9126f4a29f89f4e
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
@@ -18,6 +19,8 @@ sources:
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"
+  - "vendor/zpacloud-ansible/CHANGELOG.md"
+  - "vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba_v2.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
@@ -260,6 +263,47 @@ Resource type: `zpa_application_segment_browser_access`. This is a separate Terr
 Key Terraform constraints:
 - **`certificate_id` conflicts with `ext_label` + `ext_domain`**. If a custom external label/domain is configured on a clientless app, pinning a certificate ID is rejected at plan/apply time (`resource_zpa_application_segment_browser_access.go:48-57`).
 - **`select_connector_close_to_app` is not `ForceNew` on current base or Browser Access schemas.** Browser Access exposes it as a plain optional bool (`vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go:228-231`). As of provider v4.4.6, the base `zpa_application_segment` schema does the same after removing `ForceNew` (`vendor/terraform-provider-zpa/CHANGELOG.md:53-62`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`). Older provider versions differed for the base resource, so check provider version before reusing older migration notes.
+
+### 9.4 Ansible v2.2.12 child reconciliation (tooling boundary)
+
+The `zpa_application_segment_ba_v2` Ansible module now reconstructs the live
+Browser Access children that the Python segment model omits from
+`as_dict()`. It compares declared and live child domains in both directions,
+after trimming and case-folding, so a child removed outside Ansible or an
+empty `apps_config` is treated as drift
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:428-441,501-526,547-565`).
+
+On update, child IDs and stale-child deletion IDs are resolved only from the
+current parent segment. On create, the parent and child IDs remain empty and
+the module emits no `deleted_ba_apps`, preventing a child belonging to another
+segment from being adopted or submitted for deletion
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:606-651`).
+The module computes a merge of declared parent `domain_names` and TCP ports with
+child-derived values in `desired_app`, but its update payload reads raw
+`existing_app` ports and its create payload reads raw `app` ports; neither sends
+the merged `desired_app["tcp_port_range"]`
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:601-604,653-670,705-710,772-773`).
+Because `convert_ports_list(None)` returns `[]`
+(`vendor/zpacloud-ansible/plugins/module_utils/utils.py:126-134`), an omitted
+parent port value can clear ports. This is an Ansible tooling limitation, not a
+Browser Access matching or backend-contract result.
+
+The domain comparison trims and case-folds child domains, but the parent-owned
+child-ID and stale-deletion map uses raw exact domain keys
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:547-565,620-647`).
+A case or whitespace variant can therefore compare equal while failing ID
+lookup on an update, leaving `ba_app_id` empty and making an owned child appear
+stale for deletion/replacement. The focused tests cover exact spelling and not
+this boundary (`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_ba_v2.py:230-308`).
+Its update and create paths use the BA-v2 client methods
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:714-719,776-778`).
+
+These are Ansible reconciliation semantics, not a change to Browser Access
+matching or to the ZPA service contract. The same release's Inspection module
+has a separate, unresolved update-path contradiction; see
+[`ZPA API source divergences`](./api-divergences.md#ansible-2212-bapra-child-ownership-changes-port-merge-and-inspection-repair-remain-unproven)
+before generalizing this behavior to Inspection segments
+(`vendor/zpacloud-ansible/CHANGELOG.md:11-15`).
 
 ---
 

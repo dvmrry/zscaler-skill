@@ -5,7 +5,7 @@ title: "ZPA Terraform provider — resource catalog"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
 confidence: medium
 source-tier: code
 sources:
@@ -14,6 +14,9 @@ sources:
   - "vendor/terraform-provider-zpa/docs/guides/release-notes.md"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/go.mod"
+  - "vendor/terraform-provider-zpa/zpa/provider.go"
+  - "vendor/terraform-provider-zpa/zpa/config.go"
+  - "vendor/terraform-provider-zpa/zpa/provider_skip_credentials_test.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_capabilities_access_rule.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_policy_portal_access_rule.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go"
@@ -109,6 +112,52 @@ Complete listing of every Terraform resource and data source in the `zscaler/zpa
 
 ## Provider overview
 
+### Provider v4.4.11 configuration behavior
+
+`skip_credentials_validation` is an optional provider attribute for plans and
+applies where every `zpa_*` resource and data source is conditionally disabled
+(for example, `count = 0`). It can also be set with
+`ZSCALER_SKIP_CREDENTIALS_VALIDATION`
+(`vendor/terraform-provider-zpa/zpa/provider.go:104-112`). This is an inert
+client mode, not a validation-only switch: because the OneAPI SDK authenticates
+inside its constructor, the provider does not initialize an SDK client, returns
+an inert client with a configure-time warning, and leaves `Service` nil
+(`vendor/terraform-provider-zpa/zpa/provider.go:337-356`;
+`vendor/terraform-provider-zpa/zpa/config.go:40-46`). Any resource or data
+source that still attempts an API call, including an import, returns a
+descriptive provider error; the provider wraps all CRUD and import handlers for
+this purpose (`vendor/terraform-provider-zpa/zpa/provider.go:294-302,372-423`).
+These are Terraform-provider lifecycle semantics, not a claim about ZPA API
+availability or backend behavior. Remove the setting and provide valid
+credentials before enabling any ZPA object in that configuration.
+
+There is a provider-side precedence bug when both configuration sources are
+present. `config.go` reads the explicit value with `d.GetOk` and falls back to
+the environment variable when `ok` is false
+(`vendor/terraform-provider-zpa/zpa/config.go:100-104`). In Terraform Plugin
+SDK v2.40.1, `GetOk` treats the boolean zero value `false` as not set, whereas
+`GetOkExists` checks presence (`github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema/resource_data.go@v2.40.1:190-222`; the provider pins that SDK in `vendor/terraform-provider-zpa/go.mod:12-14`).
+Therefore `skip_credentials_validation = false` does not override
+`ZSCALER_SKIP_CREDENTIALS_VALIDATION=true`; the environment value enables the
+inert mode. The current focused tests cover explicit `true`, environment
+`true`, and missing credentials, but not this false-plus-environment case
+(`vendor/terraform-provider-zpa/zpa/provider_skip_credentials_test.go:26-85`).
+This is a Terraform-provider precedence defect; the true/env skip modes and
+the inert-client CRUD/import guard above remain source behavior, not a claim
+about backend validation.
+
+The provider still accepts `parallelism` for compatibility, but it is deprecated
+and ignored and is scheduled for removal in a future major release. The
+provider documents rate-limit handling as automatic: it honors the `Retry-After`
+header on a 429 response and retries transparently
+(`vendor/terraform-provider-zpa/zpa/provider.go:140-146`). The release notes
+also remove the older recommendation to limit individual policy resource types
+to one concurrent request; Terraform's `-parallelism` flag applies to the
+entire run rather than to a resource type
+(`vendor/terraform-provider-zpa/docs/guides/release-notes.md:31-38`). This is
+provider/tooling behavior and should not be read as a ZPA backend concurrency
+contract.
+
 Provider v4.4.10 extends the existing enrollment-certificate resolver to both
 create and update for `zpa_app_connector_group`, `zpa_service_edge_group`, and
 `zpa_private_cloud_group`. The release describes this as the provider remedy
@@ -154,9 +203,12 @@ create or for changed, nonempty codes on update
 (`vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:233-266,342-382`;
 `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:281-310,385-421`;
 `vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:184-213,270-306`).
-Provider v4.4.10 still compiles `zscaler-sdk-go/v3` v3.8.42, so do not
-attribute later SDK behavior to this Terraform release
-(`vendor/terraform-provider-zpa/go.mod:5-15`).
+The historical v4.4.10 enrollment-certificate behavior above was reviewed
+against the v4.4.10 dependency baseline. The current v4.4.11 provider compiles
+`zscaler-sdk-go/v3` v3.8.47
+(`vendor/terraform-provider-zpa/go.mod:5-15`); that dependency change does not
+by itself add every SDK operation to the Terraform resource/data-source
+surface, so use the catalog and provider source for Terraform coverage.
 
 Provider v4.4.9 added the optional
 `device_posture_failure_notification_enabled` field to both

@@ -10,8 +10,8 @@ verified-against:
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
-  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
-  vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
+  vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
+  vendor/zpacloud-ansible: ff0fec2d53073e33b3d4b289e9126f4a29f89f4e
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 sources:
   - "vendor/zscaler-sdk-go/CHANGELOG.md"
@@ -24,6 +24,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/helpers.py"
   - "vendor/terraform-provider-zpa/zpa/**"
+  - "vendor/terraform-provider-zpa/docs/guides/release-notes.md"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/go.mod"
   - "vendor/zpacloud-ansible/CHANGELOG.md"
@@ -242,32 +243,128 @@ metadata; do not let a Python decode failure masquerade as a missing segment.
 
 ---
 
-### Ansible 2.2.11 — PRA child ownership fixed; Inspection repair remains unproven
+### Ansible 2.2.12 — BA/PRA child ownership changes; port merge and Inspection repair remain unproven
 
 **What each source says:**
 
-- **PRA module:** resolves child IDs exclusively from the parent segment's own
-  `pra_apps`, leaves IDs empty on create, and builds `deleted_pra_apps` only from
-  that parent-scoped map
-  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:502-546`).
-- **PRA tests:** prove that create does not adopt a foreign `pra_app_id`, update
-  resolves the owned ID, an orphaned child triggers recreation, and a live child
-  stays idempotent
-  (`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py:97-159`,
-  `:161-238`, `:302-325`).
-- **Inspection module:** detects a missing declared-domain child, but writes
-  deletion IDs as `deleted_pra_apps` and invokes
-  `app_segments_pra.update_segment_pra` followed by `get_segment_pra`
-  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:418-430`,
-  `:532-538`, `:591-605`).
+- **Browser Access v2:** recovers live `clientless_apps` from the SDK segment,
+  compares declared and live child domains in both directions after trimming
+  and case-folding, and marks a segment changed when a child is removed outside
+  Ansible or when `apps_config` is emptied
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:428-441,501-526,547-565`).
+  Child IDs and stale-child deletion IDs are resolved only from the current
+  parent; creates leave those IDs empty and do not emit `deleted_ba_apps`
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:606-651`).
+  The module computes merged parent domains and TCP ports in `desired_app`, but
+  its update payload takes TCP ports from raw `existing_app` and its create
+  payload takes them from raw `app`; neither payload uses the merged
+  `desired_app["tcp_port_range"]`
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:601-604,653-670,705-710,772-773`).
+  `convert_ports_list(None)` returns an empty list
+  (`vendor/zpacloud-ansible/plugins/module_utils/utils.py:126-134`), so an
+  omitted parent port value can clear ports. Treat the merge as an ineffective
+  intermediate computation, not as resolved port preservation.
+  The comparison normalizes child domains, but the ownership/deletion map uses
+  raw exact domain keys (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:547-565,620-647`).
+  Case or whitespace variants can therefore compare equal yet fail child-ID
+  lookup on an update, leaving `ba_app_id` empty and making an owned child look
+  stale for deletion/replacement. The regression tests use exact spelling and
+  do not cover that boundary (`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_ba_v2.py:230-308`).
+- **PRA:** applies the same parent-scoped lookup, create safety, symmetric
+  domain-presence comparison, and stale `deleted_pra_apps` generation
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-457,499-543`).
+  It computes a declared-domain/child-domain and port merge in `desired_app`,
+  but the update payload uses raw `existing_app` ports and create uses raw
+  `app` ports, so the merged port list is not sent
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:494-497,545-562,597-602,666-667`).
+  An omitted parent port value can consequently become an empty payload through
+  `convert_ports_list(None)` (`vendor/zpacloud-ansible/plugins/module_utils/utils.py:126-134`).
+  Its normalized child-domain comparison and raw exact ownership/deletion map
+  have the same case/whitespace boundary: a spelling-equivalent domain can pass
+  comparison but fail ID lookup, causing an update to recreate a child or mark
+  the owned child stale (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-457,512-539`).
+  Its update path uses the PRA update and read clients
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:607-619`).
+  The target unit tests cover foreign-child avoidance, owned-child ID
+  resolution, stale-child deletion, missing-child recreation, and idempotence
+  (`vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py:97-159,161-238,302-313,315-347,349-359`).
+- **Inspection:** its read path still uses `result.as_dict()` without recovering
+  inspection children (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:374-401`).
+  Its parent-scoped child lookup is inside `if existing_app`, so it is an
+  update-only lookup; create leaves IDs empty and does not perform that lookup
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:472-506,512-532,658-662`).
+  It computes a declared domain/port merge in `desired_app`, but update sends
+  raw `existing_app` ports and create sends raw `app` ports, so that merge is
+  ineffective and omitted parent ports can clear ports
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:467-470,534-552,587-591,654-655`; `vendor/zpacloud-ansible/plugins/module_utils/utils.py:126-134`).
+  The detector is one-way—declared children missing from the live set are
+  noticed, but extra live children are not
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:415-430`). Its update payload
+  writes `deleted_pra_apps`, and its update/read calls still target
+  `app_segments_pra`, while create calls the inspection client
+  (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:508-532,554-610,658-662`).
+- **Changelog:** v2.2.12 describes the BA/PRA/Inspection ownership, removal,
+  and domain/port-merge fixes, including the prior BA cross-parent
+  `400 resource.not.found` failure
+  (`vendor/zpacloud-ansible/CHANGELOG.md:3-15`).
 
-**Significance / which to trust:** Treat the PRA ownership and orphan repair as
-regression-covered. The changelog also labels Inspection orphan repair as fixed
-(`vendor/zpacloud-ansible/CHANGELOG.md:12-16`), but the detector can enter an
-update path whose subtype-specific payload and client calls do not match
-Inspection. Do not report that repair as resolved; the server-side result—
-rejection, an incorrect subtype operation, or another failure—remains
+These BA, PRA, and Inspection observations describe Ansible reconciliation
+code paths (integration-tool behavior), not a change to the ZPA service's
+matching, child ownership, or API contract
+(`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:547-565,606-670`;
+`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:440-562`;
+`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py:415-430,508-610`).
+
+**Significance / which to trust:** Treat the BA/PRA parent-scoped ownership,
+stale-child deletion, and symmetric domain-presence behavior as source- and
+test-backed integration-tool behavior, but do not report their port merge as
+effective or resolved. Do not extend either result to nested child fields
+beyond domain presence: both modules exclude `common_apps_dto` from the
+general comparison, and their dedicated checks compare only normalized child
+domain sets (`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_ba_v2.py:544-565`;
+`vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py:437-457`).
+The changelog labels Inspection orphan repair as fixed, but the detector can
+enter an update path whose subtype-specific payload and client calls do not
+match Inspection. Do not report that repair as resolved; the server-side
+result—rejection, an incorrect subtype operation, or another failure—remains
 unverified.
+
+### Terraform provider v4.4.11 — inert credential-skip mode and ignored parallelism are tooling semantics
+
+`skip_credentials_validation` is an optional provider setting for configurations
+where all `zpa_*` resources and data sources are disabled, such as a conditional
+`count = 0`; the provider also reads
+`ZSCALER_SKIP_CREDENTIALS_VALIDATION`
+(`vendor/terraform-provider-zpa/zpa/provider.go:104-112`). Because OneAPI
+authentication occurs in the SDK constructor, enabled skip mode returns an
+inert client, emits a warning, and does not initialize `Service`
+(`vendor/terraform-provider-zpa/zpa/provider.go:337-356`). CRUD and import
+handlers are wrapped so an accidental API call returns an explanatory provider
+error (`vendor/terraform-provider-zpa/zpa/provider.go:294-302,372-423`). This
+is a Terraform lifecycle behavior, not evidence about the ZPA backend.
+
+There is a provider-side precedence bug when both configuration sources are
+present. `config.go` reads the explicit value with `d.GetOk` and falls back to
+the environment variable when `ok` is false
+(`vendor/terraform-provider-zpa/zpa/config.go:100-104`). In Terraform Plugin
+SDK v2.40.1, `GetOk` treats the boolean zero value `false` as not set, whereas
+`GetOkExists` checks presence (`github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema/resource_data.go@v2.40.1:190-222`; the provider pins that SDK in `vendor/terraform-provider-zpa/go.mod:12-14`).
+Therefore `skip_credentials_validation = false` does not override
+`ZSCALER_SKIP_CREDENTIALS_VALIDATION=true`; the environment value enables the
+inert mode. The provider tests cover explicit `true`, environment `true`, and
+the missing-credentials error, but not this false-plus-environment case
+(`vendor/terraform-provider-zpa/zpa/provider_skip_credentials_test.go:26-85`).
+This is a Terraform-provider precedence defect; the true/env skip modes and
+the inert-client CRUD/import guard above remain source behavior, not a claim
+about backend validation.
+
+The `parallelism` provider attribute remains accepted but is deprecated and
+ignored. The provider says it handles rate limits automatically by honoring the
+`Retry-After` response header and retrying (`vendor/terraform-provider-zpa/zpa/provider.go:140-146`),
+and the release notes remove the former resource-specific one-concurrent-request
+guidance (`vendor/terraform-provider-zpa/docs/guides/release-notes.md:31-38`).
+Treat this as provider/tooling behavior rather than a backend concurrency
+contract.
 
 ---
 
