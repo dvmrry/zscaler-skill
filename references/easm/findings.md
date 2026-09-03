@@ -3,12 +3,14 @@ product: easm
 topic: easm-findings
 title: "ZEASM Findings — field table, drill-down levels, and scoring-field caveats"
 content-type: reference
-last-verified: "2026-07-16"
+last-verified: "2026-09-03"
 verified-against:
-  vendor/zscaler-mcp-server: ee6354bfd20f797f3e77b69566f500e83c04f723
+  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 confidence: medium
 source-tier: code
 sources:
+  - "vendor/zscaler-api-specs/automate-zscaler/easm-api-reference.json"
   - "vendor/zscaler-sdk-python/zscaler/zeasm/findings.py"
   - "vendor/zscaler-sdk-python/zscaler/zeasm/models/findings.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py"
@@ -21,7 +23,7 @@ author-status: draft
 
 # ZEASM Findings — field table, drill-down levels, and scoring-field caveats
 
-> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.15.3 wraps the Python client with four read-only finding tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:68-93`, `:96-189`). The list tool unwraps the SDK collection's `results`, and all four tools return the full SDK model records through the shared record-preserving shapers; these are SDK-model records, not raw HTTP responses (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). There is no Go field column to compare. Several finding fields are declared by attribute name only, with no value enumeration or docstring in source; those allowed-value sets are recorded as unverified under [Open questions](#open-questions), not guessed.
+> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.15.4 wraps the Python client with four read-only finding tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:68-93`, `:96-189`). The list tool unwraps the SDK collection's `results`, and all four tools return the full SDK model records through the shared record-preserving shapers; these are SDK-model records, not raw HTTP responses (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). There is no Go field column to compare. Several finding fields are declared by attribute name only, with no value enumeration or docstring in source; those allowed-value sets are recorded as unverified under [Open questions](#open-questions), not guessed.
 
 ## Endpoint
 
@@ -80,18 +82,32 @@ Both evidence and scan-output return the **same** model — `CommonFindings` —
 
 The registered MCP finding tools expose `org_id` in their Pydantic input schemas, matching the SDK parameter name (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:32-51`, `:68-83`, `:96-112`, `:125-143`, `:156-173`; SDK signatures at `vendor/zscaler-sdk-python/zscaler/zeasm/findings.py:39`, `:99`, `:149`, `:203`). The product SKILL.md examples use `organization_id`, which does not match the registered MCP input schema (`vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md:57-69`, `:89`, `:256`).
 
-At v0.15.3, only the evidence and complete scan-output tools carry the
-`untrusted_content` metadata flag; the findings list and details tools do not
+At v0.15.4, only the evidence and complete scan-output tools within the finding
+family carry the `untrusted_content` metadata flag; the findings list and details
+tools do not
 (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:68-134`,
 `:159-170`). These two tools and the lookalike-domain detail tool form the
-three-tool EASM subset of the global four-tool set, which now also includes the
-ZIA Sandbox report. The test fixes that exact set and confirms the banner is
-text-only while structured records remain unchanged
-(`vendor/zscaler-mcp-server/tests/test_provenance.py:20-33`, `:59-91`,
-`:114-128`). This list-tool omission is an MCP tooling/release advisory about
-metadata coverage, not Zscaler product behavior and not evidence that an
-unflagged result is inherently trusted; it does not invalidate the v0.15.3
-evidence pin.
+four-tool EASM subset of the global eight-tool set: the two finding tools plus
+the lookalike-domain list and detail tools. The test fixes that exact global set
+and confirms the banner is text-only while structured records are unchanged by
+the provenance banner itself
+(`vendor/zscaler-mcp-server/tests/test_provenance.py:20-69`, `:114-128`,
+`:150-153`). The
+v0.15.4 list-tool metadata-coverage resolution applies to the lookalike-domain
+list tool; it does not change finding product behavior, finding trust semantics,
+or imply that an unflagged finding result is inherently trusted. The finding
+model and its allowed-value open questions remain unchanged.
+
+The unflagged list and details tools still return the entire SDK finding model,
+including `description` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/findings.py:68-122`;
+`vendor/zscaler-sdk-python/zscaler/zeasm/models/findings.py:68-87`). The captured
+EASM contract says that description can be assembled from open-source
+intelligence such as NVD as well as Zscaler research
+(`vendor/zscaler-api-specs/automate-zscaler/easm-api-reference.json:705-713`,
+`:1135-1143`). That externally sourced free text is not reflected in the
+v0.15.4 flag rationale. Treat descriptions as untrusted evidence even though
+the tool is unflagged; the eight-tool set records current MCP behavior, not a
+complete trust classification.
 
 ## Open questions
 

@@ -3,9 +3,9 @@ product: easm
 topic: easm-lookalike-domains
 title: "ZEASM Lookalike Domains — model fields, the raw-domain key, and narrative-only signals"
 content-type: reference
-last-verified: "2026-07-16"
+last-verified: "2026-09-03"
 verified-against:
-  vendor/zscaler-mcp-server: ee6354bfd20f797f3e77b69566f500e83c04f723
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 confidence: medium
 source-tier: code
 sources:
@@ -21,7 +21,7 @@ author-status: draft
 
 # ZEASM Lookalike Domains — model fields, the raw-domain key, and narrative-only signals
 
-> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.15.3 wraps the Python client with read-only list/get tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:67-94`, `:97-129`). The list tool unwraps the SDK collection's `results`, and both tools return full SDK model records through the shared record-preserving shapers; these are SDK-model records, not raw HTTP responses (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). The SDK model defines a fixed attribute set; signals that appear only in illustrative product narrative (similarity score, active-hosting, MX/DNS) are NOT source fields and are recorded under [Open questions](#open-questions).
+> The SDK comparison is Python-only—the prior source-family audit found no Go EASM module—but MCP v0.15.4 wraps the Python client with read-only list/get tools (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:67-98`, `:101-133`). The list tool unwraps the SDK collection's `results`, and both tools return full SDK model records through the shared record-preserving shapers; these are SDK-model records, not raw HTTP responses (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`). The SDK model defines a fixed attribute set; signals that appear only in illustrative product narrative (similarity score, active-hosting, MX/DNS) are NOT source fields and are recorded under [Open questions](#open-questions).
 
 ## Endpoints
 
@@ -46,16 +46,18 @@ The same raw domain string is also the model's `lookalike_raw` field; the legiti
 
 The registered MCP get-tool input schema uses `lookalike_raw` for the raw domain string, matching the SDK parameter name (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:39-54`, `:97-125`; SDK signature at `vendor/zscaler-sdk-python/zscaler/zeasm/lookalike_domains.py:97-103`). The product SKILL.md uses `domain_id`, which does not match the registered MCP input schema (`vendor/zscaler-mcp-server/skills/easm/review-attack-surface/SKILL.md:89`).
 
-The v0.15.3 `untrusted_content` flag is attached to the get tool because its
-WHOIS fields are externally authored, but not to `zeasm_list_lookalike_domains`
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:67-105`).
-The get tool is one of the three EASM entries in the global four-tool flagged
-set, which now also includes the ZIA Sandbox report. The exact-set test records
-that list-tool omission and confirms the banner does not alter structured
-content (`vendor/zscaler-mcp-server/tests/test_provenance.py:20-33`, `:78-91`,
-`:114-128`). Treat that as an MCP tooling/release metadata advisory, not as
-EASM product behavior or evidence that list results are trusted; it does not
-invalidate the v0.15.3 source pin.
+At v0.15.4, both the list and get tools carry the `untrusted_content` flag:
+their lookalike hostname and registrant/registrar fields are authored by whoever
+registered the lookalike domain (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/easm/lookalike_domains.py:67-109`).
+The two tools are EASM entries in the exact global eight-tool set
+(`vendor/zscaler-mcp-server/tests/test_provenance.py:60-69`, `:150-153`). The v0.15.4
+release resolves the prior list-tool metadata-coverage omission; the banner
+remains text-only and does not alter structured content beyond the global
+output sanitizer that applies independently of provenance metadata
+(`vendor/zscaler-mcp-server/CHANGELOG.md:3-11`;
+`vendor/zscaler-mcp-server/tests/test_provenance.py:114-128`). Treat this as
+an MCP metadata boundary, not as EASM product behavior or evidence that any
+particular list result is trusted.
 
 ## Lookalike-domain field set (`LookalikeDomainDetails`)
 
