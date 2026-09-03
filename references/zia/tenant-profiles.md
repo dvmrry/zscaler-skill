@@ -4,6 +4,8 @@ topic: "tenant-profiles"
 title: "Tenant Profiles — SaaS tenant restriction (corporate-only access)"
 content-type: reasoning
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-help: dbe545d5918392c4067ff897e748698c80220fef
 confidence: medium
 source-tier: mixed
 sources:
@@ -11,7 +13,10 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zia/models/tenancy_restriction_profile.py"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/tenancy_restriction/tenancy_restriction.go"
   - "vendor/zscaler-help/about-tenant-profiles.md"
+  - "https://help.zscaler.com/zia/adding-tenant-profiles"
   - "vendor/zscaler-help/adding-tenant-profiles.md"
+  - "https://help.zscaler.com/zia/adding-ai-ml-applications-rule-cloud-app-control"
+  - "vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md"
   - "vendor/zscaler-help/ranges-limitations-zia.md"
   - "vendor/terraform-provider-zia/docs/resources/zia_cloud_app_control_rule.md"
   - "vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go"
@@ -25,19 +30,19 @@ Source: `vendor/zscaler-help/about-tenant-profiles.md`; `vendor/zscaler-help/add
 
 A **Tenant Profile** is a named object that identifies a specific corporate tenant of a SaaS application. It gives Cloud App Control (CAC) the information it needs to distinguish "user signing into the company's Microsoft 365 tenant" from "user signing into a personal or third-party Microsoft 365 tenant" — even though both transactions go to the same Microsoft endpoints. Without a Tenant Profile, CAC can only act on the application as a whole; with one, it can scope a rule to the corporate tenant and allow/block everything else.
 
-The feature has two moving parts: the Tenant Profile itself (Administration > Tenant Profiles), and a CAC rule that references it as a criterion. (Tier A — vendor/zscaler-help/about-tenant-profiles.md.)
+The feature has two moving parts: the Tenant Profile itself, and a CAC rule that references it as a criterion (`vendor/zscaler-help/about-tenant-profiles.md`). The current Help Add flow places Tenant Profiles at **Policies > Access Control > Internet & SaaS > Tenant Profiles** (`vendor/zscaler-help/adding-tenant-profiles.md:18-21`).
 
 ## What tenant profiles are — ZIA sub-tenant/MSP context
 
 Despite the name "tenant profile," this feature is **not** about sub-tenants or MSP configuration in the ZIA management plane. It is about SaaS application tenant restriction — controlling which SaaS tenants (e.g., which Microsoft 365 directory) users can sign into while going through ZIA inspection.
 
-Tenant Profiles belong to the ZIA **Tenant Restriction** capability, not to any ZIA multi-tenancy or MSP scoping feature. They appear under Administration > Tenant Profiles and are applied via Cloud App Control policy rules.
+Tenant Profiles belong to the ZIA **Tenant Restriction** capability, not to any ZIA multi-tenancy or MSP scoping feature. The current Help workflow places them under **Policies > Access Control > Internet & SaaS > Tenant Profiles** and applies them via Cloud App Control policy rules (`vendor/zscaler-help/adding-tenant-profiles.md:18-21`).
 
 ## Supported applications
 
 Source: `vendor/zscaler-help/adding-tenant-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zia/models/tenancy_restriction_profile.py`.
 
-The help article (`vendor/zscaler-help/adding-tenant-profiles.md:16-29`) lists 13 applications by display name: YouTube, Google Apps, Microsoft Login Services, Slack, Amazon Web Services, Dropbox, Webex Login Services, Zoho Login Services, Google Cloud Platform, Zoom, IBM SmartCloud, GitHub, ChatGPT.
+The current Help Add form lists 14 applications by display name: YouTube, Google Apps, Microsoft Login Services, Slack, Amazon Web Services, Dropbox, Webex Login Services, Zoho Login Services, Google Cloud Platform, Zoom, IBM SmartCloud, GitHub, ChatGPT, and Claude (`vendor/zscaler-help/adding-tenant-profiles.md:18-36`).
 
 The SDK exposes 16 `app_type` token values — enumerated in the `add_restriction_profile` docstring (`vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py:147-150`, and again in the `list_app_item_count` docstring at `:338-341`). The Python model itself (`models/tenancy_restriction_profile.py`) maps `appType` as a plain string field with no enum constraint, and the Go struct (`vendor/zscaler-sdk-go/zscaler/zia/services/tenancy_restriction/tenancy_restriction.go:22`) likewise stores `AppType` as a free string — so the docstring list is the only enumeration in source:
 
@@ -47,7 +52,21 @@ WEBEX_LOGIN_SERVICES, AMAZON_S3, ZOHO_LOGIN_SERVICES, GOOGLE_CLOUD_PLATFORM,
 ZOOM, IBMSMARTCLOUD, GITHUB, CHATGPT_AI
 ```
 
-The docstring count (16, including `BOX` and `FACEBOOK`, which the help UI list omits) is the authoritative token list. (Tier A — SDK docstring.)
+The docstring count (16) is an SDK/API inventory, not a count of the current Help UI names: it includes `BOX`, `FACEBOOK`, and `AMAZON_S3`, which are not listed in the Help capture. The current Help body uses **Claude** as a display name and does not document an API token or SDK enum named `CLAUDE_AI`; do not infer that mapping from the Help label (`vendor/zscaler-help/adding-tenant-profiles.md:38-40`). The SDK docstring remains authoritative for the token list (`vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py:147-150`).
+
+## Help UI create flow
+
+Source: `vendor/zscaler-help/adding-tenant-profiles.md:18-21,49-51`.
+
+The current Help create flow starts at **Policies > Access Control > Internet &
+SaaS > Tenant Profiles**, followed by **Add Tenant Profile**
+(`vendor/zscaler-help/adding-tenant-profiles.md:18-21`). The form requires a
+unique Tenant Profile Name, displays that name while configuring the related
+Cloud App Control rule, permits an optional Description of at most 10,240
+characters, and then asks the administrator to save and activate the change
+(`vendor/zscaler-help/adding-tenant-profiles.md:49-51`). These are Help UI
+fields and workflow steps; provider/SDK/API fields are described separately
+below.
 
 ## How a Tenant Profile is constructed
 
@@ -112,13 +131,13 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/tenancy_restriction_profil
 
 ## How CAC uses Tenant Profiles
 
-Source: `vendor/zscaler-help/adding-tenant-profiles.md`.
+Source: `vendor/zscaler-help/adding-tenant-profiles.md:16,42-47`.
 
 A CAC rule can reference a Tenant Profile as a criterion. When it does, the rule fires only when the user is accessing the matching SaaS tenant. The general pattern for tenant restriction:
 
 1. Create a Tenant Profile identifying the corporate tenant.
 2. Create a CAC rule: `Action = Allow`, `Tenant Profile = <corporate profile>`.
-3. Allow-for-the-corporate-tenant automatically blocks other tenants for most apps — the help article states this explicitly: "Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated."
+3. Allow-for-the-corporate-tenant automatically blocks other tenants for most apps — the Help article states this explicitly: "Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated." For **YouTube** and **Amazon Web Services**, subsequent policies are evaluated, so an explicit block policy is required for other tenants (`vendor/zscaler-help/adding-tenant-profiles.md:42`).
 
 **YouTube and AWS are exceptions** (Tier A, help doc): for these two apps, subsequent policies continue to be evaluated, so allowing the corporate tenant does not implicitly block others. An explicit block rule is required for other-tenant traffic to YouTube or AWS.
 
@@ -130,19 +149,33 @@ Tenant Profiles are referenced in CAC rules. CAC rules in ZIA inherit the standa
 
 A Tenant Profile set on one CAC rule does not affect other rules. If a tenant profile is deleted, CAC rules referencing it may behave unexpectedly — the profile reference becomes stale. ZIA does not prevent deletion of profiles referenced by active rules.
 
+## Help UI visibility in AI/ML Applications rules
+
+Source: `vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:45-50`.
+
+When configuring an AI/ML Applications Cloud App Control rule, the Help capture
+says **Tenant Profiles** appears only when ChatGPT or Claude is selected and the
+selected applications are not exempted from SSL/TLS Inspection. This is a Help
+UI visibility condition, separate from the provider/SDK/API token inventory
+above (`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:45-50`).
+
 ## SSL inspection is a hard prerequisite
 
-Source: `vendor/zscaler-help/adding-tenant-profiles.md:33-36`.
+Source: `vendor/zscaler-help/adding-tenant-profiles.md:44-47`.
 
-Tenant restriction depends on ZIA being able to read and modify the request to the SaaS login service, so the traffic must be SSL-inspected. The help article states this directly: "Ensure to select these cloud applications as a criterion in an SSL Inspection rule if their tenant profiles are associated with a cloud application rule." (Tier A — `adding-tenant-profiles.md:33`.)
+The Help article requires selecting the relevant cloud applications as criteria
+in an SSL Inspection rule when their Tenant Profiles are associated with a
+Cloud App Control rule (`vendor/zscaler-help/adding-tenant-profiles.md:44`). The
+capture does not describe the on-wire tenant-restriction mechanism.
 
-The same passage gives the per-app SSL-inspection target and ordering (Tier A — `adding-tenant-profiles.md:34-36`):
+The same passage gives the per-app SSL-inspection targets and ordering
+(`vendor/zscaler-help/adding-tenant-profiles.md:44-47`):
 
-- **Office 365**: select **Microsoft Login Services** as the cloud application, with a rule order **higher than** the Office 365 One Click Rule (so it is evaluated first).
-- **Google Apps**: select **Google Login Services** as the cloud application.
-- **Webex Teams / Webex Meetings**: select **Webex Login Services** as the cloud application.
+- **Office 365**: select **Microsoft Login Services** as the cloud application, with a rule order **higher than** the Office 365 One Click Rule (`vendor/zscaler-help/adding-tenant-profiles.md:45`).
+- **Google Apps**: select **Google Login Services** as the cloud application (`vendor/zscaler-help/adding-tenant-profiles.md:46`).
+- **Webex Teams / Webex Meetings**: select **Webex Login Services** as the cloud application (`vendor/zscaler-help/adding-tenant-profiles.md:47`).
 
-If SSL inspection is bypassed for the login service (e.g., via the M365 One-Click bypass), ZIA cannot apply the restriction and the feature stops enforcing. The exact wire mechanic by which ZIA conveys the tenant constraint to the SaaS vendor is not described in vendored source — see Open questions.
+The exact wire mechanic by which ZIA conveys the tenant constraint to the SaaS vendor is not described in this Help capture — see Open questions.
 
 ## API surface
 
@@ -212,12 +245,12 @@ Two org/rule-level caps sit alongside the per-app numbers (`ranges-limitations-z
 Source: `vendor/zscaler-help/adding-tenant-profiles.md`; `vendor/zscaler-help/ranges-limitations-zia.md`; `vendor/terraform-provider-zia/zia/resource_zia_tenant_restriction_profile.go`; `vendor/terraform-provider-zia/zia/data_source_zia_tenant_restriction_profile.go`.
 
 **1. SSL inspection is a hard prerequisite — and easy to silently break.**
-If SSL inspection is bypassed for the SaaS app in question (One-Click rules, URL-category bypass, or per-rule bypass), ZIA cannot read or modify the inspected login request, so it cannot apply the restriction. The tenant restriction CAC rule may still match the app, but it can't enforce the tenant constraint — users will reach any tenant. This fails silently; there's no error, just enforcement absence. Always verify SSL inspection is active for the login service (not just the app's content domains). (Prerequisite confirmed at `adding-tenant-profiles.md:33`; the exact wire mechanic is an Open question.)
+The Help article requires SSL Inspection for the relevant cloud application when its Tenant Profile is associated with a Cloud App Control rule (`vendor/zscaler-help/adding-tenant-profiles.md:44`). The capture does not document what happens on the wire when inspection is bypassed; see Open questions.
 
 **2. Login service ≠ content service — target the right app in SSL inspection.**
-Source: `vendor/zscaler-help/adding-tenant-profiles.md:34-36`.
+Source: `vendor/zscaler-help/adding-tenant-profiles.md:44-47`.
 
-The restriction is applied during the **login flow**, not content access, so the SSL inspection rule must select the login-service cloud application: **Microsoft Login Services** for O365 (not the generic "Microsoft Office 365" / "MS O365 Optimize" categories), **Google Login Services** for Google Apps, **Webex Login Services** for Webex. The help article spells out each of these targets explicitly (`adding-tenant-profiles.md:34-36`).
+For SSL Inspection, the Help article names the login-service cloud applications to select: **Microsoft Login Services** for Office 365, **Google Login Services** for Google Apps, and **Webex Login Services** for Webex (`vendor/zscaler-help/adding-tenant-profiles.md:44-47`). It does not state a separate wire distinction between login and content services.
 
 **3. Corporate tenant ID rotation.**
 If the Azure AD directory ID or Google Workspace primary domain changes (tenant migration, merger, domain rename), the Tenant Profile's `item_data_primary` becomes stale. The profile keeps matching at the rule level, but it now carries the old identifier and the SaaS vendor rejects or misidentifies the tenant. No Zscaler-side error is visible — audit Tenant Profile data when a tenant identity change occurs.

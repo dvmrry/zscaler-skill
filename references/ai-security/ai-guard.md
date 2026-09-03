@@ -8,7 +8,7 @@ confidence: medium
 source-tier: mixed
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
-  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-help: dbe545d5918392c4067ff897e748698c80220fef
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/zguard-ai-integrations: 71cbab024f369eb50748c9c4a74ec0158c084839
@@ -19,6 +19,7 @@ sources:
   - "vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md"
   - "vendor/zscaler-help/ai-guard-users-and-user-groups.md"
   - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
+  - "vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
@@ -102,7 +103,7 @@ author-status: draft
 
 ## Certification scope
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-users-help-index.md`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md`; `vendor/zscaler-help/ai-guard-users-and-user-groups.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-sdk-python/pyproject.toml`; `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/CHANGELOG.md`; `vendor/zguard-ai-integrations/AWS/README.md`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md`; `vendor/zguard-ai-integrations/Google/README.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-users-help-index.md`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md`; `vendor/zscaler-help/ai-guard-users-and-user-groups.md`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md`; `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md`; `vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-sdk-python/pyproject.toml`; `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/CHANGELOG.md`; `vendor/zguard-ai-integrations/AWS/README.md`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md`; `vendor/zguard-ai-integrations/Google/README.md`.
 
 The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with the Python SDK's 1.9.39-introduced OneAPI configuration and separately routed legacy policy-detection surfaces as retained in current v1.9.44 (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; `vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current public `/secure-ai-users` root contains 25 AI Guard for Users articles—six Getting Started, eight Configuration, two Best Practices, seven Monitoring, and two Troubleshooting (`vendor/zscaler-help/ai-guard-users-help-index.md:1-48`). The portal separates dashboard documentation into **AI Guard for Users** and **Apps & Infrastructure** surfaces (`vendor/zscaler-help/ai-guard-users-dashboard.md:8-16`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:8-16`); both dashboard bodies are captured, as are current custom-block-message and user/group-sync bodies (`vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md:8-24`; `vendor/zscaler-help/ai-guard-users-and-user-groups.md:8-24`). The rest of the current tree remains only partially mined. Treat current Help coverage as indexed and partial rather than fully certified.
 
@@ -175,16 +176,59 @@ AI Guard supports the following LLM providers (API request construction guides d
 
 ## ZIA integration
 
-AI Guard can be invoked from ZIA by proxy chaining supported AI-app traffic to AI Guard. The integration guide requires:
+Source: `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md`.
+
+The current Help body is published at `/secure-ai-users/integrating-zia-ai-guard` (status 200; Help node `1540870`, revision `3229535`). Its supported-application table is marked **last updated: September 2, 2026** (`vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md:3-9`, `:30-64`). AI Guard can be invoked from ZIA by proxy chaining supported AI-app traffic to AI Guard. The current integration guide requires:
 
 - AI Guard subscription and linked ZIA / AI Guard tenants.
+- A single AI Guard mapping to one tenant and one domain, with Zscaler Experience Center enabled for the tenant.
 - AI Guard endpoint CA certificate uploaded to ZIA as a proxy-chaining root certificate.
-- ZIA proxy pointing at `forward.zseclipse.net` on port `9443` as of the captured guide.
+- A ZIA proxy pointing at `forward.zseclipse.net` on port `9443`, with **Insert X-Authenticated-User** enabled and **Enable Base64 Encoding for X-Authenticated-User value** disabled.
 - Proxy gateway configured fail-closed.
 - A firewall rule to block/drop QUIC so traffic does not bypass the proxy path.
 - Wildcard FQDN destination groups and Forwarding Control rules for the supported AI-provider domains.
 
-Treat the supported-app/domain list as date-sensitive. The captured guide states the listed supported generative AI applications were last updated on April 14, 2026.
+The current supported-domain table includes **Google Gemini Workspaces** at
+`appsgenaiserver-pa.clients6.google.com` and labels such as Microsoft 365
+Copilot, GitHub Copilot Enterprise, and Vertex AI. Treat the table as
+date-sensitive rather than as a complete or timeless provider entitlement list
+(`vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md:30-64`).
+
+The page says users must be signed in to ZIA and authenticated by their IdP for
+traffic forwarding to work. It also says AI users defined in Authentication
+Service appear automatically in AI Guard after ZIA is configured successfully,
+while groups are not yet automatically populated; Policy Match policies can be
+defined for individual users and groups, with `AllUsersGroup` as the default
+group (`vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md:84-92`).
+
+The same Help JSON probe recorded `data.info.status=301` for the former
+`/ai-guard/configuring-zia-proxy-chain-ai-guard` URL, pointing to the current
+canonical route, and `data.info.status=403` with **Help Article in Maintenance**
+for the former `/ai-guard` root. These are Help-route/discoverability
+observations only; they do not establish product retirement, commercial
+availability, or tenant entitlement (`vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md:94-101`).
+
+## Adjacent ZIA AI/ML controls
+
+Source: `vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md`.
+
+ZIA Cloud App Control has a separate AI/ML Applications rule surface. Its
+documented granular actions are app-specific: ChatGPT (chat, upload, download,
+delete, share, invite), Google Gemini (chat, download, rename, upload),
+Microsoft Copilot (chat, delete, rename, share, upload), Perplexity (chat,
+delete, share, upload), Poe (chat, delete, share, upload), and Runway (create,
+delete, download, rename, share). When multiple applications are selected,
+only common actions appear, and the page requires SSL/TLS Inspection for these
+granular actions to work as expected (`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:14-30`).
+
+That ZIA rule also documents **Capture Prompts**: categorize and store end-user
+prompts for supported GenAI applications, up to 2 KB per prompt. Prompts are
+stored in Zscaler logs for the organization-defined period and can be viewed by
+authorized users with log access; the option appears only for selected GenAI
+applications that support prompt configuration (`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:32-43`).
+This is a ZIA Cloud App Control capture and logging path, not evidence that
+AI Guard's own retention or runtime policy surface has the same limit or
+visibility semantics.
 
 ## Policy management
 
@@ -217,7 +261,7 @@ Operational tenant controls include:
 
 - Network access control using IPv4 CIDR ranges.
 - Custom request headers, including a conversation ID header and sensitive-header marking.
-- Security settings to store prompts/responses for 90 days, enable event-detection feedback, encrypt sensitive custom headers, and use customer-managed content encryption.
+- Security settings to store prompts/responses for 90 days, enable event-detection feedback, encrypt sensitive custom headers, and use customer-managed content encryption (`vendor/zscaler-help/ai-guard-managing-tenant-settings.md:72-90`).
 - Customer-managed-key configuration; the captured page lists AWS as the currently supported KMS provider type.
 - User- or group-scoped policy evaluation requires a linked ZIA tenant. AI Guard can import ZIA users, groups, and domains, and `Advanced Actions > Start Sync` triggers an immediate synchronization outside the scheduled batch window (`vendor/zscaler-help/ai-guard-users-and-user-groups.md:8-20`). Imported users and user groups appear on separate **AI Users** tabs, while Policy Control is the documented surface for applying policies to them (`vendor/zscaler-help/ai-guard-users-and-user-groups.md:22-24`).
 - Custom prompt and response block messages can replace blocked content, and response blocking can optionally delete the conversation history (`vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md:8-20`). AI Guard sends the configured message to the LLM with an instruction to return it; the Help article warns that an LLM can treat the instruction as malicious, refuse it, or return an unexpected response (`vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md:22-24`).
@@ -228,7 +272,7 @@ AI Guard RBAC supports custom roles for system users managed through ZIdentity o
 
 ## Observability
 
-Source: `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md`; `vendor/zscaler-help/ai-guard-users-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`.
+Source: `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md`; `vendor/zscaler-help/ai-guard-users-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`; `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md`.
 
 | Surface | Description |
 |---|---|
@@ -236,7 +280,7 @@ Source: `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md`; `vendor
 | Dashboard — Apps & Infrastructure | The **AI Applications** tab reports application, LLM, policy-detection, and transaction counts. It can show individual transactions or connected multi-prompt conversation threads; conversation-thread viewing is documented as exclusive to DAS/API mode and absent from Proxy mode (`vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:11-35`). |
 | Insights | Executive overview of prompts, responses, active apps/LLMs, blocked counts, token counts, detection latency, trends over time, security posture, transactions by LLM/application, top detectors, and PII detections/categories. |
 | Usage | Usage view by AI application or user, including prompt/response content size, prompt tokens, and response tokens. |
-| Log Exports | Third-party export configuration for incident/event data. Captured destinations include ADX Event Hub, CrowdStrike HEC plus S3 content storage, AWS S3 metadata/content buckets, and Splunk HEC metadata/content endpoints. |
+| Log Exports | Third-party export configuration for incident/event data. Captured destinations include ADX Event Hub, CrowdStrike HEC plus S3 content storage, AWS S3 metadata/content buckets, and Splunk HEC metadata/content endpoints (`vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md:15-99`). |
 | System Users | View users in AI Guard's user registry |
 
 Both current dashboard articles organize transaction details into Overview,
@@ -247,7 +291,34 @@ current Users article does not document the multi-prompt Conversations view;
 that absence does not establish whether conversation threads are available or
 unavailable for user transactions (`vendor/zscaler-help/ai-guard-users-dashboard.md:30-32`).
 
-Log exports can be configured to export allowed/detected prompts and blocked prompts. Some destinations separate metadata and content streams or buckets, which matters for sensitive-content handling and SIEM ingestion design.
+The 2026-05-22 legacy log-export body exposes the field-level split: ADX
+requires a metadata Event Hub and accepts an optional content Event Hub;
+CrowdStrike sends metadata to HEC and content to an AWS S3 bucket; the S3
+integration uses separate metadata and content buckets; and Splunk requires a
+metadata HEC endpoint with an optional content HEC endpoint. Each integration
+offers allowed/detected-prompt and blocked-prompt export filters
+(`vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md:15-99`).
+
+The newer release chronology says log exports can filter out the **Tools** field,
+with that option enabled by default for new and existing exports, and that
+dashboard event tables support CSV as well as PDF export
+(`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:53-67`).
+
+There is an unresolved release/body discrepancy. The August 26 release entry
+documents **CrowdStrike SIEM Direct Export** (direct to the CrowdStrike HEC
+endpoint) alongside the S3-dependent option and names a CrowdStrike parser
+`zscaler-aiguard`. The same capture reports that the current public Users and
+Apps & Infrastructure log-export bodies still describe CrowdStrike metadata to
+HEC and event content to AWS S3, and contain neither **Direct Export**, **SIEM**,
+nor `zscaler-aiguard` (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:15-37`, `:79-96`).
+The release capture does not decide which source is authoritative, so direct
+export and parser availability remain release-noted rather than body-verified.
+The current-body metadata reported by that capture is:
+
+| Current Help body | Status | Canonical route | Help node | Revision | Body length |
+|---|---:|---|---:|---:|---:|
+| AI Guard for Users log exports | 200 | `/secure-ai-users/managing-ai-guard-log-exports` | `1540889` | `3224164` | 12,759 HTML chars |
+| AI Guard for Apps & Infrastructure log exports | 200 | `/secure-ai-apps-infra/managing-ai-guard-log-exports` | `1541825` | `3224165` | 12,892 HTML chars |
 
 ## API surface
 
@@ -278,7 +349,14 @@ The eight Automate-documented operations outside that callable Python inventory 
 
 The 2026 Help chronology adds an important second vocabulary layer: User-mode and application support includes labels such as GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io that are not all present in the admin-plane `type` enum (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`). Do not assume that Help application/provider labels map one-to-one to customer-creatable LLM provider types; see [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 
-Current release-backed additions also include tenant restriction, Microsoft 365 Copilot streaming inspection, encrypted prompt allowlisting, custom RBAC, ADX/Splunk export, Codex request/response blocking, and default-provider auto-provisioning (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:9-45`). These are dated Help claims; tenant entitlement and rollout state still require tenant-side confirmation.
+Current release-backed additions also include CrowdStrike Direct Export and its
+named parser, Tools-field filtering, tenant restriction, Microsoft 365 Copilot
+streaming inspection, encrypted prompt allowlisting, custom RBAC, ADX/Splunk
+export, Codex request/response blocking, and default-provider auto-provisioning
+(`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:15-77`, `:100-145`).
+These are dated Help claims; tenant entitlement and rollout state still require
+tenant-side confirmation, and the Direct Export/parser claim remains in the
+release/body discrepancy recorded under Observability.
 
 Direction values are documented in the SDK and most integration examples as `IN` and `OUT`. The DAS/API Help page examples use `request` and `response` strings instead; accepted alias behavior is unresolved by static sources, so SDK callers should use `IN`/`OUT` and track the divergence in [`./api-divergences.md`](./api-divergences.md#direction-value-divergence) and [clarification ai-security-01](../_meta/clarifications.md#ai-security-01-ai-guard-direction-literal-aliases). Conceptually, `IN` covers user prompts, tool input, command arguments, or file content before the AI application consumes it; `OUT` covers model responses, tool output, URL checks, or response content before it is returned downstream.
 

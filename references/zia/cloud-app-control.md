@@ -5,7 +5,7 @@ title: "ZIA Cloud App Control and URL filtering interaction"
 content-type: reasoning
 last-verified: "2026-04-24"
 verified-against:
-  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-help: dbe545d5918392c4067ff897e748698c80220fef
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
 confidence: medium
@@ -13,6 +13,8 @@ source-tier: doc
 sources:
   - "https://help.zscaler.com/zscaler-deployments-operations/cloud-app-control-deployment-and-operations-guide"
   - "vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt"
+  - "https://help.zscaler.com/zia/adding-ai-ml-applications-rule-cloud-app-control"
+  - "vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md"
   - "https://help.zscaler.com/zia/configuring-url-filtering-policy"
   - "vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt"
   - "https://help.zscaler.com/zia/recommended-url-cloud-app-control-policy"
@@ -50,6 +52,58 @@ CAC evaluates **before** URL Filtering. For a cloud-app transaction:
 CAC rules match on either **Cloud Applications** (enumerated apps like Facebook, Google Drive, GitHub, ChatGPT) OR **Cloud Application Risk Profile** (not both in the same rule) combined with standard criteria (users, groups, locations, etc.). Rules evaluate **top-down, first-match-wins**, same shape as URL Filtering. The default terminal behavior is **Allow All** — absence of a matching CAC rule means "CAC says nothing; URL Filtering takes over."
 
 ## Mechanics
+
+### AI/ML Applications rules (Help UI)
+
+Source: `vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:14-30`.
+
+The Help portal documents a separate **AI/ML Applications** rule flow for ZIA
+Cloud App Control, distinct from the generic Cloud App Control rule article
+(`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:14-15`).
+For the applications named in the current Help capture, the rule UI lists
+these granular actions:
+
+| Cloud application | Granular actions |
+|---|---|
+| ChatGPT | Chatting, Uploading, Downloading, Deleting, Sharing, Inviting |
+| Google Gemini | Chatting, Downloading, Renaming, Uploading |
+| Microsoft Copilot | Chatting, Deleting, Renaming, Sharing, Uploading |
+| Perplexity | Chatting, Deleting, Sharing, Uploading |
+| Poe | Chatting, Deleting, Sharing, Uploading |
+| Runway | Creating, Deleting, Downloading, Renaming, Sharing |
+
+When multiple applications are selected, the Help UI shows only their common
+granular actions. The capture also requires SSL/TLS Inspection for granular
+actions to work as expected
+(`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:28-30`).
+
+### Capture Prompts (Help UI)
+
+Source: `vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:32-43`.
+
+The AI/ML Applications rule UI includes a **Capture Prompts** option. Help
+describes it as categorizing and storing end-user prompts up to 2 KB for
+generative-AI applications (`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:32-37`).
+The capture states that prompts are stored in Zscaler logs for the period set
+by the organization and can be viewed by authorized users with log access
+(`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:39-40`).
+The option appears only when selected Gen AI applications support prompt
+configuration, and the page points administrators to Configuring Advanced
+Policy Settings (`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:41-43`).
+
+These are Help UI and documented storage-behavior statements. The provider/SDK
+representation of prompt capture remains in the separate API-surface section
+below.
+
+### Tenant Profile visibility in the AI/ML rule UI
+
+Source: `vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:45-50`.
+
+In the AI/ML Applications rule UI, **Tenant Profiles** appears only when
+ChatGPT or Claude is selected as the cloud application, and the selected
+applications must not be exempted from SSL/TLS Inspection. This is a Help UI
+visibility condition; it does not establish a provider/SDK/API token for
+Claude (`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md:45-50`).
 
 ### Evaluation order within CAC
 
@@ -181,7 +235,7 @@ Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.t
 - **QUIC bypasses proxy.** From *CAC Deployment Guide*, p.3 troubleshooting: users accessing blocked cloud apps anyway may be using QUIC (HTTP/3) which some deployments can't intercept. Workaround is disabling QUIC in the browser.
 - **PAC file / direct egress bypass.** "Transactions from the affected users are not visible in Zscaler Web/Firewall Insights" → PAC configuration may be routing traffic direct, outside Zscaler's path. CAC cannot enforce on traffic that never reaches it.
 - **Risk Profile rules are broad.** Per *CAC Deployment Guide*, p.3: "The Cloud App Control policy rule applies to all specified cloud applications if you select the cloud application risk profile criterion." One risk-profile-based block rule can take out dozens of apps simultaneously; this is a feature, not a bug, but worth remembering when auditing why a specific app was blocked.
-- **Per-tenant app restrictions (Tenant Profiles).** Administration > Tenant Profiles lets you restrict a CAC-allowed app to specific tenants (e.g., allow corporate-tenant Google Workspace, block personal Gmail on the same hostname). **16 supported apps per SDK** (help article lists 13; SDK is authoritative — adds `BOX`, `FACEBOOK`, `AMAZON_S3`). **Requires SSL Inspection** for the relevant login-service app — detection is post-decrypt OAuth/login-flow inspection, not DNS/IP. **Allow-to-block cascade warning**: allowing one tenant automatically blocks others for most apps, but **YouTube and AWS require an explicit block rule** for other tenants. Details in [clarification `zia-08`](../_meta/clarifications.md#zia-08-cac-tenant-restrictions-mechanics); sources: `vendor/zscaler-help/about-tenant-profiles.md`, `adding-tenant-profiles.md`, `ranges-limitations-zia.md § Tenant Profiles per Rule`, `zscaler/zia/tenancy_restriction_profile.py`.
+- **Per-tenant app restrictions (Tenant Profiles).** The current Help UI path is **Policies > Access Control > Internet & SaaS > Tenant Profiles**, and its display-name list has 14 applications, including Claude (`vendor/zscaler-help/adding-tenant-profiles.md:18-40`). The provider/SDK/API inventory is separate: the SDK list has 16 tokens, while the current Help capture does not define a `CLAUDE_AI` token; see [`./tenant-profiles.md#supported-applications`](./tenant-profiles.md#supported-applications) for that boundary. The Help workflow requires selecting the relevant cloud applications in an SSL Inspection rule and says allowing one tenant automatically blocks others for most apps; **YouTube and AWS require an explicit block policy** for other tenants (`vendor/zscaler-help/adding-tenant-profiles.md:42-47`). Details in [clarification `zia-08`](../_meta/clarifications.md#zia-08-cac-tenant-restrictions-mechanics); additional sources: `vendor/zscaler-help/about-tenant-profiles.md`, `vendor/zscaler-help/ranges-limitations-zia.md`, `vendor/zscaler-sdk-python/zscaler/zia/tenancy_restriction_profile.py`.
 - **Microsoft Login Services v1 vs v2.** The SDK exposes `ms_login_services_tr_v2` as a protocol-version toggle on Microsoft tenant profiles (not a metadata flag). Different tenants may use different versions; the v2 protocol is what newer Microsoft tenant IDs use. Relevant when answering "why does our Microsoft tenant restriction allow traffic it shouldn't?" — sometimes the answer is v1/v2 mismatch.
 - **Per-rule cascading override.** CAC rules have a `cascading_enabled` boolean (default `false`). When the tenant-wide Advanced Settings *Allow Cascading to URL Filtering* is **off**, individual CAC rules can still opt into cascading by setting this to `true`. The console field appears only when the global cascade toggle is off. (`zscaler/zia/models/cloudappcontrol.py:61`, *Adding an Instant Messaging Rule for Cloud App Control*.)
 - **IoT predefined rules — disabled, immutable, undeletable.** Zscaler ships `Allow Unauthenticated Traffic for IoT Classifications` predefined rules for each cloud-app category. They're disabled by default. They cannot be deleted. Only `Rule Order`, `Rule Status`, `Rule Label`, and `Description` are editable — no other attributes. Operators surprised by unexplained IoT-device traffic getting allowed/blocked when they toggle these rules find they can't fully customize the rule's behavior.
