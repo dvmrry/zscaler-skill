@@ -4,11 +4,16 @@ topic: "snapshot-schema"
 title: "ZCC _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-api-specs: "10291a2d91e2d8d1188461c65bf67b8cb1b140cf"
+  vendor/zscaler-sdk-python: "e7f5f7efb56b6e24667f183e5dff3da03e039cc9"
 confidence: medium
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/"
   - "vendor/zscaler-sdk-python/zscaler/zcc/"
+  - "vendor/zscaler-sdk-python/zscaler/oneapi_response.py"
+  - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
 author-status: draft
 ---
 
@@ -33,13 +38,14 @@ ZCC's wire format is unusually inconsistent compared to ZIA / ZPA. Several conve
 - **Several fields that "look like enums" are integer-coded.** Per the cross-SDK sweep (2026-04-24): `conditionType`, `networkType`, `actionType`, `primaryTransport`, `tunnel2FallbackType` are all `int` on the wire, not strings. Several boolean-looking flags are also `int` (0/1). Clarifications `zcc-01` through `zcc-04` and `zcc-06` track this — datatype confirmed as int, integer-to-meaning mapping pending.
 - **CSV strings for multi-value fields.** `dnsServers`, `trustedSubnets` etc. on TrustedNetwork are comma-separated strings, NOT JSON arrays. Tooling splits on `,` and trims whitespace.
 - **List endpoints sometimes wrap, sometimes don't.** TrustedNetwork's list response wraps under `trustedNetworkContracts`. Forwarding profile's list returns a bare array.
+- **Flat-array pagination is supported by the Python SDK, but only heuristically.** At v1.9.44 (the v1.9.42 fix is retained), a bare ZCC JSON array is treated as a page eligible for `has_next()`/`next()` traversal. The SDK treats `page` as a one-based continuation counter but does not validate zero or negative inputs. A supplied `page_size` remains unchanged on the wire; only the wrapper's local continuation limit is clamped to [1, 5000], with 50 documented as the default for `getDevices`. Any non-empty first page triggers a probe, an empty speculative page returns `None` rather than raising `StopIteration`, and the wrapper has neither duplicate-page detection nor a maximum-page guard. This describes client-side traversal, not proof that every backend list endpoint returns all pages or exposes total-page metadata (`vendor/zscaler-sdk-python/zscaler/oneapi_response.py:21-26`, `:90-106`, `:126-142`, `:173-192`, `:364-503`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:504-509`; `vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json:7761-7790`).
 - **ZCC endpoint paths are verb-suffixed.** `.../listByCompany`, `.../create`, `.../edit`, `.../{id}/delete` — not RESTful. The SDK abstracts this; jq queries against the JSON don't care about the path style.
 
 See [`./api.md § Wire format quirks`](./api.md) for the full catalog.
 
 ## `forwarding-profiles.json`
 
-API: `GET /zcc/papi/public/v1/webForwardingProfile/listByCompany` (paginated; SDK fetches all pages by default)
+API: `GET /zcc/papi/public/v1/webForwardingProfile/listByCompany` (paginated; the Python response wrapper exposes on-demand `has_next()`/`next()` traversal — the service call itself returns the current page)
 
 **Shape:** array of forwarding profile objects.
 
@@ -110,6 +116,8 @@ API: `GET /zcc/papi/public/v1/webForwardingProfile/listByCompany` (paginated; SD
 ```
 
 Full SDK model: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`. Reasoning: [`./forwarding-profile.md`](./forwarding-profile.md).
+
+A snapshot collector that needs more than the first forwarding-profile page must follow the response iterator, because Python `list_by_company` wraps only the current `response.get_results()` page and returns the response object for later traversal (`vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py:34-91`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py:364-447`). That collector must impose its own page bound, stop cleanly when a speculative page returns `None`, and detect repeated IDs/pages: the SDK wrapper provides none of those safeguards (`oneapi_response.py:449-503`). The retained contract documents `page`/`pageSize` for `webForwardingProfile/listByCompany` but no total or completion semantics (`vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json:5387-5429`). Therefore even a safely drained iterator is evidence of what the endpoint returned, not proof of a complete backend inventory.
 
 > **POST/edit shape diverges from the GET read shape.** The Go `ForwardingProfileRequest` (the body sent to `.../edit`) is flatter and integer-typed: fields like `active`, `evaluateTrustedNetwork`, `enableSplitVpnTN`, `enableLWFDriver` are all `int` (`vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go:13-30`). The per-network action structs in the POST body still carry a single `actionType int` each (`ForwardingProfileActionRequest` `forwarding_profile_request.go:40`, `ForwardingProfileZpaActionRequest` `forwarding_profile_request.go:85`) — matching the single `actionType` seen in the read shape above. The **split** `actionTypeZIA` / `actionTypeZPA` int fields appear only in the unified-tunnel mode struct `UnifiedTunnelRequest` (`forwarding_profile_request.go:122-123`), a distinct code path used when `enableUnifiedTunnel` is set — not in the standard per-network actions. A snapshot captures the GET read shape; don't assume the two are interchangeable when hand-writing payloads.
 
