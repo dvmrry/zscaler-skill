@@ -219,6 +219,16 @@ Both SDKs now expose the full sandbox-rules surface. The Python SDK has complete
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go`; `vendor/zscaler-sdk-python/zscaler/zia/sandbox.py`.
 
+**Current Automate publication boundary:** the 2026-08-31 public operation-page
+set no longer lists the Sandbox submission routes `POST /zscsb/submit` and
+`POST /zscsb/discan`. The previously used `submit-file` and
+`submit-file-for-scan` Automate slugs now resolve to the generic Automation Hub
+shell and are not current operation-page citations. The pinned Go and Python
+SDKs still construct the two paths, so this remains a publication-versus-client
+divergence only; it does **not** establish backend retirement, tenant rejection,
+or a required migration. Keep the SDK-derived behavior below and validate
+against the target tenant before treating it as operationally current.
+
 Separate from the full-submit path (which queues a file for full dynamic analysis), both SDKs expose a Discan call for **real-time out-of-band file inspection** without dynamic analysis: the Go SDK as **`Discan`** (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go:44` — `POST /zscsb/discan`), and the Python SDK as **`submit_file_for_inspection`** (`vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:101`), which posts to `/discan` under the same `/zscsb` base endpoint (`vendor/zscaler-sdk-python/zscaler/zia/sandbox.py:126-129`, `:32`). Discan combines:
 
 - AV (anti-virus) signature matching

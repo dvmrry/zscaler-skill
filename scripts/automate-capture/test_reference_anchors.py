@@ -41,7 +41,7 @@ CASES = [
     ),
     AnchorCase(
         "references/zscaler-cellular/api.md",
-        "The captured Automate contract contains **36 ZCell operations**",
+        'The rosetta synthesis records ZCell as "Contract captured"',
         "vendor/zscaler-api-specs/automate-zscaler/rosetta.md:190",
         "vendor/zscaler-api-specs/automate-zscaler/rosetta.md",
         190,
@@ -95,7 +95,7 @@ CASES = [
     ),
     AnchorCase(
         "references/ai-security/_claims-ledger.md",
-        "The current Automate snapshot exposes 11 read-only AI Security",
+        "The current public Automate operation pages enumerate 17 read-only AI Security",
         "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json:42816-42826",
         "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json",
         42816,
@@ -113,7 +113,7 @@ CASES = [
     ),
     AnchorCase(
         "references/ai-security/asset-management-api.md",
-        "The refresh renamed all 11 asset-operation route keys",
+        "The current publication delta is broader than the older 8/12 route-key-only summary",
         "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:177-193",
         "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md",
         177,

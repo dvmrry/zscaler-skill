@@ -44,6 +44,18 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zpa/policy_group_rule.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/policy_group_set.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/federate-applications/federate-application"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/federate-applications/get-federated-applications-from-host"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/create-federation-token"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/delete-provisioning"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/get-active-federation-partners"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/get-provisionings"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/request-approval"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/update-federation-state"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/update-notes"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/update-provisioning-state"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/verify-token"
+  - "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/policies-for-b2b-federation/get-partner-policy-rules-on-federated-apps"
 author-status: draft
 ---
 
@@ -175,6 +187,33 @@ details for federated applications, but it does not contain endpoint paths,
 HTTP methods, or request and response bodies
 (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:66-68`).
 
+The current public Automate operation pages expose the following twelve-route
+contract for application federation, tenant-federation provisioning, and
+partner policy retrieval. These are publication-level method/path/body
+statements; they do not establish tenant entitlement, limited-availability
+gating, or live backend acceptance.
+
+| Capability | Method and path | Published contract details |
+|---|---|---|
+| [Federate application](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/federate-applications/federate-application) | `PUT /mgmtconfig/v1/customers/{customerId}/application/federate` | `customerId:int64`; optional `microtenantId:int64`; required body `applicationGid:int64` and `guestGids[]`; response `applicationGid`, `guestIds[]`, and `message`. |
+| [Get federated applications from host](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/federate-applications/get-federated-applications-from-host) | `GET /mgmtconfig/v1/customers/{customerId}/application/host/{host_id}` | `customerId:int64` and `host_id:int64`; optional `microtenantId`, `page`, `pagesize`, and `search`; paged wrapper with `currentCount`, `list`, `message`, `totalCount`, and `totalPages`. Entries include domains, enabled state, ID/name, port ranges, and `hostInfo` with approval/federation status and partner identity. |
+| [Create federation token](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/create-federation-token) | `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token` | Optional `microtenantId`; required `expiryTimeInSeconds:int64` (33,600–86,400); optional `notes`; response contains `id:int64`, `token`, and `tokenExpirationEpochSeconds:int64`. |
+| [Delete provisioning](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/delete-provisioning) | `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}` | `customerId` and `federation_id` are required IDs; optional `microtenantId`; 204 response with no body. |
+| [Get active federation partners](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/get-active-federation-partners) | `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation/partners` | Optional `microtenantId`, `page`, `pagesize`, and `search`, plus sort fields; paged partner entries expose approval/federation status, partner GID/name, and partner scope name. |
+| [Get provisionings](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/get-provisionings) | `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation` | Optional `microtenantId`, `page`, `pagesize`, `search`, `sortBy`, and `sortDir`; entries expose creation/modification times, ID, initiator state, notes, partner information, and provisioning status (`PENDING_VERIFICATION`, `PENDING_APPROVAL`, `APPROVED`, `DENIED`, `TERMINATED`). |
+| [Request approval](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/request-approval) | Current route entry only | The slug is present in the current sitemap, but its search-index document is the generic Automation Hub shell. Method, path, body, and response details are therefore not asserted from the current public page. |
+| [Update federation state](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/update-federation-state) | `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/federation-state/{status}` | Required IDs; `status` is `INACTIVE` or `ACTIVE`; optional `microtenantId`; 204 response. |
+| [Update notes](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/update-notes) | Current route entry only | The slug is present in the current sitemap, but its search-index document is the generic Automation Hub shell. Method, path, body, and response details are therefore not asserted from the current public page. |
+| [Update provisioning state](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/update-provisioning-state) | `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/provisioning-state/{status}` | Required IDs; `status` is `APPROVED`, `DENIED`, or `TERMINATED`; optional `microtenantId`; 204 response. |
+| [Verify federation token](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/partner-federation-provisioning/verify-token) | `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token/verify` | Optional `microtenantId`; body requires `token`; response includes partner information, partner notes, success, and token expiration epoch seconds. |
+| [Get partner policy rules on federated apps](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/policies-for-b2b-federation/get-partner-policy-rules-on-federated-apps) | `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` | Required `customerId:int64` and Partner Guest ID `guest_id:int64`; optional `microtenantId`, `page`, `pagesize`, and `search`; paged response contains a large policy-rule object with actions, conditions, app-connector groups, app-server groups, and service-edge groups. |
+
+The Help release summary remains the source for the feature's limited-
+availability and trust-lifecycle framing: administrators create and manage
+incoming/outgoing partner-federation requests and trusted partners, then
+federate application segments with granular controls after trust is
+established (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:55-68`).
+
 The SDKs now provide client-declared endpoint evidence for part of that gap.
 The comparison below is intentionally about wrapper behavior only: an SDK
 package or changelog entry is not proof that a tenant exposes the operation or
@@ -262,14 +301,51 @@ application-segment module
 (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:74-90,1164-1208`).
 Use the Go model or raw HTTP until that wrapper defect is corrected.
 
+## Python SDK coverage and source-quality gaps
+
+The Python SDK provides **partial** coverage rather than no B2B surface. The
+`application_federation` service lists applications from a host and updates an
+application; `tenant_federation_provisioning` lists provisionings and partners
+and provides add/update/delete methods; and `b2b_policy` retrieves global policy
+rules (`vendor/zscaler-sdk-python/zscaler/zpa/application_federation.py:26-104`;
+`vendor/zscaler-sdk-python/zscaler/zpa/tenant_federation_provisioning.py:26-199`;
+`vendor/zscaler-sdk-python/zscaler/zpa/b2b_policy.py:23-59`). It does not expose
+explicit methods for the current token-create, token-verify, approval,
+federation-state, notes, or provisioning-state actions.
+
+The SDK host-list path is `/zpa/mgmtconfig/v1/customers/{customer_id}/application/host`
+and does not include the Automate page's `/{host_id}` suffix; its tenant-
+federation methods likewise construct `/zpa/mgmtconfig/...` paths, while the
+current Automate pages present `/mgmtconfig/...`. Treat this as a service-prefix
+and operation-shape divergence to reconcile before using a raw SDK-generated
+URL, not as proof that either surface is universally accepted.
+
+The current B2B pages type `microtenantId` as optional `int64` where a schema is
+published. Seven existing scoped operations—app-connector-group listing,
+provisioning-key create/delete/list/get/update, and service-edge-group listing—
+also gained optional `microtenantId` metadata, but their current source entries
+provide a description without a type schema. The normalized field is therefore
+`type:null`; preserve that source-quality gap rather than inferring a type or
+validation rule. See the current
+[app-connector-group list](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/app-connector-group/gets-all-configured-app-connector-groups-for-the-specified-customer),
+[provisioning-key list](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/nonce/gets-details-of-all-configured-provisioning-keys-for-the-specified-customer),
+[private broker groups](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zpa/service-edge-group/get-private-broker-groups)
+pages. The source descriptions mention `0` for the Default scope and `null`
+for customer data, but do not establish broader acceptance semantics.
+
 ## Open questions
 
-- **Detailed API contract** - The endpoint paths, HTTP methods, request and
-  response bodies, and detailed semantics for partner requests, partner and
-  application federation, and federated-application access-policy retrieval are
-  not established by the local release capture
-  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:64-68`) -
-  *unverified, requires captured bodies for the linked API topics*
+- **Route-registry boundary** - The current sitemap establishes twelve B2B
+  route entries, but the `request-approval` and `update-notes` pages currently
+  expose only generic-shell search metadata, so their method/path/body/response
+  contracts remain unverified here. The adjacent visible-version-profile route
+  is likewise generic in the current index; do not carry forward its previously
+  observed `page`, `pagesize`, and `search` fields without a durable capture.
+- **Live contract boundary** - The ten re-readable current Automate pages
+  establish the publication-level method/path/schema details shown above, but do not
+  establish tenant entitlement, limited-availability gating, authentication
+  scope requirements, or live backend acceptance. A tenant-side check or
+  current detailed Help body is still required for those questions.
 - **Segment-field semantics** - The SDKs establish `guestDetails`,
   `hbrEnabled`, `stickyEntity`, and `stickyGroup` as current wire fields, but do
   not establish accepted values or how those fields participate in partner
