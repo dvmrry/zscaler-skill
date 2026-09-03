@@ -10,7 +10,7 @@ verified-against:
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
-  vendor/zguard-ai-integrations: 7da6ed977fb3987203001dc78e9146e507cb1407
+  vendor/zguard-ai-integrations: 71cbab024f369eb50748c9c4a74ec0158c084839
 confidence: medium
 source-tier: mixed
 sources:
@@ -43,6 +43,28 @@ sources:
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-skill/README.md"
   - "vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md"
+  - "vendor/zguard-ai-integrations/README.md"
+  - "vendor/zguard-ai-integrations/CHANGELOG.md"
+  - "vendor/zguard-ai-integrations/docs/ARCHITECTURE.md"
+  - "vendor/zguard-ai-integrations/docs/AGENTIC_AI_INTEGRATION.md"
+  - "vendor/zguard-ai-integrations/AWS/README.md"
+  - "vendor/zguard-ai-integrations/AWS/bedrock-agentcore/README.md"
+  - "vendor/zguard-ai-integrations/AWS/bedrock-agentcore/aiguard_agentcore.py"
+  - "vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/README.md"
+  - "vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py"
+  - "vendor/zguard-ai-integrations/AWS/lambda-decorator/README.md"
+  - "vendor/zguard-ai-integrations/AWS/lambda-decorator/aiguard_decorator.py"
+  - "vendor/zguard-ai-integrations/AWS/strands-agents/README.md"
+  - "vendor/zguard-ai-integrations/AWS/strands-agents/aiguard_strands.py"
+  - "vendor/zguard-ai-integrations/OpenAI/README.md"
+  - "vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md"
+  - "vendor/zguard-ai-integrations/OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py"
+  - "vendor/zguard-ai-integrations/OpenAI/codex-hooks/.codex/hooks/scan_stop_response.py"
+  - "vendor/zguard-ai-integrations/Google/apigee/README.md"
+  - "vendor/zguard-ai-integrations/Google/apigee/sharedflow/README.md"
+  - "vendor/zguard-ai-integrations/Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js"
+  - "vendor/zguard-ai-integrations/Google/cloudrun/README.md"
+  - "vendor/zguard-ai-integrations/Google/cloudrun/flow/setup/provision_org.py"
   - "vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
@@ -104,11 +126,88 @@ The public integration skill carries a richer direction-specific detector refere
 
 ## Integration failure posture is not uniform
 
-Do not generalize fail-open or fail-closed behavior across integrations:
+Source: `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/CHANGELOG.md`; `vendor/zguard-ai-integrations/Windsurf/README.md`; `vendor/zguard-ai-integrations/n8n/README.md`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/.codex/hooks/scan_stop_response.py`.
+
+The September 1, 2026 integration release presents a fail-closed default for
+missing keys, API errors, non-verdict HTTP 200 responses, and unrecognised
+actions (`vendor/zguard-ai-integrations/README.md:256-284`). That sentence is
+not a universal enforcement contract: the same README records audit-only
+Windsurf/Cline post-hooks, the audit-only Codex `Stop` hook, and passthrough for
+unclassifiable gateway traffic unless `failClosedOnUnknown` is enabled
+(`vendor/zguard-ai-integrations/README.md:286-293`).
+
+The existing host-specific observations remain useful, but must be separated
+from the new release:
 
 - Windsurf pre-hooks allow traffic when `AIGUARD_API_KEY` is missing, but fail closed on API errors or unexpected responses; post-hooks cannot block and only log or alert (`vendor/zguard-ai-integrations/Windsurf/README.md:17`, `vendor/zguard-ai-integrations/Windsurf/README.md:19`).
-- Claude Code file-read hooks are explicitly fail-open to avoid blocking Claude Code when AI Guard is unavailable (`vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/README.md:377`, `vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/README.md:379`). The hook code allows file reads when the API key is missing, when the API call returns an error, or when an exception occurs (`vendor/zguard-ai-integrations/Anthropic/claude-code-aiguard/hooks/scan_file_read.py:148`, `:165`, `:224`).
+- The 0.2.0 changelog says the Claude Code hooks' former fail-open paths were fixed, including missing key, API error, exception, and verdict-less responses (`vendor/zguard-ai-integrations/CHANGELOG.md:35-46`). Older Claude Code README/source claims that file reads intentionally fail open are stale relative to this checked-in head; this is a source-document comparison, not a runtime test.
 - n8n documents fail-closed behavior only for internal errors when its "Continue On Fail" path is enabled (`vendor/zguard-ai-integrations/n8n/README.md:96`).
+- Codex `Stop` runs after the response has streamed and displayed. It blocks on a `BLOCK` verdict, but its error branch deliberately returns `continue: true` (fail-open), and short messages are skipped (`vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md:17-24`, `:186-191`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/.codex/hooks/scan_stop_response.py:47-81`).
+
+Do not infer one host's failure posture from another host's example. These are
+public integration implementations with distinct event and side-effect
+boundaries, not a single AI Guard runtime contract.
+
+## New integration boundaries and timing
+
+Source: `vendor/zguard-ai-integrations/AWS/bedrock-agentcore/README.md`; `vendor/zguard-ai-integrations/AWS/README.md`; `vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py`; `vendor/zguard-ai-integrations/AWS/lambda-decorator/README.md`; `vendor/zguard-ai-integrations/AWS/strands-agents/README.md`; `vendor/zguard-ai-integrations/AWS/strands-agents/aiguard_strands.py`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md`; `vendor/zguard-ai-integrations/Google/apigee/README.md`; `vendor/zguard-ai-integrations/Google/apigee/sharedflow/README.md`.
+
+The new AWS, OpenAI, and Google examples are implementation-level coverage:
+
+- AgentCore is an explicit four-leg guard. Prompt and tool input are scanned before the model/tool call; tool output is scanned before re-entry to the model. Async tools are awaited and generators are drained before scanning, while streamed response granularity remains the caller's responsibility (`vendor/zguard-ai-integrations/AWS/bedrock-agentcore/README.md:1-18`, `:50-82`, `:108-118`).
+- The Bedrock boto3 hook intercepts client calls before/after the SDK operation, but complete stream responses are skipped at `after_call` (`vendor/zguard-ai-integrations/AWS/README.md:13-18`; `vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py:671-693`). Lambda sees only one prompt and one response at the handler boundary; HTTP proxy callers receive 403, while direct and async event sources raise so retry/DLQ behavior is preserved (`vendor/zguard-ai-integrations/AWS/lambda-decorator/README.md:49-87`).
+- Strands exposes prompt, response, tool-input, and tool-output lifecycle events. Response blocks request retries and ultimately raise; tool output can be replaced only after the tool has run. Streams can emit before the final verdict, and `Agent.structured_output()` is outside the hook loop (`vendor/zguard-ai-integrations/AWS/strands-agents/README.md:1-18`, `:181-198`; `vendor/zguard-ai-integrations/AWS/strands-agents/aiguard_strands.py:655-743`).
+- Codex covers `UserPromptSubmit`, Bash/MCP pre-tool input, Bash/MCP post-tool output, and `Stop`; it does not cover `apply_patch`, non-Bash/non-MCP tools, or stream interception. Post-tool hooks cannot undo completed side effects (`vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md:9-24`, `:48-70`).
+- Apigee inline is synchronous Gemini-only, while the SharedFlow covers Gemini, OpenAI, Anthropic, MCP, and SSE. Inline blocks use 403; SharedFlow blocks preserve caller-shaped HTTP 200 responses (`vendor/zguard-ai-integrations/Google/apigee/README.md:1-29`; `vendor/zguard-ai-integrations/Google/apigee/sharedflow/README.md:13-22`, `:76-130`).
+
+## Opaque content and mixed-response gap
+
+Source: `vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py`; `vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/README.md`; `vendor/zguard-ai-integrations/Google/apigee/sharedflow/README.md`; `vendor/zguard-ai-integrations/Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js`.
+
+**Static implementation finding; no runtime model matrix was executed.** The
+Bedrock response walker returns both extracted text and an `opaque` flag, but
+the Converse and InvokeModel response helpers discard the second value
+(`vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py:358-389`). The `after_call` path applies `on_unscannable` only when no response text is present (`:712-731`). Therefore a mixed response containing text plus an image, document, or unknown block can be scanned on its text alone in the current static code, despite the integration README's mixed-content fail-closed description. This is an open source divergence, not a verified bypass result.
+
+The Apigee SharedFlow has a separate static coverage boundary: its MCP
+extractor copies only `result.content[*].text` to the tool-event output and
+silently omits non-text result members (`vendor/zguard-ai-integrations/Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js:68-101`). The SharedFlow README describes MCP arguments as `IN` and results as `OUT` (`vendor/zguard-ai-integrations/Google/apigee/sharedflow/README.md:19-22`), so non-text result handling requires source correction or runtime validation before claiming complete MCP-result coverage.
+
+## Policy-ID parsing and stale-ID divergence
+
+Source: `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/AWS/bedrock-agentcore/aiguard_agentcore.py`; `vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py`; `vendor/zguard-ai-integrations/AWS/lambda-decorator/aiguard_decorator.py`; `vendor/zguard-ai-integrations/AWS/strands-agents/aiguard_strands.py`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py`.
+
+The new Python integrations strip quotes, attempt `int()`, and return `None` on
+a malformed/non-numeric explicit policy ID. `None` selects auto-resolution, so
+an invalid configured ID is silently treated like an unset ID:
+
+- AgentCore: `vendor/zguard-ai-integrations/AWS/bedrock-agentcore/aiguard_agentcore.py:202-216`
+- Bedrock boto3: `vendor/zguard-ai-integrations/AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py:456-470`
+- Lambda: `vendor/zguard-ai-integrations/AWS/lambda-decorator/aiguard_decorator.py:285-299`
+- Strands: `vendor/zguard-ai-integrations/AWS/strands-agents/aiguard_strands.py:180-194`
+- Codex: `vendor/zguard-ai-integrations/OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py:155-168`
+
+That behavior is inconsistent with the root warning that a stale explicit ID
+can return HTTP 200 with no action and fail closed (`vendor/zguard-ai-integrations/README.md:272-293`). It is a static configuration inconsistency; no runtime result establishes which behavior users observe in each integration.
+
+## Invalid and contradictory vendor documentation
+
+Source: `vendor/zguard-ai-integrations/AWS/strands-agents/README.md`; `vendor/zguard-ai-integrations/docs/AGENTIC_AI_INTEGRATION.md`; `vendor/zguard-ai-integrations/docs/ARCHITECTURE.md`; `vendor/zguard-ai-integrations/AWS/bedrock-agentcore/aiguard_agentcore.py`; `vendor/zguard-ai-integrations/Google/cloudrun/README.md`; `vendor/zguard-ai-integrations/Google/cloudrun/flow/setup/provision_org.py`.
+
+- The Strands README's constructor example has two bare `policy_id=` assignments and cannot be executed as written (`vendor/zguard-ai-integrations/AWS/strands-agents/README.md:132-149`).
+- The agentic integration guide labels Agent→LLM prompts `OUT`, scans `llm_prompt` with `direction="OUT"`, and returns the generated response without a final scan, while the architecture direction table and AgentCore leg mapping use prompt `IN` and response `OUT` (`vendor/zguard-ai-integrations/docs/AGENTIC_AI_INTEGRATION.md:157-171`, `:205-262`, `:305-310`; `vendor/zguard-ai-integrations/docs/ARCHITECTURE.md:318-338`; `vendor/zguard-ai-integrations/AWS/bedrock-agentcore/aiguard_agentcore.py:238-269`). Treat that guide as contradictory illustrative prose, not as a direction contract.
+- Cloud Run README wording says pipelines configure an existing Apigee org and do not create one, while `provision_org.py` explicitly creates the org/runtime/environment/group/attachments. The source supports a two-stage workflow—bootstrap/provision first, pipeline deploy second—but does not support conflating the two (`vendor/zguard-ai-integrations/Google/cloudrun/README.md:51-73`; `vendor/zguard-ai-integrations/Google/cloudrun/flow/setup/provision_org.py:98-154`).
+
+## Python SDK minimum-version alignment
+
+Source: `vendor/zguard-ai-integrations/CHANGELOG.md`; `vendor/zscaler-sdk-python/pyproject.toml`.
+
+The zguard 0.2.0 release requires `zscaler-sdk-python>=1.9.44` because earlier
+versions did not attach the Bearer token to AI Guard policy-detection calls
+(`vendor/zguard-ai-integrations/CHANGELOG.md:3-9`). The parent repository now
+pins v1.9.44 (`vendor/zscaler-sdk-python/pyproject.toml:1-4`), so the declared
+minimum-version gap is closed. This alignment does not substitute for a live
+compatibility run of each integration example.
 
 ## Automate admin-plane contract vs client surfaces
 
