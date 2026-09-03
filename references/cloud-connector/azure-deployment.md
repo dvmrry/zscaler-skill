@@ -7,7 +7,8 @@ last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 verified-against:
-  vendor/terraform-azurerm-cloud-connector-modules: 8714f88d1ac2827b40900b11bd52243919af2ae5
+  vendor/terraform-azurerm-cloud-connector-modules: abdd217051e014544de376442521a4d20934ef5a
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 sources:
   - "github.com/zscaler/terraform-azurerm-cloud-connector-modules"
   - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
@@ -29,7 +30,36 @@ sources:
   - "vendor/terraform-azurerm-cloud-connector-modules/CHANGELOG.md"
   - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-function-app-azure/main.tf"
   - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-function-app-azure/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/README.md"
   - "vendor/terraform-azurerm-cloud-connector-modules/examples/README.md"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/ (directory inventory)"
+  - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/versions.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/versions.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_vmss/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_vmss/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/zsec"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_1cc/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_1cc_zpa/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_lb/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_lb_zpa/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_vmss/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_vmss_zpa/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_lb/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_vmss/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_gwlb/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_gwlb/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_gwlb_vmss/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_gwlb_vmss/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_public_lb/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_public_lb/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_public_vmss/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_public_vmss/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_gwlb/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_gwlb/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_gwlb_vmss/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_gwlb_vmss/main.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_public_lb/variables.tf"
+  - "vendor/terraform-azurerm-cloud-connector-modules/examples/cc_public_lb/main.tf"
 author-status: draft
 ---
 
@@ -43,12 +73,12 @@ The Azure-specific deployment of [Cloud Connector](./overview.md). For the cloud
 
 | Field | Value |
 |---|---|
-| Publisher | `zscaler1579058425289` (`modules/terraform-zscc-ccvm-azure/variables.tf:78-80`) |
-| Offer | `zia_cloud_connector` (`modules/terraform-zscc-ccvm-azure/variables.tf:83-86`) |
-| Primary SKU | `zs_ser_gen1_cc_01` (`modules/terraform-zscc-ccvm-azure/variables.tf:88-92`) |
-| Default image version | `latest` — pin a specific version in tfvars if reproducibility is required (`modules/terraform-zscc-ccvm-azure/variables.tf:94-98`; `modules/terraform-zscc-ccvmss-azure/variables.tf:97-101`) |
-| Default VM size (single CC) | `Standard_D2ds_v5` (`modules/terraform-zscc-ccvm-azure/variables.tf:52-55`); approved sizes: D2s_v3, DS2_v2, D2ds_v4, D2ds_v5, DS3_v2, D8s_v3, D16s_v3, DS5_v2 (`variables.tf:56-68`) |
-| Default VM size (VMSS) | `Standard_D2s_v3` (`modules/terraform-zscc-ccvmss-azure/variables.tf:58-62`); approved sizes: D2s_v3, DS3_v2, D8s_v3, D16s_v3, DS5_v2 (`variables.tf:62-72`) |
+| Publisher | `zscaler1579058425289` (`modules/terraform-zscc-ccvm-azure/variables.tf:79-83`) |
+| Offer | `zia_cloud_connector` (`modules/terraform-zscc-ccvm-azure/variables.tf:85-89`) |
+| Primary SKU | `zs_ser_gen1_cc_01` (`modules/terraform-zscc-ccvm-azure/variables.tf:91-95`) |
+| Default image version | `latest` — pin a specific version in tfvars if reproducibility is required (`modules/terraform-zscc-ccvm-azure/variables.tf:97-101`; `modules/terraform-zscc-ccvmss-azure/variables.tf:102-106`) |
+| Default VM size (single CC) | `Standard_D2ds_v5`; direct-module allow-list: `Standard_D2s_v3`, `Standard_DS2_v2`, `Standard_DS3_v2`, `Standard_D2ds_v5`, `Standard_D2ads_v5` (`modules/terraform-zscc-ccvm-azure/variables.tf:58-72`) |
+| Default VM size (VMSS) | `Standard_D2ds_v5`; direct-module allow-list: `Standard_D2s_v3`, `Standard_DS3_v2`, `Standard_D2ds_v5`, `Standard_D2ads_v5` (`modules/terraform-zscc-ccvmss-azure/variables.tf:64-77`) |
 
 **Image terms must be accepted before any IaC deployment can succeed** (`examples/README.md:19`):
 ```bash
@@ -56,13 +86,66 @@ az vm image terms accept --urn zscaler1579058425289:zia_cloud_connector:zs_ser_g
 ```
 Skipping this produces an ARM-level error, not a Zscaler error — easy to misdiagnose.
 
-The Zscaler-published Terraform repo ships **10 deployment scenarios** ranging from greenfield single-CC POV to brownfield VMSS with BYO VNet/RG/NSG, plus a standalone ZTags example (`examples/README.md`). ARM templates exist as a Marketplace-wizard path but are not separately published as a standalone repo. **No Bicep templates** are published by Zscaler — defer to TF or ARM.
+The direct module allow-lists above are the Terraform validation contract. The `zsec` helper presents a different, region-aware menu: `Standard_DS2_v2` in `chinanorth`/`chinaeast`, three choices in the `*2` China regions, four choices in the `*3` China regions, and only `Standard_D2ds_v5`/`Standard_D2ads_v5` in other regions (`vendor/terraform-azurerm-cloud-connector-modules/examples/zsec:635-655`). The helper menu is a convenience/tooling boundary and must not be promoted into a universal VM-size or product limit; conversely, the direct module's allow-list does not prove that every listed size is available in every Azure region. The changelog's narrative about legacy China sizes is retained as release context, but the current module source above is authoritative for the current direct validation (`vendor/terraform-azurerm-cloud-connector-modules/CHANGELOG.md:23-25`).
+
+There is a VMSS-specific mismatch in that source matrix: the same helper offers
+`Standard_DS2_v2` in China, and the VMSS example wrappers accept it (for
+example, `vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_vmss/variables.tf:92-104`), but the direct
+`terraform-zscc-ccvmss-azure` child module rejects it because its allow-list
+omits DS2 (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/variables.tf:64-75`). The
+wrappers pass the selected value to that child (`vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_vmss/main.tf:128-145`),
+so selecting DS2 for a China VMSS can pass the root validation and then fail
+the child-module validation. This is a Terraform-wrapper/helper contract
+defect; it does not establish that Azure or the Cloud Connector service
+backend rejects the SKU universally. The changelog's statement that DS2
+remains in both VM/VMSS allow-lists is not true for the pinned VMSS source.
+
+Both current direct Azure modules require `azurerm >= 4.9.0, < 5.0.0` (`modules/terraform-zscc-ccvm-azure/versions.tf:1-16`; `modules/terraform-zscc-ccvmss-azure/versions.tf:1-16`). The current changelog entry that says `>= 3.108.0, < 5.0.0` is stale relative to those files (`vendor/terraform-azurerm-cloud-connector-modules/CHANGELOG.md:1-5`); treat it as release-note text, not the active provider constraint.
+
+The generated Azure package documentation has the same source/tooling drift:
+the active direct-module `versions.tf` files require azurerm 4.9–<5, while the
+direct module READMEs still render `>= 3.108.0, < 5.0.0`
+(`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/README.md:30,38`;
+`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/README.md:30,38`). A representative
+root README has the same mismatch: `examples/base_1cc/README.md:44` says
+3.108, while `examples/base_1cc/versions.tf:5` requires 4.9. The newer GWLB
+and Public-LB READMEs still render the old `3.108.0, <= 3.116` range
+(`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-gwlb-azure/README.md:17,23`;
+`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-public-lb-azure/README.md:18,24`). Follow the active `.tf` constraints until the generated READMEs are
+regenerated; this is package documentation/provider behavior, not an Azure
+Cloud Connector service-side requirement.
+
+The direct VMSS README also still renders `vmss_max_ccs` with a default of 16
+(`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/README.md:94-96`), while the pinned
+source default is 4 with a 1–16 validator (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/variables.tf:205-215`).
+That discrepancy is another generated-document defect; use the source
+declarations and the wrapper-specific caveat below when sizing a Terraform
+deployment.
+
+The pinned Zscaler Terraform repo contains **17 actual example directories**:
+11 greenfield roots, 5 brownfield roots, and one standalone ZTags root. The
+package root README documents the newer GWLB/Public-LB entries but does not
+list the `base` greenfield root or `cc_public_lb` brownfield root in its
+enumerations (`vendor/terraform-azurerm-cloud-connector-modules/README.md:75-175`);
+the older `examples/README.md` lists nine Cloud Connector example roots and
+omits the newer roots, while the package README separately documents the
+standalone ZTags root (`vendor/terraform-azurerm-cloud-connector-modules/examples/README.md:59-104`;
+`vendor/terraform-azurerm-cloud-connector-modules/README.md:155-175`).
+The table below is the directory-level inventory from the pinned worktree, not
+a claim that either generated README is complete. ARM templates exist as a
+Marketplace-wizard path but are not separately published as a standalone repo.
+**No Bicep templates** are published by Zscaler — defer to TF or ARM. These
+counts and deployment names describe the vendored Terraform package, not a
+claim about which Azure Cloud Connector topologies the service backend
+universally supports.
 
 ### Reference deployment examples
 
-Ten example directories ship under `examples/` (`examples/README.md`):
+Seventeen example directories ship under `examples/`; the package root README
+and the physical directory list together inform the current matrix
+(`vendor/terraform-azurerm-cloud-connector-modules/README.md:75-175`).
 
-**Greenfield (7 examples):**
+**Greenfield (11 examples):**
 
 | Example directory | Description |
 |---|---|
@@ -73,13 +156,20 @@ Ten example directories ship under `examples/` (`examples/README.md`):
 | `base_cc_lb_zpa` | `base_cc_lb` + Azure Private DNS Resolver |
 | `base_cc_vmss` | VMSS with Function App, Standard ILB, autoscaling |
 | `base_cc_vmss_zpa` | `base_cc_vmss` + Azure Private DNS Resolver |
+| `base_cc_gwlb` | Cloud Connectors behind an Azure Gateway Load Balancer for inline inspection |
+| `base_cc_gwlb_vmss` | Gateway Load Balancer with VMSS autoscaling for inline inspection |
+| `base_cc_public_lb` | Cloud Connectors behind an Azure Standard Public Load Balancer for inbound traffic distribution |
+| `base_cc_public_vmss` | Standard Public Load Balancer with VMSS for inbound traffic handling |
 
-**Brownfield (2 examples):**
+**Brownfield (5 examples):**
 
 | Example directory | Description |
 |---|---|
 | `cc_lb` | Production-style: custom VNet/RG, multi-CC behind LB |
 | `cc_vmss` | Production-style: custom VNet/RG, VMSS with autoscaling |
+| `cc_gwlb` | Custom VNet/RG with Gateway Load Balancer for inline inspection |
+| `cc_gwlb_vmss` | Custom VNet/RG with Gateway Load Balancer and VMSS autoscaling |
+| `cc_public_lb` | Custom VNet/RG with Standard Public Load Balancer for inbound traffic |
 
 **Standalone (1 example):**
 
@@ -96,7 +186,7 @@ Zscaler's reference TF deploys Azure Cloud Connector with **two NICs per VM** in
 | #0 (primary) — Management | `mgmt-subnet` | **Disabled** | SSH (TCP 22), ICMP, ZIA support tunnel (`modules/terraform-zscc-ccvm-azure/main.tf:5-19`) |
 | #1 — Service / Forwarding | `service-subnet` | **Enabled** | Workload traffic, attaches to LB backend pool, accelerated networking on (`modules/terraform-zscc-ccvm-azure/main.tf:38-56`) |
 
-The service NIC has `ip_forwarding_enabled = true` (`modules/terraform-zscc-ccvm-azure/main.tf:43`) and `accelerated_networking_enabled` defaulting to `true` (`modules/terraform-zscc-ccvm-azure/variables.tf:169-173`). The reference module enforces this ordering: *"the ordering of `network_interface_ids` associated to the `azurerm_linux_virtual_machine` are #1/first 'Management'."* (`modules/terraform-zscc-ccvm-azure/main.tf:97-100`) The TF module's documentation states the CC expects management traffic on the first interface — swapping subnet IDs produces VMs that fail at boot in the reference deployment shape.
+The service NIC has `ip_forwarding_enabled = true` (`modules/terraform-zscc-ccvm-azure/main.tf:43`) and `accelerated_networking_enabled` defaulting to `true` (`modules/terraform-zscc-ccvm-azure/variables.tf:178-182`). The reference module enforces this ordering: *"the ordering of `network_interface_ids` associated to the `azurerm_linux_virtual_machine` are #1/first 'Management'."* (`modules/terraform-zscc-ccvm-azure/main.tf:97-100`) The TF module's documentation states the CC expects management traffic on the first interface — swapping subnet IDs produces VMs that fail at boot in the reference deployment shape.
 
 Whether this is a hard runtime requirement of the CC VM image vs. an enforced convention of the reference TF isn't separately documented by Zscaler. Treat the dual-NIC pattern as load-bearing for any deployment derived from the reference module; a custom deployment that differs may or may not work and would need to be validated.
 
@@ -187,12 +277,14 @@ The reference TF deploys VMSS with the following defaults (all tunable in your o
 | Setting | Reference default |
 |---|---|
 | Orchestration mode | Flexible (`azurerm_orchestrated_virtual_machine_scale_set`) (`modules/terraform-zscc-ccvmss-azure/main.tf:5`) |
-| Default instances | 2 (`modules/terraform-zscc-ccvmss-azure/variables.tf:168-172`) |
-| Minimum | 2 (`modules/terraform-zscc-ccvmss-azure/variables.tf:174-178`) |
-| Maximum | 16 (`modules/terraform-zscc-ccvmss-azure/variables.tf:180-184`) |
-| Scale-out trigger | metric `smedge_metrics` (namespace `Zscaler/CloudConnectors`), dimension `metric_name=smedge_cpu_utilization` > 70%, 5-min eval (`PT5M`), 15-min cooldown (`PT15M`) (`modules/terraform-zscc-ccvmss-azure/variables.tf:186-208`; `main.tf:116-139`) |
-| Scale-in trigger | same metric/dimension < 50%, 5-min eval (`PT5M`) (`modules/terraform-zscc-ccvmss-azure/variables.tf:210-232`; `main.tf:142-165`) |
-| Scheduled scaling | Optional; distinct from Admin Console upgrade window scheduling (`modules/terraform-zscc-ccvmss-azure/variables.tf:234-280`) |
+| Default instances | 2; direct-module validation range 1–16 (`modules/terraform-zscc-ccvmss-azure/variables.tf:179-189`) |
+| Minimum | 2; direct-module validation range 1–16 (`modules/terraform-zscc-ccvmss-azure/variables.tf:192-202`) |
+| Maximum | 4; direct-module validation range 1–16, with a hard limit of 16 (`modules/terraform-zscc-ccvmss-azure/variables.tf:205-215`) |
+| Scale-out trigger | metric `smedge_metrics` (namespace `Zscaler/CloudConnectors`), dimension `metric_name=smedge_cpu_utilization` > 70%, 5-min eval (`PT5M`), 15-min cooldown (`PT15M`) (`modules/terraform-zscc-ccvmss-azure/variables.tf:218-240`; `main.tf:116-139`) |
+| Scale-in trigger | same metric/dimension < 50%, 5-min eval (`PT5M`) (`modules/terraform-zscc-ccvmss-azure/variables.tf:242-264`; `main.tf:142-165`) |
+| Scheduled scaling | Optional; distinct from Admin Console upgrade window scheduling (`modules/terraform-zscc-ccvmss-azure/variables.tf:266-312`) |
+
+The direct VMSS module's three count inputs therefore validate 1–16, and its `vmss_max_ccs` default is 4. The greenfield and brownfield example wrappers instead default `vmss_max_ccs` to 16 without adding validation (`examples/base_cc_vmss/variables.tf:241-257`; `examples/cc_vmss/variables.tf:219-234`). The `zsec` helper accepts 1–20 for VMSS minimum, default, and maximum prompts (`examples/zsec:1023-1067`), so values 17–20 can pass the helper and then fail the direct module's 1–16 validation. These are IaC wrapper/tooling mismatches, not evidence of a 20-VM Cloud Connector runtime limit. Static `cc_count` is a separate non-autoscaling input (`examples/zsec:743-761`).
 
 VMSS deployments include a **mandatory Azure Function App** with two functions:
 
@@ -226,7 +318,15 @@ The reference TF + Zscaler's published HA guidance recommend:
 
 ### Azure GWLB ingress-inspection support
 
-The vendored Azure Terraform modules now include first-class Gateway Load Balancer support for Cloud Connector. The module changelog describes Azure GWLB as enabling transparent inline inspection for ingress traffic that the older egress-only private-LB topology did not cover, and adds both greenfield and brownfield GWLB examples (`vendor/terraform-azurerm-cloud-connector-modules/CHANGELOG.md:1-15`). The new `terraform-zscc-gwlb-azure` module creates an Azure Gateway Load Balancer with dual VXLAN tunnel interfaces, an HTTP probe, and a backend pool for Cloud Connectors; it is intended to chain behind a consumer Public Load Balancer (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-gwlb-azure/README.md:1-9`). The public-LB module exposes `gateway_load_balancer_frontend_ip_configuration_id`; setting it redirects inbound public-LB traffic through the GWLB and Cloud Connector VMs before reaching the original backend (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-public-lb-azure/README.md:1-10`, `:45`).
+The vendored Azure Terraform modules now include first-class Gateway Load Balancer support for Cloud Connector. The module changelog describes Azure GWLB as enabling transparent inline inspection for ingress traffic that the older egress-only private-LB topology did not cover, and adds both greenfield and brownfield GWLB examples (`vendor/terraform-azurerm-cloud-connector-modules/CHANGELOG.md:7-21`). The new `terraform-zscc-gwlb-azure` module creates an Azure Gateway Load Balancer with dual VXLAN tunnel interfaces, an HTTP probe, and a backend pool for Cloud Connectors; it is intended to chain behind a consumer Public Load Balancer (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-gwlb-azure/README.md:1-9`). The public-LB module exposes `gateway_load_balancer_frontend_ip_configuration_id`; setting it redirects inbound public-LB traffic through the GWLB and Cloud Connector VMs before reaching the original backend (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-public-lb-azure/README.md:1-10`, `:45`).
+
+### FIPS user-data coverage
+
+The refreshed Azure examples add a `fips_enabled` input and emit `FIPS_ENABLED` in Cloud Connector user data; the changelog describes this as FIPS enablement via user data (`vendor/terraform-azurerm-cloud-connector-modules/CHANGELOG.md:1-5`; `vendor/terraform-azurerm-cloud-connector-modules/examples/base_1cc/main.tf:107-116`; `vendor/terraform-azurerm-cloud-connector-modules/examples/base_cc_vmss/main.tf:107-120`). The setting is present in `base_1cc`, `base_1cc_zpa`, `base_cc_lb`, `base_cc_lb_zpa`, `base_cc_vmss`, `base_cc_vmss_zpa`, `cc_lb`, and `cc_vmss`. It is absent from the newer `base_cc_gwlb`, `base_cc_gwlb_vmss`, `base_cc_public_lb`, `base_cc_public_vmss`, `cc_gwlb`, `cc_gwlb_vmss`, and `cc_public_lb` examples (and the `base`/`ztags_standalone` non-CC examples). The `zsec` helper itself prompts for FIPS and exports `TF_VAR_fips_enabled` (`vendor/terraform-azurerm-cloud-connector-modules/examples/zsec:675-692`).
+
+> **Known-bad helper/example behavior — FIPS is ignored/no-op for seven Azure topologies.** The `zsec` FIPS prompt is inside the global non-`base` path (`vendor/terraform-azurerm-cloud-connector-modules/examples/zsec:574-656`) and always exports `TF_VAR_fips_enabled` (`vendor/terraform-azurerm-cloud-connector-modules/examples/zsec:675-692`). The selected roots `base_cc_gwlb`, `base_cc_gwlb_vmss`, `base_cc_public_lb`, `base_cc_public_vmss`, `cc_gwlb`, `cc_gwlb_vmss`, and `cc_public_lb` contain no `fips_enabled` declaration in their `variables.tf` or `FIPS_ENABLED` serialization in their `main.tf`. Because those root modules have no matching input, Terraform cannot consume that environment value or serialize it into their `user_data`; answering yes is therefore a no-op for these seven roots. This is a helper/example contract defect; it does not establish whether the Azure Cloud Connector service backend supports or rejects FIPS for those topologies.
+
+FIPS is therefore example/topology coverage in the published reference IaC, not a universal Azure module guarantee. The direct VM and VMSS modules accept caller-provided `user_data` and do not expose a direct `fips_enabled` variable (`vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/variables.tf:74-77`; `vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvmss-azure/variables.tf:79-82`). The helper/example matrix can be incomplete even when the Cloud Connector VM path is otherwise supported.
 
 ## Common failure modes
 

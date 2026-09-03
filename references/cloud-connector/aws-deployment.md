@@ -6,6 +6,8 @@ content-type: reasoning
 last-verified: "2026-07-20"
 verified-against:
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
+  vendor/terraform-aws-cloud-connector-modules: 6f8318d759e72a7cb8194d6efb9f18c55e6528f4
+  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 confidence: high
 source-tier: doc
 sources:
@@ -24,6 +26,23 @@ sources:
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-iam-aws/ (CC instance IAM policies)"
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-sg-aws/ (mgmt + service SG rules)"
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-network-aws/ (VPC / subnet / AZ defaults)"
+  - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-aws/variables.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_asg/variables.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_asg_zpa/variables.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/cc_gwlb_asg/variables.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/zsec"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_1cc/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_1cc_zpa/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_2cc/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_2cc_zpa/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_asg/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_asg_zpa/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_zpa/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/cc_gwlb/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/cc_gwlb_asg/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/examples/cc_ha/main.tf"
+  - "vendor/terraform-aws-cloud-connector-modules/CHANGELOG.md"
 author-status: draft
 ---
 
@@ -164,7 +183,7 @@ The Terraform module configures the scaling policy explicitly as a **Target Trac
 | Dimension | `AutoScalingGroupName` |
 | Statistic | `Average` |
 | Unit | `Percent` |
-| Default target value | `80` (`var.target_cpu_util_value`, `vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-aws/variables.tf:187-191`) |
+| Default target value | `80` (`var.target_cpu_util_value`, `vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-aws/variables.tf:201-205`) |
 
 CC instances are granted `cloudwatch:PutMetricData` with an IAM condition restricting writes to the `Zscaler/CloudConnectors` namespace (`vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-iam-aws/main.tf:138-172`).
 
@@ -176,16 +195,18 @@ The reference Terraform module exposes these ASG defaults (`vendor/terraform-aws
 
 | Variable | Default | Notes | Citation |
 |---|---|---|---|
-| `min_size` | `2` | Floor for scale-in | `variables.tf:108-112` |
-| `max_size` | `4` | Ceiling for scale-out; validation range 1–10 | `variables.tf:114-124` |
-| `health_check_type` | `EC2` | `EC2` or `ELB` | `variables.tf:138-149` |
-| `health_check_grace_period` | `900` (seconds) | Minimum time a new instance is kept in service before health checks can terminate it | `variables.tf:126-130` |
-| `target_cpu_util_value` | `80` (percent) | Target tracking value on the custom CPU metric | `variables.tf:187-191` |
-| `lifecyclehook_instance_launch_wait_time` | `1800` (seconds) | Pending:wait timeout on launch (lifecycle hook `default_result = "ABANDON"`) | `variables.tf:193-197`; hook config at `main.tf:155-160` |
-| `lifecyclehook_instance_terminate_wait_time` | `900` (seconds) | Terminating:wait timeout (lifecycle hook `default_result = "CONTINUE"`) | `variables.tf:199-203`; hook config at `main.tf:163-168` |
-| `instance_warmup` | `0` | Time before a new instance contributes to CloudWatch metrics | `variables.tf:132-136` |
-| `protect_from_scale_in` | `false` | Whether new instances get scale-in protection | `variables.tf:229-233` |
-| `zonal_asg_enabled` | `false` | When `true`, creates one ASG per AZ instead of one ASG spanning subnets | `variables.tf:270-274`; placement at `main.tf:114-117` |
+| `min_size` | `2` | Floor for scale-in; direct-module validation range 1–16 | `variables.tf:108-118` |
+| `max_size` | `4` | Ceiling for scale-out; direct-module validation range 1–16 and hard limit 16 | `variables.tf:121-131` |
+| `health_check_type` | `EC2` | `EC2` or `ELB` | `variables.tf:146-156` |
+| `health_check_grace_period` | `900` (seconds) | Minimum time a new instance is kept in service before health checks can terminate it | `variables.tf:134-138` |
+| `target_cpu_util_value` | `80` (percent) | Target tracking value on the custom CPU metric | `variables.tf:201-205` |
+| `lifecyclehook_instance_launch_wait_time` | `1800` (seconds) | Pending:wait timeout on launch (lifecycle hook `default_result = "ABANDON"`) | `variables.tf:207-211`; hook config at `main.tf:155-160` |
+| `lifecyclehook_instance_terminate_wait_time` | `900` (seconds) | Terminating:wait timeout (lifecycle hook `default_result = "CONTINUE"`) | `variables.tf:213-217`; hook config at `main.tf:163-168` |
+| `instance_warmup` | `0` | Time before a new instance contributes to CloudWatch metrics | `variables.tf:140-144` |
+| `protect_from_scale_in` | `false` | Whether new instances get scale-in protection | `variables.tf:243-247` |
+| `zonal_asg_enabled` | `false` | When `true`, creates one ASG per AZ instead of one ASG spanning subnets | `variables.tf:284-288`; placement at `main.tf:114-117` |
+
+The 1–16 range above is the validation in the direct `terraform-zscc-asg-aws` module. The published ASG example wrappers still validate `max_size` only from 1–10 (`examples/base_cc_gwlb_asg/variables.tf:280-290`; `examples/base_cc_gwlb_asg_zpa/variables.tf:292-302`; `examples/cc_gwlb_asg/variables.tf:295-305`), and the `zsec` helper accepts only 1–10 for both ASG minimum and maximum prompts (`examples/zsec:953-995`). Those narrower wrapper/helper checks are tooling behavior, not an independent Cloud Connector runtime limit. The static `cc_count` prompts used by non-ASG/GWLB examples are a separate input and should not be read as the ASG limit (`examples/zsec:828-845`).
 
 Lifecycle hook semantics from the source: launch-failure default is **ABANDON** (an instance that times out during pending:wait is abandoned, not retained); terminate-default is **CONTINUE** (terminate completes after the hook timeout regardless of acknowledgement) (`vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-aws/main.tf:155-168`).
 
@@ -193,7 +214,7 @@ Lifecycle hook semantics from the source: launch-failure default is **ABANDON** 
 
 The ASG help article explicitly covers **warm pool** and **lifecycle hook** patterns. Warm pools allow pre-initialized CC instances to sit in a ready state, reducing scale-out latency. Lifecycle hooks let the CC complete registration with the ZIA Admin Console before the ASG marks the instance `InService`.
 
-Reference Terraform module surface for warm pools (`vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-aws/variables.tf:151-179`):
+Reference Terraform module surface for warm pools (`vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-aws/variables.tf:159-193`):
 
 | Variable | Default | Notes |
 |---|---|---|
@@ -301,6 +322,12 @@ The `terraform-zscc-iam-aws` module attaches an instance profile to each CC EC2 
 
 Legacy/non-GWLB Lambda route-table failover is still present in the reference modules, but its `ec2:ReplaceRoute` permission is now constrained with an `ec2:ResourceTag/Name` condition matching the module's deployment tag pattern (`vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-lambda-aws/main.tf:59-68`). This is a reference-IaC least-privilege tightening, not a runtime Cloud Connector API change.
 
+## FIPS user-data coverage
+
+The refreshed AWS examples add a `fips_enabled` input and serialize it as `FIPS_ENABLED` in Cloud Connector user data; the changelog describes this as FIPS enablement via user data (`vendor/terraform-aws-cloud-connector-modules/CHANGELOG.md:1-4`; `vendor/terraform-aws-cloud-connector-modules/examples/base_1cc/variables.tf:240-247`; `vendor/terraform-aws-cloud-connector-modules/examples/base_1cc/main.tf:105-109`). This coverage is present in the published CC-bearing examples `base_1cc`, `base_1cc_zpa`, `base_2cc`, `base_2cc_zpa`, `base_cc_gwlb`, `base_cc_gwlb_asg`, `base_cc_gwlb_asg_zpa`, `base_cc_gwlb_zpa`, `cc_gwlb`, `cc_gwlb_asg`, and `cc_ha`; the `base` example has no Cloud Connector deployment and no FIPS input. The `zsec` helper also prompts for FIPS and exports `TF_VAR_fips_enabled` (`vendor/terraform-aws-cloud-connector-modules/examples/zsec:809-826`).
+
+FIPS is therefore not a universal AWS module/topology guarantee: the direct CCVM and ASG modules accept generic `user_data` rather than declaring a `fips_enabled` input (`vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-ccvm-aws/variables.tf:34-37`; `vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-asg-aws/variables.tf:29-32`), and a custom caller must supply the relevant setting. The examples and helper show reference-IaC coverage; they do not establish a runtime/product-wide FIPS promise.
+
 ## CloudFormation deployment flow
 
 The CloudFormation deployment path creates a **stack** containing all CC and supporting resources. Key steps from the help article:
@@ -370,7 +397,7 @@ The vendored Terraform module ships with example deployments under `examples/` (
 | `base_2cc` | **Deprecated.** 2 static CCs (no LB), one per AZ; route tables point at individual CC ENIs. Zscaler recommends `base_cc_gwlb` instead | `vendor/terraform-aws-cloud-connector-modules/examples/base_2cc/README.md:1-3` |
 | `base_2cc_zpa` | `base_2cc` plus Route 53 | `vendor/terraform-aws-cloud-connector-modules/examples/base_2cc_zpa/README.md:1-5` |
 | `base_cc_gwlb` | GWLB greenfield: 2 CCs, workload subnets routing via GWLB endpoints | `vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb/README.md:1-5` |
-| `base_cc_gwlb_asg` | GWLB plus ASG (default `min_size = 2`, `max_size = 4`) | `vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_asg/README.md:1-5` |
+| `base_cc_gwlb_asg` | GWLB plus ASG (direct module defaults `min_size = 2`, `max_size = 4`; example wrapper max validation 1–10) | `vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_asg/README.md:1-5`; `variables.tf:280-290` |
 | `base_cc_gwlb_asg_zpa` | GWLB plus ASG plus Route 53 | `vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_asg_zpa/README.md:1-5` |
 | `base_cc_gwlb_zpa` | GWLB plus Route 53 | `vendor/terraform-aws-cloud-connector-modules/examples/base_cc_gwlb_zpa/README.md:1-5` |
 | `cc_gwlb` | Brownfield: static 2–4 CCs, GWLB, BYO VPC/subnets | `vendor/terraform-aws-cloud-connector-modules/examples/cc_gwlb/README.md:1-5` |
