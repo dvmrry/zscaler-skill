@@ -16,7 +16,10 @@ semantics.
 1. **Extract** (`extract_docusaurus_blobs.py`, Python stdlib) — fetches the
    deployed Docusaurus route table and lazy MDX operation chunks, decodes each
    compressed `frontMatter.api` object, and writes a working snapshot under
-   `/tmp/zscaler-automate-blob-proof/` by default:
+   `/tmp/zscaler-automate-blob-proof/` by default. Module ownership accepts the
+   legacy numeric `id:function(...)` and current numeric method-shorthand
+   `id(...) { ... }` Webpack forms, and fails closed unless the requested module
+   itself contains exactly one API blob:
    - reconstructed normalized contracts:
      `reconstructed/<product>-api-reference.json`
    - raw decoded blobs with source URL and blob hash:
@@ -54,6 +57,12 @@ The extractor is the capture trust boundary. It is guarded by route-completeness
 checks, loss-aware comparison against the committed snapshot, field-flattening
 tests, and OpenAPI structural validation. The reconciler and rosetta layers have
 their own fixture and real-data smoke tests.
+
+Module ownership is deliberately restricted to the known file-level Webpack
+push envelope and direct numeric module keys. Whitespace, comments, and a
+`use strict` directive may precede that envelope; arbitrary executable prefixes,
+computed keys, and alternate wrappers fail closed. The extractor does not
+execute vendor JavaScript or attempt to parse arbitrary JavaScript programs.
 
 ## Run it
 
@@ -101,11 +110,12 @@ python3 scripts/automate-capture/rosetta.py
 
 ## Scope
 
-Captured products: **AI Security**, **BI**, **EASM**, **Event Monitoring**,
-**ZCC**, **ZCell**, **ZCloudConnector/ZTW**, **ZDX**, **ZIA**, **ZID**, and
-**ZPA**. A last-known **AI Guard** snapshot is retained when the current public
-route table omits that product; the retained artifact is explicitly marked
-publication-absent and is not treated as proof of endpoint retirement.
+Captured products: **AI Security**, **AI Guard**, **BI**, **EASM**, **Event
+Monitoring**, **URBAC**, **ZCC**, **ZCell**, **ZCloudConnector/ZTW**, **ZDX**,
+**ZIA**, **ZID**, and **ZPA**. If a future public route table omits a product,
+the last-known snapshot may be retained and explicitly marked
+publication-absent; that absence is not treated as proof of endpoint retirement
+or backend unavailability.
 
 Reconciliation currently covers the mapped multi-surface resources for **ZIA**
 (54), **ZPA** (16), **ZCC** (4), and **ZCloudConnector/ZTW** (16); the other
