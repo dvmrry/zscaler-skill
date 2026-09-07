@@ -350,9 +350,16 @@ async function discoverVendor({ root, previous, baselinePresent, git, gh, now })
 }
 
 function decodeXml(value) {
-  return value.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(Number.parseInt(n, 16)));
+  const named = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+  // Decode one XML layer. A replacement must not become another match:
+  // `&amp;lt;` denotes the literal text `&lt;`, not a less-than character.
+  return value.replace(/&(amp|lt|gt|quot|apos|#\d+|#x[0-9a-f]+);/gi, (_, entity) => {
+    if (entity.startsWith("#")) {
+      const hexadecimal = entity[1].toLowerCase() === "x";
+      return String.fromCodePoint(Number.parseInt(entity.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10));
+    }
+    return named[entity.toLowerCase()];
+  });
 }
 
 function tag(block, name) {

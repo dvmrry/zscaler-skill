@@ -103,6 +103,11 @@ test("CLI requires explicit external JSON/Markdown paths and validates since", (
   assert.equal(options.since, "2026-09-01");
 });
 
+test("sitemap XML entities are decoded exactly once", () => {
+  const sitemap = `<urlset><url><loc>https://help.zscaler.com/zia/page?a=1&amp;b=2&amp;lt;literal&amp;#x2f;&#x41;&#66;&quot;&apos;</loc></url></urlset>`;
+  assert.equal(parseSitemap(sitemap).urls[0].url, "https://help.zscaler.com/zia/page?a=1&b=2&lt;literal&#x2f;AB\"'");
+});
+
 test("first run bootstraps bounded coverage without calling all URLs changes", async () => {
   const root = makeRoot();
   const result = await runDiscovery({ root, baselineData: {}, baselineExists: false, ...cleanOptions(), git: fakeGit(), gh: fakeGh(), fetcher: fakeFetch() });
