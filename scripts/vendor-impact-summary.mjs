@@ -229,6 +229,11 @@ function shortSha(sha) {
   return isZeroSha(sha) ? "(none)" : sha.slice(0, 7);
 }
 
+function comparisonSha(value) {
+  if (typeof value !== "string" || value.length === 0) return "(unknown)";
+  return /^[0-9a-f]+$/i.test(value) ? shortSha(value) : value;
+}
+
 function submoduleLogs(changes, maxCommits, options = {}) {
   const runner = options.runner || runCommand;
   const root = options.root || REPO_ROOT;
@@ -284,14 +289,21 @@ function driftReport(changes, options = {}) {
     };
   }
 
-  const filtered = (key) => (data[key] || []).filter((item) => changedPaths.has(item.submodule));
+  const filtered = (key) => (Array.isArray(data[key]) ? data[key] : [])
+    .filter((item) => changedPaths.has(item.submodule));
   const high = filtered("drifted_high_priority");
   const low = filtered("drifted_low_priority");
   const unverified = filtered("unverified");
+  // Repository-wide inventory failures have no changed submodule path, but
+  // still invalidate the whole report. Preserve rows without a ref while
+  // retaining the normal changed-submodule filtering for per-ref findings.
+  const indeterminate = (Array.isArray(data.indeterminate) ? data.indeterminate : [])
+    .filter((item) => item.ref == null || changedPaths.has(item.submodule));
   const lines = [
     `- High-priority cited-file drift: **${high.length}**`,
     `- Low-priority unchanged cited-file bumps: **${low.length}**`,
     `- Unverified vendor-citing ref/submodule pairs on changed submodules: **${unverified.length}**`,
+    `- Indeterminate/unavailable cited-file comparisons: **${indeterminate.length}**`,
     "",
   ];
   if (high.length > 0) {
@@ -302,10 +314,27 @@ function driftReport(changes, options = {}) {
     if (high.length > 20) lines.push(`- ... and ${high.length - 20} more`);
     lines.push("");
   }
+  if (indeterminate.length > 0) {
+    lines.push("Indeterminate items require source initialization or commit-object recovery before drift can be classified:", "");
+    for (const item of indeterminate.slice(0, 20)) {
+      const ref = item.ref || "(repository submodule inventory)";
+      const oldSha = comparisonSha(item.captured_sha ?? item.old_sha);
+      const newSha = comparisonSha(item.current_sha ?? item.new_sha);
+      lines.push(
+        `- \`${ref}\` — \`${item.submodule || "(unknown submodule)"}\` `
+          + `(${oldSha}..${newSha}); reason: ${item.reason || "comparison unavailable"}`,
+      );
+    }
+    if (indeterminate.length > 20) lines.push(`- ... and ${indeterminate.length - 20} more`);
+    lines.push("");
+  }
+  const blockingReasons = [];
+  if (high.length > 0) blockingReasons.push(`${high.length} high-priority cited-file drift finding(s) remain`);
+  if (indeterminate.length > 0) {
+    blockingReasons.push(`${indeterminate.length} indeterminate vendor source comparison(s) remain`);
+  }
   return {
-    blockingReasons: high.length > 0
-      ? [`${high.length} high-priority cited-file drift finding(s) remain`]
-      : [],
+    blockingReasons,
     lines,
   };
 }

@@ -1,0 +1,136 @@
+name: Refresh discovery
+
+on:
+  schedule:
+    # Cheap publication observation once per day; integration remains manual.
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: refresh-discovery
+  cancel-in-progress: true
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.node-version'
+
+      - name: Restore the latest observation baseline
+        id: restore
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          state_dir="${RUNNER_TEMP}/refresh-discovery"
+          mkdir -p "${state_dir}/unpacked"
+          workflow="repos/${GITHUB_REPOSITORY}/actions/workflows/refresh-discovery.yml/runs"
+          run_id=""
+          if ! gh api "${workflow}?branch=${DEFAULT_BRANCH}&status=success&per_page=1" \
+            --jq '.workflow_runs[0].id // empty' > "${state_dir}/run-id"; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            echo "Baseline restore failed: could not list successful discovery workflow runs; no replacement baseline will be published." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          run_id="$(head -n 1 "${state_dir}/run-id")"
+          if [ -z "${run_id}" ]; then
+            echo "status=bootstrap" >> "$GITHUB_OUTPUT"
+            echo "No prior successful default-branch discovery run was available; this run reports bootstrap coverage." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # Query only artifacts attached to that successful run. This avoids
+          # scanning the repository's complete artifact history every day.
+          if ! gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.name == "refresh-discovery-baseline" and .expired == false) | .id' \
+            > "${state_dir}/artifact-ids"; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            echo "Baseline restore failed: could not list artifacts for successful discovery run ${run_id}; no replacement baseline will be published." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          artifact_id="$(head -n 1 "${state_dir}/artifact-ids")"
+          if [ -z "${artifact_id}" ]; then
+            echo "status=bootstrap" >> "$GITHUB_OUTPUT"
+            echo "No unexpired observation baseline artifact was available for successful run ${run_id}; this run reports bootstrap coverage." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if ! gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+            > "${state_dir}/baseline.zip" 2>/dev/null \
+            || ! unzip -q -o "${state_dir}/baseline.zip" -d "${state_dir}/unpacked"; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            echo "Baseline restore failed: artifact ${artifact_id} could not be downloaded or unpacked; no replacement baseline will be published." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          baseline_file="$(find "${state_dir}/unpacked" -type f -name 'baseline.json' -print -quit)"
+          if [ -z "${baseline_file}" ]; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            echo "Baseline restore failed: artifact ${artifact_id} contained no baseline.json; no replacement baseline will be published." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          cp "${baseline_file}" "${state_dir}/baseline.json"
+          echo "status=restored" >> "$GITHUB_OUTPUT"
+          echo "Restored observation baseline artifact ${artifact_id} from successful run ${run_id}." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run bounded publication discovery
+        id: discover
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          state_dir="${RUNNER_TEMP}/refresh-discovery"
+          args=(
+            --output "${state_dir}/report.json"
+            --markdown "${state_dir}/report.md"
+            --baseline "${state_dir}/baseline.json"
+          )
+          if [ "${{ steps.restore.outcome }}" != "success" ] || [ "${{ steps.restore.outputs.status }}" = "failed" ]; then
+            args+=(--restore-failed)
+          fi
+          node scripts/refresh-discovery.mjs "${args[@]}"
+
+      - name: Add discovery report to job summary
+        if: always()
+        run: |
+          state_dir="${RUNNER_TEMP}/refresh-discovery"
+          if [ -f "${state_dir}/report.md" ]; then
+            cat "${state_dir}/report.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Discovery report was not produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload discovery report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: refresh-discovery
+          path: |
+            ${{ runner.temp }}/refresh-discovery/report.json
+            ${{ runner.temp }}/refresh-discovery/report.md
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload successful observation baseline
+        if: steps.discover.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: refresh-discovery-baseline
+          path: ${{ runner.temp }}/refresh-discovery/baseline.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Fail when discovery is unknown or partial
+        if: steps.restore.outcome == 'failure' || steps.restore.outputs.status == 'failed' || steps.discover.outcome == 'failure'
+        run: exit 1

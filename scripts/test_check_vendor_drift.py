@@ -1,7 +1,12 @@
 """Regression tests for source coverage matching in check-vendor-drift.py."""
 
 import importlib.util
+import json
 from pathlib import Path
+import subprocess
+import sys
+
+import pytest
 
 
 SCRIPT = Path(__file__).with_name("check-vendor-drift.py")
@@ -88,3 +93,196 @@ def test_pinned_zia_provider_captures_reorder_done_before_unlock():
     unlock = function.index("rules.Unlock()")
     map_read = function.index("doneCh := rules.reorderDone[resourceType]")
     assert map_read < unlock
+
+
+def git(repo: Path, *args: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
+
+
+def init_repo(repo: Path) -> str:
+    repo.mkdir(parents=True)
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    git(repo, "config", "user.email", "test@example.invalid")
+    git(repo, "config", "user.name", "Drift Test")
+    (repo / "source.go").write_text("package source\n")
+    git(repo, "add", "source.go")
+    return git(repo, "commit", "-qm", "initial") or git(repo, "rev-parse", "HEAD")
+
+
+def test_changed_files_fails_on_an_actual_uninitialized_git_diff(tmp_path, monkeypatch):
+    module = tmp_path / "vendor" / "example"
+    module.mkdir(parents=True)
+    monkeypatch.setattr(MODULE, "REPO_ROOT", tmp_path)
+
+    with pytest.raises(MODULE.VendorDiffError) as caught:
+        MODULE.changed_files("vendor/example", "a" * 40, "b" * 40)
+
+    error = caught.value
+    assert error.submodule_path == "vendor/example"
+    assert error.old_sha == "a" * 40
+    assert error.new_sha == "b" * 40
+    assert "not initialized" in error.reason
+    assert "git diff failed (exit " in error.reason
+
+
+def test_changed_files_fails_on_an_initialized_missing_object(tmp_path, monkeypatch):
+    module = tmp_path / "vendor" / "example"
+    current = init_repo(module)
+    monkeypatch.setattr(MODULE, "REPO_ROOT", tmp_path)
+
+    with pytest.raises(MODULE.VendorDiffError) as caught:
+        MODULE.changed_files("vendor/example", "deadbeef" * 5, current)
+
+    error = caught.value
+    assert error.submodule_path == "vendor/example"
+    assert error.old_sha == "deadbeef" * 5
+    assert error.new_sha == current
+    assert "git diff failed" in error.reason
+    assert "not initialized" not in error.reason
+    assert "Invalid revision range" in error.reason
+
+
+def run_main_json(
+    monkeypatch,
+    capsys,
+    current_sha: str,
+    captured_sha: str,
+    changed=None,
+    initialized: bool = True,
+    marker: str = " ",
+):
+    status = MODULE.SubmoduleStatus(
+        path="vendor/example",
+        sha=current_sha,
+        initialized=initialized,
+        marker=marker,
+    )
+    monkeypatch.setattr(
+        MODULE,
+        "get_current_submodule_status",
+        lambda: MODULE.SubmoduleStatusResult({status.path: status}),
+    )
+    if changed is not None:
+        monkeypatch.setattr(MODULE, "changed_files", lambda *args: changed)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["check-vendor-drift.py", "--json"],
+    )
+    assert MODULE.main() in {0, 1}
+    return json.loads(capsys.readouterr().out)
+
+
+def test_main_reports_valid_unchanged_and_changed_comparisons(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(MODULE, "REPO_ROOT", tmp_path)
+    refs = tmp_path / "references"
+    refs.mkdir()
+    (refs / "unchanged.md").write_text(
+        "---\nsources:\n  - vendor/example/source.go\n"
+        "verified-against:\n  vendor/example: same\n---\n"
+    )
+    same = run_main_json(monkeypatch, capsys, "same", "same", changed=set())
+    assert same["current_count"] == 1
+    assert same["drifted_high_priority"] == []
+    assert same["drifted_low_priority"] == []
+    assert same["indeterminate"] == []
+
+    (refs / "unchanged.md").write_text(
+        "---\nsources:\n  - vendor/example/source.go\n"
+        "verified-against:\n  vendor/example: old\n---\n"
+    )
+    changed = run_main_json(monkeypatch, capsys, "new", "old", changed={"source.go"})
+    assert changed["current_count"] == 0
+    assert len(changed["drifted_high_priority"]) == 1
+    assert changed["drifted_low_priority"] == []
+    assert changed["indeterminate"] == []
+
+
+def test_main_propagates_failed_comparison_as_indeterminate(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(MODULE, "REPO_ROOT", tmp_path)
+    refs = tmp_path / "references"
+    refs.mkdir()
+    (refs / "broken.md").write_text(
+        "---\nsources:\n  - vendor/example/source.go\n"
+        "verified-against:\n  vendor/example: old\n---\n"
+    )
+    status = MODULE.SubmoduleStatus(
+        path="vendor/example",
+        sha="new",
+        initialized=True,
+        marker=" ",
+    )
+    monkeypatch.setattr(
+        MODULE,
+        "get_current_submodule_status",
+        lambda: MODULE.SubmoduleStatusResult({status.path: status}),
+    )
+    monkeypatch.setattr(
+        MODULE,
+        "changed_files",
+        lambda *args: (_ for _ in ()).throw(
+            MODULE.VendorDiffError("vendor/example", "old", "new", "missing source object")
+        ),
+    )
+    monkeypatch.setattr(sys, "argv", ["check-vendor-drift.py", "--json"])
+
+    assert MODULE.main() == 1
+    report = json.loads(capsys.readouterr().out)
+    assert report["current_count"] == 0
+    assert report["drifted_low_priority"] == []
+    assert report["indeterminate_count"] == 1
+    assert report["indeterminate"] == [{
+        "ref": "references/broken.md",
+        "submodule": "vendor/example",
+        "captured_sha": "old",
+        "current_sha": "new",
+        "reason": "missing source object",
+    }]
+
+
+def test_main_does_not_count_equal_pins_in_an_uninitialized_submodule(
+    tmp_path, monkeypatch, capsys
+):
+    monkeypatch.setattr(MODULE, "REPO_ROOT", tmp_path)
+    refs = tmp_path / "references"
+    refs.mkdir()
+    (refs / "uninitialized.md").write_text(
+        "---\nsources:\n  - vendor/example/source.go\n"
+        "verified-against:\n  vendor/example: same\n---\n"
+    )
+
+    report = run_main_json(
+        monkeypatch,
+        capsys,
+        "same",
+        "same",
+        initialized=False,
+        marker="-",
+    )
+
+    assert report["current_count"] == 0
+    assert report["indeterminate_count"] == 1
+    assert report["drifted_low_priority"] == []
+    assert "not initialized" in report["indeterminate"][0]["reason"]
+
+
+def test_main_accepts_the_provenance_contracts_annotated_sha(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(MODULE, "REPO_ROOT", tmp_path)
+    refs = tmp_path / "references"
+    refs.mkdir()
+    sha = "4b7101202cde25e1e60552f1cb215d2c70cdc3bd"
+    recorded = f"{sha} (new ZPA service surface section)"
+    (refs / "annotated.md").write_text(
+        "---\nsources:\n  - vendor/example/source.go\n"
+        f"verified-against:\n  vendor/example: {recorded}\n---\n"
+    )
+    report = run_main_json(monkeypatch, capsys, sha, recorded)
+    assert report["current_count"] == 1
+    assert report["indeterminate_count"] == 0
+    assert report["drifted_low_priority"] == []
