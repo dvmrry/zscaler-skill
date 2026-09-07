@@ -5,6 +5,8 @@ title: "Cloud Connector upgrades + zsroot credential rotation — operational ca
 content-type: reasoning
 last-verified: "2026-07-16"
 verified-against:
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
+  vendor/zscaler-help: 96e69d73438c058c45739f741053bd68d47d234c
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
 source-tier: mixed
@@ -16,6 +18,7 @@ sources:
   - "vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.md"
   - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
   - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
+  - "vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.md"
   - "vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/admin_users.py"
@@ -36,6 +39,19 @@ Operational runbook context for operators managing Cloud Connector (CC) and Bran
 > **Fork agents:** if the tenant's CC groups are configured with non-default upgrade windows, check the Admin Console (path below) before advising on timing. This doc reflects Zscaler defaults.
 
 ---
+
+## Support lifecycle boundary: ZSOS 24
+
+The August 30, 2026 notice says Cloud Connector deployments running ZSOS 24 or
+earlier on AWS, Microsoft Azure, or GCP are no longer supported. Migrate affected
+deployments to ZSOS 42 or later by **November 30, 2026** to maintain service
+continuity. Cloud Connectors already running ZSOS 42 require no action under
+this notice (`vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.md:7-13`).
+
+This is a support-status deadline, not a migration procedure: the notice does
+not describe migration commands or automatic OS replacement, and it does not
+cover the separate Branch Connector notice
+(`vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.md:15-18`).
 
 ## 1. Upgrade cadence
 

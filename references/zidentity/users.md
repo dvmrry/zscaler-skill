@@ -5,7 +5,7 @@ title: "ZIdentity users — CRUD, fields, filters, IdP-sourced vs internal"
 content-type: reference
 last-verified: "2026-06-21"
 verified-against:
-  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: high
 source-tier: code
@@ -83,7 +83,7 @@ Variable `{{ZIAMBaseUrl}}` resolves to the ZIdentity ZIAM base URL. (`vendor/zsc
 | POST | `{{ZIAMBaseUrl}}/users/:id:setskipmfa` | Set skip MFA — Postman colon-suffix form; Go exposes a slash-form wrapper |
 | PUT | `{{ZIAMBaseUrl}}/users/:id:updatepassword` | Update password — Postman colon-suffix form; Go exposes a slash-form wrapper |
 
-The reconstructed Automate snapshot independently carries the same three user-action operations using slash-delimited paths (`/users/{id}/resetpassword`, `/users/{id}/setskipmfa`, `/users/{id}/updatepassword`) (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5525`, `vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5931`). This corrects the earlier malformed adjacent-template capture and the refreshed contract passes structural path validation (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:19`). The Postman collection still uses colon-suffix action routes, so action existence is corroborated while the exact live URL spelling remains an open cross-source question; see [clarification `zid-36`](../_meta/clarifications.md#zid-36-zidentity-user-action-path-template-encoding).
+The refreshed Automate snapshot carries the same three user-action operations with colon-suffix paths (`/users/{id}:setskipmfa`, `/users/{id}:resetpassword`, `/users/{id}:updatepassword`) (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `:5525`, `:5931`). This corrects the earlier malformed adjacent-template capture; the current publication is structurally validated as 31 operations across 18 paths with no reported issues (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:20`). Automate now aligns with the Postman colon-suffix routes, while the Go wrapper remains slash-delimited (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:200-241`). Static sources corroborate the published operation shapes but do not establish live URL acceptance; see [clarification `zid-36`](../_meta/clarifications.md#zid-36-zidentity-user-action-path-template-encoding).
 
 There is no bulk-delete on the ZIAM users surface. The only `users/bulkDelete` in the Postman collection is `{{ZIABaseUrl}}/users/bulkDelete` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:9928`) — that is the **ZIA** users API, not ZIdentity. ZIdentity exposes per-user delete only (`DELETE {{ZIAMBaseUrl}}/users/:id`). A grep for `{{ZIAMBaseUrl}}/users/bulkDelete` returns zero matches.
 
@@ -213,7 +213,7 @@ These are **Postman-declared ZIdentity API operations** (captured on the `{{ZIAM
 2. **Set skip MFA** — Postman uses `POST /users/:id:setskipmfa` (`oneapi-postman-collection.json:133974`), while the refreshed Go wrapper sends `POST /users/{id}/setskipmfa` (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:200-214`).
 3. **Update password** — Postman uses `PUT /users/:id:updatepassword` (`oneapi-postman-collection.json:134154`), while the refreshed Go wrapper sends `PUT /users/{id}/updatepassword` (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:228-241`).
 
-The reconstructed Automate contract independently uses the slash-delimited forms (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421,5525,5931`). The Go wrappers use raw `ExecuteRequest` because the operation responses are bare strings (`users.go:169-179`); Python still has no corresponding action methods. Exact live route acceptance remains an open cross-source question, not a claim about backend availability.
+The reconstructed Automate contract independently uses the colon-suffix forms (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `:5525`, `:5931`), matching Postman, while the Go wrappers send slash-delimited forms (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:200-241`). The wrappers use raw `ExecuteRequest` because the operation responses are bare strings (`users.go:169-179`); Python still has no corresponding action methods. Exact live route acceptance remains an open cross-source question, not a claim about backend availability.
 
 The following are genuine SDK + API gaps for the ZIdentity users surface:
 

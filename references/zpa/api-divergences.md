@@ -6,7 +6,7 @@ content-type: reference
 confidence: medium
 last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
@@ -55,7 +55,7 @@ Operator field observations from production ZPA-via-Terraform usage add a fourth
 
 **Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, SDKs for wrapper behavior, and Postman for examples/fallback evidence (`references/_meta/verification-protocol.md:114-118`). The generated ZPA reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zpa-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md:7-11`). Its current totals are 84 contract-vs-Go primitive type drifts, 20 contract-vs-Terraform required-flag drifts, 3 enum value conflicts, 4 one-sided enum constraints, and 5 readonly fields with no Terraform disagreement (`vendor/zscaler-api-specs/automate-zscaler/zpa-divergences.md:13-18`).
 
-Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`), treats Postman as reference-only rather than a constraint-bearing reconciliation leg (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:181-183`), and begins the ZPA resource table at `app_connector_group` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:2198-2206`).
+Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`), treats Postman as reference-only rather than a constraint-bearing reconciliation leg (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:185-187`), and begins the ZPA resource table at `app_connector_group` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:2203-2211`).
 
 ---
 
@@ -145,7 +145,7 @@ fully resolved SDK difference.
 The Rosetta field table currently records only cross-surface presence for
 `bypassOnReauth`; its marker vocabulary does not encode serializer-presence
 behavior such as Go `omitempty`
-(`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`, `vendor/zscaler-api-specs/automate-zscaler/rosetta.md:2269`). Keep
+(`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`, `vendor/zscaler-api-specs/automate-zscaler/rosetta.md:2274`). Keep
 this prose-level divergence until the reconciliation schema can represent
 omission semantics.
 

@@ -7,7 +7,7 @@ last-verified: "2026-07-22"
 confidence: high
 source-tier: mixed
 verified-against:
-  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-help: 96e69d73438c058c45739f741053bd68d47d234c
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
@@ -71,6 +71,7 @@ sources:
   - "vendor/zscaler-help/private-service-edge-status-log-fields.md"
   - "vendor/zscaler-help/private-cloud-controller-status-log-fields.md"
   - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
+  - "vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md"
 author-status: draft
 ---
 
@@ -394,6 +395,25 @@ separate release entries with different scopes:
 **OS updates are the customer's responsibility**, not Zscaler's. App Connector software is designed to be compatible with host-OS updates, but Zscaler doesn't patch the underlying kernel/distribution — the organization does. A long-running VM with un-patched OS is a common audit finding.
 
 **Zscaler Support may manually update connectors** if the currently-running software has a known issue. Support notifies the tenant's ZPA admins beforehand.
+
+### Host OS and package maintenance
+
+The organization is responsible for host OS and software-package updates for
+App Connectors; Zscaler separately updates the component software. The captured
+procedure covers updating RHEL 9.4 or 9.5 to RHEL 9.6 and later. Zscaler
+recommends OS updates at least every five weeks; validate connectivity to the
+update servers. Prebuilt-image components must be provisioned to a Private
+Access tenant to receive software updates through the OS package manager
+(`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md:9-19`).
+
+Local policy determines the update schedule. Warn users about possible rolling
+reconnections; the source estimates **20 minutes of downtime per component**.
+Do not update every App Connector or Private Service Edge in a group at once.
+Concurrent updates are allowed only when enough remaining components are
+running to carry the traffic load
+(`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md:23-29`).
+For the corresponding PSE guidance, see [Private Service Edges — host OS and
+package maintenance](./private-service-edges.md#host-os-and-package-maintenance).
 
 ### Certificate enrollment and trust
 

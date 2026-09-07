@@ -5,7 +5,7 @@ title: "Zscaler Experience Center - unified administration console"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-help: 96e69d73438c058c45739f741053bd68d47d234c
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
@@ -18,6 +18,7 @@ confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/unified-what-zscaler-experience-center.md"
+  - "vendor/zscaler-help/unified-about-zagent.md"
   - "vendor/zscaler-help/understanding-zscaler-cloud-names.md"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/zscaler-mcp-server/docsrc/skills/index.rst"
@@ -28,6 +29,25 @@ author-status: draft
 # Zscaler Experience Center - unified administration console
 
 Zscaler Experience Center is described as a unified, AI-powered administrative and operations console for managing, configuring, and monitoring the Zscaler Zero Trust Exchange from one interface (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`). The capture names Internet & SaaS (ZIA), Private Access (ZPA), ZDX, and Zscaler Client Connector as examples of services available through that central hub (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`).
+
+## ZAgent (Limited Availability)
+
+ZAgent is marked **Limited Availability** and customers are directed to
+Zscaler Support for enablement. It provides conversational assistance and
+predefined agents for administrative configuration, monitoring,
+troubleshooting, and optimization across the Zscaler SASE platform. The article
+says it is included with specified subscriptions without enumerating every
+eligible subscription (`vendor/zscaler-help/unified-about-zagent.md:9-13`).
+
+In the Admin Console, the Wand icon opens the ZAgent drawer. Administrators can
+create a chat, review history, enter prompts, and select an agent and a skill;
+use `@` for agent selection and `/` for skill selection. Prompts and responses
+are retained as session history for a rolling **14 days**
+(`vendor/zscaler-help/unified-about-zagent.md:17-24`).
+
+This capture describes an Admin Console feature only. It does not specify a
+public API, MCP compatibility, agent permission scopes, or the complete
+subscription entitlement list (`vendor/zscaler-help/unified-about-zagent.md:26-30`).
 
 ## What It Consolidates
 
