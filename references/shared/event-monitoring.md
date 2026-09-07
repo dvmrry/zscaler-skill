@@ -5,7 +5,7 @@ title: "OneAPI Event Monitoring subscriptions and notification channels"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
 confidence: high
 source-tier: doc
 sources:
@@ -27,7 +27,7 @@ Event Monitoring is a shared OneAPI surface for discovering event catalogs and d
 | `GET` | `/subscriptions/channels/email` | Retrieve email-channel requirements. |
 | `GET` | `/subscriptions/channels/webhook` | Retrieve webhook-channel requirements. |
 | `GET` | `/subscriptions/channels/sns` | Retrieve the Zscaler role ARN, required IAM permissions, and SNS topic-policy template. |
-| `POST` | `/subscriptions/channels/sns/verify` | Verify access to a customer SNS topic. |
+| `POST` | `/subscriptions/channels/sns:verify` | Verify access to a customer SNS topic. |
 
 The generic channel list returns `channels[]` records with `type`, `description`, `required_fields`, and `setup_required` (`vendor/zscaler-api-specs/automate-zscaler/event-monitoring-api-reference.json:1877-1972`). The SNS detail response additionally returns `zscaler_role_arn`, `required_permissions`, and `sns_topic_policy_template` (`vendor/zscaler-api-specs/automate-zscaler/event-monitoring-api-reference.json:1092-1198`).
 

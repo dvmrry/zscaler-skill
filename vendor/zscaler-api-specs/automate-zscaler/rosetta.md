@@ -23,167 +23,171 @@ generator: "scripts/automate-capture/rosetta.py"
 
 This section carries true operation additions/removals, route corrections, and field-level body drift from the latest Automate snapshot comparison into the cross-surface view. Schema annotations and product titles are public-documentation metadata; their drift does not by itself establish a feature launch, endpoint availability, or tenant entitlement.
 
-### Retained publication absences
-
-The following last-known contract snapshots are retained even though their products have no operations in the current public route table. This publication state does not establish endpoint retirement or backend unavailability. Publication-absent rows report zero true removals below.
-
-- `aiguard`: 47 last-known operations retained (`absent-from-current-public-route-table`).
-
 | product | publication | current/previous ops | added | removed | route Δ | route-key Δ | schema Δ | schema annotation Δ | product metadata Δ | request +/−/Δ | response +/−/Δ |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `ai-security` | `current-public-route-table` | 108/11 | 97 | 0 | 0 | 11 | 7 | 2 | 1 | 0/0/0 | 0/2/8 |
-| `aiguard` | `absent-from-current-public-route-table` | 0/47 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zdx` | `current-public-route-table` | 148/148 | 0 | 0 | 0 | 0 | 20 | 20 | 1 | 0/0/0 | 0/0/0 |
+| `ai-security` | `current-public-route-table` | 114/108 | 10 | 4 | 0 | 0 | 7 | 6 | 0 | 0/0/0 | 58/10/10 |
+| `aiguard` | `current-public-route-table` | 47/47 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `easm` | `current-public-route-table` | 11/11 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `event-monitoring` | `current-public-route-table` | 15/15 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `urbac` | `current-public-route-table` | 6/0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `zcc` | `current-public-route-table` | 50/54 | 0 | 4 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zcell` | `current-public-route-table` | 36/36 | 1 | 1 | 0 | 24 | 10 | 1 | 1 | 1/0/1 | 8/1/1 |
+| `zcloudconnector` | `current-public-route-table` | 165/165 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zdx` | `current-public-route-table` | 148/148 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zia` | `current-public-route-table` | 469/471 | 0 | 2 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zid` | `current-public-route-table` | 31/31 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `zpa` | `current-public-route-table` | 220/208 | 12 | 0 | 0 | 0 | 8 | 0 | 1 | 0/0/0 | 0/0/0 |
 
 ### `ai-security` changes
 
-- Product metadata `title` values: added `AI Red Teaming`; retained `AI Infrastructure`; current operation distribution `AI Infrastructure`=11, `AI Red Teaming`=97.
-- Route-key rename: `ai-security/aisecurity/datastores/datastores-list-datastores` → `ai-security/aisecurity/v1-assets-datastores/datastores-list-datastores`; method/path unchanged.
-- Schema: `GET /v1/assets/datastores` — `response_schema` +0 −0 Δ1.
-- Route-key rename: `ai-security/aisecurity/datastores/datastores-get-datastore` → `ai-security/aisecurity/v1-assets-datastores/datastores-get-datastore`; method/path unchanged.
-- Schema: `GET /v1/assets/datastores/{id}` — `response_schema` +0 −0 Δ1.
-- Route-key rename: `ai-security/aisecurity/identities/identities-list-identities` → `ai-security/aisecurity/v1-assets-identities/identities-list-identities`; method/path unchanged.
-- Schema: `GET /v1/assets/identities` — `query_params` +0 −1 Δ0.
-- Route-key rename: `ai-security/aisecurity/identities/identities-get-identity` → `ai-security/aisecurity/v1-assets-identities/identities-get-identity`; method/path unchanged.
-- Route-key rename: `ai-security/aisecurity/mcp-servers/mcp-servers-list-mcp-servers` → `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-list-mcp-servers`; method/path unchanged.
-- Schema: `GET /v1/assets/mcpservers` — `query_params` +0 −0 Δ2; `response_schema` +0 −1 Δ2; schema titles Δ1.
-- Route-key rename: `ai-security/aisecurity/mcp-servers/mcp-servers-get-mcp-server` → `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server`; method/path unchanged.
-- Schema: `GET /v1/assets/mcpservers/{id}` — `response_schema` +0 −1 Δ2; schema titles Δ1.
-- Route-key rename: `ai-security/aisecurity/mcp-servers/mcp-servers-get-mcp-server-tools` → `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server-tools`; method/path unchanged.
-- Route-key rename: `ai-security/aisecurity/workloads/workloads-list-workloads` → `ai-security/aisecurity/v1-assets-workloads/workloads-list-workloads`; method/path unchanged.
-- Schema: `GET /v1/assets/workloads` — `response_schema` +0 −0 Δ1.
-- Route-key rename: `ai-security/aisecurity/workloads/workloads-get-workload` → `ai-security/aisecurity/v1-assets-workloads/workloads-get-workload`; method/path unchanged.
-- Schema: `GET /v1/assets/workloads/{id}` — `response_schema` +0 −0 Δ1.
-- Route-key rename: `ai-security/aisecurity/issues/issues-list-issues` → `ai-security/aisecurity/v1-issues/issues-list-issues`; method/path unchanged.
-- Route-key rename: `ai-security/aisecurity/issues/issues-get-issue` → `ai-security/aisecurity/v1-issues/issues-get-issue`; method/path unchanged.
-- Added: `POST /api/v2/ai-apps/create` (`ai-security/airedteaming/aiapp/ai-app-resource-create-ai-app`).
-- Added: `DELETE /api/v2/ai-apps/{aiAppId}` (`ai-security/airedteaming/aiapp/ai-app-resource-delete-ai-app`).
-- Added: `POST /api/v2/ai-apps/{aiAppId}/duplicate` (`ai-security/airedteaming/aiapp/ai-app-resource-duplicate-ai-app`).
-- Added: `GET /api/v2/ai-apps/{aiAppId}` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app`).
-- Added: `GET /api/v2/ai-apps/{aiAppId}/latest-probe-runs` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-latest-probe-runs`).
-- Added: `POST /api/v2/ai-apps/{aiAppId}/risk-level-timeseries` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-risk-level-timeseries`).
-- Added: `GET /api/v2/ai-apps/{aiAppId}/settings` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-settings`).
-- Added: `GET /api/v2/ai-apps/{aiAppId}/test-run-metrics` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-test-run-metrics`).
-- Added: `GET /api/v2/ai-apps/{aiAppId}/available-probes` (`ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-available-probes`).
-- Added: `GET /api/v2/ai-apps/{aiAppId}/test-run-available-probes` (`ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-run-available-probes`).
-- Added: `POST /api/v2/ai-apps/{aiAppId}/test-runs` (`ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-runs`).
-- Added: `POST /api/v2/ai-apps` (`ai-security/airedteaming/aiapp/ai-app-resource-list-ai-apps`).
-- Added: `PUT /api/v2/ai-apps/{aiAppId}` (`ai-security/airedteaming/aiapp/ai-app-resource-update-ai-app`).
-- Added: `POST /api/v2/ai-app/test-integration/agentforce` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-agentforce-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/anthropic` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-anthropic-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/azure-bot` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-bot-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/azure-ml` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-ml-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/azure-openai` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-open-ai-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/bedrock` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-bedrock-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/copilot-studio` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-copilot-studio-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/databricks` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-databricks-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/gemini` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-gemini-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/glean` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-glean-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/hugging-face` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-hugging-face-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/mistral` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-mistral-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/openai-assistant` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-open-ai-assistant-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/openai` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-open-ai-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/openai-rest-api` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-open-ai-rest-api-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/proxy-sdk` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-proxy-sdk-integration`).
-- Added: `POST /api/v2/ai-app/test-integration/rest-api` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-rest-api-integration`).
-- Added: `GET /api/v2/business-units` (`ai-security/airedteaming/businessunit/business-unit-resource-list-business-units`).
-- Added: `POST /api/v2/files/business-unit/{businessUnitId}/upload-custom-dataset` (`ai-security/airedteaming/file/file-resource-upload-custom-dataset`).
-- Added: `POST /api/v2/files/upload` (`ai-security/airedteaming/file/file-resource-upload-file`).
-- Added: `POST /api/v2/files/business-unit/{businessUnitId}/upload-qa-file` (`ai-security/airedteaming/file/file-resource-upload-qa-file`).
-- Added: `GET /api/v2/model-benchmarks/compare/{id1}/{id2}` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-compare-benchmark-models`).
-- Added: `POST /api/v2/model-benchmarks/request` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-create-benchmark-request`).
-- Added: `GET /api/v2/model-benchmarks/{id}` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-get-benchmark-model`).
-- Added: `GET /api/v2/model-benchmarks/{id}/runs/{probeId}/{benchmarkTypeId}` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-get-benchmark-probe-run`).
-- Added: `GET /api/v2/model-benchmarks/runs/{probeRunId}/test-case-filter-options` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-get-benchmark-probe-run-filter-options`).
-- Added: `GET /api/v2/model-benchmarks/results/{id}` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-get-benchmark-probe-run-result`).
-- Added: `GET /api/v2/model-benchmarks/categories` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-benchmark-categories`).
-- Added: `GET /api/v2/model-benchmarks/{id}/runs` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-benchmark-model-runs`).
-- Added: `POST /api/v2/model-benchmarks/{id}/runs/{probeId}/{benchmarkTypeId}/test-cases` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-benchmark-probe-run-test-cases`).
-- Added: `GET /api/v2/model-benchmarks/types` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-benchmark-types`).
-- Added: `POST /api/v2/model-benchmarks` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-model-benchmarks`).
-- Added: `GET /api/v2/probes/{probeId}` (`ai-security/airedteaming/probe/probe-resource-get-probe-definition`).
-- Added: `GET /api/v2/probes/all-available-probes` (`ai-security/airedteaming/probe/probe-resource-list-all-available-probes`).
-- Added: `POST /api/v2/ai-apps/{aiAppId}/probe-settings` (`ai-security/airedteaming/probeconfiguration/probe-configuration-resource-create-probe-settings`).
-- Added: `GET /api/v2/ai-apps/{aiAppId}/probe-settings/{probeConfigurationId}` (`ai-security/airedteaming/probeconfiguration/probe-configuration-resource-get-probe-settings`).
-- Added: `GET /api/v2/ai-apps/{aiAppId}/probe-settings` (`ai-security/airedteaming/probeconfiguration/probe-configuration-resource-list-probe-settings`).
-- Added: `PATCH /api/v2/ai-apps/{aiAppId}/probe-settings/{probeConfigurationId}` (`ai-security/airedteaming/probeconfiguration/probe-configuration-resource-update-probe-settings`).
-- Added: `GET /api/v2/probe-runs/{probeRunId}/ai-analysis-results` (`ai-security/airedteaming/proberun/probe-run-resource-get-probe-run-ai-analysis-results`).
-- Added: `GET /api/v2/probe-runs/{probeRunId}` (`ai-security/airedteaming/proberun/probe-run-resource-get-probe-run-details`).
-- Added: `GET /api/v2/probe-runs/{probeRunId}/test-case-filter-options` (`ai-security/airedteaming/proberun/probe-run-resource-get-probe-run-test-case-filter-options`).
-- Added: `POST /api/v2/probe-runs/{probeRunId}/test-cases` (`ai-security/airedteaming/proberun/probe-run-resource-list-probe-run-test-cases`).
-- Added: `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}/export-json-policy` (`ai-security/airedteaming/remediation/remediation-resource-export-policy-as-json`).
-- Added: `GET /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/{promptHardeningId}` (`ai-security/airedteaming/remediation/remediation-resource-get-ai-app-prompt-hardening-by-id`).
-- Added: `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/latest` (`ai-security/airedteaming/remediation/remediation-resource-get-latest-policy-generator`).
-- Added: `GET /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/latest` (`ai-security/airedteaming/remediation/remediation-resource-get-latest-prompt-hardening`).
-- Added: `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}` (`ai-security/airedteaming/remediation/remediation-resource-get-policy-generator-by-id`).
-- Added: `POST /api/v2/remediation/policy-generator/metrics` (`ai-security/airedteaming/remediation/remediation-resource-get-policy-generator-dashboard-metrics`).
-- Added: `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}/detector` (`ai-security/airedteaming/remediation/remediation-resource-get-policy-generator-detector`).
-- Added: `GET /api/v2/remediation/prompt-hardening/{promptHardeningId}` (`ai-security/airedteaming/remediation/remediation-resource-get-prompt-hardening-by-id`).
-- Added: `POST /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}/import` (`ai-security/airedteaming/remediation/remediation-resource-import-policy-to-guardrail`).
-- Added: `POST /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/history` (`ai-security/airedteaming/remediation/remediation-resource-list-ai-app-policy-generator-history`).
-- Added: `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/available-probes` (`ai-security/airedteaming/remediation/remediation-resource-list-policy-generator-available-probes`).
-- Added: `POST /api/v2/remediation/policy-generator/history` (`ai-security/airedteaming/remediation/remediation-resource-list-policy-generator-history`).
-- Added: `POST /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/history` (`ai-security/airedteaming/remediation/remediation-resource-list-prompt-hardening-history`).
-- Added: `PUT /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}/mark-as-applied` (`ai-security/airedteaming/remediation/remediation-resource-mark-policy-as-applied`).
-- Added: `POST /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/trigger` (`ai-security/airedteaming/remediation/remediation-resource-trigger-policy-generation`).
-- Added: `POST /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/{promptHardeningId}/state` (`ai-security/airedteaming/remediation/remediation-resource-update-ai-app-prompt-hardening-state`).
-- Added: `PUT /api/v2/remediation/prompt-hardening/{promptHardeningId}` (`ai-security/airedteaming/remediation/remediation-resource-update-prompt-hardening-state`).
-- Added: `GET /api/v2/reports/ai-app-overview/{aiAppId}` (`ai-security/airedteaming/report/report-resource-generate-ai-app-overview-report`).
-- Added: `GET /api/v2/reports/benchmark-overview/{modelId}` (`ai-security/airedteaming/report/report-resource-generate-benchmark-overview-report`).
-- Added: `GET /api/v2/reports/test-run-overview/{testRunId}` (`ai-security/airedteaming/report/report-resource-generate-test-run-overview-report`).
-- Added: `POST /api/v2/scheduled-test-runs/schedule-new` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-create-scheduled-test-run`).
-- Added: `DELETE /api/v2/scheduled-test-runs/{scheduledTestRunId}` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-delete-scheduled-test-run`).
-- Added: `GET /api/v2/scheduled-test-runs/{scheduledTestRunId}` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-get-scheduled-test-run`).
-- Added: `POST /api/v2/scheduled-test-runs` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-list-scheduled-test-runs`).
-- Added: `PUT /api/v2/scheduled-test-runs/{scheduledTestRunId}` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-update-scheduled-test-run`).
-- Added: `PUT /api/v2/scheduled-test-runs/{scheduledTestRunId}/status` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-update-scheduled-test-run-status`).
-- Added: `GET /api/v2/test-cases/{testCaseResultId}` (`ai-security/airedteaming/testcaseresult/test-case-result-resource-get-test-case-result`).
-- Added: `PUT /api/v2/test-cases/{testCaseResultId}/include-in-report` (`ai-security/airedteaming/testcaseresult/test-case-result-resource-set-test-case-include-in-report`).
-- Added: `POST /api/v2/test-runs/{testRunId}/cancel-test-run` (`ai-security/airedteaming/testrun/test-run-resource-cancel-test-run`).
-- Added: `POST /api/v2/test-runs/{testRunId}/continue` (`ai-security/airedteaming/testrun/test-run-resource-continue-test-run`).
-- Added: `DELETE /api/v2/test-runs/{testRunId}` (`ai-security/airedteaming/testrun/test-run-resource-delete-test-run`).
-- Added: `GET /api/v2/test-runs/{testRunId}` (`ai-security/airedteaming/testrun/test-run-resource-get-test-run`).
-- Added: `GET /api/v2/test-runs/{testRunId}/probe-categories` (`ai-security/airedteaming/testrun/test-run-resource-list-test-run-probe-categories`).
-- Added: `POST /api/v2/test-runs/{testRunId}/probe-run-details` (`ai-security/airedteaming/testrun/test-run-resource-list-test-run-probe-run-details`).
-- Added: `POST /api/v2/test-runs/{testRunId}/probe-runs` (`ai-security/airedteaming/testrun/test-run-resource-list-test-run-probe-runs`).
-- Added: `POST /api/v2/test-runs/history` (`ai-security/airedteaming/testrun/test-run-resource-list-test-runs`).
-- Added: `PUT /api/v2/test-runs/{testRunId}` (`ai-security/airedteaming/testrun/test-run-resource-update-test-run`).
-- Added: `POST /api/v2/remediation/assets/prompt-hardening/start-new` (`ai-security/airedteaming/trigger/trigger-resource-start-new-asset-prompt-hardening`).
-- Added: `POST /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/trigger` (`ai-security/airedteaming/trigger/trigger-resource-trigger-ai-app-prompt-hardening`).
-- Added: `POST /api/v2/test-runs/trigger-new-run` (`ai-security/airedteaming/trigger/trigger-resource-trigger-new-test-run`).
-- Added: `POST /api/v2/probe-run/{probeRunId}/ai-analysis/trigger` (`ai-security/airedteaming/trigger/trigger-resource-trigger-probe-run-ai-analysis`).
-- Added: `POST /api/v2/remediation/prompt-hardening/trigger` (`ai-security/airedteaming/trigger/trigger-resource-trigger-prompt-hardening`).
+- Schema: `GET /v1/assets/identities/{id}` — `response_schema` +22 −1 Δ2; schema titles Δ11.
+- Schema: `GET /v1/assets/identities` — `query_params` +6 −0 Δ1; `response_schema` +8 −1 Δ2; schema titles Δ3.
+- Schema: `GET /v1/assets/mcpservers/{id}` — `response_schema` +25 −3 Δ2; schema titles Δ14.
+- Schema: `GET /v1/assets/mcpservers/{id}/tools` — `query_params` +4 −0 Δ0.
+- Schema: `GET /v1/assets/mcpservers` — `query_params` +2 −0 Δ2; `response_schema` +1 −3 Δ2; schema titles Δ1.
+- Schema: `GET /v1/issues/{id}` — `response_schema` +1 −1 Δ1; schema titles Δ2.
+- Schema: `GET /v1/issues` — `query_params` +4 −0 Δ2; `response_schema` +1 −1 Δ1; schema titles Δ3.
+- Removed from capture: `GET /v1/assets/datastores/{id}` (`ai-security/aisecurity/v1-assets-datastores/datastores-get-datastore`).
+- Removed from capture: `GET /v1/assets/datastores` (`ai-security/aisecurity/v1-assets-datastores/datastores-list-datastores`).
+- Removed from capture: `GET /v1/assets/workloads/{id}` (`ai-security/aisecurity/v1-assets-workloads/workloads-get-workload`).
+- Removed from capture: `GET /v1/assets/workloads` (`ai-security/aisecurity/v1-assets-workloads/workloads-list-workloads`).
+- Added: `GET /v1/assets/agents/{id}` (`ai-security/aisecurity/v1-assets-agents/agents-get-agent`).
+- Added: `GET /v1/assets/agents` (`ai-security/aisecurity/v1-assets-agents/agents-list-agents`).
+- Added: `GET /v1/resources/coderepositories/{id}` (`ai-security/aisecurity/v1-resources-coderepositories/code-repositories-get-code-repository`).
+- Added: `GET /v1/resources/coderepositories` (`ai-security/aisecurity/v1-resources-coderepositories/code-repositories-list-code-repositories`).
+- Added: `GET /v1/resources/datastores/{id}` (`ai-security/aisecurity/v1-resources-datastores/datastores-get-datastore`).
+- Added: `GET /v1/resources/datastores` (`ai-security/aisecurity/v1-resources-datastores/datastores-list-datastores`).
+- Added: `GET /v1/resources/guardrails/{id}` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-get-guardrail`).
+- Added: `GET /v1/resources/guardrails` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-list-guardrails`).
+- Added: `GET /v1/resources/workloads/{id}` (`ai-security/aisecurity/v1-resources-workloads/workloads-get-workload`).
+- Added: `GET /v1/resources/workloads` (`ai-security/aisecurity/v1-resources-workloads/workloads-list-workloads`).
+
+### `aiguard` changes
+
+- Route: `POST /v1/detections/policies/{id}/disable` → `POST /v1/detections/policies/{id}:disable`.
+- Route: `POST /v1/detections/policies/{id}/enable` → `POST /v1/detections/policies/{id}:enable`.
+- Route: `GET /v1/detections/policies/{id}/referential-check` → `GET /v1/detections/policies/{id}:referential-check`.
+- Route: `GET /v1/llm-application-credentials/{id}/referential-check` → `GET /v1/llm-application-credentials/{id}:referential-check`.
+- Route: `POST /v1/llm-application-credentials/{id}/regenerate` → `POST /v1/llm-application-credentials/{id}:regenerate`.
+- Route: `GET /v1/llm-applications/{id}/referential-check` → `GET /v1/llm-applications/{id}:referential-check`.
+- Route: `GET /v1/llm-provider-credentials/{id}/referential-check` → `GET /v1/llm-provider-credentials/{id}:referential-check`.
+- Route: `GET /v1/llm-providers/{id}/referential-check` → `GET /v1/llm-providers/{id}:referential-check`.
+
+### `easm` changes
+
+- Product metadata `title`: `Zscaler External Attack Surface Management API` → `External Attack Surface Management API`.
+
+### `event-monitoring` changes
+
+- Route: `POST /subscriptions/channels/sns/verify` → `POST /subscriptions/channels/sns:verify`.
+
+### `urbac` changes
+
+- Added: `POST /v1/auditlog/query` (`urbac/auditlogs/audit-log-resource-search-logs`).
+- Added: `POST /v1/roles` (`urbac/roles/urbac-resource-create-role`).
+- Added: `DELETE /v1/roles/{roleId}` (`urbac/roles/urbac-resource-delete-role`).
+- Added: `GET /v1/roles/{roleId}` (`urbac/roles/urbac-resource-get-role`).
+- Added: `POST /v1/roles/query` (`urbac/roles/urbac-resource-get-roles`).
+- Added: `PUT /v1/roles/{roleId}` (`urbac/roles/urbac-resource-update-role`).
+
+### `zcc` changes
+
+- Product metadata `title`: `Zscaler Client Connector API` → `Client Connector API`.
+- Removed from capture: `DELETE /papi/cred/v1/delete` (`zcc/credential-controller/deletes-api-credentials-for-the-company`).
+- Removed from capture: `GET /papi/cred/v1/getList` (`zcc/credential-controller/gets-the-list-of-api-credentials`).
+- Removed from capture: `POST /papi/cred/v1/save` (`zcc/credential-controller/saves-api-credentials-for-the-company`).
+- Removed from capture: `PUT /papi/cred/v1/update` (`zcc/credential-controller/updates-api-credentials-for-the-company`).
+
+### `zcell` changes
+
+- Product metadata `title`: `Zscaler Cellular API` → `Cellular API`.
+- Schema: `POST /api/v1/network-events/{id}/search/startTime/{startTime}/endTime/{endTime}` — `response_schema` +8 −0 Δ0.
+- Schema: `GET /api/v1/customers/{id}/sim-location-groups` — `query_params` +0 −0 Δ2.
+- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-delete-policy` → `zcell/anomaly-policies/anomaly-policy-resource-delete-policy`; method/path unchanged.
+- Route-key rename: `zcell/customer-data-handling/customer-resource-get-by-zs-tid` → `zcell/customer-management/customer-resource-get-by-zs-tid`; method/path unchanged.
+- Schema: `GET /api/v1/customers/{id}` — `response_schema` +0 −0 Δ1; schema titles Δ12.
+- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-get-all-anomaly-policies` → `zcell/anomaly-policies/anomaly-policy-resource-get-all-anomaly-policies`; method/path unchanged.
+- Schema: `GET /api/v1/customers/{id}/anomaly-policy` — `query_params` +0 −0 Δ2.
+- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-get-anomaly-policy-logs` → `zcell/anomaly-policies/anomaly-policy-resource-get-anomaly-policy-logs`; method/path unchanged.
+- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-get-violated-iccids` → `zcell/anomaly-policies/anomaly-policy-resource-get-violated-iccids`; method/path unchanged.
+- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-get-violation-details-by-iccid` → `zcell/anomaly-policies/anomaly-policy-resource-get-violation-details-by-iccid`; method/path unchanged.
+- Schema: `GET /api/v1/customers/{id}/anomaly-policy/{policyId}/violations/{iccid}` — `query_params` +0 −0 Δ2.
+- Route-key rename: `zcell/customer-region-handling/region-resource-get-assigned-regions-by-zs-tid` → `zcell/customer-regions/region-resource-get-assigned-regions-by-zs-tid`; method/path unchanged.
+- Route-key rename: `zcell/customer-region-handling/region-resource-get-region-operational-status-by-zs-tid` → `zcell/customer-regions/region-resource-get-region-operational-status-by-zs-tid`; method/path unchanged.
+- Route-key rename: `zcell/sim-handling/sim-resource-get-sim-details-by-icc-id` → `zcell/sim-management/sim-resource-get-sim-details-by-icc-id`; method/path unchanged.
+- Route-key rename: `zcell/tag-handling/tag-resource-get-all-tags` → `zcell/tag-management/tag-resource-get-all-tags`; method/path unchanged.
+- Schema: `GET /api/v1/customers/{id}/tag` — `query_params` +0 −0 Δ2; `response_schema` +0 −1 Δ0.
+- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-update-policy` → `zcell/anomaly-policies/anomaly-policy-resource-update-policy`; method/path unchanged.
+- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-update-policy-status` → `zcell/anomaly-policies/anomaly-policy-resource-update-policy-status`; method/path unchanged.
+- Route-key rename: `zcell/sim-handling/sim-resource-assign-tag` → `zcell/sim-management/sim-resource-assign-tag`; method/path unchanged.
+- Route-key rename: `zcell/sim-handling/sim-resource-lock-sims` → `zcell/sim-management/sim-resource-lock-sims`; method/path unchanged.
+- Schema: `PATCH /api/v1/customers/{id}/sims/lock` — `request_body` +1 −0 Δ1.
+- Route-key rename: `zcell/sim-handling/sim-resource-update-sim-status` → `zcell/sim-management/sim-resource-update-sim-status`; method/path unchanged.
+- Route-key rename: `zcell/sim-handling/sim-resource-assign-esim` → `zcell/sim-management/sim-resource-assign-esim`; method/path unchanged.
+- Route-key rename: `zcell/sim-handling/sim-resource-refresh-esim-state` → `zcell/sim-management/sim-resource-refresh-esim-state`; method/path unchanged.
+- Route-key rename: `zcell/audit-data-handling/audit-resource-get-audit-log` → `zcell/audit-logs/audit-resource-get-audit-log`; method/path unchanged.
+- Schema: `POST /api/v1/audit/customers/{id}/search` — `query_params` +0 −0 Δ2.
+- Route-key rename: `zcell/anomaly-policy/anomaly-policy-resource-create-policy` → `zcell/anomaly-policies/anomaly-policy-resource-create-policy`; method/path unchanged.
+- Route-key rename: `zcell/sim-handling/sim-resource-download-sims-csv` → `zcell/sim-management/sim-resource-download-sims-csv`; method/path unchanged.
+- Schema: `POST /api/v1/customers/{id}/sims/download` — `query_params` +0 −0 Δ2.
+- Route-key rename: `zcell/sim-handling/sim-resource-get-all-sims` → `zcell/sim-management/sim-resource-get-all-sims`; method/path unchanged.
+- Schema: `POST /api/v1/customers/{id}/sims/search` — `query_params` +0 −0 Δ2.
+- Route-key rename: `zcell/tag-handling/tag-resource-create-tag` → `zcell/tag-management/tag-resource-create-tag`; method/path unchanged.
+- Route-key rename: `zcell/customer-data-handling/customer-resource-activate-customer` → `zcell/customer-management/customer-resource-activate-customer`; method/path unchanged.
+- Route-key rename: `zcell/customer-region-handling/region-resource-deploy-regions` → `zcell/customer-regions/region-resource-deploy-regions`; method/path unchanged.
+- Removed from capture: `GET /api/v1/audit/metadata` (`zcell/audit-data-handling/audit-resource-get-audit-metadata`).
+- Added: `GET /api/v1/customers/{id}/sims/{iccid}/tower-locations` (`zcell/sim-management/sim-resource-get-tower-location-history`).
+
+### `zcloudconnector` changes
+
+- Product metadata `title`: `Zscaler Cloud & Branch Connector API` → `Cloud & Branch Connector API`.
 
 ### `zdx` changes
 
-- Product metadata `title` values: added `Digital Experience API`; retained `Zscaler Digital Experience API`; current operation distribution `Digital Experience API`=146, `Zscaler Digital Experience API`=2.
-- Schema: `POST /v1/config/applications/{aid}/monitors` — discriminator mappings +WEB across 9 schema location(s); schema titles Δ28.
-- Schema: `POST /v1/config/applications/{app}/monitors` — discriminator mappings +WEB across 9 schema location(s); schema titles Δ28.
-- Schema: `DELETE /v1/config/applications/{aid}/monitors/{mid}` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `DELETE /v1/config/applications/{app}/monitors/{mid}` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/applications/{aid}/monitors/{mid}` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/applications/{aid}/monitors/{mid}/summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/applications/{app}/monitors/{mid}` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/applications/{app}/monitors/{mid}/summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/applications/{aid}/monitors/summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/applications/{aid}/monitors` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/applications/{app}/monitors/summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/applications/{app}/monitors` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `PUT /v1/config/applications/{aid}/monitors/{mid}` — discriminator mappings +WEB across 5 schema location(s); schema titles Δ16.
-- Schema: `PUT /v1/config/applications/{app}/monitors/{mid}` — discriminator mappings +WEB across 5 schema location(s); schema titles Δ16.
-- Schema: `DELETE /v1/config/monitors/{mid}` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/monitors/{mid}` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/monitors/{mid}/summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/monitors/summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `GET /v1/config/monitors` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12.
-- Schema: `PUT /v1/config/monitors/{mid}` — discriminator mappings +WEB across 5 schema location(s); schema titles Δ16.
+- Product metadata `title` values: removed `Zscaler Digital Experience API`; retained `Digital Experience API`; current operation distribution `Digital Experience API`=148.
+
+### `zia` changes
+
+- Product metadata `title`: `Zscaler Internet Access API` → `Internet Access API`.
+- Removed from capture: `POST /zscsb/submit` (`zia/sandbox-submission-api/submit-file`).
+- Removed from capture: `POST /zscsb/discan` (`zia/sandbox-submission-api/submit-file-for-scan`).
+
+### `zid` changes
+
+- Route: `POST /users/{id}/setskipmfa` → `POST /users/{id}:setskipmfa`.
+- Route: `POST /users/{id}/resetpassword` → `POST /users/{id}:resetpassword`.
+- Route: `PUT /users/{id}/updatepassword` → `PUT /users/{id}:updatepassword`.
+
+### `zpa` changes
+
+- Product metadata `title`: `Zscaler Private Access API` → `Private Access API`.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/appConnectorGroup` — `query_params` +1 −0 Δ0.
+- Schema: `POST /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — `query_params` +1 −0 Δ0.
+- Schema: `DELETE /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `query_params` +1 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey` — `query_params` +1 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `query_params` +1 −0 Δ0.
+- Schema: `PUT /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}` — `query_params` +1 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/serviceEdgeGroup` — `query_params` +1 −0 Δ0.
+- Schema: `GET /mgmtconfig/v1/admin/customers/{customerId}/visible/versionProfiles` — `query_params` +3 −0 Δ0.
+- Added: `PUT /mgmtconfig/v1/customers/{customerId}/application/federate` (`zpa/federate-applications/federate-application`).
+- Added: `GET /mgmtconfig/v1/customers/{customerId}/application/host/{host_id}` (`zpa/federate-applications/get-federated-applications-from-host`).
+- Added: `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token` (`zpa/partner-federation-provisioning/create-federation-token`).
+- Added: `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}` (`zpa/partner-federation-provisioning/delete-provisioning`).
+- Added: `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation/partners` (`zpa/partner-federation-provisioning/get-active-federation-partners`).
+- Added: `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation` (`zpa/partner-federation-provisioning/get-provisionings`).
+- Added: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/approval` (`zpa/partner-federation-provisioning/request-approval`).
+- Added: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/federation-state/{status}` (`zpa/partner-federation-provisioning/update-federation-state`).
+- Added: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/notes` (`zpa/partner-federation-provisioning/update-notes`).
+- Added: `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/provisioning-state/{status}` (`zpa/partner-federation-provisioning/update-provisioning-state`).
+- Added: `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token/verify` (`zpa/partner-federation-provisioning/verify-token`).
+- Added: `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` (`zpa/policies-for-b2b-federation/get-partner-policy-rules-on-federated-apps`).
 
 ## Boundaries
 
 - Postman: reference-only; not a constraint-bearing reconciliation leg.
 - Contract-only products:
-  - `ai-security` (AI Security): 108 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
-  - `aiguard` (AI Guard): 47 retained last-known operations; `absent-from-current-public-route-table`; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
+  - `ai-security` (AI Security): 114 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
+  - `aiguard` (AI Guard): 47 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `bi` (Business Insights): 10 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `easm` (EASM): 11 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
   - `event-monitoring` (Event Monitoring): 15 captured operations; Contract captured, but DAV-21 did not establish a multi-surface reconciliation footprint.
@@ -1127,6 +1131,7 @@ The following last-known contract snapshots are retained even though their produ
 | `numberOfApplications` |  | ✓ | ✓ | **—** | **—** | **—** | **—** |
 | `order` | Order of execution of rule with respect to other Web Application rules | ✓ | ✓ | ✓ | **✓ req** | ✓ | ✓ |
 | `predefined` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `promptCaptureEnabled` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `rank` | Admin rank of the admin who creates this rule | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `ruleType` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
 | `sharingDomainProfiles` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
@@ -2042,7 +2047,7 @@ The following last-known contract snapshots are retained even though their produ
 | `enableChatGptPrompt` | A Boolean value indicating if the use of generative AI prompts with ChatGPT by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableCipaCompliance` |  | **—** | **—** | **—** | **—** | ✓ | **—** |
 | `enableClaudePrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `enableCreativeCommonsSearchResults` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
+| `enableCreativeCommonsSearchResults` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `enableDeepSeekPrompt` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `enableDynamicContentCat` | A Boolean value that indicates if dynamic categorization of URLs by analyzing content of uncategorized websites using AI/ML tools is enabled or not. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `enableGeminiPrompt` | A Boolean value indicating if the use of generative AI prompts with Google Gemini by users should be categorized and logged | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
@@ -2201,56 +2206,56 @@ The following last-known contract snapshots are retained even though their produ
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `city` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `cityCountry` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `connectorGroupType` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `city` | The city of the App Connector group. | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `cityCountry` | The city and country of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `connectorGroupType` | Indicates if the App Connector group is an App Connector (APP) or Network Connector (NP). | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `connectorIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `connectors` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `countryCode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `dcHostingInfo` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `dnsQueryType` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `countryCode` | The country code of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `creationTime` | The time the App Connector group is created. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `dcHostingInfo` | Indicates the host data center information using a maximum of 64 characters. The Data Center Hosting information is used for the Quarterly Business Review Insights. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `description` | The description of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `dnsQueryType` | Whether IPv4, IPv6, or both, are enabled for DNS resolution of all applications in the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` | Whether or not this App Connector group is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `enrollmentCertId` |  | **—** | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `enrollmentCertName` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `geoLocationId` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `ipAcl` |  | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `latitude` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `location` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `longitude` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `lssAppConnectorGroup` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `geoLocationId` | The unique identifier of the geographic location. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `id` | The unique identifier of the App Connector group. | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `ipAcl` | The IP Access List (IP ACL) to allow App Connectors on a specific IP address or subnet. | ✓ | **—** | ✓ | **—** | **—** | **—** |
+| `latitude` | The latitude of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `location` | The location of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `longitude` | The longitude of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `lssAppConnectorGroup` | Whether or not the App Connector group is configured to stream logs to a log receiver. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `microtenantId` | The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` | The name of the Microtenant. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` | The unique identifier of the tenant who modified the App Connector group. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` | The time the App Connector group is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` | The name of the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `nameWithoutTrim` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `npAssistantGroup` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `overrideVersionProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `overrideVersionProfile` | Whether or not the default version profile of the App Connector group is applied. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `praEnabled` | praEnabled | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `privateCloudId` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `readOnly` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `restrictionType` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 | `serverGroupIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
 | `serverGroups` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteId` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `tcpQuickAckApp` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `tcpQuickAckAssistant` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `tcpQuickAckReadAssistant` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `upgradeDay` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `siteId` | The unique identifier of the Private Cloud to which this App Connector group belongs to. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `siteName` | The name of the Private Cloud. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `tcpQuickAckApp` | Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `tcpQuickAckAssistant` | Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `tcpQuickAckReadAssistant` | Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `upgradeDay` | Indicates the day the App Connectors in this group attempt to update to a newer version of the software. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
 | `upgradePriority` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `upgradeTimeInSecs` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `upgradeTimeInSecs` | App Connectors in this group attempt to update to a newer version of the software during this specified time. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `useInDrMode` | use_in_dr_mode | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `userCodes` |  | **—** | **—** | **—** | ✓ | ✓ | **—** |
 | `version` |  | **—** | **—** | ✓ | **—** | **—** | **—** |
 | `versionProfile` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `versionProfileId` |  | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | **—** |
+| `versionProfileId` | The unique identifier of the version profile. | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | **—** |
 | `versionProfileName` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | **—** |
 | `versionProfileVisibilityScope` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `wafDisabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `wafDisabled` | Whether or not AppProtection is disabled for the App Connector group. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
 | `zscalerManaged` |  | **—** | ✓ | ✓ | **—** | **—** | **—** |
 
 ### `application_segment`
@@ -2675,47 +2680,47 @@ The following last-known contract snapshots are retained even though their produ
 
 | field | description | contract | go | python | tf | ansible | mcp |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `altCloud` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `city` |  | ✓ | ✓ | **—** | ✓ | **—** | **—** |
-| `cityCountry` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `countryCode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `creationTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `description` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `altCloud` | The alternative cloud of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `city` | The city of the ZPA Private Service Edge group. | ✓ | ✓ | **—** | ✓ | **—** | **—** |
+| `cityCountry` | The city and country of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `countryCode` | The country code of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `creationTime` | The time the ZPA Private Service Edge group is created. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `description` | The description of the ZPA Private Service Edge. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enabled` | Whether or not this ZPA Private Service Edge group is enabled. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `enrollmentCertId` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
 | `exclusiveForBusinessContinuity` |  | **—** | ✓ | **—** | ✓ | **—** | **—** |
-| `geoLocationId` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `graceDistanceEnabled` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `graceDistanceValue` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
-| `graceDistanceValueUnit` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `id` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `isPublic` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `latitude` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `location` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `longitude` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `microtenantId` |  | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
-| `microtenantName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `modifiedBy` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `modifiedTime` |  | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
-| `name` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `geoLocationId` | The unique identifier for the geographic location of the ZPA Private Service Edge. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `graceDistanceEnabled` | If enabled, allows ZPA Private Service Edge groups within the specified distance to be prioritized over a closer ZPA Public Service Edge. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-redirection-policies-using-api" target= _blank>Configuring Redirection Policies Using API</a>. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `graceDistanceValue` | Indicates the maximum distance in miles or kilometers to ZPA Private Service Edge groups that would override a ZPA Public Service Edge. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-redirection-policies-using-api" target= _blank>Configuring Redirection Policies Using API</a>. | ✓ | **✓ type** | ✓ | ✓ | ✓ | ✓ |
+| `graceDistanceValueUnit` | Indicates the grace distance unit of measure in miles or kilometers. This value is only required if <code>graceDistanceEnabled</code> is set to <code>true</code>. To learn more, see <a href="https://help.zscaler.com/zpa/configuring-redirection-policies-using-api" target= _blank>Configuring Redirection Policies Using API</a>. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `id` | The unique identifier of the ZPA Private Service Edge group. | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `isPublic` | Whether or not the ZPA Private Service Edge group is public. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `latitude` | The latitude of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `location` | The location of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `longitude` | The longitude of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `microtenantId` | The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. | ✓ | **✓ type** | ✓ | ✓ | ✓ | **—** |
+| `microtenantName` | The name of the Microtenant. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `modifiedBy` | The unique identifier of the tenant who modified the ZPA Private Service Edge group. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `modifiedTime` | The time the ZPA Private Service Edge group is modified. | ✓ | **✓ type** | ✓ | **—** | **—** | **—** |
+| `name` | The name of the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `nameWithoutTrim` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `objectType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
-| `overrideVersionProfile` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `overrideVersionProfile` | Whether or not the default version profile of the ZPA Private Service Edge group is applied or overridden. By default, this is set to <code>false</code>. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `readOnly` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `restrictedEntity` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `restrictionType` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `scopeName` |  | **—** | ✓ | **—** | **—** | **—** | **—** |
 | `serviceEdgeIds` |  | **—** | **—** | **—** | **—** | **—** | ✓ |
-| `serviceEdges` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `siteId` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
-| `siteName` |  | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `serviceEdges` | The list of the ZPA Private Service Edges in the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `siteId` | The unique identifier of the Private Cloud to which this ZPA Private Service Edge group belongs to. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
+| `siteName` | The name of the Private Cloud. | ✓ | ✓ | ✓ | **—** | **—** | **—** |
 | `trustedNetworkIds` |  | **—** | **—** | **—** | **—** | ✓ | ✓ |
-| `trustedNetworks` |  | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
-| `upgradeDay` |  | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
+| `trustedNetworks` | The list of trusted networks in the ZPA Private Service Edge group. | ✓ | ✓ | ✓ | ✓ | **—** | **—** |
+| `upgradeDay` | Indicates the day the ZPA Private Service Edges in this group attempt to update to a newer version of the software. | ✓ | ✓ | ✓ | ✓ | **✓ enum1** | ✓ |
 | `upgradePriority` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ | **—** | ✓ | **—** | **—** | **—** |
-| `upgradeTimeInSecs` |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `useInDrMode` |  | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
-| `versionProfileId` |  | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | ✓ |
+| `upgradeTimeInSecs` | Indicates the time in seconds that the Private Service Edges in this group attempt to update to a newer version of the software. | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `useInDrMode` | Whether or not the ZPA Private Service Edge group is designated for disaster recovery. | ✓ | ✓ | ✓ | ✓ | ✓ | **—** |
+| `versionProfileId` | The unique identifier of the version profile. | ✓ | **✓ type** | ✓ | ✓ | **✓ enum1** | ✓ |
 | `versionProfileName` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | ✓ |
 | `versionProfileVisibilityScope` | Only applicable for a GET request. Ignored in PUT/POST/DELETE requests. | ✓ ro | ✓ | ✓ | **✓ enum1 ro** | **—** | **—** |
 | `zscalerManaged` |  | **—** | ✓ | **—** | **—** | **—** | **—** |

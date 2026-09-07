@@ -5,7 +5,7 @@ title: "ZIdentity _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: medium
 source-tier: code
@@ -318,7 +318,7 @@ These are real, source-confirmed ZIdentity surfaces that a snapshot could add �
 | Per-user service entitlements | `/users/{id}/service-entitlements` | Python+Go SDK (read-only) | Which products a user is entitled to (user_entitlement.py:101-102) |
 | Per-user group membership | `/users/{id}/groups` | Python+Go SDK | User→group resolution without scanning every group (vendor/zscaler-sdk-python/zscaler/zid/users.py:378) |
 
-**ZIdentity user-action paths** — Postman uses colon-suffix forms (`/users/{id}:resetpassword`, `/users/{id}:setskipmfa`, `/users/{id}:updatepassword`), while the refreshed Go wrappers send slash forms (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:200-241`). The reconstructed Automate contract also uses slash forms. These actions are mutation operations, not snapshot reads; Python still has no corresponding wrappers. Exact live route acceptance remains open.
+**ZIdentity user-action paths** — Postman uses colon-suffix forms (`/users/{id}:resetpassword`, `/users/{id}:setskipmfa`, `/users/{id}:updatepassword`), and the current Automate publication carries the same colon-suffix paths (`vendor/zscaler-api-specs/automate-zscaler/zid-api-reference.json:5421`, `:5525`, `:5931`). The refreshed Go wrappers still send slash forms (`vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:200-241`). These actions are mutation operations, not snapshot reads; Python still has no corresponding wrappers. Static publication does not establish live route acceptance, which remains open.
 
 ## Wire-format gotchas (ZIdentity-specific)
 

@@ -1,0 +1,2553 @@
+{
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "BearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "bearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "Unified RBAC API reference",
+    "title": "Unified RBAC",
+    "version": "docusaurus-blob-snapshot"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/v1/auditlog/query": {
+      "post": {
+        "description": "Query audit logs",
+        "operationId": "Audit Log Resource Search Logs",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "filters": {
+                    "items": {
+                      "properties": {
+                        "field": {
+                          "description": "allowed fields are roleName and actionId",
+                          "type": "string"
+                        },
+                        "operator": {
+                          "enum": [
+                            "contains",
+                            "equals",
+                            "starts_with",
+                            "gte",
+                            "lte"
+                          ],
+                          "title": "Operator",
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "FilterCriterion",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "limit": {
+                    "default": 50,
+                    "description": "Maximum number of records to return",
+                    "format": "int64",
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "description": "Offset from which to return records",
+                    "format": "int64",
+                    "type": "integer"
+                  },
+                  "sort": {
+                    "items": {
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "order": {
+                          "enum": [
+                            "Asc",
+                            "Desc"
+                          ],
+                          "title": "SortOrder",
+                          "type": "string"
+                        }
+                      },
+                      "title": "SortCriterion",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "title": "AuditLogQueryRequest",
+                "type": "object"
+              }
+            }
+          },
+          "description": "The body type of the operation request or response.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "properties": {
+                          "action": {
+                            "description": "Action performed",
+                            "type": "string"
+                          },
+                          "afterState": {
+                            "additionalProperties": {},
+                            "description": "Resource state after the action",
+                            "type": "object"
+                          },
+                          "beforeState": {
+                            "additionalProperties": {},
+                            "description": "Resource state before the action",
+                            "type": "object"
+                          },
+                          "clientIp": {
+                            "description": "Client IP address",
+                            "type": "string"
+                          },
+                          "durationMs": {
+                            "description": "Duration of the action in milliseconds",
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "errorMessage": {
+                            "description": "Error message if the action failed",
+                            "type": "string"
+                          },
+                          "errorType": {
+                            "description": "Error type if the action failed",
+                            "type": "string"
+                          },
+                          "parameters": {
+                            "additionalProperties": {},
+                            "description": "Action-specific parameters",
+                            "type": "object"
+                          },
+                          "status": {
+                            "description": "Status of the action, e.g. SUCCESS",
+                            "type": "string"
+                          },
+                          "targetMethod": {
+                            "description": "Target method that was invoked",
+                            "type": "string"
+                          },
+                          "tenantId": {
+                            "description": "Tenant identifier",
+                            "type": "string"
+                          },
+                          "timestamp": {
+                            "description": "Timestamp when the action occurred",
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "userId": {
+                            "description": "User identifier",
+                            "type": "string"
+                          }
+                        },
+                        "title": "PaginatedResponseAuditLogDataItem",
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "next_offset": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "results_total": {
+                      "format": "int64",
+                      "type": "integer"
+                    }
+                  },
+                  "title": "PaginatedResponseAuditLog",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The request has succeeded and a new resource has been created as a result."
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "properties": {
+                          "action": {
+                            "description": "Action performed",
+                            "type": "string"
+                          },
+                          "afterState": {
+                            "additionalProperties": {},
+                            "description": "Resource state after the action",
+                            "type": "object"
+                          },
+                          "beforeState": {
+                            "additionalProperties": {},
+                            "description": "Resource state before the action",
+                            "type": "object"
+                          },
+                          "clientIp": {
+                            "description": "Client IP address",
+                            "type": "string"
+                          },
+                          "durationMs": {
+                            "description": "Duration of the action in milliseconds",
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "errorMessage": {
+                            "description": "Error message if the action failed",
+                            "type": "string"
+                          },
+                          "errorType": {
+                            "description": "Error type if the action failed",
+                            "type": "string"
+                          },
+                          "parameters": {
+                            "additionalProperties": {},
+                            "description": "Action-specific parameters",
+                            "type": "object"
+                          },
+                          "status": {
+                            "description": "Status of the action, e.g. SUCCESS",
+                            "type": "string"
+                          },
+                          "targetMethod": {
+                            "description": "Target method that was invoked",
+                            "type": "string"
+                          },
+                          "tenantId": {
+                            "description": "Tenant identifier",
+                            "type": "string"
+                          },
+                          "timestamp": {
+                            "description": "Timestamp when the action occurred",
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "userId": {
+                            "description": "User identifier",
+                            "type": "string"
+                          }
+                        },
+                        "title": "PaginatedResponseAuditLogDataItem",
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "next_offset": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "results_total": {
+                      "format": "int64",
+                      "type": "integer"
+                    }
+                  },
+                  "title": "PaginatedResponseAuditLog",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The request has been accepted for processing, but processing has not yet completed."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "VALIDATION_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "details": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "details"
+                  ],
+                  "title": "Zscaler.Core.ValidationError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The server could not understand the request due to invalid syntax."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "UNAUTHORIZED"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.UnauthorizedError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Access is unauthorized."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "INTERNAL_SERVER_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.InternalServerError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Unified RBAC",
+            "url": "https://api.zsapi.net/urbac/urbac",
+            "variables": {}
+          }
+        ],
+        "tags": [
+          "AuditLogs"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "3c5d085f6d68975f7231c24c71e241040a24ae5ab7109977f3c5915581c3ac95",
+          "chunk_id": 640236,
+          "chunk_url": "https://automate.zscaler.com/assets/js/f0e498f3.c34a2da8.js",
+          "module": 144965
+        },
+        "x-zscaler-docusaurus-extras": {
+          "jsonRequestBodyExample": {
+            "filters": [
+              {
+                "field": "string",
+                "operator": "contains",
+                "value": "string"
+              }
+            ],
+            "limit": 50,
+            "offset": 0,
+            "sort": [
+              {
+                "field": "string",
+                "order": "Asc"
+              }
+            ]
+          },
+          "postman": {
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "raw": ""
+            },
+            "description": {
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "name": "Query audit logs",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "auditlog",
+                "query"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        "x-zscaler-operation-key": "urbac/auditlogs/audit-log-resource-search-logs",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/urbac/auditlogs/audit-log-resource-search-logs"
+      }
+    },
+    "/v1/roles": {
+      "post": {
+        "description": "Create a role",
+        "operationId": "Urbac Resource Create Role",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "actions": {
+                    "description": "Identifier of actions",
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "dataPolicies": {
+                    "description": "Data transformation policies such as obfuscation and time duration",
+                    "items": {
+                      "discriminator": {
+                        "propertyName": "type",
+                        "x-zscaler-inline-mapping": {
+                          "OBFUSCATION": {
+                            "allOf": [
+                              {
+                                "description": "Circular inline schema reference elided: RolePolicy.",
+                                "x-zscaler-circular-ref": "RolePolicy"
+                              }
+                            ],
+                            "properties": {
+                              "attributeDefs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "type": {
+                                "enum": [
+                                  "OBFUSCATION"
+                                ],
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "attributeDefs"
+                            ],
+                            "title": "ObfuscationPolicy",
+                            "type": "object"
+                          },
+                          "TIME_DURATION": {
+                            "allOf": [
+                              {
+                                "description": "Circular inline schema reference elided: RolePolicy.",
+                                "x-zscaler-circular-ref": "RolePolicy"
+                              }
+                            ],
+                            "properties": {
+                              "type": {
+                                "enum": [
+                                  "TIME_DURATION"
+                                ],
+                                "type": "string"
+                              },
+                              "unit": {
+                                "enum": [
+                                  "MINUTES",
+                                  "HOURS",
+                                  "DAYS",
+                                  "WEEKS",
+                                  "MONTHS"
+                                ],
+                                "title": "TimeUnit",
+                                "type": "string"
+                              },
+                              "value": {
+                                "format": "int32",
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "value",
+                              "unit"
+                            ],
+                            "title": "TimeDurationPolicy",
+                            "type": "object"
+                          }
+                        }
+                      },
+                      "properties": {
+                        "resourceDef": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "enum": [
+                            "OBFUSCATION",
+                            "TIME_DURATION"
+                          ],
+                          "title": "RolePolicyType",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "resourceDef",
+                        "type"
+                      ],
+                      "title": "RolePolicy",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "isCustom": {
+                    "description": "Predefined or custom role",
+                    "type": "boolean"
+                  },
+                  "isSuperAdmin": {
+                    "type": "boolean"
+                  },
+                  "lastModified": {
+                    "format": "int64",
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "restrictions": {
+                    "description": "Role restrictions e.g. admin can only access resources with specific attribute values",
+                    "items": {
+                      "properties": {
+                        "attrDef": {
+                          "description": "Identifier of attribute",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "resourceDef": {
+                          "description": "Identifier of resource",
+                          "type": "string"
+                        },
+                        "restrictToPattern": {
+                          "type": "string"
+                        },
+                        "restrictToValues": {
+                          "properties": {
+                            "type": {
+                              "enum": [
+                                "NUMBER",
+                                "STRING",
+                                "BOOLEAN",
+                                "URL"
+                              ],
+                              "title": "ValueType",
+                              "type": "string"
+                            },
+                            "values": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            }
+                          },
+                          "title": "RestrictionValue",
+                          "type": "object"
+                        },
+                        "type": {
+                          "enum": [
+                            "RESOURCE_ATTRIBUTE",
+                            "GLOBAL_ATTRIBUTE"
+                          ],
+                          "title": "RestrictionType",
+                          "type": "string"
+                        }
+                      },
+                      "title": "Restriction",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "schema": {
+                    "type": "string"
+                  },
+                  "schemaVersion": {
+                    "description": "Schema version",
+                    "type": "string"
+                  },
+                  "tenantID": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "description": "Role version",
+                    "format": "int64",
+                    "type": "integer"
+                  }
+                },
+                "title": "Role",
+                "type": "object"
+              }
+            }
+          },
+          "description": "The body type of the operation request or response.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The request has succeeded and a new resource has been created as a result."
+          },
+          "202": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "The request has been accepted for processing, but processing has not yet completed."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "VALIDATION_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "details": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "details"
+                  ],
+                  "title": "Zscaler.Core.ValidationError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The server could not understand the request due to invalid syntax."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "UNAUTHORIZED"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.UnauthorizedError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Access is unauthorized."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "INTERNAL_SERVER_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.InternalServerError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Unified RBAC",
+            "url": "https://api.zsapi.net/urbac/urbac",
+            "variables": {}
+          }
+        ],
+        "tags": [
+          "Roles"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "6333af0cecd9be4a252cd55e7739c6f5592095652e4c4079a4a44c4cf52564a7",
+          "chunk_id": 683917,
+          "chunk_url": "https://automate.zscaler.com/assets/js/cf2a47e2.42eedd29.js",
+          "module": 986867
+        },
+        "x-zscaler-docusaurus-extras": {
+          "jsonRequestBodyExample": {
+            "actions": [
+              "string"
+            ],
+            "dataPolicies": [
+              {
+                "resourceDef": "string",
+                "type": "OBFUSCATION"
+              }
+            ],
+            "description": "string",
+            "id": "string",
+            "isCustom": true,
+            "isSuperAdmin": true,
+            "lastModified": 0,
+            "name": "string",
+            "restrictions": [
+              {
+                "attrDef": "string",
+                "id": "string",
+                "resourceDef": "string",
+                "restrictToPattern": "string",
+                "restrictToValues": {
+                  "type": "NUMBER",
+                  "values": [
+                    "string"
+                  ]
+                },
+                "type": "RESOURCE_ATTRIBUTE"
+              }
+            ],
+            "schema": "string",
+            "schemaVersion": "string",
+            "tenantID": "string",
+            "version": 0
+          },
+          "postman": {
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "raw": ""
+            },
+            "description": {
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "method": "POST",
+            "name": "Create a role",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "roles"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        "x-zscaler-operation-key": "urbac/roles/urbac-resource-create-role",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/urbac/roles/urbac-resource-create-role"
+      }
+    },
+    "/v1/roles/query": {
+      "post": {
+        "description": "Query roles with pagination and filters",
+        "operationId": "Urbac Resource Get Roles",
+        "parameters": [
+          {
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "filterGroups": {
+                    "description": "Filter groups with AND semantics",
+                    "items": {
+                      "properties": {
+                        "criteria": {
+                          "description": "Filter criteria with OR semantics",
+                          "items": {
+                            "properties": {
+                              "field": {
+                                "description": "allowed fields are roleName and actionId",
+                                "type": "string"
+                              },
+                              "operator": {
+                                "enum": [
+                                  "contains",
+                                  "equals",
+                                  "starts_with",
+                                  "gte",
+                                  "lte"
+                                ],
+                                "title": "Operator",
+                                "type": "string"
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            },
+                            "title": "FilterCriterion",
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "title": "FilterGroup",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "title": "FilterRequest",
+                "type": "object"
+              }
+            }
+          },
+          "description": "The body type of the operation request or response.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "properties": {
+                          "actions": {
+                            "description": "Identifier of actions",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "dataPolicies": {
+                            "description": "Data transformation policies such as obfuscation and time duration",
+                            "items": {
+                              "discriminator": {
+                                "propertyName": "type",
+                                "x-zscaler-inline-mapping": {
+                                  "OBFUSCATION": {
+                                    "allOf": [
+                                      {
+                                        "description": "Circular inline schema reference elided: RolePolicy.",
+                                        "x-zscaler-circular-ref": "RolePolicy"
+                                      }
+                                    ],
+                                    "properties": {
+                                      "attributeDefs": {
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "type": "array"
+                                      },
+                                      "type": {
+                                        "enum": [
+                                          "OBFUSCATION"
+                                        ],
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "attributeDefs"
+                                    ],
+                                    "title": "ObfuscationPolicy",
+                                    "type": "object"
+                                  },
+                                  "TIME_DURATION": {
+                                    "allOf": [
+                                      {
+                                        "description": "Circular inline schema reference elided: RolePolicy.",
+                                        "x-zscaler-circular-ref": "RolePolicy"
+                                      }
+                                    ],
+                                    "properties": {
+                                      "type": {
+                                        "enum": [
+                                          "TIME_DURATION"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "unit": {
+                                        "enum": [
+                                          "MINUTES",
+                                          "HOURS",
+                                          "DAYS",
+                                          "WEEKS",
+                                          "MONTHS"
+                                        ],
+                                        "title": "TimeUnit",
+                                        "type": "string"
+                                      },
+                                      "value": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value",
+                                      "unit"
+                                    ],
+                                    "title": "TimeDurationPolicy",
+                                    "type": "object"
+                                  }
+                                }
+                              },
+                              "properties": {
+                                "resourceDef": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "OBFUSCATION",
+                                    "TIME_DURATION"
+                                  ],
+                                  "title": "RolePolicyType",
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "resourceDef",
+                                "type"
+                              ],
+                              "title": "RolePolicy",
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "isCustom": {
+                            "description": "Predefined or custom role",
+                            "type": "boolean"
+                          },
+                          "isSuperAdmin": {
+                            "type": "boolean"
+                          },
+                          "lastModified": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "restrictions": {
+                            "description": "Role restrictions e.g. admin can only access resources with specific attribute values",
+                            "items": {
+                              "properties": {
+                                "attrDef": {
+                                  "description": "Identifier of attribute",
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "resourceDef": {
+                                  "description": "Identifier of resource",
+                                  "type": "string"
+                                },
+                                "restrictToPattern": {
+                                  "type": "string"
+                                },
+                                "restrictToValues": {
+                                  "properties": {
+                                    "type": {
+                                      "enum": [
+                                        "NUMBER",
+                                        "STRING",
+                                        "BOOLEAN",
+                                        "URL"
+                                      ],
+                                      "title": "ValueType",
+                                      "type": "string"
+                                    },
+                                    "values": {
+                                      "items": {
+                                        "type": "string"
+                                      },
+                                      "type": "array"
+                                    }
+                                  },
+                                  "title": "RestrictionValue",
+                                  "type": "object"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "RESOURCE_ATTRIBUTE",
+                                    "GLOBAL_ATTRIBUTE"
+                                  ],
+                                  "title": "RestrictionType",
+                                  "type": "string"
+                                }
+                              },
+                              "title": "Restriction",
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "schema": {
+                            "type": "string"
+                          },
+                          "schemaVersion": {
+                            "description": "Schema version",
+                            "type": "string"
+                          },
+                          "tenantID": {
+                            "type": "string"
+                          },
+                          "version": {
+                            "description": "Role version",
+                            "format": "int64",
+                            "type": "integer"
+                          }
+                        },
+                        "title": "Role",
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "next_offset": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "results_total": {
+                      "format": "int64",
+                      "type": "integer"
+                    }
+                  },
+                  "title": "PaginatedResponseRole",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The request has succeeded and a new resource has been created as a result."
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "properties": {
+                          "actions": {
+                            "description": "Identifier of actions",
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "dataPolicies": {
+                            "description": "Data transformation policies such as obfuscation and time duration",
+                            "items": {
+                              "discriminator": {
+                                "propertyName": "type",
+                                "x-zscaler-inline-mapping": {
+                                  "OBFUSCATION": {
+                                    "allOf": [
+                                      {
+                                        "description": "Circular inline schema reference elided: RolePolicy.",
+                                        "x-zscaler-circular-ref": "RolePolicy"
+                                      }
+                                    ],
+                                    "properties": {
+                                      "attributeDefs": {
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "type": "array"
+                                      },
+                                      "type": {
+                                        "enum": [
+                                          "OBFUSCATION"
+                                        ],
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "attributeDefs"
+                                    ],
+                                    "title": "ObfuscationPolicy",
+                                    "type": "object"
+                                  },
+                                  "TIME_DURATION": {
+                                    "allOf": [
+                                      {
+                                        "description": "Circular inline schema reference elided: RolePolicy.",
+                                        "x-zscaler-circular-ref": "RolePolicy"
+                                      }
+                                    ],
+                                    "properties": {
+                                      "type": {
+                                        "enum": [
+                                          "TIME_DURATION"
+                                        ],
+                                        "type": "string"
+                                      },
+                                      "unit": {
+                                        "enum": [
+                                          "MINUTES",
+                                          "HOURS",
+                                          "DAYS",
+                                          "WEEKS",
+                                          "MONTHS"
+                                        ],
+                                        "title": "TimeUnit",
+                                        "type": "string"
+                                      },
+                                      "value": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "value",
+                                      "unit"
+                                    ],
+                                    "title": "TimeDurationPolicy",
+                                    "type": "object"
+                                  }
+                                }
+                              },
+                              "properties": {
+                                "resourceDef": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "OBFUSCATION",
+                                    "TIME_DURATION"
+                                  ],
+                                  "title": "RolePolicyType",
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "resourceDef",
+                                "type"
+                              ],
+                              "title": "RolePolicy",
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "isCustom": {
+                            "description": "Predefined or custom role",
+                            "type": "boolean"
+                          },
+                          "isSuperAdmin": {
+                            "type": "boolean"
+                          },
+                          "lastModified": {
+                            "format": "int64",
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "restrictions": {
+                            "description": "Role restrictions e.g. admin can only access resources with specific attribute values",
+                            "items": {
+                              "properties": {
+                                "attrDef": {
+                                  "description": "Identifier of attribute",
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "resourceDef": {
+                                  "description": "Identifier of resource",
+                                  "type": "string"
+                                },
+                                "restrictToPattern": {
+                                  "type": "string"
+                                },
+                                "restrictToValues": {
+                                  "properties": {
+                                    "type": {
+                                      "enum": [
+                                        "NUMBER",
+                                        "STRING",
+                                        "BOOLEAN",
+                                        "URL"
+                                      ],
+                                      "title": "ValueType",
+                                      "type": "string"
+                                    },
+                                    "values": {
+                                      "items": {
+                                        "type": "string"
+                                      },
+                                      "type": "array"
+                                    }
+                                  },
+                                  "title": "RestrictionValue",
+                                  "type": "object"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "RESOURCE_ATTRIBUTE",
+                                    "GLOBAL_ATTRIBUTE"
+                                  ],
+                                  "title": "RestrictionType",
+                                  "type": "string"
+                                }
+                              },
+                              "title": "Restriction",
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "schema": {
+                            "type": "string"
+                          },
+                          "schemaVersion": {
+                            "description": "Schema version",
+                            "type": "string"
+                          },
+                          "tenantID": {
+                            "type": "string"
+                          },
+                          "version": {
+                            "description": "Role version",
+                            "format": "int64",
+                            "type": "integer"
+                          }
+                        },
+                        "title": "Role",
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "next_offset": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "results_total": {
+                      "format": "int64",
+                      "type": "integer"
+                    }
+                  },
+                  "title": "PaginatedResponseRole",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The request has been accepted for processing, but processing has not yet completed."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "VALIDATION_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "details": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "details"
+                  ],
+                  "title": "Zscaler.Core.ValidationError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The server could not understand the request due to invalid syntax."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "UNAUTHORIZED"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.UnauthorizedError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Access is unauthorized."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "INTERNAL_SERVER_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.InternalServerError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Unified RBAC",
+            "url": "https://api.zsapi.net/urbac/urbac",
+            "variables": {}
+          }
+        ],
+        "tags": [
+          "Roles"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "d39225424a0e780f15eac3f4d7c5c126c6c5a2432a09aba607606199876d987c",
+          "chunk_id": 59267,
+          "chunk_url": "https://automate.zscaler.com/assets/js/8a053319.6825e37d.js",
+          "module": 410691
+        },
+        "x-zscaler-docusaurus-extras": {
+          "jsonRequestBodyExample": {
+            "filterGroups": [
+              {
+                "criteria": [
+                  {
+                    "field": "string",
+                    "operator": "contains",
+                    "value": "string"
+                  }
+                ]
+              }
+            ]
+          },
+          "postman": {
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "raw": ""
+            },
+            "description": {
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "name": "Query roles with pagination and filters",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "roles",
+                "query"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": ""
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": ""
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        "x-zscaler-operation-key": "urbac/roles/urbac-resource-get-roles",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/urbac/roles/urbac-resource-get-roles"
+      }
+    },
+    "/v1/roles/{roleId}": {
+      "delete": {
+        "description": "Delete a role by ID",
+        "operationId": "Urbac Resource Delete Role",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "roleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded."
+          },
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "VALIDATION_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "details": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "details"
+                  ],
+                  "title": "Zscaler.Core.ValidationError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The server could not understand the request due to invalid syntax."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "UNAUTHORIZED"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.UnauthorizedError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Access is unauthorized."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "INTERNAL_SERVER_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.InternalServerError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Unified RBAC",
+            "url": "https://api.zsapi.net/urbac/urbac",
+            "variables": {}
+          }
+        ],
+        "tags": [
+          "Roles"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "1d78ff52119773cac3b3a4647b07b7093e3d50764391bb36e3d5ee07913b3d97",
+          "chunk_id": 10297,
+          "chunk_url": "https://automate.zscaler.com/assets/js/94509430.3ca3a9e0.js",
+          "module": 113476
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "name": "Delete a role by ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "roles",
+                ":roleId"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "roleId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "urbac/roles/urbac-resource-delete-role",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/urbac/roles/urbac-resource-delete-role"
+      },
+      "get": {
+        "description": "Get a role by ID",
+        "operationId": "Urbac Resource Get Role",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "roleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "actions": {
+                      "description": "Identifier of actions",
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "dataPolicies": {
+                      "description": "Data transformation policies such as obfuscation and time duration",
+                      "items": {
+                        "discriminator": {
+                          "propertyName": "type",
+                          "x-zscaler-inline-mapping": {
+                            "OBFUSCATION": {
+                              "allOf": [
+                                {
+                                  "description": "Circular inline schema reference elided: RolePolicy.",
+                                  "x-zscaler-circular-ref": "RolePolicy"
+                                }
+                              ],
+                              "properties": {
+                                "attributeDefs": {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "OBFUSCATION"
+                                  ],
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "attributeDefs"
+                              ],
+                              "title": "ObfuscationPolicy",
+                              "type": "object"
+                            },
+                            "TIME_DURATION": {
+                              "allOf": [
+                                {
+                                  "description": "Circular inline schema reference elided: RolePolicy.",
+                                  "x-zscaler-circular-ref": "RolePolicy"
+                                }
+                              ],
+                              "properties": {
+                                "type": {
+                                  "enum": [
+                                    "TIME_DURATION"
+                                  ],
+                                  "type": "string"
+                                },
+                                "unit": {
+                                  "enum": [
+                                    "MINUTES",
+                                    "HOURS",
+                                    "DAYS",
+                                    "WEEKS",
+                                    "MONTHS"
+                                  ],
+                                  "title": "TimeUnit",
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "format": "int32",
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "value",
+                                "unit"
+                              ],
+                              "title": "TimeDurationPolicy",
+                              "type": "object"
+                            }
+                          }
+                        },
+                        "properties": {
+                          "resourceDef": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "OBFUSCATION",
+                              "TIME_DURATION"
+                            ],
+                            "title": "RolePolicyType",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "resourceDef",
+                          "type"
+                        ],
+                        "title": "RolePolicy",
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "isCustom": {
+                      "description": "Predefined or custom role",
+                      "type": "boolean"
+                    },
+                    "isSuperAdmin": {
+                      "type": "boolean"
+                    },
+                    "lastModified": {
+                      "format": "int64",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "restrictions": {
+                      "description": "Role restrictions e.g. admin can only access resources with specific attribute values",
+                      "items": {
+                        "properties": {
+                          "attrDef": {
+                            "description": "Identifier of attribute",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "resourceDef": {
+                            "description": "Identifier of resource",
+                            "type": "string"
+                          },
+                          "restrictToPattern": {
+                            "type": "string"
+                          },
+                          "restrictToValues": {
+                            "properties": {
+                              "type": {
+                                "enum": [
+                                  "NUMBER",
+                                  "STRING",
+                                  "BOOLEAN",
+                                  "URL"
+                                ],
+                                "title": "ValueType",
+                                "type": "string"
+                              },
+                              "values": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "title": "RestrictionValue",
+                            "type": "object"
+                          },
+                          "type": {
+                            "enum": [
+                              "RESOURCE_ATTRIBUTE",
+                              "GLOBAL_ATTRIBUTE"
+                            ],
+                            "title": "RestrictionType",
+                            "type": "string"
+                          }
+                        },
+                        "title": "Restriction",
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "schema": {
+                      "type": "string"
+                    },
+                    "schemaVersion": {
+                      "description": "Schema version",
+                      "type": "string"
+                    },
+                    "tenantID": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "Role version",
+                      "format": "int64",
+                      "type": "integer"
+                    }
+                  },
+                  "title": "Role",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The request has succeeded."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "UNAUTHORIZED"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.UnauthorizedError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Access is unauthorized."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "NOT_FOUND"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.NotFoundError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The server cannot find the requested resource."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "INTERNAL_SERVER_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.InternalServerError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Unified RBAC",
+            "url": "https://api.zsapi.net/urbac/urbac",
+            "variables": {}
+          }
+        ],
+        "tags": [
+          "Roles"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "22434763838c112f8f34967d8d5250e5a72aee5068a56b07ba51924dbbec9d19",
+          "chunk_id": 383549,
+          "chunk_url": "https://automate.zscaler.com/assets/js/9e0efee1.703789e6.js",
+          "module": 552778
+        },
+        "x-zscaler-docusaurus-extras": {
+          "postman": {
+            "description": {
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "name": "Get a role by ID",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "roles",
+                ":roleId"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "roleId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "urbac/roles/urbac-resource-get-role",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/urbac/roles/urbac-resource-get-role"
+      },
+      "put": {
+        "description": "Update a role",
+        "operationId": "Urbac Resource Update Role",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "roleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "actions": {
+                    "description": "Identifier of actions",
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "dataPolicies": {
+                    "description": "Data transformation policies such as obfuscation and time duration",
+                    "items": {
+                      "discriminator": {
+                        "propertyName": "type",
+                        "x-zscaler-inline-mapping": {
+                          "OBFUSCATION": {
+                            "allOf": [
+                              {
+                                "description": "Circular inline schema reference elided: RolePolicy.",
+                                "x-zscaler-circular-ref": "RolePolicy"
+                              }
+                            ],
+                            "properties": {
+                              "attributeDefs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "type": {
+                                "enum": [
+                                  "OBFUSCATION"
+                                ],
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "attributeDefs"
+                            ],
+                            "title": "ObfuscationPolicy",
+                            "type": "object"
+                          },
+                          "TIME_DURATION": {
+                            "allOf": [
+                              {
+                                "description": "Circular inline schema reference elided: RolePolicy.",
+                                "x-zscaler-circular-ref": "RolePolicy"
+                              }
+                            ],
+                            "properties": {
+                              "type": {
+                                "enum": [
+                                  "TIME_DURATION"
+                                ],
+                                "type": "string"
+                              },
+                              "unit": {
+                                "enum": [
+                                  "MINUTES",
+                                  "HOURS",
+                                  "DAYS",
+                                  "WEEKS",
+                                  "MONTHS"
+                                ],
+                                "title": "TimeUnit",
+                                "type": "string"
+                              },
+                              "value": {
+                                "format": "int32",
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "value",
+                              "unit"
+                            ],
+                            "title": "TimeDurationPolicy",
+                            "type": "object"
+                          }
+                        }
+                      },
+                      "properties": {
+                        "resourceDef": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "enum": [
+                            "OBFUSCATION",
+                            "TIME_DURATION"
+                          ],
+                          "title": "RolePolicyType",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "resourceDef",
+                        "type"
+                      ],
+                      "title": "RolePolicy",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "isCustom": {
+                    "description": "Predefined or custom role",
+                    "type": "boolean"
+                  },
+                  "isSuperAdmin": {
+                    "type": "boolean"
+                  },
+                  "lastModified": {
+                    "format": "int64",
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "restrictions": {
+                    "description": "Role restrictions e.g. admin can only access resources with specific attribute values",
+                    "items": {
+                      "properties": {
+                        "attrDef": {
+                          "description": "Identifier of attribute",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "resourceDef": {
+                          "description": "Identifier of resource",
+                          "type": "string"
+                        },
+                        "restrictToPattern": {
+                          "type": "string"
+                        },
+                        "restrictToValues": {
+                          "properties": {
+                            "type": {
+                              "enum": [
+                                "NUMBER",
+                                "STRING",
+                                "BOOLEAN",
+                                "URL"
+                              ],
+                              "title": "ValueType",
+                              "type": "string"
+                            },
+                            "values": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            }
+                          },
+                          "title": "RestrictionValue",
+                          "type": "object"
+                        },
+                        "type": {
+                          "enum": [
+                            "RESOURCE_ATTRIBUTE",
+                            "GLOBAL_ATTRIBUTE"
+                          ],
+                          "title": "RestrictionType",
+                          "type": "string"
+                        }
+                      },
+                      "title": "Restriction",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "schema": {
+                    "type": "string"
+                  },
+                  "schemaVersion": {
+                    "description": "Schema version",
+                    "type": "string"
+                  },
+                  "tenantID": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "description": "Role version",
+                    "format": "int64",
+                    "type": "integer"
+                  }
+                },
+                "title": "Role",
+                "type": "object"
+              }
+            }
+          },
+          "description": "The body type of the operation request or response.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The request has succeeded."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "VALIDATION_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "details": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "details"
+                  ],
+                  "title": "Zscaler.Core.ValidationError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The server could not understand the request due to invalid syntax."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "UNAUTHORIZED"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.UnauthorizedError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Access is unauthorized."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "NOT_FOUND"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.NotFoundError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The server cannot find the requested resource."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "enum": [
+                        "INTERNAL_SERVER_ERROR"
+                      ],
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "title": "Zscaler.Core.InternalServerError",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Server error"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "description": "Unified RBAC",
+            "url": "https://api.zsapi.net/urbac/urbac",
+            "variables": {}
+          }
+        ],
+        "tags": [
+          "Roles"
+        ],
+        "x-zscaler-docusaurus": {
+          "api_blob_sha256": "b09d6194eb0cf0562b60e245e7c70447d8804b0c4c0a9f24bb5aa52636147de7",
+          "chunk_id": 367082,
+          "chunk_url": "https://automate.zscaler.com/assets/js/29f869a8.935c3546.js",
+          "module": 399064
+        },
+        "x-zscaler-docusaurus-extras": {
+          "jsonRequestBodyExample": {
+            "actions": [
+              "string"
+            ],
+            "dataPolicies": [
+              {
+                "resourceDef": "string",
+                "type": "OBFUSCATION"
+              }
+            ],
+            "description": "string",
+            "id": "string",
+            "isCustom": true,
+            "isSuperAdmin": true,
+            "lastModified": 0,
+            "name": "string",
+            "restrictions": [
+              {
+                "attrDef": "string",
+                "id": "string",
+                "resourceDef": "string",
+                "restrictToPattern": "string",
+                "restrictToValues": {
+                  "type": "NUMBER",
+                  "values": [
+                    "string"
+                  ]
+                },
+                "type": "RESOURCE_ATTRIBUTE"
+              }
+            ],
+            "schema": "string",
+            "schemaVersion": "string",
+            "tenantID": "string",
+            "version": 0
+          },
+          "postman": {
+            "body": {
+              "mode": "raw",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "raw": ""
+            },
+            "description": {
+              "type": "text/plain"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "name": "Update a role",
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "roles",
+                ":roleId"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": {
+                    "content": "(Required) ",
+                    "type": "text/plain"
+                  },
+                  "disabled": false,
+                  "key": "roleId",
+                  "type": "any",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        "x-zscaler-operation-key": "urbac/roles/urbac-resource-update-role",
+        "x-zscaler-source-url": "https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/urbac/roles/urbac-resource-update-role"
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Unified RBAC",
+      "url": "https://api.zsapi.net/urbac/urbac",
+      "variables": {}
+    }
+  ],
+  "x-zscaler-source": {
+    "kind": "automate-docusaurus-blobs",
+    "operation_count": 6,
+    "product": "urbac"
+  }
+}

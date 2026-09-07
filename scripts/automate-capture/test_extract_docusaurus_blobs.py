@@ -319,6 +319,74 @@ def test_module_slice_accepts_first_key_in_module_object():
     assert 'api:"abc"' in sliced
 
 
+def test_module_slice_accepts_method_shorthand_and_stops_at_adjacent_module():
+    js = (
+        '"use strict";(globalThis.webpackChunk=self.webpackChunk||[]).push([[354152],'
+        r'{919588(e,t,i){'
+        r'const frontMatter={api:"owned",nested:{text:"},638072(e,t,a){notApi:\"fake\""},'
+        r'items:[{value:"}"}]};'
+        r'const quoted="},638072(e,t,a){const frontMatter={notApi:\"fake\"}}";'
+        r'return frontMatter;},'
+        '638072(e,t,a){const frontMatter={api:"misleading-adjacent"}}}]);'
+    )
+
+    sliced = extract.module_slice(js, 919588)
+
+    assert sliced is not None
+    assert 'api:"owned"' in sliced
+    assert 'api:"misleading-adjacent"' not in sliced
+    assert len(extract.API_BLOB_RE.findall(sliced)) == 1
+
+
+def test_module_slice_ignores_quoted_comments_and_nested_keys_before_true_map():
+    js = (
+        '"use strict";(globalThis.webpackChunk=self.webpackChunk||[]).push([[999],{'
+        '111(e,t,o){'
+        'const quoted=\',333(e,t,o){const frontMatter={api:"foreign"}}\';'
+        'const nested={333(e,t,o){const frontMatter={api:"nested"}}};'
+        '/* ,333(e,t,o){const frontMatter={api:"comment"}} */'
+        '},'
+        '333(e,t,o){const frontMatter={api:"owned"}},'
+        '444(e,t,o){const frontMatter={api:"adjacent"}}}]);'
+    )
+
+    sliced = extract.module_slice(js, 333)
+
+    assert sliced is not None
+    assert 'api:"owned"' in sliced
+    assert all(
+        marker not in sliced
+        for marker in ('api:"foreign"', 'api:"nested"', 'api:"comment"', 'api:"adjacent"')
+    )
+
+
+def test_module_slice_rejects_numeric_module_inside_unsupported_wrapper():
+    js = 'wrapper({333(e,t,o){const frontMatter={api:"unowned"}}})'
+
+    assert extract.module_slice(js, 333) is None
+
+
+def test_module_slice_ignores_arbitrary_array_push_before_webpack_map():
+    js = 'array.push([[999],{333(e,t,o){const frontMatter={api:"unowned"}}}]);'
+
+    assert extract.module_slice(js, 333) is None
+
+
+def test_module_slice_ignores_nested_non_webpack_push():
+    js = (
+        'wrapper((globalThis.fakeChunk=globalThis.fakeChunk||[]).push([[999],'
+        '{333(e,t,o){const frontMatter={api:"nested-unowned"}}}]));'
+    )
+
+    assert extract.module_slice(js, 333) is None
+
+
+def test_module_slice_rejects_regex_text_that_resembles_push_envelope():
+    js = r'/\(globalThis\.webpackChunk=self\.webpackChunk\|\|\[\]\)\.push\(\[\[999\],\{333\(e,t,o\)\{api:"unowned"\}\}\]\]\)/'
+
+    assert extract.module_slice(js, 333) is None
+
+
 def test_module_slice_stops_before_exponent_sibling_key():
     js = '38e3:function(e,t,o){const a={api:"first"}},88e3:function(e,t,o){const b={api:"second"}}'
 
@@ -337,6 +405,69 @@ def test_operation_blob_rejects_sole_blob_when_requested_module_is_absent():
     }
     blob = base64.b64encode(zlib.compress(json.dumps(wrong_api).encode("utf-8"))).decode("ascii")
     chunks = {999: f'111:(e,t,o)=>{{const frontMatter={{api:"{blob}"}}}}'}
+    route = {
+        "module": 333,
+        "module_token": "333",
+        "chunks": [999],
+    }
+
+    api, error, provenance = extract.operation_blob(
+        route,
+        chunks.get,
+        {999: "https://example.invalid/999.js"},
+    )
+
+    assert api is None
+    assert error == "no api blob found for module 333"
+    assert provenance is None
+
+
+def test_operation_blob_rejects_shorthand_module_without_api_and_no_fallback():
+    wrong_api = {
+        "operationId": "Adjacent Operation",
+        "method": "delete",
+        "path": "/adjacent",
+    }
+    blob = base64.b64encode(zlib.compress(json.dumps(wrong_api).encode("utf-8"))).decode("ascii")
+    chunks = {
+        999: (
+            '333(e,t,o){const frontMatter={notApi:"requested module has no blob"}},'
+            f'444(e,t,o){{const frontMatter={{api:"{blob}"}}}}'
+        )
+    }
+    route = {
+        "module": 333,
+        "module_token": "333",
+        "chunks": [999],
+    }
+
+    api, error, provenance = extract.operation_blob(
+        route,
+        chunks.get,
+        {999: "https://example.invalid/999.js"},
+    )
+
+    assert api is None
+    assert error == "no api blob found for module 333"
+    assert provenance is None
+
+
+def test_operation_blob_rejects_blob_in_quoted_preowner_module():
+    wrong_api = {
+        "operationId": "Foreign Operation",
+        "method": "delete",
+        "path": "/foreign",
+    }
+    blob = base64.b64encode(zlib.compress(json.dumps(wrong_api).encode("utf-8"))).decode("ascii")
+    chunks = {
+        999: (
+            "const text=',333(e,t,o){const frontMatter={api:\""
+            + blob
+            + "\"}}';"
+            '"use strict";(globalThis.webpackChunk=self.webpackChunk||[]).push([[999],'
+            '{333(e,t,o){const frontMatter={notApi:"requested module has no blob"}}}]);'
+        )
+    }
     route = {
         "module": 333,
         "module_token": "333",

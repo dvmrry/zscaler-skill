@@ -6,18 +6,19 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 
 | product | operations | paths | issues | publication |
 |---|---:|---:|---:|---|
-| `ai-security` | 108 | 99 | 0 | current public route table |
-| `aiguard` | 47 | 29 | not revalidated | retained last-known snapshot; `absent-from-current-public-route-table` |
+| `ai-security` | 114 | 105 | 0 | current public route table |
+| `aiguard` | 47 | 29 | 0 | current public route table |
 | `bi` | 10 | 6 | 0 | current public route table |
 | `easm` | 11 | 11 | 0 | current public route table |
 | `event-monitoring` | 15 | 12 | 0 | current public route table |
-| `zcc` | 54 | 53 | 0 | current public route table |
+| `urbac` | 6 | 4 | 0 | current public route table |
+| `zcc` | 50 | 49 | 0 | current public route table |
 | `zcell` | 36 | 28 | 0 | current public route table |
 | `zcloudconnector` | 165 | 96 | 124 | current public route table |
 | `zdx` | 148 | 121 | 2 | current public route table |
-| `zia` | 471 | 295 | 0 | current public route table |
+| `zia` | 469 | 293 | 0 | current public route table |
 | `zid` | 31 | 18 | 0 | current public route table |
-| `zpa` | 208 | 137 | 0 | current public route table |
+| `zpa` | 220 | 149 | 0 | current public route table |
 
 ## Issue Counts
 
@@ -155,6 +156,4 @@ This report is structural validation for the inline OpenAPI snapshot. It is not 
 
 ## Retained Publication Absences
 
-These products have no operations in the current public route table. Their last-known contract and OpenAPI snapshots are retained outside this live validation set; publication absence does not establish endpoint retirement or backend unavailability.
-
-- `aiguard` — **47** last-known operations across **29** paths retained (`absent-from-current-public-route-table`).
+- None.

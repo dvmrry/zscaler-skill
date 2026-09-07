@@ -5,7 +5,7 @@ title: "Zscaler Cellular / ZCell API, SDK, and MCP surface"
 content-type: reference
 last-verified: "2026-07-22"
 verified-against:
-  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
@@ -17,6 +17,7 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
+  - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json"
@@ -68,12 +69,14 @@ author-status: draft
 The current Automate comparison remains at **36 ZCell operations**, but the
 family composition changed: a new tower-location-history read was published,
 while the former audit-metadata operation is not present in the current route
-table. The durable contract still records the earlier family paths and count
-(`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`;
-`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6458`).
+table (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:16`;
+`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:103-113`).
+The current normalized contract spans the refreshed family snapshot
+(`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6949`);
+the 2026-08-12 baseline at commit `3174c9a` is historical comparison only.
 The rosetta synthesis records ZCell as "Contract captured" but notes that DAV-21
 did not establish a multi-surface reconciliation footprint
-(`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:190`); that is a capture
+(`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:194`); that is a capture
 boundary, not evidence that the current SDK or MCP surface has disappeared.
 
 ## Authentication and customer scoping
@@ -84,15 +87,15 @@ The Python SDK exposes `client.zcell` as a OneAPI-only service and constructs it
 
 | Contract family | Operations | Representative documented path |
 |---|---:|---|
-| Anomaly policy | 8 | `POST /api/v1/customers/{id}/anomaly-policy`; `GET /api/v1/customers/{id}/anomaly-policy`; `PATCH /api/v1/customers/{id}/anomaly-policy/{policyId}/status` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-14`, `:175-187`, `:1437-1449`) |
+| Anomaly policy | 8 | `POST /api/v1/customers/{id}/anomaly-policy`; `GET /api/v1/customers/{id}/anomaly-policy`; `PATCH /api/v1/customers/{id}/anomaly-policy/{policyId}/status` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-14`, `:175-187`, `:1452-1464`) |
 | Audit data handling | 1 in current Automate publication | `POST /api/v1/audit/customers/{id}/search`; the prior `GET /api/v1/audit/metadata` operation is absent from the current route table, although SDK/MCP source still retains it. |
-| Customer data handling | 2 | `GET /api/v1/customers/{id}`; `PUT /api/v1/customers/{id}` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:1956-1968`, `:2067-2079`) |
-| Customer region handling | 3 | `GET /api/v1/customers/{id}/regions`; `PUT /api/v1/customers/{id}/regions`; `GET /api/v1/customers/{id}/regions/operational-status` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2430-2442`, `:2487-2499`, `:2571-2583`) |
-| Network events | 1 | `POST /api/v1/network-events/{id}/search/startTime/{startTime}/endTime/{endTime}` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2812-2824`) |
-| SIM analytics | 5 | `POST /api/v1/customers/{id}/sim/analytics/map`; `GET /api/v1/customers/{id}/sim/analytics/summary`; usage-by-country/day/SIM endpoints (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:3280-3292`, `:3504-3516`, `:3601-3713`) |
-| SIM handling | 9 | SIM search/details/download, tag assignment, lock, status update, eSIM assignment, eSIM state refresh, and tower-location history (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:3801-3813`, `:3911-3923`, `:4188-4200`, `:4910-4922`, `:5412-5594`; current [tower-history operation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/sim-management/sim-resource-get-tower-location-history)) |
-| SIM location groups | 5 | CRUD over `/api/v1/customers/{id}/sim-location-groups` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:5673-5685`, `:5814-5826`, `:5874-5886`, `:6045-6057`, `:6262-6274`) |
-| Tag handling | 2 | `GET /api/v1/customers/{id}/tag`; `POST /api/v1/customers/{id}/tag` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:6378-6390`, `:6446-6458`) |
+| Customer data handling | 2 | `GET /api/v1/customers/{id}`; `PUT /api/v1/customers/{id}` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:1916-1928`, `:2027-2039`) |
+| Customer region handling | 3 | `GET /api/v1/customers/{id}/regions`; `PUT /api/v1/customers/{id}/regions`; `GET /api/v1/customers/{id}/regions/operational-status` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2389-2401`, `:2446-2458`, `:2530-2542`) |
+| Network events | 1 | `POST /api/v1/network-events/{id}/search/startTime/{startTime}/endTime/{endTime}` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2771-2783`) |
+| SIM analytics | 5 | `POST /api/v1/customers/{id}/sim/analytics/map`; `GET /api/v1/customers/{id}/sim/analytics/summary`; usage-by-country/day/SIM endpoints (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:3327-3339`, `:3551-3563`, `:3648-3760`) |
+| SIM handling | 9 | SIM search/details/download, tag assignment, lock, status update, eSIM assignment, eSIM state refresh, and tower-location history (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:4559-4571`, `:4669-4681`, `:4963-4975`, `:5702-5714`, `:6411-6680`; current [tower-history operation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/sim-management/sim-resource-get-tower-location-history)) |
+| SIM location groups | 5 | CRUD over `/api/v1/customers/{id}/sim-location-groups` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:3848-3860`, `:3989-4001`, `:4049-4061`, `:4226-4238`, `:4443-4455`) |
+| Tag handling | 2 | `GET /api/v1/customers/{id}/tag`; `POST /api/v1/customers/{id}/tag` (`vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:6682-6694`, `:6750-6762`) |
 
 ## Current Automate publication delta
 
@@ -177,7 +180,7 @@ incomplete:
 
 - The captured create contract requires an array whose items contain `name` and
   `geoFenceDetails`; latitude, longitude, and radius are numeric and required
-  inside the geofence (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:6548-6617`).
+  inside the geofence (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:8090-8153`).
   Although the SDK adds an `ApiCreateSimLocationGroupRequestBody` model for that
   shape, the service neither imports nor uses it. `add_location_group()` still
   wraps `SimLocationGroups(kwargs)`, whose request formatter emits only `id`,
@@ -187,7 +190,7 @@ incomplete:
   (`vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:23-28,131-172`;
   `vendor/zscaler-sdk-python/zscaler/zcell/models/sim_location_groups.py:22-51,148-188`).
 - The captured update body uses `geoFenceData` and `trackedDevices`
-  (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:7652-7721`).
+  (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:9535-9599`).
   `update_sim_location_group()` constructs its model before the common request
   executor can camel-case keys, and that model checks only those exact wire-case
   names. Python-style `geo_fence_data` or `tracked_devices` kwargs therefore
@@ -215,13 +218,13 @@ The ZCell surface landed in MCP v0.13.0 and remains present in the pinned v0.15 
 | SIM location groups | 2 | Create, update, and delete (`vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:131-268`); geofence create and Python-style update kwargs have the wrapper defects documented above. |
 | Tags | 1 | Create tag (`vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:91-121`) |
 
-That is a **20-operation read/search subset of the 36-operation captured contract**, leaving 16 mutation/export operations at the SDK/API layer (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:15`; `vendor/zscaler-mcp-server/tests/test_docgen.py:119-123`; omitted SDK operations at `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:117-241`, `:311-347`, `vendor/zscaler-sdk-python/zscaler/zcell/customer_data_handling.py:74-108`, `vendor/zscaler-sdk-python/zscaler/zcell/customer_region_handling.py:85-116`, `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:96-284`, `:328-454`, `vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:131-268`, and `vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:91-121`). The Help portal's management scope—status changes, IMEI association, tags, eSIM assignment/activation, anomaly policies, and location groups—is therefore broader than the current MCP surface (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67`).
+That is a **20-operation read/search subset of the 36-operation captured contract**, leaving 16 mutation/export operations at the SDK/API layer (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:16`; `vendor/zscaler-mcp-server/tests/test_docgen.py:119-123`; omitted SDK operations at `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:117-241`, `:311-347`, `vendor/zscaler-sdk-python/zscaler/zcell/customer_data_handling.py:74-108`, `vendor/zscaler-sdk-python/zscaler/zcell/customer_region_handling.py:85-116`, `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:96-284`, `:328-454`, `vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:131-268`, and `vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:91-121`). The Help portal's management scope—status changes, IMEI association, tags, eSIM assignment/activation, anomaly policies, and location groups—is therefore broader than the current MCP surface (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67`).
 
 ### Input and output contract
 
 Time-bounded MCP tools expose a `days` integer that defaults to 7 and is constrained to 1–365; they do not expose raw start/end timestamps (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:35-56`). The epoch bounds are calculated locally by the Python SDK decorator and inserted into the query, body, or path expected by each endpoint—not calculated "on the server" (`vendor/zscaler-sdk-python/zscaler/utils.py:485-558`).
 
-MCP v0.15 record tools preserve every attribute carried by the decoded SDK model or dictionary they receive: the registry leaves record schemas unenumerated, and the generic shapers merge normalized highlights over the complete decoded record instead of using a whitelist (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`; `vendor/zscaler-mcp-server/tests/test_shaping_helpers.py:45-89`, `:97-134`). For ZCell, SDK models are converted through `as_dict()` before shaping (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:59-77`): audit search returns every field on each decoded entry (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:83-113`), SIM detail returns the full decoded SIM record, and SIM search returns the full decoded response envelope (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:100-122`, `:125-162`). Consequently, MCP no longer deliberately strips audit `old_data` / `new_data` or the contract's `usageVal` field (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:11720-11726`). This is a decoded-model boundary, not raw-HTTP fidelity: a field is present only if the SDK response handling and model expose it through `as_dict()` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:59-77`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py:260-290`). Use SDK/API calls when mutations are required.
+MCP v0.15 record tools preserve every attribute carried by the decoded SDK model or dictionary they receive: the registry leaves record schemas unenumerated, and the generic shapers merge normalized highlights over the complete decoded record instead of using a whitelist (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:43-56`; `vendor/zscaler-mcp-server/src/zscaler_mcp/shaping/helpers.py:50-113`; `vendor/zscaler-mcp-server/tests/test_shaping_helpers.py:45-89`, `:97-134`). For ZCell, SDK models are converted through `as_dict()` before shaping (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:59-77`): audit search returns every field on each decoded entry (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:83-113`), SIM detail returns the full decoded SIM record, and SIM search returns the full decoded response envelope (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:100-122`, `:125-162`). Consequently, MCP no longer deliberately strips audit `old_data` / `new_data` or the contract's `usageVal` field (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:14816-14822`). This is a decoded-model boundary, not raw-HTTP fidelity: a field is present only if the SDK response handling and model expose it through `as_dict()` (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/_common.py:59-77`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py:260-290`). Use SDK/API calls when mutations are required.
 
 ### Guided prompts
 
@@ -229,8 +232,8 @@ The release also registers three service-scoped prompts: `zcell_investigate_sim(
 
 ## MCP v0.15 divergences and test boundary
 
-- **Violation response shape:** the Automate contract defines `/violations` response `content` as an array of strings, but the SDK response cleaner drops non-dictionary ZCell page items before the SDK method constructs its modeled result (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:4080-4200`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py:260-290`; `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:363-430`). The MCP tool now passes through every decoded item it receives, so the remaining ICCID loss is caused upstream by SDK response cleaning, not by MCP policy-summary shaping (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/anomaly_policy.py:149-177`). The prompt's promise to enumerate offending ICCIDs therefore still needs an SDK/live-path fix (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:76-89`).
-- **SIM pagination routing:** the contract places `page`, `size`, `sortBy`, and `sortDir` in query parameters, while MCP puts page/size in the POST body and exposes no sorting; live backend acceptance of that routing is not established (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:11421-11470`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:142-159`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:286-315`).
+- **Violation response shape:** the Automate contract defines `/violations` response `content` as an array of strings, but the SDK response cleaner drops non-dictionary ZCell page items before the SDK method constructs its modeled result (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:4900-5003`; `vendor/zscaler-sdk-python/zscaler/oneapi_response.py:260-290`; `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:363-430`). The MCP tool now passes through every decoded item it receives, so the remaining ICCID loss is caused upstream by SDK response cleaning, not by MCP policy-summary shaping (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/anomaly_policy.py:149-177`). The prompt's promise to enumerate offending ICCIDs therefore still needs an SDK/live-path fix (`vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:76-89`).
+- **SIM pagination routing:** the contract places `page`, `size`, `sortBy`, and `sortDir` in query parameters, while MCP puts page/size in the POST body and exposes no sorting; live backend acceptance of that routing is not established (`vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:14484-14565`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/sim_handling.py:142-159`; `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:286-315`).
 - **Audit narrowing:** MCP types `object_id` as a string, while the contract declares `objectId` as `int64`; the contract also exposes entry ID, root-customer, and sorting filters that MCP omits (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/audit_data_handling.py:31-58`; `vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json:25-135`).
 - **Documentation mismatch:** the upstream ZCell guide says anomaly-policy logs accept `days`, but the registered log input and call expose only policy ID plus page/size (`vendor/zscaler-mcp-server/docsrc/tools/zcell/index.rst:111-116`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zcell/anomaly_policy.py:46-55`, `:130-146`).
 - **Entitlement uncertainty:** MCP maps three guessed Cellular `prd` claim spellings and carries a TODO to confirm the canonical live-token value (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`).

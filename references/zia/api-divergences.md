@@ -6,7 +6,7 @@ content-type: reference
 confidence: medium
 last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
@@ -140,7 +140,7 @@ This historical prose pass began with Cloud App Control (CAC), URL Filtering, SS
 
 **Contract reconciliation now feeds this doc.** For documented method/path and field metadata (`required`, `readonly`, `enum`), the verification protocol prefers the captured Automate contract when it exists; Terraform validators remain authoritative only for what the provider accepts, SDKs for wrapper behavior, and Postman for examples/fallback evidence (`references/_meta/verification-protocol.md:114-118`). The generated ZIA reconciliation diffs `vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json` against Go, Python, Terraform, Ansible, and MCP surfaces (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:7-11`). Its current totals are 0 contract-vs-Go primitive type drifts, 47 contract-vs-Terraform required-flag drifts, 11 enum value conflicts, 37 one-sided enum constraints, and 9 readonly fields with no Terraform disagreement (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:13-18`).
 
-Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`) and begins the ZIA resource table at `admin_role` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:683-692`). The generated ZIA report also records captured contract groups that are outside Terraform's managed-resource scope, such as `api-authentication`, `event-logs`, `pac-files`, `service-edges`, `time`, and `time-intervals`; those are coverage boundaries, not missing Terraform mappings (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:30-47`).
+Use the rosetta table as the field-level index when a section below summarizes a resource rather than spelling out every field. It defines the `req`, `enum≠`, `enum1`, `ro`, `ro!`, and `type` markers (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:11-20`) and begins the ZIA resource table at `admin_role` (`vendor/zscaler-api-specs/automate-zscaler/rosetta.md:687-696`). The generated ZIA report also records captured contract groups that are outside Terraform's managed-resource scope, such as `api-authentication`, `event-logs`, `pac-files`, `service-edges`, `time`, and `time-intervals`; those are coverage boundaries, not missing Terraform mappings (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:30-47`).
 
 ---
 
@@ -321,7 +321,7 @@ This is a Go response-model change, not proof that the service stopped returning
 Automate response schema also retains it
 (`vendor/zscaler-sdk-python/zscaler/zia/models/pac_files.py:56-64`;
 `vendor/zscaler-sdk-python/zscaler/zia/models/common.py:85-107`;
-`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247484-247509`).
+`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247370-247395`).
 Whether current PAC tenant responses populate `externalId` remains unverified.
 
 ### Terraform provider v4.8.8 PAC resource/data-source lifecycle
@@ -502,7 +502,7 @@ filtering; an unfiltered call still returns the entire matching collection
 This aligns with the captured Automate operation in one important respect:
 `/urlCategories` has no pagination parameters, so page-shaped inputs were false
 affordances rather than a way to cap the response
-(`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:426535-426566`).
+(`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:426294-426316`).
 
 Python v1.9.40 also adds a dedicated `list_categories_lite()` wrapper for
 `GET /urlCategories/lite` (`vendor/zscaler-sdk-python/CHANGELOG.md:21-30`;
@@ -517,7 +517,7 @@ keyword lists with counts, while MCP deliberately omits the parameter after a
 vendor-reported tenant capture returned equivalent populated lists with it on
 and off. Conversely, MCP sends a `type` filter that the captured Automate
 operation does not enumerate
-(`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:426550-426566`;
+(`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:426294-426316`;
 `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:44-64`;
 `vendor/zscaler-mcp-server/tests/test_url_categories_tools.py:58-81`). Treat the
 count-only failure as the scope of that observation, not proof that every ZIA

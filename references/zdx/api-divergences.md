@@ -7,7 +7,7 @@ source-tier: code
 confidence: medium
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
@@ -56,7 +56,7 @@ This doc consolidates the cross-source disagreements that were previously scatte
 
 ## Current schema-publication delta — `WEB` discriminator mapping
 
-The current Automate comparison surfaces a schema-publication delta on 20 ZDX application-monitor and monitor operations. Their flattened request/response fields are unchanged, while discriminator mappings add `WEB` and selected schema titles change (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:42-65`; operation-by-operation evidence at `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:194-306`). This is evidence about the currently published schema only. It does not by itself establish a feature launch, live endpoint behavior, GA status, tenant entitlement, or availability of a web-monitor capability in any particular tenant.
+The prior 2026-08-12 comparison at baseline commit `3174c9a` recorded a 20-operation ZDX schema-publication delta involving `WEB` discriminator mappings and selected schema-title changes; that is historical evidence, not the current status. The current 2026-09-07 comparison matches all 148 ZDX operations and reports zero schema-changed operations, with one product-metadata change (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:45-59`). This is evidence about the currently published schema only. It does not by itself establish a feature launch, live endpoint behavior, GA status, tenant entitlement, or availability of a web-monitor capability in any particular tenant.
 
 ---
 
@@ -332,7 +332,7 @@ These are SDK-shape differences that do not change the wire contract, recorded s
 
 - **No `ReadAllPages` helper in either SDK for ZDX.** ZDX uses cursor-based pagination (`next_offset`); neither SDK centralizes the cursor loop, so each caller implements its own. (See [`sdk.md § Cursor-based pagination`](./sdk.md).)
 - **`x-partner-id` (MSP / partner access) is supported by both SDKs** — Python via `ZSCALER_PARTNER_ID` → `partnerId` config → `x-partner-id` header (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:56`, `:329`); Go via `WithPartnerID` / `ZSCALER_PARTNER_ID` → `x-partner-id` header (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:85`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:470-471`). This is parity, not a divergence.
-- **Snapshot is Python-only** — no Go `snapshot` package exists. The reconstructed Automate contract publishes alert and user snapshot creation as `POST /snapshot/alert` and `POST /snapshot/user`, and flags both as path-prefix anomalies relative to the usual `/v1` ZDX prefix (`vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91526-91538`, `vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91675-91687`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:153-154`). The Python SDK composes the alert snapshot call under its `_zdx_base_endpoint = "/zdx/v1"` plus `/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:27`, `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:83-87`). Treat this as a base-path/transport caveat, not as proof either source is wrong. The operational detail lives in [`sdk.md § snapshot`](./sdk.md) and [`diagnostics-and-alerts.md § Sharing an alert snapshot`](./diagnostics-and-alerts.md).
+- **Snapshot is Python-only** — no Go `snapshot` package exists. The reconstructed Automate contract publishes alert and user snapshot creation as `POST /snapshot/alert` and `POST /snapshot/user`, and flags both as path-prefix anomalies relative to the usual `/v1` ZDX prefix (`vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91526-91538`, `vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json:91675-91687`, `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:154-155`). The Python SDK composes the alert snapshot call under its `_zdx_base_endpoint = "/zdx/v1"` plus `/snapshot/alert` (`vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:27`, `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py:83-87`). Treat this as a base-path/transport caveat, not as proof either source is wrong. The operational detail lives in [`sdk.md § snapshot`](./sdk.md) and [`diagnostics-and-alerts.md § Sharing an alert snapshot`](./diagnostics-and-alerts.md).
 
 ---
 

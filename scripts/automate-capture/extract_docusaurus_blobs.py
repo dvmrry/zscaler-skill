@@ -70,6 +70,12 @@ LOADER_BIND_RE = re.compile(
     r'(?P=runtime),(?P<module>\d+(?:e\d+)?)\)\)$'
 )
 API_BLOB_RE = re.compile(r'api:"([A-Za-z0-9+/=]+)"')
+MODULE_KEY_RE = re.compile(r"\d+(?:e\d+)?")
+WEBPACK_PUSH_RECEIVER_RE = re.compile(
+    r"\((?P<left_root>globalThis|self|window)\."
+    r"(?P<name>webpackChunk[A-Za-z0-9_$]*)\s*=\s*"
+    r"(?P<right_root>globalThis|self|window)\.(?P=name)\s*\|\|\s*\[\]\)"
+)
 PRODUCT_PATH_PREFIXES = {
     "aiguard": ["/v1"],
     "bi": ["/bi"],
@@ -329,47 +335,271 @@ def require_complete_routes(route_completeness: dict[str, object]) -> None:
         )
 
 
-def module_slice(js: str, module_id: int | str) -> str | None:
-    marker = re.search(rf"(?:^|[{{,]){re.escape(str(module_id))}:", js)
-    if not marker:
+def _skip_js_string(js: str, start: int, end: int) -> tuple[int, bool]:
+    quote = js[start]
+    escaped = False
+    i = start + 1
+    while i < end:
+        ch = js[i]
+        if escaped:
+            escaped = False
+        elif ch == "\\":
+            escaped = True
+        elif ch == quote:
+            return i + 1, True
+        i += 1
+    return end, False
+
+
+def _skip_js_comment(js: str, start: int, end: int) -> int:
+    if js.startswith("//", start):
+        newline = js.find("\n", start + 2, end)
+        return end if newline < 0 else newline + 1
+    if js.startswith("/*", start):
+        close = js.find("*/", start + 2, end)
+        return end if close < 0 else close + 2
+    return start
+
+
+def _skip_js_trivia(js: str, start: int, end: int) -> int:
+    i = start
+    while i < end:
+        if js[i].isspace():
+            i += 1
+            continue
+        next_i = _skip_js_comment(js, i, end)
+        if next_i != i:
+            i = next_i
+            continue
+        break
+    return i
+
+
+def _balanced_delimited_end(
+    js: str,
+    start: int,
+    end: int,
+    opening: str,
+    closing: str,
+) -> int | None:
+    if start >= end or js[start] != opening:
         return None
-    start = marker.end()
+    depth = 1
+    i = start + 1
+    while i < end:
+        next_i = _skip_js_comment(js, i, end)
+        if next_i != i:
+            i = next_i
+            continue
+        if js[i] in ("'", '"', "`"):
+            i, closed = _skip_js_string(js, i, end)
+            if not closed:
+                return None
+            continue
+        if js[i] == opening:
+            depth += 1
+        elif js[i] == closing:
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return None
+
+
+def _value_end(js: str, start: int, end: int) -> int | None:
+    """Find a module value's top-level comma without parsing JavaScript."""
     i = start
     paren = brace = bracket = 0
-    quote: str | None = None
-    escaped = False
-    while i < len(js):
+    while i < end:
+        next_i = _skip_js_comment(js, i, end)
+        if next_i != i:
+            i = next_i
+            continue
+        if js[i] in ("'", '"', "`"):
+            i, closed = _skip_js_string(js, i, end)
+            if not closed:
+                return None
+            continue
         ch = js[i]
-        if quote:
-            if escaped:
-                escaped = False
-            elif ch == "\\":
-                escaped = True
-            elif ch == quote:
-                quote = None
-            i += 1
-            continue
-        if ch in ("'", '"', "`"):
-            quote = ch
-            i += 1
-            continue
         if ch == "(":
             paren += 1
         elif ch == ")":
             paren -= 1
+            if paren < 0:
+                return None
         elif ch == "{":
             brace += 1
         elif ch == "}":
             brace -= 1
+            if brace < 0:
+                return None
         elif ch == "[":
             bracket += 1
         elif ch == "]":
             bracket -= 1
+            if bracket < 0:
+                return None
         elif ch == "," and paren == 0 and brace == 0 and bracket == 0:
-            if re.match(r"\d+(?:e\d+)?:", js[i + 1 : i + 24]):
-                return js[start:i]
+            return i
         i += 1
-    return js[start:]
+    if paren or brace or bracket:
+        return None
+    return end
+
+
+def _push_module_map_start(js: str, start: int, end: int) -> int | None:
+    """Return the direct module-map object in a known webpack push envelope."""
+    i = _skip_js_trivia(js, start, end)
+    if i >= end or js[i] != "[":
+        return None
+    array_depth = 1
+    paren = brace = 0
+    i += 1
+    while i < end:
+        next_i = _skip_js_comment(js, i, end)
+        if next_i != i:
+            i = next_i
+            continue
+        if js[i] in ("'", '"', "`"):
+            i, closed = _skip_js_string(js, i, end)
+            if not closed:
+                return None
+            continue
+        ch = js[i]
+        if ch == "[":
+            array_depth += 1
+        elif ch == "]":
+            array_depth -= 1
+            if array_depth == 0:
+                return None
+        elif ch == "(":
+            paren += 1
+        elif ch == ")":
+            paren -= 1
+            if paren < 0:
+                return None
+        elif ch == "{":
+            brace += 1
+        elif ch == "}":
+            brace -= 1
+            if brace < 0:
+                return None
+        elif ch == "," and array_depth == 1 and paren == 0 and brace == 0:
+            module_start = _skip_js_trivia(js, i + 1, end)
+            return module_start if module_start < end and js[module_start] == "{" else None
+        i += 1
+    return None
+
+
+def _webpack_envelope_start(js: str, end: int) -> int | None:
+    """Return the start of a file-level Webpack push after allowed directives."""
+    i = _skip_js_trivia(js, 0, end)
+    if i < end and js[i] in ("'", '"'):
+        string_end, closed = _skip_js_string(js, i, end)
+        if not closed or js[i + 1 : string_end - 1] != "use strict":
+            return None
+        i = _skip_js_trivia(js, string_end, end)
+        if i < end and js[i] == ";":
+            i = _skip_js_trivia(js, i + 1, end)
+    return i
+
+
+def _webpack_module_maps(js: str) -> list[tuple[int, int]]:
+    """Find the known file-level Webpack module-map envelope only."""
+    end = len(js)
+    receiver_start = _webpack_envelope_start(js, end)
+    if receiver_start is None or receiver_start >= end or js[receiver_start] != "(":
+        return []
+    receiver_end = _balanced_delimited_end(js, receiver_start, end, "(", ")")
+    if receiver_end is None or not WEBPACK_PUSH_RECEIVER_RE.fullmatch(
+        js[receiver_start : receiver_end + 1]
+    ):
+        return []
+    push_dot = _skip_js_trivia(js, receiver_end + 1, end)
+    if not js.startswith(".push", push_dot):
+        return []
+    open_paren = _skip_js_trivia(js, push_dot + len(".push"), end)
+    if open_paren >= end or js[open_paren] != "(":
+        return []
+    module_start = _push_module_map_start(js, open_paren + 1, end)
+    if module_start is None:
+        return []
+    module_end = _balanced_delimited_end(js, module_start, end, "{", "}")
+    if module_end is None:
+        return []
+    close_array = _skip_js_trivia(js, module_end + 1, end)
+    if close_array >= end or js[close_array] != "]":
+        return []
+    close_push = _skip_js_trivia(js, close_array + 1, end)
+    if close_push >= end or js[close_push] != ")":
+        return []
+    trailing = _skip_js_trivia(js, close_push + 1, end)
+    if trailing < end and js[trailing] == ";":
+        trailing = _skip_js_trivia(js, trailing + 1, end)
+    return [(module_start, module_end)] if trailing == end else []
+
+
+def _module_entries(js: str, start: int, end: int) -> list[tuple[str, int, int]]:
+    """Parse direct numeric entries from one known module-map span."""
+    entries: list[tuple[str, int, int]] = []
+    i = _skip_js_trivia(js, start, end)
+    while i < end:
+        match = MODULE_KEY_RE.match(js, i)
+        if not match:
+            return []
+        token = match.group(0)
+        delimiter = _skip_js_trivia(js, match.end(), end)
+        if delimiter >= end or js[delimiter] not in (":", "("):
+            return []
+        value_start = delimiter if js[delimiter] == "(" else delimiter + 1
+        value_end = _value_end(js, value_start, end)
+        if value_end is None:
+            return []
+        entries.append((token, value_start, value_end))
+        i = _skip_js_trivia(js, value_end, end)
+        if i >= end:
+            break
+        if js[i] != ",":
+            return []
+        i = _skip_js_trivia(js, i + 1, end)
+    return entries
+
+
+def _target_module_slice(
+    js: str,
+    entries: list[tuple[str, int, int]],
+    target: str,
+) -> str | None:
+    matches = [js[start:end] for token, start, end in entries if token == target]
+    return matches[0] if len(matches) == 1 else None
+
+
+def module_slice(js: str, module_id: int | str) -> str | None:
+    target = str(module_id)
+    structural_maps = _webpack_module_maps(js)
+    structural_matches = []
+    for map_start, map_end in structural_maps:
+        entries = _module_entries(js, map_start + 1, map_end)
+        if entries:
+            match = _target_module_slice(js, entries, target)
+            if match is not None:
+                structural_matches.append(match)
+    if structural_matches:
+        return structural_matches[0] if len(structural_matches) == 1 else None
+    if structural_maps:
+        return None
+
+    # Preserve only the existing unwrapped fixtures and exact object fragments.
+    start = _skip_js_trivia(js, 0, len(js))
+    if start < len(js) and js[start] == "{":
+        object_end = _balanced_delimited_end(js, start, len(js), "{", "}")
+        if object_end is not None and _skip_js_trivia(js, object_end + 1, len(js)) == len(js):
+            entries = _module_entries(js, start + 1, object_end)
+            return _target_module_slice(js, entries, target) if entries else None
+    if start < len(js) and MODULE_KEY_RE.match(js, start):
+        entries = _module_entries(js, start, len(js))
+        return _target_module_slice(js, entries, target) if entries else None
+    return None
 
 
 def decode_api_blob(blob: str) -> dict[str, object]:
