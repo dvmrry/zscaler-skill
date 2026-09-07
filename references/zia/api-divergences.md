@@ -321,7 +321,7 @@ This is a Go response-model change, not proof that the service stopped returning
 Automate response schema also retains it
 (`vendor/zscaler-sdk-python/zscaler/zia/models/pac_files.py:56-64`;
 `vendor/zscaler-sdk-python/zscaler/zia/models/common.py:85-107`;
-`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247484-247509`).
+`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247370-247395`).
 Whether current PAC tenant responses populate `externalId` remains unverified.
 
 ### Terraform provider v4.8.8 PAC resource/data-source lifecycle

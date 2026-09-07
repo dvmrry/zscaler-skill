@@ -5,6 +5,7 @@ title: "ZIA API resource schemas"
 content-type: reference
 last-verified: "2026-08-12"
 verified-against:
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
@@ -2820,7 +2821,7 @@ schema change. Replacing the former package-local type with
 `CommonBlocks` and the captured Automate response schema still retain that
 field (`vendor/zscaler-sdk-python/zscaler/zia/models/pac_files.py:56-64`;
 `vendor/zscaler-sdk-python/zscaler/zia/models/common.py:85-107`;
-`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247484-247509`).
+`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247370-247395`).
 Whether current PAC responses populate it remains unverified; see the
 [PAC divergence note](./api-divergences.md#pac-version-action-body-go-sends-a-raw-commit-message-string-python-sends-an-object-automate-declares-no-body).
 

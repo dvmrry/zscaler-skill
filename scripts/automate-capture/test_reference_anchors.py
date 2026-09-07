@@ -575,6 +575,28 @@ CASES = [
 ]
 
 
+# Repeated response fields must stay attached to the PAC response, not examples.
+CASES.extend([
+    AnchorCase(
+        "references/zia/api-divergences.md",
+        "The same release changes Go's",
+        "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247370-247395",
+        "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json",
+        247370,
+        247395,
+        ('"lastModifiedBy"', '"externalId"', '"type": "string"'),
+    ),
+    AnchorCase(
+        "references/zia/api-schemas.md",
+        "This row records the Go v3.8.46 response model",
+        "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:247370-247395",
+        "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json",
+        247370,
+        247395,
+        ('"lastModifiedBy"', '"externalId"', '"type": "string"'),
+    ),
+])
+
 # The SDK's callable inventory must not erase its remaining route divergence.
 CASES.append(
     AnchorCase(

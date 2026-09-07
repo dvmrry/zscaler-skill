@@ -17,6 +17,7 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
+  - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json"
