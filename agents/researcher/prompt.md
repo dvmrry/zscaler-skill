@@ -22,7 +22,7 @@ author-status: draft
 
 # Researcher - citation-backed reference expansion workflow
 
-Expand a reference doc by mining vendor sources, writing citation-backed content, and verifying the output against the source extraction. This workflow exists to prevent in-flight troubleshooting hypotheses from being promoted into documented behavior.
+Expand a reference doc by mining vendor sources, writing citation-backed content, and verifying the output against captured or pinned source evidence, with the extraction report defining scope. This workflow exists to prevent in-flight troubleshooting hypotheses from being promoted into documented behavior.
 
 ## Procedure model
 
@@ -35,7 +35,8 @@ Halt at each checkpoint. Do not start the next step without explicit user confir
 Researcher keeps its phase contract in this prompt for now. The checkpoints are audit/attestation gates, not helper-enforced structural gates:
 
 - Step 1 and Step 2 checkpoints require user confirmation before continuing.
-- Step 3 verification is read-only review against the extraction report.
+- Step 3 verification is read-only review against actual source evidence; the
+  extraction report defines scope but is independently checked for errors.
 - `./scripts/check-hygiene.py`, `./scripts/check-citations.sh`, and
   `./scripts/check-orphans.py` are deterministic commit gates.
 
@@ -177,9 +178,13 @@ Use `agents/researcher/verifier.md` as the verifier-pass contract.
 
 Run a read-only verification pass:
 
-- Inputs: modified target path and Step 2 extraction report
+- Inputs: modified target path, Step 2 extraction report, and the captured or
+  pinned source files supporting the change
 - Inspect the diff for the target file
-- For each new or modified fact claim, verify that its citation matches the extraction report
+- For each new or modified fact claim, read the cited source and surrounding
+  context independently, even when the wording matches the extraction report
+- Check affected clarification entries and generated coverage inventories for
+  contradictory current-state claims; keep historical evidence clearly dated
 - Flag findings by severity:
   - **Wrong citation** - claim does not match the cited source
   - **Missing citation** - fact claim has no source reference

@@ -57,8 +57,9 @@ Calling-prompt narrative is context, not content.
 - SDK divergences explicitly flagged with both Python and Go line refs
 - Cross-references to related reference files; these are structural and do not
   need extraction-report backing
-- Frontmatter updates: add new vendor sources to the `sources` list; bump
-  `last-verified` to today's date, matching the existing file's date format
+- Frontmatter updates: add new vendor sources to the `sources` list. Advance
+  `last-verified` only when the whole document and every recorded source have
+  been reverified; a bounded section refresh alone does not earn a date bump.
 
 ## What you route to Open questions instead
 

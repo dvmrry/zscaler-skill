@@ -185,6 +185,50 @@ test("strict drift analysis blocks high-priority findings but not unverified-onl
   assert.match(report.lines.join("\n"), /Unverified.*\*\*1\*\*/);
 });
 
+test("propagates indeterminate vendor comparisons, including global inventory errors", () => {
+  const changes = [{
+    path: "vendor/zscaler-sdk-go",
+    oldSha: OLD_SHA,
+    newSha: NEW_SHA,
+    status: "M",
+  }];
+  const runner = () => ({
+    status: 1,
+    stderr: "",
+    stdout: JSON.stringify({
+      drifted_high_priority: [],
+      drifted_low_priority: [],
+      unverified: [],
+      indeterminate: [
+        {
+          ref: null,
+          submodule: "(git submodule status)",
+          captured_sha: null,
+          current_sha: null,
+          reason: "git submodule status failed",
+        },
+        {
+          ref: "references/shared/example.md",
+          submodule: "vendor/zscaler-sdk-go",
+          captured_sha: OLD_SHA,
+          current_sha: NEW_SHA,
+          reason: "missing commit object",
+        },
+      ],
+    }),
+  });
+
+  const report = driftReport(changes, { root: "/tmp/example", runner });
+  assert.deepEqual(report.blockingReasons, [
+    "2 indeterminate vendor source comparison(s) remain",
+  ]);
+  const lines = report.lines.join("\n");
+  assert.match(lines, /Indeterminate\/unavailable.*\*\*2\*\*/);
+  assert.match(lines, /git submodule status failed/);
+  assert.match(lines, /missing commit object/);
+  assert.match(lines, new RegExp(`${OLD_SHA.slice(0, 7)}\\.\\.${NEW_SHA.slice(0, 7)}`));
+});
+
 test("argument parser keeps committed and worktree modes mutually exclusive", () => {
   assert.deepEqual(
     parseArgs(["--base", "origin/main", "--worktree", "--output", "summary.md"]),

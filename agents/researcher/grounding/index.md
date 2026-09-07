@@ -118,7 +118,9 @@ interesting. Ask before expanding the scope boundary.
 
 ## Verification discipline
 
-The writer may only use the extraction report. The verifier checks the diff
-against that report and spot-checks citations. Commit is available only after a
+The writer may only use the extraction report and must flag unsupported report
+claims during its source checks. The verifier independently checks the diff
+and the report's claims against captured or pinned source context, including
+affected clarifications and generated coverage inventories. Commit is available only after a
 PASS verdict with no Wrong citation, Missing citation, or Inferred-as-fact
 findings; otherwise fix or redo before committing.
