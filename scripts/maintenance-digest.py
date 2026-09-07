@@ -75,6 +75,13 @@ def display_path(path: Path) -> str:
         return str(path)
 
 
+def display_sha(value: Any) -> str:
+    """Shorten real SHA values without truncating unknown placeholders."""
+    if not isinstance(value, str) or not value:
+        return "unknown"
+    return value[:7] if len(value) >= 7 and re.fullmatch(r"[0-9a-fA-F]+", value) else value
+
+
 def stale_refs(threshold_days: int) -> tuple[list[tuple[str, str]], int]:
     cutoff = date.today() - timedelta(days=threshold_days)
     stale: list[tuple[str, str]] = []
@@ -157,6 +164,11 @@ def render(args: argparse.Namespace) -> str:
     drift_high = vendor.get("drifted_high_priority", []) if isinstance(vendor, dict) else []
     drift_low = vendor.get("drifted_low_priority", []) if isinstance(vendor, dict) else []
     unverified = vendor.get("unverified", []) if isinstance(vendor, dict) else []
+    indeterminate = vendor.get("indeterminate", []) if isinstance(vendor, dict) else []
+    # A command that produced no parseable JSON is itself an unknown vendor
+    # comparison state. Keep that uncertainty visible instead of rendering a
+    # misleading numeric zero in the digest summary.
+    indeterminate_count = "unknown" if vendor.get("_error") else str(len(indeterminate))
     stale_scrapes = freshness.get("stale", []) if isinstance(freshness, dict) else []
 
     out: list[str] = [
@@ -169,7 +181,7 @@ def render(args: argparse.Namespace) -> str:
         "",
         f"- Stale reference docs: **{len(stale)} / {total_refs}** older than {args.stale_days} days.",
         f"- Stale help scrapes: **{len(stale_scrapes)}** older than {args.scrape_days} days.",
-        f"- Vendor drift: **{len(drift_high)} high**, {len(drift_low)} low, {len(unverified)} unverified ref/submodule pairs.",
+        f"- Vendor drift: **{len(drift_high)} high**, {len(drift_low)} low, {len(unverified)} unverified ref/submodule pairs, **{indeterminate_count} indeterminate/unavailable comparisons**.",
         f"- Script scaffolds: **{len(scaffolds)}**.",
         f"- TODO/stub-bearing files: **{len(todo_files)}**.",
         "",
@@ -191,6 +203,25 @@ def render(args: argparse.Namespace) -> str:
     if drift_low:
         out.append(f"Low-priority unchanged cited-file bumps: {len(drift_low)}.")
         out.append("")
+    if indeterminate:
+        out += [
+            "Indeterminate vendor comparisons are not unchanged: initialize the module or recover the missing commit object before classifying drift.",
+            "",
+        ]
+        for item in indeterminate[:20]:
+            ref = item.get("ref") or "(repository submodule inventory)"
+            old_sha = item.get("captured_sha") or item.get("old_sha") or "unknown"
+            new_sha = item.get("current_sha") or item.get("new_sha") or "unknown"
+            out.append(
+                f"- `{ref}` — `{item.get('submodule', 'unknown submodule')}` "
+                f"`{display_sha(old_sha)}..{display_sha(new_sha)}`; "
+                f"reason: {item.get('reason', 'comparison unavailable')}"
+            )
+        if len(indeterminate) > 20:
+            out.append(f"- ... and {len(indeterminate) - 20} more")
+        out.append("")
+    elif not vendor.get("_error"):
+        out += ["No indeterminate vendor comparisons.", ""]
 
     out += [f"## Stale References > {args.stale_days} Days", ""]
     if stale:

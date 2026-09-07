@@ -5,9 +5,8 @@ This page collects repo upkeep that does not need to sit in the root README.
 ## Automation
 
 `.github/workflows/check-hygiene.yml` runs `scripts/check-hygiene.py` on every
-PR touching `references/`, `references/_meta/evals/`, or the script itself,
-plus on the weekly hygiene cadence. Errors fail CI; warnings are advisory. This
-catches frontmatter drift, broken anchors, eval-doc desync, and
+PR and on the weekly hygiene cadence. Errors fail CI; warnings are advisory.
+This catches frontmatter drift, broken anchors, eval-doc desync, and
 resolved-clarification propagation gaps.
 
 `.github/workflows/issue-watch.yml` runs `scripts/issue-watch.py` in
@@ -29,6 +28,15 @@ merge gate.
 `check-vendor-drift.py` counts, runs `scripts/find-asymmetries.py`, and uploads
 the vendor impact summary plus asymmetry candidates as artifacts. Use this for
 Renovate and submodule PR triage before merging.
+
+`.github/workflows/refresh-discovery.yml` is the cheap daily publication scan.
+It runs `npm run refresh:discovery` with temporary JSON and Markdown report
+paths, restores the most recent successful observation baseline through the
+Actions artifacts API when one is available, and uploads the new report and
+baseline as artifacts. A missing artifact is reported as bootstrap coverage;
+the workflow does not silently treat an unavailable baseline as an unchanged
+source. The job summary contains the bounded Markdown report, and the scan
+does not open issues, mutate sources, or send notifications.
 
 ## Weekly upstream refresh (automated)
 
@@ -60,6 +68,61 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
 - Upstream doc changes are threaded into the references by weekly doc-threading
   PRs; PR #198 / commit `9673804` is one example.
 
+## Discovery cadence and boundaries
+
+The daily discovery scan is deliberately cheaper than a content refresh. It
+records the current `.gitmodules`/index gitlinks and uses the authenticated
+`gh api` CLI to observe GitHub default heads and latest releases. It records
+Help sitemap URLs and `lastmod` values, and checks only the Automate main and
+runtime JavaScript assets with conditional requests. It never downloads Help
+article pages or Automate operation pages, and it labels every delta as an
+observed publication candidate. The report keeps product counts and bounded
+Markdown examples rather than printing a sitemap-sized page queue; the JSON
+report retains the complete bounded candidate array for downstream filtering.
+
+Run it locally with output paths outside this checkout (the baseline is
+optional):
+
+```bash
+npm run refresh:discovery -- \
+  --output /tmp/zscaler-refresh-discovery/report.json \
+  --markdown /tmp/zscaler-refresh-discovery/report.md \
+  --baseline /tmp/zscaler-refresh-discovery/baseline.json \
+  --since 2026-09-01
+```
+
+Use the weekly cadence for bounded integration review: inspect the daily JSON
+candidate array (the Markdown file is intentionally only bounded examples),
+capture only selected changed sources, and run the normal
+reference/provenance checks before editing knowledge. Use the monthly cadence
+for broader coverage work such as a bounded Automate contract sweep or Help
+coverage accounting. A changed main/runtime asset is only a capture candidate;
+this discovery helper cannot infer a semantic API delta. A sitemap truncation,
+incomplete child fetch, HTTP failure, or missing `gh` authentication is reported
+as partial/unknown. Missing `lastmod` values remain visible in the coverage
+count and mean that this scan cannot detect a date-only change for that URL. No
+available prior artifact is reported explicitly as bootstrap coverage; an
+Actions API or artifact download failure is instead a restore failure, remains
+unknown, and blocks replacement-baseline publication. Failed checks preserve
+their prior observations rather than replacing them with empty-success state.
+
+The implementation is intentionally dependency-free and bounded: Node's
+standard library, fixed request timeout/retry/rate limits, at most four
+concurrent source requests, a small sitemap-index fan-out, conditional asset
+requests, and atomic writes to external paths. GitHub credentials remain in
+`gh`'s existing authentication context and are never copied into output.
+Regression coverage is in `scripts/refresh-discovery.test.mjs`; run it with:
+
+```bash
+node --test scripts/refresh-discovery.test.mjs
+```
+
+The tests use local fixtures and injected Git/`gh`/HTTP runners for first-run,
+unchanged/304, changed, and failure/preserved-baseline cases. No live network
+request is required. The JSON report retains the complete bounded candidate
+array for review or filtering; Markdown intentionally shows only bounded
+examples.
+
 ## Submodule Management
 
 Renovate handles the normal Monday bump. Use a manual bump only to fast-track a
@@ -77,6 +140,13 @@ After a manual bump, use the same review path as Renovate: wait for hygiene,
 read the vendor-impact summary, and propagate real SDK / Terraform / contract
 changes into the affected reference docs.
 
+For checked-in Help/API captures, commit the captured source before recording
+that commit in a reference's `verified-against` metadata. Preserve those source
+commits when merging the documentation PR (use a merge commit, not squash or
+rebase), unless the provenance pins are explicitly rewritten and revalidated
+against replacement source commits. Otherwise a clean CI checkout cannot
+resolve a capture commit that existed only on the discarded branch.
+
 ## Contributing
 
 - Reference files start as `author-status: stub` with TODO headings. Pick one,
@@ -84,8 +154,10 @@ changes into the affected reference docs.
 - Keep hand-authored reasoning (`content-type: reasoning`) separate from
   reproduced or paraphrased API docs (`content-type: reference`). The
   distinction matters for later training use.
-- When you change Zscaler behavior docs, update `last-verified` to the date you
-  performed the verification.
+- When all cited sources for a behavior document are reverified, update
+  `last-verified` to that verification date. A bounded edit that does not
+  reverify every cited source retains the existing date and records its narrower
+  source scope instead of implying a full-document recheck.
 - Resolving a clarification: update the entry in
   `references/_meta/clarifications.md` in place. Set `Status: resolved`, add an
   `Answer:` paragraph, and cite sources. Do not delete resolved entries; other
