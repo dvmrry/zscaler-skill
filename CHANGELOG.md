@@ -4,6 +4,27 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.18.0](https://github.com/dvmrry/zscaler-skill/compare/v0.17.2...v0.18.0) (2026-09-07)
+
+
+### Features
+
+* make refresh discovery bounded and evidence-safe ([#289](https://github.com/dvmrry/zscaler-skill/issues/289)) ([3942d72](https://github.com/dvmrry/zscaler-skill/commit/3942d72881e39a4e485269d5f552cd3a5b0efef7))
+
+
+### Bug Fixes
+
+* bind captured API blobs to explicit Webpack module ownership ([cb52357](https://github.com/dvmrry/zscaler-skill/commit/cb52357dcb6fbd1aeba877a8361cae85eb09e580))
+* decode current Automate modules and refresh captured contracts ([b3e1bd9](https://github.com/dvmrry/zscaler-skill/commit/b3e1bd909a3486d240e045029961fc44c0cb483b))
+
+
+### Documentation
+
+* capture connector lifecycle and current Help guidance ([96e69d7](https://github.com/dvmrry/zscaler-skill/commit/96e69d73438c058c45739f741053bd68d47d234c))
+* close independent source and citation review findings ([8c1c72a](https://github.com/dvmrry/zscaler-skill/commit/8c1c72a01e8c2324827048bab2df6c158fd3b0f5))
+* refresh Help guidance and current Automate contracts ([a63979a](https://github.com/dvmrry/zscaler-skill/commit/a63979ad81dcaeaf6cdef2378f9d904947b74314))
+* synchronize Help guidance and current Automate evidence ([e1ee1dc](https://github.com/dvmrry/zscaler-skill/commit/e1ee1dcff35e790297aa9899788eb02cd13f9adb))
+
 ## [0.17.2](https://github.com/dvmrry/zscaler-skill/compare/v0.17.1...v0.17.2) (2026-09-03)
 
 
