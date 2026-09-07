@@ -319,6 +319,25 @@ def test_module_slice_accepts_first_key_in_module_object():
     assert 'api:"abc"' in sliced
 
 
+def test_module_slice_accepts_method_shorthand_and_stops_at_adjacent_module():
+    js = (
+        '"use strict";(globalThis.webpackChunk=self.webpackChunk||[]).push([[354152],'
+        r'{919588(e,t,i){'
+        r'const frontMatter={api:"owned",nested:{text:"},638072(e,t,a){notApi:\"fake\""},'
+        r'items:[{value:"}"}]};'
+        r'const quoted="},638072(e,t,a){const frontMatter={notApi:\"fake\"}}";'
+        r'return frontMatter;},'
+        '638072(e,t,a){const frontMatter={api:"misleading-adjacent"}}}]);'
+    )
+
+    sliced = extract.module_slice(js, 919588)
+
+    assert sliced is not None
+    assert 'api:"owned"' in sliced
+    assert 'api:"misleading-adjacent"' not in sliced
+    assert len(extract.API_BLOB_RE.findall(sliced)) == 1
+
+
 def test_module_slice_stops_before_exponent_sibling_key():
     js = '38e3:function(e,t,o){const a={api:"first"}},88e3:function(e,t,o){const b={api:"second"}}'
 
@@ -337,6 +356,36 @@ def test_operation_blob_rejects_sole_blob_when_requested_module_is_absent():
     }
     blob = base64.b64encode(zlib.compress(json.dumps(wrong_api).encode("utf-8"))).decode("ascii")
     chunks = {999: f'111:(e,t,o)=>{{const frontMatter={{api:"{blob}"}}}}'}
+    route = {
+        "module": 333,
+        "module_token": "333",
+        "chunks": [999],
+    }
+
+    api, error, provenance = extract.operation_blob(
+        route,
+        chunks.get,
+        {999: "https://example.invalid/999.js"},
+    )
+
+    assert api is None
+    assert error == "no api blob found for module 333"
+    assert provenance is None
+
+
+def test_operation_blob_rejects_shorthand_module_without_api_and_no_fallback():
+    wrong_api = {
+        "operationId": "Adjacent Operation",
+        "method": "delete",
+        "path": "/adjacent",
+    }
+    blob = base64.b64encode(zlib.compress(json.dumps(wrong_api).encode("utf-8"))).decode("ascii")
+    chunks = {
+        999: (
+            '333(e,t,o){const frontMatter={notApi:"requested module has no blob"}},'
+            f'444(e,t,o){{const frontMatter={{api:"{blob}"}}}}'
+        )
+    }
     route = {
         "module": 333,
         "module_token": "333",

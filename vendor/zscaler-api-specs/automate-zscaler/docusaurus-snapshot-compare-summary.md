@@ -1,577 +1,572 @@
 # Automate Docusaurus Snapshot
 
-Captured at: `2026-08-12T19:30:27.295671+00:00`
-Main JS: `https://automate.zscaler.com/assets/js/main.a6c60d52.js`
-Runtime JS: `https://automate.zscaler.com/assets/js/runtime~main.2327c68a.js`
+Captured at: `2026-09-07T13:58:58.314959+00:00`
+Main JS: `https://automate.zscaler.com/assets/js/main.ee13ae7b.js`
+Runtime JS: `https://automate.zscaler.com/assets/js/runtime~main.f2f463b9.js`
 
 ## Summary
 
-- Routes discovered: **1257**
-- API MDX route candidates matched: **1257 / 1257**
-- API blobs decoded: **1257**
+- Routes discovered: **1322**
+- API MDX route candidates matched: **1322 / 1322**
+- API blobs decoded: **1322**
 - Decode failures: **0**
-- Existing committed contract ops: **1207**
-- Live-only route keys: **108**
-- Existing-only route keys: **58**
-- Live-only loose method/path signatures: **97**
-- Existing-only loose method/path signatures: **47**
+- Existing committed contract ops: **1304**
+- Live-only route keys: **53**
+- Existing-only route keys: **35**
+- Live-only loose method/path signatures: **38**
+- Existing-only loose method/path signatures: **23**
 
 ## Retained Publication Absences
 
-These products have no operations in the current public route table. Their last-known committed snapshots are retained; publication absence does not establish endpoint retirement or backend unavailability.
-
-- `aiguard` — **47** last-known operations across **29** paths retained (`absent-from-current-public-route-table`).
+- None.
 
 ## Product Counts
 
 | product | live blobs | existing scrape | route-key common ops | loose path common sigs | live-only route keys | existing-only route keys | request nested | response nested |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `ai-security` | 108 | 11 | 0 | 11 | 108 | 11 | 0 | 65 |
-| `aiguard` | 0 | 47 | 0 | 0 | 0 | 47 | 0 | 0 |
+| `ai-security` | 114 | 108 | 104 | 104 | 10 | 4 | 157 | 804 |
+| `aiguard` | 47 | 47 | 47 | 39 | 0 | 0 | 24 | 132 |
 | `bi` | 10 | 10 | 10 | 10 | 0 | 0 | 48 | 116 |
 | `easm` | 11 | 11 | 11 | 11 | 0 | 0 | 0 | 79 |
-| `event-monitoring` | 15 | 15 | 15 | 15 | 0 | 0 | 22 | 69 |
-| `zcc` | 54 | 54 | 54 | 54 | 0 | 0 | 481 | 568 |
-| `zcell` | 36 | 36 | 36 | 36 | 0 | 0 | 14 | 189 |
+| `event-monitoring` | 15 | 15 | 15 | 14 | 0 | 0 | 22 | 69 |
+| `urbac` | 6 | 0 | 0 | 0 | 6 | 0 | 0 | 0 |
+| `zcc` | 50 | 54 | 50 | 50 | 0 | 4 | 481 | 546 |
+| `zcell` | 36 | 36 | 11 | 35 | 25 | 25 | 15 | 196 |
 | `zcloudconnector` | 165 | 165 | 165 | 165 | 0 | 0 | 2358 | 5678 |
 | `zdx` | 148 | 148 | 148 | 129 | 0 | 0 | 562 | 5947 |
-| `zia` | 471 | 471 | 471 | 471 | 0 | 0 | 3249 | 9699 |
-| `zid` | 31 | 31 | 31 | 31 | 0 | 0 | 24 | 265 |
-| `zpa` | 208 | 208 | 208 | 208 | 0 | 0 | 5390 | 9104 |
+| `zia` | 469 | 471 | 469 | 469 | 0 | 2 | 3249 | 9699 |
+| `zid` | 31 | 31 | 31 | 28 | 0 | 0 | 24 | 265 |
+| `zpa` | 220 | 208 | 208 | 208 | 12 | 0 | 5390 | 9104 |
 
 ## Contract Change Radar
 
 Route-key renames are paired by method/path before additions and removals are counted. Schema changes compare flattened field names plus type, required, readonly, enum, and response status metadata, as well as discriminator mappings and titles from request and selected-success schemas. Schema or product metadata drift describes the current public documentation; by itself it does not establish a feature launch, endpoint availability, or tenant entitlement.
-For products listed as retained publication absences, the `removed ops` count is only the current-route-table versus retained-snapshot set difference; it is not an endpoint-retirement conclusion.
 
 | product | matched | added ops | removed ops | route changes | route-key changes | schema-changed ops | schema annotation Δ | product metadata Δ | request +/−/Δ | response +/−/Δ |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `ai-security` | 11 | 97 | 0 | 0 | 11 | 7 | 2 | 1 | 0/0/0 | 0/2/8 |
-| `aiguard` | 0 | 0 | 47 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `ai-security` | 104 | 10 | 4 | 0 | 0 | 7 | 6 | 0 | 0/0/0 | 58/10/10 |
+| `aiguard` | 47 | 0 | 0 | 8 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
 | `bi` | 10 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `easm` | 11 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `event-monitoring` | 15 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zcc` | 54 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zcell` | 36 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zcloudconnector` | 165 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zdx` | 148 | 0 | 0 | 0 | 0 | 20 | 20 | 1 | 0/0/0 | 0/0/0 |
-| `zia` | 471 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zid` | 31 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
-| `zpa` | 208 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `easm` | 11 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `event-monitoring` | 15 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `urbac` | 0 | 6 | 0 | 0 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `zcc` | 50 | 0 | 4 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zcell` | 35 | 1 | 1 | 0 | 24 | 10 | 1 | 1 | 1/0/1 | 8/1/1 |
+| `zcloudconnector` | 165 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zdx` | 148 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zia` | 469 | 0 | 2 | 0 | 0 | 0 | 0 | 1 | 0/0/0 | 0/0/0 |
+| `zid` | 31 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | 0/0/0 | 0/0/0 |
+| `zpa` | 208 | 12 | 0 | 0 | 0 | 8 | 0 | 1 | 0/0/0 | 0/0/0 |
 
 ### Product metadata changes
 
-- `ai-security` `title` values: added `AI Red Teaming`; retained `AI Infrastructure`; current operation distribution `AI Infrastructure`=11, `AI Red Teaming`=97.
-- `zdx` `title` values: added `Digital Experience API`; retained `Zscaler Digital Experience API`; current operation distribution `Digital Experience API`=146, `Zscaler Digital Experience API`=2.
+- `easm` `title`: `Zscaler External Attack Surface Management API` → `External Attack Surface Management API`.
+- `zcc` `title`: `Zscaler Client Connector API` → `Client Connector API`.
+- `zcell` `title`: `Zscaler Cellular API` → `Cellular API`.
+- `zcloudconnector` `title`: `Zscaler Cloud & Branch Connector API` → `Cloud & Branch Connector API`.
+- `zdx` `title` values: removed `Zscaler Digital Experience API`; retained `Digital Experience API`; current operation distribution `Digital Experience API`=148.
+- `zia` `title`: `Zscaler Internet Access API` → `Internet Access API`.
+- `zpa` `title`: `Zscaler Private Access API` → `Private Access API`.
 
 ### Added operations
 
-- `ai-security` — `POST /api/v2/ai-apps/create` (`ai-security/airedteaming/aiapp/ai-app-resource-create-ai-app`)
-- `ai-security` — `DELETE /api/v2/ai-apps/{aiAppId}` (`ai-security/airedteaming/aiapp/ai-app-resource-delete-ai-app`)
-- `ai-security` — `POST /api/v2/ai-apps/{aiAppId}/duplicate` (`ai-security/airedteaming/aiapp/ai-app-resource-duplicate-ai-app`)
-- `ai-security` — `GET /api/v2/ai-apps/{aiAppId}` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app`)
-- `ai-security` — `GET /api/v2/ai-apps/{aiAppId}/latest-probe-runs` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-latest-probe-runs`)
-- `ai-security` — `POST /api/v2/ai-apps/{aiAppId}/risk-level-timeseries` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-risk-level-timeseries`)
-- `ai-security` — `GET /api/v2/ai-apps/{aiAppId}/settings` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-settings`)
-- `ai-security` — `GET /api/v2/ai-apps/{aiAppId}/test-run-metrics` (`ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-test-run-metrics`)
-- `ai-security` — `GET /api/v2/ai-apps/{aiAppId}/available-probes` (`ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-available-probes`)
-- `ai-security` — `GET /api/v2/ai-apps/{aiAppId}/test-run-available-probes` (`ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-run-available-probes`)
-- `ai-security` — `POST /api/v2/ai-apps/{aiAppId}/test-runs` (`ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-runs`)
-- `ai-security` — `POST /api/v2/ai-apps` (`ai-security/airedteaming/aiapp/ai-app-resource-list-ai-apps`)
-- `ai-security` — `PUT /api/v2/ai-apps/{aiAppId}` (`ai-security/airedteaming/aiapp/ai-app-resource-update-ai-app`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/agentforce` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-agentforce-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/anthropic` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-anthropic-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/azure-bot` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-bot-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/azure-ml` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-ml-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/azure-openai` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-open-ai-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/bedrock` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-bedrock-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/copilot-studio` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-copilot-studio-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/databricks` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-databricks-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/gemini` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-gemini-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/glean` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-glean-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/hugging-face` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-hugging-face-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/mistral` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-mistral-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/openai-assistant` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-open-ai-assistant-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/openai` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-open-ai-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/openai-rest-api` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-open-ai-rest-api-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/proxy-sdk` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-proxy-sdk-integration`)
-- `ai-security` — `POST /api/v2/ai-app/test-integration/rest-api` (`ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-rest-api-integration`)
-- `ai-security` — `GET /api/v2/business-units` (`ai-security/airedteaming/businessunit/business-unit-resource-list-business-units`)
-- `ai-security` — `POST /api/v2/files/business-unit/{businessUnitId}/upload-custom-dataset` (`ai-security/airedteaming/file/file-resource-upload-custom-dataset`)
-- `ai-security` — `POST /api/v2/files/upload` (`ai-security/airedteaming/file/file-resource-upload-file`)
-- `ai-security` — `POST /api/v2/files/business-unit/{businessUnitId}/upload-qa-file` (`ai-security/airedteaming/file/file-resource-upload-qa-file`)
-- `ai-security` — `GET /api/v2/model-benchmarks/compare/{id1}/{id2}` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-compare-benchmark-models`)
-- `ai-security` — `POST /api/v2/model-benchmarks/request` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-create-benchmark-request`)
-- `ai-security` — `GET /api/v2/model-benchmarks/{id}` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-get-benchmark-model`)
-- `ai-security` — `GET /api/v2/model-benchmarks/{id}/runs/{probeId}/{benchmarkTypeId}` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-get-benchmark-probe-run`)
-- `ai-security` — `GET /api/v2/model-benchmarks/runs/{probeRunId}/test-case-filter-options` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-get-benchmark-probe-run-filter-options`)
-- `ai-security` — `GET /api/v2/model-benchmarks/results/{id}` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-get-benchmark-probe-run-result`)
-- `ai-security` — `GET /api/v2/model-benchmarks/categories` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-benchmark-categories`)
-- `ai-security` — `GET /api/v2/model-benchmarks/{id}/runs` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-benchmark-model-runs`)
-- `ai-security` — `POST /api/v2/model-benchmarks/{id}/runs/{probeId}/{benchmarkTypeId}/test-cases` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-benchmark-probe-run-test-cases`)
-- `ai-security` — `GET /api/v2/model-benchmarks/types` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-benchmark-types`)
-- `ai-security` — `POST /api/v2/model-benchmarks` (`ai-security/airedteaming/modelbenchmark/model-benchmark-resource-list-model-benchmarks`)
-- `ai-security` — `GET /api/v2/probes/{probeId}` (`ai-security/airedteaming/probe/probe-resource-get-probe-definition`)
-- `ai-security` — `GET /api/v2/probes/all-available-probes` (`ai-security/airedteaming/probe/probe-resource-list-all-available-probes`)
-- `ai-security` — `POST /api/v2/ai-apps/{aiAppId}/probe-settings` (`ai-security/airedteaming/probeconfiguration/probe-configuration-resource-create-probe-settings`)
-- `ai-security` — `GET /api/v2/ai-apps/{aiAppId}/probe-settings/{probeConfigurationId}` (`ai-security/airedteaming/probeconfiguration/probe-configuration-resource-get-probe-settings`)
-- `ai-security` — `GET /api/v2/ai-apps/{aiAppId}/probe-settings` (`ai-security/airedteaming/probeconfiguration/probe-configuration-resource-list-probe-settings`)
-- `ai-security` — `PATCH /api/v2/ai-apps/{aiAppId}/probe-settings/{probeConfigurationId}` (`ai-security/airedteaming/probeconfiguration/probe-configuration-resource-update-probe-settings`)
-- `ai-security` — `GET /api/v2/probe-runs/{probeRunId}/ai-analysis-results` (`ai-security/airedteaming/proberun/probe-run-resource-get-probe-run-ai-analysis-results`)
-- `ai-security` — `GET /api/v2/probe-runs/{probeRunId}` (`ai-security/airedteaming/proberun/probe-run-resource-get-probe-run-details`)
-- `ai-security` — `GET /api/v2/probe-runs/{probeRunId}/test-case-filter-options` (`ai-security/airedteaming/proberun/probe-run-resource-get-probe-run-test-case-filter-options`)
-- `ai-security` — `POST /api/v2/probe-runs/{probeRunId}/test-cases` (`ai-security/airedteaming/proberun/probe-run-resource-list-probe-run-test-cases`)
-- `ai-security` — `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}/export-json-policy` (`ai-security/airedteaming/remediation/remediation-resource-export-policy-as-json`)
-- `ai-security` — `GET /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/{promptHardeningId}` (`ai-security/airedteaming/remediation/remediation-resource-get-ai-app-prompt-hardening-by-id`)
-- `ai-security` — `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/latest` (`ai-security/airedteaming/remediation/remediation-resource-get-latest-policy-generator`)
-- `ai-security` — `GET /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/latest` (`ai-security/airedteaming/remediation/remediation-resource-get-latest-prompt-hardening`)
-- `ai-security` — `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}` (`ai-security/airedteaming/remediation/remediation-resource-get-policy-generator-by-id`)
-- `ai-security` — `POST /api/v2/remediation/policy-generator/metrics` (`ai-security/airedteaming/remediation/remediation-resource-get-policy-generator-dashboard-metrics`)
-- `ai-security` — `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}/detector` (`ai-security/airedteaming/remediation/remediation-resource-get-policy-generator-detector`)
-- `ai-security` — `GET /api/v2/remediation/prompt-hardening/{promptHardeningId}` (`ai-security/airedteaming/remediation/remediation-resource-get-prompt-hardening-by-id`)
-- `ai-security` — `POST /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}/import` (`ai-security/airedteaming/remediation/remediation-resource-import-policy-to-guardrail`)
-- `ai-security` — `POST /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/history` (`ai-security/airedteaming/remediation/remediation-resource-list-ai-app-policy-generator-history`)
-- `ai-security` — `GET /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/available-probes` (`ai-security/airedteaming/remediation/remediation-resource-list-policy-generator-available-probes`)
-- `ai-security` — `POST /api/v2/remediation/policy-generator/history` (`ai-security/airedteaming/remediation/remediation-resource-list-policy-generator-history`)
-- `ai-security` — `POST /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/history` (`ai-security/airedteaming/remediation/remediation-resource-list-prompt-hardening-history`)
-- `ai-security` — `PUT /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/{policyId}/mark-as-applied` (`ai-security/airedteaming/remediation/remediation-resource-mark-policy-as-applied`)
-- `ai-security` — `POST /api/v2/remediation/ai-apps/{aiAppId}/policy-generator/trigger` (`ai-security/airedteaming/remediation/remediation-resource-trigger-policy-generation`)
-- `ai-security` — `POST /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/{promptHardeningId}/state` (`ai-security/airedteaming/remediation/remediation-resource-update-ai-app-prompt-hardening-state`)
-- `ai-security` — `PUT /api/v2/remediation/prompt-hardening/{promptHardeningId}` (`ai-security/airedteaming/remediation/remediation-resource-update-prompt-hardening-state`)
-- `ai-security` — `GET /api/v2/reports/ai-app-overview/{aiAppId}` (`ai-security/airedteaming/report/report-resource-generate-ai-app-overview-report`)
-- `ai-security` — `GET /api/v2/reports/benchmark-overview/{modelId}` (`ai-security/airedteaming/report/report-resource-generate-benchmark-overview-report`)
-- `ai-security` — `GET /api/v2/reports/test-run-overview/{testRunId}` (`ai-security/airedteaming/report/report-resource-generate-test-run-overview-report`)
-- `ai-security` — `POST /api/v2/scheduled-test-runs/schedule-new` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-create-scheduled-test-run`)
-- `ai-security` — `DELETE /api/v2/scheduled-test-runs/{scheduledTestRunId}` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-delete-scheduled-test-run`)
-- `ai-security` — `GET /api/v2/scheduled-test-runs/{scheduledTestRunId}` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-get-scheduled-test-run`)
-- `ai-security` — `POST /api/v2/scheduled-test-runs` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-list-scheduled-test-runs`)
-- `ai-security` — `PUT /api/v2/scheduled-test-runs/{scheduledTestRunId}` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-update-scheduled-test-run`)
-- `ai-security` — `PUT /api/v2/scheduled-test-runs/{scheduledTestRunId}/status` (`ai-security/airedteaming/scheduledtestrun/scheduled-test-run-resource-update-scheduled-test-run-status`)
-- `ai-security` — `GET /api/v2/test-cases/{testCaseResultId}` (`ai-security/airedteaming/testcaseresult/test-case-result-resource-get-test-case-result`)
-- `ai-security` — `PUT /api/v2/test-cases/{testCaseResultId}/include-in-report` (`ai-security/airedteaming/testcaseresult/test-case-result-resource-set-test-case-include-in-report`)
-- `ai-security` — `POST /api/v2/test-runs/{testRunId}/cancel-test-run` (`ai-security/airedteaming/testrun/test-run-resource-cancel-test-run`)
-- `ai-security` — `POST /api/v2/test-runs/{testRunId}/continue` (`ai-security/airedteaming/testrun/test-run-resource-continue-test-run`)
-- `ai-security` — `DELETE /api/v2/test-runs/{testRunId}` (`ai-security/airedteaming/testrun/test-run-resource-delete-test-run`)
-- `ai-security` — `GET /api/v2/test-runs/{testRunId}` (`ai-security/airedteaming/testrun/test-run-resource-get-test-run`)
-- `ai-security` — `GET /api/v2/test-runs/{testRunId}/probe-categories` (`ai-security/airedteaming/testrun/test-run-resource-list-test-run-probe-categories`)
-- `ai-security` — `POST /api/v2/test-runs/{testRunId}/probe-run-details` (`ai-security/airedteaming/testrun/test-run-resource-list-test-run-probe-run-details`)
-- `ai-security` — `POST /api/v2/test-runs/{testRunId}/probe-runs` (`ai-security/airedteaming/testrun/test-run-resource-list-test-run-probe-runs`)
-- `ai-security` — `POST /api/v2/test-runs/history` (`ai-security/airedteaming/testrun/test-run-resource-list-test-runs`)
-- `ai-security` — `PUT /api/v2/test-runs/{testRunId}` (`ai-security/airedteaming/testrun/test-run-resource-update-test-run`)
-- `ai-security` — `POST /api/v2/remediation/assets/prompt-hardening/start-new` (`ai-security/airedteaming/trigger/trigger-resource-start-new-asset-prompt-hardening`)
-- `ai-security` — `POST /api/v2/remediation/ai-apps/{aiAppId}/prompt-hardening/trigger` (`ai-security/airedteaming/trigger/trigger-resource-trigger-ai-app-prompt-hardening`)
-- `ai-security` — `POST /api/v2/test-runs/trigger-new-run` (`ai-security/airedteaming/trigger/trigger-resource-trigger-new-test-run`)
-- `ai-security` — `POST /api/v2/probe-run/{probeRunId}/ai-analysis/trigger` (`ai-security/airedteaming/trigger/trigger-resource-trigger-probe-run-ai-analysis`)
-- `ai-security` — `POST /api/v2/remediation/prompt-hardening/trigger` (`ai-security/airedteaming/trigger/trigger-resource-trigger-prompt-hardening`)
+- `ai-security` — `GET /v1/assets/agents/{id}` (`ai-security/aisecurity/v1-assets-agents/agents-get-agent`)
+- `ai-security` — `GET /v1/assets/agents` (`ai-security/aisecurity/v1-assets-agents/agents-list-agents`)
+- `ai-security` — `GET /v1/resources/coderepositories/{id}` (`ai-security/aisecurity/v1-resources-coderepositories/code-repositories-get-code-repository`)
+- `ai-security` — `GET /v1/resources/coderepositories` (`ai-security/aisecurity/v1-resources-coderepositories/code-repositories-list-code-repositories`)
+- `ai-security` — `GET /v1/resources/datastores/{id}` (`ai-security/aisecurity/v1-resources-datastores/datastores-get-datastore`)
+- `ai-security` — `GET /v1/resources/datastores` (`ai-security/aisecurity/v1-resources-datastores/datastores-list-datastores`)
+- `ai-security` — `GET /v1/resources/guardrails/{id}` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-get-guardrail`)
+- `ai-security` — `GET /v1/resources/guardrails` (`ai-security/aisecurity/v1-resources-guardrails/guardrails-list-guardrails`)
+- `ai-security` — `GET /v1/resources/workloads/{id}` (`ai-security/aisecurity/v1-resources-workloads/workloads-get-workload`)
+- `ai-security` — `GET /v1/resources/workloads` (`ai-security/aisecurity/v1-resources-workloads/workloads-list-workloads`)
+- `urbac` — `POST /v1/auditlog/query` (`urbac/auditlogs/audit-log-resource-search-logs`)
+- `urbac` — `POST /v1/roles` (`urbac/roles/urbac-resource-create-role`)
+- `urbac` — `DELETE /v1/roles/{roleId}` (`urbac/roles/urbac-resource-delete-role`)
+- `urbac` — `GET /v1/roles/{roleId}` (`urbac/roles/urbac-resource-get-role`)
+- `urbac` — `POST /v1/roles/query` (`urbac/roles/urbac-resource-get-roles`)
+- `urbac` — `PUT /v1/roles/{roleId}` (`urbac/roles/urbac-resource-update-role`)
+- `zcell` — `GET /api/v1/customers/{id}/sims/{iccid}/tower-locations` (`zcell/sim-management/sim-resource-get-tower-location-history`)
+- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/application/federate` (`zpa/federate-applications/federate-application`)
+- `zpa` — `GET /mgmtconfig/v1/customers/{customerId}/application/host/{host_id}` (`zpa/federate-applications/get-federated-applications-from-host`)
+- `zpa` — `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token` (`zpa/partner-federation-provisioning/create-federation-token`)
+- `zpa` — `DELETE /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}` (`zpa/partner-federation-provisioning/delete-provisioning`)
+- `zpa` — `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation/partners` (`zpa/partner-federation-provisioning/get-active-federation-partners`)
+- `zpa` — `GET /mgmtconfig/v1/customers/{customerId}/tenant-federation` (`zpa/partner-federation-provisioning/get-provisionings`)
+- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/approval` (`zpa/partner-federation-provisioning/request-approval`)
+- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/federation-state/{status}` (`zpa/partner-federation-provisioning/update-federation-state`)
+- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/notes` (`zpa/partner-federation-provisioning/update-notes`)
+- `zpa` — `PUT /mgmtconfig/v1/customers/{customerId}/tenant-federation/{federation_id}/provisioning-state/{status}` (`zpa/partner-federation-provisioning/update-provisioning-state`)
+- `zpa` — `POST /mgmtconfig/v1/customers/{customerId}/tenant-federation/token/verify` (`zpa/partner-federation-provisioning/verify-token`)
+- `zpa` — `GET /mgmtconfig/v1/customers/{customerId}/policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` (`zpa/policies-for-b2b-federation/get-partner-policy-rules-on-federated-apps`)
 
 ### Per-operation removals
 
-- None.
+- `ai-security` — `GET /v1/assets/datastores/{id}` (`ai-security/aisecurity/v1-assets-datastores/datastores-get-datastore`)
+- `ai-security` — `GET /v1/assets/datastores` (`ai-security/aisecurity/v1-assets-datastores/datastores-list-datastores`)
+- `ai-security` — `GET /v1/assets/workloads/{id}` (`ai-security/aisecurity/v1-assets-workloads/workloads-get-workload`)
+- `ai-security` — `GET /v1/assets/workloads` (`ai-security/aisecurity/v1-assets-workloads/workloads-list-workloads`)
+- `zcc` — `DELETE /papi/cred/v1/delete` (`zcc/credential-controller/deletes-api-credentials-for-the-company`)
+- `zcc` — `GET /papi/cred/v1/getList` (`zcc/credential-controller/gets-the-list-of-api-credentials`)
+- `zcc` — `POST /papi/cred/v1/save` (`zcc/credential-controller/saves-api-credentials-for-the-company`)
+- `zcc` — `PUT /papi/cred/v1/update` (`zcc/credential-controller/updates-api-credentials-for-the-company`)
+- `zcell` — `GET /api/v1/audit/metadata` (`zcell/audit-data-handling/audit-resource-get-audit-metadata`)
+- `zia` — `POST /zscsb/submit` (`zia/sandbox-submission-api/submit-file`)
+- `zia` — `POST /zscsb/discan` (`zia/sandbox-submission-api/submit-file-for-scan`)
 
 ### Route corrections
 
-- None.
+- `aiguard` / `aiguard/detection-policies/detections-policy-resource-disable-detections-policy`: `POST /v1/detections/policies/{id}/disable` → `POST /v1/detections/policies/{id}:disable`
+- `aiguard` / `aiguard/detection-policies/detections-policy-resource-enable-detections-policy`: `POST /v1/detections/policies/{id}/enable` → `POST /v1/detections/policies/{id}:enable`
+- `aiguard` / `aiguard/detection-policies/detections-policy-resource-referential-check-detections-policy`: `GET /v1/detections/policies/{id}/referential-check` → `GET /v1/detections/policies/{id}:referential-check`
+- `aiguard` / `aiguard/llm-application-credentials/llm-application-credentials-resource-referential-check-application-credentials`: `GET /v1/llm-application-credentials/{id}/referential-check` → `GET /v1/llm-application-credentials/{id}:referential-check`
+- `aiguard` / `aiguard/llm-application-credentials/llm-application-credentials-resource-regenerate-llm-application-credentials`: `POST /v1/llm-application-credentials/{id}/regenerate` → `POST /v1/llm-application-credentials/{id}:regenerate`
+- `aiguard` / `aiguard/llm-applications/llm-application-resource-referential-check-application`: `GET /v1/llm-applications/{id}/referential-check` → `GET /v1/llm-applications/{id}:referential-check`
+- `aiguard` / `aiguard/llm-provider-credentials/llm-provider-credentials-resource-referential-check-provider-credentials`: `GET /v1/llm-provider-credentials/{id}/referential-check` → `GET /v1/llm-provider-credentials/{id}:referential-check`
+- `aiguard` / `aiguard/llm-providers/llm-provider-resource-referential-check-provider`: `GET /v1/llm-providers/{id}/referential-check` → `GET /v1/llm-providers/{id}:referential-check`
+- `event-monitoring` / `event-monitoring/event-monitoring-subscriptions/subscription-resource-verify-sns-topic-access`: `POST /subscriptions/channels/sns/verify` → `POST /subscriptions/channels/sns:verify`
+- `zid` / `zid/users/users-ops-mfa`: `POST /users/{id}/setskipmfa` → `POST /users/{id}:setskipmfa`
+- `zid` / `zid/users/users-ops-reset-password`: `POST /users/{id}/resetpassword` → `POST /users/{id}:resetpassword`
+- `zid` / `zid/users/users-ops-update-password`: `PUT /users/{id}/updatepassword` → `PUT /users/{id}:updatepassword`
 
 ### Schema changes
 
-- `ai-security` / `ai-security/aisecurity/v1-assets-datastores/datastores-list-datastores` — `response_schema` +0 −0 Δ1
-  - `response_schema` metadata changed: `data[].sanction_status`
-- `ai-security` / `ai-security/aisecurity/v1-assets-datastores/datastores-get-datastore` — `response_schema` +0 −0 Δ1
-  - `response_schema` metadata changed: `sanction_status`
-- `ai-security` / `ai-security/aisecurity/v1-assets-identities/identities-list-identities` — `query_params` +0 −1 Δ0
-  - `query_params` removed: `id`
-- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-list-mcp-servers` — `query_params` +0 −0 Δ2; `response_schema` +0 −1 Δ2; schema titles Δ1
-  - `query_params` metadata changed: `sanction_status`, `type`
-  - `response_schema` removed: `data[].path`
-  - `response_schema` metadata changed: `data[].sanction_status`, `data[].type`
-- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server` — `response_schema` +0 −1 Δ2; schema titles Δ1
-  - `response_schema` removed: `path`
-  - `response_schema` metadata changed: `sanction_status`, `type`
-- `ai-security` / `ai-security/aisecurity/v1-assets-workloads/workloads-list-workloads` — `response_schema` +0 −0 Δ1
-  - `response_schema` metadata changed: `data[].sanction_status`
-- `ai-security` / `ai-security/aisecurity/v1-assets-workloads/workloads-get-workload` — `response_schema` +0 −0 Δ1
-  - `response_schema` metadata changed: `sanction_status`
-- `zdx` / `zdx/application-management/application-resource-create-application-monitor` — discriminator mappings +WEB across 9 schema location(s); schema titles Δ28
-  - Discriminator `type` at `request_body`: added `WEB`
-  - Discriminator `type` at `response_schema[201].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[201].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[201].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[201].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[202].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[202].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[202].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[202].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-create-predefined-app-monitor` — discriminator mappings +WEB across 9 schema location(s); schema titles Δ28
-  - Discriminator `type` at `request_body`: added `WEB`
-  - Discriminator `type` at `response_schema[201].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[201].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[201].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[201].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[202].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[202].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[202].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[202].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-delete-application-monitor` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-delete-predefined-app-monitor` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-get-application-monitor` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-get-application-monitor-summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-get-predefined-app-monitor` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-get-predefined-app-monitor-summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-list-application-monitor-summaries` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-list-application-monitors` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-list-predefined-app-monitor-summaries` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-list-predefined-app-monitors` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-update-application-monitor` — discriminator mappings +WEB across 5 schema location(s); schema titles Δ16
-  - Discriminator `type` at `request_body`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/application-resource-update-predefined-app-monitor` — discriminator mappings +WEB across 5 schema location(s); schema titles Δ16
-  - Discriminator `type` at `request_body`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/monitor-resource-delete-monitor` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/monitor-resource-get-monitor` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/monitor-resource-get-monitor-summary` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/monitor-resource-list-monitor-summaries` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/monitor-resource-list-monitors` — discriminator mappings +WEB across 4 schema location(s); schema titles Δ12
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].items.properties.probe.anyOf[3].allOf[0]`: added `WEB`
-- `zdx` / `zdx/application-management/monitor-resource-update-monitor` — discriminator mappings +WEB across 5 schema location(s); schema titles Δ16
-  - Discriminator `type` at `request_body`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[0].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[1].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[2].allOf[0]`: added `WEB`
-  - Discriminator `type` at `response_schema[200].properties.probe.anyOf[3].allOf[0]`: added `WEB`
+- `ai-security` / `ai-security/aisecurity/v1-assets-identities/identities-get-identity` — `response_schema` +22 −1 Δ2; schema titles Δ11
+  - `response_schema` added: `access_categories`, `access_level`, `account_id`, `asset_risk`, `asset_risk[].key`, `asset_risk[].value`, `cloud_discovered_at`, `cloud_event_at`, `cloud_org_id`, `has_metadata`, `sanction_rule_id`, `sanction_rule_name`, `sanction_status`, `service_principal_details`, `service_principal_details.oauth2_permission_grants`, `service_principal_details.owners`, `service_principal_details.owners[].owner_email`, `service_principal_details.owners[].owner_name`, `service_principal_details.owners[].owner_type`, `source_cloud_type`
+  - `response_schema` removed: `access_category`
+  - `response_schema` metadata changed: `environment`, `risk_level`
+- `ai-security` / `ai-security/aisecurity/v1-assets-identities/identities-list-identities` — `query_params` +6 −0 Δ1; `response_schema` +8 −1 Δ2; schema titles Δ3
+  - `query_params` added: `access_category`, `access_level`, `asset_risk`, `sanction_status`, `source_type`, `target_environment`
+  - `query_params` metadata changed: `environment`
+  - `response_schema` added: `data[].access_categories`, `data[].access_level`, `data[].asset_risk`, `data[].asset_risk[].key`, `data[].asset_risk[].value`, `data[].sanction_status`, `data[].target_account_ids`, `data[].target_environments`
+  - `response_schema` removed: `data[].access_category`
+  - `response_schema` metadata changed: `data[].environment`, `data[].risk_level`
+- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server` — `response_schema` +25 −3 Δ2; schema titles Δ14
+  - `response_schema` added: `account_name`, `asset_risk`, `cloud_org_id`, `connections`, `connections[].connection_id`, `connections[].connection_name`, `connections[].connector_id`, `connections[].status_code`, `created_at`, `file_system_config`, `file_system_config.delete_operations`, `file_system_config.paths_accessed`, `file_system_config.read_operations`, `file_system_config.traverses_directories`, `file_system_config.uses_absolute_paths`, `file_system_config.write_operations`, `network_config`, `network_config.external_domains`, `network_config.http_requests`, `network_config.localhost_only`
+  - `response_schema` removed: `associated_source`, `associated_source_type`, `risk_indicators`
+  - `response_schema` metadata changed: `environment`, `risk_level`
+- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server-tools` — `query_params` +4 −0 Δ0
+  - `query_params` added: `code_execution`, `file_access`, `network_access`, `process_access`
+- `ai-security` / `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-list-mcp-servers` — `query_params` +2 −0 Δ2; `response_schema` +1 −3 Δ2; schema titles Δ1
+  - `query_params` added: `asset_risk`, `source_type`
+  - `query_params` metadata changed: `environment`, `risk_level`
+  - `response_schema` added: `data[].asset_risk`
+  - `response_schema` removed: `data[].associated_source`, `data[].associated_source_type`, `data[].risk_indicators`
+  - `response_schema` metadata changed: `data[].environment`, `data[].risk_level`
+- `ai-security` / `ai-security/aisecurity/v1-issues/issues-get-issue` — `response_schema` +1 −1 Δ1; schema titles Δ2
+  - `response_schema` added: `risk_level`
+  - `response_schema` removed: `severity`
+  - `response_schema` metadata changed: `environment`
+- `ai-security` / `ai-security/aisecurity/v1-issues/issues-list-issues` — `query_params` +4 −0 Δ2; `response_schema` +1 −1 Δ1; schema titles Δ3
+  - `query_params` added: `policy_category`, `policy_id`, `region`, `risk_level`
+  - `query_params` metadata changed: `environment`, `severity`
+  - `response_schema` added: `data[].risk_level`
+  - `response_schema` removed: `data[].severity`
+  - `response_schema` metadata changed: `data[].environment`
+- `zcell` / `zcell/network-events/network-event-resource-search-network-events` — `response_schema` +8 −0 Δ0
+  - `response_schema` added: `content[].apnUsername`, `content[].imei`, `content[].location`, `content[].msisdn`, `content[].sessionTime`, `content[].status`, `content[].subStatus`, `content[].vplmnTadig`
+- `zcell` / `zcell/sim-location-groups/sim-location-group-resource-get-all-sim-location-groups` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `sortBy`, `sortDir`
+- `zcell` / `zcell/customer-management/customer-resource-get-by-zs-tid` — `response_schema` +0 −0 Δ1; schema titles Δ12
+  - `response_schema` metadata changed: `mvnoIds[].type`
+- `zcell` / `zcell/anomaly-policies/anomaly-policy-resource-get-all-anomaly-policies` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `sortBy`, `sortDir`
+- `zcell` / `zcell/anomaly-policies/anomaly-policy-resource-get-violation-details-by-iccid` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `sortBy`, `sortDir`
+- `zcell` / `zcell/tag-management/tag-resource-get-all-tags` — `query_params` +0 −0 Δ2; `response_schema` +0 −1 Δ0
+  - `query_params` metadata changed: `sortBy`, `sortDir`
+  - `response_schema` removed: `content[].mvnoCustomerId`
+- `zcell` / `zcell/sim-management/sim-resource-lock-sims` — `request_body` +1 −0 Δ1
+  - `request_body` added: `simLockDetails[].locked`
+  - `request_body` metadata changed: `dataAuthorize`
+- `zcell` / `zcell/audit-logs/audit-resource-get-audit-log` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `sortBy`, `sortDir`
+- `zcell` / `zcell/sim-management/sim-resource-download-sims-csv` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `sortBy`, `sortDir`
+- `zcell` / `zcell/sim-management/sim-resource-get-all-sims` — `query_params` +0 −0 Δ2
+  - `query_params` metadata changed: `sortBy`, `sortDir`
+- `zpa` / `zpa/app-connector-group/gets-all-configured-app-connector-groups-for-the-specified-customer` — `query_params` +1 −0 Δ0
+  - `query_params` added: `microtenantId`
+- `zpa` / `zpa/nonce/adds-a-new-provisioning-key-for-the-specified-customer` — `query_params` +1 −0 Δ0
+  - `query_params` added: `microtenantId`
+- `zpa` / `zpa/nonce/deletes-the-provisioning-key-for-the-specified-id` — `query_params` +1 −0 Δ0
+  - `query_params` added: `microtenantId`
+- `zpa` / `zpa/nonce/gets-details-of-all-configured-provisioning-keys-for-the-specified-customer` — `query_params` +1 −0 Δ0
+  - `query_params` added: `microtenantId`
+- `zpa` / `zpa/nonce/gets-details-of-the-provisioning-key-for-the-specified-id` — `query_params` +1 −0 Δ0
+  - `query_params` added: `microtenantId`
+- `zpa` / `zpa/nonce/updates-the-provisioning-key-details-for-the-specified-id` — `query_params` +1 −0 Δ0
+  - `query_params` added: `microtenantId`
+- `zpa` / `zpa/service-edge-group/get-private-broker-groups` — `query_params` +1 −0 Δ0
+  - `query_params` added: `microtenantId`
+- `zpa` / `zpa/version-profile/get-all-version-profiles-visibile-by-customer-id` — `query_params` +3 −0 Δ0
+  - `query_params` added: `page`, `pagesize`, `search`
 
 ## Field Totals
 
 ### `path_params`
 
-- Existing top-level fields across common ops: 904
-- Blob top-level fields across common ops: 904
-- Blob flattened fields across common ops: 904
+- Existing top-level fields across common ops: 1012
+- Blob top-level fields across common ops: 1012
+- Blob flattened fields across common ops: 1012
 - Blob nested fields across common ops: 0
 - Blob top-level fields new vs committed contract: 0
 - Committed contract top-level fields missing from blob: 0
 
 ### `query_params`
 
-- Existing top-level fields across common ops: 1394
-- Blob top-level fields across common ops: 1393
-- Blob flattened fields across common ops: 1393
+- Existing top-level fields across common ops: 1393
+- Blob top-level fields across common ops: 1419
+- Blob flattened fields across common ops: 1419
 - Blob nested fields across common ops: 0
-- Blob top-level fields new vs committed contract: 0
-- Committed contract top-level fields missing from blob: 1
+- Blob top-level fields new vs committed contract: 26
+- Committed contract top-level fields missing from blob: 0
 
 ### `request_body`
 
-- Existing top-level fields across common ops: 4586
-- Blob top-level fields across common ops: 4586
-- Blob flattened fields across common ops: 16696
-- Blob nested fields across common ops: 12148
+- Existing top-level fields across common ops: 4853
+- Blob top-level fields across common ops: 4853
+- Blob flattened fields across common ops: 17145
+- Blob nested fields across common ops: 12330
 - Blob top-level fields new vs committed contract: 0
 - Committed contract top-level fields missing from blob: 0
 
 ### `response_schema`
 
-- Existing top-level fields across common ops: 11142
-- Blob top-level fields across common ops: 11141
-- Blob flattened fields across common ops: 39852
-- Blob nested fields across common ops: 31779
-- Blob top-level fields new vs committed contract: 0
-- Committed contract top-level fields missing from blob: 1
+- Existing top-level fields across common ops: 11737
+- Blob top-level fields across common ops: 11759
+- Blob flattened fields across common ops: 41222
+- Blob nested fields across common ops: 32635
+- Blob top-level fields new vs committed contract: 27
+- Committed contract top-level fields missing from blob: 5
 
 ## Live-Only Samples
 
 ### `ai-security`
-- `ai-security/airedteaming/aiapp/ai-app-resource-create-ai-app`
-- `ai-security/airedteaming/aiapp/ai-app-resource-delete-ai-app`
-- `ai-security/airedteaming/aiapp/ai-app-resource-duplicate-ai-app`
-- `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app`
-- `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-latest-probe-runs`
-- `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-risk-level-timeseries`
-- `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-settings`
-- `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-test-run-metrics`
-- `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-available-probes`
-- `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-run-available-probes`
-- `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-runs`
-- `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-apps`
-- `ai-security/airedteaming/aiapp/ai-app-resource-update-ai-app`
-- `ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-agentforce-integration`
-- `ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-anthropic-integration`
-- `ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-bot-integration`
-- `ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-ml-integration`
-- `ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-azure-open-ai-integration`
-- `ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-bedrock-integration`
-- `ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-copilot-studio-integration`
+- `ai-security/aisecurity/v1-assets-agents/agents-get-agent`
+- `ai-security/aisecurity/v1-assets-agents/agents-list-agents`
+- `ai-security/aisecurity/v1-resources-coderepositories/code-repositories-get-code-repository`
+- `ai-security/aisecurity/v1-resources-coderepositories/code-repositories-list-code-repositories`
+- `ai-security/aisecurity/v1-resources-datastores/datastores-get-datastore`
+- `ai-security/aisecurity/v1-resources-datastores/datastores-list-datastores`
+- `ai-security/aisecurity/v1-resources-guardrails/guardrails-get-guardrail`
+- `ai-security/aisecurity/v1-resources-guardrails/guardrails-list-guardrails`
+- `ai-security/aisecurity/v1-resources-workloads/workloads-get-workload`
+- `ai-security/aisecurity/v1-resources-workloads/workloads-list-workloads`
+
+### `urbac`
+- `urbac/auditlogs/audit-log-resource-search-logs`
+- `urbac/roles/urbac-resource-create-role`
+- `urbac/roles/urbac-resource-delete-role`
+- `urbac/roles/urbac-resource-get-role`
+- `urbac/roles/urbac-resource-get-roles`
+- `urbac/roles/urbac-resource-update-role`
+
+### `zcell`
+- `zcell/anomaly-policies/anomaly-policy-resource-create-policy`
+- `zcell/anomaly-policies/anomaly-policy-resource-delete-policy`
+- `zcell/anomaly-policies/anomaly-policy-resource-get-all-anomaly-policies`
+- `zcell/anomaly-policies/anomaly-policy-resource-get-anomaly-policy-logs`
+- `zcell/anomaly-policies/anomaly-policy-resource-get-violated-iccids`
+- `zcell/anomaly-policies/anomaly-policy-resource-get-violation-details-by-iccid`
+- `zcell/anomaly-policies/anomaly-policy-resource-update-policy`
+- `zcell/anomaly-policies/anomaly-policy-resource-update-policy-status`
+- `zcell/audit-logs/audit-resource-get-audit-log`
+- `zcell/customer-management/customer-resource-activate-customer`
+- `zcell/customer-management/customer-resource-get-by-zs-tid`
+- `zcell/customer-regions/region-resource-deploy-regions`
+- `zcell/customer-regions/region-resource-get-assigned-regions-by-zs-tid`
+- `zcell/customer-regions/region-resource-get-region-operational-status-by-zs-tid`
+- `zcell/sim-management/sim-resource-assign-esim`
+- `zcell/sim-management/sim-resource-assign-tag`
+- `zcell/sim-management/sim-resource-download-sims-csv`
+- `zcell/sim-management/sim-resource-get-all-sims`
+- `zcell/sim-management/sim-resource-get-sim-details-by-icc-id`
+- `zcell/sim-management/sim-resource-get-tower-location-history`
+
+### `zpa`
+- `zpa/federate-applications/federate-application`
+- `zpa/federate-applications/get-federated-applications-from-host`
+- `zpa/partner-federation-provisioning/create-federation-token`
+- `zpa/partner-federation-provisioning/delete-provisioning`
+- `zpa/partner-federation-provisioning/get-active-federation-partners`
+- `zpa/partner-federation-provisioning/get-provisionings`
+- `zpa/partner-federation-provisioning/request-approval`
+- `zpa/partner-federation-provisioning/update-federation-state`
+- `zpa/partner-federation-provisioning/update-notes`
+- `zpa/partner-federation-provisioning/update-provisioning-state`
+- `zpa/partner-federation-provisioning/verify-token`
+- `zpa/policies-for-b2b-federation/get-partner-policy-rules-on-federated-apps`
 
 ## Loose Method/Path-Only Samples
 
 ### `ai-security`
 - Live-only loose signatures:
-  - `DELETE /api/v2/ai-apps/{}`
-  - `DELETE /api/v2/scheduled-test-runs/{}`
-  - `DELETE /api/v2/test-runs/{}`
-  - `GET /api/v2/ai-apps/{}`
-  - `GET /api/v2/ai-apps/{}/available-probes`
-  - `GET /api/v2/ai-apps/{}/latest-probe-runs`
-  - `GET /api/v2/ai-apps/{}/probe-settings`
-  - `GET /api/v2/ai-apps/{}/probe-settings/{}`
-  - `GET /api/v2/ai-apps/{}/settings`
-  - `GET /api/v2/ai-apps/{}/test-run-available-probes`
+  - `GET /v1/assets/agents`
+  - `GET /v1/assets/agents/{}`
+  - `GET /v1/resources/coderepositories`
+  - `GET /v1/resources/coderepositories/{}`
+  - `GET /v1/resources/datastores`
+  - `GET /v1/resources/datastores/{}`
+  - `GET /v1/resources/guardrails`
+  - `GET /v1/resources/guardrails/{}`
+  - `GET /v1/resources/workloads`
+  - `GET /v1/resources/workloads/{}`
+- Existing-only loose signatures:
+  - `GET /v1/assets/datastores`
+  - `GET /v1/assets/datastores/{}`
+  - `GET /v1/assets/workloads`
+  - `GET /v1/assets/workloads/{}`
 
 ### `aiguard`
+- Live-only loose signatures:
+  - `GET /detections/policies/{}-check`
+  - `GET /llm-application-credentials/{}-check`
+  - `GET /llm-applications/{}-check`
+  - `GET /llm-provider-credentials/{}-check`
+  - `GET /llm-providers/{}-check`
+  - `POST /detections/policies/{}`
+  - `POST /llm-application-credentials/{}`
 - Existing-only loose signatures:
-  - `DELETE /detections/policies/{}`
-  - `DELETE /detections/policy-match-rules/{}`
-  - `DELETE /llm-application-credentials/{}`
-  - `DELETE /llm-applications/{}`
-  - `DELETE /llm-provider-credentials/{}`
-  - `DELETE /llm-providers/{}`
-  - `GET /detections/policies`
-  - `GET /detections/policies/name/{}`
-  - `GET /detections/policies/{}`
   - `GET /detections/policies/{}/referential-check`
+  - `GET /llm-application-credentials/{}/referential-check`
+  - `GET /llm-applications/{}/referential-check`
+  - `GET /llm-provider-credentials/{}/referential-check`
+  - `GET /llm-providers/{}/referential-check`
+  - `POST /detections/policies/{}/disable`
+  - `POST /detections/policies/{}/enable`
+  - `POST /llm-application-credentials/{}/regenerate`
+
+### `event-monitoring`
+- Live-only loose signatures:
+  - `POST /subscriptions/channels/sns{}`
+- Existing-only loose signatures:
+  - `POST /subscriptions/channels/sns/verify`
+
+### `urbac`
+- Live-only loose signatures:
+  - `DELETE /v1/roles/{}`
+  - `GET /v1/roles/{}`
+  - `POST /v1/auditlog/query`
+  - `POST /v1/roles`
+  - `POST /v1/roles/query`
+  - `PUT /v1/roles/{}`
+
+### `zcc`
+- Existing-only loose signatures:
+  - `DELETE /papi/cred/v1/delete`
+  - `GET /papi/cred/v1/getList`
+  - `POST /papi/cred/v1/save`
+  - `PUT /papi/cred/v1/update`
+
+### `zcell`
+- Live-only loose signatures:
+  - `GET /api/v1/customers/{}/sims/{}/tower-locations`
+- Existing-only loose signatures:
+  - `GET /api/v1/audit/metadata`
+
+### `zia`
+- Existing-only loose signatures:
+  - `POST /zscsb/discan`
+  - `POST /zscsb/submit`
+
+### `zid`
+- Live-only loose signatures:
+  - `POST /users/{}`
+- Existing-only loose signatures:
+  - `POST /users/{}/resetpassword`
+  - `POST /users/{}/setskipmfa`
+  - `PUT /users/{}/updatepassword`
+
+### `zpa`
+- Live-only loose signatures:
+  - `DELETE /mgmtconfig/v1/customers/{}/tenant-federation/{}`
+  - `GET /mgmtconfig/v1/customers/{}/application/host/{}`
+  - `GET /mgmtconfig/v1/customers/{}/policySet/rules/policyType/GLOBAL_POLICY/guest/{}`
+  - `GET /mgmtconfig/v1/customers/{}/tenant-federation`
+  - `GET /mgmtconfig/v1/customers/{}/tenant-federation/partners`
+  - `POST /mgmtconfig/v1/customers/{}/tenant-federation/token`
+  - `POST /mgmtconfig/v1/customers/{}/tenant-federation/token/verify`
+  - `PUT /mgmtconfig/v1/customers/{}/application/federate`
+  - `PUT /mgmtconfig/v1/customers/{}/tenant-federation/approval`
+  - `PUT /mgmtconfig/v1/customers/{}/tenant-federation/{}/federation-state/{}`
 
 ## Nested Schema Examples
 
-### `ai-security/aisecurity/v1-assets-datastores/datastores-list-datastores` / `response_schema`
-- Blob nested fields (9):
-  - `data[].cloud_account_id`
-  - `data[].environment`
-  - `data[].id`
-  - `data[].last_scanned_at`
-  - `data[].name`
-  - `data[].risk_level`
-  - `data[].sanction_status`
-  - `data[].source`
-  - `data[].source_type`
+### `ai-security/airedteaming/aiapp/ai-app-resource-create-ai-app` / `request_body`
+- Blob nested fields (29):
+  - `connection.brokerId`
+  - `connection.config`
+  - `connection.type`
+  - `settings.availability`
+  - `settings.concurrentRequests`
+  - `settings.description`
+  - `settings.environment`
+  - `settings.language`
+  - `settings.maxInputLength`
+  - `settings.multiStepAttacks`
+  - `settings.name`
+  - `settings.predefinedResponses`
 
-### `ai-security/aisecurity/v1-assets-identities/identities-list-identities` / `response_schema`
-- Blob nested fields (8):
-  - `data[].access_category`
-  - `data[].cloud_account_id`
-  - `data[].environment`
-  - `data[].id`
-  - `data[].last_discovered_at`
-  - `data[].name`
-  - `data[].risk_level`
-  - `data[].type`
+### `ai-security/airedteaming/aiapp/ai-app-resource-create-ai-app` / `response_schema`
+- Blob nested fields (12):
+  - `lifecycleStages[].completed`
+  - `lifecycleStages[].date`
+  - `lifecycleStages[].params`
+  - `lifecycleStages[].params.generatedPolicyId`
+  - `lifecycleStages[].params.hardeningAppliedOn`
+  - `lifecycleStages[].params.policyAppliedOn`
+  - `lifecycleStages[].params.promptHardeningId`
+  - `lifecycleStages[].params.testRunId`
+  - `lifecycleStages[].type`
+  - `ragProcessingStatus.error`
+  - `ragProcessingStatus.id`
+  - `ragProcessingStatus.progress`
 
-### `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-list-mcp-servers` / `response_schema`
+### `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app` / `response_schema`
+- Blob nested fields (12):
+  - `lifecycleStages[].completed`
+  - `lifecycleStages[].date`
+  - `lifecycleStages[].params`
+  - `lifecycleStages[].params.generatedPolicyId`
+  - `lifecycleStages[].params.hardeningAppliedOn`
+  - `lifecycleStages[].params.policyAppliedOn`
+  - `lifecycleStages[].params.promptHardeningId`
+  - `lifecycleStages[].params.testRunId`
+  - `lifecycleStages[].type`
+  - `ragProcessingStatus.error`
+  - `ragProcessingStatus.id`
+  - `ragProcessingStatus.progress`
+
+### `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-latest-probe-runs` / `response_schema`
 - Blob nested fields (15):
-  - `data[].associated_source`
-  - `data[].associated_source_type`
-  - `data[].cloud_account_id`
-  - `data[].environment`
-  - `data[].id`
-  - `data[].last_discovered_at`
-  - `data[].name`
-  - `data[].region`
-  - `data[].risk_indicators`
-  - `data[].risk_level`
-  - `data[].risk_score`
-  - `data[].sanction_status`
+  - `[].probeCategoryId`
+  - `[].probeCategoryName`
+  - `[].probes`
+  - `[].probes[].errorCount`
+  - `[].probes[].executionDate`
+  - `[].probes[].failedCount`
+  - `[].probes[].isAiAnalyzed`
+  - `[].probes[].passedCount`
+  - `[].probes[].probeId`
+  - `[].probes[].probeName`
+  - `[].probes[].scanProbeRunId`
+  - `[].probes[].scanRunId`
 
-### `ai-security/aisecurity/v1-assets-mcpservers/mcp-servers-get-mcp-server-tools` / `response_schema`
-- Blob nested fields (9):
-  - `data[].code_execution`
-  - `data[].description`
-  - `data[].file_access`
-  - `data[].file_path`
-  - `data[].line_number`
-  - `data[].name`
-  - `data[].network_access`
-  - `data[].parameters`
-  - `data[].process_access`
+### `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-risk-level-timeseries` / `response_schema`
+- Blob nested fields (2):
+  - `[].date`
+  - `[].riskScore`
 
-### `ai-security/aisecurity/v1-assets-workloads/workloads-list-workloads` / `response_schema`
-- Blob nested fields (9):
-  - `data[].cloud_account_id`
-  - `data[].environment`
-  - `data[].id`
-  - `data[].last_scanned_at`
-  - `data[].name`
-  - `data[].risk_level`
-  - `data[].sanction_status`
-  - `data[].source`
-  - `data[].source_type`
+### `ai-security/airedteaming/aiapp/ai-app-resource-get-ai-app-settings` / `response_schema`
+- Blob nested fields (36):
+  - `businessUnit.dspmBusinessUnitId`
+  - `businessUnit.isActive`
+  - `businessUnit.name`
+  - `businessUnit.workspaceId`
+  - `connection.brokerId`
+  - `connection.config`
+  - `connection.type`
+  - `ragProcessingStatus.error`
+  - `ragProcessingStatus.id`
+  - `ragProcessingStatus.progress`
+  - `settings.availability`
+  - `settings.concurrentRequests`
 
-### `ai-security/aisecurity/v1-issues/issues-list-issues` / `response_schema`
-- Blob nested fields (15):
-  - `data[].action_type`
-  - `data[].age`
-  - `data[].cloud_account_id`
-  - `data[].detected_at`
-  - `data[].environment`
-  - `data[].id`
-  - `data[].last_updated_at`
-  - `data[].policy_categories`
-  - `data[].policy_id`
-  - `data[].policy_name`
-  - `data[].severity`
-  - `data[].source`
-
-### `bi/custom-applications/create-custom-app` / `request_body`
-- Blob nested fields (3):
-  - `signatures[].matchLevel`
-  - `signatures[].type`
-  - `signatures[].value`
-
-### `bi/custom-applications/create-custom-app` / `response_schema`
-- Blob nested fields (9):
-  - `[].associatedAppCategory`
-  - `[].associatedAppName`
-  - `[].description`
+### `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-available-probes` / `response_schema`
+- Blob nested fields (2):
   - `[].id`
   - `[].name`
-  - `[].signatures`
-  - `[].signatures[].matchLevel`
-  - `[].signatures[].type`
-  - `[].signatures[].value`
 
-### `bi/custom-applications/get-custom-apps` / `response_schema`
-- Blob nested fields (9):
-  - `[].associatedAppCategory`
-  - `[].associatedAppName`
-  - `[].description`
+### `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-run-available-probes` / `response_schema`
+- Blob nested fields (6):
   - `[].id`
   - `[].name`
-  - `[].signatures`
-  - `[].signatures[].matchLevel`
-  - `[].signatures[].type`
-  - `[].signatures[].value`
+  - `[].probeCount`
+  - `[].probes`
+  - `[].probes[].id`
+  - `[].probes[].name`
 
-### `bi/custom-applications/update-custom-app` / `request_body`
+### `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-runs` / `request_body`
+- Blob nested fields (6):
+  - `filters[].column`
+  - `filters[].operator`
+  - `filters[].value`
+  - `filters[].values`
+  - `sorts[].column`
+  - `sorts[].direction`
+
+### `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-app-test-runs` / `response_schema`
+- Blob nested fields (14):
+  - `items[].assetId`
+  - `items[].assetName`
+  - `items[].businessUnit`
+  - `items[].id`
+  - `items[].lastRunTimestamp`
+  - `items[].launchedBy`
+  - `items[].name`
+  - `items[].probes`
+  - `items[].progress`
+  - `items[].resultsError`
+  - `items[].resultsFailed`
+  - `items[].resultsPassed`
+
+### `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-apps` / `request_body`
+- Blob nested fields (6):
+  - `filters[].column`
+  - `filters[].operator`
+  - `filters[].value`
+  - `filters[].values`
+  - `sorts[].column`
+  - `sorts[].direction`
+
+### `ai-security/airedteaming/aiapp/ai-app-resource-list-ai-apps` / `response_schema`
+- Blob nested fields (16):
+  - `items[].availability`
+  - `items[].businessUnitName`
+  - `items[].connectionType`
+  - `items[].dateCreated`
+  - `items[].environment`
+  - `items[].hardenedPrompt`
+  - `items[].healthScore`
+  - `items[].id`
+  - `items[].lastTestRunDate`
+  - `items[].lastTestRunId`
+  - `items[].lifecycle`
+  - `items[].lifecycleUpdatedAt`
+
+### `ai-security/airedteaming/aiapp/ai-app-resource-update-ai-app` / `request_body`
+- Blob nested fields (29):
+  - `connection.brokerId`
+  - `connection.config`
+  - `connection.type`
+  - `settings.availability`
+  - `settings.concurrentRequests`
+  - `settings.description`
+  - `settings.environment`
+  - `settings.language`
+  - `settings.maxInputLength`
+  - `settings.multiStepAttacks`
+  - `settings.name`
+  - `settings.predefinedResponses`
+
+### `ai-security/airedteaming/aiapp/ai-app-resource-update-ai-app` / `response_schema`
+- Blob nested fields (12):
+  - `lifecycleStages[].completed`
+  - `lifecycleStages[].date`
+  - `lifecycleStages[].params`
+  - `lifecycleStages[].params.generatedPolicyId`
+  - `lifecycleStages[].params.hardeningAppliedOn`
+  - `lifecycleStages[].params.policyAppliedOn`
+  - `lifecycleStages[].params.promptHardeningId`
+  - `lifecycleStages[].params.testRunId`
+  - `lifecycleStages[].type`
+  - `ragProcessingStatus.error`
+  - `ragProcessingStatus.id`
+  - `ragProcessingStatus.progress`
+
+### `ai-security/airedteaming/aiapptestintegration/ai-app-test-integration-resource-test-agentforce-integration` / `response_schema`
 - Blob nested fields (3):
-  - `signatures[].matchLevel`
-  - `signatures[].type`
-  - `signatures[].value`
-
-### `bi/custom-applications/update-custom-app` / `response_schema`
-- Blob nested fields (3):
-  - `signatures[].matchLevel`
-  - `signatures[].type`
-  - `signatures[].value`
-
-### `bi/report-configurations/create-report-configuration-custom-apps` / `request_body`
-- Blob nested fields (21):
-  - `backfill_params.etime`
-  - `backfill_params.granularity`
-  - `backfill_params.stime`
-  - `backfill_params.timezone`
-  - `custom_apps[].associatedAppCategory`
-  - `custom_apps[].associatedAppName`
-  - `custom_apps[].description`
-  - `custom_apps[].id`
-  - `custom_apps[].name`
-  - `custom_apps[].signatures`
-  - `custom_apps[].signatures[].matchLevel`
-  - `custom_apps[].signatures[].type`
-
-### `bi/report-configurations/create-report-configuration-custom-apps` / `response_schema`
-- Blob nested fields (33):
-  - `[].backfill_params`
-  - `[].backfill_params.etime`
-  - `[].backfill_params.granularity`
-  - `[].backfill_params.stime`
-  - `[].backfill_params.timezone`
-  - `[].custom_apps`
-  - `[].custom_apps[].associatedAppCategory`
-  - `[].custom_apps[].associatedAppName`
-  - `[].custom_apps[].description`
-  - `[].custom_apps[].id`
-  - `[].custom_apps[].name`
-  - `[].custom_apps[].signatures`
-
-### `bi/report-configurations/get-report-configurations-custom-apps` / `response_schema`
-- Blob nested fields (33):
-  - `[].backfill_params`
-  - `[].backfill_params.etime`
-  - `[].backfill_params.granularity`
-  - `[].backfill_params.stime`
-  - `[].backfill_params.timezone`
-  - `[].custom_apps`
-  - `[].custom_apps[].associatedAppCategory`
-  - `[].custom_apps[].associatedAppName`
-  - `[].custom_apps[].description`
-  - `[].custom_apps[].id`
-  - `[].custom_apps[].name`
-  - `[].custom_apps[].signatures`
-
-### `bi/report-configurations/update-report-configuration-custom-apps` / `request_body`
-- Blob nested fields (21):
-  - `backfill_params.etime`
-  - `backfill_params.granularity`
-  - `backfill_params.stime`
-  - `backfill_params.timezone`
-  - `custom_apps[].associatedAppCategory`
-  - `custom_apps[].associatedAppName`
-  - `custom_apps[].description`
-  - `custom_apps[].id`
-  - `custom_apps[].name`
-  - `custom_apps[].signatures`
-  - `custom_apps[].signatures[].matchLevel`
-  - `custom_apps[].signatures[].type`
+  - `errorDetails[].title`
+  - `errorDetails[].type`
+  - `errorDetails[].value`

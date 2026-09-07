@@ -330,10 +330,18 @@ def require_complete_routes(route_completeness: dict[str, object]) -> None:
 
 
 def module_slice(js: str, module_id: int | str) -> str | None:
-    marker = re.search(rf"(?:^|[{{,]){re.escape(str(module_id))}:", js)
+    marker = re.search(
+        rf"(?:^|[{{,]){re.escape(str(module_id))}(?P<module_delimiter>:|\()",
+        js,
+    )
     if not marker:
         return None
-    start = marker.end()
+    # Webpack emits numeric modules in both the legacy `id:function(...)` form
+    # and the current method-shorthand `id(...) { ... }` form. Start at the
+    # opening parenthesis for shorthand modules so parameter commas stay inside
+    # the balanced scan; start after the colon for legacy modules.
+    delimiter = marker.group("module_delimiter")
+    start = marker.end() - 1 if delimiter == "(" else marker.end()
     i = start
     paren = brace = bracket = 0
     quote: str | None = None
@@ -366,7 +374,7 @@ def module_slice(js: str, module_id: int | str) -> str | None:
         elif ch == "]":
             bracket -= 1
         elif ch == "," and paren == 0 and brace == 0 and bracket == 0:
-            if re.match(r"\d+(?:e\d+)?:", js[i + 1 : i + 24]):
+            if re.match(r"\d+(?:e\d+)?(?::|\()", js[i + 1 : i + 24]):
                 return js[start:i]
         i += 1
     return js[start:]

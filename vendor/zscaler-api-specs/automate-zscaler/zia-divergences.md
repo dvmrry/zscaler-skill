@@ -235,7 +235,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## cloud_app_control_rule
 
-`POST /zia/api/v1/webApplicationRules/{rule_type}` — contract 42 / Go 39 / TF 36 fields / Ansible 32 fields / Python 41 fields / MCP 6 tools
+`POST /zia/api/v1/webApplicationRules/{rule_type}` — contract 42 / Go 40 / TF 37 fields / Ansible 32 fields / Python 41 fields / MCP 6 tools
 
 **Required drift:**
 
@@ -260,6 +260,10 @@ Captured contract groups with no Terraform resource mapping in this report:
 **MCP request fields absent from the contract:** `action`, `advanced`, `enabled`, `ruleType`
 
 **Contract fields absent from the Go SDK struct:** `formSharingDomainProfiles`, `lastModifiedBy`, `sharingDomainProfiles`
+
+**Go SDK fields absent from the contract:** `promptCaptureEnabled`
+
+**Terraform provider corroborates these non-contract client fields:** `promptCaptureEnabled`
 
 ## browser_control_policy
 
@@ -874,7 +878,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 ## url_filtering_and_cloud_app_settings
 
-`PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings` — contract 21 / Go 31 / TF 28 fields / Ansible 20 fields / Python 22 fields / no MCP surface
+`PUT /zia/api/v1/advancedUrlFilterAndCloudAppSettings` — contract 21 / Go 31 / TF 29 fields / Ansible 20 fields / Python 22 fields / no MCP surface
 
 **Contract fields unmatched in the Ansible module:** `enableCIPACompliance`, `enableMicrosoftCoPilotPrompt`, `enablePOEPrompt`, `enablePerPlexityPrompt`, `safeSearchApps`
 
@@ -886,7 +890,7 @@ Captured contract groups with no Terraform resource mapping in this report:
 
 **Go SDK fields absent from the contract:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGoogleAIPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableMistralAIPrompt`, `enableQuillbotAIPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
 
-**Terraform provider corroborates these non-contract client fields:** `enableClaudePrompt`, `enableCreativeCommonsSearchResults`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
+**Terraform provider corroborates these non-contract client fields:** `enableClaudePrompt`, `enableDeepSeekPrompt`, `enableGrammarlyPrompt`, `enableGrokPrompt`, `enableWriterPrompt`, `zveloDbLookupDisabled`
 
 ## user
 
