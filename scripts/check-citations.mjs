@@ -259,7 +259,7 @@ function printResults(options, result) {
   }
 }
 
-if (fileURLToPath(import.meta.url) === path.resolve(process.argv[1] || "")) {
+if (import.meta.main) {
   try {
     const options = parseArgs(process.argv.slice(2));
     const result = await run(options);

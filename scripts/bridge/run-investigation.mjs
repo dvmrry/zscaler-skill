@@ -71,7 +71,6 @@ import childProcess, { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { extractTurnSignals, extractRunDigest, renderRunQuality } from "./digest-run.mjs";
 
@@ -930,9 +929,7 @@ function buildRunDigest({ scenario, role, model, turns, disk, evaluation, overal
 }
 
 // Only run main() when invoked directly (not when imported by the test file).
-const isDirectInvocation =
-  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isDirectInvocation) {
+if (import.meta.main) {
   main();
 }
 

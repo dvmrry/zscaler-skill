@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
 
 const MAX_BUFFER = 16 * 1024 * 1024;
 
@@ -94,7 +93,7 @@ function main() {
   }
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (import.meta.main) {
   main();
 }
 

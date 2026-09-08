@@ -233,6 +233,6 @@ function main() {
 }
 
 // Only run as a script, not when imported as a module.
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+if (import.meta.main) {
   process.exit(main());
 }

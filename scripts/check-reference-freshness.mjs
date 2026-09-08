@@ -349,6 +349,6 @@ function main() {
   }
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+if (import.meta.main) main();
 
 export { analyze, extractFrontmatter, parseArgs, parseGitmodules };

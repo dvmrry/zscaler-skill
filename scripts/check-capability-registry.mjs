@@ -38,8 +38,7 @@ export function validateRegistry(root) {
   return errors;
 }
 
-const isDirect = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isDirect) {
+if (import.meta.main) {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   const errors = validateRegistry(root);
   if (errors.length) { console.error("capability-registry errors:"); for (const e of errors) console.error(`  - ${e}`); process.exit(1); }
