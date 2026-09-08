@@ -263,11 +263,7 @@ async function main() {
   console.log(`\nFull gate passed with ${advisoryCount} advisory warning(s).`);
 }
 
-function isMainModule(argvPath, moduleUrl) {
-  return Boolean(argvPath) && path.resolve(argvPath) === fileURLToPath(moduleUrl);
-}
-
-if (isMainModule(process.argv[1], import.meta.url)) {
+if (import.meta.main) {
   await main();
 }
 
@@ -275,7 +271,6 @@ export {
   FULL_CHECKS,
   exitCodeForResults,
   gitlinkPaths,
-  isMainModule,
   missingSubmoduleStatusPaths,
   resultStatus,
   submoduleStatusPaths,

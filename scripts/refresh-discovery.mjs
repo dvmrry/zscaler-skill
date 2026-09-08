@@ -7,7 +7,7 @@ import { execFile } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { parseArgs as parseNodeArgs } from "node:util";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -1060,4 +1060,4 @@ async function main() {
   } catch (error) { process.stderr.write(`refresh-discovery: ${error.message}\n`); process.exitCode = 1; }
 }
 
-if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) await main();
+if (import.meta.main) await main();

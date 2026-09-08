@@ -43,6 +43,12 @@ use the read-only `zscalerctl` CLI for tenant reads.
 - **Bash scripts** (`check-citations.sh`, `check-staleness.sh`, etc.) are direct-invokable (`./scripts/<name>.sh`).
 - **Node helpers** use only Node standard libraries when they exist to support
   runtime workflow gates without adding a project install step.
+  Importable CLI modules use `if (import.meta.main)` to enter the CLI (supported
+  by the repository's Node 24.19+ floor), not comparisons between `argv[1]` and
+  file URLs. This preserves execution through encoded or symlinked paths while
+  keeping imports inert. `cli-entrypoints.test.mjs` exercises actual subprocess
+  output and exit codes across those path variants; add new importable CLIs to
+  its case list. A silent exit 0 is not evidence that a validator ran.
 
 ## What's here
 

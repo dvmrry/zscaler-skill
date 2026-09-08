@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { pathToFileURL } from "node:url";
 import {
   FULL_CHECKS,
   exitCodeForResults,
   gitlinkPaths,
-  isMainModule,
   missingSubmoduleStatusPaths,
   resultStatus,
   submoduleStatusPaths,
@@ -67,16 +65,6 @@ test("successful advisory commands pass without prose-output inference", () => {
   const result = { code: 0, advisory: true, stdout: "advisory: 12\n", stderr: "" };
   assert.equal(resultStatus(result), "PASS");
   assert.equal(exitCodeForResults([result]), 0);
-});
-
-test("main-module detection handles encoded paths", () => {
-  for (const scriptPath of ["/tmp/dir with space/check-full.mjs", "/tmp/café/check-full.mjs"]) {
-    assert.equal(isMainModule(scriptPath, pathToFileURL(scriptPath).href), true);
-  }
-  assert.equal(
-    isMainModule("/tmp/other/check-full.mjs", pathToFileURL("/tmp/check-full.mjs").href),
-    false,
-  );
 });
 
 test("required failures fail the aggregate gate", () => {
