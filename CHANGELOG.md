@@ -4,6 +4,14 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.18.1](https://github.com/dvmrry/zscaler-skill/compare/v0.18.0...v0.18.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* prevent silent CLI success through spaced and symlinked paths ([#292](https://github.com/dvmrry/zscaler-skill/issues/292)) ([ab177db](https://github.com/dvmrry/zscaler-skill/commit/ab177db0b2518508120c3ddbac462688e6d1a48a))
+* run CLI entrypoints reliably through encoded and symlinked paths ([ab177db](https://github.com/dvmrry/zscaler-skill/commit/ab177db0b2518508120c3ddbac462688e6d1a48a))
+
 ## [0.18.0](https://github.com/dvmrry/zscaler-skill/compare/v0.17.2...v0.18.0) (2026-09-07)
 
 
