@@ -6,7 +6,7 @@ content-type: reference
 last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
-  vendor/zscaler-help: 96e69d73438c058c45739f741053bd68d47d234c
+  vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/zguard-ai-integrations: 71cbab024f369eb50748c9c4a74ec0158c084839
@@ -22,6 +22,11 @@ sources:
   - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
   - "vendor/zscaler-help/ai-guard-release-update-2026-09-02.md"
   - "vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md"
+  - "vendor/zscaler-help/ai-guard-apps-dashboard-20260909.md"
+  - "vendor/zscaler-help/ai-guard-apps-log-exports-20260909.md"
+  - "vendor/zscaler-help/ai-guard-apps-release-20260909.md"
+  - "vendor/zscaler-help/ai-guard-users-log-exports-20260909.md"
+  - "vendor/zscaler-help/ai-guard-users-release-20260909.md"
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/pyproject.toml"
@@ -91,7 +96,10 @@ This ledger covers the AI Guard claims changed or explicitly guarded in the Tier
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| The Apps & Infrastructure dashboard body captured on **2026-08-04** says conversation-thread viewing is exclusive to DAS/API mode and does not appear in Proxy mode; a separate **September 2, 2026** release entry announces Proxy-mode multi-turn conversation viewing, an Anthropic-console AI Guard webhook connection test, and a Policy Control Name event column with resizable dashboard columns. This is a dated release/body disagreement; the capture does not establish first-publication timing, tenant rollout, or API coverage. | `ai-guard.md`, `ai-guard-coverage.md`, `index.md` | `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:4`, `:23-28`; `vendor/zscaler-help/ai-guard-release-update-2026-09-02.md:7-23`, `:25-30` |
+| The prior Apps & Infrastructure dashboard capture dated **2026-08-04** says conversation-thread viewing is exclusive to DAS/API mode and does not appear in Proxy mode. The current **2026-09-09** rendered Apps body documents connected multi-prompt threads, expandable transactions, **Reveal Prompt**, and session-boundary logic without a mode qualifier. Current Apps and Users September 2 release entries announce Proxy-mode multi-turn conversation viewing, an Anthropic-console webhook connection test, and a Policy Control Name event column with resizable dashboard columns. Retain this as dated body/release evidence; it does not establish tenant rollout or API coverage. | `ai-guard.md`, `ai-guard-coverage.md`, `index.md` | `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.md:4`, `:23-28`; `vendor/zscaler-help/ai-guard-apps-dashboard-20260909.md:37-47`; `vendor/zscaler-help/ai-guard-apps-release-20260909.md:27-46`; `vendor/zscaler-help/ai-guard-users-release-20260909.md:38-57`; `vendor/zscaler-help/ai-guard-release-update-2026-09-02.md:25-30` |
+| The current Apps & Infrastructure and Users log-export bodies document **CRWD SIEM Direct Export** and an **Export Tools Field** control enabled by default, alongside ADX, the S3-dependent CrowdStrike path, AWS S3, and Splunk integrations. The direct path posts event metadata to CrowdStrike HEC; the via-S3 path sends metadata to HEC and event contents to AWS S3. | `ai-guard.md`, `ai-guard-coverage.md`, `index.md` | `vendor/zscaler-help/ai-guard-apps-log-exports-20260909.md:15-123`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.md:14-124` |
+| The Apps and Users via-S3 instructions use different labels: Apps says **Under CRWD SIEM Export (via S3)**, while Users says **Under CRWD Event Export**. This is source-text divergence, not evidence of different backend behavior. | `ai-guard.md`, `ai-guard-coverage.md`, `index.md` | `vendor/zscaler-help/ai-guard-apps-log-exports-20260909.md:57-80`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.md:56-79` |
+| The August 26 release entries name the CrowdStrike parser `zscaler-aiguard`; the scoped Help captures do not independently establish a parser artifact, live connector acceptance, entitlement, or rollout. | `ai-guard.md`, `ai-guard-coverage.md`, `index.md` | `vendor/zscaler-help/ai-guard-apps-release-20260909.md:47-60`; `vendor/zscaler-help/ai-guard-users-release-20260909.md:58-71`; `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:95-96` |
 | AI Guard provides runtime protection for AI applications by enforcing policies on prompts and responses, including prompt injection, jailbreak, sensitive-data leakage, toxicity, and other AI-specific categories. | `ai-guard.md`, `overview.md` | `vendor/zscaler-help/ai-guard-what-is.md:8`, `vendor/zscaler-help/ai-guard-what-is.md:10`, `vendor/zscaler-help/ai-guard-what-is.md:12`, `vendor/zscaler-help/ai-guard-what-is.md:22` |
 | The public Help capability list includes 15 named categories in the captured source, with Prompt Injection and Jailbreak presented as a combined capability. | `overview.md`, `api-divergences.md` | `vendor/zscaler-help/ai-guard-what-is.md:18`, `:20`, `:22`, `:24`, `:26`, `:28`, `:30`, `:32`, `:34`, `:36`, `:38`, `:40`, `:42`, `:44`, `:46` |
 | The richer integration detector catalog is direction-specific and says prompt detectors use `IN` while response detectors use `OUT`. | `api-divergences.md` | `vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md:7`, `vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md:146`, `vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md:314` |

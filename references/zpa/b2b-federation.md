@@ -5,7 +5,7 @@ title: "ZPA Business-to-Business Federation"
 content-type: reference
 last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-help: dbe545d5918392c4067ff897e748698c80220fef
+  vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: medium
@@ -18,6 +18,7 @@ sources:
   - "vendor/zscaler-help/zpa-about-federated-partners.md"
   - "vendor/zscaler-help/zpa-federating-defined-application-segments.md"
   - "vendor/zscaler-help/zpa-about-access-policies-defined-partners.md"
+  - "vendor/zscaler-help/zpa-access-policy-20260909.md"
   - "vendor/zscaler-sdk-go/CHANGELOG.md"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go"
@@ -173,6 +174,16 @@ rules defined by the host for its internal applications and users
 Each policy row exposes its name and rule action; documented actions are
 **Allow Access**, **Block Access**, and **Require Approval**
 (`vendor/zscaler-help/zpa-about-access-policies-defined-partners.md:18-24`).
+
+For federated applications, the current Help article describes the application
+segments as created, owned, and managed by the host partner and shared with
+guest partners. It limits guest-partner federated access-policy criteria to
+**Client Type** = `Client Connector`, plus **Client Connector Posture Profiles**,
+**Country Codes**, **Locations**, **Machine Groups**, **Platforms**, **Risk
+Scores**, **SAML and SCIM Attributes**, and **Trusted Networks**
+(`vendor/zscaler-help/zpa-access-policy-20260909.md:64-74`). This is Help-
+documented UI/behavior coverage; it does not assert new SDK operand types or an
+API schema change.
 
 ## ZPA cloud service API
 

@@ -5,6 +5,7 @@ title: "ZMS — Zscaler Microsegmentation (workload east-west)"
 content-type: reasoning
 last-verified: "2026-06-14"
 verified-against:
+  vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 source-tier: doc
@@ -20,6 +21,7 @@ sources:
   - "vendor/zscaler-help/about-tags.md"
   - "vendor/zscaler-help/about-agent-provisioning-keys.md"
   - "vendor/zscaler-help/editing-agent-provisioning-keys.md"
+  - "vendor/zscaler-help/zms-appzones-20260909.md"
   - "vendor/zscaler-sdk-python/zscaler/zms/zms_service.py"
   - "vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc"
 author-status: draft
@@ -132,6 +134,20 @@ search, add, detail, edit, and delete actions
 (`vendor/zscaler-help/about-tags.md:10-27`). Help does not define the GraphQL
 types or enforcement semantics behind those actions
 (`vendor/zscaler-help/about-tags.md:29-33`).
+
+### AppZones
+
+The current Help article places AppZones under **Zero Trust Cloud >
+Microsegmentation > App Zones** and describes them as applications grouped into
+zones based on application topology and underlying network connectivity
+(`vendor/zscaler-help/zms-appzones-20260909.md:12-19`). The page supports filters
+for **Name**, **Description**, and **Member Count**, plus refresh, add, and
+column-visibility controls. Each row shows the AppZone name, the number of
+connected resources, and its description; selecting a row opens complete
+information, with edit and delete actions available
+(`vendor/zscaler-help/zms-appzones-20260909.md:20-36`). This is current
+Microsegmentation portal UI coverage, not a new ZPA application-segment
+contract.
 
 ## Provisioning + deployment
 

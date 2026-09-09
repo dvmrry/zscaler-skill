@@ -5,7 +5,7 @@ title: "ZPA access policy precedence"
 content-type: reasoning
 last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-help: 21dff098eac2abffb7f8dfdebd43a968971d6490
+  vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
 confidence: high
 source-tier: doc
 sources:
@@ -13,6 +13,7 @@ sources:
   - "vendor/zscaler-help/About_Policies.txt"
   - "https://help.zscaler.com/zpa/about-access-policy"
   - "vendor/zscaler-help/About_Access_Policy.txt"
+  - "vendor/zscaler-help/zpa-access-policy-20260909.md"
   - "https://help.zscaler.com/zpa/configuring-access-policies"
   - "vendor/zscaler-help/Configuring_Access_Policies.txt"
   - "https://help.zscaler.com/zpa/access-policy-configuration-examples"
@@ -53,6 +54,7 @@ Criteria available on an access policy rule, from *About Access Policy* pp.1–3
 
 | Criterion | Meaning |
 |---|---|
+| Adaptive Access Profiles | Profiles defined by user and device context signals from the Adaptive Access Engine (`vendor/zscaler-help/zpa-access-policy-20260909.md:52-54`) |
 | Application Segments | Specific application segments the rule applies to |
 | Segment Groups | Groups of segments the rule applies to |
 | Branch Connector Groups | Branch Connector groups |
@@ -64,6 +66,7 @@ Criteria available on an access policy rule, from *About Access Policy* pp.1–3
 | Cloud Connector Groups | Cloud Connector groups |
 | Country Codes | Country of the user's IP. **Special handling for Cloud Connectors / Source IP Anchoring / multi-hop: policy uses the *last NATed layer-3 public IP*, not the user's original IP.** (*About Access Policy* p.2.) |
 | Extranet | Extranet resources (locations or sublocations) |
+| Federated Applications | Application segments created, owned, and managed by the host partner and shared with guest partners (`vendor/zscaler-help/zpa-access-policy-20260909.md:64`) |
 | Locations | Branch Connector, Cloud Connector, or other locations and sublocations |
 | Machine Groups | Configured machine groups |
 | Platforms | `Windows`, `macOS`, `Linux`, `Android` |
@@ -71,7 +74,21 @@ Criteria available on an access policy rule, from *About Access Policy* pp.1–3
 | SAML Attributes | User attributes from the IdP's SAML assertion |
 | SCIM Attributes | User attributes learned via SCIM |
 | SCIM Groups | SCIM groups learned via SCIM |
+| Tag Groups | Tags associated with the tag group defined within the application segment (`vendor/zscaler-help/zpa-access-policy-20260909.md:82-84`) |
+| Tag Value | Values associated with configured application segments (`vendor/zscaler-help/zpa-access-policy-20260909.md:82-84`) |
 | Workload Groups | Workload groups from cloud workloads |
+
+#### Guest-partner federated policy criteria
+
+For federated applications, the current Help article restricts the criteria
+available to the guest partner. **Client Type** has only one supported value:
+`Client Connector` (`vendor/zscaler-help/zpa-access-policy-20260909.md:64-66`).
+The other listed guest-partner criteria are **Client Connector Posture
+Profiles**, **Country Codes**, **Locations**, **Machine Groups**, **Platforms**,
+**Risk Scores**, **SAML and SCIM Attributes**, and **Trusted Networks**
+(`vendor/zscaler-help/zpa-access-policy-20260909.md:66-74`). This is Help
+UI/behavior coverage; it does not add SDK operand types or assert an API schema
+change.
 
 ### Boolean operators
 
