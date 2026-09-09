@@ -25,11 +25,17 @@ wrap this phase, but they should not redefine it.
 
 The case intake phase creates and verifies:
 
-- `_data/cases/<slug>/case-intake.md`
-- `_data/cases/<slug>/case-intake.json`
-- `_data/cases/<slug>/journal.md`
-- `_data/cases/<slug>/workflow/02-turns.jsonl` after Step 3
-- `_data/cases/<slug>/workflow/02-turn-state.json` after Step 3
+- `<mount>/cases/<slug>/case-intake.md`
+- `<mount>/cases/<slug>/case-intake.json`
+- `<mount>/cases/<slug>/journal.md`
+- `<mount>/cases/<slug>/workflow/02-turns.jsonl` after Step 3
+- `<mount>/cases/<slug>/workflow/02-turn-state.json` after Step 3
+
+`<mount>` is the configured runtime-data mount; `_data` is only the default.
+Resolve it with `node scripts/runtime-data-path.mjs --root <repo-root>` before
+substituting paths. Use the same runtime/setup config environment selectors for
+the resolver and investigator helper. The helper resolves the mount itself;
+use its returned artifact paths rather than creating a separate `_data/` tree.
 
 The next phase must refuse to continue unless
 `case-intake.md` exists with:

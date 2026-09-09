@@ -4,6 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { pathToFileURL } from "node:url";
 import { isSkeletonTree, setupDataMount } from "./setup-data-mount.mjs";
 import { DATA_REQUIRED_DIRS, RUNTIME_CONFIG_ENV, SETUP_CONFIG_ENV } from "./lib.mjs";
 
@@ -76,6 +77,79 @@ function runSetupCommand(args, options = {}) {
     },
   );
 }
+
+for (const mode of ["copy", "checkout", "submodule", "auto"]) {
+  for (const layout of ["same", "source-child", "dot-prefix-child", "mount-child", "source-alias", "mount-alias", "missing-mount-child", "file-url"]) {
+    test(`setupDataMount rejects ${layout} overlap in ${mode} mode without mutations`, (t) => {
+      const root = tempDir("zscaler-overlap-");
+      t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+      git(root, ["init", "-b", "main"]);
+      let mountPath = "tenant-data";
+      const dataDir = path.join(root, mountPath);
+      fs.mkdirSync(dataDir);
+      let source = dataDir;
+      if (layout === "source-child") source = path.join(dataDir, "source");
+      if (layout === "dot-prefix-child") source = path.join(dataDir, "..source");
+      if (layout === "mount-child" || layout === "missing-mount-child") mountPath += "/new/mount";
+      fs.mkdirSync(source, { recursive: true });
+      if (layout === "mount-child") fs.mkdirSync(path.join(root, mountPath), { recursive: true });
+      const canary = path.join(source, "canary.txt");
+      fs.writeFileSync(canary, "must survive\n");
+      if (layout === "source-alias") {
+        source = path.join(root, "source-alias");
+        fs.symlinkSync(dataDir, source);
+      }
+      if (layout === "mount-alias") {
+        mountPath = "mount-alias";
+        fs.symlinkSync(dataDir, path.join(root, mountPath));
+      }
+      const beforeStatus = git(root, ["status", "--short"]);
+      const exclude = path.join(root, ".git", "info", "exclude");
+      const beforeExclude = fs.readFileSync(exclude, "utf8");
+      const dataUrl = layout === "file-url" ? pathToFileURL(source).href : source;
+      assert.throws(() => setupDataMount({ root, mountPath, dataUrl, mode, force: true }), /source and runtime mount must not overlap/);
+      assert.equal(fs.readFileSync(canary, "utf8"), "must survive\n");
+      assert.equal(fs.readFileSync(exclude, "utf8"), beforeExclude);
+      assert.equal(git(root, ["status", "--short"]), beforeStatus);
+      assert.equal(fs.existsSync(path.join(root, ".gitmodules")), false);
+      if (layout === "missing-mount-child") assert.equal(fs.existsSync(path.join(root, mountPath)), false);
+    });
+  }
+}
+
+test("CLI rejects in-place copy from setup config, even with force or dry-run", (t) => {
+  const root = tempDir("zscaler-inplace-config-");
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  makeDataSkeleton(root, "tenant-data");
+  const canary = path.join(root, "tenant-data", "cases", "journal.md");
+  fs.writeFileSync(canary, "preserve this case\n");
+  fs.writeFileSync(path.join(root, "zscaler-skill-runtime.json"), JSON.stringify({
+    runtimeData: { mountPath: "tenant-data", tracking: "tracked" },
+  }));
+  fs.writeFileSync(path.join(root, "zscaler-skill-setup.json"), JSON.stringify({
+    dataUrl: "tenant-data", mode: "copy",
+  }));
+  for (const flags of [[], ["--force"], ["--force", "--dry-run"]]) {
+    assert.throws(() => runSetupCommand(["--root", root, ...flags]), (error) => {
+      assert.equal(error.status, 1);
+      assert.match(error.stderr, /source and runtime mount must not overlap/);
+      return true;
+    });
+    assert.equal(fs.readFileSync(canary, "utf8"), "preserve this case\n");
+    assert.equal(fs.existsSync(path.join(root, "_data")), false);
+  }
+});
+
+test("copy permits sibling paths sharing a prefix", (t) => {
+  const root = tempDir("zscaler-overlap-prefix-");
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const source = path.join(root, "tenant-data-source");
+  fs.mkdirSync(source);
+  fs.writeFileSync(path.join(source, "canary.txt"), "copy me\n");
+  setupDataMount({ root, mountPath: "tenant-data", dataUrl: source, mode: "copy" });
+  assert.equal(fs.readFileSync(path.join(root, "tenant-data", "canary.txt"), "utf8"), "copy me\n");
+  assert.equal(fs.readFileSync(path.join(source, "canary.txt"), "utf8"), "copy me\n");
+});
 
 test("isSkeletonTree accepts only README and .gitkeep files", () => {
   const root = tempDir("zscaler-data-skeleton-");

@@ -196,6 +196,29 @@ function resolveLocalSource(root, dataUrl) {
   return null;
 }
 
+// Resolve aliases even when the destination has not been created yet. Stop at
+// the nearest existing entry; realpath then fails closed on dangling symlinks.
+function canonicalPath(target) {
+  let existing = path.resolve(target);
+  const missing = [];
+  while (!fs.lstatSync(existing, { throwIfNoEntry: false })) {
+    missing.unshift(path.basename(existing));
+    existing = path.dirname(existing);
+  }
+  return path.join(fs.realpathSync(existing), ...missing);
+}
+
+function assertDisjointSourceAndMount(source, mount) {
+  const contains = (a, b) => {
+    const relative = path.relative(a, b);
+    return relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
+  };
+  const overlaps = (a, b) => contains(a, b) || contains(b, a);
+  if (overlaps(source, mount) || overlaps(canonicalPath(source), canonicalPath(mount))) {
+    throw new Error("local data source and runtime mount must not overlap (same directory or ancestor/descendant), even with --force");
+  }
+}
+
 function assertNoSymlinks(dir) {
   const stack = [dir];
   while (stack.length) {
@@ -271,6 +294,9 @@ function setupDataMount(options) {
   const mountPath = normalizeMountPath(options.mountPath || DEFAULT_DATA_MOUNT);
   const dataDir = path.join(root, mountPath);
   const localSource = resolveLocalSource(root, options.dataUrl);
+  // All modes remove the destination. Protect local sources before any scan,
+  // ignore-file change, git mutation, or removal, including dry-run validation.
+  if (localSource) assertDisjointSourceAndMount(localSource, dataDir);
   const requestedMode = options.mode || "checkout";
   const mode = requestedMode === "auto"
     ? (localSource && !isGitSource(root, options.dataUrl, localSource) ? "copy" : "checkout")

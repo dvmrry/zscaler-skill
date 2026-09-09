@@ -4,11 +4,27 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { checkDataContract } from "./check-data-contract.mjs";
+import { checkDataContract, detectDataSubmodule } from "./check-data-contract.mjs";
 import { DATA_REQUIRED_DIRS, RUNTIME_CONFIG_ENV, SETUP_CONFIG_ENV } from "./lib.mjs";
 
 function tempRepo() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "zscaler-data-contract-"));
+}
+
+for (const [entry, expected] of [
+  ["path = tenant-data/iac/module", false],
+  ["path = tenant-data-backup", false],
+  ["# path = tenant-data", false],
+  ["path = tenant-data", true],
+  ['path = "tenant-data" # actual mount', true],
+  ["path=tenant-data", true],
+]) {
+  test(`submodule detection matches exact Git config path: ${entry}`, (t) => {
+    const root = tempRepo();
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(root, ".gitmodules"), `[submodule "fixture"]\n\t${entry}\n`);
+    assert.equal(detectDataSubmodule(root, "tenant-data").isSubmodule, expected);
+  });
 }
 
 function runCheckCommand(args, options = {}) {

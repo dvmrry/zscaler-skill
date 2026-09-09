@@ -84,6 +84,12 @@ node scripts/check-data-contract.mjs --root <repo-root> --mount-path <runtime-da
 Add `--force` to the setup command only after explicit confirmation that
 existing populated `_data` content may be replaced.
 
+Local sources must be separate from the destination mount: the same directory
+or either directory nested inside the other is rejected, including symlink
+aliases. This safety check applies to every mode and cannot be overridden by
+`--force`. A private mirror that already tracks its data in place does not need
+setup to copy that directory onto itself; run the contract check instead.
+
 ## Downstream Config Selection
 
 Downstream installations may commit their own non-secret runtime config and
