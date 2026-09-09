@@ -151,8 +151,13 @@ function detectDataSubmodule(root, mountPath = DEFAULT_DATA_MOUNT) {
   const lsTree = gitLsTree(root, mount);
 
   const gitFileLooksLikeSubmodule = fs.existsSync(dataGit) && fs.statSync(dataGit).isFile();
-  const gitmodulesMentionsData = fs.existsSync(gitmodules)
-    && fs.readFileSync(gitmodules, "utf8").includes(`path = ${mount}`);
+  // Let Git parse quoting, whitespace, and comments; compare complete values,
+  // not prefixes (a submodule below the mount is not the mount itself).
+  const declaredPaths = fs.existsSync(gitmodules)
+    ? gitTryOutput(root, ["config", "--file", gitmodules, "--null", "--get-regexp", "^submodule\\..*\\.path$"])
+    : "";
+  const gitmodulesMentionsData = declaredPaths.split("\0")
+    .some((entry) => entry.includes("\n") && entry.slice(entry.indexOf("\n") + 1) === mount);
   const escapedMount = mount.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const treeMatch = new RegExp(`^160000 commit ([0-9a-f]{40})\\t${escapedMount}$`, "m").exec(lsTree);
 
