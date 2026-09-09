@@ -4,6 +4,13 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.18.3](https://github.com/dvmrry/zscaler-skill/compare/v0.18.2...v0.18.3) (2026-09-09)
+
+
+### Bug Fixes
+
+* prevent destructive runtime-mount source overlap ([#296](https://github.com/dvmrry/zscaler-skill/issues/296)) ([ed13611](https://github.com/dvmrry/zscaler-skill/commit/ed13611fb6ed7450912a357844d43b7c93e841b2))
+
 ## [0.18.2](https://github.com/dvmrry/zscaler-skill/compare/v0.18.1...v0.18.2) (2026-09-09)
 
 
