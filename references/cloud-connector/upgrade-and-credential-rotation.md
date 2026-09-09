@@ -6,7 +6,7 @@ content-type: reasoning
 last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
-  vendor/zscaler-help: 96e69d73438c058c45739f741053bd68d47d234c
+  vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
 source-tier: mixed
@@ -19,6 +19,9 @@ sources:
   - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
   - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
   - "vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.md"
+  - "vendor/zscaler-help/cbc-os24-cloud-20260909.md"
+  - "vendor/zscaler-help/cbc-os24-branch-20260909.md"
+  - "vendor/zscaler-help/supported-versions-20260909.md"
   - "vendor/zscaler-sdk-python/zscaler/ztw/ec_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/admin_users.py"
@@ -40,18 +43,59 @@ Operational runbook context for operators managing Cloud Connector (CC) and Bran
 
 ---
 
-## Support lifecycle boundary: ZSOS 24
+## Support lifecycle boundary: ZscalerOS 24
 
-The August 30, 2026 notice says Cloud Connector deployments running ZSOS 24 or
-earlier on AWS, Microsoft Azure, or GCP are no longer supported. Migrate affected
-deployments to ZSOS 42 or later by **November 30, 2026** to maintain service
-continuity. Cloud Connectors already running ZSOS 42 require no action under
-this notice (`vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.md:7-13`).
+The August 30, 2026 notice says Cloud Connector deployments running ZscalerOS 24
+or earlier on AWS, Microsoft Azure, or GCP are no longer supported. It directs
+organizations running an affected deployment to migrate to ZscalerOS 42 or
+higher by **November 30, 2026** to ensure service continuity. Cloud Connectors
+already running ZscalerOS 42 require no action under this notice
+(`vendor/zscaler-help/cbc-os24-cloud-20260909.md:19-21`).
 
-This is a support-status deadline, not a migration procedure: the notice does
-not describe migration commands or automatic OS replacement, and it does not
-cover the separate Branch Connector notice
-(`vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.md:15-18`).
+This is a lifecycle announcement rather than a migration procedure: the current
+rendered body gives the threshold, target, deadline, and no-action status but no
+migration commands or automatic OS replacement behavior
+(`vendor/zscaler-help/cbc-os24-cloud-20260909.md:5,19-21`). The older scoped
+local capture also recorded that this notice did not cover the separate Branch
+Connector notice (`vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.md:15-18`);
+the current Branch notice is summarized below.
+
+### Branch Connector lifecycle scope
+
+The separate August 30, 2026 notice says Branch Connector appliances based on
+ZscalerOS 24 and earlier are no longer supported. It explicitly includes
+virtual appliances on VMware platforms, Linux KVM, and Microsoft Hyper-V, and
+hardware appliances on ZT-400, ZT-600, and ZT-800. For an affected deployment,
+the notice offers either migration to ZscalerOS 42 or higher by **November 30,
+2026** to ensure service continuity, or migration to Zero Trust Branch
+appliances, with instructions to contact the Zscaler Account team for available
+options. Branch Connectors already running ZscalerOS 42 require no action
+(`vendor/zscaler-help/cbc-os24-branch-20260909.md:19-31`).
+
+### Supported Versions reconciliation boundary
+
+The current Supported Versions page states that the general End-of-Life (EOL)
+for ZscalerOS 24 is **December 31, 2026**
+(`vendor/zscaler-help/supported-versions-20260909.md:35`). Its visible tables
+also list ZscalerOS 24 and ZscalerOS 42 for Cloud Connector on AWS, Microsoft
+Azure, and GCP (`vendor/zscaler-help/supported-versions-20260909.md:61-68`),
+Branch Connector virtual platforms (`vendor/zscaler-help/supported-versions-20260909.md:69-76`),
+and Branch Connector hardware appliances ZT-400, ZT-600, and ZT-800
+(`vendor/zscaler-help/supported-versions-20260909.md:77-84`).
+
+Keep the milestones distinct: the Cloud and Branch notices use **November 30,
+2026** as the migration-by date to ensure service continuity
+(`vendor/zscaler-help/cbc-os24-cloud-20260909.md:19-21`; `vendor/zscaler-help/cbc-os24-branch-20260909.md:24-31`),
+while Supported Versions gives **December 31, 2026** as the general ZscalerOS
+24 EOL date (`vendor/zscaler-help/supported-versions-20260909.md:35`). The
+sources do not say that the December 31 date extends or supersedes the November
+30 migration deadline. The unresolved conflict is the present-tense
+“Supported Versions” entries for ZscalerOS 24 while both end-support notices say
+those Cloud and Branch deployments are no longer supported
+(`vendor/zscaler-help/cbc-os24-cloud-20260909.md:19-21`; `vendor/zscaler-help/cbc-os24-branch-20260909.md:19-31`; `vendor/zscaler-help/supported-versions-20260909.md:61-84`).
+Do not treat ZscalerOS 24 as usable through December 31, select a controlling
+Help surface, or infer that the tables are stale without source-owner
+clarification.
 
 ## 1. Upgrade cadence
 
@@ -213,6 +257,8 @@ The following are not confirmed by current captures or SDK/API source. Each is h
 - **Whether the weekly upgrade check still runs on long-lived scale-set / ASG members.** The replacement-from-launch-template behavior is now a cited fact (see §1 "What gets upgraded") — a scale-out yields current-software instances. What remains uncaptured is whether a member VM that stays up for many weeks *also* receives the in-place weekly package upgrade like a static instance, or only ever refreshes its software when it is replaced. The captures describe scale-set lifecycle (add/remove/replace) but do not state the upgrade path for a persistent member.
 - **Specific failure-recovery procedure** if a CC fails its upgrade (the docs say retry next week; whether manual intervention is possible before that is not captured).
 - **Default zsroot password** for freshly-provisioned CCs — not documented in captures. Cloud Connector VMs on Azure/AWS may use a cloud-provider-generated credential or a Zscaler-set default. Verify at first-deploy.
+- **C-001 — Current ZscalerOS 24 support rows** — Whether the present-tense ZscalerOS 24 “Supported Versions” rows reconcile with the Cloud and Branch end-support notices, and how the November 30 service-continuity migration deadline relates to the December 31 general EOL date; *unverified, requires source-owner clarification or a dated policy interpretation* (`vendor/zscaler-help/cbc-os24-cloud-20260909.md:19-21`; `vendor/zscaler-help/cbc-os24-branch-20260909.md:19-31`; `vendor/zscaler-help/supported-versions-20260909.md:35,61-84`).
+- **C-002 — Zero Trust Branch appliance/model mapping** — Whether or how a Branch Connector appliance named in the notice, including ZT-800, maps to a Zero Trust Branch appliance; the notice states the option but does not define a model mapping or migration path; *unverified, requires source-owner clarification or a product mapping* (`vendor/zscaler-help/cbc-os24-branch-20260909.md:19-31`).
 
 ---
 

@@ -6,9 +6,12 @@ content-type: reference
 last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
-  vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
+  vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
 confidence: high
-sources: []
+sources:
+  - "vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md"
+  - "vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md"
+  - "vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.md"
 author-status: reviewed
 ---
 
@@ -4518,10 +4521,27 @@ Two open items on the ZIA admin audit log report endpoint. First, pagination: th
 
 *Origin: `references/zia/bandwidth-control.md` § Open questions*
 
-Three open items on Bandwidth Control classes. First, the help docs describe predefined, non-deletable classes (Social Media, Streaming, File Share, Business Apps) while the SDK/TF expose a `type` field with values like `BANDWIDTH_CAT_WEBCONF` / `BANDWIDTH_CAT_VOIP` (`vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go:94-95`); whether these typed flavors are the same objects as the UI predefined classes or an orthogonal axis is not stated in any source opened in this pass. Second, the full enumeration of class `type` values is not pinned — only the file-size and web-conferencing/VOIP types appear with explicit constants; the general `zia_bandwidth_classes` resource does not pin a `type` constant, so whether other values exist (and the API default for a plain class) is not in captured source. Third, the class-count and rule-count caps (245 custom classes / 8 classes-with-domains / 25,000 domains / 125 rules) come only from the help *Ranges and Limitations* doc; no SDK or TF source encodes or validates them, so whether the API rejects over-limit creates or enforcement is UI-only is unconfirmed.
+The Help-reading gap was narrowed on **2026-09-09**: the current overview
+documents Cloud Applications, Large Files, Web Conference Applications, and
+VoIP Applications tabs (`vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md:14-19`).
+The Cloud Applications article names File Share, Finance, General Surfing,
+Sales/Support Apps, and Streaming Media as predefined classes
+(`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:23-29`).
+Large Files Help describes throttling uploads or downloads at or above the
+selected minimum file size (`vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.md:10`).
+
+Three questions remain. First, these Help UI categories do not provide a wire
+mapping to class `type` values such as `BANDWIDTH_CAT_WEBCONF`
+(`vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go:98-105`).
+Second, the full API type enumeration and the default type of a plain class
+remain unverified. Third, current Help corroborates 245 custom classes,
+eight classes with custom domains, and 25,000 domains across bandwidth classes
+(`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:16-18`),
+but does not establish whether those caps or the separately documented rule cap
+are API-enforced. UI documentation does not close those API questions.
 
 **Status**: open
-**Resolves with**: zscaler doc not yet read (per-class `type` reference) OR lab test (create over the documented caps and a plain class, observe the API default and whether limits are enforced)
+**Resolves with**: a published API per-class `type` contract OR an authorized lab test of a plain class and over-limit requests to establish defaults and enforcement
 
 ---
 

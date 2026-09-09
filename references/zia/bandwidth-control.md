@@ -4,6 +4,8 @@ topic: "bandwidth-control"
 title: "ZIA Bandwidth Control"
 content-type: reasoning
 last-verified: "2026-06-15"
+verified-against:
+  vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
 confidence: high
 source-tier: mixed
 sources:
@@ -20,6 +22,12 @@ sources:
   - "vendor/zscaler-help/adding-bandwidth-classes.md"
   - "vendor/zscaler-help/bandwidth-control-policy-example.md"
   - "vendor/zscaler-help/ranges-limitations-zia.md"
+  - "vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md"
+  - "vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md"
+  - "vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.md"
+  - "vendor/zscaler-help/zia-voip-bandwidth-class-20260909.md"
+  - "vendor/zscaler-help/zia-web-conferencing-bandwidth-class-20260909.md"
+  - "vendor/zscaler-help/zia-bandwidth-url-resolution-20260909.md"
 author-status: draft
 ---
 
@@ -50,9 +58,22 @@ A bandwidth class is the matcher. It identifies the traffic bucket that a rule a
 - **Cloud Applications** — individual apps or app categories (Office 365, Slack, Zoom, etc.).
 - **Custom Domains** — arbitrary FQDNs added as literal strings.
 
-Classes are configured in **Administration > Bandwidth Classes**.
+Classes are configured in the current Help UI at **Internet Access > Resources > Bandwidth Classes** (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:31-34`; `vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md:28-29`). The April capture used **Administration > Bandwidth Classes** (`vendor/zscaler-help/adding-bandwidth-classes.md:26-30`); retain that as historical UI wording rather than current navigation.
 
-**Predefined classes ship with the service** and cannot be deleted (you can add domains to them but can't remove them). Typical predefined classes cover Social Media, Streaming, File Share, Business Apps categories.
+**Current Cloud Applications predefined classes** are File Share, Finance, General Surfing, Sales/Support Apps, and Streaming Media. General Surfing cannot be edited. Predefined classes cannot be deleted, but their domains can be added, edited, or removed in the Edit drawer (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:19-29,31-49`). This five-name list is scoped to the Cloud Applications tab; the Help body does not state how it reconciles with the other three tabs or the eight predefined-class count (`vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md:14-19`).
+
+The lowercase `/zia/adding-bandwidth-classes` request currently resolves in the rendered Help application to `/zia/Configuring-bandwidth-classes` and renders the same article as the direct capital-C request. The HTTP probe observed HTTP 200 on the original lowercase URL and no 3xx redirect, so this is client-side route resolution rather than an observed server redirect; it does not establish feature retirement, deletion, or renaming (`vendor/zscaler-help/zia-bandwidth-url-resolution-20260909.md:4-15`).
+
+#### Current Help UI tabs
+
+The current Bandwidth Classes page presents four tabs (`vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md:14-19`):
+
+- **Cloud Applications** — configure custom and predefined classes and add or remove URL domains; predefined classes cannot be deleted.
+- **Large Files** — configure the minimum file size for the class.
+- **Web Conference Applications** — enable or disable web conferencing applications for the class.
+- **VoIP Applications** — enable or disable VoIP applications for the class.
+
+The class-specific pages document the following user-facing behavior: Large Files throttles downloads or uploads at or above the selected minimum file size, with the value chosen from the Edit drawer (`vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.md:10-27`); VoIP and Web Conferencing each display an application list and let an administrator enable or disable applications before saving and activating (`vendor/zscaler-help/zia-voip-bandwidth-class-20260909.md:10-27`; `vendor/zscaler-help/zia-web-conferencing-bandwidth-class-20260909.md:10-27`). These Help captures do not enumerate the Large Files drop-down values or the specialized application lists, and they do not provide API field names or enum mappings.
 
 ### Bandwidth Control Rule
 
@@ -92,26 +113,26 @@ Terraform exposes the class typing as three distinct resources over the same und
 | `zia_bandwidth_classes_file_size` | `BANDWIDTH_CAT_LARGE_FILE` (`resource_zia_bandwidth_classes_file_size.go:66`) | `file_size` — one of `FILE_5MB`, `FILE_10MB`, `FILE_50MB`, `FILE_100MB`, `FILE_250MB`, `FILE_500MB`, `FILE_1GB` (`:73-81`) |
 | `zia_bandwidth_classes_web_conferencing` | `BANDWIDTH_CAT_WEBCONF` or `BANDWIDTH_CAT_VOIP` (`resource_zia_bandwidth_classes_web_conferencing.go:102-105`) | `applications` (`:107-111`; validated per type, `:24-53` — e.g. `WEBEX`/`GOTOMEETING` for WEBCONF, `SKYPE` for VOIP) |
 
-The file-size and web-conferencing TF resources are thin wrappers: they look the class up by name and `PUT` into the same `bandwidthClasses` object (`resource_zia_bandwidth_classes_file_size.go:101-116`). The file-size class type — capping bandwidth by transfer size rather than by app/category — is a class flavor the help-doc model never surfaces.
+The file-size and web-conferencing TF resources are thin wrappers: they look the class up by name and `PUT` into the same `bandwidthClasses` object (`resource_zia_bandwidth_classes_file_size.go:101-116`). Current Help does surface the file-size flavor: the Large Files page configures a minimum file size, and the service enforces throttling for downloads or uploads equal to or above the selected size (`vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.md:10-27`). The captured Help body does not state the corresponding API field, enum, or wire mapping, so this semantic behavior does not resolve the SDK/TF mapping.
 
 ## Limits
 
-Source: `vendor/zscaler-help/adding-bandwidth-classes.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
+Source: `vendor/zscaler-help/adding-bandwidth-classes.md`; `vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 | Object | Limit |
 |---|---|
-| Custom bandwidth classes | 245 per org |
-| Bandwidth classes with custom domains | **8** (hard cap on classes using the domains field, not on total classes) |
-| Domains across all bandwidth classes | 25,000 (including those contributed by URL categories) |
-| Per-list pagination | 500 items per page |
+| Custom bandwidth classes | 245 per org (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:14-18`) |
+| Bandwidth classes with custom domains | **8** (hard cap on classes using the domains field, not on total classes) (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:16-18,74`) |
+| Domains across all bandwidth classes | 25,000 (including those contributed by URL categories) (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:16-18`) |
+| Per-list pagination | 500 items per page (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:74`) |
 
-The 8-classes-with-domains cap is the surprising one: you can have 245 total classes, but only 8 of them can hold custom domains. The rest must match via URL Category + Cloud App criteria only. Plan topology accordingly — if you need domain-based matching for a new traffic bucket, you may be forced to restructure existing classes.
+The 8-classes-with-domains cap is a class count, not a domain count: current Help states up to 8 classes with custom domains, up to 245 custom classes, and up to 25,000 domains across all bandwidth classes (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:14-18`). The Help pages do not state how the remaining class capacity maps to predefined or specialized classes, so do not infer that topology from the caps alone.
 
 ## Default-rule behavior for orphan classes
 
-Source: `vendor/zscaler-help/adding-bandwidth-classes.md`.
+Source: `vendor/zscaler-help/adding-bandwidth-classes.md`; current body: `vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:51-53`.
 
-**A custom bandwidth class that isn't referenced in any location's policy rules lands in that location's default rule automatically.**
+**A custom bandwidth class that isn't referenced in any location's policy rules lands in that location's default rule automatically** (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:51-53`).
 
 Implications:
 - The default rule covers all internet traffic not matched by explicit rules.
@@ -177,15 +198,15 @@ Bandwidth Control sits **alongside** URL Filtering / CAC / DLP / SSL Inspection 
 
 ## Limits (per *Ranges and Limitations*)
 
-Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
+Source: `vendor/zscaler-help/ranges-limitations-zia.md`; current class-limit corroboration: `vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:14-18`.
 
 | Object | Limit | Notes |
 |---|---|---|
 | Bandwidth Control policy rules | **125 rules** | Lower than most other ZIA policies; per-department / per-app rule designs hit this earlier than expected |
-| Predefined bandwidth classes | 8 | Not deletable; can add domains |
-| Custom bandwidth classes | 245 | |
-| Bandwidth classes with custom domains | 8 | Hard cap on classes using the domains field |
-| Domains across all bandwidth classes | 25,000 | Including those contributed by URL categories |
+| Predefined bandwidth classes | 8 | Ranges & Limitations capture (`vendor/zscaler-help/ranges-limitations-zia.md:300-306`); current Help names five Cloud Applications classes and separately lists Large Files, Web Conference Applications, and VoIP tabs, but does not map that tab model to the count (`vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md:14-19`; `vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:23-29`) |
+| Custom bandwidth classes | 245 | Current Help corroboration (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:14-18`) |
+| Bandwidth classes with custom domains | 8 | Hard cap on classes using the domains field (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:16-18`) |
+| Domains across all bandwidth classes | 25,000 | Including those contributed by URL categories (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:16-18`) |
 | File Type Control rules (parallel limit, since FTC interacts with bandwidth) | 2,048 | |
 | File Type Control file size scan cap | 400 MB | Files larger pass through unscanned |
 
@@ -193,9 +214,9 @@ Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
 
 Source: `vendor/zscaler-help/about-bandwidth-control.md`; `vendor/zscaler-help/adding-bandwidth-classes.md`; `vendor/zscaler-help/bandwidth-control-policy-example.md`; `vendor/zscaler-help/ranges-limitations-zia.md`.
 
-1. **The "custom domains" cap is a class count, not a domain count.** You can have 24,000 domains distributed across 8 classes + thousands more classes using URL-Category matching only. Tenants hitting the 8-class cap often conflate domain count with class count.
+1. **The "custom domains" cap is a class count, not a domain count.** Current Help permits up to 8 classes with custom domains, up to 25,000 domains across all bandwidth classes (including URL categories), and up to 245 custom classes (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:14-18`). It does not state that the remaining class capacity is “thousands more,” so no such topology should be inferred solely from these caps.
 
-2. **Orphan classes don't just fail — they silently fall into the default rule.** A class you thought was "inactive because no rule references it" actually shares in the default rule's allocation. If the default rule is tight, orphan classes get clamped unexpectedly.
+2. **Orphan classes don't just fail — they silently fall into the default rule.** A class you thought was "inactive because no rule references it" actually shares in the default rule's allocation. If the default rule is tight, orphan classes get clamped unexpectedly (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:51-53`).
 
 3. **No enforcement outside contention.** Bandwidth Control looks like it's doing nothing 90% of the time. Reports showing uncapped usage during off-peak hours aren't a misconfiguration — they're the expected state. Only contention triggers the allocation logic.
 
@@ -219,11 +240,13 @@ Source: `vendor/zscaler-help/about-bandwidth-control.md`; `vendor/zscaler-help/a
 
 ## Open questions
 
-- **How the SDK/TF class `type` values map to the help-doc "predefined classes."** The help docs describe predefined, non-deletable classes (Social Media, Streaming, File Share, Business Apps); the SDK/TF expose a `type` field with values `BANDWIDTH_CAT_LARGE_FILE`, `BANDWIDTH_CAT_WEBCONF`, `BANDWIDTH_CAT_VOIP` (and a general type). Whether these typed flavors are the same objects as the UI's predefined classes, or an orthogonal axis, is not stated in any source opened in this pass.
-- **The full enumeration of class `type` values.** Only the file-size and web-conferencing/VOIP types appear with explicit constants in the TF resources; the general `zia_bandwidth_classes` resource does not pin a `type` constant. Whether other `type` values exist (and what the API default is for a plain class) is not in the captured source.
-- **Whether the class-count and rule-count caps are API-enforced.** The 245 custom classes / 8 classes-with-domains / 25,000 domains / 125 rules limits come only from the help docs (*Ranges and Limitations*); no SDK or TF source opened in this pass encodes or validates them, so it is unconfirmed whether the API rejects over-limit creates or whether enforcement is UI-only.
+- **How the SDK/TF class `type` values map to the Help UI classes.** Current Help names File Share, Finance, General Surfing, Sales/Support Apps, and Streaming Media in the Cloud Applications tab and separately exposes Large Files, Web Conference Applications, and VoIP Applications tabs (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:23-29`; `vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md:14-19`). The captured Help bodies do not provide a wire mapping to API `type` values such as `BANDWIDTH_CAT_WEBCONF` (`vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go:98-105`), so whether these specialized tabs are typed API flavors or how they reconcile with the eight predefined-class count remains unstated.
+- **The full enumeration of class `type` values.** Only the file-size and web-conferencing/VOIP types appear with explicit constants in the TF resources (`vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_file_size.go:63-81`; `vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes_web_conferencing.go:98-105`); the general `zia_bandwidth_classes` resource does not pin a `type` constant (`vendor/terraform-provider-zia/zia/resource_zia_bandwidth_classes.go:50-73`). The current Help does not enumerate the Large Files drop-down values or the VoIP/Web Conferencing application lists (`vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.md:10-27`; `vendor/zscaler-help/zia-voip-bandwidth-class-20260909.md:10-27`; `vendor/zscaler-help/zia-web-conferencing-bandwidth-class-20260909.md:10-27`), and whether other API types exist or what the default type is for a plain class remains unverified.
+- **Whether the class-count and rule-count caps are API-enforced.** Current Help corroborates 245 custom classes, 8 classes with custom domains, and 25,000 domains across bandwidth classes (`vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md:14-18`); the separate 125-rule limit remains in the Ranges & Limitations capture (`vendor/zscaler-help/ranges-limitations-zia.md:162-166`). No source opened in this pass establishes whether these caps are API-enforced or UI-only.
+- **Scope and entitlement of the current custom-URL quota.** The current About article states up to 75,000 custom URLs across all categories and up to 64 custom categories (`vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md:41-44`), while the older Ranges & Limitations capture states 25K Custom URLs/TLDs by default with +50K via subscription (`vendor/zscaler-help/ranges-limitations-zia.md:229-239`). The relationship between those values and the separate 25,000 Bandwidth Classes domain cap remains unverified.
+- **Meaning of the client-side lowercase route resolution.** The capture establishes that `/zia/adding-bandwidth-classes` renders the current capital-C Configuring article without an observed HTTP redirect, but it does not establish whether the route change reflects feature retirement, deletion, or renaming (`vendor/zscaler-help/zia-bandwidth-url-resolution-20260909.md:4-15`).
 
-All three are tracked as `zia-56` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-56-bandwidth-class-type-enum-vs-ui-predefined-classes-and-cap-enforcement).
+The type, enumeration, and enforcement questions remain tracked as `zia-56` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-56-bandwidth-class-type-enum-vs-ui-predefined-classes-and-cap-enforcement); this bounded Help refresh does not resolve them.
 
 ## Cross-links
 
