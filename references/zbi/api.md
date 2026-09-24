@@ -8,11 +8,11 @@ verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
-  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
-  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
+  vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 confidence: high
 source-tier: code
 sources:
@@ -505,12 +505,12 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:57-60`
 Terraform is not absent for browser isolation:
 
 - ZIA has a `zia_cloud_browser_isolation_profile` data source backed by the Go ZIA Browser Isolation service and returns `id`, `name`, `url`, and `default_profile` (`vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go:13-37`, `:45-63`).
-- ZIA `zia_browser_control_policy` has Smart Isolation fields and sends Smart Isolation-specific settings through a separate update path when configured (`vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go:116-126`, `:170-177`, `:297-317`).
-- ZIA URL Filtering rules require a `cbi_profile` block when action is `ISOLATE`, and Cloud App Control rules carry a `cbi_profile` block for isolate action families (`vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go:52-63`, `:288-305`; `vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:198-210`, `:698-705`; `vendor/terraform-provider-zia/zia/validator.go:650-667`).
-- ZPA registers CBI banner, certificate, external-profile, and both v1 and v2 isolation-rule resources plus CBI/isolation profile data sources (`vendor/terraform-provider-zpa/zpa/provider.go:157-159`, `:169`, `:172`, `:226-232`).
+- ZIA `zia_browser_control_policy` has Smart Isolation fields and sends Smart Isolation-specific settings through a separate update path when configured (`vendor/terraform-provider-zia/zia/resource_zia_browser_control_policy.go:116-126`, `:170-177`, `:300-320`).
+- ZIA URL Filtering rules require a `cbi_profile` block when action is `ISOLATE`, and Cloud App Control rules carry a `cbi_profile` block for isolate action families (`vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go:52-63`, `:288-305`; `vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:215-227`, `:721-728`; `vendor/terraform-provider-zia/zia/validator.go:650-667`).
+- ZPA registers CBI banner, certificate, external-profile, and both v1 and v2 isolation-rule resources plus CBI/isolation profile data sources (`vendor/terraform-provider-zpa/zpa/provider.go:169-171`, `:181`, `:184`, `:239-245`).
 - The ZPA external-profile resource validates at least two regions on create/update and calls the Go SDK CBI profile `Create`, `Get`, `Update`, and `Delete` functions (`vendor/terraform-provider-zpa/zpa/resource_zpa_cloud_browser_isolation_external_profile.go:262-278`, `:287-292`, `:344-365`, `:372-378`).
 - The ZPA v1 isolation-rule resource supports `ISOLATE` and `BYPASS_ISOLATE`, carries `zpn_isolation_profile_id`, and calls the `policysetcontroller` create/update/delete paths (`vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule.go:11`, `:14-19`, `:27-34`, `:81-84`, `:113-118`, `:191-199`, `:228-230`, `:242-249`).
-- The ZPA v2 isolation-rule resource is separate: provider name `zpa_policy_isolation_rule_v2`, `policysetcontrollerv2` import, same two actions, a v2 condition object-type validation slice that includes `APP`, `APP_GROUP`, `CLIENT_TYPE`, `EDGE_CONNECTOR_GROUP`, `PLATFORM`, `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `CHROME_ENTERPRISE`, and `CHROME_POSTURE_PROFILE`, and `policysetcontrollerv2` create/update/delete calls (`vendor/terraform-provider-zpa/zpa/provider.go:172`, `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule_v2.go:11`, `:14-19`, `:43-46`, `:97-109`, `:171`, `:258`, `:282`, `:289-304`).
+- The ZPA v2 isolation-rule resource is separate: provider name `zpa_policy_isolation_rule_v2`, `policysetcontrollerv2` import, same two actions, a v2 condition object-type validation slice that includes `APP`, `APP_GROUP`, `CLIENT_TYPE`, `EDGE_CONNECTOR_GROUP`, `PLATFORM`, `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `CHROME_ENTERPRISE`, and `CHROME_POSTURE_PROFILE`, and `policysetcontrollerv2` create/update/delete calls (`vendor/terraform-provider-zpa/zpa/provider.go:184`, `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_isolation_rule_v2.go:11`, `:14-19`, `:43-46`, `:97-109`, `:171`, `:258`, `:282`, `:289-304`).
 
 ### Ansible
 

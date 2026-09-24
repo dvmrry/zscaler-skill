@@ -7,7 +7,7 @@ last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
@@ -58,7 +58,7 @@ The capture says Zscaler can discover usage of more than 30K apps and then show 
 
 `client.zbi.report_configs` provides create/read/update/delete operations for report configurations associated with custom apps under `/bi/api/v1/reports/{report_type}`, with `customapps` as the documented/default report type in the SDK (`vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py:26-34`, `:40-91`, `:93-144`, `:146-215`, `:217-284`, `:286-328`). `client.zbi.reports` can list report files and download a report through `/bi/api/v1/report/all` and `/bi/api/v1/report/download` (`vendor/zscaler-sdk-python/zscaler/zbi/reports.py:28-36`, `:42-115`, `:117-204`).
 
-The SDK request executor routes `/bi` through its shared OneAPI resolver: production uses the default gateway, non-production commercial clouds use `https://api.<cloud>.zsapi.net`, and `gov` / `govus` select the dedicated FedRAMP gateways (`vendor/zscaler-sdk-python/zscaler/request_executor.py:167-190`). Do not confuse this `client.zbi` REST service with Zero Trust Browser, and do not confuse it with the separate `client.zins` / Z-Insights GraphQL analytics accessor.
+The SDK request executor routes `/bi` through its shared OneAPI resolver: production uses the default gateway, non-production commercial clouds use `https://api.<cloud>.zsapi.net`, and `gov` / `govus` select the dedicated FedRAMP gateways (`vendor/zscaler-sdk-python/zscaler/request_executor.py:168-191`). Do not confuse this `client.zbi` REST service with Zero Trust Browser, and do not confuse it with the separate `client.zins` / Z-Insights GraphQL analytics accessor.
 
 ## Z-Insights Nuance
 
