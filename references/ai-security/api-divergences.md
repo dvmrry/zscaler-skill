@@ -7,9 +7,9 @@ last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
   vendor/zguard-ai-integrations: 71cbab024f369eb50748c9c4a74ec0158c084839
 confidence: medium
 source-tier: mixed
@@ -87,7 +87,7 @@ author-status: draft
 
 This page records the differences between public Help, the Python SDK, the reconstructed Automate contract, and the public integration examples. Use it when a question depends on exact request shape, detector taxonomy, or failure posture rather than on product-level positioning.
 
-The Python SDK policy-detection and dispatch claims refreshed below were reverified against v1.9.44 at gitlink `e7f5f7efb56b6e24667f183e5dff3da03e039cc9` on 2026-09-03. Other `verified-against` entries remain at their recorded pins because this bounded pass did not reverify those submodules.
+The Python SDK policy-detection and dispatch claims refreshed below were reverified against v1.9.44 at gitlink `e7f5f7efb56b6e24667f183e5dff3da03e039cc9` on 2026-09-03. Other `verified-against` entries remain at their recorded pins because this bounded pass did not reverify those submodules. A 2026-09-23 vendor-drift pass separately advanced the Go SDK and MCP server pins after rechecking that their changed files add no AI Guard service or tool.
 
 ## Runtime API surface
 

@@ -14,7 +14,7 @@ sources:
   - "https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference"
   - "vendor/splunk-sdk-python/README.md"
 verified-against:
-  vendor/splunk-sdk-python: 92b45aa46360262b157896ca2df90aff2c628a43
+  vendor/splunk-sdk-python: 5a20b09ec69b0daefa2a11b57435f1991a868b7a
 author-status: draft
 ---
 

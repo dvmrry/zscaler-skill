@@ -8,7 +8,7 @@ verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
-  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
 confidence: high
 source-tier: doc
 sources:
@@ -93,14 +93,14 @@ OneAPI is the modern path. **Four legacy paths still exist** because (a) governm
 
 | Mechanism | Used by | Endpoint | Notes |
 |---|---|---|---|
-| **OneAPI OAuth 2.0** | ZIA, ZPA, ZIdentity, ZCC (OneAPI path), ZTW, BI | Commercial: `https://<vanity>.zslogin.net/oauth2/v1/token`; FedRAMP-capable SDK/provider paths: `https://<vanity>.zidentitygov.net/oauth2/v1/token` or `https://<vanity>.zidentitygov.us/oauth2/v1/token` | Modern path. Client-credentials flow via ZIdentity. Current Go and Python SDKs model `cloud=gov` / `cloud=govus` with dedicated auth and API hosts (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`). ZIA Terraform v4.7.25+ and ZPA Terraform v4.4.6+ document FedRAMP OneAPI support via the same lowercase cloud values (`vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133`). Client/provider routing support does not prove entitlement or ZIdentity API-client configuration for every government tenant. |
+| **OneAPI OAuth 2.0** | ZIA, ZPA, ZIdentity, ZCC (OneAPI path), ZTW, BI | Commercial: `https://<vanity>.zslogin.net/oauth2/v1/token`; FedRAMP-capable SDK/provider paths: `https://<vanity>.zidentitygov.net/oauth2/v1/token` or `https://<vanity>.zidentitygov.us/oauth2/v1/token` | Modern path. Client-credentials flow via ZIdentity. Current Go and Python SDKs model `cloud=gov` / `cloud=govus` with dedicated auth and API hosts (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:412-446`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`). ZIA Terraform v4.7.25+ and ZPA Terraform v4.4.6+ document FedRAMP OneAPI support via the same lowercase cloud values (`vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133`). Client/provider routing support does not prove entitlement or ZIdentity API-client configuration for every government tenant. |
 | **ZIA legacy** | ZIA (pre-ZIdentity tenants + gov clouds) | `POST https://<cloud>.zscaler.net/api/v1/authenticatedSession` | Username + password + API key + obfuscated timestamp. Algorithm below. |
 | **ZPA legacy** | ZPA (pre-ZIdentity tenants and client/provider versions without the required OneAPI environment support) | `POST /signin` (per cloud) | `client_id`, `client_secret`, `customer_id` issued in ZPA Admin Portal. Uppercase `GOV` / `GOVUS` are legacy-client cloud values (`vendor/terraform-provider-zpa/docs/index.md:214-218`). |
 | **ZDX legacy** | ZDX (legacy tenants / direct-cloud host path) | `POST https://api.zdxcloud.net/v1/oauth/token` or `POST https://api.zsapi.net/zdx/v1/oauth/token` | SHA256-signed `key+timestamp`. **15-minute timestamp window.** ZDX also supports the OneAPI OAuth 2.0 path (see [`../zdx/api.md § Auth`](../zdx/api.md)). |
 | **ZCC legacy** | ZCC (legacy path) | `POST https://api.zsapi.net/zcc/papi/auth/v1/login` | apiKey + secretKey, returns JWT. |
 
 **When you need a legacy path** (any one of these → must use the corresponding legacy auth):
-- The selected client/provider does not support the tenant's government cloud. Current Go and Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:176-185`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:495-499`). ZIA Terraform v4.7.25+ and ZPA Terraform v4.4.6+ document the same lowercase OneAPI values (`vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133`). Earlier provider releases and pre-ZIdentity tenants still need their product-specific legacy paths.
+- The selected client/provider does not support the tenant's government cloud. Current Go and Python SDK releases model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus` (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:412-446`; `vendor/zscaler-sdk-python/zscaler/request_executor.py:176-185`; `vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py:495-499`). ZIA Terraform v4.7.25+ and ZPA Terraform v4.4.6+ document the same lowercase OneAPI values (`vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133`). Earlier provider releases and pre-ZIdentity tenants still need their product-specific legacy paths.
 - Tenant hasn't migrated to ZIdentity yet (some enterprises remain on legacy auth indefinitely; the migration is opt-in, not forced).
 - The product is ZDX and the tenant or tooling requires the direct SHA256-signed legacy flow (e.g. using `LegacyZDXClient` / `WithZdxLegacyClient`).
 - Code is interfacing with an older automation script written before OneAPI shipped.
@@ -233,7 +233,7 @@ The Python SDK `LegacyZPAClient` handles this transparently. Hand-coded clients 
 
 ### ZDX legacy — SHA256-signed timestamp
 
-ZDX retains a dedicated legacy SHA256-signed token flow **in addition to** OneAPI (the SDKs route ZDX through ZIdentity OAuth when not using a legacy client — `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:376-377,396-397`). Use this legacy flow on non-ZIdentity / gov tenants or tooling pinned to it. The flow:
+ZDX retains a dedicated legacy SHA256-signed token flow **in addition to** OneAPI (the SDKs route ZDX through ZIdentity OAuth when not using a legacy client — `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:376-377,404-405`). Use this legacy flow on non-ZIdentity / gov tenants or tooling pinned to it. The flow:
 
 ```http
 POST https://api.zsapi.net/zdx/v1/oauth/token HTTP/1.1
@@ -512,9 +512,9 @@ The Python SDK (`vendor/zscaler-sdk-python/`) and Go SDK (`vendor/zscaler-sdk-go
 
 For the legacy auth path, set `ZSCALER_USE_LEGACY=true` and product-specific env vars (`ZIA_USERNAME`, `ZIA_API_KEY`, etc.). See `README.md § Set up ZIA + ZPA credentials` for the full walkthrough.
 
-### Go SDK v3.8.43 retry and error boundary
+### Go SDK v3.8.48 retry and error boundary
 
-At the vendored Go SDK v3.8.43 source pin, the OneAPI, ZCC, ZDX, ZIA,
+At the vendored Go SDK v3.8.48 source pin, the OneAPI, ZCC, ZDX, ZIA,
 ZPA, ZTW, and ZWA retry callbacks route 5xx decisions through the shared
 `errorx.IsRetryableServerError` helper
 (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:382-405`;
@@ -549,7 +549,7 @@ ordinary error
 `vendor/zscaler-sdk-go/zscaler/ztw/v2_client.go:363-385`;
 `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:107-129`). Their normal
 non-success request paths then call `CheckErrorInResponse`
-(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:843-850`;
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:833-840`;
 `vendor/zscaler-sdk-go/zscaler/zcc/v2_client.go:420-432`;
 `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:477-497`;
 `vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:785-799`;
@@ -566,7 +566,7 @@ without rewinding it, so callers must not assume that body remains readable
 (`vendor/zscaler-sdk-go/zscaler/errorx/errors.go:57-67,80-110`). This does not
 make every OneAPI failure structured: transport failures, request-timeout
 exits, session-retry exhaustion, and very long `Retry-After` exits return other
-errors (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:619-626,633-650,714-718`).
+errors (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:609-616,623-640,704-708`).
 
 OneAPI also has two retry layers. The default `MaxNumOfRetries` is 10, the
 inner `retryablehttp` client uses that value as `RetryMax`, and the outer
@@ -574,10 +574,10 @@ request loop is capped by the same value; for a response path that traverses
 both layers, the SDK implementation budget can therefore reach 110 HTTP
 attempts (ten outer executions, each allowing an initial request plus ten
 inner retries), not merely ten
-(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:32-39,160-165,608-617`). This is
-a client-side attempt ceiling, not server behavior. The ZPA Terraform provider
-v4.4.10 remains pinned to Go SDK v3.8.42, so these v3.8.43 transport details
-must not be attributed to that provider
+(`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:32-39,160-165,598-607`). This is
+a client-side attempt ceiling, not server behavior. ZPA Terraform provider
+v4.4.11 depends on Go SDK v3.8.47, so it is no longer pinned below the v3.8.43
+transport change; this page does not separately verify the v3.8.47 source
 (`vendor/terraform-provider-zpa/CHANGELOG.md:3-8`;
 `vendor/terraform-provider-zpa/go.mod:14`).
 
@@ -617,7 +617,7 @@ The table above (§ Authentication mechanisms) summarizes the five auth paths. T
 
 ### When legacy auth is required
 
-- **Gov clouds**: support is client/version-specific. The vendored Go and Python SDKs model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, with `zidentitygov.net` / `zidentitygov.us` auth domains and `api.zscalergov.net` / `api.zscalergov.us` API gateways (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`). ZIA Terraform v4.7.25+ and ZPA Terraform v4.4.6+ also document the lowercase `gov` / `govus` OneAPI path (`vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133`). ZPA's uppercase `GOV` / `GOVUS` values belong to its legacy-client configuration (`vendor/terraform-provider-zpa/docs/index.md:214-218`). Routing support does not prove tenant entitlement or ZIdentity API-client setup.
+- **Gov clouds**: support is client/version-specific. The vendored Go and Python SDKs model FedRAMP OneAPI routing for `cloud=gov` / `cloud=govus`, with `zidentitygov.net` / `zidentitygov.us` auth domains and `api.zscalergov.net` / `api.zscalergov.us` API gateways (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:412-446`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`). ZIA Terraform v4.7.25+ and ZPA Terraform v4.4.6+ also document the lowercase `gov` / `govus` OneAPI path (`vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133`). ZPA's uppercase `GOV` / `GOVUS` values belong to its legacy-client configuration (`vendor/terraform-provider-zpa/docs/index.md:214-218`). Routing support does not prove tenant entitlement or ZIdentity API-client setup.
 - **Pre-ZIdentity tenants**: Enterprises that have not migrated to ZIdentity remain on legacy auth indefinitely — migration is opt-in.
 - **ZDX**: OneAPI-capable (the SDKs route ZDX via ZIdentity OAuth), but it also retains a dedicated legacy SHA256-signed token flow used on non-ZIdentity / gov tenants or by tooling pinned to it.
 - **Legacy automation code**: Existing scripts targeting the product-specific legacy APIs.
@@ -705,7 +705,7 @@ reconstructed Automate ZPA contract described above.
 | Key source | ZIA Admin Console (one per org) | ZPA Admin Portal (multiple keys) | ZIdentity API client |
 | Key management | Manual; single key per org; Support required to re-enable | Multiple keys; managed in ZPA portal | ZIdentity console; supports JWKS URL rotation |
 | Scope control | Admin role on the user account | Admin role on the ZPA admin | API scope (`audience` + ZIdentity API client permissions) |
-| Gov cloud support | Used by legacy-only clients and pre-ZIdentity tenants | Used by legacy-only clients and pre-ZIdentity tenants; uppercase `GOV` / `GOVUS` select the ZPA legacy clouds | Supported by current Go/Python SDKs, ZIA Terraform v4.7.25+, and ZPA Terraform v4.4.6+ via lowercase `gov` / `govus`; support still depends on the selected client/version and tenant configuration (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133,178-182,214-218`) |
+| Gov cloud support | Used by legacy-only clients and pre-ZIdentity tenants | Used by legacy-only clients and pre-ZIdentity tenants; uppercase `GOV` / `GOVUS` select the ZPA legacy clouds | Supported by current Go/Python SDKs, ZIA Terraform v4.7.25+, and ZPA Terraform v4.4.6+ via lowercase `gov` / `govus`; support still depends on the selected client/version and tenant configuration (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:412-446`; `vendor/zscaler-sdk-python/zscaler/constants.py:17-28`; `vendor/terraform-provider-zia/docs/index.md:140-149`; `vendor/terraform-provider-zpa/docs/index.md:118-133,178-182,214-218`) |
 | Rate limit model | Weight-based (GET 2/sec 1000/hr, POST/PUT 1/sec 400/hr, DELETE 1/min 4/hr) | Per-IP (20 GET / 10 write per 10 sec) | Same per-product limits apply |
 | Activation required | Yes — `POST /status/activate` | No | Yes (ZIA/CBC) / No (ZPA, ZCC, others) |
 

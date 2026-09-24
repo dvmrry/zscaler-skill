@@ -9,8 +9,8 @@ last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
   vendor/zscaler-terraform-skills: d8226c37f7fc7c544cbf60a9faf59eaa49051980
 sources:
@@ -212,9 +212,9 @@ Do not assume `LOCAL_SWITCH` works through the Go SDK path or that `ZPA`/`ECSELF
 **What each source says:**
 
 - **Go SDK legacy config:** `ztw/v2_config.go` exposes only username/password/API-key/cloud setters, keyed on the `ZTC_USERNAME`/`ZTC_PASSWORD`/`ZTC_API_KEY`/`ZTC_CLOUD` env vars, and builds a base URL of `https://connector.{cloud}.net/api/v1`. (`vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go:39-43,113-116,172-178`)
-- **Go SDK OneAPI:** the unified client routes ZTW to a dedicated OAuth2 HTTP client (`getServiceHTTPClient` → `ZTWHTTPClient` for the `ztw` service) and classifies any `ztw`-prefixed path as the ZTW service. (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:370-373,385-391`)
+- **Go SDK OneAPI:** the unified client routes ZTW to a dedicated OAuth2 HTTP client (`getServiceHTTPClient` → `ZTWHTTPClient` for the `ztw` service) and classifies any `ztw`-prefixed path as the ZTW service. (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:370-373,385-399`)
 - **Python SDK:** the unified `Client` imports `ZTWService` and returns it over the shared OneAPI request executor unless `use_legacy_client` + a `LegacyZTWClientHelper` are both supplied. (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:30-31,112-118,303-310`)
-- **Go SDK FedRAMP routing:** the shared OneAPI client maps `gov` and `govus` to dedicated government ZIdentity domains and API gateways; these mappings are service-generic and therefore also feed the ZTW HTTP client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:404-438`).
+- **Go SDK FedRAMP routing:** the shared OneAPI client maps `gov` and `govus` to dedicated government ZIdentity domains and API gateways; these mappings are service-generic and therefore also feed the ZTW HTTP client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:412-446`).
 - **ZTC provider:** `zscaler_cloud` is an unrestricted string and is passed to the shared Go client for both secret and private-key auth (`vendor/terraform-provider-ztc/ztc/provider.go:44-49`; `vendor/terraform-provider-ztc/ztc/config.go:350-372`). Its generated docs nevertheless claim FedRAMP support requires provider `>=v4.7.25`, even though the current ZTC release is v0.2.0 (`vendor/terraform-provider-ztc/docs/index.md:143-152`; `vendor/terraform-provider-ztc/CHANGELOG.md:3-12`).
 - **Terraform Skills v0.3.1:** says no released ZTC version supports OneAPI FedRAMP and directs government tenants to the legacy path (`vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md:5-16`).
 

@@ -7,7 +7,7 @@ last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 confidence: high
 source-tier: mixed
 sources:
@@ -156,7 +156,7 @@ The raw API can therefore change upgrade timing, release channel, and VM enabled
 
 To confirm or monitor the window programmatically, read `GET /ecgroup/{id}/vm/{vmId}` and inspect `buildVersion`, `lastUpgradeTime`, `upgradeStatus`, `upgradeStartTime`, `upgradeEndTime`, `upgradeDayOfWeek` (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:48-53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:111-116`).
 
-**Where this surface lives matters operationally.** zscaler-mcp-server v0.15.0 discovers self-registering `@tool` declarations by walking the tools package rather than maintaining a central `services.py` catalog (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/decorator.py:1-7`, `:33-45`, `:68-95`; `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py:1-6`, `:20-35`). Its complete generated ZTW inventory covers discovery settings, admins and roles, IP groups, network services and groups, and public-account/cloud information, but no EC-group operation (`vendor/zscaler-mcp-server/docs/guides/toolsets.md:103-107`). These EC-group endpoints therefore remain an SDK + REST API surface rather than an MCP tool surface.
+**Where this surface lives matters operationally.** zscaler-mcp-server v0.15.4 discovers self-registering `@tool` declarations by walking the tools package rather than maintaining a central `services.py` catalog (`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/decorator.py:1-7,33-47,79-108`; `vendor/zscaler-mcp-server/src/zscaler_mcp/registry/discovery.py:1-6,20-35`). Its complete generated ZTW inventory covers discovery settings, admins and roles, IP groups, network services and groups, and public-account/cloud information, but no EC-group operation (`vendor/zscaler-mcp-server/docs/guides/toolsets.md:103-107`). These EC-group endpoints therefore remain an SDK + REST API surface rather than an MCP tool surface.
 
 ### Branch Connector differences
 
