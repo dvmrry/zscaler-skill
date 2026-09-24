@@ -11,6 +11,8 @@ verified-against:
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
+  vendor/zscaler-api-specs: dd3f2f75286d09b6fc6fc6eb93ec7071733b3a90
+  vendor/zscaler-help: 8c34045056b952b46110bb934580b0e936fa3f05
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: high
 source-tier: mixed

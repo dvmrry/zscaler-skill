@@ -9,6 +9,7 @@ verified-against:
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/zscaler-help: 8c34045056b952b46110bb934580b0e936fa3f05
 confidence: high
 source-tier: mixed
 sources:

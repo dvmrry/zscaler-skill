@@ -13,6 +13,7 @@ verified-against:
   vendor/zpacloud-ansible: 9d7948b3f0ac3f5054391a0adb1b587e43e69891
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
   vendor/zscaler-api-specs: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
+  vendor/zscaler-help: 8c34045056b952b46110bb934580b0e936fa3f05
 confidence: high
 source-tier: mixed
 sources:
