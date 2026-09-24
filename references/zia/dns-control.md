@@ -5,8 +5,9 @@ title: "ZIA DNS Control policy — predefined rules, DoH, tunnel detection"
 content-type: reasoning
 last-verified: "2026-07-16"
 verified-against:
+  vendor/zscaler-help: a429a9b1daddcd29f686fde9930a9b64076a062b
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high

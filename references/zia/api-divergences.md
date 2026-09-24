@@ -9,7 +9,7 @@ verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/zscaler-mcp-server: ee6354bfd20f797f3e77b69566f500e83c04f723
   vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
@@ -123,6 +123,12 @@ This pass refreshes only the Terraform provider source to v4.8.8 at
 pinned at `4b7101202cde25e1e60552f1cb215d2c70cdc3bd`; its OneAPI client still reports
 3.8.48 while the unreleased changelog begins with a 3.8.49 heading. Go-specific
 source and schema claims are not inferred from the provider changes below.
+
+The Python SDK touchpoints changed in this drift pass were reverified on
+2026-09-23 against v1.9.44 at gitlink
+`e7f5f7efb56b6e24667f183e5dff3da03e039cc9`
+(`vendor/zscaler-sdk-python/pyproject.toml:3`). This bounded pass leaves the
+document-wide `last-verified` date and the other source pins unchanged.
 
 A third signal here is the Zscaler MCP server's ZIA tools and workflow skills. Workflow notes can carry API error strings and behavioral observations that are not reproducible from SDK source; executable tools separately show which constraints are actually enforced client-side. Claims found only in the MCP workflow layer are flagged as observations pending live-tenant confirmation.
 
@@ -301,7 +307,7 @@ contracts. The Automate capture publishes only the old path.
 **What each source says:**
 
 - **Go SDK v3.8.46:** `UpdatePacFile` now accepts `commitMessage string` and sends it as the raw request body. Its source says serializing an object corrupts the stored commit message (`vendor/zscaler-sdk-go/zscaler/zia/services/pacfiles/pacfiles.go:194-217`); the release note identifies this as a bug fix (`vendor/zscaler-sdk-go/CHANGELOG.md:12-14`).
-- **Python SDK v1.9.41:** `update_pac_file` still accepts arbitrary keyword fields, documents `pac_commit_message` among them, builds a dictionary from all kwargs, and passes that object as the request body (`vendor/zscaler-sdk-python/zscaler/zia/pac_files.py:509-574`); the request executor assigns ordinary bodies to the JSON payload slot (`vendor/zscaler-sdk-python/zscaler/request_executor.py:346-355`).
+- **Python SDK v1.9.44:** `update_pac_file` still accepts arbitrary keyword fields, documents `pac_commit_message` among them, builds a dictionary from all kwargs, and passes that object as the request body (`vendor/zscaler-sdk-python/zscaler/zia/pac_files.py:509-574`); the request executor assigns ordinary bodies to the JSON payload slot (`vendor/zscaler-sdk-python/zscaler/request_executor.py:347-356`).
 - **Automate capture:** publishes the same `PUT /pacFiles/{pacId}/version/{pacVersion}/action/{pacVersionAction}` path and optional `newLKGVer` query parameter, but records `request_body: []` (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:368985-369041`).
 
 **Significance / which to trust:** For Go callers, use the v3.8.46 signature
@@ -426,10 +432,10 @@ This makes the Go operation a full-state update in practice: a sparse
 zero-valued struct explicitly disables every other modeled boolean. Use a
 GET-modify-PUT pattern.
 
-Python v1.9.41 takes the opposite request-shape approach. Its update method
+Python v1.9.44 takes the opposite request-shape approach. Its update method
 passes caller kwargs through the common request executor, whose normal path
 camel-cases dictionary keys (`vendor/zscaler-sdk-python/zscaler/zia/url_filtering.py:471-549`;
-`vendor/zscaler-sdk-python/zscaler/request_executor.py:370-415`). That permits a
+`vendor/zscaler-sdk-python/zscaler/request_executor.py:371-416`). That permits a
 sparse body and accepts exact camel-cased wire keys beyond the typed response
 model. Do not assume every inferred snake-case spelling is equivalent: the
 generic converter maps `enable_mistral_ai_prompt` to `enableMistralAiPrompt`,
@@ -505,7 +511,7 @@ affordances rather than a way to cap the response
 (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:426294-426316`).
 
 Python v1.9.40 also adds a dedicated `list_categories_lite()` wrapper for
-`GET /urlCategories/lite` (`vendor/zscaler-sdk-python/CHANGELOG.md:21-30`;
+`GET /urlCategories/lite` (`vendor/zscaler-sdk-python/CHANGELOG.md:51-60`;
 `vendor/zscaler-sdk-python/zscaler/zia/url_categories.py:107-162`). MCP v0.15.2
 still calls the full `list_categories()` method rather than that lightweight
 route (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/url_categories.py:359-362`).
@@ -621,7 +627,7 @@ Endpoint DLP applications/custom apps/application groups/resources/resource
 groups/rules/sub-rules, Outbound Email DLP, the five EUN/user-confirmation
 template or status reads, Web DLP globals, IPS categories, and NSS collectors;
 the current unified service still registers them
-(`vendor/zscaler-sdk-python/CHANGELOG.md:32-113`;
+(`vendor/zscaler-sdk-python/CHANGELOG.md:62-143`;
 `vendor/zscaler-sdk-python/zscaler/zia/zia_service.py:841-943`;
 `vendor/zscaler-sdk-python/zscaler/zia/end_user_notification_templates.py:39-291`). The former
 Python-v1.9.38-versus-Go coverage divergence is therefore resolved at the SDK
@@ -651,7 +657,7 @@ client's catalog.
 
 ### Release-note inventories remain incomplete
 
-The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:95-99,136-151`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:32-113`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
+The Go changelog labels `GET`/`PUT /webDlpGlobalOptions` as new, lists only the Outbound Email actions CSV operation even though code includes list/lite/get/CRUD, and does not list `/ipsCategories` (`vendor/zscaler-sdk-go/CHANGELOG.md:95-99,136-151`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go:57-160`; `vendor/zscaler-sdk-go/zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go:307-313`). Python 1.9.39 likewise lists only `/emailDlpRules/actions` for Outbound Email DLP and omits the IPS-category and NSS-collector reads even though the service code exposes the full surfaces (`vendor/zscaler-sdk-python/CHANGELOG.md:62-143`; `vendor/zscaler-sdk-python/zscaler/zia/outbound_email_dlp_rules.py:37-456`; `vendor/zscaler-sdk-python/zscaler/zia/ips_categories.py:37-103`; `vendor/zscaler-sdk-python/zscaler/zia/nss_collectors.py:37-92`). Release-note enumeration is therefore not a complete endpoint inventory for either pin.
 
 The shared Go `EndPointApplications` model serializes requests as only `resourceId` and `zappId`, although its response model exposes descriptive/version fields (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:131-163`). It also models `versions` as one `Versions` struct, whereas the custom-app response uses `[]Versions` for the same wire key (`vendor/zscaler-sdk-go/zscaler/zia/services/common/common.go:132-146`; `vendor/zscaler-sdk-go/zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go:19-35`).
 
@@ -667,7 +673,7 @@ Go v3.8.44 corrected the firewall-DNS field to `IsWebEUNEnabled` with wire key
 `isWebEUNEnabled`, but `omitempty` still removes an explicit `false` from the
 serialized request (`vendor/zscaler-sdk-go/CHANGELOG.md:33-40`;
 `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:151-160`).
-Current Python v1.9.41 still parses and emits `isWebEunEnabled`; its request formatter
+Current Python v1.9.44 still parses and emits `isWebEunEnabled`; its request formatter
 uses that exact spelling even though recorded integration responses contain the
 uppercase-`EUN` form (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:57-58,240-264`;
 `vendor/zscaler-sdk-python/tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml:26,104,186`).

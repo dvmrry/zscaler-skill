@@ -5,7 +5,9 @@ title: "ZIA SSL/TLS inspection — pipeline position and policy semantics"
 content-type: reasoning
 last-verified: "2026-07-26"
 verified-against:
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
+  vendor/zscaler-help: a429a9b1daddcd29f686fde9930a9b64076a062b
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 confidence: high
 source-tier: doc
 sources:
@@ -197,9 +199,9 @@ so its explicit input model has no filtering fields
 Because it is a collection tool, the MCP bridge adds an optional `query`
 parameter and applies that JMESPath expression after the SDK call; omitting it
 returns the full records
-(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:98-116`;
-`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:248-279`,
-`:420-439`; `vendor/zscaler-mcp-server/src/zscaler_mcp/common/jmespath_utils.py:25-55`).
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/spec.py:121-139`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/registry/fastmcp_bridge.py:281-312`,
+`:453-472`; `vendor/zscaler-mcp-server/src/zscaler_mcp/common/jmespath_utils.py:25-55`).
 
 Three top-level action types — `DECRYPT`, `DO_NOT_DECRYPT`, and `BLOCK`. The Go SDK's `validateSSLInspectionRule()` (`vendor/zscaler-sdk-go/zscaler/zia/services/sslinspection/sslinspection.go:234`) enforces per-type constraints:
 
