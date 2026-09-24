@@ -6,6 +6,7 @@ content-type: reasoning
 last-verified: "2026-07-22"
 verified-against:
   vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
+  vendor/zscaler-help: a1cf835e416d585b7badbc198c1a9653a541cbde
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
