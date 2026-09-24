@@ -5,6 +5,7 @@ title: "ZIA Workload Groups — policy-scoping primitive (sourced from SDK / TF;
 content-type: reasoning
 last-verified: "2026-07-16"
 verified-against:
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 confidence: medium
 source-tier: code

@@ -5,6 +5,7 @@ title: "ZIA _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-06-15"
 verified-against:
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
   vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576

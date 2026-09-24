@@ -5,6 +5,7 @@ title: "ZIA IoT Report — device visibility, classification, policy"
 content-type: reference
 last-verified: "2026-07-16"
 verified-against:
+  vendor/zscaler-help: a429a9b1daddcd29f686fde9930a9b64076a062b
   vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 confidence: medium
 source-tier: doc

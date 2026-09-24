@@ -5,6 +5,7 @@ title: "ZIA SDK — service and method catalog"
 content-type: reference
 last-verified: "2026-08-12"
 verified-against:
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: medium
