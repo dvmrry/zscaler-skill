@@ -5,7 +5,7 @@ title: "ZPA legacy API endpoint reference"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: high
 source-tier: code
 sources:
@@ -116,6 +116,16 @@ All segment types (standard, Browser Access, Inspection, PRA) share the `/applic
 | `GET /certificate` | List certificates |
 | `POST /certificate` | Upload certificate |
 | `DELETE /certificate/{id}` | Delete certificate |
+
+## Browser Access Groups
+
+The current Go SDK exposes read-only list and get methods for Browser Access
+Groups:
+
+| Endpoint | Notes |
+|---|---|
+| `GET /browserAccessGroups` | List groups (`vendor/zscaler-sdk-go/zscaler/zpa/services/browser_access_groups/browser_access_groups.go:29-31,179-185`) |
+| `GET /browserAccessGroups/{id}` | Get group (`vendor/zscaler-sdk-go/zscaler/zpa/services/browser_access_groups/browser_access_groups.go:29-31,188-194`) |
 
 ## Cloud Browser Isolation (CBI)
 
@@ -268,10 +278,52 @@ All policy operations go through the policy set controller. v1 and v2 share the 
 | `PUT /policySet/rules/policyType/{policyType}/{ruleId}` | Update rule |
 | `DELETE /policySet/rules/policyType/{policyType}/{ruleId}` | Delete rule |
 | `PUT /policySet/rules/policyType/{policyType}/{ruleId}/reorder/{order}` | Reorder rule |
+| `GET /policySet/rules/policyType/GLOBAL_POLICY/guest/{guestID}` | List B2B guest policy rules for a partner (`vendor/zscaler-sdk-go/zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go:14-15,24-30`) |
 
 Policy types include: `ACCESS_POLICY`, `TIMEOUT_POLICY`, `FORWARDING_POLICY`, `INSPECTION_POLICY`, `ISOLATION_POLICY`, `CREDENTIAL_POLICY`, `CAPABILITIES_POLICY`, `BROWSER_PROTECTION`, `REDIRECTION_POLICY`, `PORTAL_ACCESS_POLICY`.
 
 v2 endpoint base (`/mgmtconfig/v2/...`) supports expanded condition operators.
+
+## Policy Groups and Policy Group Sets
+
+These additional routes are exposed by the Go SDK's policy-group controllers
+under the Management (v1) base. They are SDK client routes; the Go source does
+not independently establish backend availability.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /policyGroupSet/{groupSetId}/group/{groupId}` | Get group (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:48-51`) |
+| `POST /policyGroupSet/{groupSetId}/group/search` | Search groups (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:71-90`) |
+| `POST /policyGroupSet/{groupSetId}/rule` | Create group; Go `CreateRule` posts a `PolicyGroupResource` (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:102-108`) |
+| `PUT /policyGroupSet/{groupSetId}/group/{groupId}` | Update group (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:115-121`) |
+| `DELETE /policyGroupSet/{groupSetId}/group/{groupId}` | Delete group (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:128-133`) |
+| `PUT /policyGroupSet/{groupSetId}/rule/{groupId}/reorder/{order}` | Reorder group (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:140-145`) |
+| `GET /policyGroupSet/{groupSetId}/group/all` | List groups (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group/policy_group.go:152-154`) |
+| `GET /policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` | Get rule (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_rule/policy_group_rule.go:53-58`) |
+| `POST /policyGroupSet/{groupSetId}/group/{groupId}/rule` | Create rule (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_rule/policy_group_rule.go:80-88`) |
+| `DELETE /policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}` | Delete rule (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_rule/policy_group_rule.go:95-102`) |
+| `PUT /policyGroupSet/{groupSetId}/group/{groupId}/rule/{ruleId}/reorder/{newOrder}` | Reorder rule (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_rule/policy_group_rule.go:109-116`) |
+| `GET /policyGroupSet/{groupSetId}/group/{groupId}/rule` | List group rules (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_rule/policy_group_rule.go:123-128`) |
+| `GET /policyGroupSet/{groupSetId}` | Get policy group set (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go:89-95`) |
+| `GET /policyGroupSet` | List policy group sets (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go:102-108`) |
+| `GET /policyGroupSet/policyType/{policyType}/rules` | List rules by policy type (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go:115-120`) |
+| `GET /policyGroupSet/policyType/{policyType}/summary` | Read policy-group-set summary (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go:127-134`) |
+| `GET /policyGroupSet/policyType/{policyType}` | Read policy group set by type (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go:141-147`) |
+| `GET /policyGroupSet/policyType/{policyType}/summaryStats` | Read group/rule summary stats (`vendor/zscaler-sdk-go/zscaler/zpa/services/policy_group_set/policy_group_set.go:154-161`) |
+
+## B2B Federation and Customer Identity
+
+The customer-domain and identity-mapping methods use the Management (v1) admin
+base. The federated-application service is an exception: its constant uses
+`/zpa/mgmtconfig/v1/customers/{customerId}` without `/admin`
+(`vendor/zscaler-sdk-go/zscaler/zpa/services/federated_application/federated_application.go:28-31`).
+
+| Endpoint | Notes |
+|---|---|
+| `GET /v2/associationtype/{associationType}/domains` | List domains by association type; returns a bare array (`vendor/zscaler-sdk-go/zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go:12-14,29-35`) |
+| `GET /iamidpmapping` | Read IAM IdP mapping (`vendor/zscaler-sdk-go/zscaler/zpa/services/one_identity_controller/one_identity_controller.go:12-13,34-37`) |
+| `GET /application/host/{hostID}` | List federated applications for a host; uses the non-admin base above (`vendor/zscaler-sdk-go/zscaler/zpa/services/federated_application/federated_application.go:28-31,49-55`) |
+| `PUT /application/federate` | Update application federation; uses the non-admin base above (`vendor/zscaler-sdk-go/zscaler/zpa/services/federated_application/federated_application.go:28-31,58-65`) |
 
 ## Posture Profiles
 

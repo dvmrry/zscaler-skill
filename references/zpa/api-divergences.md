@@ -9,10 +9,10 @@ verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
   vendor/zpacloud-ansible: ff0fec2d53073e33b3d4b289e9126f4a29f89f4e
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 sources:
   - "vendor/zscaler-sdk-go/CHANGELOG.md"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
@@ -98,6 +98,41 @@ certificates to `signing-certificate`, and version profiles to
 (`vendor/zscaler-help/zpa-create-operation-drift-capture.md`). Treat these as
 documentation-routing changes, not endpoint migrations.
 
+## ZPA MCP list pagination
+
+The MCP server's shared policy-rule list helper accepts optional `search`,
+`page`, and `page_size` inputs. It validates `page >= 1` and
+`1 <= page_size <= 500`, and forwards supplied values as string query
+parameters to the Python SDK. The `page_size` field description gives the API
+default as 20 and states that without `page`/`page_size` only the first 20
+rules are returned
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:39-58,103-118`).
+
+The same `page` / `page_size` inputs, bounds, "API default 20, max 500"
+description, and string forwarding are present on the list tools for BA
+certificates, App Protection profiles, enrollment certificates, posture
+profiles, SAML attributes, SCIM attributes, SCIM groups, trusted networks, PRA
+credentials, PRA portals, and provisioning keys
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/ba_certificate.py:34-38,96-99`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_app_protection_profile.py:25-29,44-47`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_enrollment_certificate.py:39-43,75-78`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_posture_profiles.py:28-32,55-58`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_saml_attributes.py:31-35,52-55`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_scim_attributes.py:32-36,56-59`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_scim_groups.py:34-38,55-58`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_trusted_networks.py:28-32,55-58`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/pra_credential.py:38-42,185-188`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/pra_portal.py:32-36,146-149`;
+`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/provisioning_key.py:33-37,129-132`).
+
+The tools send the snake_case key `page_size`. The policy helper's comment
+leaves the wire spelling to the SDK, and the SDK request executor re-emits
+`page_size` as lowercase `pagesize` for ZPA URLs other than
+`/emergencyAccess/users`
+(`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/_policy_common.py:105-108`;
+`vendor/zscaler-sdk-python/zscaler/zpa/policies.py:506-511`;
+`vendor/zscaler-sdk-python/zscaler/request_executor.py:215-216,429-452`).
+
 ---
 
 ## Application Segments (all variants)
@@ -136,7 +171,7 @@ and `PUT /application/{segment_id}`
 `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_pra.py:232-238,280`,
 `:339-345,420`). The common request executor converts keys to camelCase, and
 the recursive converter returns scalar values unchanged
-(`vendor/zscaler-sdk-python/zscaler/request_executor.py:363-412`;
+(`vendor/zscaler-sdk-python/zscaler/request_executor.py:354,371-420`;
 `vendor/zscaler-sdk-python/zscaler/helpers.py:347-364`). Python therefore sends
 `bypass_on_reauth=False` as `bypassOnReauth: false`, while Go Inspection and
 PRA omit it. This is a live divergence for two of the four segment types, not a
@@ -156,7 +191,7 @@ omission semantics.
 Go v3.8.45 and Python v1.9.41 both add `hbrEnabled`, `stickyEntity`,
 `stickyGroup`, and `guestDetails` to application segments
 (`vendor/zscaler-sdk-go/CHANGELOG.md:16,23-27`;
-`vendor/zscaler-sdk-python/CHANGELOG.md:3-19`). Go exposes the four fields on
+`vendor/zscaler-sdk-python/CHANGELOG.md:33-49`). Go exposes the four fields on
 the base, Browser Access, Inspection, and PRA structs and types each guest as a
 `federationId` plus nested partner approval/federation metadata
 (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:61-73`;
@@ -166,7 +201,7 @@ the base, Browser Access, Inspection, and PRA structs and types each guest as a
 `vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:161-172`). Python's
 base, Browser Access, Inspection, PRA, and Browser Access v2 services all decode
 through the same `ApplicationSegments` model, which now reads and emits those
-keys (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:74-90,266-269`;
+keys (`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:74-92,268-271`;
 service imports at `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py:25`,
 `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_ba.py:25`,
 `vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py:24`,
@@ -182,18 +217,24 @@ vocabularies and selection rules for stickiness, and the lifecycle of
 
 ### Python v1.9.41 cannot decode populated `guestDetails.partnerInfo`
 
-The new Python `GuestDetails` constructor checks `partnerInfo` against
+The Python v1.9.41 `GuestDetails` constructor checks `partnerInfo` against
 `common.PrivilegedCapabilitiesResource`, an unrelated policy-capabilities
 model, then attempts to construct `common.PartnerInfo`
-(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:20-23,1164-1189`).
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:20-23,1166-1191`).
 The `PartnerInfo` class introduced by the same release is instead defined
 locally later in `application_segment.py`
-(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:1208-1251`).
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:1210-1253`).
 As a result, a non-null dictionary at `guestDetails[].partnerInfo` raises during
 model construction rather than returning the segment. A second defect affects
 direct writes: `PartnerInfo.request_format()` reads `self.partner_info`, but a
 non-empty constructor never initializes that attribute
-(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:1222-1249`).
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:1224-1251`).
+
+Both defects remain at the current Python SDK pin, v1.9.44
+(`vendor/zscaler-sdk-python/pyproject.toml:3`): the cited constructor and the
+local `PartnerInfo` class are unchanged apart from line positions, and
+`vendor/zscaler-sdk-python/zscaler/zpa/models/common.py` still defines no
+`PartnerInfo` class.
 
 **Significance / which to trust:** This is a Python-wrapper defect, not evidence
 that the ZPA API rejects partner data. The Go nested model is internally
@@ -548,10 +589,10 @@ The Python SDK confirms segment group membership is managed from the application
 
 Python v1.9.39's changelog labels policy-group create as
 `GET /policyGroupSet/{groupSetId}/group`, but `add_group` sends POST
-(`vendor/zscaler-sdk-python/CHANGELOG.md:117-124`;
+(`vendor/zscaler-sdk-python/CHANGELOG.md:147-154`;
 `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:38-77`). It also labels
 group reorder as POST, while `reorder_group` sends PUT
-(`vendor/zscaler-sdk-python/CHANGELOG.md:122`;
+(`vendor/zscaler-sdk-python/CHANGELOG.md:152`;
 `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:364-388`). Trust the
 executable service code for both wrapper methods; the changelog method labels
 are documentation defects.
@@ -743,7 +784,7 @@ declaration above is an entitlement or backend-availability assertion.
   `zpa_private_cloud_group`. The provider invokes the shared resolver before
   both create and update, using certificate name `Connector` for App Connector
   and Private Cloud groups and `Service Edge` for Service Edge groups
-  (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`;
+  (`vendor/terraform-provider-zpa/CHANGELOG.md:24-33`;
   `vendor/terraform-provider-zpa/zpa/resource_zpa_app_connector_group.go:203-208,233-245,342-347`;
   `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:251-256,281-289,385-390`;
   `vendor/terraform-provider-zpa/zpa/resource_zpa_private_cloud_group.go:154-159,184-192,270-275`).
@@ -776,9 +817,15 @@ declaration above is an entitlement or backend-availability assertion.
 - **Provider SDK baseline:** provider v4.4.10 still compiles
   `zscaler-sdk-go/v3` v3.8.42; do not attribute later SDK behavior to this
   Terraform release (`vendor/terraform-provider-zpa/go.mod:5-15`).
-- **Python SDK:** accepts arbitrary create keywords and POSTs them, but the
-  method's documented keyword list and example omit `enrollment_cert_id`
-  (`vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:254-332`).
+- **Python SDK:** since v1.9.43 the App Connector Group and Service Edge Group
+  create docstrings list an `enrollment_cert_id` keyword, and the create and
+  update examples pass it. The keyword text says that, when it is unset, "the
+  provider" looks up the `Connector` or `Service Edge` certificate by name, but
+  the SDK methods perform no lookup: create builds the request body from the
+  caller's keyword arguments, and update copies them into an empty body
+  (`vendor/zscaler-sdk-python/CHANGELOG.md:13-21`;
+  `vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:293-294,311,324-330,401,414-421`;
+  `vendor/zscaler-sdk-python/zscaler/zpa/service_edge_group.py:194-195,212,226-238,276,290-305`).
 - **Ansible and MCP:** both resolve the enrollment certificate before delegating
   to the Python SDK
   (`vendor/zpacloud-ansible/plugins/modules/zpa_app_connector_groups.py:575-615`,
@@ -788,16 +835,17 @@ declaration above is an entitlement or backend-availability assertion.
 Connector Group create on the observed OneAPI production tenant, despite the
 server error's older `signingCertId` terminology. Prefer a client that resolves
 it automatically, or fetch the `Connector` enrollment certificate and send its
-ID explicitly. Direct Python SDK callers must add the undocumented
-`enrollment_cert_id` keyword. Do not generate a current create payload from the
-legacy Help field table alone.
+ID explicitly. Direct Python SDK callers must still pass `enrollment_cert_id`
+themselves: the v1.9.43 docstring's auto-lookup sentence is not implemented by
+the SDK request path. Do not generate a current create payload from the legacy
+Help field table alone.
 
 **Terraform scope:** v4.4.10's create/update resolver is the documented
 provider remedy for the reported `missing.mandatory.params` symptom. The provider release note and raw SDK
 serialization path do not independently prove that every backend PUT
 universally requires the field, so keep that conclusion scoped to provider
 behavior and the reported failure
-(`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`;
+(`vendor/terraform-provider-zpa/CHANGELOG.md:24-33`;
 `vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:145-152`;
 `vendor/zscaler-sdk-go/zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go:98-105`;
 `vendor/zscaler-sdk-go/zscaler/zpa/services/private_cloud_group/private_cloud_group.go:84-91`).
@@ -1370,10 +1418,10 @@ or live validation.
 
 **What each source says:**
 
-- **Python SDK:** accepts `page_size` as a `query_params` dict key. (`vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py:46-49`)
+- **Python SDK:** accepts `page_size` as a `query_params` dict key. (`vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py:46-49`) The request executor rewrites the key before sending: for ZPA-service URLs other than `/emergencyAccess/users` it pops `page_size` (or `pagesize`) and re-emits lowercase `pagesize`; for `/emergencyAccess/users` it emits camelCase `pageSize`. (`vendor/zscaler-sdk-python/zscaler/request_executor.py:215-216,429-452`)
 - **Postman:** documents the query param key as `'pagesize'` (all lowercase). (`vendor/zscaler-api-specs/oneapi-postman-collection.json:70743`)
 
-**Significance / which to trust:** Python callers sending `page_size` may have it silently ignored by the server (which expects `pagesize`), defaulting to the server-side default of 20 rather than the intended page size.
+**Significance / which to trust:** This is a method-argument vs wire-key spelling difference, not a wire divergence: a Python `page_size` argument reaches ZPA list endpoints as `pagesize`, the spelling Postman documents.
 
 ---
 

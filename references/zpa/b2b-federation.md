@@ -7,7 +7,7 @@ last-verified: "2026-08-12"
 verified-against:
   vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
 confidence: medium
 source-tier: mixed
 sources:
@@ -291,7 +291,7 @@ Source: `vendor/zscaler-sdk-go/CHANGELOG.md`; `vendor/zscaler-sdk-python/CHANGEL
 Go v3.8.45 and Python v1.9.41 add a `guestDetails` field to application
 segments alongside `hbrEnabled`, `stickyEntity`, and `stickyGroup`
 (`vendor/zscaler-sdk-go/CHANGELOG.md:16,23-27`;
-`vendor/zscaler-sdk-python/CHANGELOG.md:3-19`). In Go, the new field is present
+`vendor/zscaler-sdk-python/CHANGELOG.md:33-49`). In Go, the new field is present
 on the base, Browser Access, Inspection, and PRA segment variants. Each guest
 record contains `federationId`; its nested partner record exposes approval and
 federation status plus partner GID, name, and scope name
@@ -309,7 +309,7 @@ contract. Python uses one shared segment model for the same top-level fields,
 but v1.9.41 cannot decode a non-null `guestDetails[].partnerInfo` because the
 constructor references `common.PartnerInfo` while the new class is local to the
 application-segment module
-(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:74-90,1164-1208`).
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:74-92,1166-1210`).
 Use the Go model or raw HTTP until that wrapper defect is corrected.
 
 ## Python SDK coverage and source-quality gaps
