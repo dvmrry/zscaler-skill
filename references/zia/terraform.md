@@ -6,6 +6,7 @@ content-type: reference
 last-verified: "2026-07-22"
 verified-against:
   vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: medium
 source-tier: mixed
 sources:
@@ -112,6 +113,19 @@ sources:
   - "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_and_cloud_app_settings.go"
   - "vendor/terraform-provider-zia/zia/resource_zia_ueba_alert_definitions.go"
   - "https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.48/zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go"
+  - "vendor/terraform-provider-zia/zia/validator.go"
+  - "vendor/terraform-provider-zia/zia/common.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_ssl_inspection_rules.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_http_header_profile.go"
+  - "vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules.go"
+  - "vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_rule.md"
+  - "vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json"
+  - "vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md"
+  - "https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.48/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go"
+  - "https://github.com/zscaler/terraform-provider-zia/issues/605"
+  - "https://github.com/zscaler/terraform-provider-zia/issues/606"
 author-status: draft
 ---
 
@@ -196,7 +210,7 @@ All rule-based resources (firewall, URL filtering, DLP, SSL inspection, sandbox,
 
 ### `zia_url_filtering_rules`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md`.
+Source: `vendor/terraform-provider-zia/docs/resources/zia_url_filtering_rules.md`; `vendor/terraform-provider-zia/zia/validator.go`; `vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json`.
 
 URL filtering policy rules that allow, block, caution, or isolate user web traffic by category, protocol, application, or device group.
 
@@ -209,6 +223,10 @@ URL filtering policy rules that allow, block, caution, or isolate user web traff
 | `url_categories` | List(String) | Optional; predefined or custom category IDs |
 
 Gotcha: `ISOLATE` action requires a Cloud Browser Isolation (CBI) subscription and cannot be combined with other actions in the same rule.
+
+Known provider-validation divergence, tracked in open upstream issue [zscaler/terraform-provider-zia#606](https://github.com/zscaler/terraform-provider-zia/issues/606): in v4.8.8, the provider's `user_agent_types` validator omits `BRAVE` from the accepted values (`vendor/terraform-provider-zia/zia/validator.go:231-261`). The shared `getUserAgentTypes()` schema applies that validator to this resource, `zia_ssl_inspection_rules`, and `zia_cloud_app_control_rule` (`vendor/terraform-provider-zia/zia/common.go:1010-1021`; `vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go:341`; `vendor/terraform-provider-zia/zia/resource_zia_ssl_inspection_rules.go:366`; `vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:249`). The same provider accepts `BRAVE` for the `zia_http_header_profile` `user_agent` criterion (`vendor/terraform-provider-zia/zia/resource_zia_http_header_profile.go:112-126`). The captured Automate contract includes `BRAVE` in the SSL Inspection `userAgentTypes` enum, omits it from Cloud App Control, and does not model the field for URL Filtering (`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json:261930-261943,298617-298629`; `vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:929-939`).
+
+Issue #606 reports that the API returned `BRAVE` for existing URL Filtering rules with broad browser selections and that the provider failed during plan; those runtime details are operator-reported and not reproduced here. The provider Read path copies `resp.UserAgentTypes` into state (`vendor/terraform-provider-zia/zia/resource_zia_url_filtering_rules.go:503`), but these sources do not establish a read-time validation failure mechanism. What the schema source does establish is that HCL cannot declare `BRAVE` in this field under v4.8.8.
 
 Import: by numeric ID or rule name.
 
@@ -357,7 +375,7 @@ Import: by numeric ID or name.
 
 ### `zia_firewall_filtering_rule`
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_rule.md`.
+Source: `vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_rule.md`; `vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules.go`; `vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md`.
 
 Cloud Firewall policy rules that allow, block, or drop network traffic based on source/destination IP, port, protocol, application, user, and time.
 
@@ -370,6 +388,12 @@ Cloud Firewall policy rules that allow, block, or drop network traffic based on 
 | `dest_addresses` | List(String) | Optional |
 
 Gotcha: Predefined rules cannot be destroyed. Destruction of predefined rules is silently ignored by the provider. Import by numeric ID or name.
+
+Known issue, open upstream as [zscaler/terraform-provider-zia#605](https://github.com/zscaler/terraform-provider-zia/issues/605): the report says a plan shows `eun_template_id = <id> -> null` on a rule whose HCL omits it, and apply leaves the tenant value unchanged. This is operator-reported and not reproduced here. Source evidence, link by link:
+
+- The v4.8.8 schema exposes both fields as `Optional` without `Computed` (`vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules.go:158-167`). The resource page's argument reference omits them, while the data-source page lists both (`vendor/terraform-provider-zia/docs/resources/zia_firewall_filtering_rule.md:93-193`; `vendor/terraform-provider-zia/docs/data-sources/zia_firewall_filtering_rule.md:203-204`). The v4.8.0 changelog entry for the resource lists its endpoint-application and Context Shield fields, not these EUN attributes (`vendor/terraform-provider-zia/CHANGELOG.md:150-153`).
+- Read copies the API's EUN values into state, and create/update expand `eun_template_id` from Terraform data (`vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules.go:392-393,644-645`; create/update call the expander at `:217,485`). The provider's Go SDK dependency is v3.8.48 (`vendor/terraform-provider-zia/go.mod:12`); its model tags `EUNTemplateID` as `json:"eunTemplateId,omitempty"` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go:83-85`).
+- The captured Automate contract lists `eunTemplateId` and `isEunEnabled` as absent from this rule family's contract fields, while Go and Terraform carry them (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.md:453-455`).
 
 ### `zia_firewall_dns_rule`
 
