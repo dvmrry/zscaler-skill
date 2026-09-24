@@ -7,7 +7,7 @@ last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-help: 957bb3ac5b7f9c908b7c7e187e1da7810ddd01a6
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
   vendor/ziacloud-ansible: 896b418f25eb793551c99f9c470d3897d25f6ad1
@@ -49,7 +49,7 @@ This ledger covers the Tier 2 programmable-surface refresh for Business Insights
 | The public custom-app API supports HOST-based signatures; URL-based custom applications are not supported in that Postman-described endpoint family. | `overview.md` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:134506-134535` |
 | `client.zbi.report_configs` supports list, get, create, update, and delete operations under `/bi/api/v1/reports/{report_type}`; the SDK comments document `customapps` as the current/default type. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zbi/report_configs.py:26-34`, `:40-91`, `:93-144`, `:146-215`, `:217-284`, `:286-328` |
 | `client.zbi.reports` lists available report files and downloads reports via `/bi/api/v1/report/all` and `/bi/api/v1/report/download`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zbi/reports.py:28-36`, `:42-115`, `:117-204` |
-| The Python request executor routes `/bi` through the shared OneAPI resolver: production uses the default gateway, non-production commercial clouds use `api.<cloud>.zsapi.net`, and `gov` / `govus` use dedicated FedRAMP gateways. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/request_executor.py:167-190` |
+| The Python request executor routes `/bi` through the shared OneAPI resolver: production uses the default gateway, non-production commercial clouds use `api.<cloud>.zsapi.net`, and `gov` / `govus` use dedicated FedRAMP gateways. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/request_executor.py:168-191` |
 | The OneAPI Postman collection contains a "Zscaler Business Insights" folder with custom-app and report-configuration endpoints. | `overview.md` | `vendor/zscaler-api-specs/oneapi-postman-collection.json:134314-134343`, `:134506-134535`, `:134807-134837`, `:134999-135015`, `:135164-135176`, `:136039-136056` |
 | Python `client.zins` / `client.zinsights` is a separate Z-Insights Analytics GraphQL service. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:387-423` |
 | MCP Z-Insights is read-only and covers web traffic, cyber security incidents, Shadow IT, SaaS security, firewall analytics, and IoT workflows. | `overview.md` | `vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md:1`, `:5`, `:18`, `:22-27`, `:54-80` |
