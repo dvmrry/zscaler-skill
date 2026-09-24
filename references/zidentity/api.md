@@ -6,7 +6,7 @@ content-type: reference
 last-verified: "2026-07-16"
 verified-against:
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
-  vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
+  vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
 confidence: high
 source-tier: mixed
@@ -269,7 +269,7 @@ ZIdentity uses `offset`/`limit` pagination — distinct from ZIA (`page`/`pageSi
 
 **Go SDK:** `common.ReadAllPagesWithPagination[T]` iterates pages using `offset`/`limit` and stops when `next_link` is empty or `len(records) < limit`. `ReadAllPagesWithCursor` chases `next_link` directly.
 
-Query params for `list_users` / `list_group_users_details` still diverge on the wire between the two SDKs — and neither sends the SDK's own snake_case method-argument spelling. The **Python** SDK does *not* pass the `query_params` dict through verbatim: `create_request` routes every params dict through `_prepare_params`, and because a ZIdentity URL (`/ziam/admin/api/v1`) resolves to a non-ZPA service type (`"ziam"`, `vendor/zscaler-sdk-python/zscaler/request_executor.py:196-197`), it falls into the non-ZPA else-branch (`vendor/zscaler-sdk-python/zscaler/request_executor.py:503-506`) which calls `convert_keys_to_camel_case(params)` (`:505`). That helper lower-camelCases every key via `to_lower_camel_case` (`vendor/zscaler-sdk-python/zscaler/helpers.py:162-342`, `:357-374`), so Python emits **camelCase** wire keys. The **Go** SDK emits **run-together (no-underscore) lowercase** wire keys via its `url` struct tags (`vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go:31-44`) and matching `ToURLValues` emitter (`:102-145`):
+Query params for `list_users` / `list_group_users_details` still diverge on the wire between the two SDKs — and neither sends the SDK's own snake_case method-argument spelling. The **Python** SDK does *not* pass the `query_params` dict through verbatim: `create_request` routes every params dict through `_prepare_params`, and because a ZIdentity URL (`/ziam/admin/api/v1`) resolves to a non-ZPA service type (`"ziam"`, `vendor/zscaler-sdk-python/zscaler/request_executor.py:197-198`), it falls into the non-ZPA else-branch (`vendor/zscaler-sdk-python/zscaler/request_executor.py:504-507`) which calls `convert_keys_to_camel_case(params)` (`:506`). That helper lower-camelCases every key via `to_lower_camel_case` (`vendor/zscaler-sdk-python/zscaler/helpers.py:162-342`, `:357-374`), so Python emits **camelCase** wire keys. The **Go** SDK emits **run-together (no-underscore) lowercase** wire keys via its `url` struct tags (`vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go:31-44`) and matching `ToURLValues` emitter (`:102-145`):
 
 | Filter | SDK method arg (snake_case) | Python wire key (camelCase) | Go wire key (run-together) |
 |---|---|---|---|

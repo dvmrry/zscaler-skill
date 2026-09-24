@@ -7,13 +7,14 @@ last-verified: "2026-07-20"
 verified-against:
   vendor/zscaler-api-specs: 10291a2d91e2d8d1188461c65bf67b8cb1b140cf
   vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/**"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/pyproject.toml"
+  - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/**"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/terraform-provider-zpa/zpa/**"
@@ -2288,7 +2289,7 @@ Resource-level schemas for the ZPA management API, extracted directly from the G
 
 Python v1.9.39 introduced three unified controllers, still present beneath
 `/zpa/mgmtconfig/v1/admin/customers/{customerId}`
-(`vendor/zscaler-sdk-python/CHANGELOG.md:115-139`;
+(`vendor/zscaler-sdk-python/CHANGELOG.md:145-169`;
 `vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:504-517`;
 `vendor/zscaler-sdk-python/zscaler/zpa/policy_group.py:32-36`). Their response
 model routing is:
@@ -3677,8 +3678,12 @@ to the common `GuestDetails` and `PartnerInfo` schemas above
 `vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go:51-59`;
 `vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:161-172`). The table
 records wire shape only; field semantics and accepted values are not established
-by the SDK source. Python v1.9.41 exposes the same top-level keys but cannot
-decode a populated `partnerInfo`; see
+by the SDK source. Python v1.9.41 added the same top-level keys
+(`vendor/zscaler-sdk-python/CHANGELOG.md:33-45`). At the current pin, v1.9.44
+(`vendor/zscaler-sdk-python/pyproject.toml:3`), the Python model still cannot
+decode a populated `partnerInfo`: it calls `common.PartnerInfo`, but the class
+is defined locally in the application-segment module
+(`vendor/zscaler-sdk-python/zscaler/zpa/models/application_segment.py:20-23,1183-1188,1210-1229`); see
 [`api-divergences.md`](./api-divergences.md#python-v1941-cannot-decode-populated-guestdetailspartnerinfo).
 
 **Sub-app ID field names differ by variant.**
@@ -3836,7 +3841,7 @@ The Go SDK test uses `"days"` as the Frequency string value. The Postman collect
 `overrideVersionProfile`, `praEnabled`, `wafDisabled`, `tcpQuickAckApp`, `tcpQuickAckAssistant`, `useInDrMode`, `tcpQuickAckReadAssistant`, `lssAppConnectorGroup`, `enabled`, and `cityCountry` all lack omitempty — false/empty serializes on every write. `dcHostingInfo` is a string field that also lacks omitempty. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:23-24,35-55`, `vendor/zscaler-sdk-python/zscaler/zpa/models/app_connector_groups.py:57-69`)
 
 **AppConnectorGroup.Latitude and Longitude — string type; nested connector lat/lon is double.**
-Group-level `Latitude` and `Longitude` are Go `string` type. Postman types the group-level values as `<string>` but the nested connector's lat/lon (inside `assistantVersion`) as `<double>` — a level-dependent type difference. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:30-32`, `vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:303-305`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:33311`)
+Group-level `Latitude` and `Longitude` are Go `string` type. Postman types the group-level values as `<string>` but the nested connector's lat/lon (inside `assistantVersion`) as `<double>` — a level-dependent type difference. (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:30-32`, `vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py:306-307`, `vendor/zscaler-api-specs/oneapi-postman-collection.json:33311`)
 
 **AppConnectorGroup.serverGroups field name mismatch.**
 Go struct field is `AppServerGroup` but JSON tag is `'serverGroups'`. Python SDK `reformat_params` maps `'server_group_ids'` to wire key `'serverGroups'` (building `[{"id":...}]` objects). (`vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go:57`, `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py:31-34`)
@@ -4383,7 +4388,7 @@ Go SDK: `IssuedCertID string` / `MachineTokenID string` (both omitempty). Postma
 The Python SDK `MachineGroup` model exposes only: id, name, enabled, description, creation_time, modified_time, modified_by. Missing: machines sub-list, microtenantId, microtenantName, fingerprint, issuedCertId, machineGroupId, machineGroupName, machineTokenId, signingCert/enrollmentCert. The Go SDK `Machines` struct exposes all of these. (`vendor/zscaler-sdk-python/zscaler/zpa/models/machine_groups.py:33-42`, `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go:31-46`)
 
 **pagesize wire key — lowercase for all ZPA endpoints except /emergencyAccess/users.**
-Postman uses lowercase `pagesize` for `GET /machineGroup`. Python SDK `request_executor` preserves lowercase `pagesize` for all standard ZPA endpoints; only `/emergencyAccess/users` gets camelCase `pageSize`. Go SDK `Pagination` struct uses `url:"pagesize,omitempty"`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:67877-67879`, `vendor/zscaler-sdk-python/zscaler/request_executor.py:402-412`, `vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:22`)
+Postman uses lowercase `pagesize` for `GET /machineGroup`. Python SDK `request_executor` preserves lowercase `pagesize` for all standard ZPA endpoints; only `/emergencyAccess/users` gets camelCase `pageSize`. Go SDK `Pagination` struct uses `url:"pagesize,omitempty"`. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:67877-67879`, `vendor/zscaler-sdk-python/zscaler/request_executor.py:429-452`, `vendor/zscaler-sdk-go/zscaler/zpa/services/common/common.go:22`)
 
 **microtenantId query param semantics — 0 for default microtenant, null/absent for customer data microtenant.**
 Postman documents: "For Default microtenant 0 should be passed and for Customer data microtenant should be null." Neither Go SDK nor Python SDK sends 0 for the default microtenant — both omit the param when the value is falsy. (`vendor/zscaler-api-specs/oneapi-postman-collection.json:67280-67283,67889-67892`, `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go:51`, `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py:81-82`)

@@ -8,7 +8,7 @@ confidence: medium
 source-tier: doc
 verified-against:
   vendor/zscaler-help: 96e69d73438c058c45739f741053bd68d47d234c
-  vendor/terraform-provider-zpa: 287e4c1f720d89d2405e0925c98dc4b050a93767
+  vendor/terraform-provider-zpa: 5326dc43ff3c006369864de337d80b693574ca88
   vendor/terraform-aws-zpa-private-service-edge-modules: b555a112e27ac25a018b8681a5a339fe7c40458a
   vendor/terraform-azurerm-zpa-private-service-edge-modules: bdfecd0adaef82e50a4575d4d6252395aca706b2
 sources:
@@ -255,7 +255,7 @@ Three Terraform resources are relevant:
 | `use_in_dr_mode` | Designate this group for disaster recovery only — held in reserve. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:223`) |
 | `upgrade_day` / `upgrade_time_in_secs` | Maintenance window for software updates. Default: `SUNDAY` / `66600` (18:30 UTC). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:221-222`) |
 | `version_profile_name` / `version_profile_id` | Software release track: `Default`, `Previous Default`, `New Release`, or EL8 variants. Set `override_version_profile = true` (`:209`) to use a non-default track. (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:211-219`) |
-| `enrollment_cert_id` | Optional+Computed. A nonempty value is preserved; when omitted/empty, provider v4.4.10 resolves the `Service Edge` enrollment certificate before create or update (`vendor/terraform-provider-zpa/CHANGELOG.md:3-12`; `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:251-256,281-289,385-390`; `vendor/terraform-provider-zpa/zpa/utils.go:383-398`). |
+| `enrollment_cert_id` | Optional+Computed. A nonempty value is preserved; when omitted/empty, provider v4.4.10 resolves the `Service Edge` enrollment certificate before create or update (`vendor/terraform-provider-zpa/CHANGELOG.md:24-33`; `vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:251-256,281-289,385-390`; `vendor/terraform-provider-zpa/zpa/utils.go:383-398`). |
 | `user_codes` | Independent optional set of codes displayed on PSE VMs. Verification runs only for nonempty codes on create or changed/nonempty codes on update; the certificate field does not have to be configured alongside it (`vendor/terraform-provider-zpa/zpa/resource_zpa_service_edge_group.go:257-262,296-308,407-419`). |
 | `microtenant_id` | Scope to a microtenant (requires microtenant license). (`vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md:224`) |
 
