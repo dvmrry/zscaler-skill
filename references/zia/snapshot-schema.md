@@ -5,9 +5,9 @@ title: "ZIA _data/snapshot/ schema — what's in the JSON, how to read it"
 content-type: reference
 last-verified: "2026-06-15"
 verified-against:
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
-  vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
+  vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
 confidence: medium
 source-tier: code
 sources:
@@ -19,6 +19,8 @@ author-status: draft
 ---
 
 # ZIA _data/snapshot/ schema
+
+**Bounded reverification (2026-09-23):** Go and Terraform Cloud App Control schema changes, plus the Python typed model's prompt-capture field coverage at its recorded pin `5bef9cbdb85d881502899bf98550496df0ecb0db`, were checked (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:43-45`; `vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:199-204,411,695`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rules.go:132-135,424`; `vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:40-63,175-224`). Other snapshot-schema source families were not reverified, so `last-verified` remains 2026-06-15.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zia/models/`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terraform-provider-zia/zia/`.
 
@@ -294,7 +296,7 @@ discovery uses POST, not GET: Go v3.8.46 exposes
 `POST /zia/api/v1/webApplicationRules/{rule_type}/availableActions` and the new
 `POST /zia/api/v1/webApplicationRules/{rule_type}/allAvailableActions`, both
 with a cloud-app request body and flat string-list response
-(`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:219-277`).
+(`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:223-281`).
 The wrappers do not define whether either result is per-app, a union, an
 intersection, or another aggregation for multi-app input.
 
@@ -640,6 +642,8 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
 7. **`defaultRule: true` (SSL Inspection) is the catch-all rule.** Always present, always last. Modify via update; can't be deleted.
 
 ## Open questions
+
+- **Cloud App Control prompt capture is in the current Go and Terraform models, but absent from the Python model used by this example.** Go adds `PromptCaptureEnabled` with wire key `promptCaptureEnabled`; its source comment says the field applies only when Gen AI Applications Access is set to Allow (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:43-45`). Terraform exposes `prompt_capture_enabled` as optional on the resource and computed on the data source, and maps it through read/expand (`vendor/terraform-provider-zia/zia/resource_zia_cloud_app_control_rules.go:199-204,411,695`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_app_control_rules.go:132-135,424`). The Python `CloudApplicationControl` parser and request formatter do not include the field (`vendor/zscaler-sdk-python/zscaler/zia/models/cloudappcontrol.py:40-130,175-224`). No tenant snapshot was consulted, so whether a tenant's `cloud-app-control-rules.json` contains this key remains unverified; confirm against a real snapshot before adding it to the example.
 
 - **Four `advanced-settings.json` fields are tenant-observed but absent from the SDK model.** `sslSessionTimeout`, `enforceGeoMappingForWindowsApp`, `sipaSsoOptimizationByConnApp`, and `sslOptimizationRequestUrlCategories` appear in the JSON example as part of the "58 fields returned by the Z2 tenant" but do not appear anywhere in `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py` (49 `request_format` keys, none matching these in any casing). They are likely part of the gap between the SDK's 49-key floor and the tenant's 58 keys, but they are not source-backed against the SDK. Confirm field names/types against a populated tenant snapshot before relying on them.
 

@@ -6,7 +6,7 @@ content-type: reference
 last-verified: "2026-08-12"
 verified-against:
   vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
   vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
 confidence: high
 source-tier: code
@@ -19,6 +19,8 @@ author-status: draft
 ---
 
 # ZIA API resource schemas
+
+**Bounded reverification (2026-09-23):** The Go Cloud App Control model addition was checked at `vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:43-45`. Other schema families were not reverified, so `last-verified` remains 2026-08-12.
 
 Resource-level schemas for the ZIA legacy API, extracted directly from the Go SDK service layer.
 
@@ -852,6 +854,7 @@ Returned (as a JSON array, one element per browser type) by `GET /browserControl
 | EunTemplateID | eunTemplateId | int | ✓ |  |
 | BrowserEunTemplateID | browserEunTemplateId | int | ✓ |  |
 | Predefined | predefined | bool | ✓ |  |
+| PromptCaptureEnabled | promptCaptureEnabled | bool | ✓ | Source comment: applies only when Gen AI Applications Access is set to Allow (`vendor/zscaler-sdk-go/zscaler/zia/services/cloudappcontrol/cloudappcontrol.go:43-45`) |
 | ValidityStartTime | validityStartTime | int | ✓ |  |
 | ValidityEndTime | validityEndTime | int | ✓ |  |
 | ValidityTimeZoneID | validityTimeZoneId | string | ✓ |  |

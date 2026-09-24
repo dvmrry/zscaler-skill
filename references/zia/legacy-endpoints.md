@@ -5,13 +5,14 @@ title: "ZIA legacy API endpoint reference"
 content-type: reference
 last-verified: "2026-08-12"
 verified-against:
-  vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
-  vendor/zscaler-sdk-python: 5bef9cbdb85d881502899bf98550496df0ecb0db
+  vendor/zscaler-sdk-go: 4b7101202cde25e1e60552f1cb215d2c70cdc3bd
+  vendor/zscaler-sdk-python: e7f5f7efb56b6e24667f183e5dff3da03e039cc9
 confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zia/services/**"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/security_ueba_alerts/alert_definitions/alert_definitions.go"
+  - "vendor/zscaler-sdk-go/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/zscaler/zia/zia_service.py"
@@ -255,8 +256,8 @@ Complete endpoint surface for the ZIA legacy API. Extracted from hardcoded paths
 | `PUT /zia/api/v1/webDlpGlobalOptions` | Update tenant-wide Web DLP advanced settings (`vendor/zscaler-sdk-python/zscaler/zia/web_dlp_global_options.py:82-112`) |
 
 Endpoint DLP additions introduced in Go v3.8.41 and Python v1.9.39
-(`vendor/zscaler-sdk-go/CHANGELOG.md:90-151`;
-`vendor/zscaler-sdk-python/CHANGELOG.md:32-113`):
+(`vendor/zscaler-sdk-go/CHANGELOG.md:179-240`;
+`vendor/zscaler-sdk-python/CHANGELOG.md:62-143`):
 
 | Endpoint | Notes |
 |---|---|
