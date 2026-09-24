@@ -5,6 +5,8 @@ title: "Activation gates — ZIA + CBC have them, others don't"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
+  vendor/zscaler-api-specs: b3e1bd909a3486d240e045029961fc44c0cb483b
+  vendor/zscaler-help: a429a9b1daddcd29f686fde9930a9b64076a062b
   vendor/terraform-provider-zia: cfe618fa7cb6f88939ec703520cfa230ec35bf0a
   vendor/terraform-provider-ztc: 6516b4a032ef4a5ece183a0f42a5026b11ac94ca
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
