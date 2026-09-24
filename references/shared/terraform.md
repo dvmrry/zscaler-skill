@@ -5,6 +5,7 @@ title: "Zscaler Terraform providers (ZIA + ZPA)"
 content-type: reference
 last-verified: "2026-07-06"
 verified-against:
+  vendor/terraform-provider-zia: 38fd97d795537682434cd1d4ffbdd02d2f3b4576
   vendor/zscaler-terraformer: 626d940e1d6a474abe154d08a1fad38f07b82987
 confidence: medium
 source-tier: mixed
@@ -24,6 +25,9 @@ sources:
   - "vendor/zscaler-terraformer/terraformutils/helpers/helpers.go"
   - "vendor/zscaler-terraformer/terraformutils/helpers/datasource_processor.go"
   - "vendor/zscaler-terraformer/terraformutils/nesting/nesting.go"
+  - "vendor/terraform-provider-zia/zia/validator.go"
+  - "vendor/terraform-provider-zia/zia/common.go"
+  - "https://github.com/zscaler/terraform-provider-zia/issues/606"
 author-status: draft
 ---
 
@@ -236,9 +240,11 @@ These fields on ZIA/ZPA resources are immutable at the API level. Changing them 
 - Application Segments — `select_connector_close_to_app` is a provider-version caveat, not a blanket ForceNew rule. Provider v4.4.6 removed `ForceNew` from the base `zpa_application_segment` schema; older providers treated it as recreate-on-change, and variant resources still need per-schema verification (`vendor/terraform-provider-zpa/CHANGELOG.md:53-62`; `vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go:194-197`).
 - Policy Access rules — `reauth_timeout` and `reauth_idle_timeout` are both `ForceNew` (`common.go:554-562`). **Changing a session/idle timeout on an existing rule requires destroy-recreate** — the API refuses in-place updates. This can renumber nearby rules; plan carefully.
 
-### Validator enums richer than help docs
+### Provider validators and API contract enums
 
-In many cases, the TF schema's `validation.StringInSlice([]string{...}, false)` encodes a fuller enum than the help-site docs. Treat the TF validator as more authoritative when they conflict. Examples in `references/zia/api.md` and `references/zpa/api.md` per-resource sections.
+In many cases, the TF schema's `validation.StringInSlice([]string{...}, false)` encodes a fuller enum than the help-site docs. When they conflict, treat the TF validator as authoritative only for what the provider accepts. It does not establish what the API accepts or returns. Examples in `references/zia/api.md` and `references/zpa/api.md` per-resource sections.
+
+In ZIA provider v4.8.8, the shared `user_agent_types` validator omits `BRAVE` for URL Filtering, SSL Inspection, and Cloud App Control rules (`vendor/terraform-provider-zia/zia/validator.go:231-261`; `vendor/terraform-provider-zia/zia/common.go:1010-1021`). Open upstream issue [zscaler/terraform-provider-zia#606](https://github.com/zscaler/terraform-provider-zia/issues/606) reports that ZIA returns `BRAVE` on existing URL Filtering rules; that read-side behavior is operator-reported and not reproduced here. The contract boundary and resource-level evidence are recorded in [`../zia/terraform.md` § `zia_url_filtering_rules`](../zia/terraform.md#zia_url_filtering_rules).
 
 ### Programmatic constraints beyond schema
 
