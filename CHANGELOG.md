@@ -4,6 +4,37 @@ All notable changes to this skill are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill as a whole, not any single script.
 
+## [0.18.4](https://github.com/dvmrry/zscaler-skill/compare/v0.18.3...v0.18.4) (2026-09-25)
+
+
+### Bug Fixes
+
+* **deps:** bump anyio to 4.14.2 for GHSA-82r6-8w77-94w6 and GHSA-5p39-cfhj-2xmp ([#300](https://github.com/dvmrry/zscaler-skill/issues/300)) ([ac1de9a](https://github.com/dvmrry/zscaler-skill/commit/ac1de9a0c329f7faed7182d1d6e4e5a642eb948d))
+* metadata-only provenance backfill ([62e62aa](https://github.com/dvmrry/zscaler-skill/commit/62e62aa543a26dccf149096dbb7f6407614920c2))
+
+
+### Documentation
+
+* backfill metadata-only provenance pins ([d17f66e](https://github.com/dvmrry/zscaler-skill/commit/d17f66ecedf76ac3c6787a1cc19bb65496b1683d))
+* metadata-only provenance backfill ([a4f4ad0](https://github.com/dvmrry/zscaler-skill/commit/a4f4ad062b5be586b34b5e4bc53ec16cd65a5ffd))
+* metadata-only provenance backfill ([dd2c4a7](https://github.com/dvmrry/zscaler-skill/commit/dd2c4a7aad1aadf802193905e0a32c166c375beb))
+* metadata-only provenance backfill for microtenant Help ([4f89597](https://github.com/dvmrry/zscaler-skill/commit/4f89597200d28b6b3a1ca5072a6f1f684fee0724))
+* reverify d1-zia vendor drift (2026-09-23) ([ef866c1](https://github.com/dvmrry/zscaler-skill/commit/ef866c1101cabf09996a2806fd984fd967af9e50))
+* reverify d1-zia vendor drift (2026-09-23) ([#303](https://github.com/dvmrry/zscaler-skill/issues/303)) ([ef866c1](https://github.com/dvmrry/zscaler-skill/commit/ef866c1101cabf09996a2806fd984fd967af9e50))
+* reverify d1-zia vendor drift 2026-09-23 ([cd0d116](https://github.com/dvmrry/zscaler-skill/commit/cd0d116b71a4aa584e18e5d326cfdf1cae89fe43))
+* reverify d2-zpa-zid vendor drift (2026-09-23) ([62b2189](https://github.com/dvmrry/zscaler-skill/commit/62b21898e97bc6a06fa2c9a523835c1c379dfaaf))
+* reverify d2-zpa-zid vendor drift (2026-09-23) ([#304](https://github.com/dvmrry/zscaler-skill/issues/304)) ([62b2189](https://github.com/dvmrry/zscaler-skill/commit/62b21898e97bc6a06fa2c9a523835c1c379dfaaf))
+* reverify d2-zpa-zid vendor drift 2026-09-23 ([ffb0b86](https://github.com/dvmrry/zscaler-skill/commit/ffb0b86040f65cc00434ec1a6ce45964054b698a))
+* reverify d3-tier2 vendor drift (2026-09-23) ([3b38af8](https://github.com/dvmrry/zscaler-skill/commit/3b38af8863f55b87600e3fb131db37a926e9ac9d))
+* reverify d3-tier2 vendor drift (2026-09-23) ([#301](https://github.com/dvmrry/zscaler-skill/issues/301)) ([3b38af8](https://github.com/dvmrry/zscaler-skill/commit/3b38af8863f55b87600e3fb131db37a926e9ac9d))
+* reverify d3-tier2 vendor drift 2026-09-23 ([452125d](https://github.com/dvmrry/zscaler-skill/commit/452125dd6d4582a5ca60ef36f3388bc5dc47e562))
+* reverify d4-shared-tier3 vendor drift (2026-09-23) ([01c7fdf](https://github.com/dvmrry/zscaler-skill/commit/01c7fdf8957177b3dbe7a26a20a88682ab4fc63f))
+* reverify d4-shared-tier3 vendor drift (2026-09-23) ([#305](https://github.com/dvmrry/zscaler-skill/issues/305)) ([01c7fdf](https://github.com/dvmrry/zscaler-skill/commit/01c7fdf8957177b3dbe7a26a20a88682ab4fc63f))
+* reverify d4-shared-tier3 vendor drift 2026-09-23 ([feca0b5](https://github.com/dvmrry/zscaler-skill/commit/feca0b5c138531c23b11c23d1c26aee650329053))
+* thread upstream issue-watch items ([bd8554e](https://github.com/dvmrry/zscaler-skill/commit/bd8554e79a2f022c5ade8bb887563d5cd675d8ba))
+* thread upstream issue-watch items (2026-09-23) ([0bd1803](https://github.com/dvmrry/zscaler-skill/commit/0bd1803b9ecc690003768318ddb676e88694c171))
+* thread upstream issue-watch items (2026-09-23) ([#302](https://github.com/dvmrry/zscaler-skill/issues/302)) ([0bd1803](https://github.com/dvmrry/zscaler-skill/commit/0bd1803b9ecc690003768318ddb676e88694c171))
+
 ## [0.18.3](https://github.com/dvmrry/zscaler-skill/compare/v0.18.2...v0.18.3) (2026-09-09)
 
 
