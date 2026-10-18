@@ -129,7 +129,7 @@ Status: Open
 
 **Good (evidence-based, falsifiable):**
 ```
-Finding: references/zia/logs/web-log-schema.md exceeds 300 lines (317) without
+Finding: references/<area>/<doc>.md exceeds 300 lines (317) without
          a contents/index section, slowing reader navigation
 Source: file is 317 lines; no Markdown anchor index near the top
 Severity: Low
@@ -204,7 +204,7 @@ Notes: Out of scope — this is vendor PDF content extraction, tracked
 
 ### What counts as a source
 Same standard as a discovery journal claim:
-- **File reference**: `references/zia/logs/web-log-schema.md`:L317
+- **File reference**: `references/<area>/<doc>.md`:L317
 - **Script output**: `./scripts/check-hygiene.py` exit code 1; quote relevant lines
 - **Cross-file comparison**: "compared `splunk-queries.md` `Tier A` vs. `siem-log-mapping.md` `Tier-A`"
 - **Frontmatter inspection**: "`siem-log-mapping.md` frontmatter `confidence: medium`, `sources` has 4 entries — appropriate"

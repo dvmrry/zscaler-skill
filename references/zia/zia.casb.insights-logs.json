@@ -292,6 +292,77 @@
           ]
         }
       ]
+    },
+    "cloud-nss-http-codes": {
+      "statement": "A Cloud NSS feed treats HTTP 200 or 204 from the SIEM as a successful batch, treats 400 as a parsing error and drops the batch, and retries the same batch on any other code for up to one hour before dropping it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-cloud-nss-feeds.md",
+          "quotes": [
+            "HTTP code 200 or 204: The feed considers the batch of logs successfully uploaded.",
+            "HTTP code 400: The feed considers the batch of logs to have a parsing error and drops the batch.",
+            "After one hour, the batch is dropped."
+          ]
+        }
+      ]
+    },
+    "cloud-nss-config-location": {
+      "statement": "Cloud NSS feeds are configured on the Cloud NSS Feeds page under Logs > Log Streaming > Internet Log Streaming - Nanolog Streaming Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-cloud-nss-feeds.md",
+          "quotes": [
+            "On the Cloud NSS Feeds page (Logs > Log Streaming > Internet Log Streaming - Nanolog Streaming Service)"
+          ]
+        }
+      ]
+    },
+    "shadow-it-report-csv": {
+      "statement": "The SaaS Security Report can be scheduled daily, weekly or monthly and downloaded as CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saas-security-report.md",
+          "quotes": [
+            "Schedule a daily, weekly, or monthly SaaS Security Report.",
+            "Download the report as a CSV file."
+          ]
+        }
+      ]
+    },
+    "web-nss-cloud-app-fields": {
+      "statement": "The Web NSS CSV carries cloud application fields appname, appclass and app_risk_score, and prompt_req, the prompt entered by the user in a generative AI application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "Cloud Application,%s{appname},The name of the cloud application",
+            "Cloud Application,%s{appclass},The cloud application category of the application that was accessed",
+            "%s{prompt_req},The prompt entered by the user in the generative AI application"
+          ]
+        }
+      ]
+    },
+    "web-appclass-vocabulary": {
+      "statement": "The Web NSS appclass examples are Administration, Collaboration and Web Mail, drawn from the Cloud App Control Policy page, which is not the eight SaaS Security category names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "Administration, Collaboration, Web Mail",
+            "The full list is on the Cloud App Control Policy page"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -328,6 +399,34 @@
       "former_ids": [
         "api-casb-02"
       ]
+    },
+    "record-category-discriminator": {
+      "kind": "data",
+      "title": "Which field tells a SaaS Security feed record its application category",
+      "status": "open",
+      "blocks": "parsing a SaaS Security feed record into its category schema",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: appclass is the likely discriminator for the eight categories, but unconfirmed; the Web NSS appclass examples use a different vocabulary. Also unstated: whether out-of-category fields are absent or null, whether multi-category apps such as Microsoft 365 produce one record per category aspect, and whether the discriminator is stable across cloud generations (legacy clarification log-17).",
+      "resolvable_by": [
+        "operator"
+      ],
+      "former_ids": [
+        "log-17"
+      ]
+    },
+    "shadow-it-in-insights-logs": {
+      "kind": "semantic",
+      "title": "Whether Shadow IT discovery events appear in the SaaS Security Insights logs or the feed",
+      "status": "open",
+      "blocks": "choosing where to look for Shadow IT discovery events",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: Shadow IT discovery is one of the event types a SaaS Security record represents, alongside file scans, sharing actions and DLP triggers. The Insights logs article describes scans by the SaaS Connector and the SaaS Security Report is a separate report; no captured source says whether discovery events are logged."
     }
   }
 }

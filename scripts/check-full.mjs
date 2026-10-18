@@ -78,6 +78,7 @@ const FULL_CHECKS = [
     ],
   },
   { name: "generated surface layer is current", command: "node", args: ["scripts/gen-surfaces.mjs", "zia", "--check"] },
+  { name: "generated log types are current", command: "node", args: ["scripts/gen-log-types.mjs", "--check"] },
   { name: "documentation links", command: "./scripts/check-doc-links.py", args: [] },
   {
     name: "citation-density regression tests",

@@ -1,0 +1,328 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.dns-record-fields",
+  "title": "Reading a ZIA DNS log record: naming, encodings and field caveats",
+  "aliases": [
+    "dns log field names",
+    "nss dns specifier vs insights column",
+    "dns log nss-only fields",
+    "feed escape character dns",
+    "dns pcapid",
+    "dns log client ip",
+    "dns log timestamp fields",
+    "dns log devicetype"
+  ],
+  "binds": [
+    "zia/dns-log#time",
+    "zia/dns-log#tz",
+    "zia/dns-log#epochtime",
+    "zia/dns-log#recordid",
+    "zia/dns-log#eedone",
+    "zia/dns-log#company",
+    "zia/dns-log#cloudname",
+    "zia/dns-log#cip",
+    "zia/dns-log#pcapid",
+    "zia/dns-log#protocol",
+    "zia/dns-log#istcp",
+    "zia/dns-log#http_code",
+    "zia/dns-log#devicetype",
+    "zia/dns-log#domcat",
+    "zia/dns-log#respipcat",
+    "zia/dns-log#ecs_prefix",
+    "zia/dns-log#ecs_slot"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-outcome"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-gateway-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the field is read under its NSS specifier or its Insights Logs column name, and whether it has an Insights column at all.",
+      "uses": [
+        "two-names",
+        "nss-only-fields",
+        "epoch-no-insights"
+      ]
+    },
+    {
+      "do": "Whether the time zone was set on the feed, and whether the time fields are derived from Logged Time.",
+      "uses": [
+        "tz-from-feed",
+        "time-derived",
+        "zia.logs.nss-feed-format:multi-feed-timezone"
+      ]
+    },
+    {
+      "do": "Whether a hex-encoded character in a value comes from the feed escape character setting.",
+      "uses": [
+        "eedone-escape"
+      ]
+    },
+    {
+      "do": "Whether `cip` is an internal or a NATed address before using it to identify a host.",
+      "uses": [
+        "cip-internal-or-nat"
+      ]
+    },
+    {
+      "do": "Whether DoT or DoQ traffic is logged and under which protocol value.",
+      "uses": [
+        "protocol-values",
+        "dot-doq-open"
+      ]
+    }
+  ],
+  "claims": {
+    "two-names": {
+      "statement": "The DNS log CSV lists each field under an NSS format specifier and, where one exists, an Insights Logs column name, for example %s{time} as Logged Time and %s{req} as Requested Domain.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#time",
+        "zia/dns-log#req"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "Table,Field,Description,Example,Insights Logs",
+            "%s{req},The Fully Qualified Domain Name (FQDN) in the DNS request,mail.safemarch.com,Requested Domain"
+          ]
+        }
+      ]
+    },
+    "nss-only-fields": {
+      "statement": "The CSV marks recordid, eedone, company and cloudname as specific to NSS, with no Insights Logs column.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#recordid",
+        "zia/dns-log#eedone",
+        "zia/dns-log#company",
+        "zia/dns-log#cloudname"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%d{recordid},The unique record identifier for each log,,This field is specific to NSS",
+            "%s{company},The company name,Zscaler,This field is specific to NSS",
+            "%s{cloudname},The Zscaler cloud name,zscaler.net,This field is specific to NSS"
+          ]
+        }
+      ]
+    },
+    "epoch-no-insights": {
+      "statement": "epochtime, tz, datacentercity and datacentercountry have an empty Insights Logs column in the CSV.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#epochtime",
+        "zia/dns-log#tz",
+        "zia/dns-log#datacentercity",
+        "zia/dns-log#datacentercountry"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%d{epochtime},The epoch time of the transaction,1578128400,",
+            "%s{tz},The time zone. This is the same as the time zone you specified when you configured the NSS feed.,GMT,",
+            "%s{datacentercity},The city where the data center is located,Sa,",
+            "%s{datacentercountry},The country where the data center is located,US,"
+          ]
+        }
+      ]
+    },
+    "time-derived": {
+      "statement": "The seconds, minutes, hours, day, month, year and month-name and weekday fields are marked as derived from Logged Time, while time itself excludes the time zone.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#time",
+        "zia/dns-log#ss",
+        "zia/dns-log#mm",
+        "zia/dns-log#hh",
+        "zia/dns-log#dd",
+        "zia/dns-log#mth",
+        "zia/dns-log#yyyy",
+        "zia/dns-log#mon",
+        "zia/dns-log#day"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%02d{ss},Seconds (0–59),48,This field is derived from Logged Time",
+            "%s{time},The time and date of the transaction. This excludes the time zone."
+          ]
+        }
+      ]
+    },
+    "tz-from-feed": {
+      "statement": "The tz field is the time zone specified when the NSS feed was configured.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#tz"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{tz},The time zone. This is the same as the time zone you specified when you configured the NSS feed."
+          ]
+        }
+      ]
+    },
+    "eedone-escape": {
+      "statement": "The eedone field indicates whether the characters entered in the Feed Escape Character field of the NSS configuration page were hex encoded.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#eedone"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{eedone},Indicates if the characters specified in the Feed Escape Character field of the NSS configuration page were hex encoded,Yes"
+          ]
+        }
+      ]
+    },
+    "cip-internal-or-nat": {
+      "statement": "The cip field is the internal IP address of the user when it is visible, for example through a GRE tunnel or an XFF header, and otherwise the client's NATed public internet address.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#cip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "This can be the internal IP address if it is visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF).",
+            "Otherwise, it's the client's internet (NATed Public) IP address."
+          ]
+        }
+      ]
+    },
+    "pcapid-format": {
+      "statement": "The pcapid field is the path of the packet capture file for the transaction, formatted <Company ID>/<Directory>/<PCAP File Name>, where the directory is the log type; the file is downloaded from the Capture column of the DNS Insights Logs page.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#pcapid"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>.",
+            "The directory is the log type.",
+            "To download the PCAP file, go to the Capture column on the DNS Insights Logs page."
+          ]
+        }
+      ]
+    },
+    "protocol-values": {
+      "statement": "The protocol field lists TCP, UDP and DoH (DNS over HTTP) as values, istcp is 1 for TCP and 0 otherwise, and http_code is the HTTP return code used in DNS over HTTPS sessions.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#protocol",
+        "zia/dns-log#istcp",
+        "zia/dns-log#http_code"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "DoH (DNS over HTTP)",
+            "%s{http_code},The HTTP return code used in DNS over HTTPS sessions,100 - Continue,HTTP Status Code",
+            "%d{istcp},Indicates if the DNS transaction uses TCP"
+          ]
+        }
+      ]
+    },
+    "devicetype-values": {
+      "statement": "The devicetype field lists Zscaler Client Connector, Cloud Browser isolation, VDI and IOTG as example values, and the device fields describe the Zscaler Client Connector device.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#devicetype",
+        "zia/dns-log#devicehostname"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{devicetype},The type of device,\"Zscaler Client Connector",
+            "Cloud Browser isolation",
+            "Zscaler Client Connector Device Information,%s{devicehostname}"
+          ]
+        }
+      ]
+    },
+    "two-categories": {
+      "statement": "The domcat field is the category of the content of the DNS request and respipcat is the category of the content of the DNS response, shown in Insights as Request Categories and Response Categories.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#domcat",
+        "zia/dns-log#respipcat"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{domcat},The category of the content of the DNS request,Professional Services,Request Categories",
+            "%s{respipcat},The category of the content of the DNS response,Adult Themes,Response Categories"
+          ]
+        }
+      ]
+    },
+    "ecs-fields": {
+      "statement": "The ecs_slot field is the name of the EDNS Client Subnet rule applied to the transaction, shown as ECS Object Name, and ecs_prefix is the ECS prefix used in the request, a numeric string such as 192.168.0.0.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#ecs_slot",
+        "zia/dns-log#ecs_prefix"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{ecs_slot},The name of the EDNS Client Subnet (ECS) rule that was applied to the DNS transaction,ECS Slot #17,ECS Object Name",
+            "This field displays a numeric string."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dot-doq-open": {
+      "kind": "semantic",
+      "title": "How DNS over TLS and DNS over QUIC appear in the protocol field",
+      "status": "open",
+      "blocks": "filtering encrypted DNS by protocol",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: protocol lists TCP, UDP and DoH only; whether DoT or DoQ are logged under a distinct value, as DoH-equivalent, or not at all is not stated."
+    }
+  }
+}

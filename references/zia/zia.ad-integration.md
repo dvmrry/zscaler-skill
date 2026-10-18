@@ -10,4 +10,4 @@ The organization-wide switches that tie these together (auto-provision, the dire
 
 What reporting and cross-product policy show for users that were never provisioned is open {{gap:web-insights-attribution}}.
 
-Traffic without authentication is covered in [[zia.authentication.unauthenticated-traffic]]. The ZPA Active Directory controls (AppProtection inspection of Kerberos, SMB and LDAP) are a different feature; see the [vendor help article](../../vendor/zscaler-help/about-active-directory-controls.md). The user and department log fields are documented in the [web log schema](logs/web-log-schema.md).
+Traffic without authentication is covered in [[zia.authentication.unauthenticated-traffic]]. The ZPA Active Directory controls (AppProtection inspection of Kerberos, SMB and LDAP) are a different feature; see the [vendor help article](../../vendor/zscaler-help/about-active-directory-controls.md). The user and department log fields are documented in the [web log schema](kb:zia.logs.web-records).

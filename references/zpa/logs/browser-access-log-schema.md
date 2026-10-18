@@ -151,7 +151,7 @@ Two fields where the example value gives a hint at the enum but the full set is 
 
 See [`log-20`](../../_meta/clarifications.md#log-20-browser-access-connectionstatus-connectionreason-enum-completeness).
 
-The byte-counter and SSL-decryption-perspective questions documented for ZPA User Activity logs ([`zpa-17`](../../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics)) and ZIA web logs ([`log-09`](../../_meta/clarifications.md#log-09-byte-counter-perspective-and-compressionconnect-semantics)) likely apply here too — `RequestSize` / `ResponseSize` measurement point and compression handling are not specified.
+The byte-counter and SSL-decryption-perspective questions documented for ZPA User Activity logs ([`zpa-17`](../../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics)) and ZIA web logs ([`log-09`](kb:zia.logs.web-field-semantics:byte-counters)) likely apply here too — `RequestSize` / `ResponseSize` measurement point and compression handling are not specified.
 
 ## Open questions
 

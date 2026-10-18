@@ -136,7 +136,7 @@ Possible resolution: Health status is aggregated/generic; port 22 may have a spe
 LSS field `Action = 0` — that means the rule allowed the traffic.
 (no schema consulted; `0` is being interpreted by analogy from another log type)
 Better:
-Before reasoning: read references/zia/logs/web-log-schema.md for `action` enum.
+Before reasoning: resolve `zia/web-log#action` (`node scripts/kb.mjs resolve zia/web-log#action`) and `kb:zia.logs.web-rule-attribution` for the `action` values.
 Schema says: `action` for ZIA web logs is a string ("Allowed" / "Blocked"), not an integer. Numeric `0` would not appear in this field — investigate why the value looks numeric (parsing issue? wrong log type? TA version mismatch?).
 Field names look self-evident but rarely are. `action`, `reason`, `status`, `result` mean different things across ZIA / ZPA / ZDX / ZCC log types. Read the schema before any claim built on a field value becomes load-bearing.
 

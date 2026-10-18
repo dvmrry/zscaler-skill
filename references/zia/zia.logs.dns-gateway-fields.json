@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.dns-gateway-fields",
+  "title": "DNS Gateway fields in the DNS log: slot, server protocol and flags",
+  "aliases": [
+    "dnsgw_flags",
+    "dns gateway flags",
+    "FO_DEST_DROP",
+    "FO_DEST_ERR",
+    "dnsgw_slot",
+    "dns gateway log failover",
+    "resolver gateway column"
+  ],
+  "binds": [
+    "zia/dns-log#dnsgw_slot",
+    "zia/dns-log#dnsgw_srv_proto",
+    "zia/dns-log#dnsgw_flags"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-outcome"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-record-fields"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which glossed meaning the dnsgw_flags value carries, and whether failover behavior is configured on the gateway.",
+      "uses": [
+        "dnsgw-flag-glosses",
+        "failure-behavior-options",
+        "dnsgw-flags-semantics-open"
+      ]
+    },
+    {
+      "do": "Whether one record can show several flags, before filtering on equality.",
+      "uses": [
+        "dnsgw-flags-semantics-open"
+      ]
+    }
+  ],
+  "claims": {
+    "dnsgw-slot-proto": {
+      "statement": "The dnsgw_slot field is the name of the DNS Gateway rule, shown in Insights as Resolver Gateway, and dnsgw_srv_proto is the DNS Gateway server protocol, with TCP, UDP and HTTP as examples.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#dnsgw_slot",
+        "zia/dns-log#dnsgw_srv_proto"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{dnsgw_slot},The name of the DNS Gateway rule,DNS GATEWAY Rule 1,Resolver Gateway",
+            "%s{dnsgw_srv_proto},The DNS Gateway server protocol,\"TCP, UDP, HTTP\",Server Protocol"
+          ]
+        }
+      ]
+    },
+    "dnsgw-flag-glosses": {
+      "statement": "The CSV glosses the dnsgw_flags values as PRIMARY_SERVER_RESPONSE_PASS for Primary Server Attempted, SECONDARY_SERVER_RESPONSE_PASS for Secondary Server Attempted, FO_DEST_PASS for Query Forwarded to Destination, FO_DEST_ERR for Error Response Returned to Client and FO_DEST_DROP for Query Dropped, with None also listed.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#dnsgw_flags"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "PRIMARY_SERVER_RESPONSE_PASS (i.e., Primary Server Attempted)",
+            "SECONDARY_SERVER_RESPONSE_PASS (i.e., Secondary Server Attempted)",
+            "FO_DEST_PASS (i.e., Query Forwarded to Destination)",
+            "FO_DEST_ERR (i.e., Error Response Returned to Client)",
+            "FO_DEST_DROP (i.e., Query Dropped)"
+          ]
+        }
+      ]
+    },
+    "failure-behavior-options": {
+      "statement": "A DNS gateway is configured with a failure behavior of either Return error response or Forward to Original DNS Server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-dns-gateways.md",
+          "quotes": [
+            "The failure behavior for the gateway (i.e., **Return error response** or **Forward to Original DNS Server**)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dnsgw-flags-semantics-open": {
+      "kind": "semantic",
+      "title": "Whether dnsgw_flags values are exclusive and how they map to gateway failure behavior",
+      "status": "open",
+      "blocks": "diagnosing why a gateway DNS query failed",
+      "resolves_with": [
+        "source-read",
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the CSV does not expand \"FO\", does not say whether values are one per record or cumulative, does not give the transition order between primary, secondary and FO_* states, does not distinguish when FO_DEST_ERR fires versus FO_DEST_DROP, and does not say when None appears. Whether FO_DEST_ERR and FO_DEST_DROP correspond to the gateway failure behaviors is not stated (legacy clarification log-16).",
+      "former_ids": [
+        "log-16"
+      ]
+    }
+  }
+}

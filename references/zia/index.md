@@ -61,9 +61,9 @@ Field-level reference for ZIA log streams. Derived directly from Zscaler's publi
 
 | Schema | File | Status |
 |---|---|---|
-| Web logs — URL requests, category applied, rule hit, action, SSL state | [`./logs/web-log-schema.md`](./logs/web-log-schema.md) | draft |
-| Firewall logs — L4 flows, firewall rule hits, IPS detections, NAT | [`./logs/firewall-log-schema.md`](./logs/firewall-log-schema.md) | draft |
-| DNS logs — resolution events, request/response rules, DNS gateway state | [`./logs/dns-log-schema.md`](./logs/dns-log-schema.md) | draft |
+| Web logs — URL requests, category applied, rule hit, action, SSL state | [`zia.logs.web-records`](kb:zia.logs.web-records) | draft |
+| Firewall logs — L4 flows, firewall rule hits, IPS detections, NAT | [`zia.logs.firewall-records`](kb:zia.logs.firewall-records) | draft |
+| DNS logs — resolution events, request/response rules, DNS gateway state | [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields) | draft |
 
 For SPL patterns scoped to Zscaler questions, see [`../shared/splunk-queries.md`](../shared/splunk-queries.md). For *when* to query logs at all, see [`../shared/log-correlation.md`](../shared/log-correlation.md).
 

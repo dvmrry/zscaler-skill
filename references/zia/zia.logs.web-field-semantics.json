@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.web-field-semantics",
+  "title": "Value encodings and caveats of ZIA web log fields",
+  "aliases": [
+    "sip 0.0.0.0",
+    "respcode 403 blocked",
+    "cip vs cintip",
+    "host vs url field",
+    "domain fronting fields",
+    "riskscore threatseverity",
+    "dlprulename trig_dlprulename",
+    "byte counters web log",
+    "prompt_req",
+    "urlcat urlsupercat urlclass",
+    "reason field"
+  ],
+  "binds": [
+    "zia/web-log#sip",
+    "zia/web-log#respcode",
+    "zia/web-log#cip",
+    "zia/web-log#cintip",
+    "zia/web-log#host",
+    "zia/web-log#url",
+    "zia/web-log#df_hostname",
+    "zia/web-log#df_hosthead",
+    "zia/web-log#userlocationname",
+    "zia/web-log#riskscore",
+    "zia/web-log#threatseverity",
+    "zia/web-log#dlprulename",
+    "zia/web-log#trig_dlprulename",
+    "zia/web-log#bypassed_traffic",
+    "zia/web-log#prompt_req",
+    "zia/web-log#reason",
+    "zia/web-log#urlcat",
+    "zia/web-log#urlsupercat",
+    "zia/web-log#urlclass"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-rule-attribution"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.block-diagnosis"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.field-enablement"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an empty or zero sip, or a 403 in respcode, comes from a block before reading it as an origin result.",
+      "uses": [
+        "sip-blocked",
+        "respcode-403",
+        "respcode-not-origin"
+      ]
+    },
+    {
+      "do": "Which client IP field to use when the internal address matters.",
+      "uses": [
+        "cip-cintip"
+      ]
+    },
+    {
+      "do": "Whether riskscore alone supports a threat conclusion, or the threat fields must be read with it.",
+      "uses": [
+        "riskscore-factors",
+        "severity-from-score",
+        "malwarecat-sandbox",
+        "riskscore-lineage"
+      ]
+    },
+    {
+      "do": "Which DLP rule field names the rule for an allowed versus a blocked transaction.",
+      "uses": [
+        "dlp-rule-fields"
+      ]
+    },
+    {
+      "do": "Whether a byte count is safe to use for volume before relying on it.",
+      "uses": [
+        "sizes",
+        "byte-counters"
+      ]
+    }
+  ],
+  "claims": {
+    "sip-blocked": {
+      "statement": "The sip field shows 0.0.0.0 when the request was blocked.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#sip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The destination server IP address. This displays 0.0.0.0 if the request was blocked."
+          ]
+        }
+      ]
+    },
+    "respcode-403": {
+      "statement": "The respcode field is the response code sent to the client, and the service generates a 403 Forbidden response for blocked transactions.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#respcode"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The HTTP response code sent to the client. The service generates a 403-Forbidden response for blocked transactions."
+          ]
+        }
+      ]
+    },
+    "respcode-not-origin": {
+      "statement": "A 403 in respcode on a blocked transaction is the service's own response and does not show that the origin server answered 403.",
+      "tier": "B",
+      "binds": [
+        "zia/web-log#respcode",
+        "zia/web-log#action"
+      ],
+      "derived_from": [
+        "respcode-403"
+      ],
+      "conditions": "Follows from the field being the code sent to the client; the source does not spell out the origin case."
+    },
+    "cip-cintip": {
+      "statement": "The cip field is the internal client IP when it is visible, for example through a GRE tunnel or an XFF header, and otherwise equals cintip; cintip is the NATed public IP and differs from cip only when the internal address is visible.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#cip",
+        "zia/web-log#cintip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "It can be the internal IP address if it's visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it is the same as %s{cintip}.",
+            "This is different from the %s{cip} value if the internal IP address is visible."
+          ]
+        }
+      ]
+    },
+    "host-fallback": {
+      "statement": "The host field takes the host value from the HTTP request line when present and the Host header otherwise.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#host"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "If present, the host value in the HTTP request line populates this field. If the host value in the HTTP request line is not present, the host header is used."
+          ]
+        }
+      ]
+    },
+    "url-no-scheme": {
+      "statement": "The url field excludes the protocol identifier, http:// or https://.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#url"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "It excludes the protocol identifier (e.g., http:// or https://)."
+          ]
+        }
+      ]
+    },
+    "domain-fronting": {
+      "statement": "df_hostname holds the TLS SNI when it differs from the HTTPS Host header, and df_hosthead marks an FQDN mismatch between the request URL and the Host header; each appears only when there is a mismatch.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#df_hostname",
+        "zia/web-log#df_hosthead"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The field is present in the logs only if there is a mismatch."
+          ],
+          "after": "TLS Inspection must be enabled for this field to be populated."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "An optional field that contains the TLS connection's Server Name Indication (SNI) in cases that the HTTPS request host header does not match the SNI."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "due to an FQDN mismatch between the request URL and the request's host header."
+          ]
+        }
+      ]
+    },
+    "isolation-location": {
+      "statement": "For traffic processed through Isolation, userlocationname holds the actual origination point while location holds the Isolation Location; for other traffic userlocationname is None.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#userlocationname",
+        "zia/web-log#location"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The field shows the actual traffic origination point, whereas the %s{location} field displays the Isolation Location.",
+            "When the web traffic is not handled by Isolation, the field value is None."
+          ]
+        }
+      ]
+    },
+    "none-sentinels": {
+      "statement": "app_risk_score displays None when the risk index is unavailable, and ua_token displays None when no user agent token exists.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#app_risk_score",
+        "zia/web-log#ua_token"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "If the risk index is not available, the field displays None.",
+            "This displays None if the user agent token doesn't exist."
+          ]
+        }
+      ]
+    },
+    "riskscore-factors": {
+      "statement": "The service computes the Page Risk Index for each page by weighing page locations, destination reputation and suspicious-looking content, on a 0 to 100 scale from lowest to highest risk.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#riskscore"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The service computes risk for each page by weighing several factors, including page locations, reputation of destination, and content that may look suspicious."
+          ]
+        }
+      ]
+    },
+    "severity-from-score": {
+      "statement": "threatseverity relates to the riskscore bucket, so a riskscore from 90 to 100 gives Critical.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#threatseverity",
+        "zia/web-log#riskscore"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The severity relates to the Page Risk Index score.",
+            "if the value of %d{riskscore} is between 90 and 100, then the value of %s{threatseverity} is Critical."
+          ]
+        }
+      ]
+    },
+    "malwarecat-sandbox": {
+      "statement": "malwarecat holds the malware category detected in the transaction and also indicates whether a file was submitted to the Sandbox engine and the analysis result.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#malwarecat"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "Also indicates if a file was submitted to the Sandbox engine for analysis and the result of the analysis."
+          ]
+        }
+      ]
+    },
+    "dlp-rule-fields": {
+      "statement": "dlprulename applies only to Allow rules; trig_dlprulename names the DLP rule that triggered the transaction, allowed or blocked; all_dlprulenames combines other_dlprulenames and trig_dlprulename.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#dlprulename",
+        "zia/web-log#trig_dlprulename",
+        "zia/web-log#other_dlprulenames",
+        "zia/web-log#all_dlprulenames"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "Applies only to Allow rules, not Block.",
+            "The name of the DLP rule that triggered a transaction, which can be either allowed or blocked.",
+            "This field is a combination of %s{other_dlprulenames} and %s{trig_dlprulename}."
+          ]
+        }
+      ]
+    },
+    "sizes": {
+      "statement": "respsize includes the response header and payload, and totalsize is the sum of the total request size and total response size.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#respsize",
+        "zia/web-log#totalsize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The total size of the HTTP response, including the header and payload, in bytes",
+            "The sum of the total request size and total response size."
+          ]
+        }
+      ],
+      "gaps": [
+        "byte-counters"
+      ]
+    },
+    "bypass-flag": {
+      "statement": "bypassed_traffic is a numeric flag where 1 means the traffic bypassed Zscaler Client Connector.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#bypassed_traffic"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "Indicates whether the traffic bypassed the Zscaler Client Connector or not",
+            "1 indicates that the traffic bypassed Zscaler Client Connector"
+          ]
+        }
+      ]
+    },
+    "reason-pointer": {
+      "statement": "The reason field's documentation refers readers to the Policy Reasons article for the reasons behind policy actions.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#reason"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "To learn about the reasons for policy actions, see Policy Reasons."
+          ]
+        }
+      ],
+      "gaps": [
+        "reason-structure"
+      ]
+    }
+  },
+  "gaps": {
+    "reason-structure": {
+      "kind": "data",
+      "title": "Whether reason is an enum or templated text",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether reason is a stable finite set of strings or text assembled per incident, and whether wording is the same across cloud generations or localized, is not stated. Examples are sentence-shaped. A cross-tenant comparison of reason for one trigger would settle it.",
+      "blocks": "Regex-matching reason across tenants.",
+      "former_ids": [
+        "log-06"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "url-category-fields": {
+      "kind": "data",
+      "title": "How urlclass, urlsupercat and urlcat relate",
+      "status": "open",
+      "detail": "Unverified legacy statement: the three URL category fields have overlapping examples, and the CSV does not say whether urlcat is always a member of urlsupercat, whether urlclass is a higher roll-up, what a multi-category URL shows, or whether Advanced Threat categories appear in urlcat, urlsupercat or both. The CSV does say urlcat also includes Advanced Threat Category values. A tenant export of 50 or more varied URLs would show it.",
+      "blocks": "Grouping or rolling up URLs by these fields.",
+      "former_ids": [
+        "log-07"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "riskscore-lineage": {
+      "kind": "data",
+      "title": "Which subsystem produces riskscore",
+      "status": "open",
+      "detail": "Unverified legacy statement: riskscore may come from URL reputation alone, with ATP and Sandbox findings living in threatname, malwarecat and malwareclass, or it may combine them; its relation to app_risk_score on the 1 to 5 scale is not stated. A deliberate-trigger test comparing riskscore with simultaneous threat fields would show it.",
+      "blocks": "Reading a high riskscore as an ATP or Sandbox detection.",
+      "former_ids": [
+        "log-08"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "byte-counters": {
+      "kind": "data",
+      "title": "Where byte counters are measured",
+      "status": "open",
+      "detail": "Unverified legacy statement: the measurement point of reqsize, respsize, totalsize, reqdatasize and respdatasize is not stated (client wire, edge, post-decryption), nor compression handling, CONNECT handling with and without inspection, or truncation. The reqsize description also does not say it includes headers. A known-payload upload test over plain, gzipped, inspected and uninspected HTTPS would show it.",
+      "blocks": "Using these fields for exfiltration volume or bandwidth sizing.",
+      "former_ids": [
+        "log-09"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "prompt-scope": {
+      "kind": "data",
+      "title": "What prompt_req records",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether prompt_req holds the full prompt or a truncated or sanitized one, whether it is logged for every generative AI application or only those matched by a rule, its retention, and whether the response is logged are not stated. The CSV says only that it is the prompt entered in the generative AI application. A test with a long prompt marked at start, middle and end would show truncation.",
+      "blocks": "Claiming visibility into generative AI prompts.",
+      "former_ids": [
+        "log-10"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

@@ -15,7 +15,7 @@ sources:
   - "references/zcc/logs/zcc-log-schema.md"
   - "references/cloud-connector/logs/log-schema.md"
   - "references/zpa/logs/access-log-schema.md"
-  - "references/zia/logs/web-log-schema.md"
+  - "kb:zia/web-log"
 author-status: draft
 ---
 
@@ -344,9 +344,9 @@ Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendo
 - NSS architecture deep-dive (VM-based vs Cloud NSS, feed configuration, filter caps, replay behavior) — [`./nss-architecture.md`](./nss-architecture.md)
 - SPL patterns for querying all of the above — [`./splunk-queries.md`](./splunk-queries.md)
 - Log correlation (when to use which log for which question) — [`./log-correlation.md`](./log-correlation.md)
-- ZIA web log schema (full field inventory) — [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md)
-- ZIA firewall log schema — [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md)
-- ZIA DNS log schema — [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md)
+- ZIA web log schema (full field inventory) — [`zia.logs.web-records`](kb:zia.logs.web-records)
+- ZIA firewall log schema — [`zia.logs.firewall-records`](kb:zia.logs.firewall-records)
+- ZIA DNS log schema — [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields)
 - ZPA LSS User Activity schema — [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md)
 - ZPA User Status schema — [`../zpa/logs/user-status-log-schema.md`](../zpa/logs/user-status-log-schema.md)
 - ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md)

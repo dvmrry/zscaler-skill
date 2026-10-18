@@ -4,57 +4,2153 @@
   "kind": "log",
   "product": "zia",
   "title": "ZIA web log (NSS web feed)",
-  "names": { "nss": "web" },
-  "aliases": ["nss web log", "zia web logs", "web insights logs", "zia proxy logs"],
+  "names": {
+    "nss": "web"
+  },
+  "aliases": [
+    "nss web log",
+    "zia web logs",
+    "web insights logs",
+    "zia proxy logs"
+  ],
   "evidence": [
-    { "source": "zscaler-help", "path": "nss-web-logs.csv",
-      "quotes": ["Table,Field,Description,Example,Insights Logs"] }
+    {
+      "source": "zscaler-help",
+      "path": "nss-web-logs.csv",
+      "quotes": [
+        "Table,Field,Description,Example,Insights Logs"
+      ]
+    }
   ],
   "fields": {
-    "action": {
-      "type": "string", "label": "Policy Action",
-      "description": "The action the service took on the transaction (Allowed, Blocked).",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{action},The action that the service took on the transaction"] }]
+    "time": {
+      "type": "string",
+      "label": "Logged Time",
+      "description": "The time and date of the transaction. This excludes the time zone.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{time},The time and date of the transaction. This excludes the time zone.,Mon Oct 16"
+          ]
+        }
+      ]
     },
-    "reason": {
-      "type": "string", "label": "Policy Reason",
-      "description": "The action taken and, for blocks, the policy applied.",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{reason},\"The action that the service took and the policy that was applied, if the transaction was blocked."] }]
+    "tz": {
+      "type": "string",
+      "description": "The time zone. This is the same as the time zone you specified when you configured the NSS feed.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{tz},The time zone. This is the same as the time zone you specified when you configured"
+          ]
+        }
+      ]
     },
-    "rulelabel": {
-      "type": "string", "label": "Blocked Policy Name",
-      "description": "The rule applied to the transaction. Populated only for Block rules.",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{rulelabel},\"The name of the rule that was applied to the transaction. Applies only to Block rules, not Allow.\""] }]
+    "ss": {
+      "type": "integer",
+      "description": "Seconds (0–59) (Insights: This field is derived from Logged Time)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%02d{ss},Seconds (0–59),48,This field is derived from Logged Time"
+          ]
+        }
+      ]
     },
-    "ruletype": {
-      "type": "string", "label": "Blocked Policy Type",
-      "description": "The type of policy that blocked. Populated only for Block rules.",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{ruletype},\"The type of policy. Applies only to Block rules, not Allow.\""] }]
+    "mm": {
+      "type": "integer",
+      "description": "Minutes (0–59) (Insights: This field is derived from Logged Time)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%02d{mm},Minutes (0–59),55,This field is derived from Logged Time"
+          ]
+        }
+      ]
     },
-    "urlfilterrulelabel": {
-      "type": "string", "label": "URL Filtering Policy Name",
-      "description": "The URL Filtering rule applied to the transaction.",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{urlfilterrulelabel},The name of the rule that was applied to the URL filter"] }]
+    "hh": {
+      "type": "integer",
+      "description": "Hours (0–23) (Insights: This field is derived from Logged Time)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%02d{hh},Hours (0–23),22,This field is derived from Logged Time"
+          ]
+        }
+      ]
     },
-    "apprulelabel": {
-      "type": "string", "label": "Cloud Application Policy Name",
-      "description": "The Cloud App Control rule applied to the transaction.",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{apprulelabel},The name of the rule that was applied to the application"] }]
+    "dd": {
+      "type": "integer",
+      "description": "The day of the month (1–31) (Insights: This field is derived from Logged Time)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%02d{dd},The day of the month (1–31),16,This field is derived from Logged Time"
+          ]
+        }
+      ]
+    },
+    "mth": {
+      "type": "integer",
+      "description": "The month of the year (Insights: This field is derived from Logged Time)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%02d{mth},The month of the year,10,This field is derived from Logged Time"
+          ]
+        }
+      ]
+    },
+    "yyyy": {
+      "type": "integer",
+      "description": "Year (Insights: This field is derived from Logged Time)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%04d{yyyy},Year,2023,This field is derived from Logged Time"
+          ]
+        }
+      ]
+    },
+    "mon": {
+      "type": "string",
+      "description": "The name of the month (Insights: This field is derived from Logged Time)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{mon},The name of the month,Oct,This field is derived from Logged Time"
+          ]
+        }
+      ]
+    },
+    "day": {
+      "type": "string",
+      "description": "The day of the week (Insights: This field is derived from Logged Time)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{day},The day of the week,Mon,This field is derived from Logged Time"
+          ]
+        }
+      ]
+    },
+    "epochtime": {
+      "type": "integer",
+      "description": "The epoch time of the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{epochtime},The epoch time of the transaction,1578128400"
+          ]
+        }
+      ]
+    },
+    "login": {
+      "type": "string",
+      "label": "User",
+      "description": "The user's login name in email address format",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{login},The user's login name in email address format,jdoe@safemarch.com,User"
+          ]
+        }
+      ]
+    },
+    "dept": {
+      "type": "string",
+      "label": "Department",
+      "description": "The department of the user",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{dept},The department of the user,Sales,Department"
+          ]
+        }
+      ]
+    },
+    "company": {
+      "type": "string",
+      "description": "The name of the company (Insights: This field is specific to NSS)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{company},The name of the company,Zscaler,This field is specific to NSS"
+          ]
+        }
+      ]
+    },
+    "cloudname": {
+      "type": "string",
+      "description": "The name of the Zscaler cloud (Insights: This field is specific to NSS)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{cloudname},The name of the Zscaler cloud,zscaler.net,This field is specific to NSS"
+          ]
+        }
+      ]
+    },
+    "throttlereqsize": {
+      "type": "integer",
+      "label": "Throttled request bytes",
+      "description": "The throttled transaction size in the Uplink direction (Upload) in bytes",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{throttlereqsize},The throttled transaction size in the Uplink direction (Upload) in"
+          ]
+        }
+      ]
+    },
+    "throttlerespsize": {
+      "type": "integer",
+      "label": "Throttled response bytes",
+      "description": "The throttled transaction size in the Downlink direction (Download) in bytes",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{throttlerespsize},The throttled transaction size in the Downlink direction (Download)"
+          ]
+        }
+      ]
+    },
+    "bwthrottle": {
+      "type": "string",
+      "description": "Indicates whether the transaction was throttled due to a configured bandwidth policy",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{bwthrottle},Indicates whether the transaction was throttled due to a configured"
+          ]
+        }
+      ]
+    },
+    "bwclassname": {
+      "type": "string",
+      "label": "Bandwidth Class",
+      "description": "The name of the bandwidth class",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{bwclassname},The name of the bandwidth class,\"Entertainment, General Surfing, Office"
+          ]
+        }
+      ]
+    },
+    "bwrulename": {
+      "type": "string",
+      "label": "Bandwidth Rule",
+      "description": "The name of the bandwidth rule",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{bwrulename},The name of the bandwidth rule,\"Office 365\nAny name under the Rule Name"
+          ]
+        }
+      ]
     },
     "appname": {
-      "type": "string", "label": "Cloud Application",
-      "description": "The cloud application of the transaction.",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{appname},The name of the cloud application"] }]
+      "type": "string",
+      "label": "Cloud Application",
+      "description": "The name of the cloud application",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{appname},The name of the cloud application,\"Adobe Connect, Craigslist, Dropbox\nThe"
+          ]
+        }
+      ]
+    },
+    "appclass": {
+      "type": "string",
+      "label": "Cloud Application Class",
+      "description": "The cloud application category of the application that was accessed",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{appclass},The cloud application category of the application that was"
+          ]
+        }
+      ]
+    },
+    "app_risk_score": {
+      "type": "string",
+      "label": "Risk Index",
+      "description": "The computed or assigned risk index for the cloud application, with 1 being the lowest risk and 5 being the highest. If the risk index is not available, the field displays None.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{app_risk_score},\"The computed or assigned risk index for the cloud application, with 1"
+          ]
+        }
+      ]
+    },
+    "app_status": {
+      "type": "string",
+      "label": "Application Status",
+      "description": "The status of the cloud application",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{app_status},The status of the cloud"
+          ]
+        }
+      ]
+    },
+    "activity": {
+      "type": "string",
+      "label": "Application Activity",
+      "description": "The name of the action the user performed on the application",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{activity},The name of the action the user performed on the"
+          ]
+        }
+      ]
+    },
+    "prompt_req": {
+      "type": "string",
+      "label": "Prompt",
+      "description": "The prompt entered by the user in the generative AI application",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{prompt_req},The prompt entered by the user in the generative AI application,,Prompt"
+          ]
+        }
+      ]
+    },
+    "inst_level1_type": {
+      "type": "string",
+      "label": "App Instance Level 1 Type",
+      "description": "The level 1 type (e.g., Organization for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level1_type},\"The level 1 type (e.g., Organization for Google Cloud Platform)."
+          ]
+        }
+      ]
+    },
+    "inst_level1_id": {
+      "type": "string",
+      "label": "App Instance Level 1",
+      "description": "The level 1 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level1_id},\"The level 1 ID associated with the discovered cloud application"
+          ]
+        }
+      ]
+    },
+    "inst_level1_name": {
+      "type": "string",
+      "description": "Additional information regarding the discovered cloud application instance, if available.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level1_name},\"Additional information regarding the discovered cloud application"
+          ]
+        }
+      ]
+    },
+    "inst_level2_type": {
+      "type": "string",
+      "label": "App Instance Level 2 Type",
+      "description": "The level 2 type (e.g., Project for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level2_type},\"The level 2 type (e.g., Project for Google Cloud Platform). The"
+          ]
+        }
+      ]
+    },
+    "inst_level2_id": {
+      "type": "string",
+      "label": "App Instance Level 2",
+      "description": "The level 2 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level2_id},\"The level 2 ID associated with the discovered cloud application"
+          ]
+        }
+      ]
+    },
+    "inst_level2_name": {
+      "type": "string",
+      "description": "Additional information regarding the discovered cloud application instance, if available.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level2_name},\"Additional information regarding the discovered cloud application"
+          ]
+        }
+      ]
+    },
+    "inst_level3_type": {
+      "type": "string",
+      "label": "App Instance Level 3 Type",
+      "description": "The level 3 type (e.g., Resource Type for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level3_type},\"The level 3 type (e.g., Resource Type for Google Cloud Platform)."
+          ]
+        }
+      ]
+    },
+    "inst_level3_id": {
+      "type": "string",
+      "label": "App Instance Level 3",
+      "description": "The level 3 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level3_id},\"The level 3 ID associated with the discovered cloud application"
+          ]
+        }
+      ]
+    },
+    "inst_level3_name": {
+      "type": "string",
+      "description": "Additional information regarding the discovered cloud application instance, if available.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{inst_level3_name},\"Additional information regarding the discovered cloud application"
+          ]
+        }
+      ]
+    },
+    "datacenter": {
+      "type": "string",
+      "label": "Data Center",
+      "description": "The name of the data center",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{datacenter},The name of the data center,CA Client Node DC,Data Center"
+          ]
+        }
+      ]
+    },
+    "datacentercity": {
+      "type": "string",
+      "description": "The city where the data center is located",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{datacentercity},The city where the data center is located,Sa"
+          ]
+        }
+      ]
+    },
+    "datacentercountry": {
+      "type": "string",
+      "description": "The country where the data center is located",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{datacentercountry},The country where the data center is located,US"
+          ]
+        }
+      ]
+    },
+    "dlpdict": {
+      "type": "string",
+      "label": "DLP Dictionaries",
+      "description": "The DLP dictionaries that were matched, if any",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{dlpdict},\"The DLP dictionaries that were matched, if any\",\"Credit Cards|Gambling|MRN"
+          ]
+        }
+      ]
+    },
+    "dlpdicthitcount": {
+      "type": "string",
+      "description": "The number of hits for each of the dictionaries that were matched in the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{dlpdicthitcount},The number of hits for each of the dictionaries that were matched in"
+          ]
+        }
+      ]
+    },
+    "dlpeng": {
+      "type": "string",
+      "label": "DLP Engine",
+      "description": "The DLP engine that was matched, if any",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{dlpeng},\"The DLP engine that was matched, if any\",\"HIPAA\nThe full list is under the"
+          ]
+        }
+      ]
+    },
+    "dlpidentifier": {
+      "type": "integer",
+      "label": "DLP Identifier",
+      "description": "The unique identifier of the DLP incident",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{dlpidentifier},The unique identifier of the DLP incident,6646484838839025669,DLP"
+          ]
+        }
+      ]
+    },
+    "dlpmd5": {
+      "type": "string",
+      "label": "DLP MD5",
+      "description": "The MD5 hash of the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{dlpmd5},The MD5 hash of the transaction,154f149b1443fbfa8c121d13e5c019a1 ​​​​​​,DLP"
+          ]
+        }
+      ]
+    },
+    "dlprulename": {
+      "type": "string",
+      "label": "Allowed DLP Rule Name",
+      "description": "The name of the DLP rule applied to the transaction. Applies only to Allow rules, not Block. To enable logging for DLP Allowed Rule Name, contact Zscaler Support.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{dlprulename},\"The name of the DLP rule applied to the transaction. Applies only to"
+          ]
+        }
+      ]
+    },
+    "trig_dlprulename": {
+      "type": "string",
+      "description": "The name of the DLP rule that triggered a transaction, which can be either allowed or blocked.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{trig_dlprulename},\"The name of the DLP rule that triggered a transaction, which can be"
+          ]
+        }
+      ]
+    },
+    "other_dlprulenames": {
+      "type": "string",
+      "label": "Other DLP Rules",
+      "description": "The names of all the DLP rules that were evaluated and passed, but no action was taken.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{other_dlprulenames},\"The names of all the DLP rules that were evaluated and passed"
+          ]
+        }
+      ]
+    },
+    "all_dlprulenames": {
+      "type": "string",
+      "description": "The names of all DLP rules whether they were triggered or not. This field is a combination of %s{other_dlprulenames} and %s{trig_dlprulename}.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{all_dlprulenames},The names of all DLP rules whether they were triggered or not. This"
+          ]
+        }
+      ]
+    },
+    "fileclass": {
+      "type": "string",
+      "description": "The class of file downloaded during the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{fileclass},The class of file downloaded during the transaction,\"Active Web Contents"
+          ]
+        }
+      ]
+    },
+    "filetype": {
+      "type": "string",
+      "label": "Download File Type",
+      "description": "The type of file downloaded during the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{filetype},The type of file downloaded during the transaction,\"RAR Files, ZIP, Windows"
+          ]
+        }
+      ]
+    },
+    "filename": {
+      "type": "string",
+      "label": "Download File Name",
+      "description": "The name of downloaded files during the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{filename},The name of downloaded files during the transaction,nssfeed.txt,Download"
+          ]
+        }
+      ]
+    },
+    "filesubtype": {
+      "type": "string",
+      "description": "The subtype of the downloaded file (extension name)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{filesubtype},The subtype of the downloaded file (extension name),\"rar, exe"
+          ]
+        }
+      ]
+    },
+    "upload_fileclass": {
+      "type": "string",
+      "description": "The class of file uploaded during the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{upload_fileclass},The class of file uploaded during the transaction,\"Active Web"
+          ]
+        }
+      ]
+    },
+    "upload_filetype": {
+      "type": "string",
+      "label": "Upload File Type",
+      "description": "The type of file uploaded during the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{upload_filetype},The type of file uploaded during the transaction,\"RAR Files, ZIP"
+          ]
+        }
+      ]
+    },
+    "upload_filename": {
+      "type": "string",
+      "label": "Upload File Name",
+      "description": "The name of uploaded files during the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{upload_filename},The name of uploaded files during the transaction,nssfeed.exe,Upload"
+          ]
+        }
+      ]
+    },
+    "upload_filesubtype": {
+      "type": "string",
+      "description": "The subtype of the uploaded file (extension name)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{upload_filesubtype},The subtype of the uploaded file (extension name),\"rar, exe"
+          ]
+        }
+      ]
+    },
+    "upload_doctypename": {
+      "type": "string",
+      "label": "Document Type",
+      "description": "The type of document uploaded or downloaded during the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{upload_doctypename},The type of document uploaded or downloaded during the"
+          ]
+        }
+      ]
+    },
+    "unscannabletype": {
+      "type": "string",
+      "label": "Unscannable Type",
+      "description": "The unscannable file type:\nEncrypted or password-protected (e.g., GZIP, PDF)\nUnscannable (e.g., corrupt archive)\nUndetectable (unable to determine the file type, based on multiple methods)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{unscannabletype},\"The unscannable file type:\nEncrypted or password-protected (e.g."
+          ]
+        }
+      ]
+    },
+    "rdr_rulename": {
+      "type": "string",
+      "label": "Forwarding Rule",
+      "description": "The name of the redirect/forwarding policy",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{rdr_rulename},The name of the redirect/forwarding policy,\"FWD_Rule_1\nAny name under"
+          ]
+        }
+      ]
+    },
+    "fwd_type": {
+      "type": "string",
+      "label": "Forwarding Method",
+      "description": "The type of forwarding method used",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{fwd_type},The type of forwarding method used,\"Direct\nDrop\nProxy"
+          ]
+        }
+      ]
+    },
+    "fwd_gw_name": {
+      "type": "string",
+      "label": "Gateway Name",
+      "description": "The name of the gateway defined in a forwarding rule",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{fwd_gw_name},The name of the gateway defined in a forwarding rule,FWD_1,Gateway Name"
+          ]
+        }
+      ]
+    },
+    "fwd_gw_ip": {
+      "type": "string",
+      "label": "Gateway IP",
+      "description": "The IP address of the gateway used",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{fwd_gw_ip},The IP address of the gateway"
+          ]
+        }
+      ]
+    },
+    "zpa_app_seg_name": {
+      "type": "string",
+      "label": "Application Segment",
+      "description": "The name of the Zscaler Private Access (ZPA) application segment",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{zpa_app_seg_name},The name of the Zscaler Private Access (ZPA) application"
+          ]
+        }
+      ]
+    },
+    "reqdatasize": {
+      "type": "integer",
+      "description": "The size of the HTTP request payload, excluding the headers, in bytes",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{reqdatasize},\"The size of the HTTP request payload, excluding the headers, in"
+          ]
+        }
+      ]
+    },
+    "reqhdrsize": {
+      "type": "integer",
+      "description": "The size of the HTTP request header in bytes",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{reqhdrsize},The size of the HTTP request header in bytes,300"
+          ]
+        }
+      ]
+    },
+    "reqsize": {
+      "type": "integer",
+      "label": "Sent Bytes",
+      "description": "The request size in bytes",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{reqsize},The request size in bytes,1300,Sent Bytes"
+          ]
+        }
+      ]
+    },
+    "respdatasize": {
+      "type": "integer",
+      "description": "The size of the HTTP response payload, excluding the headers, in bytes",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{respdatasize},\"The size of the HTTP response payload, excluding the headers, in"
+          ]
+        }
+      ]
+    },
+    "resphdrsize": {
+      "type": "integer",
+      "description": "The size of the HTTP response header in bytes",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{resphdrsize},The size of the HTTP response header in bytes,500"
+          ]
+        }
+      ]
+    },
+    "respsize": {
+      "type": "integer",
+      "label": "Received Bytes",
+      "description": "The total size of the HTTP response, including the header and payload, in bytes",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{respsize},\"The total size of the HTTP response, including the header and payload, in"
+          ]
+        }
+      ]
+    },
+    "totalsize": {
+      "type": "integer",
+      "label": "Total Bytes",
+      "description": "The total size of the HTTP transaction in bytes. The sum of the total request size and total response size.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{totalsize},The total size of the HTTP transaction in bytes. The sum of the total"
+          ]
+        }
+      ]
+    },
+    "reqmethod": {
+      "type": "string",
+      "label": "Request Method",
+      "description": "The HTTP request method",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{reqmethod},The HTTP request method,\"invalid, get, connect\",Request Method"
+          ]
+        }
+      ]
+    },
+    "reqversion": {
+      "type": "string",
+      "label": "Request HTTP Version",
+      "description": "The HTTP request version",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{reqversion},The HTTP request version,1.1,Request HTTP Version"
+          ]
+        }
+      ]
+    },
+    "respcode": {
+      "type": "string",
+      "label": "Response Code",
+      "description": "The HTTP response code sent to the client. The service generates a 403-Forbidden response for blocked transactions.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{respcode},The HTTP response code sent to the client. The service generates a"
+          ]
+        }
+      ]
+    },
+    "respversion": {
+      "type": "string",
+      "label": "Response HTTP Version",
+      "description": "The HTTP response version",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{respversion},The HTTP response version,1,Response HTTP Version"
+          ]
+        }
+      ]
+    },
+    "referer": {
+      "type": "string",
+      "label": "Referrer URL",
+      "description": "The HTTP referrer URL",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{referer},The HTTP referrer URL,www.google.com,Referrer URL"
+          ]
+        }
+      ]
+    },
+    "refererhost": {
+      "type": "string",
+      "description": "The hostname of the referrer URL",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{refererhost},The hostname of the referrer URL,www.example.com for"
+          ]
+        }
+      ]
+    },
+    "uaclass": {
+      "type": "string",
+      "description": "The user agent class",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{uaclass},The user agent class,\"Firefox, Chrome, Safari"
+          ]
+        }
+      ]
+    },
+    "ua": {
+      "type": "string",
+      "label": "User Agent",
+      "description": "The full user agent string for both known and unknown agents. The user agent string contains browser and system information that the destination server can use to provide appropriate content.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{ua},The full user agent string for both known and unknown agents. The user agent"
+          ]
+        }
+      ]
+    },
+    "ua_token": {
+      "type": "string",
+      "description": "The user agent token. This displays None if the user agent token doesn't exist.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{ua_token},The user agent token. This displays None if the user agent token doesn't"
+          ]
+        }
+      ]
+    },
+    "host": {
+      "type": "string",
+      "description": "The destination hostname. If present, the host value in the HTTP request line populates this field. If the host value in the HTTP request line is not present, the host header is used.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{host},\"The destination hostname. If present, the host value in the HTTP request line"
+          ]
+        }
+      ]
+    },
+    "url": {
+      "type": "string",
+      "label": "URL",
+      "description": "The destination URL. It excludes the protocol identifier (e.g., http:// or https://).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{url},\"The destination URL. It excludes the protocol identifier (e.g., http:// or"
+          ]
+        }
+      ]
+    },
+    "df_hostname": {
+      "type": "string",
+      "label": "Domain Fronted SNI",
+      "description": "An optional field that contains the TLS connection's Server Name Indication (SNI) in cases that the HTTPS request host header does not match the SNI. TLS Inspection must be enabled for this field to be populated. The field is present in the logs only if there is a mismatch.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{df_hostname},An optional field that contains the TLS connection's Server Name"
+          ]
+        }
+      ]
+    },
+    "df_hosthead": {
+      "type": "string",
+      "label": "Domain Fronted Host Header",
+      "description": "The field contains HTTP/S transactions that indicate domain fronting due to an FQDN mismatch between the request URL and the request's host header. The field is present in the logs only if there is a mismatch.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{df_hosthead},The field contains HTTP/S transactions that indicate domain fronting due"
+          ]
+        }
+      ]
+    },
+    "contenttype": {
+      "type": "string",
+      "label": "Content Type",
+      "description": "The name of the content type",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{contenttype},The name of the content"
+          ]
+        }
+      ]
+    },
+    "mobappname": {
+      "type": "string",
+      "label": "Mobile Application",
+      "description": "The name of the mobile app, if any",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{mobappname},\"The name of the mobile app, if any\",\"Adobe Reader, Amazon, Dropbox\nThe"
+          ]
+        }
+      ]
+    },
+    "mobappcat": {
+      "type": "string",
+      "label": "Mobile Application Category",
+      "description": "The category of the mobile app, if any",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{mobappcat},\"The category of the mobile app, if any\",\"Communication, Education"
+          ]
+        }
+      ]
+    },
+    "mobdevtype": {
+      "type": "string",
+      "label": "Mobile Device Type",
+      "description": "The type of mobile device",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{mobdevtype},The type of mobile device,\"iOS, Google Android, Apple iPhone\nThe full list"
+          ]
+        }
+      ]
+    },
+    "cip": {
+      "type": "string",
+      "label": "Client IP",
+      "description": "The IP address of the user. It can be the internal IP address if it's visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it is the same as %s{cintip}.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{cip},\"The IP address of the user. It can be the internal IP address if it's visible"
+          ]
+        }
+      ]
+    },
+    "cintip": {
+      "type": "string",
+      "description": "The client's internet (NATed Public) IP address. This is different from the %s{cip} value if the internal IP address is visible. Otherwise, it is the same as %s{cip}.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{cintip},\"The client's internet (NATed Public) IP address. This is different from the"
+          ]
+        }
+      ]
+    },
+    "cpubip": {
+      "type": "string",
+      "label": "Client External IP",
+      "description": "The client public IP address",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{cpubip},The client public IP address,198.51.100.100,Client External IP"
+          ]
+        }
+      ]
+    },
+    "clt_sport": {
+      "type": "integer",
+      "label": "Client Source Port",
+      "description": "The client source port. To enable logging for Client Source Port, contact Zscaler Support.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{clt_sport},\"The client source port. To enable logging for Client Source Port, contact"
+          ]
+        }
+      ]
+    },
+    "srcip_country": {
+      "type": "string",
+      "label": "Source IP Country",
+      "description": "The country associated with the source IP address",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{srcip_country},The country associated with the source IP address,Afghanistan,Source IP"
+          ]
+        }
+      ]
+    },
+    "dstip_country": {
+      "type": "string",
+      "label": "Destination IP Country",
+      "description": "The country associated with the destination IP address",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{dstip_country},The country associated with the destination IP"
+          ]
+        }
+      ]
+    },
+    "is_src_cntry_risky": {
+      "type": "string",
+      "description": "Indicates whether the country associated with the source IP address is risky or not",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{is_src_cntry_risky},Indicates whether the country associated with the source IP"
+          ]
+        }
+      ]
+    },
+    "is_dst_cntry_risky": {
+      "type": "string",
+      "description": "Indicates whether the country associated with the destination IP address is risky or not",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{is_dst_cntry_risky},Indicates whether the country associated with the destination IP"
+          ]
+        }
+      ]
+    },
+    "sip": {
+      "type": "string",
+      "label": "Server IP",
+      "description": "The destination server IP address. This displays 0.0.0.0 if the request was blocked.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{sip},The destination server IP address. This displays 0.0.0.0 if the request was"
+          ]
+        }
+      ]
+    },
+    "srv_dport": {
+      "type": "integer",
+      "label": "Server Destination Port",
+      "description": "The server destination port. To enable logging for Server Destination Port, contact Zscaler Support.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{srv_dport},\"The server destination port. To enable logging for Server Destination"
+          ]
+        }
+      ]
+    },
+    "proto": {
+      "type": "string",
+      "label": "Protocol",
+      "description": "The protocol type of the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{proto},The protocol type of the transaction,\"HTTP, FTP\nThe full list is under the"
+          ]
+        }
+      ]
+    },
+    "alpnprotocol": {
+      "type": "string",
+      "label": "ALPN Protocol",
+      "description": "The Application-Layer Protocol Negotiation (ALPN) protocol",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{alpnprotocol},The Application-Layer Protocol Negotiation (ALPN) protocol,\"FTP, SMB\nThe"
+          ]
+        }
+      ]
+    },
+    "trafficredirectmethod": {
+      "type": "string",
+      "label": "Traffic Forwarding",
+      "description": "The traffic forwarding method to ZIA Public Service Edges",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{trafficredirectmethod},The traffic forwarding method to ZIA Public Service Edges,\"DNAT"
+          ]
+        }
+      ]
+    },
+    "location": {
+      "type": "string",
+      "label": "Location",
+      "description": "The gateway location or sub-location of the source. To learn more, see About Locations.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{location},\"The gateway location or sub-location of the source. To learn more, see"
+          ]
+        }
+      ]
+    },
+    "userlocationname": {
+      "type": "string",
+      "label": "User Location",
+      "description": "Applicable to the web traffic processed via Isolation. The field shows the actual traffic origination point, whereas the %s{location} field displays the Isolation Location. When the web traffic is not handled by Isolation, the field value is None.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{userlocationname},\"Applicable to the web traffic processed via Isolation. The field"
+          ]
+        }
+      ]
+    },
+    "ruletype": {
+      "type": "string",
+      "label": "Blocked Policy Type",
+      "description": "The type of policy. Applies only to Block rules, not Allow.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{ruletype},\"The type of policy. Applies only to Block rules, not Allow.\",\"File Type"
+          ]
+        }
+      ]
+    },
+    "rulelabel": {
+      "type": "string",
+      "label": "Blocked Policy Name",
+      "description": "The name of the rule that was applied to the transaction. Applies only to Block rules, not Allow.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{rulelabel},\"The name of the rule that was applied to the transaction. Applies only to"
+          ]
+        }
+      ]
+    },
+    "action": {
+      "type": "string",
+      "label": "Policy Action",
+      "description": "The action that the service took on the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{action},The action that the service took on the transaction,\"Allowed, Blocked\",Policy"
+          ]
+        }
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "description": "The action that the service took and the policy that was applied, if the transaction was blocked. To learn about the reasons for policy actions, see Policy Reasons.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{reason},\"The action that the service took and the policy that was applied, if the"
+          ]
+        }
+      ]
+    },
+    "urlfilterrulelabel": {
+      "type": "string",
+      "label": "URL Filtering Policy Name",
+      "description": "The name of the rule that was applied to the URL filter",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{urlfilterrulelabel},The name of the rule that was applied to the URL"
+          ]
+        }
+      ]
+    },
+    "apprulelabel": {
+      "type": "string",
+      "label": "Cloud Application Policy Name",
+      "description": "The name of the rule that was applied to the application",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{apprulelabel},The name of the rule that was applied to the"
+          ]
+        }
+      ]
+    },
+    "bamd5": {
+      "type": "string",
+      "label": "MD5",
+      "description": "The MD5 hash of the malware file that was detected in the transaction, or the MD5 of the file that was sent for analysis to the Sandbox engine",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{bamd5},\"The MD5 hash of the malware file that was detected in the transaction, or the"
+          ]
+        }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "label": "SHA-256",
+      "description": "The hash of identical files",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{sha256},The hash of identical"
+          ]
+        }
+      ]
+    },
+    "ssldecrypted": {
+      "type": "string",
+      "label": "SSL Inspected",
+      "description": "Indicates whether the transaction was SSL inspected or not",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{ssldecrypted},Indicates whether the transaction was SSL inspected or not,\"Yes\nNo\",SSL"
+          ]
+        }
+      ]
+    },
+    "externalspr": {
+      "type": "string",
+      "label": "SSL Policy Reason",
+      "description": "The SSL policy reasons",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{externalspr},The SSL policy reasons,\"Blocked\nInspected\nN/A\nNot inspected because of"
+          ]
+        }
+      ]
+    },
+    "keyprotectiontype": {
+      "type": "string",
+      "label": "Intermediate CA Protection Type",
+      "description": "Indicates whether an HSM Protection or a Software Protection intermediate CA certificate is used for the TLS interception",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{keyprotectiontype},Indicates whether an HSM Protection or a Software Protection"
+          ]
+        }
+      ]
+    },
+    "clientsslcipher": {
+      "type": "string",
+      "label": "Client Connection Cipher",
+      "description": "The negotiated cipher suite for communication between the client and Zscaler",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{clientsslcipher},The negotiated cipher suite for communication between the client and"
+          ]
+        }
+      ]
+    },
+    "clienttlsversion": {
+      "type": "string",
+      "label": "Client Connection TLS Version",
+      "description": "The TLS version used for communication between the client and Zscaler",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{clienttlsversion},The TLS version used for communication between the client and"
+          ]
+        }
+      ]
+    },
+    "clientsslsessreuse": {
+      "type": "string",
+      "label": "Client Session Reused",
+      "description": "Client cipher reuse information",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{clientsslsessreuse},Client cipher reuse information,\"Unknown\nNo\nYes\",Client Session"
+          ]
+        }
+      ]
+    },
+    "cltsslfailreason": {
+      "type": "string",
+      "label": "Client SSL Handshake Failure Reason",
+      "description": "The reason for the client SSL handshake failure",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{cltsslfailreason},The reason for the client SSL handshake failure,\"Bad Record Mac"
+          ]
+        }
+      ]
+    },
+    "cltsslfailcount": {
+      "type": "integer",
+      "label": "Client SSL Handshake Failure Aggregate Count",
+      "description": "The number of failed client SSL handshake attempts",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{cltsslfailcount},The number of failed client SSL handshake attempts,,Client SSL"
+          ]
+        }
+      ]
+    },
+    "srvsslcipher": {
+      "type": "string",
+      "label": "Server Connection Cipher",
+      "description": "The negotiated cipher suite for communication between Zscaler and the server",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{srvsslcipher},The negotiated cipher suite for communication between Zscaler and the"
+          ]
+        }
+      ]
+    },
+    "srvtlsversion": {
+      "type": "string",
+      "label": "Server Connection TLS Version",
+      "description": "The TLS/SSL version used for communication between the ZIA Public Service Edge and the server",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{srvtlsversion},The TLS/SSL version used for communication between the ZIA Public"
+          ]
+        }
+      ]
+    },
+    "serversslsessreuse": {
+      "type": "string",
+      "label": "Server Session Reused",
+      "description": "Server cipher reuse information",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{serversslsessreuse},Server cipher reuse information,\"Unknown\nNo\nYes\",Server Session"
+          ]
+        }
+      ]
+    },
+    "srvocspresult": {
+      "type": "string",
+      "label": "Server Connection OCSP Result",
+      "description": "The OCSP result/certificate revocation result",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{srvocspresult},The OCSP result/certificate revocation"
+          ]
+        }
+      ]
+    },
+    "srvcertchainvalpass": {
+      "type": "string",
+      "label": "Server Connection Cert Chain Validity",
+      "description": "The validation of the certificate chain",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{srvcertchainvalpass},The validation of the certificate"
+          ]
+        }
+      ]
+    },
+    "srvwildcardcert": {
+      "type": "string",
+      "label": "Server Wildcard Certificate",
+      "description": "The server wildcard certificate",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{srvwildcardcert},The server wildcard certificate,\"Unknown\nNo\nYes\",Server Wildcard"
+          ]
+        }
+      ]
+    },
+    "srvcertvalidationtype": {
+      "type": "string",
+      "label": "Server Certificate Validation Type",
+      "description": "The validation method of the server certificate",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{srvcertvalidationtype},The validation method of the server certificate,\"EV (Extended"
+          ]
+        }
+      ]
+    },
+    "srvcertvalidityperiod": {
+      "type": "string",
+      "label": "Server Certificate Validity Period",
+      "description": "The expiration of the server certificate",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{srvcertvalidityperiod},The expiration of the server certificate,\"Short (0–3"
+          ]
+        }
+      ]
+    },
+    "is_ssluntrustedca": {
+      "type": "string",
+      "label": "Certificate Chain Validity",
+      "description": "Indicates whether the server certificate is signed by a Zscaler-trusted certificate authority or not",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{is_ssluntrustedca},Indicates whether the server certificate is signed by a"
+          ]
+        }
+      ]
+    },
+    "is_sslselfsigned": {
+      "type": "string",
+      "label": "Server Certificate Self Signed",
+      "description": "Indicates whether the certificate presented by the server to the ZIA Public Service Edge was self-signed",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{is_sslselfsigned},Indicates whether the certificate presented by the server to the ZIA"
+          ]
+        }
+      ]
+    },
+    "is_sslexpiredca": {
+      "type": "string",
+      "label": "Server Connection Cert Expiry",
+      "description": "Indicates whether the certificate presented by the server is expired or not",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{is_sslexpiredca},Indicates whether the certificate presented by the server is expired"
+          ]
+        }
+      ]
+    },
+    "riskscore": {
+      "type": "integer",
+      "label": "Suspicious Content",
+      "description": "The Page Risk Index score of the destination URL. The service computes risk for each page by weighing several factors, including page locations, reputation of destination, and content that may look suspicious. The range is 0–100, from the lowest to the highest risk.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{riskscore},\"The Page Risk Index score of the destination URL. The service computes"
+          ]
+        }
+      ]
+    },
+    "threatseverity": {
+      "type": "string",
+      "label": "Threat Severity",
+      "description": "The severity of the threat that was detected in the transaction, if any. The severity relates to the Page Risk Index score. For example, if the value of %d{riskscore} is between 90 and 100, then the value of %s{threatseverity} is Critical.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{threatseverity},\"The severity of the threat that was detected in the transaction, if"
+          ]
+        }
+      ]
+    },
+    "threatname": {
+      "type": "string",
+      "label": "Threat Name",
+      "description": "The name of the threat that was detected in the transaction, if any",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{threatname},\"The name of the threat that was detected in the transaction, if"
+          ]
+        }
+      ]
+    },
+    "malwarecat": {
+      "type": "string",
+      "label": "Threat Category",
+      "description": "The category of malware that was detected in the transaction, if any. Also indicates if a file was submitted to the Sandbox engine for analysis and the result of the analysis.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{malwarecat},\"The category of malware that was detected in the transaction, if any."
+          ]
+        }
+      ]
+    },
+    "malwareclass": {
+      "type": "string",
+      "label": "Threat Super Category",
+      "description": "The class of malware that was detected in the transaction, if any",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{malwareclass},\"The class of malware that was detected in the transaction, if"
+          ]
+        }
+      ]
+    },
+    "urlclass": {
+      "type": "string",
+      "label": "URL Class",
+      "description": "The class of the destination URL",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{urlclass},The class of the destination URL,\"Bandwidth Loss, General Surfing, Privacy"
+          ]
+        }
+      ]
+    },
+    "urlsupercat": {
+      "type": "string",
+      "label": "URL Super Category",
+      "description": "The super category of the destination URL",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{urlsupercat},The super category of the destination URL,\"Entertainment/Recreation"
+          ]
+        }
+      ]
     },
     "urlcat": {
-      "type": "string", "label": "URL Category",
-      "description": "The category of the destination URL.",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{urlcat},The category of the destination URL"] }]
+      "type": "string",
+      "label": "URL Category",
+      "description": "The category of the destination URL",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{urlcat},The category of the destination URL,\"Entertainment, Adult Themes"
+          ]
+        }
+      ]
     },
     "urlcatmethod": {
       "type": "string",
-      "description": "The source of the URL's category (for example Database A).",
-      "evidence": [{ "source": "zscaler-help", "path": "nss-web-logs.csv", "quotes": ["%s{urlcatmethod},\"Refers to the source of the URL's category."] }]
+      "label": "URL Categorization Method",
+      "description": "Refers to the source of the URL's category. To learn more, see Web Insights Logs: Columns.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{urlcatmethod},\"Refers to the source of the URL's category. To learn more, see Web"
+          ]
+        }
+      ]
+    },
+    "devicehostname": {
+      "type": "string",
+      "label": "Device Hostname",
+      "description": "The hostname of the device",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{devicehostname},The hostname of the device,THINKPADSMITH,Device Hostname"
+          ]
+        }
+      ]
+    },
+    "devicemodel": {
+      "type": "string",
+      "label": "Device Model",
+      "description": "The model of the device",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{devicemodel},The model of the device,20L8S7WC08,Device Model"
+          ]
+        }
+      ]
+    },
+    "devicename": {
+      "type": "string",
+      "label": "Device Name",
+      "description": "The name of the device",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{devicename},The name of the"
+          ]
+        }
+      ]
+    },
+    "devicetype": {
+      "type": "string",
+      "label": "Device Type",
+      "description": "The type of device",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{devicetype},The type of device,Zscaler Client Connector,Device Type"
+          ]
+        }
+      ]
+    },
+    "deviceostype": {
+      "type": "string",
+      "label": "OS Type",
+      "description": "The OS type of the device",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{deviceostype},The OS type of the device,\"iOS\nAndroid OS\nWindows OS\nMAC OS\nOther OS\",OS"
+          ]
+        }
+      ]
+    },
+    "deviceosversion": {
+      "type": "string",
+      "label": "OS Version",
+      "description": "The OS version the device uses",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{deviceosversion},The OS version the device uses,Version 10.14.2 (Build 18C54),OS"
+          ]
+        }
+      ]
+    },
+    "deviceowner": {
+      "type": "string",
+      "label": "Device Owner",
+      "description": "The owner of the device",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{deviceowner},The owner of the device,jsmith,Device Owner"
+          ]
+        }
+      ]
+    },
+    "deviceappversion": {
+      "type": "string",
+      "label": "Enrolled Device appversion",
+      "description": "The app version the device uses",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{deviceappversion},The app version the device uses,2.0.0.120,Enrolled Device appversion"
+          ]
+        }
+      ]
+    },
+    "ztunnelversion": {
+      "type": "string",
+      "label": "Zscaler Client Connector Tunnel Version",
+      "description": "The Z-Tunnel version",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{ztunnelversion},The Z-Tunnel version,ZTUNNEL_1_0,Zscaler Client Connector Tunnel"
+          ]
+        }
+      ]
+    },
+    "external_devid": {
+      "type": "string",
+      "label": "External Device ID",
+      "description": "The external device ID that associates a user’s device with the mobile device management (MDM) solution",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{external_devid},The external device ID that associates a user’s device with the mobile"
+          ]
+        }
+      ]
+    },
+    "bypassed_traffic": {
+      "type": "integer",
+      "label": "Bypassed Transaction",
+      "description": "Indicates whether the traffic bypassed the Zscaler Client Connector or not",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{bypassed_traffic},Indicates whether the traffic bypassed the Zscaler Client Connector"
+          ]
+        }
+      ]
+    },
+    "bypassed_etime": {
+      "type": "string",
+      "label": "Bypassed Transaction Event Time",
+      "description": "The date and time when the traffic bypassed the Zscaler Client Connector",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{bypassed_etime},The date and time when the traffic bypassed the Zscaler Client"
+          ]
+        }
+      ]
+    },
+    "flow_type": {
+      "type": "string",
+      "label": "Flow Type",
+      "description": "The flow type of the transaction",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{flow_type},The flow type of the transaction,\"Direct\nLoopback\nVPN\nVPN"
+          ]
+        }
+      ]
+    },
+    "recordid": {
+      "type": "integer",
+      "description": "The unique record identifier for each log (Insights: This field is specific to NSS)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{recordid},The unique record identifier for each log,,This field is specific to NSS"
+          ]
+        }
+      ]
+    },
+    "pcapid": {
+      "type": "string",
+      "label": "Capture",
+      "description": "The path of the packet capture (PCAP) file that captured the transaction. The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>. The company ID is the internal ID of an organization and can be found on the Company Profile page. The directory is the log type. To download the PCAP file, go to the Capture column on the Web Insights Logs page.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{pcapid},\"The path of the packet capture (PCAP) file that captured the transaction. The"
+          ]
+        }
+      ]
+    },
+    "productversion": {
+      "type": "string",
+      "description": "The current version of the product. Useful for SIEMs whose format requires the product internal version to be sent in the log output. (Insights: This field is specific to NSS)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{productversion},The current version of the product. Useful for SIEMs whose format"
+          ]
+        }
+      ]
+    },
+    "nsssvcip": {
+      "type": "string",
+      "description": "The service IP address of the NSS. Useful for syslog-format logs that require the origin host IP address to be specified. (Insights: This field is specific to NSS)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{nsssvcip},The service IP address of the NSS. Useful for syslog-format logs that"
+          ]
+        }
+      ]
+    },
+    "eedone": {
+      "type": "string",
+      "description": "Indicates if the characters specified in the Feed Escape Character field of the NSS feed configuration page were hex encoded (Insights: This field is specific to NSS)",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{eedone},Indicates if the characters specified in the Feed Escape Character field of"
+          ]
+        }
+      ]
     }
   }
 }

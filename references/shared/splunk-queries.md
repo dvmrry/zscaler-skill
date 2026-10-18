@@ -7,9 +7,9 @@ last-verified: "2026-07-20"
 confidence: medium
 source-tier: mixed
 sources:
-  - "references/zia/logs/web-log-schema.md"
-  - "references/zia/logs/firewall-log-schema.md"
-  - "references/zia/logs/dns-log-schema.md"
+  - "kb:zia/web-log"
+  - "kb:zia/firewall-log"
+  - "kb:zia/dns-log"
   - "references/zpa/logs/access-log-schema.md"
   - "https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference"
   - "vendor/splunk-sdk-python/README.md"
@@ -28,7 +28,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
+Related references: [`zia.logs.web-records`](kb:zia.logs.web-records), [`zia.logs.firewall-records`](kb:zia.logs.firewall-records), [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 The patterns use **NSS-native field names** as documented in the Zscaler log schemas (e.g. `%s{url}` → search field `url`). If the Zscaler Technology Add-on for Splunk is installed, it aliases NSS fields to Splunk CIM-compatible names (e.g. `dest_host`, `ruleLabel`). The patterns below should still work in most deployments; if a field name doesn't match your tenant's Splunk config, check `props.conf` / `transforms.conf` in the Zscaler TA to see the exact aliasing.
 
@@ -38,7 +38,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-Related references: [`../../agents/siem-emission-discipline.md`](../../agents/siem-emission-discipline.md), [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
+Related references: [`../../agents/siem-emission-discipline.md`](../../agents/siem-emission-discipline.md), [`zia.logs.web-records`](kb:zia.logs.web-records), [`zia.logs.firewall-records`](kb:zia.logs.firewall-records), [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 - `$INDEX_ZIA_WEB` / `$INDEX_ZIA_FW` / `$INDEX_ZIA_DNS` / `$INDEX_ZPA` — the Splunk indexes receiving each log stream. Tenant-specific; read from env vars at query time — see **Tenant-portable index naming** below.
 - `$URL`, `$HOSTNAME`, `$USER`, `$CATEGORY` — user-supplied parameters for a given question.
@@ -46,14 +46,14 @@ Related references: [`../../agents/siem-emission-discipline.md`](../../agents/si
 
 ## Field-semantics caveat for query authors
 
-Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
+Related references: [`zia.logs.web-records`](kb:zia.logs.web-records), [`zia.logs.firewall-records`](kb:zia.logs.firewall-records), [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 Many of the patterns below filter on field values that look obvious by name (`action`, `riskscore`, `aggregate`, `urlcat`, `reqaction`, `EnforcementDisposition`, …) but carry undocumented semantics that can produce surprising query results. Before deploying a pattern in production:
 
 - Check the **source schema ref's "What the spec underspecifies" section** for the field you're filtering on. Each schema ref points at formal clarifications under `log-05` through `log-22`, `zpa-01`, and `zpa-16`–`19` in [`../_meta/clarifications.md`](../_meta/clarifications.md).
-- **Don't assume action enums are exhaustive.** Patterns matching `action="Blocked"` may miss `Cautioned`, `Allowed (Cached)`, etc. — see [`log-05`](../_meta/clarifications.md#log-05-action-enum-completeness-and-multi-subsystem-precedence) and [`log-12`](../_meta/clarifications.md#log-12-firewall-action-precedence-across-fw-ips-dnat).
-- **Aggregated firewall sessions hide per-session detail.** Patterns that count distinct source IPs from firewall logs may undercount when aggregation fires — see [`log-11`](../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics).
-- **DNS `res` field carries IPs OR sentinel strings.** Patterns regex-matching dotted-quad on this field will silently miss `EMPTY_RESP` and other sentinel responses — see [`log-15`](../_meta/clarifications.md#log-15-dns-res-field-overloading-ip-vs-sentinel-string).
+- **Don't assume action enums are exhaustive.** Patterns matching `action="Blocked"` may miss `Cautioned`, `Allowed (Cached)`, etc. — see [`log-05`](kb:zia.logs.web-rule-attribution:action-values-precedence) and [`log-12`](kb:zia.logs.firewall-records:action-precedence).
+- **Aggregated firewall sessions hide per-session detail.** Patterns that count distinct source IPs from firewall logs may undercount when aggregation fires — see [`log-11`](kb:zia.logs.firewall-records:aggregate-counters).
+- **DNS `res` field carries IPs OR sentinel strings.** Patterns regex-matching dotted-quad on this field will silently miss `EMPTY_RESP` and other sentinel responses — see [`log-15`](kb:zia.logs.dns-outcome:res-sentinels-open).
 - **Long-lived ZPA sessions emit multiple records.** Per-session aggregations using `ConnectionStatus=Close` only will undercount byte volumes for sessions that emit `Active` records during their lifetime — see [`zpa-16`](../_meta/clarifications.md#zpa-16-connectionstatus-active-emission-cadence-on-long-lived-sessions) and [`zpa-17`](../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics).
 
 If a pattern's correctness depends on a clarification still being open, prefer adding a comment to the pattern citing the clarification ID rather than removing the pattern — operators can run it with awareness of the gap.
@@ -80,7 +80,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
+Related references: [`zia.logs.web-records`](kb:zia.logs.web-records), [`zia.logs.firewall-records`](kb:zia.logs.firewall-records), [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields), and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 ### `url-coverage-check`
 
@@ -443,7 +443,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), and [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md). Splunk TA behavior is deployment-specific and should be verified in tenant Splunk config.
+Related references: [`zia.logs.web-records`](kb:zia.logs.web-records), [`zia.logs.firewall-records`](kb:zia.logs.firewall-records), and [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields). Splunk TA behavior is deployment-specific and should be verified in tenant Splunk config.
 
 The **Zscaler Internet Security for Splunk** add-on (Splunk App ID: 3865, available on Splunkbase at `https://splunkbase.splunk.com/app/3865`) provides:
 
@@ -500,15 +500,15 @@ Whether ZPA User Status and App Connector Metrics land in the same index as User
 
 Pattern-correctness questions:
 
-- Whether field extractions differ between Zscaler TA and a hand-configured feed — see [clarification `log-01`](../_meta/clarifications.md#log-01-nss-feed-format-versions) (partially resolved)
+- Whether field extractions differ between Zscaler TA and a hand-configured feed — see [clarification `log-01`](kb:zia.logs.nss-feed-format:format-field-presence) (partially resolved)
 - `ssl_decrypt` vs `ssldecrypted` field aliasing under the Zscaler TA — depends on the TA version; pattern above uses the NSS-native name.
 - ZDX-to-Splunk export path is not natively offered by Zscaler as of last verification — ZDX data requires a custom pipeline via the ZDX API. The `zdx-score-trend` and `zdx-probe-failures-correlation` patterns are architecture-dependent and should be treated as aspirational until ZDX export is confirmed in the tenant.
 
 Per-field ambiguities affecting pattern semantics — high-impact ones for SPL authoring (full set indexed in [`./log-correlation.md § Open questions`](./log-correlation.md#open-questions) and per-schema refs):
 
-- Action enum completeness and multi-subsystem precedence (web, firewall) — [`log-05`](../_meta/clarifications.md#log-05-action-enum-completeness-and-multi-subsystem-precedence), [`log-12`](../_meta/clarifications.md#log-12-firewall-action-precedence-across-fw-ips-dnat)
-- Firewall aggregation effect on per-session SPL aggregations — [`log-11`](../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics)
-- DNS `res` field overloading (IP vs sentinel string) — [`log-15`](../_meta/clarifications.md#log-15-dns-res-field-overloading-ip-vs-sentinel-string)
+- Action enum completeness and multi-subsystem precedence (web, firewall) — [`log-05`](kb:zia.logs.web-rule-attribution:action-values-precedence), [`log-12`](kb:zia.logs.firewall-records:action-precedence)
+- Firewall aggregation effect on per-session SPL aggregations — [`log-11`](kb:zia.logs.firewall-records:aggregate-counters)
+- DNS `res` field overloading (IP vs sentinel string) — [`log-15`](kb:zia.logs.dns-outcome:res-sentinels-open)
 - ZPA long-lived session record cardinality (affects byte-volume queries) — [`zpa-16`](../_meta/clarifications.md#zpa-16-connectionstatus-active-emission-cadence-on-long-lived-sessions), [`zpa-17`](../_meta/clarifications.md#zpa-17-delta-vs-total-byte-counter-reset-semantics)
 - ZPA User Status record granularity (affects session-counting queries) — [`log-19`](../_meta/clarifications.md#log-19-user-status-record-granularity-and-byte-counter-timing)
 - Microseg `EnforcementReason × Action × Disposition` triple combinations (affects "what was actually blocked vs would-have-been-blocked" queries) — [`log-18`](../_meta/clarifications.md#log-18-microseg-enforcementreason-enforcementaction-enforcementdisposition-triple-semantics)
@@ -519,7 +519,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/Understandi
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-Related references: [`./siem-log-mapping.md`](./siem-log-mapping.md) and [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md).
+Related references: [`./siem-log-mapping.md`](./siem-log-mapping.md) and [`zia.logs.web-records`](kb:zia.logs.web-records).
 
 ZCC diagnostic logs are local to the endpoint and are not streamed to Splunk. However, ZIA web logs capture ZCC-forwarded traffic and carry device-level fields — so the SIEM-queryable view of "what was a ZCC device doing" lives entirely in ZIA NSS.
 
@@ -645,7 +645,7 @@ Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewal
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
-Related references: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md), and [`./siem-log-mapping.md`](./siem-log-mapping.md).
+Related references: [`zia.logs.web-records`](kb:zia.logs.web-records), [`zia.logs.firewall-records`](kb:zia.logs.firewall-records), [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md), and [`./siem-log-mapping.md`](./siem-log-mapping.md).
 
 **Purpose:** Given a username and time window, reconstruct what the user was doing by pulling correlated events across ZIA Web, ZIA Firewall, and ZPA Access in a single timeline. Useful for "what happened during this 30-minute window for user X" investigations.
 
@@ -705,7 +705,7 @@ Notes:
 - Troubleshooting methodology (discovery journal, claim discipline) — [`../../agents/investigator/methodology.md`](../../agents/investigator/methodology.md)
 - When to query logs — [`./log-correlation.md`](./log-correlation.md)
 - Log export architecture (where each log type comes from) — [`./log-export-architecture.md`](./log-export-architecture.md)
-- ZIA log schemas — [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`firewall-log-schema.md`](../zia/logs/firewall-log-schema.md), [`dns-log-schema.md`](../zia/logs/dns-log-schema.md)
+- ZIA log schemas — [`zia.logs.web-records`](kb:zia.logs.web-records), [`zia.logs.firewall-records`](kb:zia.logs.firewall-records), [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields)
 - ZPA LSS User Activity schema — [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md)
 - ZPA User Status schema — [`../zpa/logs/user-status-log-schema.md`](../zpa/logs/user-status-log-schema.md)
 - ZPA App Connector Metrics schema — [`../zpa/logs/app-connector-metrics.md`](../zpa/logs/app-connector-metrics.md)

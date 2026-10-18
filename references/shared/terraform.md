@@ -124,7 +124,7 @@ Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provide
 ### NSS feed config (ZIA — log streaming)
 
 - `zia_cloud_nss_feed` — Cloud NSS feed definition
-- Fields map to NSS format specifiers documented in [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md) / firewall / dns
+- Fields map to NSS format specifiers documented in [`zia.logs.web-records`](kb:zia.logs.web-records) / firewall / dns
 
 ### Application Segments (ZPA)
 

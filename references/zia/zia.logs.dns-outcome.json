@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.dns-outcome",
+  "title": "What happened to a DNS query: rules, actions, response values and errors",
+  "aliases": [
+    "dns reqaction resaction",
+    "dns log blocked query",
+    "dns log res field",
+    "EMPTY_RESP",
+    "dns log error code",
+    "request rule name response rule name",
+    "dns log domcat vs respipcat"
+  ],
+  "binds": [
+    "zia/dns-log#reqrulelabel",
+    "zia/dns-log#reqaction",
+    "zia/dns-log#resrulelabel",
+    "zia/dns-log#resaction",
+    "zia/dns-log#res",
+    "zia/dns-log#restype",
+    "zia/dns-log#error",
+    "zia/dns-log#domcat",
+    "zia/dns-log#respipcat"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-record-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-gateway-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a blocked-DNS filter reads reqaction, resaction or both, since which field carries a response-stage block is unsettled.",
+      "uses": [
+        "request-response-pairs",
+        "reqaction-examples",
+        "action-enum-open"
+      ]
+    },
+    {
+      "do": "Whether a res value is an address or a sentinel before parsing it as an IP.",
+      "uses": [
+        "res-ip-or-name",
+        "empty-resp-both",
+        "res-sentinels-open"
+      ]
+    },
+    {
+      "do": "Whether the error field maps to a standard DNS response code.",
+      "uses": [
+        "error-meaning",
+        "error-rcode-open"
+      ]
+    }
+  ],
+  "claims": {
+    "request-response-pairs": {
+      "statement": "The CSV gives separate rule and action fields for the request (reqrulelabel, reqaction) and for the response (resrulelabel, resaction), shown in Insights as Request Rule Name, Request Action, Response Rule Name and Response Action.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#reqrulelabel",
+        "zia/dns-log#reqaction",
+        "zia/dns-log#resrulelabel",
+        "zia/dns-log#resaction"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{reqrulelabel},The name of the rule that was applied to the DNS request,,Request Rule Name",
+            "%s{resrulelabel},The name of the rule that was applied to the DNS response,,Response Rule Name",
+            "%s{resaction},The name of the action that was applied to the DNS response,,Response Action"
+          ]
+        }
+      ]
+    },
+    "reqaction-examples": {
+      "statement": "The CSV lists REQ_ALLOW and RES_BLOC as the example values of reqaction, and gives no example for resaction.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#reqaction",
+        "zia/dns-log#resaction"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{reqaction},The name of the action that was applied to the DNS request,\"REQ_ALLOW",
+            "RES_BLOC\",Request Action",
+            "%s{resaction},The name of the action that was applied to the DNS response,,Response Action"
+          ]
+        }
+      ]
+    },
+    "res-ip-or-name": {
+      "statement": "The res field is the resolved IP or name in the DNS response, with IPv4 and IPv6 addresses and EMPTY_RESP as examples, and restype is the means or format of the response, for example IPv4 or IPv6.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#res",
+        "zia/dns-log#restype"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{res},The resolved IP or NAME in the DNS response,\"192.168.2.200",
+            "EMPTY_RESP\",Resolved IP or Name",
+            "%s{restype},The DNS response type. The means or format of the response.,\"IPv4, IPv6\",DNS Response Type"
+          ]
+        }
+      ]
+    },
+    "error-meaning": {
+      "statement": "The error field is the DNS error code, usually an incomplete or failed transaction, shown in Insights as DNS Error Code.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#error"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{error},The DNS error code. Usually an incomplete or failed transaction.,EMPTY_RESP,DNS Error Code"
+          ]
+        }
+      ]
+    },
+    "empty-resp-both": {
+      "statement": "EMPTY_RESP is the example value in both the res and error fields.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#res",
+        "zia/dns-log#error"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "EMPTY_RESP\",Resolved IP or Name",
+            "Usually an incomplete or failed transaction.,EMPTY_RESP,DNS Error Code"
+          ]
+        }
+      ]
+    },
+    "request-vs-response-category": {
+      "statement": "The domcat field categorizes the DNS request and respipcat categorizes the DNS response, and each has its own Insights column.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#domcat",
+        "zia/dns-log#respipcat"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-dns-logs.csv",
+          "quotes": [
+            "%s{domcat},The category of the content of the DNS request",
+            "%s{respipcat},The category of the content of the DNS response"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "action-enum-open": {
+      "kind": "semantic",
+      "title": "The reqaction and resaction value sets and whether both fire together",
+      "status": "open",
+      "blocks": "a SIEM rule that detects blocked DNS",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the CSV does not enumerate the values of either field, does not expand the prefixes (RES_BLOC appears as a reqaction example), and does not say whether both fields are always populated, so a rule filtering on one may miss response-stage blocks and one filtering on both may double-count. A tenant test with a request-stage and a response-stage block rule would settle it (legacy clarification log-14).",
+      "former_ids": [
+        "log-14"
+      ]
+    },
+    "res-sentinels-open": {
+      "kind": "semantic",
+      "title": "The sentinel values of res and how to tell them from addresses",
+      "status": "open",
+      "blocks": "parsing res programmatically",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: only EMPTY_RESP is shown; the sentinel set, how names such as CNAME targets differ from sentinels, what res holds for multi-answer responses and how it interacts with restype when empty are not stated (legacy clarification log-15).",
+      "former_ids": [
+        "log-15"
+      ]
+    },
+    "error-rcode-open": {
+      "kind": "semantic",
+      "title": "How error relates to standard DNS response codes",
+      "status": "open",
+      "blocks": "mapping DNS errors to NXDOMAIN, SERVFAIL or REFUSED",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "detail": "Unverified legacy statement: the relationship of error to RCODE values is not stated; EMPTY_RESP is a Zscaler token, not a standard code."
+    },
+    "category-precedence-open": {
+      "kind": "semantic",
+      "title": "Which of domcat and respipcat drives policy when they disagree",
+      "status": "open",
+      "blocks": "explaining a DNS block when the request and resolved IP categories differ",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: when the request matches one category and the resolved IP another, which one drives the decision and which populates which Insights filter is not stated."
+    }
+  }
+}

@@ -276,7 +276,7 @@ See [`./cloud-architecture.md § Feed Central`](./cloud-architecture.md).
 
 ### NSS ↔ LSS (log streaming products)
 
-**NSS (ZIA logs) and LSS (ZPA logs) are separate products with overlapping fields.** Both stream to a customer SIEM. Neither can carry the other's events. Cross-correlating a user's activity across ZIA and ZPA in a SIEM requires joining by user identity, not by a shared log field — and user identity field names differ between the two schemas. See [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md) and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
+**NSS (ZIA logs) and LSS (ZPA logs) are separate products with overlapping fields.** Both stream to a customer SIEM. Neither can carry the other's events. Cross-correlating a user's activity across ZIA and ZPA in a SIEM requires joining by user identity, not by a shared log field — and user identity field names differ between the two schemas. See [`zia.logs.web-records`](kb:zia.logs.web-records) and [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
 
 ### ZDX → ZCC + ZIA/ZPA definitions
 

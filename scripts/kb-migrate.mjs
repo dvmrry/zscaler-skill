@@ -783,6 +783,30 @@ export const MOVES = {
       ["scan-jobs", "zia.casb.scans"],
     ],
   },
+  "references/zia/logs/web-log-schema.md": {
+    default: "zia.logs.web-records",
+    anchors: [
+      ["fields-that-require-additional-enablement", "zia.logs.field-enablement"],
+      ["policy-action-and-rule-names", "zia.logs.web-rule-attribution"],
+      ["field-inventory", "zia.logs.web-field-semantics"],
+    ],
+  },
+  "references/zia/logs/firewall-log-schema.md": {
+    default: "zia.logs.firewall-records",
+    anchors: [
+    ],
+  },
+  "references/zia/logs/dns-log-schema.md": {
+    default: "zia.logs.dns-record-fields",
+    anchors: [
+      ["transaction-action", "zia.logs.dns-outcome"],
+    ],
+  },
+  "references/zia/logs/casb-log-schema.md": {
+    default: "zia.casb.insights-logs",
+    anchors: [
+    ],
+  },
 };
 
 const LEDGER = "references/_meta/clarifications.md";

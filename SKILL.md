@@ -207,9 +207,9 @@ then stop unless the question genuinely spans multiple products or policies.
 | ZPA API endpoint or response shape | `references/zpa/api.md` |
 | ZCC API endpoint or response shape | `references/zcc/api.md` |
 | Terraform provider resource or schema | `references/terraform.md` |
-| ZIA web log fields / what NSS reports | `references/zia/logs/web-log-schema.md` |
-| ZIA firewall log fields | `references/zia/logs/firewall-log-schema.md` |
-| ZIA DNS log fields | `references/zia/logs/dns-log-schema.md` |
+| ZIA web log fields / what NSS reports | `node scripts/kb.mjs resolve zia/web-log` (fields), `zia.logs.web-records`, `zia.logs.web-field-semantics` |
+| ZIA firewall log fields | `node scripts/kb.mjs resolve zia/firewall-log` (fields), `zia.logs.firewall-records` |
+| ZIA DNS log fields | `node scripts/kb.mjs resolve zia/dns-log` (fields), `zia.logs.dns-record-fields`, `zia.logs.dns-outcome` |
 | ZPA LSS access log fields | `references/zpa/logs/access-log-schema.md` |
 | SPL patterns / "how do I query for X?" | `references/shared/splunk-queries.md` |
 | "should I check logs here?" / validation guidance | `references/shared/log-correlation.md` |

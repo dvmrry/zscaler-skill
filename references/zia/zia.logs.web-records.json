@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.web-records",
+  "title": "What a ZIA web log record is and how its fields are named",
+  "aliases": [
+    "web log record",
+    "nss specifier vs insights column",
+    "web insights column names",
+    "one record per transaction",
+    "pcapid capture"
+  ],
+  "binds": [
+    "zia/web-log#time",
+    "zia/web-log#epochtime",
+    "zia/web-log#recordid",
+    "zia/web-log#reqsize",
+    "zia/web-log#respsize",
+    "zia/web-log#riskscore",
+    "zia/web-log#pcapid",
+    "zia/web-log#trafficredirectmethod"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-field-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.field-enablement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-rule-attribution"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-feed-format"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which name the SIEM stores, the NSS specifier or the Insights column, before translating a query between them.",
+      "uses": [
+        "two-names",
+        "insights-renames",
+        "no-insights-name"
+      ]
+    },
+    {
+      "do": "Whether a record can be traced to its capture through pcapid.",
+      "uses": [
+        "pcap-capture"
+      ]
+    },
+    {
+      "do": "Whether trafficredirectmethod names the tenant's forwarding path.",
+      "uses": [
+        "psedge-field"
+      ]
+    }
+  ],
+  "claims": {
+    "per-transaction": {
+      "statement": "Web log fields describe a transaction: time is the time and date of the transaction, epochtime its epoch time, and recordid a unique record identifier for each log.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#time",
+        "zia/web-log#epochtime",
+        "zia/web-log#recordid"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{time},The time and date of the transaction.",
+            "%d{epochtime},The epoch time of the transaction",
+            "%d{recordid},The unique record identifier for each log"
+          ]
+        }
+      ],
+      "gaps": [
+        "record-granularity"
+      ]
+    },
+    "two-names": {
+      "statement": "Each web log field is listed under an NSS format specifier and, where one exists, an Insights Logs column name; the same field can carry different names in the two places.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#reqsize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "Table,Field,Description,Example,Insights Logs",
+            "%d{reqsize},The request size in bytes,1300,Sent Bytes"
+          ]
+        }
+      ]
+    },
+    "no-insights-name": {
+      "statement": "Fields without an Insights name have a blank Insights column or are marked specific to NSS, and the time-part fields are marked as derived from Logged Time.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#company",
+        "zia/web-log#ss",
+        "zia/web-log#mm",
+        "zia/web-log#hh",
+        "zia/web-log#mon",
+        "zia/web-log#recordid"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{company},The name of the company,Zscaler,This field is specific to NSS",
+            "%02d{ss},Seconds (0–59),48,This field is derived from Logged Time",
+            "%02d{mm},Minutes (0–59),55,This field is derived from Logged Time",
+            "%02d{hh},Hours (0–23),22,This field is derived from Logged Time",
+            "%s{mon},The name of the month,Oct,This field is derived from Logged Time"
+          ]
+        }
+      ]
+    },
+    "insights-renames": {
+      "statement": "Some Insights names differ from the NSS meaning: reqsize appears as Sent Bytes, respsize as Received Bytes, and riskscore as Suspicious Content.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#reqsize",
+        "zia/web-log#respsize",
+        "zia/web-log#riskscore"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%d{reqsize},The request size in bytes,1300,Sent Bytes",
+            "Received Bytes",
+            "The range is 0–100, from the lowest to the highest risk.\",10,Suspicious Content"
+          ]
+        }
+      ]
+    },
+    "pcap-capture": {
+      "statement": "The pcapid field holds the path of the packet capture file, formatted as company ID, directory and file name, where the directory is the log type; the file is downloaded from the Capture column of Web Insights Logs.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#pcapid"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>.",
+            "The directory is the log type."
+          ]
+        }
+      ]
+    },
+    "psedge-field": {
+      "statement": "The trafficredirectmethod field records the traffic forwarding method used to reach ZIA Public Service Edges.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#trafficredirectmethod"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{trafficredirectmethod},The traffic forwarding method to ZIA Public Service Edges"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "record-granularity": {
+      "kind": "data",
+      "title": "What exactly one web record covers",
+      "status": "open",
+      "detail": "Unverified legacy statement: one record is one HTTP or HTTPS transaction observed by a ZIA Public Service Edge. The field CSV describes fields of the transaction but does not define the unit. For HTTPS without inspection the CONNECT and tunneled traffic may be recorded differently. A deliberate test of a plain, an inspected and an uninspected HTTPS request would show it.",
+      "blocks": "Counting transactions from record counts.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

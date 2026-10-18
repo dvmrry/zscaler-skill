@@ -386,8 +386,11 @@ The KB owns behavior, as claims bound to fields. The KB never duplicates a field
 - **Tool-added fields** (`referenced_by`, joins) carry `"origin": "zscalerctl"`, so they are never
   presented as API behavior.
 
-**Log types are authored.** They are transcribed from NSS feed captures: there is no machine-readable
-vendor schema. NSS feed formats are the canonical public log types. SIEM and pipeline shapes are
+**Log types come from the NSS feed captures.** Zscaler publishes each feed format as a table, captured as
+CSV (`vendor/zscaler-help/nss-<feed>-logs.csv`); `scripts/gen-log-types.mjs` turns each row into a field
+of `references/zia/types/<feed>-log.json` (key: the NSS token name; label: the Insights column; evidence:
+the row itself), and the full gate fails when they drift. Feeds with no captured table are authored in the
+same shape. NSS feed formats are the canonical public log types. SIEM and pipeline shapes are
 company `mapping` records.
 
 ## Sources and citations

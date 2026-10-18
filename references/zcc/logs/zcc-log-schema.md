@@ -218,5 +218,5 @@ Promote any of the above to formal clarifications if they begin gating real work
 - WebPolicy / App Profile structure — [`../web-policy.md`](../web-policy.md)
 - WebPrivacy (telemetry collection, log folder access) — [`../web-privacy.md`](../web-privacy.md)
 - Cross-product log correlation (how to join ZCC device context to ZIA/ZPA records) — [`../../shared/log-correlation.md`](../../shared/log-correlation.md)
-- ZIA web log schema (where URL-level transaction data lives) — [`../../zia/logs/web-log-schema.md`](../../zia/logs/web-log-schema.md)
+- ZIA web log schema (where URL-level transaction data lives) — [`zia.logs.web-records`](kb:zia.logs.web-records)
 - ZPA LSS access log schema (where ZPA session data lives) — [`../../zpa/logs/access-log-schema.md`](../../zpa/logs/access-log-schema.md)

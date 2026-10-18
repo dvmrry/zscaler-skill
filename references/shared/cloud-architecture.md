@@ -141,7 +141,7 @@ Log storage and export. One active + two passive standbys per cluster, mirroring
 - Correlates to tenant, writes to disk, serves retrieval for reporting.
 - Streams to customer SIEMs via **Nanolog Streaming Service (NSS)** for ZIA; ZPA has **Log Streaming Service (LSS)** that reports events primarily from Service Edges.
 
-See [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md), [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md) for per-product log field references.
+See [`zia.logs.web-records`](kb:zia.logs.web-records), [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md) for per-product log field references.
 
 ### Feed Central
 

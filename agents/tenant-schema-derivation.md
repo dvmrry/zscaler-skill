@@ -223,11 +223,11 @@ Always include the **file path + line number** for verifiable matches. `❓` row
 ```markdown
 | Field (tenant) | Type | Coverage | Sample values | Canonical match | Notes |
 |---|---|---|---|---|---|
-| url | string | 1.4M / 1.4M (100%) | mail.google.com, www.example.com, … | ✅ `%s{url}` at `references/zia/logs/web-log-schema.md`:L125 | direct |
-| urlfilterrulelabel | string | 920k / 1.4M (66%) | URL_Filtering_1, URL_Filtering_2 | ✅ `%s{urlfilterrulelabel}` at `references/zia/logs/web-log-schema.md`:L70 | Block-only field, 34% empty is expected |
-| dest_host | string | 1.4M / 1.4M (100%) | mail.google.com, … | ⚠️ `%s{host}` at `references/zia/logs/web-log-schema.md`:L124 | TA CIM alias for `host` |
-| user | string | 1.4M / 1.4M (100%) | <redacted-user>, … | 🔗 `%s{login}` (web) at `references/zia/logs/web-log-schema.md`:L57 OR `Username` (ZPA) at `references/zpa/logs/access-log-schema.md` | TA-aliased; multi-source via CIM |
-| clt_sport | int | 0 / 1.4M (0%) | <empty> | ✅ `%d{clt_sport}` at `references/zia/logs/web-log-schema.md`:L137 | requires Zscaler Support enablement |
+| url | string | 1.4M / 1.4M (100%) | mail.google.com, www.example.com, … | ✅ `%s{url}` at `kb:zia/web-log#url` | direct |
+| urlfilterrulelabel | string | 920k / 1.4M (66%) | URL_Filtering_1, URL_Filtering_2 | ✅ `%s{urlfilterrulelabel}` at `kb:zia/web-log#urlfilterrulelabel` | Block-only field, 34% empty is expected |
+| dest_host | string | 1.4M / 1.4M (100%) | mail.google.com, … | ⚠️ `%s{host}` at `kb:zia/web-log#host` | TA CIM alias for `host` |
+| user | string | 1.4M / 1.4M (100%) | <redacted-user>, … | 🔗 `%s{login}` (web) at `kb:zia/web-log#login` OR `Username` (ZPA) at `references/zpa/logs/access-log-schema.md` | TA-aliased; multi-source via CIM |
+| clt_sport | int | 0 / 1.4M (0%) | <empty> | ✅ `%d{clt_sport}` at `kb:zia/web-log#clt_sport` | requires Zscaler Support enablement |
 | local_enrichment | string | 1.4M / 1.4M (100%) | <redacted> | ❌ — | local enrichment, not in canonical |
 | custom_severity | enum:closed? | 1.4M / 1.4M (100%) | LOW, MEDIUM, HIGH | ❓ — | unverified; possible local mapping of `threatseverity` |
 ```
@@ -346,5 +346,5 @@ Redact. The tenant schema is for confirming "what's queryable in this environmen
 - [`siem-emission-discipline.md`](./siem-emission-discipline.md) — public/private boundary, where user plumbing lives
 - [`splunk-queries.md`](../references/shared/splunk-queries.md) — Splunk SPL pattern catalog; includes Zscaler TA CIM mapping table
 - [`investigator/prompt.md`](./investigator/prompt.md) — `/z-investigator` slash command playbook
-- ZIA log schemas (canonical) — [`../references/zia/logs/`](../references/zia/logs/)
+- ZIA log schemas (canonical) — [`../references/zia/types/`](../references/zia/types/)
 - ZPA log schemas (canonical) — [`../references/zpa/logs/`](../references/zpa/logs/)

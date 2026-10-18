@@ -126,7 +126,7 @@ CC session logs streamed via NSS for Firewall carry the standard ZIA firewall lo
 | `%d{epochtime}` | Epoch time (seconds since Unix epoch) | Use for joins with ZIA/ZPA logs |
 | `%s{datacenter}` | Name of the ZIA data center processing the session | |
 
-For the full NSS firewall log schema (all fields), see [`../../zia/logs/firewall-log-schema.md`](../../zia/logs/firewall-log-schema.md). The CC session logs use the same field set.
+For the full NSS firewall log schema (all fields), see [`zia.logs.firewall-records`](kb:zia.logs.firewall-records). The CC session logs use the same field set.
 
 Field specifiers, descriptions, and examples above are drawn from `vendor/zscaler-help/nss-firewall-logs.csv` (e.g., `ttype` → "L2 tunnel" at `nss-firewall-logs.csv:20`, `aggregate` → "Indicates whether the Firewall session is aggregated" at `nss-firewall-logs.csv:21`, `login` → "The user's login name in email address format" at `nss-firewall-logs.csv:61`). The CC subscription and Firewall-vs-Web applicability claims come from `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md:18,24`.
 
@@ -310,9 +310,9 @@ Source: `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/about-
 
 CC NSS feed uses the ZIA firewall log schema, so the firewall clarifications apply transitively:
 
-- Aggregate session semantics — [clarification `log-11`](../../_meta/clarifications.md#log-11-firewall-aggregate-session-semantics)
-- `action` precedence across FW + IPS + DNAT — [clarification `log-12`](../../_meta/clarifications.md#log-12-firewall-action-precedence-across-fw-ips-dnat)
-- `nwapp` vs `nwsvc` relationship — [clarification `log-13`](../../_meta/clarifications.md#log-13-firewall-nwapp-vs-nwsvc-relationship)
+- Aggregate session semantics — [clarification `log-11`](kb:zia.logs.firewall-records:aggregate-counters)
+- `action` precedence across FW + IPS + DNAT — [clarification `log-12`](kb:zia.logs.firewall-records:action-precedence)
+- `nwapp` vs `nwsvc` relationship — [clarification `log-13`](kb:zia.logs.firewall-records:nwapp-vs-nwsvc)
 
 CC-specific gaps in the SDK state surface (`ECVMs`):
 
@@ -328,7 +328,7 @@ Insights-surface gaps, filed together as [clarification `cloud-connector-21`](..
 
 - Cloud Connector monitoring dashboard and Insights surfaces — [`../insights-monitoring.md`](../insights-monitoring.md)
 - Cloud Connector overview and architecture — [`../overview.md`](../overview.md)
-- ZIA firewall log schema (full NSS field set, same format as CC session logs) — [`../../zia/logs/firewall-log-schema.md`](../../zia/logs/firewall-log-schema.md)
+- ZIA firewall log schema (full NSS field set, same format as CC session logs) — [`zia.logs.firewall-records`](kb:zia.logs.firewall-records)
 - Cross-product log correlation (join keys between CC, ZIA, and ZPA logs) — [`../../shared/log-correlation.md`](../../shared/log-correlation.md)
 - Log & Control Forwarding (telemetry channel) — [`../dns-subsystem.md`](../dns-subsystem.md)
 - NSS architecture — [`../../shared/nss-architecture.md`](../../shared/nss-architecture.md)

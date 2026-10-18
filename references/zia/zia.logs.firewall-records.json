@@ -1,0 +1,432 @@
+{
+  "schema_version": 1,
+  "id": "zia.logs.firewall-records",
+  "title": "What a ZIA firewall log record is: aggregates, action and field names",
+  "aliases": [
+    "firewall log record",
+    "aggregated session",
+    "last session in the aggregate",
+    "firewall action allowed blocked",
+    "nwapp nwsvc",
+    "firewall log vs web log field names",
+    "inbytes outbytes",
+    "threat_severity"
+  ],
+  "binds": [
+    "zia/firewall-log#aggregate",
+    "zia/firewall-log#numsessions",
+    "zia/firewall-log#csip",
+    "zia/firewall-log#sdip",
+    "zia/firewall-log#srcip_country",
+    "zia/firewall-log#avgduration",
+    "zia/firewall-log#action",
+    "zia/firewall-log#threat_severity",
+    "zia/firewall-log#threat_score",
+    "zia/firewall-log#ips_custom_signature",
+    "zia/firewall-log#bypassed_session",
+    "zia/firewall-log#destcountry",
+    "zia/firewall-log#inbytes",
+    "zia/firewall-log#outbytes",
+    "zia/firewall-log#nwapp",
+    "zia/firewall-log#nwsvc"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.field-enablement"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the record is an aggregate before reading its addresses, ports or country as one session.",
+      "uses": [
+        "agg-flag",
+        "last-session",
+        "undercount",
+        "srcip-country-agg"
+      ]
+    },
+    {
+      "do": "Which field carries the rule, IPS threat and DNAT result before reading action alone.",
+      "uses": [
+        "action-two-values",
+        "rulelabel-unqualified",
+        "action-precedence"
+      ]
+    },
+    {
+      "do": "Which name a query uses when moving it between the web and firewall logs.",
+      "uses": [
+        "names-differ"
+      ]
+    },
+    {
+      "do": "Whether nwapp or nwsvc names the application, and the direction of inbytes against outbytes.",
+      "uses": [
+        "nw-fields",
+        "nwapp-vs-nwsvc",
+        "bytes-direction"
+      ]
+    }
+  ],
+  "claims": {
+    "agg-flag": {
+      "statement": "The aggregate field indicates whether the Firewall session is aggregated, and numsessions is the number of sessions that were aggregated.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#aggregate",
+        "zia/firewall-log#numsessions"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "%s{aggregate},Indicates whether the Firewall session is aggregated",
+            "%d{numsessions},The number of sessions that were aggregated"
+          ]
+        }
+      ]
+    },
+    "last-session": {
+      "statement": "On an aggregated session, csip, csport, cdip, cdport, tsip, sdport, sdip, ssip and ssport each hold the value of the last session in the aggregate.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#csip",
+        "zia/firewall-log#csport",
+        "zia/firewall-log#cdip",
+        "zia/firewall-log#cdport",
+        "zia/firewall-log#tsip",
+        "zia/firewall-log#sdport",
+        "zia/firewall-log#sdip",
+        "zia/firewall-log#ssip",
+        "zia/firewall-log#ssport"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "For aggregated sessions, this is the client source IP address of the last session in the aggregate.",
+            "For aggregated sessions, this is the client destination port of the last session in the aggregate.",
+            "this is the client's tunnel IP address corresponding to the last session in the aggregate.",
+            "For aggregated sessions, this is the server source port of the last session in the aggregate.",
+            "For aggregated sessions, this is the server destination IP address of the last session in the aggregate."
+          ]
+        }
+      ],
+      "gaps": [
+        "aggregate-counters"
+      ]
+    },
+    "undercount": {
+      "statement": "An aggregated record carries one set of addresses and ports for several sessions, so counting distinct addresses from aggregate records undercounts the addresses seen.",
+      "tier": "B",
+      "binds": [
+        "zia/firewall-log#aggregate",
+        "zia/firewall-log#csip",
+        "zia/firewall-log#sdip"
+      ],
+      "derived_from": [
+        "agg-flag",
+        "last-session"
+      ],
+      "conditions": "Follows from last-session values on a record that stands for numsessions sessions."
+    },
+    "avgduration": {
+      "statement": "avgduration is the average session duration in milliseconds, if the sessions were aggregated.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#avgduration"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The average session duration, in milliseconds, if the sessions were aggregated"
+          ]
+        }
+      ]
+    },
+    "srcip-country-agg": {
+      "statement": "srcip_country is determined by the client IP address location, and logs carry no source country for aggregated sessions that are allowed.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#srcip_country"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "There is no source country value in logs for aggregated sessions that are allowed."
+          ]
+        }
+      ],
+      "gaps": [
+        "srcip-country-aggregate"
+      ]
+    },
+    "action-two-values": {
+      "statement": "The firewall action field is described as the action the service took on the transaction: Allowed or Blocked.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The action that the service took on the transaction: Allowed or Blocked"
+          ]
+        }
+      ],
+      "gaps": [
+        "action-precedence"
+      ]
+    },
+    "rulelabel-unqualified": {
+      "statement": "The firewall rulelabel is described as the rule applied to the transaction with no Block-only qualifier, unlike the web log rulelabel, which applies only to Block rules; its example is the Default Firewall Filtering Rule.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#rulelabel",
+        "zia/web-log#rulelabel"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "%s{rulelabel},The name of the rule that was applied to the transaction,Default Firewall Filtering Rule,Rule Name"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "Applies only to Block rules, not Allow.\",\"URL_Filtering_1, URL_Filtering_2\",Blocked Policy Name"
+          ]
+        }
+      ]
+    },
+    "severity-typo": {
+      "statement": "The firewall field is threat_severity, but its description refers to the web log name threatseverity; severity relates directly to threat_score, so a score from 90 to 100 gives Critical.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#threat_severity",
+        "zia/firewall-log#threat_score"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The severity relates directly to the threat score.",
+            "then the value of %s{threatseverity} is Critical."
+          ]
+        }
+      ]
+    },
+    "threat-score-source": {
+      "statement": "threat_score runs from 0 to 100, from the least to the greatest threat, and ThreatLabz assigns the score to the threat in the Zscaler Threat Library.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#threat_score"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The score is assigned to the threat by Zscaler ThreatLabz and reflected in the Zscaler Threat Library.",
+            "The score ranges from 0–100, from the least to the greatest threat."
+          ]
+        }
+      ]
+    },
+    "flags-1-0": {
+      "statement": "ips_custom_signature and bypassed_session are numeric flags with values 1 or 0; 1 means a custom IPS signature rule was applied, or that traffic bypassed Zscaler Client Connector.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#ips_custom_signature",
+        "zia/firewall-log#bypassed_session"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "Indicates if a custom IPS signature rule was applied. It is a numeric value (1 or 0).",
+            "Indicates whether the traffic bypassed the Zscaler Client Connector. It is a numeric value (1 or 0)."
+          ]
+        }
+      ]
+    },
+    "country-forms": {
+      "statement": "srcip_country holds a country name such as United States, while destcountry holds an abbreviated code such as USA, so the two are not directly comparable.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#srcip_country",
+        "zia/firewall-log#destcountry"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The abbreviated code of the country of the destination IP address",
+            "The traffic's source country, which is determined by the client IP address location."
+          ]
+        }
+      ]
+    },
+    "names-differ": {
+      "statement": "Similar fields are named differently in the firewall and web logs: ttype and trafficredirectmethod, external_deviceid and external_devid, bypass_etime and bypassed_etime, bypassed_session and bypassed_traffic, and threat_severity and threatseverity.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#ttype",
+        "zia/web-log#trafficredirectmethod",
+        "zia/firewall-log#external_deviceid",
+        "zia/web-log#external_devid",
+        "zia/firewall-log#bypass_etime",
+        "zia/web-log#bypassed_etime",
+        "zia/firewall-log#bypassed_session",
+        "zia/web-log#bypassed_traffic",
+        "zia/firewall-log#threat_severity",
+        "zia/web-log#threatseverity"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "%s{ttype},The traffic forwarding method used to send the traffic to the Firewall",
+            "%s{external_deviceid},The external device ID",
+            "%s{bypass_etime},The date and time when the traffic bypassed the Zscaler Client Connector"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
+          "quotes": [
+            "%s{trafficredirectmethod},The traffic forwarding method to ZIA Public Service Edges",
+            "%s{external_devid},The external device ID",
+            "%s{bypassed_etime},The date and time when the traffic bypassed the Zscaler Client Connector"
+          ]
+        }
+      ]
+    },
+    "bytes-direction": {
+      "statement": "inbytes counts bytes sent from the server to the client and outbytes bytes sent from the client to the server.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#inbytes",
+        "zia/firewall-log#outbytes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The number of bytes sent from the server to the client",
+            "The number of bytes sent from the client to the server"
+          ]
+        }
+      ]
+    },
+    "nw-fields": {
+      "statement": "nwapp is described as the network application that was accessed and nwsvc as the network service that was used.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#nwapp",
+        "zia/firewall-log#nwsvc"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The network application that was accessed",
+            "The network service that was used"
+          ]
+        }
+      ],
+      "gaps": [
+        "nwapp-vs-nwsvc"
+      ]
+    }
+  },
+  "gaps": {
+    "aggregate-counters": {
+      "kind": "data",
+      "title": "What aggregation triggers and how counters aggregate",
+      "status": "open",
+      "detail": "Unverified legacy statement: the CSV does not say what triggers aggregation (idle timeout, volume, rule) or whether it is configurable, nor how inbytes, outbytes, durationms and avgduration behave on aggregates (sum, maximum or last session), since they carry no last-session wording. A burst of identical sessions from one source would show it.",
+      "blocks": "Summing bytes or counting sessions from aggregated records.",
+      "former_ids": [
+        "log-11"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "srcip-country-aggregate": {
+      "kind": "data",
+      "title": "Why aggregated allowed sessions have no source country",
+      "status": "open",
+      "detail": "Unverified legacy statement: the CSV states that aggregated allowed sessions carry no srcip_country but does not say why; the legacy reading is that the lookup happens at block time only, which is not confirmed. A mixed allowed and blocked aggregate test would show it.",
+      "blocks": "Geographic reporting on allowed firewall traffic.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "action-precedence": {
+      "kind": "data",
+      "title": "Which subsystem fills action when firewall, IPS and DNAT disagree",
+      "status": "open",
+      "detail": "Unverified legacy statement: the CSV does not say what action shows when the firewall allows and IPS blocks, whether dnat is Yes on a firewall block, what an IPS detect-only hit shows, or whether action is the first or final outcome. Triggering each combination and reading action with threatcat, dnat and rulelabel would show it.",
+      "blocks": "Counting blocks from action alone.",
+      "former_ids": [
+        "log-12"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "nwapp-vs-nwsvc": {
+      "kind": "data",
+      "title": "How nwapp and nwsvc relate",
+      "status": "open",
+      "detail": "Unverified legacy statement: whether nwapp is a DPI application and nwsvc a port-derived service, or the reverse, whether both are always filled, and what they hold for non-IP traffic such as ICMP is not stated. Sending HTTP on a nonstandard port and a tunnel would show it.",
+      "blocks": "Choosing which field names the application the user accessed.",
+      "former_ids": [
+        "log-13"
+      ],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

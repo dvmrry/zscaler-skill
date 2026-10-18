@@ -105,7 +105,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-08-14:
-19 entries are resolved or clarified, 25 are partially resolved, and 352 are open.
+19 entries are resolved or clarified, 23 are partially resolved, and 338 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -114,7 +114,7 @@ public-doc reading.
 
 Entries migrated to the knowledge graph are no longer listed here; they are gaps
 with their old ID kept in `former_ids` (resolve with `node scripts/kb.mjs resolve <old-id>`):
-`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false); `zia-08` → [`zia.tenant-profiles.wire-mechanic:per-app-inspection-detail`](kb:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail); `zia-16` → [`zia.locations.sublocations:cap-2000`](kb:zia.locations.sublocations:cap-2000); `zia-17` → [`zia.locations.sublocations:name-uniqueness-scope`](kb:zia.locations.sublocations:name-uniqueness-scope); `zia-18` → [`zia.locations.sublocations:parent-delete-behavior`](kb:zia.locations.sublocations:parent-delete-behavior); `zia-19` → [`zia.locations.sublocations:reparenting-rules`](kb:zia.locations.sublocations:reparenting-rules); `zia-20` → [`zia.locations.sublocations:depth-limit`](kb:zia.locations.sublocations:depth-limit); `zia-46` → [`zia.locations.group-assignment:tf-dynamic-removal-reason`](kb:zia.locations.group-assignment:tf-dynamic-removal-reason); `zia-56` → [`zia.bandwidth-control.limits:caps-api-enforced`](kb:zia.bandwidth-control.limits:caps-api-enforced); `zia-57` → [`zia.file-type-control.api-shape:filtering-action-dependencies`](kb:zia.file-type-control.api-shape:filtering-action-dependencies); `zia-61` → [`zia.atp.api-surface:tenant-defaults`](kb:zia.atp.api-surface:tenant-defaults); `zia-67` → [`zia.tenant-profiles.microsoft:v1-v2-semantics`](kb:zia.tenant-profiles.microsoft:v1-v2-semantics); `log-04` → [`zia.atp.block-diagnosis:ruletype-values`](kb:zia.atp.block-diagnosis:ruletype-values); `zia-26` → [`zia.rule-labels:audit-log-label-names`](kb:zia.rule-labels:audit-log-label-names); `zia-27` → [`zia.rule-labels.constraints:name-charset`](kb:zia.rule-labels.constraints:name-charset); `zia-28` → [`zia.rule-labels.constraints:name-uniqueness`](kb:zia.rule-labels.constraints:name-uniqueness); `zia-29` → [`zia.rule-labels.constraints:description-max-length`](kb:zia.rule-labels.constraints:description-max-length); `zia-30` → [`zia.rule-labels:duplicate-action`](kb:zia.rule-labels:duplicate-action); `zia-31` → [`zia.rule-labels.rule-types:label-filter-server-support`](kb:zia.rule-labels.rule-types:label-filter-server-support); `zia-32` → [`zia.rule-labels.constraints:tenant-cap`](kb:zia.rule-labels.constraints:tenant-cap); `zia-50` → [`zia.rule-labels.api-surface:rule-type-endpoint-backing`](kb:zia.rule-labels.api-surface:rule-type-endpoint-backing); `zia-69` → [`zia.workload-groups.expressions:runtime-evaluation`](kb:zia.workload-groups.expressions:runtime-evaluation); `zia-55` → [`zia.audit-logs.report-api:pagination`](kb:zia.audit-logs.report-api:pagination); `shared-38` → [`zia.traffic-forwarding.vpn-credentials:psk-live-read`](kb:zia.traffic-forwarding.vpn-credentials:psk-live-read); `zia-39` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-40` → [`zia.scim.deactivation:session-kill`](kb:zia.scim.deactivation:session-kill); `zia-41` → [`zia.scim.operations:rate-limit`](kb:zia.scim.operations:rate-limit); `zia-42` → [`zia.ad-integration.identity-objects:org-limits`](kb:zia.ad-integration.identity-objects:org-limits); `zia-43` → [`zia.scim.attribute-mapping:per-idp-department-mapping`](kb:zia.scim.attribute-mapping:per-idp-department-mapping); `zia-44` → [`zia.scim.propagation:sync-log-visibility`](kb:zia.scim.propagation:sync-log-visibility); `zia-45` → [`zia.scim.propagation:per-idp-cadence`](kb:zia.scim.propagation:per-idp-cadence); `zia-64` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-62` → [`zia.private-service-edge.ip-requirements:shared-nat-behavior`](kb:zia.private-service-edge.ip-requirements:shared-nat-behavior); `zia-33` → [`zia.virtual-service-edge.upgrades:cluster-update-sequencing`](kb:zia.virtual-service-edge.upgrades:cluster-update-sequencing); `zia-34` → [`zia.virtual-service-edge.clusters:removal-and-disable-behavior`](kb:zia.virtual-service-edge.clusters:removal-and-disable-behavior); `zia-35` → [`zia.virtual-service-edge.operations:log-identifier`](kb:zia.virtual-service-edge.operations:log-identifier); `zia-36` → [`zia.virtual-service-edge.clusters:cluster-vs-vm-settings`](kb:zia.virtual-service-edge.clusters:cluster-vs-vm-settings); `zia-37` → [`zia.virtual-service-edge.network-requirements:vse-nat-topology`](kb:zia.virtual-service-edge.network-requirements:vse-nat-topology); `zia-38` → [`zia.virtual-service-edge.clusters:public-cloud-cluster-object`](kb:zia.virtual-service-edge.clusters:public-cloud-cluster-object); `zia-21` → [`zia.time-intervals.timezone:dst-handling`](kb:zia.time-intervals.timezone:dst-handling); `zia-22` → [`zia.time-intervals.limits:object-cap`](kb:zia.time-intervals.limits:object-cap); `zia-23` → [`zia.time-intervals.time-windows:terraform-resource-intent`](kb:zia.time-intervals.time-windows:terraform-resource-intent); `zia-24` → [`zia.time-intervals.evaluation:midnight-spanning`](kb:zia.time-intervals.evaluation:midnight-spanning); `zia-25` → [`zia.time-intervals.time-windows:predefined-intervals`](kb:zia.time-intervals.time-windows:predefined-intervals); `zia-49` → [`zia.cloud-app-control.actions:all-vs-available-differs`](kb:zia.cloud-app-control.actions:all-vs-available-differs); `zia-51` → [`zia.api.sdk-coverage:parity-drift`](kb:zia.api.sdk-coverage:parity-drift); `zia-52` → [`zia.api.legacy-ips-signature-wire:import-wire-unconfirmed`](kb:zia.api.legacy-ips-signature-wire:import-wire-unconfirmed); `zia-53` → [`zia.cloud-app-control.actions:per-tuple-validation-contract`](kb:zia.cloud-app-control.actions:per-tuple-validation-contract); `zia-54` → [`zia.cloud-app-control.api-surface:python-risk-profile-runtime`](kb:zia.cloud-app-control.api-surface:python-risk-profile-runtime); `zia-68` → [`zia.terraform.early-access:early-access-eligibility`](kb:zia.terraform.early-access:early-access-eligibility); `zia-72` → [`zia.url-filtering.advanced-settings:creative-commons-backend-effect`](kb:zia.url-filtering.advanced-settings:creative-commons-backend-effect).
+`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false); `zia-08` → [`zia.tenant-profiles.wire-mechanic:per-app-inspection-detail`](kb:zia.tenant-profiles.wire-mechanic:per-app-inspection-detail); `zia-16` → [`zia.locations.sublocations:cap-2000`](kb:zia.locations.sublocations:cap-2000); `zia-17` → [`zia.locations.sublocations:name-uniqueness-scope`](kb:zia.locations.sublocations:name-uniqueness-scope); `zia-18` → [`zia.locations.sublocations:parent-delete-behavior`](kb:zia.locations.sublocations:parent-delete-behavior); `zia-19` → [`zia.locations.sublocations:reparenting-rules`](kb:zia.locations.sublocations:reparenting-rules); `zia-20` → [`zia.locations.sublocations:depth-limit`](kb:zia.locations.sublocations:depth-limit); `zia-46` → [`zia.locations.group-assignment:tf-dynamic-removal-reason`](kb:zia.locations.group-assignment:tf-dynamic-removal-reason); `zia-56` → [`zia.bandwidth-control.limits:caps-api-enforced`](kb:zia.bandwidth-control.limits:caps-api-enforced); `zia-57` → [`zia.file-type-control.api-shape:filtering-action-dependencies`](kb:zia.file-type-control.api-shape:filtering-action-dependencies); `zia-61` → [`zia.atp.api-surface:tenant-defaults`](kb:zia.atp.api-surface:tenant-defaults); `zia-67` → [`zia.tenant-profiles.microsoft:v1-v2-semantics`](kb:zia.tenant-profiles.microsoft:v1-v2-semantics); `log-04` → [`zia.atp.block-diagnosis:ruletype-values`](kb:zia.atp.block-diagnosis:ruletype-values); `zia-26` → [`zia.rule-labels:audit-log-label-names`](kb:zia.rule-labels:audit-log-label-names); `zia-27` → [`zia.rule-labels.constraints:name-charset`](kb:zia.rule-labels.constraints:name-charset); `zia-28` → [`zia.rule-labels.constraints:name-uniqueness`](kb:zia.rule-labels.constraints:name-uniqueness); `zia-29` → [`zia.rule-labels.constraints:description-max-length`](kb:zia.rule-labels.constraints:description-max-length); `zia-30` → [`zia.rule-labels:duplicate-action`](kb:zia.rule-labels:duplicate-action); `zia-31` → [`zia.rule-labels.rule-types:label-filter-server-support`](kb:zia.rule-labels.rule-types:label-filter-server-support); `zia-32` → [`zia.rule-labels.constraints:tenant-cap`](kb:zia.rule-labels.constraints:tenant-cap); `zia-50` → [`zia.rule-labels.api-surface:rule-type-endpoint-backing`](kb:zia.rule-labels.api-surface:rule-type-endpoint-backing); `zia-69` → [`zia.workload-groups.expressions:runtime-evaluation`](kb:zia.workload-groups.expressions:runtime-evaluation); `zia-55` → [`zia.audit-logs.report-api:pagination`](kb:zia.audit-logs.report-api:pagination); `shared-38` → [`zia.traffic-forwarding.vpn-credentials:psk-live-read`](kb:zia.traffic-forwarding.vpn-credentials:psk-live-read); `zia-39` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-40` → [`zia.scim.deactivation:session-kill`](kb:zia.scim.deactivation:session-kill); `zia-41` → [`zia.scim.operations:rate-limit`](kb:zia.scim.operations:rate-limit); `zia-42` → [`zia.ad-integration.identity-objects:org-limits`](kb:zia.ad-integration.identity-objects:org-limits); `zia-43` → [`zia.scim.attribute-mapping:per-idp-department-mapping`](kb:zia.scim.attribute-mapping:per-idp-department-mapping); `zia-44` → [`zia.scim.propagation:sync-log-visibility`](kb:zia.scim.propagation:sync-log-visibility); `zia-45` → [`zia.scim.propagation:per-idp-cadence`](kb:zia.scim.propagation:per-idp-cadence); `zia-64` → [`zia.scim.groups-and-departments:department-no-match`](kb:zia.scim.groups-and-departments:department-no-match); `zia-62` → [`zia.private-service-edge.ip-requirements:shared-nat-behavior`](kb:zia.private-service-edge.ip-requirements:shared-nat-behavior); `zia-33` → [`zia.virtual-service-edge.upgrades:cluster-update-sequencing`](kb:zia.virtual-service-edge.upgrades:cluster-update-sequencing); `zia-34` → [`zia.virtual-service-edge.clusters:removal-and-disable-behavior`](kb:zia.virtual-service-edge.clusters:removal-and-disable-behavior); `zia-35` → [`zia.virtual-service-edge.operations:log-identifier`](kb:zia.virtual-service-edge.operations:log-identifier); `zia-36` → [`zia.virtual-service-edge.clusters:cluster-vs-vm-settings`](kb:zia.virtual-service-edge.clusters:cluster-vs-vm-settings); `zia-37` → [`zia.virtual-service-edge.network-requirements:vse-nat-topology`](kb:zia.virtual-service-edge.network-requirements:vse-nat-topology); `zia-38` → [`zia.virtual-service-edge.clusters:public-cloud-cluster-object`](kb:zia.virtual-service-edge.clusters:public-cloud-cluster-object); `zia-21` → [`zia.time-intervals.timezone:dst-handling`](kb:zia.time-intervals.timezone:dst-handling); `zia-22` → [`zia.time-intervals.limits:object-cap`](kb:zia.time-intervals.limits:object-cap); `zia-23` → [`zia.time-intervals.time-windows:terraform-resource-intent`](kb:zia.time-intervals.time-windows:terraform-resource-intent); `zia-24` → [`zia.time-intervals.evaluation:midnight-spanning`](kb:zia.time-intervals.evaluation:midnight-spanning); `zia-25` → [`zia.time-intervals.time-windows:predefined-intervals`](kb:zia.time-intervals.time-windows:predefined-intervals); `zia-49` → [`zia.cloud-app-control.actions:all-vs-available-differs`](kb:zia.cloud-app-control.actions:all-vs-available-differs); `zia-51` → [`zia.api.sdk-coverage:parity-drift`](kb:zia.api.sdk-coverage:parity-drift); `zia-52` → [`zia.api.legacy-ips-signature-wire:import-wire-unconfirmed`](kb:zia.api.legacy-ips-signature-wire:import-wire-unconfirmed); `zia-53` → [`zia.cloud-app-control.actions:per-tuple-validation-contract`](kb:zia.cloud-app-control.actions:per-tuple-validation-contract); `zia-54` → [`zia.cloud-app-control.api-surface:python-risk-profile-runtime`](kb:zia.cloud-app-control.api-surface:python-risk-profile-runtime); `zia-68` → [`zia.terraform.early-access:early-access-eligibility`](kb:zia.terraform.early-access:early-access-eligibility); `zia-72` → [`zia.url-filtering.advanced-settings:creative-commons-backend-effect`](kb:zia.url-filtering.advanced-settings:creative-commons-backend-effect); `log-01` → [`zia.logs.nss-feed-format:format-field-presence`](kb:zia.logs.nss-feed-format:format-field-presence); `log-02` → [`zia.logs.nss-feed-format:vm-conversion-omits`](kb:zia.logs.nss-feed-format:vm-conversion-omits); `log-03` → [`zia.logs.nss-feed-format:multi-feed-timezone`](kb:zia.logs.nss-feed-format:multi-feed-timezone); `log-05` → [`zia.logs.web-rule-attribution:action-values-precedence`](kb:zia.logs.web-rule-attribution:action-values-precedence); `log-06` → [`zia.logs.web-field-semantics:reason-structure`](kb:zia.logs.web-field-semantics:reason-structure); `log-07` → [`zia.logs.web-field-semantics:url-category-fields`](kb:zia.logs.web-field-semantics:url-category-fields); `log-08` → [`zia.logs.web-field-semantics:riskscore-lineage`](kb:zia.logs.web-field-semantics:riskscore-lineage); `log-09` → [`zia.logs.web-field-semantics:byte-counters`](kb:zia.logs.web-field-semantics:byte-counters); `log-10` → [`zia.logs.web-field-semantics:prompt-scope`](kb:zia.logs.web-field-semantics:prompt-scope); `log-11` → [`zia.logs.firewall-records:aggregate-counters`](kb:zia.logs.firewall-records:aggregate-counters); `log-12` → [`zia.logs.firewall-records:action-precedence`](kb:zia.logs.firewall-records:action-precedence); `log-13` → [`zia.logs.firewall-records:nwapp-vs-nwsvc`](kb:zia.logs.firewall-records:nwapp-vs-nwsvc); `log-14` → [`zia.logs.dns-outcome:action-enum-open`](kb:zia.logs.dns-outcome:action-enum-open); `log-15` → [`zia.logs.dns-outcome:res-sentinels-open`](kb:zia.logs.dns-outcome:res-sentinels-open); `log-16` → [`zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open`](kb:zia.logs.dns-gateway-fields:dnsgw-flags-semantics-open); `log-17` → [`zia.casb.insights-logs:record-category-discriminator`](kb:zia.casb.insights-logs:record-category-discriminator).
 
 The 2026-06-18 Automate-contract / rosetta closure pass narrowed several
 previously open source-surface questions without settling their runtime
@@ -219,8 +219,6 @@ families.
 
 | ID | Title | What's still open |
 |---|---|---|
-| [`log-01`](#log-01-nss-feed-format-versions) | NSS feed format versions | Exact field-presence differences between CSV/JSON/TSV output templates |
-| [`log-02`](#log-02-cloud-nss-vs-legacy-nss-divergence) | Cloud NSS vs legacy NSS divergence | Both source from the same Nanolog — field content parity expected; branching most likely needed for format (Cloud NSS recommends JSON) and per-instance feed-count limits, not field presence |
 | [`zcc-01`](#zcc-01-forwardingprofile-condition_type-enum) | ForwardingProfile `condition_type` enum | Integer datatype known; semantic mapping remains open |
 | [`zcc-02`](#zcc-02-forwardingprofile-actions-network_type-enum) | ForwardingProfile actions `network_type` enum | Integer datatype known; semantic mapping remains open |
 | [`zcc-03`](#zcc-03-forwardingprofile-action_type-enum) | ForwardingProfile `action_type` enum | Integer datatype known; semantic mapping remains open |
@@ -248,7 +246,7 @@ families.
 ### Open
 
 - **zia**: `zia-65`, `zia-70`
-- **log**: `log-03`, `log-05`–`log-22`
+- **log**: `log-18`–`log-22`
 - **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-83`
 - **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-37`, `shared-39`
 - **zcc**: `zcc-08`–`zcc-11`, `zcc-13`–`zcc-79`, `zcc-81`–`zcc-85`, `zcc-87`–`zcc-101`
@@ -578,63 +576,6 @@ Admin Rank is an opt-in feature ("if you've enabled Admin Rank"); without it, ru
 Applies to ZIA URL Filtering, SSL Inspection, and other ZIA policy types that expose the Admin Rank field. ZPA access policies don't use the same admin-rank mechanism based on vendored material.
 
 ---
-### log-01 — NSS feed format versions
-
-*Origin: `references/zia/logs/web-log-schema.md`, `firewall-log-schema.md`, `dns-log-schema.md`*
-
-Zscaler publishes NSS output in multiple formats. Whether field presence and naming differ between them was unclear.
-
-**Status**: partially resolved (2026-04-23).
-
-**Answer**: From *General Guidelines for NSS Feeds and Feed Formats* (`vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`) pp.1–4:
-
-- Field names are the same across output types — the guidelines confirm a unified format-specifier system (`%s{}`, `%d{}`, `%x{}`) used across all output formats.
-- The article lists **ten NSS feed types** (Web, Firewall, DNS, Tunnel, SaaS Security, SaaS Security Activity, Admin Audit, Endpoint DLP, Email DLP, Sandbox Verdict) but we've only vendored three of those field CSVs (Web, Firewall, DNS).
-- Recommended ≤50 fields per feed due to syslog message size. If more, verify SIEM can ingest.
-- Hex encoding: URL characters ≤ `0x20` or ≥ `0x7F` are encoded as `%HH`. Example: `\n` → `%0A`, space → `%20`.
-- Cloud NSS + JSON output: use hex-encoded field variants (e.g., `%s{elogin}` instead of `%s{login}`) and set Feed Escape Character to `,\"` to avoid JSON parsing issues in the SIEM.
-- Duplicate Logs setting: buffer replay window before detected-disconnect timestamp, configurable up to 60 minutes.
-
-**Still open**: the article doesn't enumerate which fields differ between CSV/JSON/TSV output templates when the same field name is emitted in each. For our vendored CSVs, we've assumed field presence is identical across output formats — that's consistent with the Guidelines article but not literally stated. Low-priority open question.
-
----
-
-### log-02 — Cloud NSS vs legacy NSS divergence
-
-*Origin: `references/zia/logs/web-log-schema.md`*
-
-Zscaler Cloud NSS (hosted) and legacy NSS (on-prem appliance) differ in field availability and timestamp behavior. Whether our SPL patterns need to branch on which one produced a record is unknown.
-
-**Status**: partially resolved (2026-04-23).
-
-**Answer**: Both variants source from the **same Nanolog storage**, which significantly reduces the risk of field-presence divergence. From *Understanding Nanolog Streaming Service (NSS)* (`vendor/zscaler-help/understanding-nanolog-streaming-service.md`):
-
-- **VM-based NSS**: "The Nanolog then streams copies of the logs to each NSS in a highly compressed format... When an NSS receives the logs from the Nanolog, it decompresses and detokenizes them, applies the configured filters to exclude unwanted logs, converts the filtered logs to the configured output format so that they can be consumed and parsed by your SIEM, and then streams the logs to your SIEM over a raw TCP connection."
-- **Cloud NSS**: HTTPS API feed push model. "You can create one Cloud NSS feed per ZIA log type per Cloud NSS instance. When configuring a Cloud NSS feed, you can customize the feed format; Zscaler recommends using JSON."
-
-Since both decompress/detokenize the same Nanolog records, **field content is equivalent**. What differs is:
-
-- **Transport**: raw TCP (VM) vs HTTPS POST batches (Cloud).
-- **Feed-count limits**: up to 16 feeds per NSS server (Web & Firewall capped at 8 each) for VM; **one feed per ZIA log type per Cloud NSS instance** for Cloud.
-- **Format recommendation**: customizable on both, but Zscaler recommends **JSON** for Cloud NSS; VM deployments commonly use the VM's configurable flat format.
-- **Reliability model**: VM buffers logs in memory for resiliency + one-hour recovery from Nanolog; Cloud uses separate one-hour Nanolog replay capability.
-
-**Implication for SPL patterns**: branching on *field presence* is unlikely needed (same Nanolog source). Branching by **format** (JSON-native vs custom-delimited TCP) is the realistic split — e.g., `spath` vs `rex` extraction upstream. A field-by-field diff test on a live tenant is the definitive way to confirm.
-
-**Still open (minor)**: whether the format-conversion step on the VM side ever omits a field that appears in Cloud NSS's JSON output. Ordinary operator testing closes this.
-
----
-
-### log-03 — Timestamp timezone handling
-
-*Origin: `references/zia/logs/web-log-schema.md`*
-
-`%s{tz}` is documented as the NSS feed's configured timezone, but the behavior when a tenant has multiple NSS feeds with different TZs, or when Cloud NSS aggregates from multiple regions, isn't stated.
-
-**Resolves with**: lab test OR zscaler doc not yet read. **Status**: open. **Low priority** — most SPL patterns use `_time` which Splunk normalizes to UTC regardless.
-
----
-
 ### zpa-01 — Multi-segment match representation in LSS
 
 *Origin: `references/zpa/logs/access-log-schema.md`*
@@ -895,259 +836,6 @@ A paraphrased-markdown post-processing step remains an option for the future if 
 
 ---
 
-### log-05 — `action` enum completeness and multi-subsystem precedence
-
-*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
-
-The NSS web-log CSV (`vendor/zscaler-help/nss-web-logs.csv`) lists `%s{action}` example values as `Allowed, Blocked` — but real tenant logs commonly contain values like `Cautioned`, `Allowed (Cached)`, `Blocked (Inline)`, etc. The CSV doesn't:
-
-1. Enumerate the full set of possible `action` values.
-2. State which subsystem (URL Filter, ATP, DLP, Sandbox, File Type Control, Cloud App Control, Bandwidth Control) populates the field when multiple subsystems weigh in on the same transaction.
-3. Specify whether the value reflects the *first* block (early-stop / first-fired) or the *final* outcome after all subsystems evaluated.
-
-This is high-leverage because operators (and agents) will pattern-match `action == "Blocked"` for security analytics; if some block conditions surface as `Cautioned` or as a different value, dashboards undercount.
-
-**Resolves with**: tenant-export sample of ~1k records spanning a deliberately-triggered mix of URL/DLP/ATP/Sandbox blocks, plus vendor confirmation of the precedence rule. **Status**: open — 2026-05-06.
-
----
-
-### log-06 — `reason` field structure (enum vs templated text)
-
-*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
-
-The CSV describes `%s{reason}` as "The action taken and the policy applied, if the transaction was blocked," with examples like `Virus/Spyware/Malware Blocked`, `Not allowed to browse this category`, `This page is unsafe (high PageRisk index)`. These examples are sentence-shaped, not enum-shaped. The CSV does not state:
-
-1. Whether `reason` is a stable enum (finite, versioned set of strings) or a templated string assembled per-incident.
-2. Whether the wording is consistent across cloud generations (zscaler.net vs zscalerten vs zscaler.gov) and across SKUs.
-3. Whether localization / regional language affects the value.
-
-Operators frequently regex-match `reason` for SIEM enrichment and alert routing — fragile if the strings are templated rather than enumerated.
-
-**Resolves with**: cross-tenant sample comparing `reason` values for the same trigger across two tenants on different cloud generations + a vendor statement on stability. **Status**: open — 2026-05-06.
-
----
-
-### log-07 — `urlcat` / `urlsupercat` / `urlclass` relationship and multi-category URLs
-
-*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
-
-The NSS web-log CSV documents three URL category fields with overlapping examples:
-
-- `%s{urlclass}` — examples: `Bandwidth Loss`, `General Surfing`, `Privacy Risk`
-- `%s{urlsupercat}` — examples: `Entertainment/Recreation`, `Travel`, `Security`
-- `%s{urlcat}` — examples: `Entertainment`, `Adult Themes`, `Games`, `Spyware Callback`
-
-The CSV doesn't define:
-
-1. The hierarchy — is `urlcat` always a member of `urlsupercat`, or are they orthogonal axes? Does `urlclass` aggregate at a still-higher level (a risk-bucketing roll-up across many supercats)?
-2. Multi-category URL behavior — for a URL that matches multiple categories (e.g., a news site with embedded ads → News + Advertisement), do the fields show one (which?), the primary, or all matched as a delimited list?
-3. Whether Advanced Threat categories appear in `urlcat`, `urlsupercat`, both, or a different field.
-
-Cross-link: the `categories` skill content under `kb:zia.url-filtering` covers the configuration side but doesn't translate to log-field semantics.
-
-**Resolves with**: tenant export with 50+ varied URLs spanning known multi-category sites, plus vendor doc on the hierarchy. **Status**: open — 2026-05-06.
-
----
-
-### log-08 — `riskscore` source and combined-subsystem behavior
-
-*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
-
-The CSV defines `%d{riskscore}` as "Page Risk Index score of the destination URL. Range 0–100." `%s{threatseverity}` is deterministically derived from `riskscore` (Critical 90–100, High 75–89, Medium 46–74, Low 1–45, None 0). The CSV doesn't state:
-
-1. Which subsystem produces the score — URL Filter's static reputation only? Or does ATP / Sandbox / behavioral engines contribute (and if so, how is the combined score computed)?
-2. Whether the score reflects the URL's reputation alone (URL→score) or the full transaction context (URL + payload + sandbox verdict).
-3. How `riskscore` relates to `app_risk_score` (cloud app Risk Index, 1–5 scale, separately documented).
-
-This matters because agents and operators may infer "score 75 → ATP/sandbox detected something" when in fact `riskscore` may be URL-Filter-only and the ATP/Sandbox findings live in `threatname` / `malwarecat` / `malwareclass` instead.
-
-**Resolves with**: deliberate-trigger tenant test (e.g., access a known clean-but-newly-registered domain, then a known-malware URL, then a Sandbox-quarantined file) and observe `riskscore` values vs simultaneous `threatname` / `malwarecat` populations. **Status**: open — 2026-05-06.
-
----
-
-### log-09 — Byte counter perspective and compression/CONNECT semantics
-
-*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
-
-The CSV defines a byte-counter family for HTTP transactions:
-
-- `%d{reqdatasize}`, `%d{reqhdrsize}`, `%d{reqsize}` (= data + headers)
-- `%d{respdatasize}`, `%d{resphdrsize}`, `%d{respsize}`
-- `%d{totalsize}`
-
-Plus throttle-size pair `%d{throttlereqsize}` / `%d{throttlerespsize}` and the SSL-related fields don't address compression. The CSV doesn't state:
-
-1. Measurement point — bytes as observed at the client wire, at the Service Edge before decryption, after decryption, or at the destination?
-2. Compression handling — for HTTP `Content-Encoding: gzip` responses, does `respdatasize` count compressed bytes (network-actual) or decompressed bytes (semantic)?
-3. CONNECT method handling — for HTTPS tunneled via CONNECT, does `reqsize` count the CONNECT request itself, or the tunneled application bytes too? If the latter, how does it interact with `ssldecrypted=No` (where Zscaler can't see the inner content)?
-4. Truncation thresholds — large transactions exceeding some size cap might be truncated; CSV doesn't say.
-
-Operators sizing bandwidth, building cost models, or doing compliance byte-counting need this. Agents asked "how much data did user X exfiltrate" will assume one interpretation and may be wrong.
-
-**Resolves with**: known-payload upload test (script `dd if=/dev/urandom bs=1M count=10 | curl …`) compared to the resulting log record across plain HTTP, gzipped HTTP, and HTTPS-with-decrypt and HTTPS-without-decrypt scenarios. **Status**: open — 2026-05-06.
-
----
-
-### log-10 — `prompt_req` content scope, truncation, and sanitization
-
-*Origin: `references/zia/logs/web-log-schema.md` § What the spec underspecifies*
-
-The CSV defines `%s{prompt_req}` as "The prompt entered by the user in the generative AI application" (Insights name: `Prompt`). The example field is empty. Compliance-critical questions the CSV doesn't answer:
-
-1. Is the *full* user prompt logged, or truncated at some byte/char limit?
-2. Is the prompt sanitized before logging — sensitive-data stripped (PII, secrets, password-shaped strings), DLP-redacted, or left raw?
-3. Does logging happen for all GenAI applications detected by Cloud App Control, or only for applications matched by a specific GenAI policy rule?
-4. What's the storage retention for `prompt_req` content — does it follow standard log retention or have separate handling given the potentially-sensitive content?
-5. Is the response from the GenAI app logged in a separate field, or only the prompt?
-
-Tenants on regulated industries (healthcare, finance, defense) need to know exactly what GenAI prompt content lands in NSS feeds before they enable GenAI policy. Agents asked "do we have visibility into AI prompts users send?" may answer yes/no without flagging the truncation/sanitization gaps.
-
-**Resolves with**: vendor doc on GenAI logging configuration + tenant test with a long prompt containing distinct markers at start, middle, end to detect truncation/redaction. **Status**: open — 2026-05-06.
-
----
-
-### log-11 — Firewall aggregate session semantics
-
-*Origin: `references/zia/logs/firewall-log-schema.md` § What the spec underspecifies*
-
-The ZIA Firewall NSS feed CSV (`vendor/zscaler-help/nss-firewall-logs.csv`) marks 8+ fields with the caveat "For aggregated sessions, this is the *X* of the last session in the aggregate" (`csip`, `csport`, `cdip`, `cdport`, `tsip`, `sdport`, `sdip`, `ssip`, `ssport`). The CSV documents `aggregate` as a Yes/No flag and `numsessions` as a count, but doesn't state:
-
-1. **What triggers session aggregation** — idle timeout, volume threshold, hop count, rule configuration, or some combination?
-2. **How byte counters behave on aggregates** — `inbytes` / `outbytes` / `durationms` / `avgduration` are not explicitly tagged with the "last-session" caveat. Are they sums across the aggregate, max, last-session-only, or aggregated-with-some-other-rule?
-3. **Why `srcip_country` is absent on aggregated allowed sessions but present on aggregated blocked sessions** — the CSV states this exception literally but doesn't explain it. Suggests source-country lookup happens at block time only on aggregates; not confirmed.
-4. **Whether aggregation is configurable** at the tenant or rule level, or always-on system behavior.
-
-For SIEM analytics: an aggregated record represents N sessions but exposes only one set of source/destination IPs. Counting unique source IPs from these records will undercount actual session-distinct sources by a factor proportional to aggregation rate.
-
-**Resolves with**: tenant test triggering known aggregation conditions (e.g., burst of N identical sessions to the same destination from the same source) plus vendor doc on the aggregation algorithm. **Status**: open — 2026-05-06.
-
----
-
-### log-12 — Firewall `action` precedence across FW + IPS + DNAT
-
-*Origin: `references/zia/logs/firewall-log-schema.md` § What the spec underspecifies*
-
-The Firewall NSS log has a single `%s{action}` field with example values `Allowed`, `Blocked`, but the firewall pipeline involves three subsystems that can each block or modify a transaction:
-
-1. FW filter rules (allow/block based on 5-tuple + user/location)
-2. IPS engine (signature-based detection, separate `threatcat` / `threat_score` / `ipsrulelabel` fields)
-3. DNAT policy (separate `dnat` / `dnatrulelabel` fields)
-
-The CSV doesn't state:
-
-- When FW Allows but IPS Blocks, what's `action`? `Blocked`?
-- When DNAT translates AND FW subsequently Blocks, does the record show DNAT translation occurred? `dnat` is `Yes` even on block?
-- When IPS surfaces a Critical-severity threat but doesn't block (detect-only mode), is `action` Allowed but `threatcat` populated? Or Blocked?
-- Is `action` the *first-fired* outcome (early-stop) or the *final* outcome after all subsystems evaluated?
-
-Same shape as [`log-05`](#log-05-action-enum-completeness-and-multi-subsystem-precedence) for web logs but with different subsystems and different field-population implications.
-
-**Resolves with**: deliberate-trigger tenant test (FW-allow + IPS-block, DNAT + FW-block, IPS-detect-only with Allow) and observe `action` + auxiliary fields per case. **Status**: open — 2026-05-06.
-
----
-
-### log-13 — Firewall `nwapp` vs `nwsvc` relationship
-
-*Origin: `references/zia/logs/firewall-log-schema.md` § What the spec underspecifies*
-
-The Firewall NSS log has two distinct fields:
-
-- `%s{nwapp}` — "Network application accessed" — example `SSH`
-- `%s{nwsvc}` — "Network service used" — example `HTTP`
-
-The CSV labels them differently but doesn't define the conceptual difference, the relationship, or the population rules. Possible interpretations the spec doesn't disambiguate:
-
-1. `nwapp` is the L7 application identification (deep packet inspection result), `nwsvc` is the L4 service identification (port-based mapping). So a session on TCP/22 carrying an SSH-disguised tunnel might show `nwsvc=SSH` (port-derived) while `nwapp=HTTP` (DPI-detected).
-2. Or vice versa.
-3. Or one of them maps to a tenant-defined service object and the other to a Zscaler-built-in classification.
-4. Are both always populated, or can one be absent? What populates them for non-IP-protocol traffic (ICMP)?
-
-Practical impact: agents asked "what application did the user access?" need to know which field is authoritative and why they might disagree.
-
-**Resolves with**: tenant export sample with deliberately ambiguous traffic (e.g., HTTP on a non-standard port, or a tunnel). Vendor doc on the firewall pipeline classification stages would also resolve it. **Status**: open — 2026-05-06.
-
----
-
-### log-14 — DNS `reqaction` / `resaction` enum and cumulative vs alternative semantics
-
-*Origin: `references/zia/logs/dns-log-schema.md` § What the spec underspecifies*
-
-The DNS NSS feed has two action fields:
-
-- `%s{reqaction}` — "Name of the action applied to the DNS request" — example values `REQ_ALLOW`, `RES_BLOC` (truncated abbreviations)
-- `%s{resaction}` — "Name of the action applied to the DNS response" — no example
-
-The CSV doesn't:
-
-1. Enumerate the full set of values for either field.
-2. Expand the cryptic prefixes — `REQ_ALLOW` likely means request allowed, but `RES_BLOC` (note: appears as a `reqaction` example, despite the `RES_` prefix) is confusing — is it a typo in the CSV, a valid value indicating "request seen but blocked at response stage," or something else?
-3. State whether both `reqaction` and `resaction` are always populated together (so a blocked-by-response-policy DNS query would show `reqaction=REQ_ALLOW`, `resaction=RES_BLOC`), or whether only the action that actually fired populates and the other is empty.
-4. Document the relationship between these and the `%s{error}` field (e.g., does `EMPTY_RESP` in `error` correlate with a specific `resaction` value?).
-
-For SIEM rules detecting blocked DNS, the field to filter on is unclear. Filtering only on `reqaction` may miss response-stage blocks; filtering only on `resaction` may miss request-stage blocks; filtering on both may double-count.
-
-**Resolves with**: tenant test with a request-stage block rule + a response-stage block rule (e.g., block on `domcat=Adult` for request stage; block on `respipcat=Malware Sites` for response stage) and observe field population. **Status**: open — 2026-05-06.
-
----
-
-### log-15 — DNS `res` field overloading (IP vs sentinel string)
-
-*Origin: `references/zia/logs/dns-log-schema.md` § What the spec underspecifies*
-
-The DNS NSS feed has a single `%s{res}` field labeled "Resolved IP or NAME in the DNS response," with example values `192.168.2.200`, `EMPTY_RESP`. The same field carries fundamentally different value types:
-
-1. **Resolved IP address** (IPv4 or IPv6 dotted-quad/colon-hex) — actual DNS A/AAAA response data
-2. **Resolved name** (CNAME chain target) — DNS hostname text
-3. **Sentinel string** indicating no response or an error (e.g., `EMPTY_RESP`) — Zscaler-specific tokens
-
-The CSV doesn't:
-
-1. Enumerate the sentinel-string set (only `EMPTY_RESP` is shown). What other tokens? Are they consistent across cloud generations?
-2. Specify how to programmatically distinguish the three value types — agents/parsers will likely regex on dotted-quad and assume non-matches are sentinels, but CNAME hostnames could collide with sentinel-string patterns.
-3. Specify what the field contains for multi-record responses (multiple A records, AAAA + A combined response). One delimited list? Just the first? An aggregate of all answer-section entries?
-4. Document how `res` interacts with `restype` — when `res` is a sentinel like `EMPTY_RESP`, is `restype` empty, the requested type, or a sentinel of its own?
-
-Cross-link: relates to [`log-14`](#log-14-dns-reqaction-resaction-enum-and-cumulative-vs-alternative-semantics) — sentinel `res` values likely correlate with specific `resaction` / `error` combinations.
-
-**Resolves with**: tenant export with deliberately-triggered DNS errors (NXDOMAIN, SERVFAIL, REFUSED) plus successful queries with multiple-answer responses; observe `res` field population per case. **Status**: open — 2026-05-06.
-
----
-
-### log-16 — DNS `dnsgw_flags` semantics and failover state machine
-
-*Origin: `references/zia/logs/dns-log-schema.md` § What the spec underspecifies*
-
-The DNS NSS feed has `%s{dnsgw_flags}` labeled "Flags indicating DNS Gateway status" with example values `PRIMARY_SERVER_RESPONSE_PASS`, `SECONDARY_SERVER_RESPONSE_PASS`, `FO_DEST_PASS`, `FO_DEST_ERR`, `FO_DEST_DROP`, `None`. The CSV doesn't:
-
-1. **Expand "FO"** — presumably failover, but unstated.
-2. **State whether values are mutually exclusive** (one flag per record) or **cumulative** (multiple flags concatenated by some delimiter).
-3. **Document the failover state machine** — under what conditions does `PRIMARY_SERVER_RESPONSE_PASS` → `SECONDARY_SERVER_RESPONSE_PASS` → `FO_DEST_PASS` → `FO_DEST_ERR` → `FO_DEST_DROP` transition? Is the transition observable per-record or only across multiple records?
-4. **Distinguish `FO_DEST_ERR` from `FO_DEST_DROP`** — both seem to indicate failure but with different sub-types unstated. Configured destination unreachable vs configured destination returned an error vs configured destination policy-blocked?
-5. **Specify when `None` fires** — DNS Gateway not configured for this transaction? DNS Gateway evaluated but no flag fired? Unclear.
-
-For DNS-tunnel troubleshooting and DNS Gateway routing diagnostics, knowing what each flag actually represents is essential. Agents asked "why did this DNS query fail?" can readily invent meaning for `FO_DEST_ERR` vs `FO_DEST_DROP`.
-
-**Resolves with**: vendor doc on DNS Gateway pipeline + tenant test with a configured failover scenario (intentionally unreachable primary, intentionally policy-blocking secondary). **Status**: open — 2026-05-06.
-
----
-
-### log-17 — CASB per-record category discriminator field
-
-*Origin: `references/zia/logs/casb-log-schema.md` § Open questions*
-
-ZIA SaaS Security / API CASB logs are organized into eight application categories (Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage, Repository), each with its own column set per the SaaS Security Insights Logs UI (`vendor/zscaler-help/about-saas-security-insights-logs.md`). All eight categories share a Cloud NSS feed instance. The CSV doesn't state:
-
-1. **Which field discriminates category-of-record** — `appclass` is a likely candidate (matches the eight-category vocabulary) but unconfirmed.
-2. **Whether category-specific fields are absent or null on out-of-category records** — e.g., does a Collaboration record have null `share_type` or omit the field entirely from the JSON output?
-3. **Whether multi-category SaaS apps** (e.g., Microsoft 365 spans Collaboration + Email + File) produce one record per category-aspect or a single record with merged fields.
-4. **Whether the discriminator is stable across cloud generations** or has changed in newer ZIA versions.
-
-This is high-leverage because every parser of this feed must know the discriminator before extracting category-specific fields. Without it, a SIEM parser either has to (a) try every possible field name and accept many empties, or (b) infer category from `appname` via lookup table — which becomes stale as new SaaS apps are added.
-
-**Resolves with**: tenant CASB feed sample (one record from each category) plus vendor confirmation of the discriminator field name. The eight per-category column captures already noted in `casb-log-schema.md` Open questions are the prerequisite material. **Status**: open — 2026-05-06.
-
----
-
 ### log-18 — Microseg `EnforcementReason` × `EnforcementAction` × `EnforcementDisposition` triple semantics
 
 *Origin: `references/zpa/logs/microsegmentation-flow-log-schema.md` § What the spec underspecifies*
@@ -1198,7 +886,7 @@ ZPA Browser Access logs have:
 
 Neither field's full enum is documented. SIEM rules that route on specific failure types (auth failures, backend unreachable, policy block, certificate validation failure, idle timeout) need the full enum to filter precisely. Without it, alert rules either match too broadly (any non-SUCCESS) or risk missing valid failure modes.
 
-Cross-link: byte-counter perspective and compression questions filed for ZIA web logs ([`log-09`](#log-09-byte-counter-perspective-and-compressionconnect-semantics)) and ZPA User Activity logs ([`zpa-17`](#zpa-17-delta-vs-total-byte-counter-reset-semantics)) likely apply here too.
+Cross-link: byte-counter perspective and compression questions filed for ZIA web logs ([`log-09`](kb:zia.logs.web-field-semantics:byte-counters)) and ZPA User Activity logs ([`zpa-17`](#zpa-17-delta-vs-total-byte-counter-reset-semantics)) likely apply here too.
 
 **Resolves with**: tenant test triggering varied failure conditions (intentionally-bad backend, intentionally-blocked-by-policy URL, intentionally-expired session, intentionally-failed-cert backend) and observe `ConnectionStatus` / `ConnectionReason` value combinations. Plus vendor doc on the full enum. **Status**: open — 2026-05-06.
 

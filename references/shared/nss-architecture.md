@@ -248,9 +248,9 @@ Operations available from this page:
 
 NSS emits logs per the documented schemas:
 
-- [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md) — ZIA Web (HTTP / HTTPS transactions).
-- [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md) — ZIA Firewall, NAT, IPS, DNS module records.
-- [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md) — DNS queries.
+- [`zia.logs.web-records`](kb:zia.logs.web-records) — ZIA Web (HTTP / HTTPS transactions).
+- [`zia.logs.firewall-records`](kb:zia.logs.firewall-records) — ZIA Firewall, NAT, IPS, DNS module records.
+- [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields) — DNS queries.
 - [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md) — ZPA LSS User Activity (different streaming path — **LSS is separate from NSS**, see below).
 
 ## LSS is not NSS
@@ -297,4 +297,4 @@ Source: `vendor/zscaler-help/about-log-streaming-service.md`.
 - Log-correlation guidance: [`./log-correlation.md`](./log-correlation.md).
 - Cloud architecture (where Nanolog fits): [`./cloud-architecture.md`](./cloud-architecture.md).
 - ZPA LSS (different streaming layer): [`../zpa/logs/access-log-schema.md`](../zpa/logs/access-log-schema.md).
-- Clarifications on NSS: [`log-01`](../_meta/clarifications.md#log-01-nss-feed-format-versions), [`log-02`](../_meta/clarifications.md#log-02-cloud-nss-vs-legacy-nss-divergence).
+- Clarifications on NSS: [`log-01`](kb:zia.logs.nss-feed-format:format-field-presence), [`log-02`](kb:zia.logs.nss-feed-format:vm-conversion-omits).

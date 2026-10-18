@@ -67,7 +67,7 @@ ZIA Nanolog Streaming Service (NSS) feeds carry transaction-level events from th
 ### ZIA Web (NSS)
 
 - **Carries**: HTTP/S transaction events — URL filtering decisions, action, category, threat detection, SSL inspection outcome, ZCC device context
-- **Schema**: [`../zia/logs/web-log-schema.md`](../zia/logs/web-log-schema.md)
+- **Schema**: [`zia.logs.web-records`](kb:zia.logs.web-records)
 - **Catalog placeholder**: `$INDEX_ZIA_WEB` (Splunk); generic `zia-web` elsewhere
 - **Common SIEM landing spots**:
 
@@ -82,7 +82,7 @@ ZIA Nanolog Streaming Service (NSS) feeds carry transaction-level events from th
 ### ZIA Firewall (NSS)
 
 - **Carries**: Firewall transaction events — non-web TCP/UDP/ICMP traffic, source/destination IPs and ports, action, network app, rule label
-- **Schema**: [`../zia/logs/firewall-log-schema.md`](../zia/logs/firewall-log-schema.md)
+- **Schema**: [`zia.logs.firewall-records`](kb:zia.logs.firewall-records)
 - **Catalog placeholder**: `$INDEX_ZIA_FW`; generic `zia-fw`
 - **Common SIEM landing spots**:
 
@@ -97,7 +97,7 @@ ZIA Nanolog Streaming Service (NSS) feeds carry transaction-level events from th
 ### ZIA DNS (NSS)
 
 - **Carries**: DNS query events — query name, query type, response, action, threat category if applicable
-- **Schema**: [`../zia/logs/dns-log-schema.md`](../zia/logs/dns-log-schema.md)
+- **Schema**: [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields)
 - **Catalog placeholder**: `$INDEX_ZIA_DNS`; generic `zia-dns`
 - **Common SIEM landing spots**:
 
@@ -124,7 +124,7 @@ ZIA Nanolog Streaming Service (NSS) feeds carry transaction-level events from th
 ### ZIA SaaS Security / CASB (Cloud NSS)
 
 - **Carries**: SaaS Security events — file scans (data at rest), share events, DLP triggers, Shadow IT discovery for API-integrated SaaS apps. Organized by application category (Collaboration / CRM / Email / File / Gen AI / ITSM / Public Cloud Storage / Repository) with per-category column sets.
-- **Schema**: [`../zia/logs/casb-log-schema.md`](../zia/logs/casb-log-schema.md) (⚠️ partial — structural facts confirmed; per-category field-level detail open as a coverage gap)
+- **Schema**: [`zia.casb.insights-logs`](kb:zia.casb.insights-logs) (⚠️ partial — structural facts confirmed; per-category field-level detail open as a coverage gap)
 - **Catalog placeholder**: `$INDEX_ZIA_CASB`; generic `zia-casb`
 - **Note**: Distinct from inline CASB (which lands in the **Web NSS** feed via the Cloud Application section — see `web-log-schema.md`). Investigations may need both feeds.
 - **Common SIEM landing spots**:
@@ -285,7 +285,7 @@ Schemas not yet documented in this repo, surfaced by the catalog:
 | Gap | Likely shape |
 |---|---|
 | ZIA Tunnel NSS schema | Z-Tunnel / GRE / IPsec session events |
-| ZIA CASB / SaaS Security NSS schema (per-category column detail) | Eight per-category sub-schemas referenced in [`../zia/logs/casb-log-schema.md`](../zia/logs/casb-log-schema.md); structural model documented, per-category fields pending vendor capture |
+| ZIA CASB / SaaS Security NSS schema (per-category column detail) | Eight per-category sub-schemas referenced in [`zia.casb.insights-logs`](kb:zia.casb.insights-logs); structural model documented, per-category fields pending vendor capture |
 | ZPA Audit LSS schema | Admin actions, configuration changes, SAML / auth audit events |
 
 These are tracked as next deliverables after this catalog is validated.
@@ -297,7 +297,7 @@ These are tracked as next deliverables after this catalog is validated.
 - [`splunk-queries.md`](./splunk-queries.md) — Splunk-specific SPL pattern catalog
 - [`agents/investigator/prompt.md`](../../agents/investigator/prompt.md) — `/z-investigator` slash command playbook
 - [`agents/investigator/methodology.md`](../../agents/investigator/methodology.md) — discovery journal, claim status
-- ZIA log schemas — [`../zia/logs/`](../zia/logs/)
+- ZIA log schemas — [`../zia/types/`](../zia/types/)
 - ZPA log schemas — [`../zpa/logs/`](../zpa/logs/)
 - ZCC log schema — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
 - ZDX API — [`../zdx/api.md`](../zdx/api.md)
