@@ -13,14 +13,14 @@ To create a DNS tunnel, a user sets up a tunnel client that sends out a request 
 # How Zscaler DNS Tunneling Detection Works
 The Zscaler service enables you to detect and control DNS tunneling occurring in your networks. The service provides a DNS proxy. You can use this proxy as a firewall to DNS traffic. All traffic that goes through this proxy is logged by the service. The Zscaler analytics system then fetches these logs, processes them, and sends them to the DNS tunneling detection engine. The detection engine uses advanced machine learning techniques to compute a risk score to classify domains. When the engine detects a tunnel hostname, the information is propagated to all Public Service Edges for Internet & SaaS (ZIA). The proxy server then acts according to your policy configuration.
 The service places any tunnels it detects into one of three categories:
-- Commonly Allowed DNS Tunnels: This contains tunnels that use DNS tunneling for productive reasons. It is mostly composed of traffic from security services.
-- Commonly Blocked DNS Tunnels: This contains tunnels that are malicious, can cause a loss of productivity, or can cause a loss of data.
-- Unknown DNS Tunnels: This contains tunnels that are not yet classified.
+- **Commonly Allowed DNS Tunnels**: This contains tunnels that use DNS tunneling for productive reasons. It is mostly composed of traffic from security services.
+- **Commonly Blocked DNS Tunnels**: This contains tunnels that are malicious, can cause a loss of productivity, or can cause a loss of data.
+- **Unknown DNS Tunnels**: This contains tunnels that are not yet classified.
 ## DNS Applications
 There are 4 additional categories that you can control alongside the DNS tunnels:
-- Network Service: This contains different network protocols, such as TCP and UDP.
-- Social Networking: This contains popular websites with social networking components, such as Facebook and LinkedIn.
-- Web: This contains widely used websites, such as Amazon and CNN.
-- Web Search: This contains popular search engines, such as Google and Bing.
+- **Network Service**: This contains different network protocols, such as TCP and UDP.
+- **Social Networking**: This contains popular websites with social networking components, such as Facebook and LinkedIn.
+- **Web**: This contains widely used websites, such as Amazon and CNN.
+- **Web Search**: This contains popular search engines, such as Google and Bing.
 These categories give administrators the flexibility to control any of these items at the DNS level.
 From these categories, users can either select the whole category or individual items to make up a DNS Application Group. To learn more, see About DNS Application Groups.

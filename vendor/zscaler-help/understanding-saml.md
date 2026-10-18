@@ -14,11 +14,11 @@ SAML is an XML-based structure that is used to organize users’ security and id
 - A relying party, which is the service provider (SP) that relies on the IdP to authenticate the user before it allows access to the service or application
 SAML provides for a federated identity wherein partner services use the same name identifier to refer to a user. It also enables Single Sign-On (SSO) so users can authenticate only once to an IdP and then access various services.
 SAML achieves this through a collection of assertions, protocols, bindings, and profiles:
-- Assertions: A SAML authority creates statements regarding any of the following information:
+- **Assertions**: A SAML authority creates statements regarding any of the following information:
   - The authentication of a subject
   - A subject’s attribute information
   - Data of a subject in regard to a specific resource
-- Protocols: Request/response protocols allow the SPs to:
+- **Protocols**: Request/response protocols allow the SPs to:
   - Request one or more assertions from a SAML authority
   - Request an IdP’s authentication for a principal and return the corresponding assertion
   - Request the registration of a name identifier
@@ -26,8 +26,8 @@ SAML achieves this through a collection of assertions, protocols, bindings, and 
   - Get back a protocol message requested by means of an artifact
   - Request a single logout for a collection of related sessions
   - Request mapping of a name identifier
-- Bindings: A binding defines how the SAML protocol messages are sent over transport and messaging protocols. The Zscaler service supports the HTTP Post Binding, which defines how SAML protocol messages can be transported within the base 64-encoded content of an HTML form control.
-- Profiles: A profile defines the assertions, protocols, and bindings used for specific use cases.
+- **Bindings**: A binding defines how the SAML protocol messages are sent over transport and messaging protocols. The Zscaler service supports the HTTP Post Binding, which defines how SAML protocol messages can be transported within the base 64-encoded content of an HTML form control.
+- **Profiles**: A profile defines the assertions, protocols, and bindings used for specific use cases.
 To learn more about SAML, refer to OASIS Security Services (SAML) TC.
 The service supports both SP-initiated and IdP-initiated SAML deployments, as well as SAML auto-provisioning.
 # Service Provider-Initiated SAML

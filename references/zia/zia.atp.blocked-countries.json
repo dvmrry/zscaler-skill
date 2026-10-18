@@ -32,6 +32,28 @@
       "to": "zia.atp.enforcement-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the country that matters is the destination server's, not the user's, and whether that country is selected.",
+      "uses": [
+        "web-server-location",
+        "not-user-location"
+      ]
+    },
+    {
+      "do": "Whether the country value sent through the API is one of the ANY, NONE or COUNTRY_ codes the enum accepts.",
+      "uses": [
+        "wire-values",
+        "country-validation"
+      ]
+    },
+    {
+      "do": "Whether the URL is under Security Exceptions, which skips the country check.",
+      "uses": [
+        "allowlist-overrides"
+      ]
+    }
+  ],
   "claims": {
     "web-server-location": {
       "statement": "Blocked Countries allows or blocks requests to any country in the world, based on the ISO3166 mapping of countries to their IP address space. Websites are blocked based on the location of the web server.",

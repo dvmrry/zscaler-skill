@@ -70,6 +70,28 @@
       "to": "zia.cloud-app-control.precedence"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether Firewall Control is enabled for the location.",
+      "uses": [
+        "per-location"
+      ]
+    },
+    {
+      "do": "Whether the tenant is licensed for the criterion the rule needs.",
+      "uses": [
+        "zia.firewall.licensing:identity-and-apps-need-advanced",
+        "zia.firewall.licensing:standard-tier-criteria"
+      ]
+    },
+    {
+      "do": "Whether the traffic is on a port the service treats as HTTP, DNS or FTP.",
+      "uses": [
+        "default-ports",
+        "custom-port-handling"
+      ]
+    }
+  ],
   "claims": {
     "four-policies": {
       "statement": "Configuring Firewall policies requires the Firewall Filtering, NAT Control and DNS Control policies, as applicable, and each has its own rules. IPS Control is a separate policy on its own page; it is enabled for locations through the firewall settings and is available only with Advanced Firewall. FTP Control settings inside Firewall are documented separately.",

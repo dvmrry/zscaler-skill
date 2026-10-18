@@ -14,7 +14,7 @@ This article lists the ranges and limitations for Zscaler Deception features. Al
 The total number of Decoy Connectors is equal to the number of decoys included in your Deception license. For example, if your license has 50 decoys, you get 50 Decoy Connectors. System limitations are applicable.
 # Decoys
 The following table shows the ranges and limitations for the decoy settings.
-| Feature | Standard Plan | Advanced Plan |
+| **Feature** | **Standard Plan** | **Advanced Plan** |
 |---|---|---|
 | Decoys | 20 | 300 |
 | Zscaler Client Connector - Integrated Landmine Decoys | The number of unique Zscaler Client Connector users across all landmines in the active state. |  |
@@ -29,7 +29,7 @@ The following table shows the ranges and limitations for the decoy settings.
 - You can deploy a high-interaction container as a Threat Intelligence (TI) decoy or network decoy (web service or custom dockers). A maximum of 5 high-interaction containers is allowed per license.
 # Landmine Policies
 The following table shows the ranges and limitations for the Landmine Policies settings.
-| Deception Module | Feature | Standard Plan | Advanced Plan |
+| **Deception Module** | **Feature** | **Standard Plan** | **Advanced Plan** |
 |---|---|---|---|
 | Defense Evasion | Fake Security Process | Not supported | Supported |
 | Privilege Escalation | MITM Detection | Not supported | Supported |
@@ -59,7 +59,7 @@ The following table shows the ranges and limitations for the Landmine Policies s
 | Triage | Not supported | Supported |  |
 # Orchestrate
 The following table shows the ranges and limitations for the Orchestrate settings.
-| Feature | Standard Plan | Advanced Plan |
+| **Feature** | **Standard Plan** | **Advanced Plan** |
 |---|---|---|
 | Orchestration Rules | Built-in rules supported | Built-in and custom rules supported |
 | Enrichment Integration | Not supported | Supported |
@@ -72,7 +72,7 @@ The following table shows the ranges and limitations for the Orchestrate setting
 | Fair Usage Policy (FUP) for Email Notifications | Deception limits the number of email notifications triggered to 500 emails per day. |  |
 # Miragemaker
 The following table shows the ranges and limitations for the Miragemaker settings.
-| Feature | Standard Plan | Advanced Plan |
+| **Feature** | **Standard Plan** | **Advanced Plan** |
 |---|---|---|
 | Static Application Datasets | Built-in datasets supported | Built-in and custom datasets supported |
 | Vulnerable Application Datasets | Built-in datasets supported | Built-in and custom datasets supported |
@@ -94,7 +94,7 @@ The following table shows the ranges and limitations for the Miragemaker setting
 | Tags | Built-in tags supported | Built-in and custom tags supported |
 # Enterprise
 The following table shows the ranges and limitations for the Enterprise settings.
-| Feature | Standard Plan | Advanced Plan |
+| **Feature** | **Standard Plan** | **Advanced Plan** |
 |---|---|---|
 | Single Sign-On | Supported | Supported |
 | Roles | Predefined rules supported | Predefined and custom roles supported |

@@ -20,9 +20,9 @@ On the Extranet page (Private Access > B2B Exchange > Extranet), you can do the 
 - Add an extranet.
 - Search for a configured extranet.
 - View a list of all extranets configured for your organization. For each extranet, you can see:
-  - Name: The name of the extranet.
-  - Traffic Selector: The traffic selectors configured for the extranet. The default traffic selector is designated with a check mark.
-  - DNS Server: The DNS servers configured for the extranet. The default DNS server is designated with a check mark.
-  - Description: The description of the extranet.
+  - **Name**: The name of the extranet.
+  - **Traffic Selector**: The traffic selectors configured for the extranet. The default traffic selector is designated with a check mark.
+  - **DNS Server**: The DNS servers configured for the extranet. The default DNS server is designated with a check mark.
+  - **Description**: The description of the extranet.
 - Modify the table and its columns.
 - Edit a configured extranet.

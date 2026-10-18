@@ -19,15 +19,15 @@ On the Provisioning Keys page (Zero Trust Cloud > Microsegmentation > Agent Grou
 - See image.
 - Show or hide the available columns.
 - Show or hide the available filters.
-- Filter the information by Name. After configuring the filter, click the button to apply the filter (e.g., Apply 1 filter) and view the results.
+- Filter the information by **Name**. After configuring the filter, click the button to apply the filter (e.g., Apply 1 filter) and view the results.
 - See image.
 - View a list of all agent provisioning keys that are configured for your agent group. For each agent provisioning key, you can see:
-  - Name: The name of the provisioning key.
-  - Maximum no. of Agents: The maximum number of agents that can use the provisioning key.
-  - Provisioning Key Utilization Count: The number of times the provisioning key has been used.
-  - Agent Group: The agent group associated with the provisioning key.
-  - Signing Certificate: The name of the signing certificate.
-  - Provisioning Key: The provisioning key that you can copy.
+  - **Name**: The name of the provisioning key.
+  - **Maximum no. of Agents**: The maximum number of agents that can use the provisioning key.
+  - **Provisioning Key Utilization Count**: The number of times the provisioning key has been used.
+  - **Agent Group**: The agent group associated with the provisioning key.
+  - **Signing Certificate**: The name of the signing certificate.
+  - **Provisioning Key**: The provisioning key that you can copy.
 - View the signing certificate for the agent provisioning key.
 - See image.
 - Copy an agent provisioning key.

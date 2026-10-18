@@ -38,6 +38,33 @@
       "to": "zia.firewall.criteria"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a service type is treated as an enum, since the Go SDK holds it as a free-form string.",
+      "uses": [
+        "type-values"
+      ]
+    },
+    {
+      "do": "Whether a service is custom from its type and tag, rather than from its name.",
+      "uses": [
+        "type-values",
+        "tag-values"
+      ]
+    },
+    {
+      "do": "Whether the name is searched in uppercase, since the server-side search is case-sensitive.",
+      "uses": [
+        "name-lookup-case"
+      ]
+    },
+    {
+      "do": "Whether the complete port list is sent on an update, since supplying ports overwrites the existing ones.",
+      "uses": [
+        "update-replaces-ports"
+      ]
+    }
+  ],
   "claims": {
     "type-values": {
       "statement": "The API returns a network service's `type` as STANDARD, PREDEFINED or CUSTOM. The Go SDK model holds it as a free-form string.",

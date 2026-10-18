@@ -24,9 +24,9 @@ With surrogate IP, a user can authenticate to the service in one web browser and
 # Requirements
 To use this feature, your organization must use one of the following methods to forward traffic to the service:
 - A GRE or IPSec tunnel without NAT.
-- Forward proxy chaining with the Enable XFF Forwarding option turned on for the location or sublocation.
+- Forward proxy chaining with the **Enable XFF Forwarding** option turned on for the location or sublocation.
 - Your organization subscribes to a dedicated proxy port.
-Also, the location or sublocation must have Enforce Authentication turned on. To learn more about enabling surrogate IP on locations and sublocations, see Configuring Locations and Understanding Sublocations.
+Also, the location or sublocation must have **Enforce Authentication** turned on. To learn more about enabling surrogate IP on locations and sublocations, see Configuring Locations and Understanding Sublocations.
 # Limitations
 - If you disable this feature, Zscaler cannot tag all user traffic as authenticated after the user has authenticated successfully in at least one web browser. For example, if the user authenticates to the Zscaler service in Chrome and opens Firefox, then the user is prompted to authenticate again in Firefox.
 - This service should not be used with multi-session VDI machines because all users sharing the VM have the same private IP address. This can lead to associating the transactions with an incorrect user in the Zscaler logs.

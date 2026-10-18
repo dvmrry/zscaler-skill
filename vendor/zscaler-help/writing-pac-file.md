@@ -176,7 +176,7 @@ Be aware of the following components of a PAC file while writing it:
     - You can also use the _FX suffix with the subcloud variables. For example, ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_FX} and ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_FX}.
     - The _FX suffix provides load balancing for multiple gateway hosts depending on the HTTP headers (useragent, x-forwarded-for, and z-client). This variable is effective only for Zscaler Client Connector clients because the z-client ID is different for each user. To implement load balancing for non-Zscaler Client Connector clients, you can use the Country Gateway Host Index Tokens. To learn more, see Load Balancing for PAC Forwarded Traffic.
   - Custom Port Variable
-  - To use this variable, enable the Use Preferred Port from PAC for Z-Tunnel 1.0 or the Use Preferred Port from PAC for Z-Tunnel 2.0 option in the Zscaler Client Connector Windows profile policy rule.
+  - To use this variable, enable the **Use Preferred Port from PAC for Z-Tunnel 1.0** or the **Use Preferred Port from PAC for Z-Tunnel 2.0** option in the Zscaler Client Connector Windows profile policy rule.
   - You can use the ${ZS_CUSTOM_PORT} variable to return an appropriate custom port based on your country and the Z-Tunnel version. For example, if you are in China, then the variable is replaced with port 9401 for Z-Tunnel 2.0 requests and 9400 for Z-Tunnel 1.0 requests. The ports are subject to change.
   - However, if you are in a country other than China, then the variable is replaced with port 443 for Z-Tunnel 2.0 and Z-Tunnel 1.0 requests.
   - Use the following syntax to include the ${ZS_CUSTOM_PORT} variable in your PAC file:

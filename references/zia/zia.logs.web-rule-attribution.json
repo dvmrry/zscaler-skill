@@ -19,45 +19,85 @@
     "zia/web-log#urlcatmethod"
   ],
   "related": [
-    { "rel": "see-also", "to": "zia.url-filtering.rule-order" },
-    { "rel": "see-also", "to": "zia.cloud-app-control.precedence" }
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.precedence"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which field names the SIEM stores for the NSS web log fields, before writing a query against them.",
+      "uses": [
+        "rulelabel-block-only",
+        "separate-layer-labels",
+        "category-source"
+      ]
+    },
+    {
+      "do": "Whether a URL's category in the logs (`urlcat`, `urlcatmethod`) answers the membership question for that URL, once the URL has been seen.",
+      "uses": [
+        "category-source"
+      ]
+    }
   ],
   "claims": {
     "rulelabel-block-only": {
       "statement": "`rulelabel` and `ruletype` are filled only when a Block rule applied; an allowed transaction has neither, so an empty `rulelabel` does not mean no rule matched.",
       "tier": "A",
-      "binds": ["zia/web-log#rulelabel", "zia/web-log#ruletype"],
+      "binds": [
+        "zia/web-log#rulelabel",
+        "zia/web-log#ruletype"
+      ],
       "evidence": [
-        { "source": "zscaler-help", "path": "nss-web-logs.csv",
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
           "quotes": [
             "%s{rulelabel},\"The name of the rule that was applied to the transaction. Applies only to Block rules, not Allow.\"",
             "%s{ruletype},\"The type of policy. Applies only to Block rules, not Allow.\""
-          ] }
+          ]
+        }
       ]
     },
     "separate-layer-labels": {
       "statement": "URL Filtering and Cloud App Control each have their own rule-name field (`urlfilterrulelabel`, `apprulelabel`), so one record can name both when both layers evaluated, and the allow-side rule is visible there even when `rulelabel` is empty.",
       "tier": "B",
-      "binds": ["zia/web-log#urlfilterrulelabel", "zia/web-log#apprulelabel"],
+      "binds": [
+        "zia/web-log#urlfilterrulelabel",
+        "zia/web-log#apprulelabel"
+      ],
       "conditions": "The fields are documented separately; that both can be filled in one record follows from both policies evaluating one transaction.",
       "evidence": [
-        { "source": "zscaler-help", "path": "nss-web-logs.csv",
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
           "quotes": [
             "%s{urlfilterrulelabel},The name of the rule that was applied to the URL filter",
             "%s{apprulelabel},The name of the rule that was applied to the application"
-          ] }
+          ]
+        }
       ]
     },
     "category-source": {
       "statement": "`urlcat` records the category the transaction was judged under, and `urlcatmethod` records where that categorization came from, which is how logs reveal a URL's actual category membership.",
       "tier": "A",
-      "binds": ["zia/web-log#urlcat", "zia/web-log#urlcatmethod"],
+      "binds": [
+        "zia/web-log#urlcat",
+        "zia/web-log#urlcatmethod"
+      ],
       "evidence": [
-        { "source": "zscaler-help", "path": "nss-web-logs.csv",
+        {
+          "source": "zscaler-help",
+          "path": "nss-web-logs.csv",
           "quotes": [
             "%s{urlcat},The category of the destination URL",
             "%s{urlcatmethod},\"Refers to the source of the URL's category."
-          ] }
+          ]
+        }
       ]
     }
   }

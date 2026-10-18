@@ -64,14 +64,14 @@ On the Private App Microtenants page (Private Access > B2B Exchange > Microtenan
 - Filter the information that appears in the table. By default, no filters are applied. You can also save applied filters to your preferences so that they're visible in future user sessions. To learn more, see Using Tables.
 - Modify the columns displayed in the table.
 - View a list of all Microtenants. For each Microtenant, you can see:
-  - Priority: The evaluation order number for the Microtenant. Private Access applies Microtenants based on the order they are listed (i.e., top to bottom), and assigns the first match as the most relevant Microtenant. Click the number and manually enter a new value to change the Microtenant order. Click the Confirm icon, and then click Confirm to save the new priority. By default, newly created Microtenants are prioritized last in the table. Users that belong to multiple Microtenants are assigned a Microtenant in the table based on the highest evaluation order.
+  - **Priority**: The evaluation order number for the Microtenant. Private Access applies Microtenants based on the order they are listed (i.e., top to bottom), and assigns the first match as the most relevant Microtenant. Click the number and manually enter a new value to change the Microtenant order. Click the **Confirm** icon, and then click **Confirm** to save the new priority. By default, newly created Microtenants are prioritized last in the table. Users that belong to multiple Microtenants are assigned a Microtenant in the table based on the highest evaluation order.
   - Updating the priority order impacts user access to applications and applied policies, as users can be reassigned to new Microtenants. It can also affect user access to inherited application segments with access policies defined at the Microtenant level.
-  - Name: The name of the Microtenant.
-  - Description: The description of the Microtenant.
-  - Authentication Domain: The authentication domain used to authenticate the admins to the Microtenant.
-  - Status: The status of the Microtenant.
-  - Privileged Approvals: The privileged approval for the Microtenant. Enable to allow approval-based access even if no Authentication Domain is selected. The Emergency Access and Emergency Access Users pages are not visible for Microtenants with Privileged Approvals disabled. This field is Disabled by default.
-  - The Privileged Approvals option is only supported for applications that have Privileged Remote Access enabled. To learn more, see Configuring Defined Application Segments.
+  - **Name**: The name of the Microtenant.
+  - **Description**: The description of the Microtenant.
+  - **Authentication Domain**: The authentication domain used to authenticate the admins to the Microtenant.
+  - **Status**: The status of the Microtenant.
+  - **Privileged Approvals**: The privileged approval for the Microtenant. Enable to allow approval-based access even if no **Authentication Domain** is selected. The Emergency Access and Emergency Access Users pages are not visible for Microtenants with **Privileged Approvals** disabled. This field is **Disabled** by default.
+  - The **Privileged Approvals** option is only supported for applications that have **Privileged Remote Access** enabled. To learn more, see Configuring Defined Application Segments.
 - Edit the configuration of a Microtenant.
 - Users mapped to Microtenants that are using Private Service Edges reauthenticate when the Microtenant is disabled.
 - Delete a Microtenant.

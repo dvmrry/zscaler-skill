@@ -18,6 +18,22 @@
       "to": "zia.audit-logs.what-is-recorded"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether to use the event log or the audit report for an investigation: use the audit report for who changed a thing, and treat the event log as service-side (errors and status codes) until its contents are confirmed.",
+      "uses": [
+        "system-events",
+        "event-contents"
+      ]
+    },
+    {
+      "do": "Whether to call the REST endpoint directly when Go SDK status decoding misbehaves, since the SDK decodes the status as a slice and the spec describes one object.",
+      "uses": [
+        "go-sdk-surface",
+        "spec-status-object"
+      ]
+    }
+  ],
   "claims": {
     "separate-endpoint": {
       "statement": "The event log report is a separate API (tag Event Logs) at /eventlogEntryReport with the same request/poll/download/cancel shape as the audit report; its create description covers event log information for every call made to the ZIA API in the period, and a new report overwrites the previous one.",

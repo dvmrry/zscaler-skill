@@ -13,7 +13,7 @@ The platform provides browser-native security, including real-time threat detect
 - Securing access from unmanaged devices
 # Key Components
 The platform consists of the following components:
-| Component | Function |
+| **Component** | **Function** |
 |---|---|
 | Cloud Browser | Delivers secure internet and application access in isolation, preventing data from reaching managed and unmanaged devices. To learn more, see Understanding Cloud Browser. |
 | Browser Extension | Enhances existing browsers with browser detection and response (BDR), DLP, and posture-based application access. To learn more, see Understanding Browser Extension. |

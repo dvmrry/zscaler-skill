@@ -28,6 +28,29 @@
       "to": "zia.scim.propagation"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the verb and endpoint the client actually sends are supported, see the user, group and bulk operations.",
+      "uses": [
+        "user-operations",
+        "group-operations",
+        "bulk-and-discovery"
+      ]
+    },
+    {
+      "do": "Whether the client follows startIndex until the last page rather than stopping at the first 1,000 entries.",
+      "uses": [
+        "user-operations",
+        "paging"
+      ]
+    },
+    {
+      "do": "Whether the request rate stays within 5 requests per second.",
+      "uses": [
+        "rate-limit"
+      ]
+    }
+  ],
   "claims": {
     "user-operations": {
       "statement": "The SCIM server supports, for users: POST /Users to create; GET /Users for up to 1,000 entries and GET /Users?startIndex=<value> for the next 1,000; GET /Users/{UserID}; PUT or PATCH /Users/{UserID} to update; and DELETE /Users/{UserID}.",

@@ -19,19 +19,19 @@ On the AWS page (Zero Trust Cloud > Zero Trust Gateway > AWS), you can do the fo
 - Refresh the list of AWS gateways.
 - Add an AWS gateway.
 - Modify the table and its columns.
-- Show or hide the Service Status, Availability Zone, ID, and Endpoint Service Name filters from view.
-- Filter the list of AWS gateways by their Service Status, Availability Zone, ID, and Endpoint Service Name.
+- Show or hide the **Service Status**, **Availability Zone**, **ID**, and **Endpoint Service Name** filters from view.
+- Filter the list of AWS gateways by their **Service Status**, **Availability Zone**, **ID**, and **Endpoint Service Name**.
 - View a list of all AWS gateways. For each AWS gateway, you can view:
-  - Name: The name of the AWS gateway
-  - ID: The ID of the AWS gateway
-  - Region: The region associated with the AWS gateway
-  - Availability Zone ID: The ID of the AWS availability zone associated with the AWS gateway
-  - Endpoint Service Name: The name of the endpoint service associated with the AWS gateway
-  - Location: The location associated with the AWS gateway
-  - Endpoints: The number of endpoints associated with the AWS gateway
-  - Operational Status: The operational status of the AWS gateway (i.e., Enabled or Disabled)
+  - **Name**: The name of the AWS gateway
+  - **ID**: The ID of the AWS gateway
+  - **Region**: The region associated with the AWS gateway
+  - **Availability Zone ID**: The ID of the AWS availability zone associated with the AWS gateway
+  - **Endpoint Service Name**: The name of the endpoint service associated with the AWS gateway
+  - **Location**: The location associated with the AWS gateway
+  - **Endpoints**: The number of endpoints associated with the AWS gateway
+  - **Operational Status**: The operational status of the AWS gateway (i.e., **Enabled** or **Disabled**)
   - You cannot disable AWS gateways
-  - Service Status: The service status of the AWS gateway (i.e., Healthy, Unhealthy, or Not Available)
+  - **Service Status**: The service status of the AWS gateway (i.e., **Healthy**, **Unhealthy**, or **Not Available**)
 - Edit an AWS gateway.
 - Delete an AWS gateway.
 - Analyze a specific AWS gateway and its details.

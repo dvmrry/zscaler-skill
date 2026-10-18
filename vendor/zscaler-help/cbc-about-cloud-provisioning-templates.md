@@ -19,16 +19,16 @@ On the Provisioning Templates page (Zero Trust Cloud > Cloud Connector > Provisi
 - Search for a cloud provisioning template.
 - Add a Cloud Connector Provisioning Template.
 - View a list of all cloud provisioning templates that are configured for your organization.
-  - Template Name: The name of the template.
-  - Cloud Provider Type: The cloud provider (AWS, Azure, or GCP).
-  - Status: The status of the template deployment.
-  - VM Size: The size of the virtual machine.
-  - Auto Scaling: The status of autoscaling (i.e., True or False). Zscaler supports autoscaling in AWS, Azure, and GCP.
+  - **Template Name**: The name of the template.
+  - **Cloud Provider Type**: The cloud provider (AWS, Azure, or GCP).
+  - **Status**: The status of the template deployment.
+  - **VM Size**: The size of the virtual machine.
+  - **Auto Scaling**: The status of autoscaling (i.e., **True** or **False**). Zscaler supports autoscaling in AWS, Azure, and GCP.
   - In the AWS Marketplace, autoscaling is referred to as Auto Scaling. In the Azure Marketplace, autoscaling is referred to as Virtual Machine Scale Sets (VMSS). In the Google Cloud Marketplace, autoscaling is referred to as a Managed Instance Group (MIG) with autoscaling. In the Zscaler Admin Console, references to autoscaling also refer to VMSS and a MIG with autoscaling. To enable Auto Scaling, VMSS, or a MIG with autoscaling, contact Zscaler Support.
-  - Last Modified By: The last admin to modify the template.
-  - Last Modified On: The date and time the template was last modified.
+  - **Last Modified By**: The last admin to modify the template.
+  - **Last Modified On**: The date and time the template was last modified.
 - Modify the table and its columns.
-- Click the arrow in the Template Name field to copy the cloud provisioning URL.
+- Click the arrow in the **Template Name** field to copy the cloud provisioning URL.
 - Edit the cloud provisioning template.
 - Delete the cloud provisioning template.
 - View the cloud provisioning template configurations.

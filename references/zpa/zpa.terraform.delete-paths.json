@@ -21,6 +21,20 @@
       "to": "zia.terraform.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Which consoles list the portal as their only portal, since those consoles are deleted with it.",
+      "uses": [
+        "portal-delete-can-delete-console"
+      ]
+    },
+    {
+      "do": "Which rules, application segments and connector groups still reference a destroyed server group, by re-reading them after the destroy.",
+      "uses": [
+        "server-group-delete-can-succeed-with-references"
+      ]
+    }
+  ],
   "claims": {
     "portal-delete-detaches-first": {
       "statement": "Deleting a PRA portal first runs a cleanup that walks every PRA console, and returns an error without deleting the portal if that cleanup fails.",

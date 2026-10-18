@@ -11,126 +11,126 @@ The AI & ML Applications category consists of artificial intelligence and machin
 You can specify which applications your users are allowed to access and define a daily quota by bandwidth or time. When users browse these sites after their quota has been reached, the Zscaler service displays a message that explains that the content cannot be viewed because it exceeded their daily quota.
 # Adding a Rule for AI & ML Applications
 To add a rule for AI & ML Applications apps:
-- From the navigation menu, go to Data Security > Inline CASB > SaaS/Cloud App Policy.
-- In the left-side menu, select AI & ML Applications, then click Add Rule.
-- The AI & ML Applications page appears.
-- On the AI & ML Applications page, you can configure the following sections:
+- From the navigation menu, go to **Data Security** > **Inline CASB** > **SaaS/Cloud App Policy**.
+- In the left-side menu, select **AI & ML Applications**, then click **Add Rule**.
+- The **AI & ML Applications** page appears.
+- On the **AI & ML Applications** page, you can configure the following sections:
   - Criteria
-  - In the Criteria section, when you click the Add Criteria drop-down menu, you see the rule condition categories in gray (e.g., Who) and the individual rule conditions (e.g., Users, Groups, and Departments) under each category.
+  - In the **Criteria** section, when you click the **Add Criteria** drop-down menu, you see the rule condition categories in gray (e.g., **Who**) and the individual rule conditions (e.g., **Users**, **Groups**, and **Departments**) under each category.
   - See image.
-  - The conditions contain preconfigured values (e.g., Users, Groups, and Departments). A multi-select window with a search bar appears. You can select values by selecting the checkbox for individual items or by clicking Select All. After selecting the values, click outside the window to close it. To clear selected items, click the field to open the multi-select window, then use the Remove icon displayed for individual entries. To remove all selected values, click Remove All.
+  - The conditions contain preconfigured values (e.g., **Users**, **Groups**, and **Departments**). A multi-select window with a search bar appears. You can select values by selecting the checkbox for individual items or by clicking **Select All**. After selecting the values, click outside the window to close it. To clear selected items, click the field to open the multi-select window, then use the **Remove** icon displayed for individual entries. To remove all selected values, click **Remove All**.
   - See image.
   - Refer to the following condition categories for details on configuring their individual conditions:
     - Applications
-      - Cloud Applications: Select Any to apply the rule to all cloud applications in this category, or select any number of cloud applications. You can also search for applications. By default, this field displays the first 100 cloud applications.
-      - Cloud Application Instances: Select the cloud application instances to which the rule applies. You can select a maximum of 8 instances per rule.
+      - **Cloud Applications**: Select **Any** to apply the rule to all cloud applications in this category, or select any number of cloud applications. You can also search for applications. By default, this field displays the first 100 cloud applications.
+      - **Cloud Application Instances**: Select the cloud application instances to which the rule applies. You can select a maximum of 8 instances per rule.
       - The cloud application instance appears only if its parent application is selected as the cloud application.
-      - Cloud Application Risk Profile: Select a profile to which the rule applies.
-      - You can either select the Cloud Application Risk Profile or the Cloud Applications field for the rule.
-      - Adaptive Access Profile: This field shows the adaptive access profile that you want to enforce for the policy. The profiles contain contextual parameters that are constantly monitored for dynamic access control. This option is currently not functional in the Zscaler Admin Console. However, you can contact your Zscaler Account team to subscribe to Experience Center to use this feature. To learn more, see Understanding Adaptive Access Engine.
+      - **Cloud Application Risk Profile**: Select a profile to which the rule applies.
+      - You can either select the **Cloud Application Risk Profile** or the **Cloud Applications** field for the rule.
+      - **Adaptive Access Profile**: This field shows the adaptive access profile that you want to enforce for the policy. The profiles contain contextual parameters that are constantly monitored for dynamic access control. This option is currently not functional in the Zscaler Admin Console. However, you can contact your Zscaler Account team to subscribe to Experience Center to use this feature. To learn more, see Understanding Adaptive Access Engine.
     - Who
-      - Users: Select Any to apply the rule to all users, or select up to 32 users under General Users. If you've enabled the Policy for Unauthenticated Traffic, you can select Special Users to apply this rule to all unauthenticated users, or select specific types of unauthenticated users. You can search for users.
-      - Groups: Select Any to apply the rule to all groups, or select up to 32 groups. You can search for groups.
-      - Departments: Select Any to apply the rule to all departments, or select up to 32 departments. If you've enabled the Policy for Unauthenticated Traffic, you can select Special Departments to apply this rule to all unauthenticated transactions. You can search for departments.
-        - Any rule that applies to unauthenticated traffic must apply to all groups and departments. So, if you have chosen to apply this rule to unauthenticated traffic for either Users or Departments, select Any from the drop-down menus for Groups and Departments.
-        - Contact Zscaler Support to increase the limit of Users, Groups, or Departments.
+      - **Users**: Select **Any** to apply the rule to all users, or select up to 32 users under **General Users**. If you've enabled the Policy for Unauthenticated Traffic, you can select **Special Users** to apply this rule to all unauthenticated users, or select specific types of unauthenticated users. You can search for users.
+      - **Groups**: Select **Any** to apply the rule to all groups, or select up to 32 groups. You can search for groups.
+      - **Departments**: Select **Any** to apply the rule to all departments, or select up to 32 departments. If you've enabled the Policy for Unauthenticated Traffic, you can select **Special Departments** to apply this rule to all unauthenticated transactions. You can search for departments.
+        - Any rule that applies to unauthenticated traffic must apply to all groups and departments. So, if you have chosen to apply this rule to unauthenticated traffic for either **Users** or **Departments**, select **Any** from the drop-down menus for **Groups** and **Departments**.
+        - Contact Zscaler Support to increase the limit of **Users**, **Groups**, or **Departments**.
     - Where
-      - Locations: Select Any to apply the rule to all locations, or select up to 32 locations. You can also search for a location.
-      - Contact Zscaler Support to increase the limit of Locations.
-      - Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups. You can also search for a location group.
+      - **Locations**: Select **Any** to apply the rule to all locations, or select up to 32 locations. You can also search for a location.
+      - Contact Zscaler Support to increase the limit of **Locations**.
+      - **Location Groups**: Select **Any** to apply the rule to all location groups, or select up to 32 location groups. You can also search for a location group.
     - When
-    - Time: Select Always to apply this rule to all time intervals, or select up to two time intervals. You can also search for a time interval.
+    - **Time**: Select **Always** to apply this rule to all time intervals, or select up to two time intervals. You can also search for a time interval.
     - Devices & Agents
-      - Devices: Select the devices to which the rule applies. You can also search for a device. Selecting no value ignores this criterion in the policy evaluation.
-      - Device Groups: Select the device groups for which you want to apply the rule. For Zscaler Client Connector traffic, select the appropriate group based on the device platform. Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or to traffic that is not tunneled through Zscaler Client Connector, respectively. You can also search for a device group. Selecting no value ignores this criterion in the policy evaluation.
-      - The Cloud Browser Isolation and IoT groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for your organization, respectively.
-      - Device Trust Level: Select the device trust level values (High Trust, Medium Trust, Low Trust, or Unknown) to which the rule applies. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. Selecting no value ignores the criterion in the policy evaluation.
+      - **Devices**: Select the devices to which the rule applies. You can also search for a device. Selecting no value ignores this criterion in the policy evaluation.
+      - **Device Groups**: Select the device groups for which you want to apply the rule. For Zscaler Client Connector traffic, select the appropriate group based on the device platform. Select **Cloud Browser Isolation**, **IoT**, or **No Client Connector** to apply the rule to isolation traffic, IoT traffic, or to traffic that is not tunneled through Zscaler Client Connector, respectively. You can also search for a device group. Selecting no value ignores this criterion in the policy evaluation.
+      - The **Cloud Browser Isolation** and **IoT** groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for your organization, respectively.
+      - **Device Trust Level**: Select the device trust level values (**High Trust**, **Medium Trust**, **Low Trust**, or **Unknown**) to which the rule applies. While the **High Trust**, **Medium Trust**, or **Low Trust** evaluation is applicable only to Zscaler Client Connector traffic, **Unknown** evaluation applies to all traffic. Selecting no value ignores the criterion in the policy evaluation.
       - The trust levels assigned to the devices are based on your posture configurations in the Zscaler Admin Console.
-      - User Agent: Select Any to apply the rule to all user agents, or select any number of user agents. You can also search for an agent.
-      - User Risk Profile: Select Any to apply the rule to all user risk score levels, or select the user risk score levels to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
+      - **User Agent**: Select **Any** to apply the rule to all user agents, or select any number of user agents. You can also search for an agent.
+      - **User Risk Profile**: Select **Any** to apply the rule to all user risk score levels, or select the user risk score levels to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
       - Users are assigned a risk score based on their browsing activities. A range of risk scores is grouped as a risk score level.
       - By default, the following user risk score levels are available:
-        - Low: Level with user risk scores ranging from 0 to 29
-        - Medium: Level with user risk scores ranging from 30 to 59
-        - High: Level with user risk scores ranging from 60 to 79
-        - Critical: Level with user risk scores ranging from 80 to 100
+        - **Low**: Level with user risk scores ranging from 0 to 29
+        - **Medium**: Level with user risk scores ranging from 30 to 59
+        - **High**: Level with user risk scores ranging from 60 to 79
+        - **Critical**: Level with user risk scores ranging from 80 to 100
       - Contact Zscaler Support to customize the user risk score range of these levels for your organization.
-  - You can expand or collapse all the criteria using the Expand All or Collapse All button, respectively.
+  - You can expand or collapse all the criteria using the **Expand All** or **Collapse All** button, respectively.
   - See image.
   - Actions
-  - In the Actions section, for Application Access, select one of the following actions to apply when the rule conditions are met:
+  - In the **Actions** section, for **Application Access**, select one of the following actions to apply when the rule conditions are met:
     - Allow
     - Choose to allow the users to access the selected applications.
-    - The following applications support additional granular actions, which you can Allow or Block:
-      - For ChatGPT, the granular actions include Chatting, Deleting, Downloading, Inviting, Login, Sharing, and Uploading.
-        - Domain Profiles: Choose Allow or Block for the Login granular action to permit or restrict logins to the domains in the selected domain profiles, respectively. You can select up to 8 domain profiles, and you can search for domain profiles. Selecting no profiles applies the granular action to all the profiles.
-      - For Google Gemini, the granular actions include Chatting, Downloading, Renaming, and Uploading.
-      - For Microsoft Copilot, the granular actions include Chatting, Deleting, Renaming, Sharing, and Uploading.
-      - For Perplexity, the granular actions include Chatting, Deleting, Sharing, and Uploading.
-      - For Poe, the granular actions include Chatting, Deleting, Sharing, and Uploading.
-      - For Runway, the granular actions include Creating, Deleting, Downloading, Renaming, and Sharing.
+    - The following applications support additional granular actions, which you can **Allow** or **Block**:
+      - For **ChatGPT**, the granular actions include **Chatting**, **Deleting**, **Downloading**, **Inviting**, **Login**, **Sharing**, and **Uploading**.
+        - **Domain Profiles**: Choose **Allow** or **Block** for the **Login** granular action to permit or restrict logins to the domains in the selected domain profiles, respectively. You can select up to 8 domain profiles, and you can search for domain profiles. Selecting no profiles applies the granular action to all the profiles.
+      - For **Google Gemini**, the granular actions include **Chatting**, **Downloading**, **Renaming**, and **Uploading**.
+      - For **Microsoft Copilot**, the granular actions include **Chatting**, **Deleting**, **Renaming**, **Sharing**, and **Uploading**.
+      - For **Perplexity**, the granular actions include **Chatting**, **Deleting**, **Sharing**, and **Uploading**.
+      - For **Poe**, the granular actions include **Chatting**, **Deleting**, **Sharing**, and **Uploading**.
+      - For **Runway**, the granular actions include **Creating**, **Deleting**, **Downloading**, **Renaming**, and **Sharing**.
     - If these applications are selected together, only the common granular actions among them appear. For the granular actions to work as expected for an application, enable SSL/TLS Inspection for the application.
-      - Daily Bandwidth Quota (MB): (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application. To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled. If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB.
-      - Daily Time Quota (min): (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
-      - Capture Prompts: Enable this option to categorize and store end user prompts (up to 2 KB in size) for generative AI (Gen AI) applications. The prompts are stored in Zscaler logs for the period defined by your organization. Authorized users with access to the logs are able to view the prompts entered by end users in Gen AI applications. This allows you to control the capture of prompts at policy level based on your organizational requirements.
+      - **Daily Bandwidth Quota (MB)**: (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application. To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled. If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB.
+      - **Daily Time Quota (min)**: (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
+      - **Capture Prompts**: Enable this option to categorize and store end user prompts (up to 2 KB in size) for generative AI (Gen AI) applications. The prompts are stored in Zscaler logs for the period defined by your organization. Authorized users with access to the logs are able to view the prompts entered by end users in Gen AI applications. This allows you to control the capture of prompts at policy level based on your organizational requirements.
       - This option appears only when you select Gen AI applications that support prompt configuration. To learn more, see Configuring Advanced Policy Settings.
-      - Tenant Profile: Appears only when ChatGPT is selected as the cloud application. You can select the tenant profiles for which you want to apply the rule. To learn more, see About Tenant Profiles.
+      - **Tenant Profile**: Appears only when **ChatGPT** is selected as the cloud application. You can select the tenant profiles for which you want to apply the rule. To learn more, see About Tenant Profiles.
       - Ensure that the applications selected under the tenant profiles are not exempted from SSL/TLS Inspection.
-      - Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction, even after it's explicitly allowed by the Cloud App Control policy. However, the URL Filtering policy doesn't apply if the Cloud App Control policy blocks the transaction.
-      - This field appears only when the Allow Cascading to URL Filtering option is disabled on the Advanced Settings page (Internet Access > Setting > Advanced Settings).
+      - **Cascade to URL Filtering**: Enable this option to enforce the URL Filtering policy on a transaction, even after it's explicitly allowed by the Cloud App Control policy. However, the URL Filtering policy doesn't apply if the Cloud App Control policy blocks the transaction.
+      - This field appears only when the **Allow Cascading to URL Filtering** option is disabled on the **Advanced Settings** page (**Internet Access** > **Setting** > **Advanced Settings**).
     - Caution
     - Choose to display an EUN that cautions users before allowing them access to the selected applications.
-    - You can select this action for only one of the following request methods: CONNECT, GET, or HEAD.
-      - Daily Bandwidth Quota (MB): (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application. To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled. If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB.
-      - Daily Time Quota (min): (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
-      - Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction, even after it's explicitly allowed by the Cloud App Control policy. However, the URL Filtering policy doesn't apply if the Cloud App Control policy blocks the transaction.
-      - This field appears only when the Allow Cascading to URL Filtering option is disabled on the Advanced Settings page (Internet Access > Setting > Advanced Settings).
+    - You can select this action for only one of the following request methods: **CONNECT**, **GET**, or **HEAD**.
+      - **Daily Bandwidth Quota (MB)**: (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application. To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled. If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB.
+      - **Daily Time Quota (min)**: (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
+      - **Cascade to URL Filtering**: Enable this option to enforce the URL Filtering policy on a transaction, even after it's explicitly allowed by the Cloud App Control policy. However, the URL Filtering policy doesn't apply if the Cloud App Control policy blocks the transaction.
+      - This field appears only when the **Allow Cascading to URL Filtering** option is disabled on the **Advanced Settings** page (**Internet Access** > **Setting** > **Advanced Settings**).
     - Block
     - Choose to block the users from accessing the selected applications.
     - Conditional
     - Choose to conditionally allow the users to access the selected applications.
-      - Conditional Access: Allows access to the selected applications by enforcing step-up authentication. Step-up authentication enforces stronger authentication and only provides access to applications when the authentication satisfies the additional authentication levels. In the Authentication Level field, select an authentication level from the drop-down menu. The authentication levels must be configured in the Zscaler Admin Console before configuring a policy in the Zscaler Admin Console to select this option. When you try to access applications that require additional authentication, Zscaler Client Connector displays a pop-up notification prompting you to verify your access. To learn more, see Understanding Step-Up Authentication.
+      - **Conditional Access**: Allows access to the selected applications by enforcing step-up authentication. Step-up authentication enforces stronger authentication and only provides access to applications when the authentication satisfies the additional authentication levels. In the **Authentication** **Level** field, select an authentication level from the drop-down menu. The authentication levels must be configured in the Zscaler Admin Console before configuring a policy in the Zscaler Admin Console to select this option. When you try to access applications that require additional authentication, Zscaler Client Connector displays a pop-up notification prompting you to verify your access. To learn more, see Understanding Step-Up Authentication.
       - This option is available only if your organization is provisioned with the Authentication Service for end users and the traffic forwarding method is Zscaler Client Connector. However, if your traffic is routed via a Private Service Edge for Internet & SaaS (ZIA) or Virtual Service Edge for Internet & SaaS, conditional access is not supported and the user access to the applications is blocked with a notification from the browser. Conditional access doesn't apply to isolation traffic. To enable this feature, you can raise a provisioning support ticket.
-      - Daily Bandwidth Quota (MB): (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application. To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled. If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB.
-      - Daily Time Quota (min): (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
+      - **Daily Bandwidth Quota (MB)**: (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application. To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled. If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB.
+      - **Daily Time Quota (min)**: (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
     - Isolate
     - Choose to isolate all the traffic that matches the cloud app control rule through a remote browser. To learn more, see What Is Zero Trust Browser?
     - This action is available only if Zero Trust Browser is enabled for your organization.
-      - Isolation Profile: Appears when you select Isolate. You can choose the isolation profiles to which the rule applies.
+      - **Isolation Profile**: Appears when you select **Isolate**. You can choose the isolation profiles to which the rule applies.
       - Ensure to create isolation profiles for your organization.
-      - Daily Bandwidth Quota (MB): (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application. To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled. If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB.
-      - Daily Time Quota (min): (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
-      - Tenant Profile: Appears only when ChatGPT is selected as the cloud application. You can select the tenant profiles for which you want to apply the rule. To learn more, see About Tenant Profiles.
+      - **Daily Bandwidth Quota (MB)**: (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application. To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled. If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB.
+      - **Daily Time Quota (min)**: (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
+      - **Tenant Profile**: Appears only when **ChatGPT** is selected as the cloud application. You can select the tenant profiles for which you want to apply the rule. To learn more, see About Tenant Profiles.
       - Ensure that the applications selected under the tenant profiles are not exempted from SSL/TLS Inspection.
-      - Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction, even after it's explicitly allowed by the Cloud App Control policy. However, the URL Filtering policy doesn't apply if the Cloud App Control policy blocks the transaction.
-      - This field appears only when the Allow Cascading to URL Filtering option is disabled on the Advanced Settings page (Internet Access > Setting > Advanced Settings).
+      - **Cascade to URL Filtering**: Enable this option to enforce the URL Filtering policy on a transaction, even after it's explicitly allowed by the Cloud App Control policy. However, the URL Filtering policy doesn't apply if the Cloud App Control policy blocks the transaction.
+      - This field appears only when the **Allow Cascading to URL Filtering** option is disabled on the **Advanced Settings** page (**Internet Access** > **Setting** > **Advanced Settings**).
   - See image.
   - Details
-  - In the Details section, provide general information about the rule:
-    - Rule Name: Enter a unique name for the rule or use the default name.
-    - Add Description: (Optional) Enter additional notes or information. The description cannot exceed 10,240 characters.
-    - Add Rule Label: Select a rule label to associate it with the rule. To learn more, see About Rule Labels.
-    - Edit Rule Order: Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule’s place in the order. You can change the value, but if you’ve enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
-    - Edit Admin Rank: Enter a value from 0 to 7 (0 is the highest rank). Your assigned admin rank determines the values you can select. You cannot select a rank that is higher than your own. The rule’s admin rank determines the value you can select in the rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.
-    - Rule Status: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule.
+  - In the **Details** section, provide general information about the rule:
+    - **Rule Name**: Enter a unique name for the rule or use the default name.
+    - **Add Description**: (Optional) Enter additional notes or information. The description cannot exceed 10,240 characters.
+    - **Add Rule Label**: Select a rule label to associate it with the rule. To learn more, see About Rule Labels.
+    - **Edit Rule Order**: Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule’s place in the order. You can change the value, but if you’ve enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
+    - **Edit Admin Rank**: Enter a value from 0 to 7 (0 is the highest rank). Your assigned admin rank determines the values you can select. You cannot select a rank that is higher than your own. The rule’s admin rank determines the value you can select in the rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.
+    - **Rule Status**: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule.
   - See image.
   - Rule Expiration
-  - In the Rule Expiration section, you can define the validity of the rule:
-    - Enable Rule Expiration: Enable this option to set a validity period for the rule.
-      - Start Date and Time: Select a start date and time. The rule is valid starting on this date and time.
-      - End Date and Time: Select an end date and time. The rule ceases to be valid on this date and time.
-      - Time Zone: Select the time zone in which the rule is valid.
+  - In the **Rule Expiration** section, you can define the validity of the rule:
+    - **Enable Rule Expiration**: Enable this option to set a validity period for the rule.
+      - **Start Date and Time**: Select a start date and time. The rule is valid starting on this date and time.
+      - **End Date and Time**: Select an end date and time. The rule ceases to be valid on this date and time.
+      - **Time Zone**: Select the time zone in which the rule is valid.
   - You can use the rule expiration feature to temporarily allow or block access for a set period of time to an application if any configured rules block or allow access to it, respectively.
   - After the rule expires, Zscaler either blocks or allows the traffic based on the default rules configured for your organization.
   - See image.
   - Notification
-  - (Optional) In the Notification section, you can enable browser notification template or end user notifications (EUNs) to be triggered by the rule:
-    - Browser Notification Template: Select a browser-based EUN message from the drop-down menu to display the message on the browser when the user activity triggers the Cloud App Control policy rule.
-    - This field appears when the application access is set to either Caution or Block.
+  - (Optional) In the **Notification** section, you can enable browser notification template or end user notifications (EUNs) to be triggered by the rule:
+    - **Browser Notification Template**: Select a browser-based EUN message from the drop-down menu to display the message on the browser when the user activity triggers the Cloud App Control policy rule.
+    - This field appears when the application access is set to either **Caution** or **Block**.
     - See image.
-    - End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear. This field is set to Show by default.
-      - Notification Message: Select a notification message that you want to show as the Zscaler Client Connector-based EUN. This field is set to the Default notification message if no message is selected from the drop-down menu.
+    - **End User Notification**: Select **Show** to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select **Hide** if you don't want an EUN message to appear. This field is set to **Show** by default.
+      - **Notification Message**: Select a notification message that you want to show as the Zscaler Client Connector-based EUN. This field is set to the **Default** notification message if no message is selected from the drop-down menu.
     - This field appears when the granular action is blocked for the selected applications.
     - See image.
-- Click Save and activate the change.
+- Click **Save** and activate the change.
 To learn how this policy fits into the overall order of policy enforcement, see Understanding Policy Enforcement.

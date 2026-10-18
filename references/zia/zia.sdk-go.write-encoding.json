@@ -24,6 +24,15 @@
       "to": "zia.url-filtering.list-pagination"
     }
   ],
+  "checks": [
+    {
+      "do": "Before calling a rule update panic an observed failure, whether the server answers an update with an empty body. Until then it is a certain consequence of an empty body, not an observed failure.",
+      "uses": [
+        "rule-update-panics-on-empty-body",
+        "rule-update-empty-body"
+      ]
+    }
+  ],
   "claims": {
     "marshals-caller-struct": {
       "statement": "ZIA updates go through an `updateGeneric`, the OneAPI client's in `ziarequests.go` or, when the legacy client is configured, its own copy in `zia/v2_client.go`. Both serialize the caller's struct directly with `json.Marshal`, so each field's JSON tag alone decides whether it is sent.",

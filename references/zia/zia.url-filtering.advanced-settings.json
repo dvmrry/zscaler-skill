@@ -27,6 +27,39 @@
       "to": "zia.ssl-inspection.pipeline"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a rule on NROD matches anything, given that the Suspicious New Domains lookup must be enabled first.",
+      "uses": [
+        "nrod-lookup-prerequisite"
+      ]
+    },
+    {
+      "do": "Whether a block on a category stops a redirecting response, given that AI/ML categorization follows redirects.",
+      "uses": [
+        "aiml-redirect"
+      ]
+    },
+    {
+      "do": "Whether URL Filtering rules apply to globally SSL-bypassed traffic, which depends on a separate evaluation switch.",
+      "uses": [
+        "global-ssl-bypass-evaluation"
+      ]
+    },
+    {
+      "do": "Whether the advanced settings are read in full before any one toggle is written.",
+      "uses": [
+        "go-full-state-write"
+      ]
+    },
+    {
+      "do": "Whether a tenant-wide setting explains a rule that should have fired and did not.",
+      "uses": [
+        "embedded-sites",
+        "aiml-redirect"
+      ]
+    }
+  ],
   "claims": {
     "misc-unknown": {
       "statement": "Miscellaneous or Unknown holds sites Zscaler has not yet classified; blocking it outright also blocks newly encountered legitimate sites.",

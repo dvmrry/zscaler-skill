@@ -15,7 +15,7 @@ Before you update a software component's host OS, ensure the following prerequis
 - For prebuilt images, software components must be provisioned to a Private Access tenant to receive software updates via the OS package manager.
 For enhanced security, you must use the passwd command to change the credentials on the default admin account if you have not already done so.
 - Enter the admin credentials for the software component:
-login: admin Password: *******
+login: admin Password: ***
 - Test connectivity by running the following command:
 curl https://yum.private.zscaler.com
 This validates that connectivity to the specific update URL is working. If you are waiting for the command to time out, and you don't get any errors, you must troubleshoot connectivity. To learn more, see Troubleshooting App Connectors, Troubleshooting Private Service Edges, or Troubleshooting Private Cloud Controllers.
@@ -28,9 +28,9 @@ For host OS and software package updates, choose the component you want to updat
   - (Optional) Disable the App Connector you want to update.
   - When you disable the App Connector in the Zscaler Admin Console prior to stopping the service and updating, Private Access no longer routes new connections through the component and existing connections will continue through to their conclusion. If you stop the service without first disabling the App Connector and allowing traffic to drain, it results in forced connection resets for users connected through that App Connector.
     - Log in to the Zscaler Admin Console.
-    - From the navigation menu, go to Private Access > Private Infrastructure > App Connectors.
-    - Click the Edit icon for the App Connector you want to update.
-    - Select Disabled under Status to disable the individual App Connector in the group.
+    - From the navigation menu, go to **Private Access** > **Private Infrastructure** > **App Connectors**.
+    - Click the **Edit** icon for the App Connector you want to update.
+    - Select **Disabled** under **Status** to disable the individual App Connector in the group.
     - See image.
     - Access the App Connector Status log type in the Zscaler Admin Console to view the list of currently active App Connectors to make sure any existing or long-lived critical transactions have ended or stopped.
   - Log in to the App Connector console using your admin credentials.
@@ -45,16 +45,16 @@ For host OS and software package updates, choose the component you want to updat
 - $ sudo yum update -y
   - After completing the update, reboot the App Connector using the following command:
 - $ sudo reboot
-  - After the reboot, go to the Zscaler Admin Console and click the Edit icon for the App Connector.
-  - Select Enabled to enable the App Connector.
+  - After the reboot, go to the Zscaler Admin Console and click the **Edit** icon for the App Connector.
+  - Select **Enabled** to enable the App Connector.
 - See image.
-  - Click Save.
+  - Click **Save**.
 - Private Service Edge
   - (Optional) Disable the Private Service Edge you want to update.
     - Log in to the Zscaler Admin Console.
-    - From the navigation menu, go to Private Access > Private Infrastructure > Private Service Edges.
-    - Click the Edit icon for the Private Service Edge that you want to update.
-    - Select Disabled under Status to disable the individual Private Service Edge in the group.
+    - From the navigation menu, go to **Private Access** > **Private Infrastructure** > **Private Service Edges**.
+    - Click the **Edit** icon for the Private Service Edge that you want to update.
+    - Select **Disabled** under **Status** to disable the individual Private Service Edge in the group.
     - See image.
     - Access the Private Service Edge Status log type in the Zscaler Admin Console to view the list of currently active Private Service Edges to make sure any existing or long-lived critical transactions have ended or stopped.
   - Log in to the Private Service Edge console using your admin credentials.
@@ -69,16 +69,16 @@ For host OS and software package updates, choose the component you want to updat
 - $ sudo yum update -y
   - After completing the update, reboot the Private Service Edge using the following command:
 - $ sudo reboot
-  - After the reboot, go to the Zscaler Admin Console and click the Edit icon to edit the Private Service Edge.
-  - Select Enabled to enable the Private Service Edge.
+  - After the reboot, go to the Zscaler Admin Console and click the **Edit** icon to edit the Private Service Edge.
+  - Select **Enabled** to enable the Private Service Edge.
 - See image.
-  - Click Save.
+  - Click **Save**.
 - Private Cloud Controller
   - (Optional) Disable the Private Cloud Controller you want to update.
     - Log in to the Zscaler Admin Console.
-    - From the navigation menu, go to Infrastructure >Business Continuity > Private Cloud Controllers.
-    - Click the Edit icon for the Private Cloud Controller that you want to update.
-    - Select Disabled under Status to disable the individual Private Cloud Controller in the group.
+    - From the navigation menu, go to **Infrastructure** >Business Continuity > **Private Cloud Controllers**.
+    - Click the **Edit** icon for the Private Cloud Controller that you want to update.
+    - Select **Disabled** under **Status** to disable the individual Private Cloud Controller in the group.
     - See image.
     - Access the Private Cloud Controller Status log type in the Zscaler Admin Console to view the list of currently active Private Cloud Controllers to make sure any existing or long-lived critical transactions have ended or stopped.
   - Log in to the Private Cloud Controller console using your admin credentials.
@@ -93,16 +93,16 @@ For host OS and software package updates, choose the component you want to updat
 - $ sudo yum update -y
   - After completing the update, reboot the Private Cloud Controller using the following command:
 - $ sudo reboot
-  - After the reboot, go to the Zscaler Admin Console and click the Edit icon for the Private Cloud Controller.
-  - Select Enabled to enable the Private Cloud Controller.
+  - After the reboot, go to the Zscaler Admin Console and click the **Edit** icon for the Private Cloud Controller.
+  - Select **Enabled** to enable the Private Cloud Controller.
 - See image.
-  - Click Save.
+  - Click **Save**.
 - Network Connector
   - (Optional) Disable the Network Connector you want to update.
     - Log in to the Zscaler Admin Console.
-    - From the navigation menu, go to Private Access > VPN (for Legacy Apps) > Network Connectors.
-    - Click the Edit icon for the Network Connector you want to update.
-    - Select Disabled under Status to disable the individual Network Connector in the group.
+    - From the navigation menu, go to **Private Access** > **VPN (for Legacy Apps)** > **Network Connectors**.
+    - Click the **Edit** icon for the Network Connector you want to update.
+    - Select **Disabled** under **Status** to disable the individual Network Connector in the group.
     - See image.
     - Access the Network Connector Status log type in the Zscaler Admin Console to view the list of currently active Network Connectors to make sure any existing or long-lived critical transactions have ended or stopped.
   - Log in to the Network Connector console using your admin credentials.
@@ -116,7 +116,7 @@ For host OS and software package updates, choose the component you want to updat
 - $ sudo yum update -y
   - After completing the update, reboot the Network Connector using the following command:
 - $ sudo reboot
-  - After the reboot, go to the Zscaler Admin Console and click the Edit icon for the Network Connector.
-  - Select Enabled to enable the Network Connector.
+  - After the reboot, go to the Zscaler Admin Console and click the **Edit** icon for the Network Connector.
+  - Select **Enabled** to enable the Network Connector.
 - See image.
-  - Click Save.
+  - Click **Save**.

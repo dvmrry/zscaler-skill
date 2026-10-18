@@ -15,78 +15,204 @@
     "zia/url-filtering-rules#rank"
   ],
   "related": [
-    { "rel": "depends-on", "to": "zia.url-categories.membership" },
-    { "rel": "interacts-with", "to": "zia.cloud-app-control.precedence" },
-    { "rel": "see-also", "to": "zia.ssl-inspection.pipeline" }
+    {
+      "rel": "depends-on",
+      "to": "zia.url-categories.membership"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which category the URL belongs to, since it is resolved before any rule is walked.",
+      "uses": [
+        "zia.url-categories.membership:resolved-before-rules"
+      ]
+    },
+    {
+      "do": "Whether a higher rule fails to fire only because the URL resolved to a different category.",
+      "uses": [
+        "zia.url-categories.membership:resolved-before-rules",
+        "ascending-order"
+      ]
+    },
+    {
+      "do": "Whether a disabled rule is the reason a higher rule appears not to fire.",
+      "uses": [
+        "disabled-holds-slot"
+      ]
+    },
+    {
+      "do": "Whether an admin rank limits the positions a rule can take in the order.",
+      "uses": [
+        "admin-rank-precedes"
+      ]
+    }
   ],
   "claims": {
     "ascending-order": {
       "statement": "URL Filtering rules evaluate in ascending `order` (Rule 1 before Rule 2).",
       "tier": "A",
-      "binds": ["zia/url-filtering-rules#order"],
+      "binds": [
+        "zia/url-filtering-rules#order"
+      ],
       "evidence": [
-        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
-          "quotes": ["Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)"] }
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)"
+          ]
+        }
       ]
     },
     "first-match": {
       "statement": "Evaluation stops at the first rule whose criteria all match; later rules are not consulted.",
       "tier": "A",
-      "binds": ["zia/url-filtering-rules#order"],
+      "binds": [
+        "zia/url-filtering-rules#order"
+      ],
       "evidence": [
-        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
-          "quotes": ["The evaluation of the policy rules stops at the first match."] }
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "The evaluation of the policy rules stops at the first match."
+          ]
+        }
       ]
     },
     "disabled-holds-slot": {
       "statement": "A disabled rule is skipped but keeps its position in the order.",
       "tier": "A",
-      "binds": ["zia/url-filtering-rules#state", "zia/url-filtering-rules#order"],
+      "binds": [
+        "zia/url-filtering-rules#state",
+        "zia/url-filtering-rules#order"
+      ],
       "evidence": [
-        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
-          "quotes": ["A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."] }
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
+          ]
+        }
       ]
     },
     "admin-rank-precedes": {
       "statement": "With Admin Rank enabled, a rule's admin rank (0 is highest, 7 lowest) constrains the order values it can take: a higher-ranked rule always precedes a lower-ranked one, and an admin cannot pick a rank above their own.",
       "tier": "A",
-      "binds": ["zia/url-filtering-rules#rank", "zia/url-filtering-rules#order"],
+      "binds": [
+        "zia/url-filtering-rules#rank",
+        "zia/url-filtering-rules#order"
+      ],
       "evidence": [
-        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_the_URL_Filtering_Policy.txt",
           "quotes": [
             "Admin Rank: Enter a value from 0 to 7 (0 is the highest rank).",
             "You cannot select a rank that is higher than your own.",
             "so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
-          ] }
+          ]
+        }
       ]
     }
   },
   "cases": {
     "first-match-shadows-later-rule": {
       "kind": "rule-evaluation",
-      "claims": ["ascending-order", "first-match"],
+      "claims": [
+        "ascending-order",
+        "first-match"
+      ],
       "config": {
         "rules": [
-          { "id": 1, "order": 1, "state": "ENABLED", "action": "BLOCK", "urlCategories": ["CUSTOM_01"] },
-          { "id": 2, "order": 2, "state": "ENABLED", "action": "ALLOW", "urlCategories": ["CUSTOM_01"] }
+          {
+            "id": 1,
+            "order": 1,
+            "state": "ENABLED",
+            "action": "BLOCK",
+            "urlCategories": [
+              "CUSTOM_01"
+            ]
+          },
+          {
+            "id": 2,
+            "order": 2,
+            "state": "ENABLED",
+            "action": "ALLOW",
+            "urlCategories": [
+              "CUSTOM_01"
+            ]
+          }
         ],
-        "categories": [{ "id": "CUSTOM_01", "urls": ["www.example.com"] }]
+        "categories": [
+          {
+            "id": "CUSTOM_01",
+            "urls": [
+              "www.example.com"
+            ]
+          }
+        ]
       },
-      "request": { "url": "https://www.example.com/" },
-      "expect": { "verdict": "block", "rule": 1 }
+      "request": {
+        "url": "https://www.example.com/"
+      },
+      "expect": {
+        "verdict": "block",
+        "rule": 1
+      }
     },
     "disabled-rule-skipped": {
       "kind": "rule-evaluation",
-      "claims": ["disabled-holds-slot", "first-match"],
+      "claims": [
+        "disabled-holds-slot",
+        "first-match"
+      ],
       "config": {
         "rules": [
-          { "id": 1, "order": 1, "state": "DISABLED", "action": "BLOCK", "urlCategories": ["CUSTOM_01"] },
-          { "id": 2, "order": 2, "state": "ENABLED", "action": "ALLOW", "urlCategories": ["CUSTOM_01"] }
+          {
+            "id": 1,
+            "order": 1,
+            "state": "DISABLED",
+            "action": "BLOCK",
+            "urlCategories": [
+              "CUSTOM_01"
+            ]
+          },
+          {
+            "id": 2,
+            "order": 2,
+            "state": "ENABLED",
+            "action": "ALLOW",
+            "urlCategories": [
+              "CUSTOM_01"
+            ]
+          }
         ],
-        "categories": [{ "id": "CUSTOM_01", "urls": ["www.example.com"] }]
+        "categories": [
+          {
+            "id": "CUSTOM_01",
+            "urls": [
+              "www.example.com"
+            ]
+          }
+        ]
       },
-      "request": { "url": "https://www.example.com/" },
-      "expect": { "verdict": "allow", "rule": 2 }
+      "request": {
+        "url": "https://www.example.com/"
+      },
+      "expect": {
+        "verdict": "allow",
+        "rule": 2
+      }
     }
   }
 }

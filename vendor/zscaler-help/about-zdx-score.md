@@ -10,9 +10,9 @@ Watch a video about the ZDX Score (shows legacy UI).
 A ZDX Score represents all users in your organization, across all applications, all locations, and all cities. You can see the score on the Zscaler Admin Console dashboards that capture Digital Experience (ZDX) metrics. Depending on the time period and filters selected within the dashboards, the score adjusts accordingly.
 The ZDX Score is based on a scale of 0 (lowest) to 100 (highest) with the lowest numbers indicating a Poor score and the highest numbers indicating a Good score.
 A ZDX Score falls into one of three categories:
-- Good: The score is above an acceptable threshold and ranges from 66-100. The color for this range is green.
-- Okay: The score is acceptable and ranges from 34-65. The color for this range is amber.
-- Poor: The score is below an acceptable threshold and ranges from 0-33. The color for this range is red.
+- **Good**: The score is above an acceptable threshold and ranges from 66-100. The color for this range is green.
+- **Okay**: The score is acceptable and ranges from 34-65. The color for this range is amber.
+- **Poor**: The score is below an acceptable threshold and ranges from 0-33. The color for this range is red.
 Low scores can often be attributed to underlying issues related to the network or local environment. Some potential reasons for a low score include:
 - Issues with a user's device (e.g., restarts, amount of CPU in use, etc.).
 - Issues with the connection (e.g., Wi-Fi signal strength).
@@ -36,9 +36,9 @@ Zscaler sends a probe from Zscaler Client Connector to an application every 5 mi
 All scores are rounded to the nearest whole number.
 # Understanding ZDX Score Types
 There are two different ZDX Score types and one combined ZDX Score type depending on how you configure your applications to measure ZDX Score:
-- Synthetic Probe Score: The score is measured using probes (i.e., Cloud Path probe or Web probe).
-- RUM Score: The score is measured using Real User Monitoring (RUM).
-- Combined Score: The score is a combination of both Synthetic Probe Score and RUM Score.
+- **Synthetic Probe Score**: The score is measured using probes (i.e., Cloud Path probe or Web probe).
+- **RUM Score**: The score is measured using Real User Monitoring (RUM).
+- **Combined Score**: The score is a combination of both Synthetic Probe Score and RUM Score.
 These scores can differ from each other as they use different application configurations and use different metrics to measure the Digital Experience of a device.
 | Metrics | Synthetic Probe Configuration Only | RUM Configuration Only | Combined Configurations |
 |---|---|---|---|

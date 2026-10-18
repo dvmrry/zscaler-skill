@@ -13,7 +13,7 @@ Before understanding the B2B Federation processes, Zscaler recommends you are aw
 - To use B2B Federation, ensure the following:
   - Both the host and guest partners must:
     - Have a Private Access tenant.
-    - Complete migration to Authentication Service for admins. To learn more, see Migrating Zscaler Service Admins to Authentication Service.
+    - Complete migration to Authentication Service for admins. To learn more, see Migrating Zscaler Service Admins to Authentication Service**.**
     - Have Zscaler Experience Center enabled. To learn more, see What Is Zscaler Experience Center?
     - This feature is only supported for Experience Center.
     - Partners must have an active Private Access license to use B2B Federation, but only the host partner needs a Federation license to share applications with a Partner.
@@ -32,7 +32,7 @@ Before understanding the B2B Federation processes, Zscaler recommends you are aw
     - Android version: 3.10 or later
     - Linux version: 4.2 or later
     - iOS version 4.4.1 or later
-    - Ensure Use Tunnel SDK version 4.3 or above is enabled in the Zscaler Client Connector Portal. To learn more, see Configuring Zscaler Client Connector App Profiles.
+    - Ensure **Use Tunnel SDK version 4.3 or above** is enabled in the Zscaler Client Connector Portal. To learn more, see Configuring Zscaler Client Connector App Profiles.
 - Terminology
 - The following terminology applies to B2B Federation:
 | Term | Definition |

@@ -43,6 +43,6 @@ After you edit the data center list for a subcloud from the Subclouds page on th
 Ensure that the Application Profile PAC has been updated to reflect the subcloud changes prior to requesting an app policy update.
 To update the app policy:
 - Open Zscaler Client Connector on the client machine.
-- Go to More.
-- Click Update Policy next to App Policy to immediately sync the Application Profile PAC.
+- Go to **More**.
+- Click **Update Policy** next to **App Policy** to immediately sync the Application Profile PAC.
 See image.

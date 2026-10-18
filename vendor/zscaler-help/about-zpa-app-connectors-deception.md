@@ -12,15 +12,15 @@ App Connectors provide the following benefits and enable you to:
 - Deploy Zero Trust Network decoys in the Zero Trust Exchange (ZTE) environment.
 You can view the details of the App Connector on the ZPA App Connectors page (Settings > Topology > ZPA App Connectors). On this page, you can do the following:
 - View a list of all deployed App Connectors. For each deployed App Connector, you can see:
-  - Name: The name of the App Connector. The following icons indicate the connection status of the App Connector with the Deception Admin Portal:
+  - **Name**: The name of the App Connector. The following icons indicate the connection status of the App Connector with the Deception Admin Portal:
     - : Active or connected to the Deception Admin Portal.
     - : Inactive or not connected to the Deception Admin Portal.
     - : Not connected to an aggregator.
     - : Update in progress or update failed.
-  - Version: The version of the Decoy Connector.
-  - ZPA Version: The version of the App Connector software.
-  - ZPA Manager Version: The version of the current App Connector Manager software. To learn more, see Understanding the Manager Software.
-  - Last Connected Time: The time when the Decoy Connector was last connected to the Deception Admin Portal.
-  - ZPA App Connector Last Connected Time: The time when the App Connector was last connected to the Private Access cloud.
+  - **Version**: The version of the Decoy Connector.
+  - **ZPA Version**: The version of the App Connector software.
+  - **ZPA Manager Version**: The version of the current App Connector Manager software. To learn more, see Understanding the Manager Software.
+  - **Last Connected Time**: The time when the Decoy Connector was last connected to the Deception Admin Portal.
+  - **ZPA App Connector Last Connected Time**: The time when the App Connector was last connected to the Private Access cloud.
 - Reboot an App Connector.
 - View update logs and download the debug logs for an App Connector.

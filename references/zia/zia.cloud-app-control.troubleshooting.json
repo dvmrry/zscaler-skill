@@ -31,6 +31,32 @@
       "to": "zia.logs.web-rule-attribution"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether an allowed app is blocked by URL Filtering after a CAC allow, by checking whether cascading is on tenant-wide or on that rule.",
+      "uses": [
+        "allowed-app-blocked"
+      ]
+    },
+    {
+      "do": "Whether the traffic reaches Zscaler at all, before reading any rule.",
+      "uses": [
+        "blocked-app-reachable"
+      ]
+    },
+    {
+      "do": "Whether the blocked app's traffic uses QUIC, since QUIC interception is open.",
+      "uses": [
+        "quic-interception"
+      ]
+    },
+    {
+      "do": "Whether decryption leaves CAC only domain-level information for the app.",
+      "uses": [
+        "zia.cloud-app-control.ssl-visibility:domain-level-only-when-not-decrypted"
+      ]
+    }
+  ],
   "claims": {
     "allowed-app-blocked": {
       "statement": "When Zscaler blocks a cloud app that Cloud App Control allows, Zscaler's first check is whether Allow Cascading to URL Filtering is enabled and, if so, whether a matching URL Filtering rule allows the traffic.",

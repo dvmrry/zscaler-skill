@@ -1,7 +1,7 @@
-NAT Control is destination NAT, not address masquerading. {{dnat-surface}} The part of a rule that has no counterpart on a Firewall Filtering rule is the redirect. {{redirect-targets}} {{res-categories}}
+{{dnat-surface}} Whether NAT Control also does source NAT is open {{gap:source-nat-support}}.
 
-Because the rule only redirects, it has no allow or block action. {{no-action-field}} {{no-network-apps}} {{no-health-check}} Evaluation is ascending: {{ascending-order}} The predefined DNS rule matters for any DNS question: {{predefined-dns-rule}} {{nat-logs}} Everything else it matches on is like a Filtering rule. {{matching-criteria}} {{trusted-resolver-rule}} Order is per NAT policy: see [[zia.firewall.rule-order]]. The rule count cap is in [[zia.firewall.limits]].
+**The redirect.** {{redirect-targets}} {{res-categories}} {{no-action-field}} {{no-network-apps}} {{no-health-check}}
 
-The old reference described NAT Control as masquerading internal sources to a public egress address, as source NAT for overlapping private ranges, and as publishing servers, and said NAT rules evaluate before Firewall Filtering so that Filtering sees the rewritten addresses. Only the destination-NAT part is supported by the captures. Source NAT is a gap, and so is the relative order with Filtering; if a Filtering rule looks right but does not fire, checking whether a NAT rule rewrote the destination first is a reasonable lead, not an established rule. See also [[zia.firewall.traffic-path]]. The relationship to Source IP Anchoring is outside this area.
+**The predefined DNS rule.** {{predefined-dns-rule}} {{trusted-resolver-rule}} {{nat-logs}}
 
-What to check: the rule's redirect fields, whether it matches the traffic after or before any rewrite (undocumented), and which log field records that a DNAT rule applied.
+**Matching and order.** {{matching-criteria}} {{ascending-order}} Rule order is in [[zia.firewall.rule-order]], and the rule count cap is in [[zia.firewall.limits]]. How DNAT rules count against those caps is open {{gap:dnat-count-bucket}}.

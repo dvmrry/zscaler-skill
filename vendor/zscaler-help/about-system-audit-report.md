@@ -28,7 +28,7 @@ On the System Audit Report page (Analytics > Reports > System Audit Report), you
   - PAC Files
   - In this section, Zscaler checks all PAC files to see if they use a Public Service Edge for Internet & SaaS (ZIA) static FQDN name or VIP address in the return statement. The PAC files can use a Global Public Service Edge IP address, Virtual Service Edge for Internet & SaaS IP address, Private Service Edge for Internet & SaaS (ZIA) IP address, or an on-premises proxy solution, and it's not flagged in this report.
   - See image.
-  - You can view all the static IPs of a PAC file by clicking View All next to the Static IP Addresses column. A window appears listing all the static IPs. You can search for static IPs or download the list as a CSV file.
+  - You can view all the static IPs of a PAC file by clicking **View All** next to the **Static IP Addresses** column. A window appears listing all the static IPs. You can search for static IPs or download the list as a CSV file.
   - The following table shows the rubric used to grade this section:
 | Issues | Grade |
 |---|---|

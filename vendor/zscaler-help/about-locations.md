@@ -28,27 +28,27 @@ On the Locations page (Infrastructure > Location Management > Legacy Locations),
 - Add a location.
 - Import new locations and sublocations, or modify existing locations and sublocations, using a CSV file.
 - Download a CSV file that lists your locations and sublocations.
-- Download a Sample Import CSV file that shows the correct CSV format for adding or modifying locations and sublocations.
+- Download a **Sample Import CSV file** that shows the correct CSV format for adding or modifying locations and sublocations.
 - Filter the list of locations and sublocations.
-- To narrow down the list of locations and sublocations, click the Apply Filter icon (). Click Add Filter and then select a location attribute from the drop-down menu. After you configure the attribute, the list automatically updates to show relevant locations and sublocations. You can add multiple attributes to narrow down the list even further. To remove a filter, click the Remove icon ().
+- To narrow down the list of locations and sublocations, click the **Apply Filter** icon (). Click **Add Filter** and then select a location attribute from the drop-down menu. After you configure the attribute, the list automatically updates to show relevant locations and sublocations. You can add multiple attributes to narrow down the list even further. To remove a filter, click the **Remove icon** ().
 - Search for a location or sublocation.
 - View a list of all locations and sublocations that were configured for your organization. For each location, you can see:
-  - Name: The name of the location or sublocation.
-  - Sublocations: The number of sublocations for the location. If you click the number in this column, the View Sublocation window appears.
-  - IP Addresses: The static IP addresses for your local gateway for the location.
+  - **Name**: The name of the location or sublocation.
+  - **Sublocations**: The number of sublocations for the location. If you click the number in this column, the **View Sublocation** window appears.
+  - **IP Addresses**: The static IP addresses for your local gateway for the location.
   - The organization's shared public IP addresses cannot be used for a specific tenant's location.
-  - Description: Additional notes or information about the location.
-  - Proxy Ports: The subscribed proxy ports for the location, if applicable.
-  - Use XFF from Client Request: Indicates whether the Use XFF from Client Request feature is enabled for the location.
-  - Authentication: Indicates whether the Enforce Authentication feature is enabled for the location. If you are also using the Enable IP Surrogates feature, this column displays the specified Idle Time to Disassociation.
-  - Firewall Filtering: Indicates whether the Enforce Firewall Control feature is enabled for the location.
-  - Bandwidth: If the Enforce Bandwidth Control feature is enabled for the location, the download and upload bandwidth limits are displayed in Mbps.
-  - Virtual Service Edges: The Virtual Service Edges and Virtual Service Edge clusters for the location, if applicable.
-  - IPS Control: Indicates whether the IPS control feature is enabled for the location.
-  - Group: The location group associated with the location and its sublocations.
+  - **Description**: Additional notes or information about the location.
+  - **Proxy Ports**: The subscribed proxy ports for the location, if applicable.
+  - **Use XFF from Client Request**: Indicates whether the Use XFF from Client Request feature is enabled for the location.
+  - **Authentication**: Indicates whether the Enforce Authentication feature is enabled for the location. If you are also using the Enable IP Surrogates feature, this column displays the specified Idle Time to Disassociation.
+  - **Firewall Filtering**: Indicates whether the Enforce Firewall Control feature is enabled for the location.
+  - **Bandwidth**: If the Enforce Bandwidth Control feature is enabled for the location, the download and upload bandwidth limits are displayed in Mbps.
+  - **Virtual Service Edges**: The Virtual Service Edges and Virtual Service Edge clusters for the location, if applicable.
+  - **IPS Control**: Indicates whether the IPS control feature is enabled for the location.
+  - **Group**: The location group associated with the location and its sublocations.
   - The Workload Traffic Group is automatically populated for locations with the Workload traffic location type.
-  - Managed By: The name of the SD-WAN partner that manages the location.
-  - Location Type: The primary type of traffic for the location.
+  - **Managed By**: The name of the SD-WAN partner that manages the location.
+  - **Location Type**: The primary type of traffic for the location.
   - The location type, Workload traffic type, automatically applies to a location created in the Zscaler Admin Console.
 - For location lists, you can view up to 100 locations on a page.
 - Modify the table and its columns.

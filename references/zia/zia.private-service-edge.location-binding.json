@@ -29,6 +29,32 @@
       "to": "zia.private-service-edge.deployment"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a Static IP exists for each cluster and is owned by the organization.",
+      "uses": [
+        "static-ip-per-cluster"
+      ]
+    },
+    {
+      "do": "Whether the forwarding ranges were shared and Zscaler confirmed the mapping on every instance.",
+      "uses": [
+        "support-completes-mapping"
+      ]
+    },
+    {
+      "do": "Whether any Location has no confirmed mapping, since that can be the open-proxy case.",
+      "uses": [
+        "open-proxy-risk"
+      ]
+    },
+    {
+      "do": "Ask Zscaler whether later edits to a mapped Location need a ticket, rather than assuming either way.",
+      "uses": [
+        "ticket-for-every-change"
+      ]
+    }
+  ],
   "claims": {
     "location-benefits": {
       "statement": "Adding a location to a Private Service Edge cluster allows transaction logs to be viewed, categorized and reported per cluster, lets the organization manage authentication settings, IP Surrogacy settings, XFF consumption and Location group settings for SSL inspection and web filtering policies, and maps traffic and enforcement in a NAT environment.",

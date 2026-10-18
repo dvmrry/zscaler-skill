@@ -17,11 +17,11 @@ On the Virtual Service Edge Clusters page (Infrastructure > Internet & SaaS > Vi
 - Add a Virtual Service Edge Cluster.
 - Search for a Virtual Service Edge cluster.
 - View a list of all Virtual Service Edge clusters that were configured for your organization. For each Virtual Service Edge cluster, you can see the following information:
-  - Name: The name of the Virtual Service Edge cluster. You can sort this column.
-  - Status: Displays whether the Virtual Service Edge cluster is enabled or disabled. You can sort this column.
-  - Virtual Service Edges: The Virtual Service Edge instances that are included in the cluster. You can sort this column.
-  - Cluster IP: The cluster IP address. You can sort this column.
-  - IPSec Local Termination: The status of IPSec local termination for the Virtual Service Edge cluster. You can sort this column.
+  - **Name**: The name of the Virtual Service Edge cluster. You can sort this column.
+  - **Status**: Displays whether the Virtual Service Edge cluster is enabled or disabled. You can sort this column.
+  - **Virtual Service Edges**: The Virtual Service Edge instances that are included in the cluster. You can sort this column.
+  - **Cluster IP**: The cluster IP address. You can sort this column.
+  - **IPSec Local Termination**: The status of IPSec local termination for the Virtual Service Edge cluster. You can sort this column.
 - Modify the table and its columns.
 - Edit a Virtual Service Edge Cluster.
 - Go to the Virtual Service Edges page to manage and configure Virtual Service Edges.

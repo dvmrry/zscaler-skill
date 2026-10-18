@@ -38,6 +38,40 @@
       "to": "zia.terraform.field-fidelity"
     }
   ],
+  "checks": [
+    {
+      "do": "The forwarding method, since NAT in the path leaves users without one IP each.",
+      "uses": [
+        "no-nat"
+      ]
+    },
+    {
+      "do": "Whether Enforce Authentication is on for the sublocation the traffic maps to.",
+      "uses": [
+        "zia.authentication.location-enforcement:enforce-authentication"
+      ]
+    },
+    {
+      "do": "Whether the source is a shared or multi-session VDI address.",
+      "uses": [
+        "no-vdi"
+      ]
+    },
+    {
+      "do": "Whether the idle and refresh times are set against the DHCP lease.",
+      "uses": [
+        "refresh-vs-lease",
+        "idle-time-dhcp"
+      ]
+    },
+    {
+      "do": "Whether devices that cannot authenticate, such as printers or servers, sit in a sublocation without Enforce Authentication.",
+      "uses": [
+        "zia.authentication.location-enforcement:sublocation-split",
+        "no-nat"
+      ]
+    }
+  ],
   "claims": {
     "definition": {
       "statement": "Surrogate IP maps a user to a private IP address so the user's policies, rather than the location's, apply to traffic that cannot be authenticated: applications that do not support cookies, HTTPS that is not decrypted, and unknown user agents. All private IPs a user browses from are mapped to the user, and the transactions are attributed to the user in the logs. The mapping is created when the user authenticates.",

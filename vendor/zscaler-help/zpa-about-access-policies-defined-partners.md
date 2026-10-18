@@ -14,10 +14,10 @@ Access policies defined by partners provide the following benefits and enable yo
 On the Defined by Partners page (Private Access > Policy > Access Policy > Rules > Defined by Partners), you can do the following:
 - View a list of policy groups or rules.
 - Modify the columns displayed in the table.
-- Click the Filter icon to show or hide the filters. The number displayed in parentheses next to the icon indicates the number of applied filters.
-- Filter the information that appears in the table. By default, the Partner filter is applied to show the most recent federated partner. To learn more, see Using Tables.
+- Click the **Filter** icon to show or hide the filters. The number displayed in parentheses next to the icon indicates the number of applied filters.
+- Filter the information that appears in the table. By default, the **Partner** filter is applied to show the most recent federated partner. To learn more, see Using Tables.
 - View a list of all access policy rules that were defined by partners. For each rule, you can see:
-  - Name: The name of the rule. Click the rule name to open a drawer with additional details (i.e., name, description, rule action, applied criteria).
-  - Rule Action: Indicates the action for the rule (i.e., Allow Access, Block Access, or Require Approval).
+  - **Name**: The name of the rule. Click the rule name to open a drawer with additional details (i.e., name, description, rule action, applied criteria).
+  - **Rule Action**: Indicates the action for the rule (i.e., **Allow Access**, **Block Access**, or **Require Approval**).
 - Display more rows or a different page of the table.
 - Go to the Defined by My Tenant page to view access policy rules that are created and defined by your tenant.

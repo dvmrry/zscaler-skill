@@ -2,7 +2,7 @@
 
 **What a profile is.** {{one-app-per-profile}} {{create-form}} The profile does nothing until a CAC rule references it: {{rule-reference-field}} How a rule's criteria combine is in [[zia.cloud-app-control.rule-criteria:criteria-expression]], rule order in [[zia.cloud-app-control.precedence:cac-rule-order]], and the per-category rule cap in [[zia.cloud-app-control.rule-types:rule-cap-per-category]].
 
-**What an allow rule does.** {{allow-blocks-others}} {{youtube-aws-explicit-block}} For those two, check that an explicit block rule exists; otherwise other tenants stay reachable.
+**What an allow rule does.** {{allow-blocks-others}} {{youtube-aws-explicit-block}}
 
 **Where to look next.**
 
@@ -13,4 +13,4 @@
 - API, SDK and Terraform behavior, including the older provider cap: [[zia.tenant-profiles.api-surface]].
 - The AI & ML rule flow, where Tenant Profiles appears for ChatGPT: [[zia.cloud-app-control.ai-ml-rules:tenant-profiles-visibility]].
 
-**Open points.** Two statements from the old guide have no source: what deleting a profile that a rule uses does (gap `delete-referenced-profile`), and what a stale identifier does after a tenant change (gap `identity-change-staleness`). Audit dependent rules before deleting a profile, and treat an identifier change as a reason to re-read the profile.
+**Open points.** What deleting a profile that a rule uses does is open {{gap:delete-referenced-profile}}. What a stale identifier does after a tenant change is open {{gap:identity-change-staleness}}.

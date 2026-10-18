@@ -35,6 +35,33 @@
       "to": "zia.logs.web-rule-attribution"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the location has the firewall enabled, since enforcement depends on it.",
+      "uses": [
+        "enforcement-conditions"
+      ]
+    },
+    {
+      "do": "Whether the traffic is Z-Tunnel 1.0 or PAC, and the option to enable the firewall for it is on.",
+      "uses": [
+        "ztunnel-pac-opt-in"
+      ]
+    },
+    {
+      "do": "Whether the block appears in both logs, which marks a firewall block, or only in Web Insights, which marks a web-policy block.",
+      "uses": [
+        "firewall-block-both-logs",
+        "web-block-firewall-allowed"
+      ]
+    },
+    {
+      "do": "Whether the web-rule attribution fields settle a disagreement between the firewall log and Web Insights.",
+      "uses": [
+        "web-block-firewall-log-conflict"
+      ]
+    }
+  ],
   "claims": {
     "firewall-first": {
       "statement": "All web traffic is evaluated in the firewall module first, and only traffic that does not violate a firewall policy is forwarded to the web module.",

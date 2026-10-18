@@ -2,4 +2,4 @@
 
 **Updates.** {{update-is-put}} The API response to a partial PUT is gap `omitted-field-on-put`, the same open question as [[zia.sdk-go.write-encoding]] raises for rules.
 
-**Activation.** {{activation-needed}} {{session-end-activates}} The Terraform provider's own activation behavior is in [[zia.terraform.activation]]. Do not use a delay as a safety boundary: a session ending can publish the interval before you intended.
+**Activation.** {{activation-needed}} {{session-end-activates}} The Terraform provider's own activation behavior is in [[zia.terraform.activation]].

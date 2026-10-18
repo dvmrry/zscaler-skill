@@ -16,18 +16,18 @@ The VPN Credentials page provides the following benefits and enables you to:
 - Import or delete multiple VPN credentials for different authentication types using a CSV file to reduce the configuration effort for the administrator.
 # About the VPN Credentials Page
 On the VPN Credentials page (Infrastructure > Location Management > VPN Credentials), you can do the following:
-- Filter a VPN credential search by Authentication Type.
+- Filter a VPN credential search by **Authentication Type**.
 - Search for a VPN credential.
 - Import VPN credentials using a CSV file.
-- Download a Sample Import CSV file and use it as a template to add or remove VPN credentials. Using the sample CSV file as a guide ensures that the format of your entries is correct before you import the information.
+- Download a **Sample Import CSV file** and use it as a template to add or remove VPN credentials. Using the sample CSV file as a guide ensures that the format of your entries is correct before you import the information.
 - Add a VPN credential.
 - Modify the table and its columns.
 - View a list of VPN credentials that are configured for your organization. For each VPN credential, you can see the following:
-  - User/Certificate ID: The User ID or IP address for the VPN credential. You can sort this column.
-  - Authentication Type: The authentication type used to identify the peer, FQDN, XAUTH, or IP. You can sort this column.
-  - Location: The name of the location associated with the VPN credential.
-  - PPK ID: The post-quantum pre-shared ID.
-  - Comments: Displays any comments about the VPN credential, if available. You can sort this column.
-  - Status: The status of the VPN credential.
-  - Managed By: The name of the partner that manages the VPN credential. To learn more, see Understanding Partner Integrations.
+  - **User/Certificate ID**: The User ID or IP address for the VPN credential. You can sort this column.
+  - **Authentication Type**: The authentication type used to identify the peer, FQDN, XAUTH, or IP. You can sort this column.
+  - **Location**: The name of the location associated with the VPN credential.
+  - **PPK ID**: The post-quantum pre-shared ID.
+  - **Comments**: Displays any comments about the VPN credential, if available. You can sort this column.
+  - **Status**: The status of the VPN credential.
+  - **Managed By**: The name of the partner that manages the VPN credential. To learn more, see Understanding Partner Integrations.
 - Edit or delete the VPN credential.

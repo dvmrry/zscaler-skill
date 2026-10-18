@@ -13,11 +13,11 @@ The Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB
 To configure a DLP policy rule with content inspection:
 - 1. Understand policy execution.
 - The DLP policy supports different rule conditions, grouped into categories. A series of AND and OR logical operators are applied between these criteria to form a combination of rule set that is used to evaluate for traffic matches. The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:
-  - Who, Where, & When: [ (Users OR Groups OR Departments OR User Risk Profile) AND (Locations OR Location Groups OR Source IP groups) AND Time AND
-  - Destination IP: URL Categories AND
-  - Applications: [ Cloud Applications AND ZPA Application Segment ] AND
-  - Protocols: Protocols AND
-  - What: [ Content Matching AND File Types AND Minimum Data Size (KB) AND Inspect Downloads AND DLP Engines AND Workload Groups ]
+  - **Who, Where, & When**: [ (Users OR Groups OR Departments OR User Risk Profile) AND (Locations OR Location Groups OR Source IP groups) AND Time AND
+  - **Destination IP**: URL Categories AND
+  - **Applications**: [ Cloud Applications AND ZPA Application Segment ] AND
+  - **Protocols**: Protocols AND
+  - **What**: [ Content Matching AND File Types AND Minimum Data Size (KB) AND Inspect Downloads AND DLP Engines AND Workload Groups ]
 - 2. Ensure completion of prerequisite tasks.
 - Before adding rules to the DLP policy, ensure that you have configured the resources that the policy references, per your requirements:
   - Users, groups, departments, locations, user risk profile, and sublocations to which the IPS Control policy rules apply.
@@ -32,91 +32,91 @@ To configure a DLP policy rule with content inspection:
 - 6. (Optional) Configure a Zscaler Incident Receiver to forward information about content that triggers an outbound email policy rule to your Incident Receiver via secure ICAP. Zscaler does not take ICAP responses from your Incident Receiver; instead, the service only monitors or blocks content according to the policy you configure, then forwards information about activities so that your organization can take necessary remediation steps.
 - 7. (Optional) Configure Cloud-to-Cloud Incident Forwarding to send metadata and evidence about transactions that violate a DLP policy rule directly to your public cloud storage without deploying appliances.
 - 8. Define your policy rules.
-  - From the navigation menu, go to Data Security > Inline DLP > Data Loss Prevention.
-  - Click Add Rule.
-  - The Add Rule page appears.
-  - On the Add Rule page, you can configure the following sections:
+  - From the navigation menu, go to **Data Security** > **Inline DLP** > **Data Loss Prevention**.
+  - Click **Add Rule**.
+  - The **Add Rule** page appears.
+  - On the **Add Rule** page, you can configure the following sections:
     - Criteria
-    - In the Criteria section, when you click Add Criteria, you see the rule condition categories in gray (e.g., Source IP) and the individual rule conditions (e.g., Source IP Groups) under each category.
+    - In the **Criteria** section, when you click **Add Criteria**, you see the rule condition categories in gray (e.g., Source IP) and the individual rule conditions (e.g., Source IP Groups) under each category.
     - See image.
     - After you click on the various conditions, you notice that some conditions contain preconfigured values (e.g., Users and Locations) and others require manual value specification (e.g., IP Addresses).
       - Criteria with Preconfigured Values
-      - For conditions with preconfigured values, a multi-select window with a search bar appears. You can select values by selecting the checkbox for individual items or by clicking Select All. After selecting the values, click outside the window to close it.
-      - To clear selected items, click the field to open the multi-select window, then use the Remove icon displayed for individual entries. To remove all selected values, click Remove All.
+      - For conditions with preconfigured values, a multi-select window with a search bar appears. You can select values by selecting the checkbox for individual items or by clicking **Select All**. After selecting the values, click outside the window to close it.
+      - To clear selected items, click the field to open the multi-select window, then use the **Remove** icon displayed for individual entries. To remove all selected values, click **Remove All**.
       - See image.
       - Criteria Requiring Manual Value Specification
-      - For conditions without preconfigured values, manually enter the value in the field, then click Add. To add multiple entries, enter each value and click Add or press Enter.
+      - For conditions without preconfigured values, manually enter the value in the field, then click **Add**. To add multiple entries, enter each value and click **Add** or press Enter.
       - You can also perform the following actions:
-        - Remove items by clicking the Delete icon for individual entries or by using the Remove All option.
+        - Remove items by clicking the **Delete** icon for individual entries or by using the **Remove All** option.
         - The entries are paginated, and you can select the number of items to display per page.
-        - You can specify the page number to view, or use the Next and Previous icons to navigate through different pages.
+        - You can specify the page number to view, or use the **Next** and **Previous** icons to navigate through different pages.
       - See image.
     - Refer to the following condition categories for details on configuring their individual conditions:
       - Who
-      - Contact Zscaler Support to increase the default limit for Users, Groups, Departments, or User Risk Profile:
-        - Users: Choose Include to apply the rule to selected users and no other users. Choose Any to apply the rule to all users or select up to 4 users. Choose Exclude to apply the rule to all other users and not selected users. You can select up to 256 users. When selecting users, you can search for users or click the Add User (Administration > Identity > Authentication Service > Users) to add a new user. If applicable, you can also select unauthenticated users.
-        - Groups: Choose Include to apply the rule to selected groups and no other groups. Choose Any to apply the rule to all groups or select up to 8 groups. Choose Exclude to apply the rule to all other groups and not selected groups. You can select up to 256 groups. When selecting groups, you can search for groups or click the Add icon to add a new group.
-        - Departments: Choose Include to apply the rule to selected departments and no other departments. Choose Any to apply the rule to all departments or select up to 8 departments. Choose Exclude to apply the rule to all other departments and not selected departments. You can select up to 256 departments. When selecting departments, you can search for departments or click the Add icon to add a new department. If applicable, you can also select Special Departments.
-        - Workload Groups: Select the workload groups for which you want to apply the rule. Selecting None ignores this criterion during policy evaluation.
-      - If you do not select specific values for any of these fields, the field is set to Any by default, and the criterion is ignored during policy evaluation.
-      - If you enabled the policy for unauthenticated users under Advanced Settings and want to apply this rule to unauthenticated traffic, you can do so by making selections accordingly in the Users and Departments fields. To learn more, see Configuring Policies for Unauthenticated Traffic.
+      - Contact Zscaler Support to increase the default limit for **Users**, **Groups**, **Departments**, or **User Risk Profile**:
+        - **Users**: Choose **Include** to apply the rule to selected users and no other users. Choose **Any** to apply the rule to all users or select up to 4 users. Choose **Exclude** to apply the rule to all other users and not selected users. You can select up to 256 users. When selecting users, you can search for users or click the **Add** **User** (Administration > Identity > Authentication Service > Users) to add a new user. If applicable, you can also select **unauthenticated users**.
+        - **Groups**: Choose **Include** to apply the rule to selected groups and no other groups. Choose **Any** to apply the rule to all groups or select up to 8 groups. Choose **Exclude** to apply the rule to all other groups and not selected groups. You can select up to 256 groups. When selecting groups, you can search for groups or click the **Add** icon to add a new group.
+        - **Departments**: Choose **Include** to apply the rule to selected departments and no other departments. Choose **Any** to apply the rule to all departments or select up to 8 departments. Choose **Exclude** to apply the rule to all other departments and not selected departments. You can select up to 256 departments. When selecting departments, you can search for departments or click the **Add** icon to add a new department. If applicable, you can also select **Special Departments**.
+        - **Workload Groups**: Select the workload groups for which you want to apply the rule. Selecting **None** ignores this criterion during policy evaluation.
+      - If you do not select specific values for any of these fields, the field is set to **Any** by default, and the criterion is ignored during policy evaluation.
+      - If you enabled the policy for unauthenticated users under Advanced Settings and want to apply this rule to unauthenticated traffic, you can do so by making selections accordingly in the **Users** and **Departments** fields. To learn more, see Configuring Policies for Unauthenticated Traffic.
       - What
-        - User Risk Profile: You can select up to 4 user risk profiles (i.e., Critical, High, Low, and Medium). Selecting no values ignores this criterion from the policy evaluation.
-        - Content Matching: Choose Select DLP Engines to select up to 4 DLP engines for content inspection on this rule. When you choose Select DLP Engines, the DLP Engines drop-down menu is available. Select None to use the Zscaler service as a filter, only flagging content based on the criteria you specify. Selecting None means that DLP Engines are not used to inspect content.
+        - **User Risk Profile**: You can select up to 4 user risk profiles (i.e., Critical, High, Low, and Medium). Selecting no values ignores this criterion from the policy evaluation.
+        - **Content Matching**: Choose **Select DLP Engines** to select up to 4 DLP engines for content inspection on this rule. When you choose Select DLP Engines, the DLP Engines drop-down menu is available. Select **None** to use the Zscaler service as a filter, only flagging content based on the criteria you specify. Selecting None means that DLP Engines are not used to inspect content.
         - This is a mandatory field for all applications.
-        - DLP Engines and Match Only: Select Any to choose all DLP engines for this rule, or select up to 4 engines. You can search for DLP engines. This option is available only when you select Select DLP Engines for Match Only.
-        - Inspect Downloads: Enable this option to allow DLP inspection for content downloaded from specific cloud apps. If this option is enabled, you must also choose Any for URL Categories and at least one cloud app for Cloud Application. If disabled, the DLP rule only applies to content being sent to cloud apps. The Inspect Downloads feature does not apply to Exact Data Match (EDM) or Indexed Data Matching (IDM) engines.
-        - File types: Select Any to apply the rule to all file types, or select any number of file types. You can also search for file types. Note that the file types supported by Zscaler DLP Engine rules differ from those supported by External DLP Engine rules.
-        - Minimum Data Size (KB): Enter the minimum size requirement that data must meet before the DLP rule applies. The default minimum data size, 0 KB, means there is no minimum data size requirement.
-        - Protocols: Choose any number of protocols to which the rule applies (e.g., HTTP, HTTPS, WebSocket, etc).
+        - **DLP Engines and Match Only**: Select **Any** to choose all DLP engines for this rule, or select up to 4 engines. You can search for DLP engines. This option is available only when you select **Select DLP Engines** for **Match Only**.
+        - **Inspect Downloads**: Enable this option to allow DLP inspection for content downloaded from specific cloud apps. If this option is enabled, you must also choose Any for URL Categories and at least one cloud app for Cloud Application. If disabled, the DLP rule only applies to content being sent to cloud apps. The Inspect Downloads feature does not apply to Exact Data Match (EDM) or Indexed Data Matching (IDM) engines.
+        - **File types**: Select **Any** to apply the rule to all file types, or select any number of file types. You can also search for file types. Note that the file types supported by Zscaler DLP Engine rules differ from those supported by External DLP Engine rules.
+        - **Minimum Data Size (KB)**: Enter the minimum size requirement that data must meet before the DLP rule applies. The default minimum data size, 0 KB, means there is no minimum data size requirement.
+        - **Protocols**: Choose any number of protocols to which the rule applies (e.g., HTTP, HTTPS, WebSocket, etc).
       - Sources & Destinations
-        - URL Categories: Select Any to apply the rule to all URL categories, or select any number of URL categories. You can search for URL categories or click the Add icon to create a new URL category.
-        - Cloud Applications: Select Any to apply the rule to all cloud applications in this category, or select any number of cloud applications. You can also search for applications. By default, this field displays the first 100 cloud applications.
-        - ZPA Application Segment: Select Any to apply the rule to all Private Access (ZPA) application segments, or select up to 255 Private Access application segments. The list displays only those Private Access application segments that have the Source IP Anchor option enabled.
-        - If you select the Inspect App Segments option from the list, then the configured rule applies to all the Private Access application segments paired to your Internet & SaaS (ZIA) tenant. This option is only available if SIPA App Segments is enabled for your organization.
-        - Source IP Groups: Select up to 32 source IP groups to which traffic originates.
-        - If you do not select specific location groups, the field is set to Any by default, and this criterion is ignored during policy evaluation.
-        - Locations: Select up to 32 locations to which the rule applies.
-        - Location Groups: Select up to 32 location groups to which the rule applies.
+        - **URL Categories**: Select **Any** to apply the rule to all URL categories, or select any number of URL categories. You can search for URL categories or click the **Add** icon to create a new URL category.
+        - **Cloud Applications**: Select **Any** to apply the rule to all cloud applications in this category, or select any number of cloud applications. You can also search for applications. By default, this field displays the first 100 cloud applications.
+        - **ZPA Application Segment:** Select **Any** to apply the rule to all Private Access (ZPA) application segments, or select up to 255 Private Access application segments. The list displays only those Private Access application segments that have the Source IP Anchor option enabled.
+        - If you select the **Inspect App Segments** option from the list, then the configured rule applies to all the Private Access application segments paired to your Internet & SaaS (ZIA) tenant. This option is only available if **SIPA App Segments** is enabled for your organization.
+        - **Source IP Groups**: Select up to 32 source IP groups to which traffic originates.
+        - If you do not select specific location groups, the field is set to **Any** by default, and this criterion is ignored during policy evaluation.
+        - **Locations**: Select up to 32 locations to which the rule applies.
+        - **Location Groups**: Select up to 32 location groups to which the rule applies.
       - When
-      - Time: Select up to two time intervals during which the rule applies. By default, the field is set to Always.
+      - **Time**: Select up to two time intervals during which the rule applies. By default, the field is set to **Always**.
     - See image.
-    - To remove an individual condition from the rule, click the Delete icon. You can expand or collapse individual criteria tiles as needed.
+    - To remove an individual condition from the rule, click the **Delete** icon. You can expand or collapse individual criteria tiles as needed.
     - Actions
-    - In the Actions section, select the action to apply when the rule conditions are met and configure the logging mode:
-      - Data Traffic: Choose the action that the Zscaler service must apply when packets match the rule:
-        - Allow: Allow the packets to pass through the DLP rule.
-        - Block: Block the packets to pass through the DLP rule.
+    - In the **Actions** section, select the action to apply when the rule conditions are met and configure the logging mode:
+      - **Data Traffic**: Choose the action that the Zscaler service must apply when packets match the rule:
+        - **Allow**: Allow the packets to pass through the DLP rule.
+        - **Block**: Block the packets to pass through the DLP rule.
     - See image.
     - Details
-    - In the Details section, provide general information about the DLP rule:
-      - Rule Name: A system-generated rule name is automatically populated, and the name can be edited. The name cannot exceed 63 characters.
-      - Description: (Optional) Click Add Description and enter additional notes or information about the rule in the text field. You can adjust this field's size as needed, depending on your content length. The description cannot exceed 10,240 characters.
-      - Rule Label: (Optional) Click Add Rule Label and select a label from the drop-down menu.
-      - Rule Order: A rule order is automatically assigned and displayed. It determines the rule's position in the ascending order of evaluation used for all rules within the policy. You can modify the rule order, but if you enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
+    - In the **Details** section, provide general information about the DLP rule:
+      - **Rule Name**: A system-generated rule name is automatically populated, and the name can be edited. The name cannot exceed 63 characters.
+      - **Description**: (Optional) Click **Add Description** and enter additional notes or information about the rule in the text field. You can adjust this field's size as needed, depending on your content length. The description cannot exceed 10,240 characters.
+      - **Rule Label**: (Optional) Click **Add Rule Label** and select a label from the drop-down menu.
+      - **Rule Order**: A rule order is automatically assigned and displayed. It determines the rule's position in the ascending order of evaluation used for all rules within the policy. You can modify the rule order, but if you enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
       - To modify the rule order:
-        - Click Edit.
-        - In the Edit Rule Order drawer that appears, enter the required rule order under Current Rule. You can review the existing rules shown in the drawer and modify your current rule order.
+        - Click **Edit**.
+        - In the **Edit Rule Order** drawer that appears, enter the required rule order under **Current Rule**. You can review the existing rules shown in the drawer and modify your current rule order.
         - You can also adjust the number of rules displayed per page and navigate through the next and previous pages.
-        - Click Apply.
-      - Admin Rank: Click Edit and select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu. This option appears if you enable Admin Ranking on the Advanced Settings page. Your assigned admin rank determines the values you can select (e.g., you cannot select a rank higher than your own). The rule's admin rank determines the value you can select for rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.
-      - Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic.
+        - Click **Apply**.
+      - **Admin Rank**: Click **Edit** and select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu. This option appears if you enable Admin Ranking on the Advanced Settings page. Your assigned admin rank determines the values you can select (e.g., you cannot select a rank higher than your own). The rule's admin rank determines the value you can select for rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.
+      - **Rule Status**: By default, the status is **Disabled**. You need to enable the rule to activate and enforce it on your traffic.
       - Disabled rules can have a rule order assigned. During evaluation, the service skips the disabled rules and moves to the successive ones.
     - See Image.
     - DLP Incident Receiver
     - This section is visible only if your subscription includes Incident Receiver.
-      - Incident Receiver: If you don't have a third-party DLP solution or don't want to forward content, leave the Zscaler Incident Receiver field as None.
-      - Tenant: If you want to forward the transactions captured by this policy rule to an on-premises DLP incident receiver, select the applicable Zscaler Incident Receiver from the drop-down menu. You must configure your Zscaler Incident Receivers to complete this step.
+      - **Incident Receiver**: If you don't have a third-party DLP solution or don't want to forward content, leave the **Zscaler Incident Receiver** field as **None**.
+      - **Tenant**: If you want to forward the transactions captured by this policy rule to an on-premises DLP incident receiver, select the applicable **Zscaler Incident** **Receiver** from the drop-down menu. You must configure your Zscaler Incident Receivers to complete this step.
       - Ensure that in your third-party DLP solution, you configured a rule that detects the same data type as the rule you configure here. For example, if you configure a Zscaler DLP rule blocking credit card data, you must also configure a rule in your third-party solution blocking credit card data.
       - Otherwise, the information Zscaler sends to your solution regarding a particular rule violation does not appear in your on-premises solution's dashboard. However, the rules do not need to correspond exactly. You don't need to ensure that other criteria for the rules, beyond the data type, correspond. For example, if a Zscaler DLP rule blocks credit card numbers going to a specific URL category, the rule in your on-premises DLP solution must also block credit card numbers, but needn't match the URL category criteria.
-      - Cloud-to-Cloud Forwarding Configuration: If you want to forward the incidents that this policy rule captured to your public cloud, such as Amazon S3, Microsoft Azure, or Google Cloud Platform, select the Cloud-to-Cloud Forwarding option. When you select this option, the tenant option appears. Choose a Tenant and a Cloud-to-Cloud Incident Forwarding Configuration from their respective drop-down menus. You must configure Cloud-to-Cloud Incident Forwarding to complete this step.
+      - **Cloud-to-Cloud Forwarding Configuration**: If you want to forward the incidents that this policy rule captured to your public cloud, such as Amazon S3, Microsoft Azure, or Google Cloud Platform, select the Cloud-to-Cloud Forwarding option. When you select this option, the tenant option appears. Choose a Tenant and a Cloud-to-Cloud Incident Forwarding Configuration from their respective drop-down menus. You must configure Cloud-to-Cloud Incident Forwarding to complete this step.
     - Notification
-    - In the Notification section, you can enable end user notifications (EUNs) and Auditor to be triggered by the rule when Block actions are configured and select the notification message that appears:
+    - In the **Notification** section, you can enable end user notifications (EUNs) and Auditor to be triggered by the rule when **Block** actions are configured and select the notification message that appears:
     - EUN is supported only with Block actions and requires Advanced DLP rule. To learn more, see Configuring EUNs for Inline Web DLP. Also, if you do not select an auditor and Notification Template, a notification is not sent for this rule.
-      - Auditor Type: Select whether the auditor is from a Hosted database or External.
-      - Auditor: If the auditor is from the hosted database, select an auditor or search for an auditor.
-      - Auditor Notification Template: Select a notification template if you configured one. You can also search for a notification template or click the Add icon to add a new notification template.
-      - End User Notification: Appears when you select Block while Traffic Capture is enabled. Enable this option to capture and store traffic in PCAP files. To learn more, see Configuring Traffic Capture.
-      - Custom Message: This option appears if the end user notification (EUN) is enabled, and allows you to select the notification message. You can select from default and custom notification messages to display for users.
+      - **Auditor Type**: Select whether the auditor is from a **Hosted** database or **External**.
+      - **Auditor**: If the auditor is from the hosted database, select an auditor or search for an auditor.
+      - **Auditor Notification Template**: Select a notification template if you configured one. You can also search for a notification template or click the Add icon to add a new notification template.
+      - **End User Notification**: Appears when you select **Block** while Traffic Capture is enabled. Enable this option to capture and store traffic in PCAP files. To learn more, see Configuring Traffic Capture.
+      - **Custom Message**: This option appears if the end user notification (EUN) is enabled, and allows you to select the notification message. You can select from default and custom notification messages to display for users.
     - See image.
   - Save and activate the change.

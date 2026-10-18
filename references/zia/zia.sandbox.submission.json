@@ -19,6 +19,21 @@
       "to": "zia.sandbox.rules"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a clean Discan result is read as no known-bad signal, not as a detonation verdict, since Discan includes no dynamic analysis.",
+      "uses": [
+        "discan"
+      ]
+    },
+    {
+      "do": "Whether the submit and Discan routes work on the target tenant before a customer is promised them.",
+      "uses": [
+        "automate-publication",
+        "submission-route-status"
+      ]
+    }
+  ],
   "claims": {
     "submit": {
       "statement": "The submit call sends a raw or archive file for full analysis (up to 100 files per day). Files are scanned by Zscaler antivirus and sent to the sandbox; the `force` parameter makes the sandbox reanalyze a file that already has a verdict. The verdict is read afterwards from the report endpoint.",

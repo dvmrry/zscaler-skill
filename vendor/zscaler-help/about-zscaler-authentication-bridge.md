@@ -41,9 +41,9 @@ On the Authentication Bridges page (Administration > Internet & SaaS Authenticat
 - Download the ZAB virtual machine.
 - Search for a configured ZAB.
 - View a list of configured ZABs. For each ZAB, you can view the following information:
-  - Name: The name of the ZAB.
-  - Status: The status of the ZAB (Enabled or Disabled).
-  - SSL Certificate: Download option to download the ZAB's SSL certificate.
+  - **Name**: The name of the ZAB.
+  - **Status**: The status of the ZAB (**Enabled** or **Disabled**).
+  - **SSL Certificate**: Download option to download the ZAB's SSL certificate.
 - Download the SSL certificate for the ZAB. The ZAB uses this certificate to authenticate itself to the Zscaler service.
 - Download the configuration file, upload the provisioning blob, and view and manage the new client certificate required for ZAB deployment. To learn more, see Deploying a Zscaler Authentication Bridge.
 - Modify the table and its columns.

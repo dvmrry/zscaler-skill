@@ -33,6 +33,27 @@
       "to": "zia.authentication.exemptions"
     }
   ],
+  "checks": [
+    {
+      "do": "How the failing traffic is forwarded, PAC or tunnel, since Kerberos is supported only in explicit mode.",
+      "uses": [
+        "kerberos-explicit-only",
+        "saml-idp-reachability"
+      ]
+    },
+    {
+      "do": "Whether the IdP host is exempted on that forwarding path.",
+      "uses": [
+        "saml-idp-reachability"
+      ]
+    },
+    {
+      "do": "Whether a Zscaler cookie was present on the request, since Kerberos challenges a request that has none.",
+      "uses": [
+        "kerberos-no-cookie"
+      ]
+    }
+  ],
   "claims": {
     "saml-sp": {
       "statement": "With SAML single sign-on the Zscaler service is the service provider and the organization's IdP provisions and authenticates users. Before configuring it, the SAML SSL certificate and the XML metadata must be obtained from the IdP.",

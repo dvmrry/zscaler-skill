@@ -18,19 +18,19 @@ Private Access does not use a hosted user database for provisioning, so user att
 The SAML Attributes page is replaced by the Session Attributes page if you are subscribed to Authentication Service for users. To learn more, see What Is Authentication Service?
 On the SAML Attributes page (Administration > Private Access Authentication > SAML Attributes), you can do the following:
 - View a list of applied filters available from the current and previous user sessions. Applied filters must be saved to the user session first before they can be viewed. Use the drop-down menu to select the applied filters to view. To learn more, see Using Tables.
-- Hide the filters on the page by clicking Hide Filters. Click Show Filters to show the filters.
+- Hide the filters on the page by clicking **Hide Filters**. Click **Show Filters** to show the filters.
 - Refresh the SAML Attributes page to reflect the most current information.
 - Filter the information that appears in the table to show attributes for a specific IdP. You can also save applied filters to your preferences so that they're visible in future user sessions. To learn more, see Using Tables.
 - The ability to filter the list to show attributes for a specific IdP is hidden if you are subscribed to Authentication Service for users.
 - Add new SAML attributes by importing the attributes or adding them manually.
-- The Add SAML Attribute button is hidden if you are subscribed to Authentication Service for users. To learn more, see What Is Authentication Service?
+- The **Add SAML Attribute** button is hidden if you are subscribed to Authentication Service for users. To learn more, see What Is Authentication Service?
 - View a list of SAML attributes that were imported or added. For each attribute, you can see:
-  - Name: The name specified for the attribute within the Zscaler Admin Console when it was imported or added. This name is only for reference and might not be identical to the corresponding entry in the SAML Attribute column.
-  - SAML Attribute or Session Attribute: The SAML attribute as it is specified in the IdP. If you are subscribed to Authentication Service for users, then the SAML Attribute column is replaced with the Session Attribute column. To learn more, see What Is Authentication Service?
-  - IdP Name: The name of the IdP configuration in the Zscaler Admin Console. This is the IdP where the attribute was imported or added from.
+  - **Name**: The name specified for the attribute within the Zscaler Admin Console when it was imported or added. This name is only for reference and might not be identical to the corresponding entry in the **SAML Attribute** column.
+  - **SAML Attribute** or **Session Attribute**: The SAML attribute as it is specified in the IdP. If you are subscribed to Authentication Service for users, then the **SAML Attribute** column is replaced with the **Session Attribute** column. To learn more, see What Is Authentication Service?
+  - **IdP Name**: The name of the IdP configuration in the Zscaler Admin Console. This is the IdP where the attribute was imported or added from.
 - Modify the columns displayed in the table.
 - Edit an existing SAML attribute.
-- The Edit button is hidden if you are subscribed to Authentication Service for users.
+- The **Edit** button is hidden if you are subscribed to Authentication Service for users.
 - Delete a SAML attribute.
-- The Delete button is hidden if you are subscribed to Authentication Service for users.
+- The **Delete** button is hidden if you are subscribed to Authentication Service for users.
 - Display more rows or a different page of the table.

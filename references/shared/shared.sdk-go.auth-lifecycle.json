@@ -19,6 +19,27 @@
       "to": "shared.sdk-go.cache"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a cancelled or timed-out operation is still waiting inside authentication or the fixed post-refresh wait.",
+      "uses": [
+        "auth-ignores-caller-context",
+        "refresh-fixed-sleep"
+      ]
+    },
+    {
+      "do": "Whether intermittent 401s line up with token renewal under parallel requests.",
+      "uses": [
+        "token-read-unlocked"
+      ]
+    },
+    {
+      "do": "Whether the token lifetime is one minute or less, which is the condition for the renewal panic.",
+      "uses": [
+        "renewal-can-panic-holding-lock"
+      ]
+    }
+  ],
   "claims": {
     "auth-ignores-caller-context": {
       "statement": "Authentication and token refresh run under the client's own stored context, a never-cancelled context derived from `context.Background()`, not the caller's request context, so cancelling an operation or hitting its deadline does not cancel authentication.",

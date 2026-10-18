@@ -22,8 +22,8 @@ The following sections provide a diagram depicting the topology of an autoscalin
   - Zonal MIGs with autoscaling are deployed in each configured region or zone, ensuring high availability and automatic failover across zones.
   - A Cloud NAT gateway is deployed in each region for the Cloud Connectors. This arrangement provides managed, scalable outbound internet access and allocates dedicated external IPs for each gateway.
   - Two Google Cloud Run functions are deployed:
-    - Health Monitoring: This function uses custom metrics exported from each Cloud Connector VM (for example, via Cloud Monitoring/Operations) to determine the health status of the VM. The instance group automatically terminates unhealthy Cloud Connector VMs and replaces them with new ones. The Health Monitoring function is triggered every minute by default using Cloud Scheduler.
-    - Resource Sync: This function ensures that the VMs registered in the Zscaler Admin Console match the membership of each Cloud Connector instance group. If the function discovers a Cloud Connector in the Zscaler Admin Console that is not part of any instance group, it issues an API call to the Zscaler Admin Console to delete the VM. This function runs every 10 minutes by default.
+    - **Health Monitoring**: This function uses custom metrics exported from each Cloud Connector VM (for example, via Cloud Monitoring/Operations) to determine the health status of the VM. The instance group automatically terminates unhealthy Cloud Connector VMs and replaces them with new ones. The Health Monitoring function is triggered every minute by default using Cloud Scheduler.
+    - **Resource Sync**: This function ensures that the VMs registered in the Zscaler Admin Console match the membership of each Cloud Connector instance group. If the function discovers a Cloud Connector in the Zscaler Admin Console that is not part of any instance group, it issues an API call to the Zscaler Admin Console to delete the VM. This function runs every 10 minutes by default.
   - The Resource Sync Cloud Run function uses RESTful APIs to communicate with the Cloud Connector API endpoint securely over HTTPS. The functions do not directly interact with individual Cloud Connector VMs; instead, they orchestrate via the Admin API.
   - Each Cloud Function is packaged in a ZIP file and deployed via Google Cloud Storage. The ZIP file is uploaded either to a newly created storage bucket during deployment or to an existing bucket specified in the deployment configuration. The Cloud Functions retrieve their code from this bucket during initialization.
 # Scale-Out and Scale-In
@@ -31,8 +31,8 @@ Each Cloud Connector independently posts data plane CPU utilization metrics at o
 Auto Scaling uses custom CPU utilization metrics instead of VM-level metrics because custom metrics provide more detailed and precise information about CPU usage. In logs and reports, the CPU utilization metric is displayed as smedge_cpu_utilization.
 - Scaling Policy
 - The scaling policy manages scale-out and scale-in events using the following variables:
-  - Target value: By default, the target value is 80% aggregate CPU utilization across all VMs in the instance group over a period of two to three minutes. Autoscaling maintains CPU utilization as close to the target value as possible without exceeding it.
-  - Instance group size: When a scaling event happens, autoscaling automatically determines the number of VMs to add or remove to bring the aggregate CPU utilization metric closer to the target value. By default, the maximum size of an instance group is 10 VMs and the minimum size is one VM. (The maximum cannot exceed the Cloud Connector group limit of 16 VMs per group.)
+  - **Target value**: By default, the target value is 80% aggregate CPU utilization across all VMs in the instance group over a period of two to three minutes. Autoscaling maintains CPU utilization as close to the target value as possible without exceeding it.
+  - **Instance group size**: When a scaling event happens, autoscaling automatically determines the number of VMs to add or remove to bring the aggregate CPU utilization metric closer to the target value. By default, the maximum size of an instance group is 10 VMs and the minimum size is one VM. (The maximum cannot exceed the Cloud Connector group limit of 16 VMs per group.)
 - You can view the policy in the instance group details in the Google Cloud console.
 - Cooldown Period
 - While your VMs are initializing, the utilization metric might not reflect normal conditions. As a safeguard, autoscaling provides a cooldown (or initialization) period, which is the number of seconds between scaling actions.
@@ -41,20 +41,20 @@ Auto Scaling uses custom CPU utilization metrics instead of VM-level metrics bec
 - By default, the initialization period is 900 seconds (15 minutes).
 - Examples
 - The following examples demonstrate how scaling events affect the size of an instance group with a minimum size of two, a maximum size of 5, and the default target value (80%):
-- Scale-Out: Because the minimum instance group size is two, at least two VMs must always be running.
+- **Scale-Out**: Because the minimum instance group size is two, at least two VMs must always be running.
   - No scaling event happens in normal conditions with two VMs running at 60% aggregate CPU utilization.
   - If the aggregate CPU utilization exceeds 80%, a scale-out event happens, bringing the number of VMs in the instance group to three.
   - After the cooldown period, if the aggregated CPU utilization still exceeds 80%, another scale-out event adds one more VM to the instance group, bringing the number of VMs to 4. This continues after the cooldown period ends until the average is less than 80%.
-- Scale-In: GCP autoscaling uses its own logic to determine what to do when the aggregate CPU utilization is less than 80%:
+- **Scale-In**: GCP autoscaling uses its own logic to determine what to do when the aggregate CPU utilization is less than 80%:
   - Wait because the value is too close to 80% or has not been under 80% long enough.
   - Trigger a scale-in event because, based on the time sample and the individual CPU utilization of each VM, removing one VM will meet the following criteria:
     - The number of VMs will be at or above the minimum target group size.
     - The average fluctuation for the remaining VM will likely remain below the target CPU utilization value.
 # Cloud Connector Health Monitoring
 Health monitoring includes the following entities:
-- Custom Metric Publishing: Each Cloud Connector publishes a VM-level custom metric at one-minute intervals. This metric value is either 0 for an unhealthy VM or 100 for a healthy VM.
+- **Custom Metric Publishing**: Each Cloud Connector publishes a VM-level custom metric at one-minute intervals. This metric value is either 0 for an unhealthy VM or 100 for a healthy VM.
 - Custom metrics also include dataplane CPU utilization metrics published at one-minute intervals, described in the previous section.
-- Health Monitoring: The Health Monitor function consumes the health metric at one-minute intervals and initiates the termination of a VM that it determines is unhealthy. It uses two criteria to determine whether to terminate the VM:
+- **Health Monitoring**: The Health Monitor function consumes the health metric at one-minute intervals and initiates the termination of a VM that it determines is unhealthy. It uses two criteria to determine whether to terminate the VM:
   - Recent Health Data
   - The Health Monitor function evaluates recent health data using sliding window logic with the following configurable environment variables:
     - The size of the sliding window. The default is 10 consecutive minutes.
@@ -72,20 +72,20 @@ In logs and reports, the health metric is displayed as cloud_connector_aggr_heal
 - The details page for an instance group contains comprehensive information about the group, such as the capacity overview, configuration settings, scaling policy, instance management, activity history, metrics, and so on.
 - To view the instance group details:
   - Open the Google Cloud console.
-  - In the navigation pane, click Instance Groups.
-  - Select the instance group for which you want to view details. The Overview tab opens.
+  - In the navigation pane, click **Instance Groups**.
+  - Select the instance group for which you want to view details. The **Overview** tab opens.
   - See image.
-  - Click the Details tab to review the instance status, template, configuration, location, group size, and autoscaling policy.
+  - Click the **Details** tab to review the instance status, template, configuration, location, group size, and autoscaling policy.
   - See image.
-  - Click the Monitoring tab to review instance group metrics over a period of time.
+  - Click the **Monitoring** tab to review instance group metrics over a period of time.
   - See image.
 - Cloud Connector VM Details
 - To view details about a VM in the instance group:
   - Open the Google Cloud console.
-  - In the navigation pane, click Instance Groups.
+  - In the navigation pane, click **Instance Groups**.
   - Select the instance group for which you want to view details.
-  - On the Overview tab, in the VM instances section, click an instance in the Name column.
-  - Click Observability to monitor VM health, behavior, and performance.
+  - On the **Overview** tab, in the **VM instances** section, click an instance in the **Name** column.
+  - Click **Observability** to monitor VM health, behavior, and performance.
   - See image.
 # Access to GCP Resources
 Service accounts provide secure access to Google Cloud resources. Three service accounts are required in a GCP autoscaling deployment:

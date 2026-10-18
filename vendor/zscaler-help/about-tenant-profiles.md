@@ -17,8 +17,8 @@ On the Tenant Profiles page (Data Security > Inline CASB > Tenant Profiles), you
 - Add a tenant profile.
 - Modify the column options to view the tenant profiles accordingly.
 - View a list of all configured tenant profiles. For each tenant profile, you can see the following:
-  - Profile Name: The name of the tenant profile that is displayed when configuring the Cloud App Control policy rule. You can sort this column.
-  - Cloud Application: The cloud application for which the tenant profile is created (e.g., Dropbox, Google, Microsoft Login Services).
-  - Details: The configuration details of the tenant profile.
-  - Description: A description of the tenant profile if available.
+  - **Profile Name**: The name of the tenant profile that is displayed when configuring the Cloud App Control policy rule. You can sort this column.
+  - **Cloud Application**: The cloud application for which the tenant profile is created (e.g., Dropbox, Google, Microsoft Login Services).
+  - **Details**: The configuration details of the tenant profile.
+  - **Description**: A description of the tenant profile if available.
 - Edit, duplicate, or delete a tenant profile.

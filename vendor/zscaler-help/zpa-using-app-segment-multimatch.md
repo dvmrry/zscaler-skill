@@ -37,7 +37,7 @@ Depending on the application segments selected, you can resolve the issue by doi
 # App Connector Selection
 If both wildcard and specific FQDN application segments have Multimatch enabled, the specific FQDN application segment's server group is used for App Connector selection, even if the traffic to the FQDN matches the wildcard or the specific FQDN rule.
 The following table shows example application segment configurations:
-| Application Segment Name | FQDN | Protocol | Port | Server Group |
+| **Application Segment Name** | **FQDN** | **Protocol** | **Port** | **Server Group** |
 |---|---|---|---|---|
 | Wildcard_AS | *.example.com | TCP, UDP | 1 to 52, 54 to 65535 | Server Group - All |
 | Server1_AS | server1.example.com | TCP | 443, 3389 | Server Group - Server1 |

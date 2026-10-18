@@ -27,6 +27,24 @@
       "to": "zia.terraform.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "After an import by name, data-source lookup or refresh reports an object missing, count the objects through the console or a separate API call before concluding it is absent.",
+      "uses": [
+        "zpa-silent-truncation",
+        "zpa-paging-metadata-shape",
+        "zia-posture-import-by-name-can-miss",
+        "zcc-forwarding-profile-outside-first-page"
+      ]
+    },
+    {
+      "do": "Whether a count that is an exact multiple of a helper's page size is a page cap or a full last page.",
+      "uses": [
+        "ztw-capped-page-truncates",
+        "zia-readallpages-extra-request"
+      ]
+    }
+  ],
   "claims": {
     "zpa-total-pages-parse-error-ignored": {
       "statement": "ZPA list pages are decoded with `totalPages` as an untyped value; it is turned into an int by formatting it as text and parsing, and the parse error is discarded. A missing, null or non-numeric `totalPages` becomes 0, and the helper returns that page's list with no error.",

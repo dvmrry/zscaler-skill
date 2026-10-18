@@ -20,15 +20,15 @@ On the Browser Access page (Resource Management > Application Management > Brows
 - Expand one or all rows in the table to see more information about each application.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all applications that were specifically configured for Browser Access within an application segment. For each application, you can see the following details:
-  - Name: The name of the application. When you expand the row, you can see more information.
-    - Segment Group: The segment group that the application segment is a member of.
-    - Server Groups: The server groups that the application is hosted on.
-    - Canonical Name (CNAME): The canonical name associated with the application. Click the Copy icon to copy the CNAME record to your clipboard.
+  - **Name**: The name of the application. When you expand the row, you can see more information.
+    - **Segment Group**: The segment group that the application segment is a member of.
+    - **Server Groups**: The server groups that the application is hosted on.
+    - **Canonical Name (CNAME)**: The canonical name associated with the application. Click the **Copy** icon to copy the CNAME record to your clipboard.
     - Use the CNAME to verify that the FQDN for the Browser Access-enabled application resolves to the record.
-    - Certificate: The Browser Access (web server) certificate associated with the specified application.
-  - Domain: The FQDN associated with the application.
-  - Application Protocol: The protocol (HTTPS or HTTP) used for the application.
-  - Application Port: The port number used for the application.
+    - **Certificate**: The Browser Access (web server) certificate associated with the specified application.
+  - **Domain**: The FQDN associated with the application.
+  - **Application Protocol**: The protocol (HTTPS or HTTP) used for the application.
+  - **Application Port**: The port number used for the application.
 - Edit an existing application segment.
 - Delete an application segment.
 - Go to the Application Segments or Segment Groups pages.

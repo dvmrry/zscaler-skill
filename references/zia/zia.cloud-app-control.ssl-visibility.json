@@ -11,41 +11,80 @@
     "cac granular action not working",
     "cac and ssl bypass"
   ],
-  "binds": ["zia/cloud-app-control"],
+  "binds": [
+    "zia/cloud-app-control"
+  ],
   "related": [
-    { "rel": "depends-on", "to": "zia.ssl-inspection.pipeline" },
-    { "rel": "interacts-with", "to": "zia.cloud-app-control.rule-criteria" },
-    { "rel": "interacts-with", "to": "zia.cloud-app-control.ai-ml-rules" }
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.rule-criteria"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a one-click or Optimize bypass setting stops interception for an app before reading that app's CAC rule, since these settings turn off interception for whole vendors.",
+      "uses": [
+        "one-click-m365",
+        "one-click-ucaas",
+        "o365-optimize-bypass"
+      ]
+    },
+    {
+      "do": "Whether the traffic is decrypted before promising granular actions, since granular actions need SSL/TLS Inspection.",
+      "uses": [
+        "zia.cloud-app-control.ai-ml-rules:common-actions-and-ssl",
+        "domain-level-only-when-not-decrypted"
+      ]
+    }
   ],
   "claims": {
     "one-click-m365": {
       "statement": "Enabling the Microsoft-recommended One Click Office 365 Configuration turns off SSL/TLS interception for all Microsoft 365 destinations. Disabling it and using the pre-existing configuration keeps granular controls.",
       "tier": "A",
       "evidence": [
-        { "source": "zscaler-help", "path": "Configuring_Advanced_Policy_Settings.txt",
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_Advanced_Policy_Settings.txt",
           "quotes": [
             "turns off SSL/TLS Interception for all Microsoft 365 destinations as per Microsoft's",
             "If you want to continue using existing granular controls for Microsoft 365,"
-          ] }
+          ]
+        }
       ]
     },
     "one-click-ucaas": {
       "statement": "Enabling the one-click option for Zoom, GoTo, RingCentral, Webex or Talkdesk turns off SSL/TLS interception for all of that vendor's destinations; to keep granular controls the option must be disabled and cloud application and firewall network application policies configured instead.",
       "tier": "A",
       "evidence": [
-        { "source": "zscaler-help", "path": "Configuring_Advanced_Policy_Settings.txt",
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_Advanced_Policy_Settings.txt",
           "quotes": [
             "it turns off SSL/TLS interception for all Zoom, GoTo,",
             "disable the respective option, and enable"
-          ] }
+          ]
+        }
       ]
     },
     "o365-optimize-bypass": {
       "statement": "The MS O365 Optimize URL category carries the note to bypass its sites from SSL/TLS Inspection and authentication.",
       "tier": "A",
       "evidence": [
-        { "source": "zscaler-help", "path": "About_URL_Categories.txt",
-          "quotes": ["MS O365 Optimize: Sites that are required for"] }
+        {
+          "source": "zscaler-help",
+          "path": "About_URL_Categories.txt",
+          "quotes": [
+            "MS O365 Optimize: Sites that are required for"
+          ]
+        }
       ]
     },
     "domain-level-only-when-not-decrypted": {

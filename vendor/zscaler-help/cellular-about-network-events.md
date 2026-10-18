@@ -19,14 +19,14 @@ On the Network Events page (Infrastructure > Cellular > Network Events), you can
 - Show or hide filtering options.
 - Filter network events based on different parameters.
 - View a list of records of network events for all SIMs provisioned to your organization. For each record, you can see:
-  - ICCID: The Integrated Circuit Card Identifier is a globally unique identifier assigned to each SIM card. It is used to track and manage the SIM within the network infrastructure. Click to view detailed information for each network event.
-  - Recorded at: The date and time when the network event occurred.
-  - EID: The Embedded Identity Document is a unique identifier for eSIMs. This is shown only if eSIMs are listed.
-  - IMSI: The International Mobile Subscriber Identity is a unique number assigned to each mobile subscriber. It is used to identify the user on the mobile network.
-  - Country: The geographical location (country) where the event was recorded.
-  - Operator: The network operator handling the connectivity.
-  - Category: The type of event (session start, session end, online/offline status, or authorization).
-  - Event Status: The status of the network event.
-  - Event Sub Status: The additional status details of the network event.
+  - **ICCID**: The Integrated Circuit Card Identifier is a globally unique identifier assigned to each SIM card. It is used to track and manage the SIM within the network infrastructure. Click to view detailed information for each network event.
+  - **Recorded at**: The date and time when the network event occurred.
+  - **EID**: The Embedded Identity Document is a unique identifier for eSIMs. This is shown only if eSIMs are listed.
+  - **IMSI**: The International Mobile Subscriber Identity is a unique number assigned to each mobile subscriber. It is used to identify the user on the mobile network.
+  - **Country**: The geographical location (country) where the event was recorded.
+  - **Operator**: The network operator handling the connectivity.
+  - **Category**: The type of event (session start, session end, online/offline status, or authorization).
+  - **Event Status**: The status of the network event.
+  - **Event Sub Status**: The additional status details of the network event.
 - Limit the number of records displayed per page. You can choose to display 10, 25, 50, or 100 records per page.
 - Go to a specific page using the page number or move to the next or previous page.

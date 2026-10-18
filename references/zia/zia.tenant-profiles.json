@@ -60,6 +60,28 @@
       "to": "zia.cloud-app-control.precedence"
     }
   ],
+  "checks": [
+    {
+      "do": "Which CAC rules reference a profile, before deleting it.",
+      "uses": [
+        "rule-reference-field",
+        "delete-referenced-profile"
+      ]
+    },
+    {
+      "do": "Whether a tenant identifier change, such as a tenant migration, requires re-reading the profile.",
+      "uses": [
+        "identity-change-staleness"
+      ]
+    },
+    {
+      "do": "Whether an explicit block rule exists for other tenants on YouTube and Amazon Web Services.",
+      "uses": [
+        "youtube-aws-explicit-block",
+        "allow-blocks-others"
+      ]
+    }
+  ],
   "claims": {
     "what-it-is": {
       "statement": "Tenancy restriction lets you restrict access to personal accounts, business accounts, or both for certain cloud applications. It has two parts: creating tenant profiles, and associating them with Cloud App Control policy rules.",

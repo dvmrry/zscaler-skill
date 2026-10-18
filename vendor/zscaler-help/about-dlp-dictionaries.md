@@ -17,10 +17,10 @@ On the DLP Dictionaries page (Data Security > Common Resources > Dictionaries & 
 - Add a DLP dictionary.
 - Search for a DLP dictionary or sub-dictionary.
 - View a list of all predefined and custom DLP dictionaries and sub-dictionaries that were configured for your organization. For DLP dictionaries, you can see the following:
-  - Name: The name of the dictionary. You can sort this column.
-  - Type: Displays whether the dictionary is predefined or custom.
-  - Confidence Score Threshold: Displays the confidence score threshold, if applicable. The specified confidence score threshold helps determine what counts as a violation.
-  - Description: The description of the dictionary, if available. You can sort this column.
+  - **Name**: The name of the dictionary. You can sort this column.
+  - **Type**: Displays whether the dictionary is predefined or custom.
+  - **Confidence Score Threshold**: Displays the confidence score threshold, if applicable. The specified confidence score threshold helps determine what counts as a violation.
+  - **Description**: The description of the dictionary, if available. You can sort this column.
 - Modify the table and its columns.
 - Edit or clone a DLP dictionary, or create a sub-dictionary.
 - Go to the DLP Engines page.

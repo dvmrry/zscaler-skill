@@ -18,13 +18,13 @@ After an access token is verified as part of the B2B Federation process, the hos
 # About the Pending Requests Page
 On the Pending Requests page (Private Access > B2B Federation > Federation > Pending Requests), you can do the following:
 - Add a partner.
-- Click the Filter icon to display or hide the filters.
-- Filter the information that appears in the table. By default, no filters are applied. Click Clear to clear the applied filters. To learn more, see Using Tables.
+- Click the **Filter** icon to display or hide the filters.
+- Filter the information that appears in the table. By default, no filters are applied. Click **Clear** to clear the applied filters. To learn more, see Using Tables.
 - View a list of all pending requests. For each pending request, you can see:
-  - Request Date: The date that the B2B Federation was requested.
-  - Partner: The name of the B2B partner.
-  - Notes: Any additional notes for communication between the B2B partners.
-  - Status: The status of the pending request (i.e., Token Verified, Pending Approval, Pending Verification).
+  - **Request Date**: The date that the B2B Federation was requested.
+  - **Partner**: The name of the B2B partner.
+  - **Notes**: Any additional notes for communication between the B2B partners.
+  - **Status**: The status of the pending request (i.e., **Token Verified**, **Pending Approval**, **Pending Verification**).
 - Modify the columns displayed in the table.
 - Update the notes of the pending request.
 - Approve or deny a pending request.

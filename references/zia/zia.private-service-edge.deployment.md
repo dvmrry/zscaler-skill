@@ -1,4 +1,4 @@
-Placement is a choice between three firewall relationships. {{placement-options}} Zscaler recommends the DMZ ([[zia.private-service-edge.ip-requirements]]), but each option has its own cost.
+Placement is a choice between three firewall relationships. {{placement-options}} Zscaler recommends the DMZ, see [[zia.private-service-edge.ip-requirements]].
 
 **Inside the DMZ.** {{dmz-firewall-load}}
 
@@ -6,9 +6,9 @@ Placement is a choice between three firewall relationships. {{placement-options}
 
 **Behind the network firewall.** {{behind-firewall-nat}}
 
-**Redundancy and firewall lists.** {{backup-tunnel}} {{firewall-rules-published}} Two published lists are cited for the same purpose ([[zia.private-service-edge.deployment:firewall-list-source]]).
+**Redundancy and firewall lists.** {{backup-tunnel}} {{firewall-rules-published}} Which of the published lists applies is open {{gap:firewall-list-source}}.
 
-**Switch settings.** These are the ones that make a cluster misbehave if skipped. {{dsr-needs-garp}} {{access-mode-no-vlan-tags}} {{lldp-and-flow-control-off}} The reason GARP matters is the return path described in [[zia.private-service-edge.cluster-architecture]].
+**Switch settings.** {{dsr-needs-garp}} {{access-mode-no-vlan-tags}} {{lldp-and-flow-control-off}} The reason GARP matters is the return path described in [[zia.private-service-edge.cluster-architecture]].
 
 **Who does what.** {{zscaler-provisions}}
 

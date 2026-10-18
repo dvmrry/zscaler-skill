@@ -4,6 +4,4 @@ Choosing for a site: {{tunnel-choice}} The numbers that separate them (per-tunne
 
 {{connector-products}}
 
-The old reference also gave a throughput threshold for choosing GRE over IPSec, two pairing recommendations and a statement that every method ends as a Location. None is stated by a captured source (gaps `throughput-threshold`, `combined-patterns`, `location-per-method`). What the sources do say about locations is that traffic from an unconfigured source is remote user traffic: [[zia.locations.model]].
-
-What to check: which method each site actually uses (the location's tunnel or credential, not the diagram), and whether remote users have a second method.
+The throughput threshold for choosing GRE over IPSec is open {{gap:throughput-threshold}}, the recommended pairings by site type are open {{gap:combined-patterns}}, and whether every method surfaces as a Location is open {{gap:location-per-method}}. Traffic from an unconfigured source is remote user traffic: [[zia.locations.model]].

@@ -20,6 +20,27 @@
       "to": "zia.url-filtering.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a rule list that stops at a round number, such as 100, is truncated; re-read with a smaller page size when it is.",
+      "uses": [
+        "silent-truncation",
+        "page-size-limit"
+      ]
+    },
+    {
+      "do": "Whether the rule count matches the console when the list came from a raw SDK or API call, before reasoning about precedence.",
+      "uses": [
+        "observed-100-of-133"
+      ]
+    },
+    {
+      "do": "Whether the category inventory is complete, by requesting every category type and checking the count against the console.",
+      "uses": [
+        "categories-clamp-20"
+      ]
+    }
+  ],
   "claims": {
     "go-readallpages-1000": {
       "statement": "The Go SDK's `GetAll` for URL Filtering rules walks pages through `common.ReadAllPages`, which requests `pageSize=1000` by default and stops at the first page shorter than the page size.",

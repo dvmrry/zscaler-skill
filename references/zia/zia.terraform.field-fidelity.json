@@ -31,6 +31,30 @@
       "to": "shared.sdk-go.zero-value-writes"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a setting that did not apply is dropped in the schema, the expand function, the read function, or the SDK JSON tag: find the attribute in each, in that order.",
+      "uses": [
+        "fwd-control-ipv6-eczpa-never-expanded",
+        "casb-dlp-excluded-domains-wrong-key",
+        "cloud-nss-exclusions-dead"
+      ]
+    },
+    {
+      "do": "Whether the expand function names the attribute at all, since a key that is not in the schema cannot be set by any configuration.",
+      "uses": [
+        "casb-dlp-excluded-domains-wrong-key",
+        "fwd-control-ipv6-eczpa-never-expanded"
+      ]
+    },
+    {
+      "do": "What the service holds after an apply, by re-reading the object from the API rather than state, since state cannot show a server-side value.",
+      "uses": [
+        "ips-capture-pcap-not-read-or-sent",
+        "casb-labels-expanded-not-flattened"
+      ]
+    }
+  ],
   "claims": {
     "fwd-control-ipv6-eczpa-never-expanded": {
       "statement": "The forwarding control rule resource accepts `src_ipv6_groups`, `dest_ipv6_groups`, `zpa_application_segments` and `zpa_application_segment_groups`, but its expand function never assigns the matching SDK fields, so they are never sent. The IPv6 groups are flattened on read; the two ECZPA fields are not flattened on read either. The SDK fields are slices tagged `omitempty`.",

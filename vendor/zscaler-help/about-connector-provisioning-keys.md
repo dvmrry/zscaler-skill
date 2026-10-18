@@ -21,20 +21,20 @@ Private Access tracks the number of times a key is used to deploy an App Connect
 # About the App Connector Provisioning Keys Page
 On the App Connector Keys page (Private Access > Private Infrastructure > App Connector Keys), you can do the following:
 - View a list of applied filters available from the current and previous user sessions. Applied filters must be saved to the user session first before they can be viewed. Use the drop-down menu to select the applied filters to view. To learn more, see Using Tables.
-- Hide the filters on the page by clicking Hide Filters. Click Show Filters to show the filters.
+- Hide the filters on the page by clicking **Hide Filters**. Click **Show Filters** to show the filters.
 - Refresh the App Connector Keys page to reflect the most current information.
 - Filter the information that appears in the table. By default, no filters are applied.
 - Add a new provisioning key.
 - View a list of all the provisioning keys. For each key, you can see:
-  - Name: The name of the key. Expand the row to view the signing certificate for the provisioning key.
-  - Maximum # of App Connectors: The maximum number of App Connectors that can be deployed using the key. This entry is based on the value entered for Maximum Reuse of Provisioning Key when adding or editing a provisioning key.
-  - Provisioning Key Utilization Count: The number of times the provisioning key has been used.
-  - App Connector Group: The App Connector group associated with the key.
-  - Provisioning Key: The key needed for deploying an App Connector. This entry is blank if you disabled the View or Export Provisioning Key After Creation option when configuring App Connector groups.
+  - **Name**: The name of the key. Expand the row to view the signing certificate for the provisioning key.
+  - **Maximum # of App Connectors**: The maximum number of App Connectors that can be deployed using the key. This entry is based on the value entered for **Maximum Reuse of Provisioning Key** when adding or editing a provisioning key.
+  - **Provisioning Key Utilization Count**: The number of times the provisioning key has been used.
+  - **App Connector Group**: The App Connector group associated with the key.
+  - **Provisioning Key**: The key needed for deploying an App Connector. This entry is blank if you disabled the **View or Export Provisioning Key After Creation** option when configuring App Connector groups.
 - Modify the columns displayed in the table.
 - Copy the provisioning key to your clipboard.
-- If you disabled the View or Export Provisioning Key After Creation option when configuring an App Connector group, this icon is hidden for security purposes. If the provisioning key doesn't appear, and a backup of the provisioning key isn't securely stored in an external credential vault, a new key must be generated. A new provisioning key can be created and attached to the same App Connector.
-If the Provisioning Key Utilization Count is reached, you cannot copy the key. A Warning icon appears next to the disabled Copy icon. You can edit the key to raise the limit.
+- If you disabled the **View or Export Provisioning Key After Creation** option when configuring an App Connector group, this icon is hidden for security purposes. If the provisioning key doesn't appear, and a backup of the provisioning key isn't securely stored in an external credential vault, a new key must be generated. A new provisioning key can be created and attached to the same App Connector.
+If the **Provisioning Key Utilization Count** is reached, you cannot copy the key. A **Warning** icon appears next to the disabled **Copy** icon. You can edit the key to raise the limit.
 When a provisioning key is incorrectly copied, the following error appears in your App Connector console when it tries to enroll:
 notice:Checking Enrollment notice:No valid certificate. Attempting to enroll notice:Enroll: Connecting to api.private.zscaler.com via co2br.prod.zpath.net. error:Login request failed - http status(401) nonce(<3|api.private.zscaler.com|0/Z6lDT...>) fingerprint(<oXaN4RRiMc...>) notice:Certificate enrollment failed.
 - Edit provisioning key details.
@@ -42,5 +42,5 @@ notice:Checking Enrollment notice:No valid certificate. Attempting to enroll not
 If a provisioning key is configured using Zscaler Deception or is managed by Zscaler, then the edit and delete options are unavailable.
 See image.
 - Download the provisioning key to your system in a file format.
-- If you disabled the View or Export Provisioning Key After Creation option when configuring an App Connector, this icon is hidden for security purposes.
+- If you disabled the **View or Export Provisioning Key After Creation** option when configuring an App Connector, this icon is hidden for security purposes.
 - Display more rows or a different page of the table.

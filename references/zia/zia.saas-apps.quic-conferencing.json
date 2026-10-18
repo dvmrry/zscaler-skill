@@ -12,9 +12,28 @@
     "chrome quic certificate error"
   ],
   "related": [
-    { "rel": "depends-on", "to": "zia.ssl-inspection.uninspectable" },
-    { "rel": "see-also", "to": "zia.firewall.rule-order" },
-    { "rel": "see-also", "to": "zia.dns-control" }
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether conferencing media is UDP and which tunnel mode carries it, before choosing a QUIC block.",
+      "uses": [
+        "conferencing-media",
+        "tunnel1-udp-leaves",
+        "tunnel2-firewall-rule"
+      ]
+    }
   ],
   "claims": {
     "cert-errors": {
@@ -44,7 +63,9 @@
         {
           "source": "zscaler-help",
           "path": "about-z-tunnel-1.0-z-tunnel-2.0.md",
-          "quotes": ["Z-Tunnel 2.0 is capable of sending all ports and protocols."]
+          "quotes": [
+            "Z-Tunnel 2.0 is capable of sending all ports and protocols."
+          ]
         }
       ]
     },
@@ -69,7 +90,9 @@
         {
           "source": "zscaler-help",
           "path": "managing-quic-protocol.md",
-          "quotes": ["In addition to UDP destination port 443, QUIC can use UDP destination port 80."]
+          "quotes": [
+            "In addition to UDP destination port 443, QUIC can use UDP destination port 80."
+          ]
         }
       ]
     },
@@ -87,14 +110,18 @@
         {
           "source": "zscaler-help",
           "path": "about-z-tunnel-1.0-z-tunnel-2.0.md",
-          "quotes": ["Z-Tunnel 1.0 sends all proxy-aware traffic or port 80/443 traffic to the Zscaler service"]
+          "quotes": [
+            "Z-Tunnel 1.0 sends all proxy-aware traffic or port 80/443 traffic to the Zscaler service"
+          ]
         }
       ]
     },
     "tunnel1-udp-leaves": {
       "statement": "So under Z-Tunnel 1.0, or any TCP 80 and 443 only forwarding, QUIC UDP does not reach Zscaler at all: it leaves the device directly and is neither inspected nor blocked by a Zscaler Firewall Filtering rule.",
       "tier": "B",
-      "derived_from": ["tunnel1-device-firewall"],
+      "derived_from": [
+        "tunnel1-device-firewall"
+      ],
       "conditions": "Inference from Help directing the block to the device or branch firewall; the legacy phrasing \"egresses outside the tunnel\" is not in a source."
     },
     "tcp-only-branch": {
@@ -104,7 +131,9 @@
         {
           "source": "zscaler-help",
           "path": "managing-quic-protocol.md",
-          "quotes": ["If you are only sending TCP 80/443 over a tunnel to Zscaler, block QUIC on your branch firewall."]
+          "quotes": [
+            "If you are only sending TCP 80/443 over a tunnel to Zscaler, block QUIC on your branch firewall."
+          ]
         }
       ]
     },
@@ -128,7 +157,10 @@
       "title": "Webex and Teams media over Z-Tunnel 2.0 and process-based bypass",
       "status": "open",
       "detail": "Unverified legacy statement: \"The canonical case where this matters: WebEx media (UDP 9000 SRTP, fallback TCP 443) and Microsoft Teams call quality. If Z-Tunnel 2.0 captures the media flow, voice/video degrades. Process-based bypass of the conferencing client is the documented pattern.\" The captured Z-Tunnel and QUIC pages do not mention Webex or Teams media; the captured Advanced Policy Settings page covers a UCaaS One Click option for Zoom, GoTo, RingCentral, Webex and Talkdesk, not Teams media.",
-      "resolves_with": ["source-read", "operator-experience"]
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
     }
   }
 }

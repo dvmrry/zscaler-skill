@@ -16,12 +16,12 @@ You can add or modify a segment group while configuring an application segment, 
 On the Segment Groups page (Private Access > Private Applications > Segment Groups), you can do the following:
 - View and add DNS search domains.
 - Expand all rows in the table to see more information about each segment group's description and corresponding application segments.
-- If there are required fields missing, the Incomplete Configuration icon () appears next to the indicated item. Edit the segment group to complete the configuration.
+- If there are required fields missing, the **Incomplete Configuration** icon () appears next to the indicated item. Edit the segment group to complete the configuration.
 - Add a new segment group.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all segment groups that were configured for your organization. For each segment group, you can see:
-  - Name: The segment group name.
-  - Status: Indicates that the segment group is enabled or disabled.
+  - **Name**: The segment group name.
+  - **Status**: Indicates that the segment group is enabled or disabled.
 - View a configuration graph of connected objects.
 - Edit a segment group.
 - Delete a segment group.

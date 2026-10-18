@@ -13,6 +13,37 @@
     "microtenant name resolution returns nothing",
     "ZPA_MICROTENANT_ID overrides"
   ],
+  "checks": [
+    {
+      "do": "Whether the ID returned by a data source given both `id` and `name` is the one intended, since the name result replaces the ID result.",
+      "uses": [
+        "id-and-name-both-run-name-wins",
+        "overwrite-pattern-is-widespread"
+      ]
+    },
+    {
+      "do": "Whether a microtenant-scoped lookup declares `microtenant_id` as an input, and whether the returned `microtenant_id` is the one intended.",
+      "uses": [
+        "microtenant-input-unavailable-pattern",
+        "microtenant-input-computed-only-pra-approval",
+        "reads-run-unscoped-wrong-microtenant"
+      ]
+    },
+    {
+      "do": "Whether `ZPA_MICROTENANT_ID` is set in the process environment, since it overrides the configured microtenant when the request has no `microtenantId` query parameter.",
+      "uses": [
+        "inject-precedence-env-over-config"
+      ]
+    },
+    {
+      "do": "Whether a by-type or no-name lookup is pinned to an ID once it is known, since it returns some match rather than the intended object.",
+      "uses": [
+        "by-type-takes-first-element",
+        "browser-protection-no-name-takes-first",
+        "by-type-result-depends-on-api-order"
+      ]
+    }
+  ],
   "claims": {
     "id-and-name-both-run-name-wins": {
       "statement": "A segment group data source given both `id` and `name` runs the ID lookup, then runs the name lookup as well, and the name result replaces the ID result. If the name lookup returns an error the read fails even though the ID lookup succeeded. Nothing compares the two results.",

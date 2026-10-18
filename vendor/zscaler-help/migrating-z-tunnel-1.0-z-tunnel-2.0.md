@@ -17,33 +17,33 @@ You must have a supported version of Zscaler Client Connector to use Z-Tunnel 2.
 - In the Zscaler Admin Console, identify and create a small group of users for testing Z-Tunnel 2.0. Groups you configure in User Management in Internet & SaaS are automatically available for selection in the Advanced Settings tab of Directory Sync & Custom Root Cert in Client Connector. You can also manually sync the groups between Internet & SaaS and Client Connector. To learn more, see Syncing Directory Groups in the Zscaler Admin Console.
 - To prevent confusion, Zscaler recommends creating a new forwarding profile for your Z-Tunnel 2.0 test. The forwarding profile policy determines what traffic Zscaler Client Connector captures from users’ devices. You enable the forwarding mechanism for Z-Tunnel 2.0 in this policy.
 - To enable Z-Tunnel 2.0, you must configure the following settings in the forwarding profile:
-  - Tunnel Driver Type: Select Packet Filter-Based.
-  - On-Trusted Network: Select Tunnel.
-  - Tunnel version selection: Select Z-Tunnel 2.0.
-  - VPN-Trusted Network and Off-Trusted Network: Select Same as "On-Trusted Network".
-- For testing purposes, Zscaler recommends that you don’t configure the VPN-Trusted Network and Off-Trusted Network forwarding profile actions. After initial testing, you can change the behavior for all network environments.
+  - **Tunnel Driver Type**: Select **Packet Filter-Based**.
+  - **On-Trusted Network:** Select **Tunnel**.
+  - **Tunnel version selection:** Select **Z-Tunnel 2.0**.
+  - **VPN-Trusted Network** and **Off-Trusted Network:** Select **Same as "On-Trusted Network"**.
+- For testing purposes, Zscaler recommends that you don’t configure the **VPN-Trusted Network** and **Off-Trusted Network** forwarding profile actions. After initial testing, you can change the behavior for all network environments.
 - For all other settings, keep the default. To learn more, see Configuring Forwarding Profiles for Zscaler Client Connector.
 - Don’t route Z-Tunnel 2.0 traffic through GRE tunnels. For on-premises environments with existing GRE infrastructure, implement one of the following options to prevent performance issues:
   - Configure the Zscaler Client Connector forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met.
   - Configure a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE tunnel.
 - Create a new app profile policy and associate your test users and the Z-Tunnel 2.0 forwarding profile to it.
 - To configure Z-Tunnel 2.0, you must configure the following in the app profile:
-  - Under General, select the following:
-    - Rule Order: Select 1 to ensure that your users receive this app profile before other profiles.
-    - Status: Select Enabled.
-    - Forwarding Profile: Select the forwarding profile you created for testing from the drop-down menu.
-    - Enable Install Zscaler SSL Certificate.
-  - Under Groups, select your test users group from the User Groups drop-down menu.
-  - Under Traffic Steering, on the PAC and Proxy tab, leave the Custom PAC URL field empty.
-  - Under Passwords, leave the Logout Password and Disable Password ZIA fields empty.
+  - Under **General**, select the following:
+    - **Rule Order**: Select **1** to ensure that your users receive this app profile before other profiles.
+    - **Status**: Select **Enabled**.
+    - **Forwarding Profile**: Select the forwarding profile you created for testing from the drop-down menu.
+    - Enable **Install Zscaler SSL Certificate**.
+  - Under **Groups**, select your test users group from the **User Groups** drop-down menu.
+  - Under **Traffic Steering**, on the **PAC and Proxy** tab, leave the **Custom PAC URL** field empty.
+  - Under **Passwords**, leave the **Logout Password** and **Disable Password ZIA** fields empty.
 - For all other settings, keep the default. To learn more, see Configuring Zscaler Client Connector App Profiles.
 - You can configure a Zscaler Client Connector Store app update to assign a supported Zscaler Client Connector version to your test users. To learn more, see Configuring an App Update in the Zscaler Client Connector App Store.
 - Phase 2: Add VPN gateway bypasses to the Z‑Tunnel 2.0 app profile
-- Add the VPN gateway bypasses from the VPN Gateway Bypass field in your original app profile to the Z‑Tunnel 2.0 app profile you created. Leave all other settings as default.
+- Add the VPN gateway bypasses from the **VPN Gateway Bypass** field in your original app profile to the Z‑Tunnel 2.0 app profile you created. Leave all other settings as default.
 - Phase 3: Add the network address and range bypasses to the Z‑Tunnel 2.0 app profile
 - Add your network address and range bypasses to the Z‑Tunnel 2.0 app profile:
   - Gather all the network address and range bypasses in the original app profile PAC file.
-  - In the Z‑Tunnel 2.0 app profile, add the bypasses to the Destination Exclusions list.
+  - In the Z‑Tunnel 2.0 app profile, add the bypasses to the **Destination Exclusions** list.
 - Phase 4: Add the URL and domain-based bypasses Z‑Tunnel 2.0 PAC files
 - Add the URL and domain-based bypasses from your original app profile PAC file to your Z‑Tunnel 2.0 configured forwarding and app profile PAC files.
 - To add the URL and domain-based bypasses:

@@ -16,9 +16,9 @@ On the Source IP Groups page (Internet Access > Resources > IP & FQDN Groups > S
 - Modify the table and its columns.
 - Add a source IP group.
 - View a list of all source IP groups. For each group, you can view:
-  - Name: The name of the Source IP group.
-  - IP Addresses: The IP addresses included in the group.
-  - Description: The description of the group, if available.
+  - **Name**: The name of the Source IP group.
+  - **IP Addresses**: The IP addresses included in the group.
+  - **Description**: The description of the group, if available.
 - View a source IP group.
 - Edit a source IP group.
 - Delete a source IP group.

@@ -25,7 +25,7 @@ In the following scenarios, we are considering separate Probing and Exclusion Cr
 - Expression: NOT (Group C OR Finance)
 - Multiple Items Selection
 - You can select multiple items within the field criteria that uses the OR Logic. This is applicable to both the Probing and Exclusion Criteria. You can select multiple items to expand your selection criteria (e.g., multiple locations, user groups, departments).
-- Probing Criteria
+- **Probing Criteria**
 - Scenario: You want a probe for multiple locations and user groups.
   - Location:
     - San Jose
@@ -34,7 +34,7 @@ In the following scenarios, we are considering separate Probing and Exclusion Cr
     - Group B
     - Group C
 - Expression: (San Jose OR Los Angeles) AND (Group B OR Group C)
-- Exclusion Criteria
+- **Exclusion Criteria**
 - Scenario: You want a probe to exclude selected locations and departments.
   - Location:
     - Sacramento

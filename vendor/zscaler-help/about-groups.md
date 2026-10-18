@@ -22,8 +22,8 @@ On the Groups page (Administration > Legacy Admin Management > Internet & SaaS U
 - Download a Sample Import CSV file that shows the correct CSV format for adding or modifying groups.
 - Search for a configured group.
 - View a list of configured groups. For each group, you can see the following information:
-  - Name: The name of the group.
-  - Comments: Comments regarding the group, if available.
+  - **Name**: The name of the group.
+  - **Comments**: Comments regarding the group, if available.
 - Modify the table and its columns.
 - Edit a configured group.
 - View the default Service Admin group.

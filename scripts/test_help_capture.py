@@ -34,16 +34,21 @@ def test_title_is_the_article_heading_not_the_product_banner():
     assert title == "About Example"
 
 
-def test_text_drops_chrome_emphasis_links_and_images():
+def test_text_drops_chrome_links_and_images_and_keeps_bold():
     _, body = render(ARTICLE)
     assert "Ask Zscaler" not in body
-    assert "The Default rule : applies last." in body
-    assert "**" not in body and "](" not in body and "png" not in body
+    assert "The **Default rule** : applies last." in body
+    assert "](" not in body and "png" not in body
+
+
+def test_bold_marks_a_recommended_table_value():
+    _, body = render("<h3>T</h3><table><tr><th>DPD</th><td><strong> Enabled </strong> Disabled</td></tr></table>")
+    assert "| DPD | **Enabled** Disabled |" in body
 
 
 def test_lists_nest_and_tables_keep_one_row_per_line():
     _, body = render(ARTICLE)
-    assert "- Block: Silently drops the request." in body
+    assert "- **Block**: Silently drops the request." in body
     assert "  - Nested detail" in body
     assert "| Code | Name |" in body
     assert "| 3 | NXDomain \\| not found |" in body

@@ -18,23 +18,23 @@ After creating an AppProtection profile, you can add it to an AppProtection poli
 # About the AppProtection Page
 On the AppProtection page (Private Access > Private App Protection > Policy > Protection Profiles > AppProtection), you can do the following:
 - View a list of applied filters available from the current and previous user sessions. Applied filters must be saved to the user session first before they can be viewed. Use the drop-down menu to select the applied filters to view. To learn more, see Using Tables.
-- Hide the filters on the page by clicking Hide Filters. Click Show Filters to display the filters.
+- Hide the filters on the page by clicking **Hide Filters**. Click **Show Filters** to display the filters.
 - Refresh the AppProtection page to reflect the most current information.
 - Filter the information that appears in the table. By default, no filters are applied. You can also save applied filters to your preferences so that they're visible in future user sessions. To learn more, see Using Tables.
 - Add an AppProtection profile.
 - Expand all the rows in the table to see more information about each AppProtection profile.
 - View a list of all configured AppProtection profiles. For each profile, you can see:
-  - Name: The name of the AppProtection profile. When you expand the row, the following information is displayed:
-    - Description: The description of the AppProtection profile, if available.
-    - Paranoia Level: The associated level which corresponds to the levels available in the AppProtection controls.
-    - Used in AppProtection Controls: The predefined and custom controls in use by the AppProtection profile. When you click the level listed, you can view the following information for each predefined control:
-      - Control Number: A number identifying the predefined control.
-      - Control Name: The name of the predefined control.
-      - Control Action: What action occurs when the predefined control is in use.
-      - Control Exception: If an exception has been added to a predefined control, Exceptions is displayed. Click Exceptions to view the details for that specific exception in the Edit Exceptions window in a read-only format.
+  - **Name**: The name of the AppProtection profile. When you expand the row, the following information is displayed:
+    - **Description**: The description of the AppProtection profile, if available.
+    - **Paranoia Level**: The associated level which corresponds to the levels available in the AppProtection controls.
+    - **Used in AppProtection Controls**: The predefined and custom controls in use by the AppProtection profile. When you click the level listed, you can view the following information for each predefined control:
+      - **Control Number**: A number identifying the predefined control.
+      - **Control Name**: The name of the predefined control.
+      - **Control Action**: What action occurs when the predefined control is in use.
+      - **Control Exception**: If an exception has been added to a predefined control, **Exceptions** is displayed. Click **Exceptions** to view the details for that specific exception in the **Edit Exceptions** window in a read-only format.
 See image.
-- OWASP_CRS Version: The OWASP predefined control version selected for the AppProtection profile.
-- Subscribed to ThreatLabZ: If the AppProtection profile is subscribed to automatically add new ThreatLabZ predefined controls, Yes is displayed. If the profile is not subscribed to receive new ThreatLabZ controls, No is displayed.
+- **OWASP_CRS Version**: The OWASP predefined control version selected for the AppProtection profile.
+- **Subscribed to ThreatLabZ**: If the AppProtection profile is subscribed to automatically add new ThreatLabZ predefined controls, **Yes** is displayed. If the profile is not subscribed to receive new ThreatLabZ controls, **No** is displayed.
 - Modify the columns displayed in the table.
 - Copy an existing AppProtection profile, and use it to create a new AppProtection profile.
 - Edit an AppProtection profile.

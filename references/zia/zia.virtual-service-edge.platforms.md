@@ -2,6 +2,6 @@
 
 **Where it runs.** {{supported-platforms}} {{image-downloads}} Nutanix has a VM image but nothing else is established for it ([[zia.virtual-service-edge.platforms:nutanix-support-scope]]). {{os-24-or-later}} {{vmotion-esxi-7}}
 
-**Which platforms can cluster is the question to settle first**, because it decides whether the bundled load balancer exists at all. {{cluster-mode-selectable-on-esxi}} {{public-cloud-no-native-cluster}} Hyper-V is where the documentation disagrees with itself ([[zia.virtual-service-edge.platforms:hyper-v-cluster-mode]]); treat ESXi as the only platform with an unambiguous native cluster. The cluster mechanics for that case are [[zia.virtual-service-edge.clusters]] and [[zia.virtual-service-edge.load-balancing]]. On the other platforms the redundancy design is a cloud load balancer in front of standalone instances.
+**Which platforms can cluster.** {{cluster-mode-selectable-on-esxi}} {{public-cloud-no-native-cluster}} Hyper-V is where the documentation disagrees with itself ([[zia.virtual-service-edge.platforms:hyper-v-cluster-mode]]); treat ESXi as the only platform with an unambiguous native cluster. The cluster mechanics for that case are [[zia.virtual-service-edge.clusters]] and [[zia.virtual-service-edge.load-balancing]].
 
 One more disagreement to know about: the minimum ESXi version differs between the specifications table and the cluster configuration article ([[zia.virtual-service-edge.platforms:esxi-minimum-version]]).

@@ -26,6 +26,58 @@
       "to": "zia.dns-control.api-rules"
     }
   ],
+  "checks": [
+    {
+      "do": "Which predefined DNS rules the tenant's records hold, rather than assuming either published list.",
+      "uses": [
+        "rule-set",
+        "predefined-flag"
+      ]
+    },
+    {
+      "do": "Whether a predefined rule was changed, since predefined rules can be disabled or modified.",
+      "uses": [
+        "modifiable-keep-high",
+        "predefined-editing"
+      ]
+    },
+    {
+      "do": "Whether both ZPA resolvers are enabled for the populations that use them.",
+      "uses": [
+        "enable-each"
+      ]
+    },
+    {
+      "do": "Whether the Road Warrior resolver rule sits above the Locations resolver rule.",
+      "uses": [
+        "road-warrior-above-locations"
+      ]
+    },
+    {
+      "do": "Whether Road Warrior is disabled, since its traffic then falls under the Locations resolver rule.",
+      "uses": [
+        "dont-disable-road-warrior"
+      ]
+    },
+    {
+      "do": "Whether client DNS for domain-based non-web traffic reaches Zscaler.",
+      "uses": [
+        "dns-must-reach-zscaler"
+      ]
+    },
+    {
+      "do": "For remote users, whether the rule targets the Road Warrior location.",
+      "uses": [
+        "road-warrior-location"
+      ]
+    },
+    {
+      "do": "Whether the fallback resolver rules are enabled, which they are only during control-plane maintenance.",
+      "uses": [
+        "fallback-resolvers"
+      ]
+    }
+  ],
   "claims": {
     "shipped-rules": {
       "statement": "Zscaler provides three predefined DNS rules: UCaaS One Click Rule (allows firewall traffic when any UCaaS application is enabled in Advanced Settings), ZPA Resolver for Locations (forwards location users' source-IP-anchored traffic to ZPA), and ZPA Resolver for the Road Warrior (does the same for remote users).",

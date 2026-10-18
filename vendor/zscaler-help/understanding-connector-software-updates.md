@@ -18,8 +18,8 @@ On each software component page, you can see the software update status in the S
 - Scheduled (all software components)
 - If a software component is scheduled to update to the latest version, its Update Status displays Scheduled.
 - When you hover over the Scheduled status, it displays the following information:
-  - Scheduled Version: Displays the scheduled software version that is applied when the software component updates.
-  - Upgrade Window: Displays the 4-hour window during which the software component updates.
+  - **Scheduled Version**: Displays the scheduled software version that is applied when the software component updates.
+  - **Upgrade Window**: Displays the 4-hour window during which the software component updates.
 - When the software component is scheduled for an update, you can't change the periodic software update time for that particular software component.
 - If a software component is scheduled for an update, you can also manually update the software component before the scheduled time. To learn more, see Manually Updating Software Components.
 - Success (all software components)

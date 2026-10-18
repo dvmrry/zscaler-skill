@@ -28,11 +28,11 @@ To configure SAML:
 - 2. Add the IdP in the Zscaler Admin Console.
 - 3. Configure the Zscaler service as the SP for SAML.
 - To configure the Zscaler service as the SP for SAML:
-  - Go to Administration > Identity > Internet & SaaS > Internet Authentication Settings > Default Settings.
-  - Under Authentication Frequency, choose how often users are required to authenticate to the Zscaler service. To learn more, see About Authentication Default Settings. If you select Custom, the following field appears:
-    - Custom Authentication Frequency (days): Specify 1 to 180 days.
-  - Under Authentication Type, choose SAML.
+  - Go to **Administration** > **Identity** > **Internet & SaaS** > **Internet Authentication Settings** > **Default Settings**.
+  - Under **Authentication Frequency**, choose how often users are required to authenticate to the Zscaler service. To learn more, see About Authentication Default Settings. If you select **Custom**, the following field appears:
+    - **Custom Authentication Frequency (days)**: Specify 1 to 180 days.
+  - Under **Authentication Type**, choose **SAML**.
   - See image.
-  - Click Save and activate the change.
+  - Click **Save** and activate the change.
 # Troubleshooting
 If any errors occur, see Troubleshooting SAML to troubleshoot browser settings and SAML error codes.

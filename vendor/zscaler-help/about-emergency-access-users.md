@@ -16,22 +16,22 @@ Prior to viewing and managing emergency access users, a list of prerequisites mu
 The Emergency Access Users page is not visible if you are within a Microtenant that has Privileged Approvals disabled. To learn more, see About Microtenants.
 On the Emergency Access Users page (Administration > Private Access Authentication > Emergency Access Users), you can do the following:
 - View a list of applied filters available from the current and previous user sessions. Applied filters must be saved to the user session first before they can be viewed. Use the drop-down menu to select the applied filters to view. To learn more, see Using Tables.
-- Hide the filters on the page by clicking Hide Filters. Click Show Filters to display the filters.
+- Hide the filters on the page by clicking **Hide Filters**. Click **Show Filters** to display the filters.
 - Refresh the Emergency Access Users page to reflect the most current information.
 - Filter the information that appears in the table. By default, no filter is applied. You can also save applied filters to your preferences so that they're visible in future user sessions. To learn more, see Using Tables.
 - View a list of emergency access users that were added. For each emergency access user, you can see:
-  - First Name: The first name of the emergency access user, as provided by the admin.
-  - Last Name: The last name of the emergency access user, as provided by the admin.
-  - Email Address: The email address of the emergency access user, as provided by the admin.
-  - Status: The status of the emergency user. The emergency access user can be in one of the following states:
-    - Active: The user is activated and has completed the email-based authentication.
-    - Staged: The user is created in the IdP but neither activated nor deactivated.
-    - Provisioned: The user is created and activated in the IdP, but still needs to complete activation via email-based authentication.
-    - Deprovisioned: The user is created in the IdP but not activated.
-    - Suspended: The user does not have access to applications within the IdP.
-  - Other statuses (e.g., Password Expired, Locked Out, Recovery) might appear.
-  - Activation Date: The date and time when the emergency access user was activated by the admin.
-  - Last Login Date: The date and time when the emergency access user last logged in.
+  - **First Name**: The first name of the emergency access user, as provided by the admin.
+  - **Last Name**: The last name of the emergency access user, as provided by the admin.
+  - **Email Address**: The email address of the emergency access user, as provided by the admin.
+  - **Status**: The status of the emergency user. The emergency access user can be in one of the following states:
+    - **Active**: The user is activated and has completed the email-based authentication.
+    - **Staged**: The user is created in the IdP but neither activated nor deactivated.
+    - **Provisioned**: The user is created and activated in the IdP, but still needs to complete activation via email-based authentication.
+    - **Deprovisioned**: The user is created in the IdP but not activated.
+    - **Suspended**: The user does not have access to applications within the IdP.
+  - Other statuses (e.g., **Password Expired**, **Locked Out**, **Recovery**) might appear.
+  - **Activation Date**: The date and time when the emergency access user was activated by the admin.
+  - **Last Login Date**: The date and time when the emergency access user last logged in.
 - Modify the columns displayed in the table.
 - Edit an emergency access user.
 - Activate an emergency access user.

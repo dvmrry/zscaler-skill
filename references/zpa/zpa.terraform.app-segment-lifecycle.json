@@ -34,6 +34,33 @@
       "to": "zpa.terraform.policy-rule-writes"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether extranet, API protection, AppProtection and reauth flags are unchanged after an apply that changed only a name or port range, by re-reading the segment.",
+      "uses": [
+        "parent-flags-always-serialized",
+        "unrelated-update-may-blank-flags"
+      ]
+    },
+    {
+      "do": "Whether every configured server group reached ZPA, since only the IDs in the first `server_groups` block are sent.",
+      "uses": [
+        "association-block-first-only"
+      ]
+    },
+    {
+      "do": "Which policy types hold APP operands that name the ID of a destroyed segment.",
+      "uses": [
+        "delete-can-leave-policy-references"
+      ]
+    },
+    {
+      "do": "Whether the remote inspection profile association is set, by reading the profile from the API, since state reflects the configured value.",
+      "uses": [
+        "associate-all-controls-no-false-branch"
+      ]
+    }
+  ],
   "claims": {
     "parent-flags-always-serialized": {
       "statement": "The SDK request structs for the four application segment kinds declare some API flags without `omitempty`, so they are always in the request body, as false when the caller leaves them unset: `extranetEnabled`, `apiProtectionEnabled`, `autoAppProtectEnabled` and `adpEnabled` on the main segment; `extranetEnabled`, `apiProtectionEnabled` and `bypassOnReauth` on browser access; `extranetEnabled` and `apiProtectionEnabled` on inspection and PRA.",

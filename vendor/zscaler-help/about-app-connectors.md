@@ -39,43 +39,43 @@ If any App Connectors have been disconnected for one year or more, an alert appe
 # About the App Connectors Page
 On the App Connectors page (Private Access > Private Infrastructure > App Connectors), you can do the following:
 - View a list of applied filters available from the current and previous user sessions. Applied filters must be saved to the user session first before they can be viewed. Use the drop-down menu to select the applied filters to view. To learn more, see Using Tables.
-- Hide the filters on the page by clicking Hide Filters. Click Show Filters to show the filters.
+- Hide the filters on the page by clicking **Hide Filters**. Click **Show Filters** to show the filters.
 - Refresh the App Connector page to reflect the most current information.
-- Configure the App Connector settings. You can enable Auto Delete to remove disconnected or optionally disabled App Connectors after a set number of days.
+- Configure the App Connector settings. You can enable **Auto Delete** to remove disconnected or optionally disabled App Connectors after a set number of days.
 - Filter the information that appears in the table. By default, no filters are applied. You can also save applied filters to your preferences so that they're visible in future user sessions. To learn more, see Using Tables.
 - Add a new App Connector.
 - View a list of all deployed App Connectors. App Connectors that you've added, but have not deployed, are not listed. For each deployed App Connector, you can see:
-  - Name: The name of the App Connector. OAuth-enabled App Connectors are added with a name format of GroupName-UserCode-TimeStamp. Click the name to view the details for the App Connector.
+  - **Name**: The name of the App Connector. OAuth-enabled App Connectors are added with a name format of GroupName-UserCode-TimeStamp. Click the name to view the details for the App Connector.
     - View details for each deployed App Connector.
-      - Description: The description of the App Connector, if available.
-      - App Connector Group: The App Connector group that the App Connector is a member of.
-      - Enrollment Certificate: The certificate the App Connector uses for enrollment. You can click the Edit icon to edit the properties of the certificate.
+      - **Description**: The description of the App Connector, if available.
+      - **App Connector Group**: The App Connector group that the App Connector is a member of.
+      - **Enrollment Certificate**: The certificate the App Connector uses for enrollment. You can click the **Edit** icon to edit the properties of the certificate.
       - In most cases, the following fields appear on the page. In cases where an App Connector is managed using a Branch Connector, Zscaler Deception, or a Host Dedicated IP (HDIP) address, the following fields do not appear:
-        - Host Platform: The platform that the App Connector is deployed on (e.g., AWS). If you are using a ZPA Appliance, ZT-8010-Zscaler Red Hat Image appears in this field.
-        - App Connector Host OS: The run time OS on which the App Connector is running (e.g., Red Hat Enterprise Linux 8 and Red Hat Enterprise Linux 9).
-        - App Connector Package OS: The compile time OS on which the RPM binary is packaged (e.g., Enterprise Linux 9).
-      - Last Software Update: The date and time the App Connector was last updated to a later software version.
-      - Last Manager Update: The date and time the Manager software was last updated to a later software version.
-      - Last OS Update: The date and time the OS was last updated to a later software version.
-      - Public Service Edge: The Private Access Public Service Edge that the App Connector connects to.
-      - Last Connection to Zscaler: The last time the App Connector connected to Zscaler.
-      - Last Disconnect from Zscaler: The last time the App Connector disconnected from Zscaler.
-      - Location: The location where the App Connector group that the App Connector belongs to is set up.
-      - Public IP: The public IP address of the App Connector. Disconnected App Connectors show the last known public IP address.
-      - Private IP: The private IP address of the App Connector. Disconnected App Connectors show the last known private IP address.
-      - Uptime: The period of time the App Connector is available for use. Disconnected App Connectors show the value Not Available.
-      - Enrollment Time: The date and time the App Connector was enrolled.
-      - Operating System Updates: Indicates whether automatic updates for the OS are enabled or disabled.
+        - **Host Platform**: The platform that the App Connector is deployed on (e.g., AWS). If you are using a ZPA Appliance, ZT-8010-Zscaler Red Hat Image appears in this field.
+        - **App Connector Host OS**: The run time OS on which the App Connector is running (e.g., Red Hat Enterprise Linux 8 and Red Hat Enterprise Linux 9).
+        - **App Connector Package OS**: The compile time OS on which the RPM binary is packaged (e.g., Enterprise Linux 9).
+      - **Last Software Update**: The date and time the App Connector was last updated to a later software version.
+      - **Last Manager Update**: The date and time the Manager software was last updated to a later software version.
+      - **Last OS Update**: The date and time the OS was last updated to a later software version.
+      - **Public Service Edge**: The Private Access Public Service Edge that the App Connector connects to.
+      - **Last Connection to Zscaler**: The last time the App Connector connected to Zscaler.
+      - **Last Disconnect from Zscaler**: The last time the App Connector disconnected from Zscaler.
+      - **Location**: The location where the App Connector group that the App Connector belongs to is set up.
+      - **Public IP**: The public IP address of the App Connector. Disconnected App Connectors show the last known public IP address.
+      - **Private IP**: The private IP address of the App Connector. Disconnected App Connectors show the last known private IP address.
+      - **Uptime**: The period of time the App Connector is available for use. Disconnected App Connectors show the value **Not Available**.
+      - **Enrollment Time**: The date and time the App Connector was enrolled.
+      - **Operating System Updates**: Indicates whether automatic updates for the OS are enabled or disabled.
       - Automated OS security updates are only available for prebuilt App Connector images on RHEL 9.x. App Connectors installed manually using an RPM file on a custom RHEL 9.x build are not supported.
-      - Secure Shell (SSH): Indicates whether the default OS SSH setting is overridden and enabled or disabled.
-  - Manager Version: The version of the current App Connector Manager software. To learn more, see Understanding the Manager Software.
-  - Software Version: The current App Connector software version.
-  - Version Profile: The version profile applied to the App Connector. You can hover over the Information icon on the Version Profile column heading to view a description of the Default, Previous Default, or New Release for the version profile. If a Custom version profile is configured, you can hover over the Custom link in the table to view details for it.
-  - Connection Health: The health of the App Connector connection (Connected or Disconnected).
-  - Software Update: The status of the last App Connector software update.
-  - Status: Indicates whether the App Connector is enabled or disabled.
-  - Manager Update: The status of the App Connector update. You can hover over the Information icon next to the update status to view more information, such as the scheduled version and upgrade window.
-  - OS Update: The status of the OS update. You can hover over the Information icon next to the update status to view more information, such as the update window and status of the update (Scheduled, Not Scheduled, In Progress, Success, or Failure).
+      - **Secure Shell (SSH)**: Indicates whether the default OS SSH setting is overridden and enabled or disabled.
+  - **Manager Version**: The version of the current App Connector Manager software. To learn more, see Understanding the Manager Software.
+  - **Software Version**: The current App Connector software version.
+  - **Version Profile**: The version profile applied to the App Connector. You can hover over the **Information** icon on the **Version Profile** column heading to view a description of the **Default**, **Previous Default**, or **New Release** for the version profile. If a **Custom** version profile is configured, you can hover over the **Custom** link in the table to view details for it.
+  - **Connection Health**: The health of the App Connector connection (Connected or Disconnected).
+  - **Software Update**: The status of the last App Connector software update.
+  - **Status**: Indicates whether the App Connector is enabled or disabled.
+  - **Manager Update**: The status of the App Connector update. You can hover over the **Information** icon next to the update status to view more information, such as the scheduled version and upgrade window.
+  - **OS Update**: The status of the OS update. You can hover over the **Information** icon next to the update status to view more information, such as the update window and status of the update (**Scheduled**, **Not Scheduled**, **In Progress**, **Success**, or **Failure**).
 - Modify the columns displayed in the table.
 - View a configuration graph of connected objects.
 - Edit the configuration of a deployed App Connector.

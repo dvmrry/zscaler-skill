@@ -45,6 +45,35 @@
       "to": "zia.tenant-profiles.microsoft"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the login traffic is decrypted: the SSL Inspection rule that matches the Microsoft login hosts is reached first and has an inspect action.",
+      "uses": [
+        "bypass-first-disables-restriction",
+        "order-fix"
+      ]
+    },
+    {
+      "do": "Whether the Microsoft-Recommended or Legacy One Click option is on, and whether the Click-to-Run exemption is present.",
+      "uses": [
+        "one-click-rule-order-editable",
+        "click-to-run-versus-one-click"
+      ]
+    },
+    {
+      "do": "Whether the profile's Version 1 or Version 2 flag and personal-domain flag are set as intended, before changing the profile.",
+      "uses": [
+        "zia.tenant-profiles.microsoft:v1-for-v2-tenant-fails-open"
+      ]
+    },
+    {
+      "do": "Whether the tenant profile needs reconfiguring, decided only after the inspection order is ruled out.",
+      "uses": [
+        "order-fix",
+        "bypass-first-disables-restriction"
+      ]
+    }
+  ],
   "claims": {
     "one-click-rule-exempts-web-policies": {
       "statement": "With the Microsoft-Recommended One Click configuration on, its predefined SSL/TLS Inspection rule exempts any Microsoft 365 traffic from SSL/TLS Inspection and, as Help words it, from other web policies such as URL Filtering and Cloud App Control; Evaluate Other Policies can be chosen instead, in which case those policies can match on the undecrypted traffic, limited to the domain.",

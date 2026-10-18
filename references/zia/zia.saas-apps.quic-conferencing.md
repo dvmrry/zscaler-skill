@@ -7,4 +7,4 @@ How to block it depends on how the traffic reaches Zscaler ([[zia.firewall.traff
 - **TCP 80 and 443 only:** {{tcp-only-branch}}
 - **Without a firewall change:** {{dns-https-records}} The DNS Control mechanics are in [[zia.dns-control]].
 
-Conferencing is the case the old catalog singled out, naming Webex media and Teams call quality and process-based bypass; none of that is in the captured Help, so it is carried as gap `conferencing-media`. For a conferencing complaint, first establish whether the media is UDP and which tunnel mode carries it, using the facts above.
+Conferencing media behavior is open {{gap:conferencing-media}}.

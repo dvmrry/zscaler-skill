@@ -15,13 +15,13 @@ Log and control forwarding provides the following benefits and enables you to:
 On the Log and Control Forwarding page (Zero Trust Cloud > Policy > Log and Control Forwarding), you can do the following:
 - Add a log and control forwarding rule.
 - View a list of all forwarding rules:
-  - Rule Order: The order of the rule.
-  - Rule Name: The name of the rule.
-  - Gateway: The gateway that is used to forward the traffic that makes contact with the rule.
-  - Locations: The locations to which this rule applies.
-  - Groups: The groups this rule might be a part of.
-  - Status: The status of the rule, which indicates whether the rule is enabled or disabled.
-  - Description: Additional notes or information about the gateway.
+  - **Rule Order**: The order of the rule.
+  - **Rule Name**: The name of the rule.
+  - **Gateway**: The gateway that is used to forward the traffic that makes contact with the rule.
+  - **Locations**: The locations to which this rule applies.
+  - **Groups**: The groups this rule might be a part of.
+  - **Status**: The status of the rule, which indicates whether the rule is enabled or disabled.
+  - **Description**: Additional notes or information about the gateway.
 - Edit a log and control forwarding rule.
 - Duplicate a log and control forwarding rule.
 - Delete a log and control forwarding rule.

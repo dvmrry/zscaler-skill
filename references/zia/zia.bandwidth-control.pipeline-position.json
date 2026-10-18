@@ -25,6 +25,21 @@
       "to": "zia.bandwidth-control.allocation"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the transaction was blocked or allowed by the earlier stages, since only transactions that every earlier stage allowed reach Bandwidth Control.",
+      "uses": [
+        "only-surviving-traffic",
+        "block-stops-later-policies"
+      ]
+    },
+    {
+      "do": "Which rules shape the transaction, only once it is known that it was allowed.",
+      "uses": [
+        "last-in-web-order"
+      ]
+    }
+  ],
   "claims": {
     "block-stops-later-policies": {
       "statement": "In the web module a transaction that violates a policy is blocked immediately and the policies that follow are not enforced.",

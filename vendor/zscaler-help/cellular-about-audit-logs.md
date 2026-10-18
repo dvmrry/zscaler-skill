@@ -21,13 +21,13 @@ On the Zscaler Cellular Audit Logs page (Data Explorer > Audit Logs > Cellular),
 - Show or hide filtering options.
 - Apply filters based on specific parameters. For each parameter, you can specify a value to filter the table data.
 - View audit log entries based on the applied filters. For each log entry, you can view:
-  - Timestamp: The date and time when the action occurred.
-  - Principal ID: The user or system that performed the action.
-  - Action: The type of operation performed, such as Create or Update.
-  - Resource Type: The type of resource affected (for example, Tag, SIM to Tag Mapping, or Anomaly Policy).
-  - Resource Name: The name of the affected resource.
-  - Resource ID: The unique identifier of the resource.
-  - View Changes: View details of the configuration changes.
+  - **Timestamp**: The date and time when the action occurred.
+  - **Principal ID**: The user or system that performed the action.
+  - **Action**: The type of operation performed, such as Create or Update.
+  - **Resource Type**: The type of resource affected (for example, Tag, SIM to Tag Mapping, or Anomaly Policy).
+  - **Resource Name**: The name of the affected resource.
+  - **Resource ID**: The unique identifier of the resource.
+  - **View Changes**: View details of the configuration changes.
   - See image.
 - Limit the number of records displayed per page. You can choose to display 10, 25, 50, or 100 entries per page.
 - Go to a specific page or move to the next or previous page.

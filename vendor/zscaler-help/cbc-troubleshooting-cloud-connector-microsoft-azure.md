@@ -30,7 +30,7 @@ This article provides troubleshooting information and guidelines about Cloud Con
 - Workloads unable to access internet applications
 - The traffic from the deployed Cloud Connector might not be able to reach internet applications.
 - Check the following areas to isolate and identify what is preventing the traffic connection:
-| Potential Causes | Troubleshooting Action |
+| **Potential Causes** | **Troubleshooting Action** |
 |---|---|
 | The firewall policy attached to the Cloud Connector. | Verify that the Internet & SaaS firewall policy is not blocking any outbound traffic. |
 | The connectivity from the Cloud Connector to Internet & SaaS. | Verify the following:In the Zscaler Admin Console, the Internet Access Gateway is populated.Session logs display the Cloud Connector self-traffic.The Zscaler Admin Console displays your tunnel insights. |
@@ -66,9 +66,9 @@ This article provides troubleshooting information and guidelines about Cloud Con
 - To avoid connectivity disruptions and/or unreachable destinations, IP forwarding must be enabled on the Cloud Connector service interface. This setting is enabled by default, but it could be inadvertently disabled manually or via automation.
 - To verify the IP forwarding setting:
   - Log in to the Azure Portal.
-  - Click Network interfaces.
-  - Select the interface and then select Settings > IP configurations.
-  - In the IP Settings section, select Enable IP forwarding.
+  - Click **Network interfaces**.
+  - Select the interface and then select **Settings** > **IP configurations**.
+  - In the **IP Settings** section, select **Enable IP forwarding**.
   - See image.
 Occasionally, you might need to access the Cloud Connector appliance’s command line interface (CLI) for troubleshooting or monitoring purposes.
 Network operations, such as ping, use the management interface. The CLI only provides limited insights to the service interface and no options to directly test its connectivity.
@@ -77,168 +77,168 @@ You can access the CLI via the following methods:
 - A bastion host is a lightweight VM instance installed within the same subnet as the Cloud Connector service interface. This option leverages Secure Socket Shell (SSH) as the connection protocol. Hence, you must have access to the SSH key pair used when instantiating the appliances.
 - To access the appliance management interface remotely:
   - Log in to the Microsoft Azure portal.
-  - On the Azure dashboard, navigate to the Search resources, service, and docs (G+/) field.
+  - On the Azure dashboard, navigate to the **Search resources, service, and docs (G+/)** field.
   - See image.
-  - In the Search resources, service, and docs (G+/) field, enter Public IP addresses. Then, under Services, select Public IP addresses. The Public IP addresses page appears.
+  - In the **Search resources, service, and docs (G+/)** field, enter Public IP addresses. Then, under **Services**, select **Public IP addresses**. The **Public IP addresses** page appears.
   - See image.
-  - On the Public IP addresses page, click Create. The Create public IP address page appears.
+  - On the **Public IP addresses** page, click **Create**. The **Create public IP address** page appears.
   - See image.
-  - On the Create public IP address page, on the Basics tab, under Project details, configure the following settings:
-    - Subscription: Select your desired subscription.
-    - Resource group: Select your desired resource group to apply policies to the public IP address.
-  - Under Instance details, select a region for the public IP address.
-  - Under Configuration details, configure the following settings:
-    - Name: Enter a name for the public IP address.
-    - IP Version: Select IPv4.
-    - SKU: Select Standard or Basic.
-    - Availability zone: Select your desired availability zone.
-    - Tier: Select Regional or Global.
-    - IP address assignment: Select Static.
-    - Routing preference: Select Microsoft network or Internet, depending on your preference.
-    - Idle timeout (minutes): The default idle timeout is set to 4 minutes.
-    - DNS name label: (Optional) Choose a DNS name label.
+  - On the **Create public IP address** page, on the **Basics** tab, under **Project details**, configure the following settings:
+    - **Subscription**: Select your desired subscription.
+    - **Resource group**: Select your desired resource group to apply policies to the public IP address.
+  - Under **Instance details**, select a region for the public IP address.
+  - Under **Configuration details**, configure the following settings:
+    - **Name**: Enter a name for the public IP address.
+    - **IP Version**: Select **IPv4**.
+    - **SKU**: Select **Standard** or **Basic**.
+    - **Availability zone**: Select your desired availability zone.
+    - **Tier**: Select **Regional** or **Global**.
+    - **IP address assignment**: Select **Static**.
+    - **Routing preference**: Select **Microsoft network** or **Internet**, depending on your preference.
+    - **Idle timeout (minutes)**: The default idle timeout is set to 4 minutes.
+    - **DNS name label**: (Optional) Choose a DNS name label.
   - See image.
-  - Click Next : Tags >.
-  - On the Tags tab, assign your desired name/value pairs, and then click Review + create.
-  - On the Review + create tab, click Create.
+  - Click **Next : Tags >**.
+  - On the **Tags** tab, assign your desired name/value pairs, and then click **Review + create**.
+  - On the **Review + create** tab, click **Create**.
   - See image.
-  - On the Public IP addresses page, navigate to the public IP address you created, and then click the name.
-  - On your public IP address's Overview page, click Associate. The Associate public IP address window appears.
+  - On the **Public IP addresses** page, navigate to the public IP address you created, and then click the name.
+  - On your public IP address's **Overview** page, click **Associate**. The **Associate public IP address** window appears.
   - See image.
-  - In the Associate public IP address window, configure the following settings:
-    - Resource type: Select Network interface.
-    - Network interface: Select the network interface of your Bastion host.
-  - Click OK to confirm the association.
+  - In the **Associate public IP address** window, configure the following settings:
+    - **Resource type**: Select **Network interface**.
+    - **Network interface**: Select the network interface of your Bastion host.
+  - Click **OK** to confirm the association.
   - See image.
-  - In the Search resources, service, and docs (G+/) field, enter Route tables. Then, under Services, select Route tables. The Route tables page appears.
+  - In the **Search resources, service, and docs (G+/)** field, enter Route tables. Then, under **Services**, select **Route tables**. The **Route tables** page appears.
   - See image.
   - Before creating or configuring your route table, identify your public IP Address. This is the address that your SSH management traffic comes from.
-  - On the Route tables page, select the name of the route table associated with your Bastion host.
-  - On your route table's Overview page, in the left-side navigation, under Settings, select Routes.
+  - On the **Route tables** page, select the name of the route table associated with your Bastion host.
+  - On your route table's **Overview** page, in the left-side navigation, under **Settings**, select **Routes**.
   - See image.
-  - On the Routes page, click Add.
-  - In the Add route window, configure the following settings:
-    - Route name: Enter a name for your route.
-    - Destination type: Select IP Addresses.
-    - Destination IP addresses/CIDR ranges: Enter your public IP address.
-    - Next hop type: Select Internet.
-    - Next hop address: Leave as default.
-  - Click Add to confirm the route.
+  - On the **Routes** page, click **Add**.
+  - In the **Add route** window, configure the following settings:
+    - **Route name**: Enter a name for your route.
+    - **Destination type**: Select **IP Addresses**.
+    - **Destination IP addresses/CIDR ranges**: Enter your public IP address.
+    - **Next hop type**: Select **Internet**.
+    - **Next hop address**: Leave as default.
+  - Click **Add** to confirm the route.
   - See image.
-  - In the Search resources, service, and docs (G+/) field, enter Network security groups. Then, under Services, select Network security groups. The Network security groups page appears.
+  - In the **Search resources, service, and docs (G+/)** field, enter Network security groups. Then, under **Services**, select **Network security groups**. The **Network security groups** page appears.
   - See image.
-  - On the Network security groups page, select the name of the network security group associated with your Bastion host.
-  - On your network security group's Overview page, in the left-side navigation, under Settings, select Inbound security rules.
-  - On the Inbound security rules page, click Add.
-  - In the Add inbound security rule window, configure the following settings:
-    - Source: Select IP Addresses.
-    - Source IP addresses/CIDR ranges: Enter your source IP addresses/CIDR ranges.
-    - Source port ranges: Enter your source port ranges.
-    - Destination: Select IP Addresses.
-    - Service: Select SSH.
-    - Destination port ranges: This field is automatically set to 22.
-    - Protocol: This field is automatically set to TCP.
-    - Action: Select Allow.
-    - Priority: Enter a number to designate the priority of this rule.
-    - Name: Enter a name for this rule.
-    - Description: (Optional) Enter a description of the rule.
-  - Click Add to confirm the inbound security rule configuration.
+  - On the **Network security groups** page, select the name of the network security group associated with your Bastion host.
+  - On your network security group's **Overview** page, in the left-side navigation, under **Settings**, select **Inbound security rules**.
+  - On the **Inbound security rules** page, click **Add**.
+  - In the **Add inbound security rule** window, configure the following settings:
+    - **Source**: Select **IP Addresses**.
+    - **Source IP addresses/CIDR ranges**: Enter your source IP addresses/CIDR ranges.
+    - **Source port ranges**: Enter your source port ranges.
+    - **Destination**: Select **IP Addresses**.
+    - **Service**: Select **SSH**.
+    - **Destination port ranges**: This field is automatically set to **22**.
+    - **Protocol**: This field is automatically set to **TCP**.
+    - **Action**: Select **Allow**.
+    - **Priority**: Enter a number to designate the priority of this rule.
+    - **Name**: Enter a name for this rule.
+    - **Description**: (Optional) Enter a description of the rule.
+  - Click **Add** to confirm the inbound security rule configuration.
   - See image.
   - Using your preferred SSH client, SSH from the management host to the Cloud Connector. The administrative login for the appliance is zsroot. The administrative login for the Bastion host varies depending on the operating system (OS) selected. For Linux terminal SSH clients using a Linux (Ubuntu) Bastion host, the command is ssh -i mySshKey.pem zsroot@10.0.50.106 -o "proxycommand ssh -W %h:%p -i mySshKey.pem ubuntu@100.64.0.1.
 - Management Interface Public IP Address
 - Cloud Connector appliances have a dedicated management interface installed, by default, in the same subnet as the Service Interface. This option leverages SSH as the connection protocol. Hence, you must have access to the SSH key pair used when instantiating the appliances.
 - To access the appliance management interface remotely:
   - Log in to the Microsoft Azure portal.
-  - On the Azure dashboard, navigate to the Search resources, service, and docs (G+/) field.
+  - On the Azure dashboard, navigate to the **Search resources, service, and docs (G+/)** field.
   - See image.
-  - In the Search resources, service, and docs (G+/) field, enter Public IP addresses. Then, under Services, select Public IP addresses. The Public IP addresses page appears.
+  - In the **Search resources, service, and docs (G+/)** field, enter Public IP addresses. Then, under **Services**, select **Public IP addresses**. The **Public IP addresses** page appears.
   - See image.
-  - On the Public IP addresses page, click Create. The Create public IP address page appears.
+  - On the **Public IP addresses** page, click **Create**. The **Create public IP address** page appears.
   - See image.
-  - On the Create public IP address page, on the Basics tab, under Project details, configure the following settings:
-    - Subscription: Select your desired subscription.
-    - Resource group: Select your desired resource group to apply policies to the public IP address.
-  - Under Instance details, select a region for the public IP address.
-  - Under Configuration details, configure the following settings:
-    - Name: Enter a name for the public IP address.
-    - IP Version: Select IPv4.
-    - SKU: Select Standard or Basic.
-    - Availability zone: Select your desired availability zone.
-    - Tier: Select Regional or Global.
-    - IP address assignment: Select Static.
-    - Routing preference: Select Microsoft network or Internet, depending on your preference.
-    - Idle timeout (minutes): The default idle timeout is set to 4 minutes.
-    - DNS name label: Choose a DNS name label.
+  - On the **Create public IP address** page, on the **Basics** tab, under **Project details**, configure the following settings:
+    - **Subscription**: Select your desired subscription.
+    - **Resource group**: Select your desired resource group to apply policies to the public IP address.
+  - Under **Instance details**, select a region for the public IP address.
+  - Under **Configuration details**, configure the following settings:
+    - **Name**: Enter a name for the public IP address.
+    - **IP Version**: Select **IPv4**.
+    - **SKU**: Select **Standard** or **Basic**.
+    - **Availability zone**: Select your desired availability zone.
+    - **Tier**: Select **Regional** or **Global**.
+    - **IP address assignment**: Select **Static**.
+    - **Routing preference**: Select **Microsoft network** or **Internet**, depending on your preference.
+    - **Idle timeout (minutes)**: The default idle timeout is set to 4 minutes.
+    - **DNS name label**: Choose a DNS name label.
   - See image.
-  - Click Next : Tags >.
-  - On the Tags tab, assign your desired name/value pairs, and then click Review + create.
-  - On the Review + create tab, click Create.
+  - Click **Next : Tags >**.
+  - On the **Tags** tab, assign your desired name/value pairs, and then click **Review + create**.
+  - On the **Review + create** tab, click **Create**.
   - See image.
-  - On the Public IP addresses page, navigate to the public IP address you created, and then click the name.
-  - On your public IP address's Overview page, click Associate. The Associate public IP address window appears.
+  - On the **Public IP addresses** page, navigate to the public IP address you created, and then click the name.
+  - On your public IP address's **Overview** page, click **Associate**. The **Associate public IP address** window appears.
   - See image.
-  - In the Associate public IP address window, configure the following settings:
-    - Resource type: Select Network interface.
-    - Network interface: Select the network interface of your management interface.
-  - Click OK to confirm the association.
+  - In the **Associate public IP address** window, configure the following settings:
+    - **Resource type**: Select **Network interface**.
+    - **Network interface**: Select the network interface of your management interface.
+  - Click **OK** to confirm the association.
   - See image.
-  - In the Search resources, service, and docs (G+/) field, enter Route tables. Then, under Services, select Route tables. The Route tables page appears.
+  - In the **Search resources, service, and docs (G+/)** field, enter Route tables. Then, under **Services**, select **Route tables**. The **Route tables** page appears.
   - See image.
   - Before creating or configuring your route table, identify your public IP address. This is the address that your SSH management traffic comes from.
-  - On the Route tables page, select the name of the route table associated with your management interface.
-  - On your route table's Overview page, in the left-side navigation, under Settings, select Routes.
+  - On the **Route tables** page, select the name of the route table associated with your management interface.
+  - On your route table's **Overview** page, in the left-side navigation, under **Settings**, select **Routes**.
   - See image.
-  - On the Routes page, click Add.
-  - In the Add route window, configure the following settings:
-    - Route name: Enter a name for your route.
-    - Destination type: Select IP Addresses.
-    - Destination IP addresses/CIDR ranges: Enter your public IP address.
-    - Next hop type: Select Internet.
-    - Next hop address: Leave as default.
-  - Click Add to confirm the route.
+  - On the **Routes** page, click **Add**.
+  - In the **Add route** window, configure the following settings:
+    - **Route name**: Enter a name for your route.
+    - **Destination type**: Select **IP Addresses**.
+    - **Destination IP addresses/CIDR ranges**: Enter your public IP address.
+    - **Next hop type**: Select **Internet**.
+    - **Next hop address**: Leave as default.
+  - Click **Add** to confirm the route.
   - See image.
-  - In the Search resources, service, and docs (G+/) field, enter Network security groups. Then, under Services, select Network security groups (classic). The Network security groups page appears.
+  - In the **Search resources, service, and docs (G+/)** field, enter Network security groups. Then, under **Services**, select **Network security groups (classic)**. The **Network security groups** page appears.
   - See image.
-  - On the Network security groups page, select the name of the network security group associated with your management interface.
-  - On your network security group's Overview page, in the left-side navigation, under Settings, select Inbound security rules.
-  - On the Inbound security rules page, click Add.
-  - In the Add inbound security rule window, configure the following settings:
-    - Source: Select IP Addresses.
-    - Source IP addresses/CIDR ranges: Enter your source IP addresses/CIDR ranges.
-    - Source port ranges: Enter your source port ranges.
-    - Destination: Select IP Addresses.
-    - Service: Select SSH.
-    - Destination port ranges: This field is automatically set to 22.
-    - Protocol: This field is automatically set to TCP.
-    - Action: Select Allow.
-    - Priority: Enter a number to designate the priority of this rule.
-    - Name: Enter a name for this rule.
-    - Description: (Optional) Enter a description of the rule.
-  - Click Add to confirm the inbound security rule configuration.
+  - On the **Network security groups** page, select the name of the network security group associated with your management interface.
+  - On your network security group's **Overview** page, in the left-side navigation, under **Settings**, select **Inbound security rules**.
+  - On the **Inbound security rules** page, click **Add**.
+  - In the **Add inbound security rule** window, configure the following settings:
+    - **Source**: Select **IP Addresses**.
+    - **Source IP addresses/CIDR ranges**: Enter your source IP addresses/CIDR ranges.
+    - **Source port ranges**: Enter your source port ranges.
+    - **Destination**: Select **IP Addresses**.
+    - **Service**: Select **SSH**.
+    - **Destination port ranges**: This field is automatically set to **22**.
+    - **Protocol**: This field is automatically set to **TCP**.
+    - **Action**: Select **Allow**.
+    - **Priority**: Enter a number to designate the priority of this rule.
+    - **Name**: Enter a name for this rule.
+    - **Description**: (Optional) Enter a description of the rule.
+  - Click **Add** to confirm the inbound security rule configuration.
   - See image.
   - Using your preferred SSH client, SSH from the management host to the Cloud Connector. The administrative login for the appliance is zsroot. For Linux terminal SSH clients, the command is ssh -i mySshKey.pem zsroot@100.64.0.1.
 - Bastion Subnet
 - Microsoft Azure offers a feature known as a Bastion subnet. This feature allocates a small percentage of available IP addresses in a subnet to the Bastion service and provides an entry point into your cloud network for management purposes.
 - To access the CLI via the Bastion subnet:
   - Log in to the Microsoft Azure Portal.
-  - On the Azure dashboard, navigate to the Search resources, service, and docs (G+/) field.
+  - On the Azure dashboard, navigate to the **Search resources, service, and docs (G+/)** field.
   - See image.
-  - In the Search resources, service, and docs (G+/) field, enter Virtual machines. Then, under Services, select Virtual machines. The Virtual machines page appears.
+  - In the **Search resources, service, and docs (G+/)** field, enter Virtual machines. Then, under **Services**, select **Virtual machines**. The **Virtual machines** page appears.
   - See image.
-  - On the Virtual machines page, select your desired Cloud Connector appliance.
-  - On the Cloud Connector appliance Overview page, click Connect.
+  - On the **Virtual machines** page, select your desired Cloud Connector appliance.
+  - On the Cloud Connector appliance **Overview** page, click **Connect**.
   - See image.
-  - Select Bastion, then click Use Bastion.
+  - Select **Bastion**, then click **Use Bastion**.
   - See image.
   - Ensure that the service is created within the VNet and Management subnet of your appliance so the appropriate connectivity exists.
-  - Under Create Bastion, click Deploy Bastion.
+  - Under **Create Bastion**, click **Deploy Bastion**.
   - See image.
-  - After your Bastion has deployed, return to your Cloud Connector appliance Overview page.
-  - On the Overview page, under Operations, select Bastion.
+  - After your Bastion has deployed, return to your Cloud Connector appliance **Overview** page.
+  - On the **Overview** page, under **Operations**, select **Bastion**.
   - See image.
   - In the Bastion window, configure the following settings:
-    - Username: Enter zsroot.
-    - Authentication Type: Select SSH Private Key from Local File.
-    - Local File: Navigate to and select your SSH Key.
-  - Click Connect.
+    - **Username**: Enter zsroot.
+    - **Authentication Type**: Select **SSH Private Key from Local File**.
+    - **Local File**: Navigate to and select your SSH Key.
+  - Click **Connect**.
   - See image.

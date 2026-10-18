@@ -33,7 +33,7 @@ If your organization needs to use custom PAC files, Zscaler highly recommends th
 - Use efficient regular expressions, and avoid capturing matches that will not be used. Because return is immediate, avoid using else with if statements.
 - Single-line if() statements do not require begin '{' and end '}' brackets.
 - Carefully consider the use (overuse) of isResolvable(), dnsResolve(), and isInNet() due to potential DNS performance issues.
-- Try and group similar exceptions into a bigger if loop. For example, instead of checking against 10 hosts with xyz.google.com in a big OR statement, convert it into an outer if statement that is applied to if the host has *.google.com and then test against the 10 hosts.
+- Try and group similar exceptions into a bigger if loop. For example, instead of checking against 10 hosts with **xyz.google.com** in a big OR statement, convert it into an outer if statement that is applied to **if the host has *.google.com** and then test against the 10 hosts.
 - Check for IP addresses in a separate if loop.
 - Every opening curly bracket must have a corresponding closing curly bracket, and every opening parenthesis must have a corresponding closing parenthesis. One of the most common mistakes in building PAC files is losing count of opening and closing parentheses and brackets.
 - Avoid using external or global variables and functions.
@@ -43,5 +43,5 @@ If your organization needs to use custom PAC files, Zscaler highly recommends th
 - var lhost = host.toLowerCase(); host = lhost;
 - Use indents to improve readability. JavaScript ignores white spaces, tabs, and blank lines in the text file, so do not be afraid to manipulate the layout of your text file. For example, if you put text within curly brackets ({ }), indent the line. You must put the closing curly bracket at the same indent level as the opening curly bracket.
 - Nested between the opening and closing curly brackets are various JavaScript variables, conditional statements, return statements, and comments.
-- Test all conditions and exceptions used in your PAC file prior to deployment. Verify that your JavaScript is error-free. You can use the Google tool (pactester) or any other PAC parser tool to ensure that there are no syntax errors in your PAC file and it works correctly. Additionally, leverage the Verify PAC File option in the Zscaler Admin Console.
+- Test all conditions and exceptions used in your PAC file prior to deployment. Verify that your JavaScript is error-free. You can use the Google tool (pactester) or any other PAC parser tool to ensure that there are no syntax errors in your PAC file and it works correctly. Additionally, leverage the **Verify PAC File** option in the Zscaler Admin Console.
 - See image.

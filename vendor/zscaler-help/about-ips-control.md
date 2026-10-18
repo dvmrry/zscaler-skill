@@ -19,44 +19,44 @@ You can enable IPS Control policies for specific locations by configuring the ap
 IPS Control is available only with Advanced Firewall. To learn more, see Understanding Firewall Capabilities. If you have IPS Control as well as Advanced Threat Protection, rules created for Advanced Threat Protection are evaluated first.
 # About the IPS Control Page
 On the IPS Control page (Cyberthreat Protection > Policy > IPS Control), you can do the following:
-- Click Recommended Policy to view the policy Zscaler recommends.
+- Click **Recommended Policy** to view the policy Zscaler recommends.
 - Add an IPS Control policy rule.
-- Filter the IPS Control policy rules by Rule Label to view the rules grouped under the selected labels. By default, the rules are listed in the ascending rule order.
+- Filter the IPS Control policy rules by **Rule Label** to view the rules grouped under the selected labels. By default, the rules are listed in the ascending rule order.
 - Applying Rule Labels
-  - Click Rule Label.
+  - Click **Rule Label**.
   - From the drop-down menu, select rule labels to view the rules associated with them. You can also search for rule labels.
-  - Click Apply.
+  - Click **Apply**.
   - The associated rules populate in the IPS Control policy table.
-- Click Clear to remove all rule label selection.
+- Click **Clear** to remove all rule label selection.
 - Search for an IPS Control rule.
 - Modify the table and its columns.
 - View a list of all configured IPS Control policy rules. For each rule you can view the following information.
 - Policy Rule Details
-  - Rule Order: The policy rule order number. IPS Control policy rules are evaluated in ascending numerical order. You can sort this column.
-  - Admin Rank: The admin rank for this rule. This is only visible if you have enabled it in the Advanced Settings. You can sort this column.
-  - Rule Name: The name of this rule. You can sort this column.
-  - Description: The description of the rule.
-  - Action: The action configured for the policy rule to allow or block traffic, or bypass IPS.
-  - Label: The label associated with the rule.
-  - Users: The users included in the rule.
-  - Groups: The user groups included in the rule.
-  - Departments: The departments included in the rule.
-  - Locations: The locations included in the rule.
-  - Time: The time period during which the rule applies.
-  - Network Services: The network services included in the rule.
-  - Network Service Groups: The network service groups included in the rule.
-  - Source IPv4 Groups: The source IPv4 groups included in the rule.
-  - Source IP Addresses: The source IP addresses included in the rule.
-  - Destination Addresses: The destination addresses included in the rule.
-  - Destination Countries: The destination countries included in the rule.
-  - Destination IPv4 Groups: The destination IPv4 groups included in the rule.
-  - Location Groups: The location groups included in the rule.
-  - Source IPv6 Groups: The source IPv6 groups included in the rule.
-  - Destination IPv6 Groups: The destination IPv6 groups included in the rule.
-  - Destination IP Categories: The destination URL categories included in the rule.
-  - Application Segments: The application segments included in the rule.
-  - Application Service Groups: The application service groups included in the rule.
-  - Advanced Threat Categories: The threat categories included in the rule.
-  - Actions: The actions you can perform on a rule, such as editing, duplicating, and deleting.
+  - **Rule Order**: The policy rule order number. IPS Control policy rules are evaluated in ascending numerical order. You can sort this column.
+  - **Admin Rank**: The admin rank for this rule. This is only visible if you have enabled it in the Advanced Settings. You can sort this column.
+  - **Rule Name**: The name of this rule. You can sort this column.
+  - **Description**: The description of the rule.
+  - **Action**: The action configured for the policy rule to allow or block traffic, or bypass IPS.
+  - **Label**: The label associated with the rule.
+  - **Users**: The users included in the rule.
+  - **Groups**: The user groups included in the rule.
+  - **Departments**: The departments included in the rule.
+  - **Locations**: The locations included in the rule.
+  - **Time**: The time period during which the rule applies.
+  - **Network Services**: The network services included in the rule.
+  - **Network Service Groups**: The network service groups included in the rule.
+  - **Source IPv4 Groups**: The source IPv4 groups included in the rule.
+  - **Source IP Addresses**: The source IP addresses included in the rule.
+  - **Destination Addresses**: The destination addresses included in the rule.
+  - **Destination Countries**: The destination countries included in the rule.
+  - **Destination IPv4 Groups**: The destination IPv4 groups included in the rule.
+  - **Location Groups**: The location groups included in the rule.
+  - **Source IPv6 Groups**: The source IPv6 groups included in the rule.
+  - **Destination IPv6 Groups**: The destination IPv6 groups included in the rule.
+  - **Destination IP Categories**: The destination URL categories included in the rule.
+  - **Application Segments**: The application segments included in the rule.
+  - **Application Service Groups**: The application service groups included in the rule.
+  - **Advanced Threat Categories**: The threat categories included in the rule.
+  - **Actions**: The actions you can perform on a rule, such as editing, duplicating, and deleting.
 - Edit, duplicate, or delete an IPS Control rule.
 - The IPS Control policy rules are paginated with up to 500 rules displayed per page.

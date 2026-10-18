@@ -28,6 +28,22 @@
       "to": "shared.sdk-go.cache"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the terminal rules are still last after an apply that edited ordered rules, by re-reading the whole policy's order rather than only the edited rules.",
+      "uses": [
+        "terminal-rule-can-be-displaced",
+        "converges-on-registered-rules-only"
+      ]
+    },
+    {
+      "do": "Whether a later plan shows rules out of their declared order after an apply that reported success.",
+      "uses": [
+        "wrong-order-reported-success",
+        "gives-up-silently"
+      ]
+    }
+  ],
   "claims": {
     "update-parks-every-update": {
       "statement": "Every URL Filtering rule update, whatever field changed, is first sent with rank 7 at the order of the last rule (sorted by rank, then order), and only afterwards moved back to its declared order by the reorder worker. The rule is written at that order, not after it.",

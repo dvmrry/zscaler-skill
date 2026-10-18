@@ -18,21 +18,21 @@ On the Accounts page (Zero Trust Cloud > Common Resources > AWS > Accounts), you
 - Download the CloudFormation template.
 - Search for an account.
 - View a list of all accounts. For each account, you can view:
-  - Account ID: The ID of the AWS account. Select an account ID to view the dashboard details.
-  - Name: The name of the account.
-  - Last Modified By: The last admin to modify the account.
-  - Last Modified On: The date and time the account was last modified.
-  - Permission: The permission status of the account (i.e., Pending, Allowed, or Denied).
-  - After an account is onboarded, set the trusted role in AWS and refresh the account in the Zscaler Admin Console. The status updates from Pending to either Allowed or Denied.
-  - Latest Sync: The last time the account synced. After refreshing, this column displays the time when the user clicked the Refresh button.
+  - **Account ID**: The ID of the AWS account. Select an account ID to view the dashboard details.
+  - **Name**: The name of the account.
+  - **Last Modified By**: The last admin to modify the account.
+  - **Last Modified On**: The date and time the account was last modified.
+  - **Permission**: The permission status of the account (i.e., **Pending**, **Allowed**, or **Denied**).
+  - After an account is onboarded, set the trusted role in AWS and refresh the account in the Zscaler Admin Console. The status updates from **Pending** to either **Allowed** or **Denied**.
+  - **Latest Sync**: The last time the account synced. After refreshing, this column displays the time when the user clicked the Refresh button.
 - Modify the table and its columns.
 - Edit an account.
 - Refresh an account.
 - Configure additional settings for an account. For each account, you can configure:
-  - Launch Cloudformation: This allows you to launch CloudFormation in AWS.
-  - Disable Data Collection: Zscaler stops the tag discovery process.
-  - Enable Data Collection: Zscaler begins the tag discovery process.
-  - Delete Accounts: The account is permanently deleted.
+  - **Launch Cloudformation**: This allows you to launch CloudFormation in AWS.
+  - **Disable Data Collection**: Zscaler stops the tag discovery process.
+  - **Enable Data Collection**: Zscaler begins the tag discovery process.
+  - **Delete Accounts**: The account is permanently deleted.
 - Go to the Microsoft Azure Accounts page.
 - Go to the Google Cloud Platform (GCP) Accounts page.
 - Go to the AWS Account Groups page.

@@ -19,16 +19,16 @@ On the Scan Configuration page (Data Security > DSPM > SaaS Scan Configuration),
 - Add a new scan schedule.
 - Modify the table and its columns.
 - View a list of all configured scan schedules. For scan schedules, you can see the following:
-  - SaaS Application Tenant: The SaaS application tenant chosen for the scan schedule.
-  - Schedule Criteria: The criteria for the scan:
-    - Policy: The specified DLP policy for the scan.
-    - Data to Scan: The amount of historical data inspected by the scan.
-  - Description: The description of the scan schedule, if available.
-  - Status: Displays the status of each scan.
-    - Scan Initialized: When a scan is initialized, the necessary prerequisites for the scan are verified and evaluated to ensure readiness. Scan Initialized does not indicate the actual start of the scanning process. When the scan is initialized, the date and time of the initialization are also displayed.
-    - Running: A scan starts running when the initialization is completed successfully. When the scan is running, the date and time the scan started are also displayed.
-    - Scan Stopped: When a scan stops, the date and time the scan stopped, and the reason are also displayed.
-  - Actions: The buttons to start, stop, edit, or delete a scan.
+  - **SaaS Application Tenant**: The SaaS application tenant chosen for the scan schedule.
+  - **Schedule Criteria**: The criteria for the scan:
+    - **Policy**: The specified DLP policy for the scan.
+    - **Data to Scan**: The amount of historical data inspected by the scan.
+  - **Description**: The description of the scan schedule, if available.
+  - **Status**: Displays the status of each scan.
+    - **Scan Initialized**: When a scan is initialized, the necessary prerequisites for the scan are verified and evaluated to ensure readiness. Scan Initialized does not indicate the actual start of the scanning process. When the scan is initialized, the date and time of the initialization are also displayed.
+    - **Running**: A scan starts running when the initialization is completed successfully. When the scan is running, the date and time the scan started are also displayed.
+    - **Scan Stopped**: When a scan stops, the date and time the scan stopped, and the reason are also displayed.
+  - **Actions**: The buttons to start, stop, edit, or delete a scan.
 - Start or stop a scan at any time.
 - Stopping a scan flushes the processing queue. If you stop the scan, you must use one of the following options to start it again.
   - If you configure the scan to inspect all historical data, the scan processes all data from the beginning. This might result in duplicate results for data that the scan has already inspected.

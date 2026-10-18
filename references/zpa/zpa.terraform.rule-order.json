@@ -16,6 +16,36 @@
       "to": "zia.terraform.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the whole policy type's order is re-read after an apply of a reorder resource, and terminal rules such as `Default_Rule` are still last.",
+      "uses": [
+        "unmanaged-rules-sent-below-managed",
+        "terminal-rule-can-be-displaced",
+        "default-rule-pinned-last-by-name"
+      ]
+    },
+    {
+      "do": "Whether the configured numbers are contiguous from 1 and list every rule that matters, so that the configuration matches the list sent.",
+      "uses": [
+        "numbers-are-relative-only",
+        "gapped-numbers-drift"
+      ]
+    },
+    {
+      "do": "Whether a plan shows an order difference when the Deception rule sits at order 1, which is expected under the offset.",
+      "uses": [
+        "deception-offset-drift"
+      ]
+    },
+    {
+      "do": "Whether a reorder resource depends on the rule resources it orders, and whether two reorder resources share one policy type.",
+      "uses": [
+        "reorder-not-under-rule-mutex",
+        "concurrent-bulk-reorder-last-writer-wins"
+      ]
+    }
+  ],
   "claims": {
     "sends-id-list-only": {
       "statement": "The ZPA reorder resource does not write a position per rule. `BulkReorder` reads the policy set and every rule of the policy type, sorts the IDs locally, and sends one PUT to the policy set's `reorder` endpoint whose body is a bare ordered list of rule IDs. The configured numbers never go on the wire. The provider's only reorder resource, `zpa_policy_access_rule_reorder`, calls the version 1 policy-set controller's `BulkReorder`; the version 2 controller's `BulkReorder` is not used and not covered here.",

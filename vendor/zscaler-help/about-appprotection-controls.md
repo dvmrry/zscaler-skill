@@ -27,19 +27,19 @@ Each OWASP predefined control is identified with a unique number, defined with h
 # About the OWASP Predefined Controls Page
 On the OWASP Predefined Controls page (Private Access > Private App Protection > Protection Controls > OWASP Predefined Controls), you can do the following:
 - View a list of applied filters available from the current and previous user sessions. Applied filters must be saved to the user session first before they can be viewed. Use the drop-down menu to select the applied filters to view. To learn more, see Using Tables.
-- Hide the filters on the page by clicking Hide Filters. Click Show Filters to display the filters.
+- Hide the filters on the page by clicking **Hide Filters**. Click **Show Filters** to display the filters.
 - Refresh the OWASP Predefined Controls page to reflect the most current information.
 - Filter the information that appears in the table. By default, no filters are applied. You can also save applied filters to your preferences so that they're visible in future user sessions. To learn more, see Using Tables.
-- Filter the version of information that appears in the table. By default, the version is set to OWASP_CRS/4.8.0. Some predefined controls are unavailable in older versions. You can select the Unsupported filter to list all of the outdated versions. With this filter, you can select Migrate to migrate all of the outdated versions to the latest version. If you are using Anomalies or Web Shells OWASP predefined control groups, you can experience download latency.
+- Filter the version of information that appears in the table. By default, the version is set to **OWASP_CRS/4.8.0**. Some predefined controls are unavailable in older versions. You can select the **Unsupported** filter to list all of the outdated versions. With this filter, you can select **Migrate** to migrate all of the outdated versions to the latest version. If you are using Anomalies or Web Shells OWASP predefined control groups, you can experience download latency.
 - Expand all the rows in the table to see more information about each OWASP predefined control.
 - View a list of OWASP predefined controls. For each OWASP predefined control, you can view:
-  - Control Number: A number identifying the OWASP predefined control. When expanded, the following information is displayed:
-    - Description: An explanation of how the control works.
-    - Paranoia Level: The associated level, which corresponds to the levels available in an AppProtection profile.
-    - Used in AppProtection Profiles: The AppProtection profiles using the predefined control. Click an AppProtection profile if you want to edit it.
-  - Control Name: The name of the OWASP predefined control.
-  - Severity: The level of severity for the control number. The severity levels are Low, Medium, High, and Critical.
-  - Control Action: What action occurs when the OWASP predefined control is in use.
+  - **Control Number**: A number identifying the OWASP predefined control. When expanded, the following information is displayed:
+    - **Description**: An explanation of how the control works.
+    - **Paranoia Level**: The associated level, which corresponds to the levels available in an AppProtection profile.
+    - **Used in AppProtection Profiles**: The AppProtection profiles using the predefined control. Click an AppProtection profile if you want to edit it.
+  - **Control Name**: The name of the OWASP predefined control.
+  - **Severity**: The level of severity for the control number. The severity levels are **Low**, **Medium**, **High**, and **Critical**.
+  - **Control Action**: What action occurs when the OWASP predefined control is in use.
 - Modify the columns displayed in the table.
 - Go to the ThreatLabZ Controls page to view and manage the available ThreatLabZ controls.
 - Go to the Custom Controls page to view and manage your custom controls.

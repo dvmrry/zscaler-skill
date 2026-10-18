@@ -18,12 +18,12 @@ On the ML Tag Recommendations page (Zero Trust Cloud > Microsegmentation > Tag R
 - Refresh the ML Tag Recommendations page to reflect the most current information.
 - Show or hide available columns.
 - Show or hide the available filters.
-- Filter the information by Application Name and Application Category. After configuring your preferred filters, click the button to apply the filters (e.g., Apply 1 filter, Apply 2 filters) and view the results.
+- Filter the information by **Application Name** and **Application Category**. After configuring your preferred filters, click the button to apply the filters (e.g., Apply 1 filter, Apply 2 filters) and view the results.
 - See image.
 - View a list of all ML tag recommendations for your organization. For each recommendation, you can see:
-  - Application Name: The name of the application.
-  - Application Category: The category type of the application.
-  - Member Count: How many resources are in the recommendation.
+  - **Application Name**: The name of the application.
+  - **Application Category**: The category type of the application.
+  - **Member Count**: How many resources are in the recommendation.
 - Review a recommendation to view its complete information and accept, edit, or ignore it. Any resources that are not selected while accepting the recommendation are considered ignored. If the user wants to review the previously ignored recommendations, they must check that list.
 - See image.
 - Delete a recommendation.

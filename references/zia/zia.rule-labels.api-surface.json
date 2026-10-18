@@ -31,6 +31,34 @@
       "to": "shared.sdk-go.list-pagination"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a script uses only the contract calls for labels, since the Python-only ruleType call is unconfirmed.",
+      "uses": [
+        "crud-endpoints",
+        "python-ruletype-endpoint"
+      ]
+    },
+    {
+      "do": "Whether `referencedRuleCount` is read as a count of the rules that reference the label, before a delete.",
+      "uses": [
+        "read-only-fields"
+      ]
+    },
+    {
+      "do": "Whether label names are unique before relying on a name: do not infer uniqueness from the by-name lookup.",
+      "uses": [
+        "go-name-lookup",
+        "zia.rule-labels.constraints:name-uniqueness"
+      ]
+    },
+    {
+      "do": "Whether the Python `search` parameter on the label list filters by name before relying on it, since the server honouring it is not shown.",
+      "uses": [
+        "list-search-param"
+      ]
+    }
+  ],
   "claims": {
     "crud-endpoints": {
       "statement": "The OpenAPI contract defines list and create on `/ruleLabels` and get, update and delete on `/ruleLabels/{ruleLabelId}`.",

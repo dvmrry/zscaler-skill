@@ -28,6 +28,28 @@
       "to": "zia.locations.bandwidth"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the location's Enforce Bandwidth Control switch is on and its maximums are set, since rules do not shape its traffic otherwise.",
+      "uses": [
+        "toggle-gates-rules",
+        "enforce-toggle"
+      ]
+    },
+    {
+      "do": "Each sublocation's mode, since a sublocation in the shared mode shares its location's limits.",
+      "uses": [
+        "zia.locations.bandwidth:shared-by-default",
+        "sublocation-share-detail"
+      ]
+    },
+    {
+      "do": "Whether the traffic comes from a configured location rather than a remote user, which these limits do not cover.",
+      "uses": [
+        "known-locations-only"
+      ]
+    }
+  ],
   "claims": {
     "limits-per-location": {
       "statement": "Bandwidth Control starts with maximum upload and download limits per location, which apply to traffic proxied to Zscaler. These limits are required before the class-based rules (the second level) can be used.",

@@ -35,6 +35,21 @@
       "to": "zia.ftp-control.scope"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a File Type Control rule is a Block, since a block means no DLP incident for that file.",
+      "uses": [
+        "post-and-response-position",
+        "zia.dlp.evaluation:earlier-block-skips-dlp"
+      ]
+    },
+    {
+      "do": "Whether a file above the 400 MB limit is handled as the tenant expects, since the service's handling is open.",
+      "uses": [
+        "over-limit-handling"
+      ]
+    }
+  ],
   "claims": {
     "post-and-response-position": {
       "statement": "For an HTTP POST request, File Type Control checks the POST after Malware Protection and before Data Loss Prevention. For a GET or POST response, it checks the files in the response after Malware Protection and before the Sandbox analysis of unknown files.",

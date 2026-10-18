@@ -27,14 +27,14 @@ The service also analyzes these files if they’re contained in ZIP archive file
 Zscaler Sandbox supports file sizes up to 50MB for Windows EXEs, Android APKs, and Archive file types.
 - When users attempt to download files that meet the preceding criteria and the service has never seen the files before, the service allows the downloads and sends the files to the Sandbox engine for analysis.
 - It blocks files that contain the following types of malicious files:
-  - Adware: Files that automatically render advertisements or install adware. Often, these advertisements are unwanted and can lead to spyware or other grayware-oriented privacy violations.
-  - Malware & Botnets: Files that behave like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware. This is a catchall category for any malicious file that doesn't fall under the other Sandbox categories. Most Sandbox-classified files aren't clearly known to be a specific threat or malware family-oriented because there aren't specific signatures or indicators to categorize the file. Instead, it categorizes the file based on an aggregation of the file’s OS and application behaviors and network activity.
-  - P2P & Anonymizers: Files that exhibit behaviors consistent with P2P/anonymizer programs, such as Tor Browser or other VPN services, that essentially make a user’s internet activity untraceable.
+  - **Adware**: Files that automatically render advertisements or install adware. Often, these advertisements are unwanted and can lead to spyware or other grayware-oriented privacy violations.
+  - **Malware & Botnets**: Files that behave like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware. This is a catchall category for any malicious file that doesn't fall under the other Sandbox categories. Most Sandbox-classified files aren't clearly known to be a specific threat or malware family-oriented because there aren't specific signatures or indicators to categorize the file. Instead, it categorizes the file based on an aggregation of the file’s OS and application behaviors and network activity.
+  - **P2P & Anonymizers**: Files that exhibit behaviors consistent with P2P/anonymizer programs, such as Tor Browser or other VPN services, that essentially make a user’s internet activity untraceable.
 - It blocks malicious file downloads from any of the following protocols:
-  - FTP over HTTP: File downloads from FTP over HTTP websites.
-  - HTTP: File downloads from HTTP websites.
-  - HTTPS: File downloads from HTTP websites encrypted by TLS/SSL.
-  - Native FTP: File downloads from native FTP servers.
+  - **FTP over HTTP**: File downloads from FTP over HTTP websites.
+  - **HTTP**: File downloads from HTTP websites.
+  - **HTTPS**: File downloads from HTTP websites encrypted by TLS/SSL.
+  - **Native FTP**: File downloads from native FTP servers.
 You can modify the default rule, but it isn't recommended.
 If you've configured the Sandbox policy to block known malicious files and a user attempts to download a malicious file, the service displays a notification explaining that the file was blocked because it is malicious. The service also logs transactions in real time, and you can view Sandbox reports and data under Dashboard and Analytics.
 To learn how this policy fits into the overall order of policy enforcement, see About Policy Enforcement.
@@ -76,41 +76,41 @@ If your organization has Advanced Sandbox, you have the following benefits:
 ## Default Rules for Advanced Sandbox
 The following disabled rules are included in Advanced Sandbox:
 - Sandbox_Docs_Trusted
-  - Rule Order: 1
-  - Admin Rank: 7
-  - Rule Name: Sandbox_Docs_Trusted
-  - Rule Status: Disabled
-  - File Types: Microsoft Office (group) & PDF
-  - Sandbox Categories: All
-  - Protocols: FTP over HTTP, HTTP, HTTPS, Native FTP
-  - First-Time Action: Allow & Scan
-  - AI Instant Verdict: Enabled
-  - Action for Subsequent Downloads: Block
-  - Description: Advanced Sandbox Documents rule created during company creation. This policy rule is intended to be used with a custom user-defined URL Category Trusted Sites (or other applicable name), which after creation needs to be added to the policy via the URL Category control. This policy rule intentionally does not subject documents coming from Trusted Sites to the same level of inspection as untrusted sites.
+  - **Rule Order**: 1
+  - **Admin Rank**: 7
+  - **Rule Name**: Sandbox_Docs_Trusted
+  - **Rule Status**: Disabled
+  - **File Type**s: Microsoft Office (group) & PDF
+  - **Sandbox Categories**: All
+  - **Protocols**: FTP over HTTP, HTTP, HTTPS, Native FTP
+  - **First-Time Action**: Allow & Scan
+  - **AI Instant Verdict**: Enabled
+  - **Action for Subsequent Downloads**: Block
+  - **Description**: Advanced Sandbox Documents rule created during company creation. This policy rule is intended to be used with a custom user-defined URL Category Trusted Sites (or other applicable name), which after creation needs to be added to the policy via the URL Category control. This policy rule intentionally does not subject documents coming from Trusted Sites to the same level of inspection as untrusted sites.
 - Sandbox_Docs_Archives
-  - Rule Order: 2
-  - Admin Rank: 7
-  - Rule Name: Sandbox_Docs_Archives
-  - Rule Status: Disabled
-  - File Types: Microsoft Office (group), PDF, and Archives (group)
-  - Sandbox Categories: All
-  - Protocols: FTP over HTTP, HTTP, HTTPS, Native FTP
-  - First-Time Action: Quarantine
-  - AI Instant Verdict: Enabled
-  - Action for Subsequent Downloads: Block
-  - Description: Advanced Sandbox Documents and Archives rule created during company creation. This rule must apply to all URL categories other than the custom user-defined URL Category Trusted Sites.
+  - **Rule Order**: 2
+  - **Admin Rank**: 7
+  - **Rule Name**: Sandbox_Docs_Archives
+  - **Rule Status**: Disabled
+  - **File Types**: Microsoft Office (group), PDF, and Archives (group)
+  - **Sandbox Categories**: All
+  - **Protocols**: FTP over HTTP, HTTP, HTTPS, Native FTP
+  - **First-Time Action**: Quarantine
+  - **AI Instant Verdict**: Enabled
+  - **Action for Subsequent Downloads**: Block
+  - **Description**: Advanced Sandbox Documents and Archives rule created during company creation. This rule must apply to all URL categories other than the custom user-defined URL Category Trusted Sites.
 - Sandbox_Exes_Web
-  - Rule Order: 3
-  - Admin Rank: 7
-  - Rule Name: Sandbox_Exes_Web
-  - Rule Status: Disabled
-  - File Types: Executable (group), Web Content (group)
-  - Sandbox Categories: All
-  - Protocols: FTP over HTTP, HTTP, HTTPS, Native FTP
-  - First-Time Action: Quarantine
-  - AI Instant Verdict: Enabled
-  - Action for Subsequent Downloads: Block
-  - Description: Advanced Sandbox Executables and Web Content rule created during company creation.
+  - **Rule Order**: 3
+  - **Admin Rank**: 7
+  - **Rule Name**: Sandbox_Exes_Web
+  - **Rule Status**: Disabled
+  - **File Types**: Executable (group), Web Content (group)
+  - **Sandbox Categories**: All
+  - **Protocols**: FTP over HTTP, HTTP, HTTPS, Native FTP
+  - **First-Time Action**: Quarantine
+  - **AI Instant Verdict**: Enabled
+  - **Action for Subsequent Downloads**: Block
+  - **Description**: Advanced Sandbox Executables and Web Content rule created during company creation.
 You can enable and update these rules to fit your organization's needs.
 ## Advanced Detections Features
 If your organization has the Advanced Detections package for Advanced Sandbox, you can analyze EXE and DLL files sized up to 200 MB.
@@ -118,27 +118,27 @@ If your organization has the Advanced Detections package for Advanced Sandbox, y
 If you don't have Advanced Sandbox, some of the following options are not available.
 On the Sandbox page (Policies > Cybersecurity > Inline Security > Sandbox > Sandbox Policy), you can do the following:
 - View the recommended policy for Sandbox.
-- Search for a configured Sandbox rule. You can click the Filter icon to filter the displayed rules by rule label.
-- Select which columns are visible in the table. You can also choose Show All Columns.
+- Search for a configured Sandbox rule. You can click the **Filter** icon to filter the displayed rules by rule label.
+- Select which columns are visible in the table. You can also choose **Show All Columns**.
 - Add a rule to the Sandbox policy.
 - View a list of all configured Sandbox rules. For each rule, you can view the following details:
-  - Rule Order: The rule order number. Sandbox rules are evaluated in ascending numerical order. The default rule is evaluated last.
-  - Admin Rank: The assigned admin rank for the rule. This is visible only if admin ranking is enabled in the Advanced Settings.
-  - Rule Name: The name of the rule.
-  - Rule Action: Displays the configured Sandbox actions of the rule.
-  - Label: The rule label applied to the rule, if available.
-  - File Types: The file types selected for the rule.
-  - URL Categories: The URL categories selected for the rule.
-  - Users: The users selected for the rule to apply to
-  - Groups: The groups selected for the rule to apply to.
-  - Departments: The departments selected for the rule to apply to.
-  - Locations: The locations selected for the rule to apply to.
-  - Location Groups: The location groups selected for the rule to apply to.
-  - Sandbox Categories: The Sandbox categories selected for the rule to apply to.
-  - Protocols: The Sandbox categories selected for the rule to apply to.
-  - ZPA Application Segment: The Private Access application segments selected for the rule to apply to.
-  - Status: Displays if the rule is Enabled or Disabled.
-  - Description: The description of the rule, if available.
+  - **Rule Order**: The rule order number. Sandbox rules are evaluated in ascending numerical order. The default rule is evaluated last.
+  - **Admin Rank**: The assigned admin rank for the rule. This is visible only if admin ranking is enabled in the Advanced Settings.
+  - **Rule Name**: The name of the rule.
+  - **Rule Action**: Displays the configured Sandbox actions of the rule.
+  - **Label**: The rule label applied to the rule, if available.
+  - **File Types**: The file types selected for the rule.
+  - **URL Categories**: The URL categories selected for the rule.
+  - **Users**: The users selected for the rule to apply to
+  - **Groups**: The groups selected for the rule to apply to.
+  - **Departments**: The departments selected for the rule to apply to.
+  - **Locations**: The locations selected for the rule to apply to.
+  - **Location Groups**: The location groups selected for the rule to apply to.
+  - **Sandbox Categories**: The Sandbox categories selected for the rule to apply to.
+  - **Protocols**: The Sandbox categories selected for the rule to apply to.
+  - **ZPA Application Segment**: The Private Access application segments selected for the rule to apply to.
+  - **Status**: Displays if the rule is **Enabled** or **Disabled**.
+  - **Description**: The description of the rule, if available.
 - Edit a configured Sandbox rule.
 - Duplicate a configured Sandbox rule.
 - Delete a configured Sandbox rule.

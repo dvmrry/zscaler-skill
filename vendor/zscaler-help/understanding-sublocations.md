@@ -15,11 +15,11 @@ For example, an organization can define one sublocation for its corporate networ
 Key considerations while using sublocations:
 - Sublocations cannot have overlapping IP addresses within a location.
 - Sublocations can reference IP address ranges (e.g., 10.10.20.2 to 10.10.20.250).
-- After you add a sublocation, the Zscaler service automatically creates a sublocation named other on the Locations page. The other sublocation is created, by default, for IP addresses that are sent to the cloud from a location that is not already defined in the sublocation. You can rename the other sublocation if desired.
-- If the Enable IPv6 option is enabled for your location, the Zscaler service automatically creates a sublocation named other6 in addition to the other sublocation. You can rename the other6 sublocation if desired.
+- After you add a sublocation, the Zscaler service automatically creates a sublocation named **other** on the Locations page. The **other** sublocation is created, by default, for IP addresses that are sent to the cloud from a location that is not already defined in the sublocation. You can rename the **other** sublocation if desired.
+- If the **Enable IPv6** option is enabled for your location, the Zscaler service automatically creates a sublocation named **other6** in addition to the **other** sublocation. You can rename the **other6** sublocation if desired.
 - See image.
-- After you add a sublocation to a location created in the Zscaler Admin Console, the Workload traffic type and Workload Traffic Group are applied as the default location type and the location group for the sublocation, respectively.
-- When you add a sublocation to an Extranet-type location, the Extranet location type is applied automatically. The extranet sublocation uses the DNS server and traffic selector of the extranet location it was created for. To learn more, see Configuring an Extranet.
+- After you add a sublocation to a location created in the Zscaler Admin Console, the **Workload traffic type** and **Workload Traffic Group** are applied as the default location type and the location group for the sublocation, respectively.
+- When you add a sublocation to an **Extranet**-type location, the **Extranet** location type is applied automatically. The extranet sublocation uses the DNS server and traffic selector of the extranet location it was created for. To learn more, see Configuring an Extranet.
 - You can use a previously deleted sublocation name when you create a new sublocation, but you cannot use a deleted name when you edit an existing one. To learn more, see Naming Locations & Sublocations.
 - Although IP addresses within a location cannot overlap, the same IP address can exist in multiple locations.
 To learn more, see Viewing Sublocations and Configuring Sublocations.

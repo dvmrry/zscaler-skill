@@ -14,7 +14,7 @@ Zscaler supports the following traffic forwarding mechanisms. Depending on your 
 | Benefits | Limitations |
 |---|---|
 | Supports Windows, macOS, Linux, iOS, Android, and virtual computing environments. To learn more, see Supported Versions.Supports all authentication mechanisms supported by the Zscaler service.Provides device fingerprinting and reporting.Easy to enforce.Supports auto and managed updates.Detects trusted networks and can disable its service automatically.Zscaler Client Connector forwards traffic for all ports and protocols to the Zscaler service for inspection from any location and ensures that your configured security and access policies are always enforced.Zscaler Client Connector can be configured to prevent your users from disabling, bypassing, or uninstalling it.When traffic is forwarded to the Zscaler service, Zscaler provisions your organization's IP addresses, which can then be added as known locations in the Zscaler Admin Console.You can deploy SSL Inspection for Zscaler Client Connector users. | If a public IP address is mapped to the user's location, then some of the location-based policies such as Firewall, Forwarding Control, and DNS apply to the user's Zscaler Client Connector traffic.Features such as Sublocations, Surrogate IP, and Bandwidth Control cannot be enabled for your organization.A software application needs to be deployed, managed, and maintained on all end devices. |
-| Requirements |  |
+| **Requirements** |  |
 | The Zscaler Client Connector users must be provisioned on the Zscaler service and an authentication method must be configured for them to authenticate.If you are using the app for Private Access (ZPA), your organization must use SAML authentication.If you are using the app for internet security, your firewall must be configured to allow the necessary connections.To learn more about the endpoint application versions that Zscaler Client Connector supports, see Supported Versions. |  |
 - To learn more about configuring Zscaler Client Connector, see Step-by-Step Configuration Guide for Zscaler Client Connector.
 - GRE Tunnels
@@ -22,9 +22,9 @@ Zscaler supports the following traffic forwarding mechanisms. Depending on your 
 | Benefits | Limitations |
 |---|---|
 | Supports all ports and protocols for traffic forwarding.Supports fail over in case the primary Public Service Edge becomes unavailable.Minimal overhead.No configuration on computers or laptops.Users on your corporate network (known location) cannot bypass the service.You can leverage all the features of the Zscaler platform when the users' traffic is forwarded from known locations.Tunneling can provide internal IP address information to Zscaler for use in policy design and logging. | Because the Zscaler service is not able to perform user-to-IP mapping without Surrogate IP, users need to re-authenticate every time they use a new user agent, such as a new browser. To learn more, see About Surrogate IP.Not all applications support PAC files, therefore not all traffic is secured by Zscaler.There is no protection for remote users outside the office because that traffic cannot be forwarded to the Zscaler service.Managing applications that need to be excluded from the Zscaler service becomes difficult without PAC files. |
-| Bandwidth |  |
+| **Bandwidth** |  |
 | Zscaler supports a maximum bandwidth of 1 Gbps for each GRE tunnel if its internal IP addresses are not behind NAT.If the internal subnet is behind source NAT, Zscaler can only support up to 250 Mbps of traffic for each GRE tunnel. The restriction also applies when performing source NAT with source PAT.If your organization wants to forward more than 1 Gbps of traffic, Zscaler recommends configuring more GRE tunnels with different public source IP addresses.For example, if your organization forwards 2 Gbps of traffic, you can configure two primary GRE tunnels and two backup GRE tunnels. If your organization forwards 3 Gbps of traffic, you can configure three primary GRE tunnels and three backup GRE tunnels. |  |
-| Requirements |  |
+| **Requirements** |  |
 | Your organization’s perimeter edge router must support GRE and its egress port must have a static IP address.Make sure that you have the appropriate software and hardware required to build, monitor, and fail over the tunnels. |  |
 - To learn more about setting up GRE tunnels, see Configuring GRE Tunnels.
 - IPSec Tunnels
@@ -32,9 +32,9 @@ Zscaler supports the following traffic forwarding mechanisms. Depending on your 
 | Benefits | Limitations |
 |---|---|
 | Supports all ports and protocols for traffic forwarding.Supports fail over if primary Public Service Edge becomes unavailable.No configuration on computers or laptops.Users on your corporate network (known location) cannot bypass the service.You can leverage all the features of the Zscaler platform when the users' traffic is forwarded from known locations.Tunneling can provide internal IP address information to Zscaler for use in policy design and logging.Supports locations with dynamic IP addresses. | Compared to GRE tunnels, IPSec tunnels have additional processing overhead on your equipment.Because the Zscaler service is not able to perform user-to-IP mapping without Surrogate IP, users need to re-authenticate every time they use a new user agent, such as a new browser. To learn more, see About Surrogate IP.Not all applications support PAC files, therefore not all traffic is secured by Zscaler.There is no protection for remote users outside the office because that traffic cannot be forwarded to the Zscaler service.Managing applications that need to be excluded from the Zscaler service becomes difficult without PAC files. |
-| Bandwidth |  |
+| **Bandwidth** |  |
 | Zscaler IPSec tunnels support a limit of 400 Mbps for each public source IP address.If your organization wants to forward more than 400 Mbps of traffic, Zscaler recommends using one of the following configurations:Configure multiple IPSec tunnels with different public source IP addresses.Configure multiple IPSec VPN tunnels with the same public source IP address using NAT-T and source port randomization with IKEv2.For example, if your organization forwards 800 Mbps of traffic, you can configure two primary VPN tunnels and two backup VPN tunnels. |  |
-| Requirements |  |
+| **Requirements** |  |
 | Make sure that you have the appropriate software and hardware required to build, monitor, and fail over the tunnels.Ensure that your vendor provides a VPN fail over mechanism to provide resilience. |  |
 - To learn more about setting up IPSec VPN tunnels, see Configuring an IPSec VPN Tunnel.
 - PAC Files
@@ -42,9 +42,9 @@ Zscaler supports the following traffic forwarding mechanisms. Depending on your 
 | Benefits | Limitations |
 |---|---|
 | All major browsers support PAC files.Users on and off the corporate network are protected by the service.Microsoft Internet Explorer PAC settings can be enforced organization-wide using Microsoft Active Directory Group Policies (GPO).You can create locations if traffic is coming from a static public IP address.If your router can use XFF headers, and it is enabled at your location, you can leverage the Surrogate IP feature. | You are not able to leverage some of the features of the Zscaler platform, such as Bandwidth Control and Firewall, because you need tunneling to use them.Not all applications support PAC files, therefore not all traffic is secured by Zscaler.End users can bypass the Zscaler service by disabling PAC files.Unless XFF headers are inserted, Zscaler loses internal IP address visibility, and customers are not able to leverage the sublocation feature.SLAs and performance can be impacted if you don't implement GRE or IPSec tunnels.The service can apply group and user policies, but not sublocation policies.Because the Zscaler service is not able to perform user-to-IP mapping without Surrogate IP, users need to re-authenticate every time they use a new user agent, such as a new browser. To learn more, see About Surrogate IP. |
-| Bandwidth |  |
+| **Bandwidth** |  |
 | When PAC file-based traffic is forwarded through a GRE or IPSec tunnel, the throughput restriction of the tunnel applies. |  |
-| Requirements |  |
+| **Requirements** |  |
 | Zscaler Government Clouds support PAC files only when the proxy traffic is sent through GRE or IPSec tunnels. PAC file or explicit proxy traffic sent directly to Internet & SaaS over the internet is not supported.Ensure that users do not have admin rights so they cannot circumvent the service by installing a nonstandard browser.Users can have local admin rights, but require network admin rights to change the PAC file. |  |
 - To learn more about configuring PAC files, see Using PAC Files.
 - Proxy Chaining
@@ -52,7 +52,7 @@ Zscaler supports the following traffic forwarding mechanisms. Depending on your 
 | Benefits | Limitations |
 |---|---|
 | Easy to set up.Multiple rules offer full redundancy.Supported by every major web proxy.Users on your corporate network cannot bypass the service.If available, ‘X-Forwarded-For’ headers can be used to provide internal IP addresses to Zscaler. | Users of the corporate network must use another method, such as PAC files, to forward traffic to the service.The latency of the proxy server affects the traffic forwarding latency.If the proxy server also performs caching, downstream authentication could be an issue.If the local proxy has a cache, it could affect policy enforcement and reporting. |
-| Requirements |  |
+| **Requirements** |  |
 | Zscaler Government Clouds support proxy chaining only when the proxy traffic forwarded from the on-premises proxy is sent through a GRE or IPSec tunnel. Proxy chaining directly to Internet & SaaS over the internet is not supported.Ensure that your organization is provisioned and the IP address of your endpoint is sent to Zscaler Support, or to your Zscaler representative if you are evaluating the service. |  |
 - To learn how to configure proxy chaining, see Configuring Proxy Chaining.
 - Zscaler Cloud Connector
@@ -61,7 +61,7 @@ Zscaler supports the following traffic forwarding mechanisms. Depending on your 
 | Benefits | Limitations |
 |---|---|
 | Supports platforms such as AWS and Azure.Secures all inbound and outbound traffic to the internet.Easy to deploy.Deploy SSL Inspection, Intrusion Prevention System, Firewall, and Data Loss Prevention (DLP) for Cloud Connector.Provides seamless connectivity from public cloud applications to the internet.Ensures better end-user experience and application performance by peering into relationships with SaaS providers (e.g., Microsoft 365, Amazon Web Services, and Microsoft Azure). | If a public IP address is mapped to the user's location, then some of the location-based policies such as Firewall, Forwarding Control, and DNS apply to the user's Zscaler Client Connector traffic. |
-| Requirements |  |
+| **Requirements** |  |
 | The Cloud Connector users must be provisioned on the Zscaler service for them to authenticate.If you are using Private Access, ensure that your organization’s DNS traffic goes through Cloud Connector.Cloud Connector is currently supported for AWS and Azure platforms. |  |
 - To learn more about configuring Cloud Connector, see Step-by-Step Configuration Guide for Zscaler Cloud Connector.
 - Zscaler Branch Connector
@@ -70,6 +70,6 @@ Zscaler supports the following traffic forwarding mechanisms. Depending on your 
 | Benefits | Limitations |
 |---|---|
 | Provides seamless connectivity from private applications to the internet.Enables ZTE everywhere, monitoring users, devices, servers, Internet of Things (IoT), and Operational Technology (OT).Ensures a secure connection between branches, data center, multi-cloud, and SaaS applications that enables east-west segmentation, preventing lateral threat movement.Reduces attack surfaces by connecting branch offices and the data centers directly through ZTE.Provides visibility over device health and traffic monitoring information.Applies fine-grained forwarding policies for internet and private application traffic using Internet & SaaS, Private Access, or Direct, bypassing Zscaler services.Ensures automatic fail over with N+1 redundancy.Eliminates legacy castle-and-moat architecture. Legacy products such as Squid proxies, NAT gateways, IPS, etc. are not required. | If a public IP address is mapped to the user's location, then some of the location-based policies such as Firewall, Forwarding Control, and DNS apply to the user's Zscaler Client Connector traffic.Complexity in large deployments of Zero Trust SD-WAN as Branch Connector VMs. |
-| Requirements |  |
+| **Requirements** |  |
 | The Branch Connector users must be provisioned on the Zscaler service for them to authenticate.If you are using Private Access, ensure that your organization’s DNS traffic goes through Branch Connector. |  |
 - To learn more about configuring Branch Connector, see Step-by-Step Configuration Guide for Zscaler Branch Connector.

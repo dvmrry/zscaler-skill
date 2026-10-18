@@ -50,7 +50,7 @@ Asset-level risk provides the following benefits and enables you to:
 - Identify users, locations, etc. with risky assets to isolate security exposure.
 # About the Assets Page
 On the Assets page, you can view the following information:
-- Overview: View your assets in the following views:
+- **Overview**: View your assets in the following views:
   - Risk Score
   - The Risk Score view displays a three-dimensional graph with the Risk Score, Asset Count, and Days. This helps you analyze the number of assets under each severity for a select date:
     - Each risk severity is highlighted with a unique color code:
@@ -62,25 +62,25 @@ On the Assets page, you can view the following information:
     - Your organization's total number of assets is displayed at the top of the section.
     - You can view the data for specific severities using the severity checkboxes.
     - Hover over the severity dots in the graph to view the number of assets under specific severity for that day. This helps you view the number of assets under each severity for a particular date.
-    - You can left-click, hold the mouse, and then move the graph to the position in which you want to view the data. Click Reset Chart Position to set the graph to its original position.
+    - You can left-click, hold the mouse, and then move the graph to the position in which you want to view the data. Click **Reset Chart Position** to set the graph to its original position.
     - You can use your mouse scroll to increase or decrease the size of the graph.
   - See image.
   - Location
   - The Location view shows all the assets in your organization spread across the globe. The map shows the country where the assets are located. Hover over the country to view the number of assets in them. The size of the bubble signifies the number of assets present, relative to other locations. The top-left of the section displays the number of assets with unknown locations.
-  - The Top Risky Locations section at the bottom-left displays the locations with the highest percentage of risky assets in descending order.
+  - The **Top Risky Locations** section at the bottom-left displays the locations with the highest percentage of risky assets in descending order.
   - See image.
-- Distribution of Assets by Authentication Status: The pie chart shows the percentage split between the number of authenticated and unauthenticated assets. The total number of assets is displayed at the center of the pie chart.
-- Authenticated Assets: The chart shows the types of assets available in your organization's traffic with their count. This data is for authenticated assets only.
-- Risky Asset Inventory: The table shows the top 1,000 risky asset details. For each asset, you can view the following information:
-  - Asset ID: The unique ID assigned to the asset by the Zscaler service.
-  - Private IP Address: The IP address of the asset.
-  - Egress IP Address: The client's gateway IP address that sends the local network traffic to other networks on the internet.
-  - Username: The user responsible or owns the asset.
-  - Asset Type: The type of asset (iOS, Android OS, etc.).
-  - Authentication Status: Indicates whether the asset is authenticated or not.
-  - Risk Score: The risk score computed for the asset.
-  - Last Seen: The time and date when the last activity was observed on the asset.
-  - Location: The city where the asset is located. Displays Road Warrior if the asset isn't tied to a location.
+- **Distribution of Assets by Authentication Status**: The pie chart shows the percentage split between the number of authenticated and unauthenticated assets. The total number of assets is displayed at the center of the pie chart.
+- **Authenticated Assets**: The chart shows the types of assets available in your organization's traffic with their count. This data is for authenticated assets only.
+- **Risky Asset Inventory**: The table shows the top 1,000 risky asset details. For each asset, you can view the following information:
+  - **Asset ID**: The unique ID assigned to the asset by the Zscaler service.
+  - **Private IP Address**: The IP address of the asset.
+  - **Egress IP Address**: The client's gateway IP address that sends the local network traffic to other networks on the internet.
+  - **Username**: The user responsible or owns the asset.
+  - **Asset Type**: The type of asset (iOS, Android OS, etc.).
+  - **Authentication Status**: Indicates whether the asset is authenticated or not.
+  - **Risk Score**: The risk score computed for the asset.
+  - **Last Seen**: The time and date when the last activity was observed on the asset.
+  - **Location**: The city where the asset is located. Displays Road Warrior if the asset isn't tied to a location.
   - Click an asset row to view additional details about the risky assets on the Asset Details page.
   - You can use the following operators for the table:
     - Filter the data for specific Asset ID, Asset Type, or Location.

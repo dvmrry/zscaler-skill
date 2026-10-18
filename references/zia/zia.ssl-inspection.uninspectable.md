@@ -2,7 +2,7 @@ When inspection "fails" the question is whether it could ever have worked. Four 
 
 **The endpoint cannot trust the certificate.** {{cannot-install-cert}} {{byod-guest-segmented}} {{iot}}
 
-**The application refuses the certificate.** {{cert-pinning}} {{pinning-exempt-by-app-or-domain}} A second kind of refusal, where an application embeds its own CA bundle and ignores the operating system store, is described in the old doc for Duo products; that rests on sources not captured here and is tracked as gap `ca-bundle-pinned-vendor-apps`.
+**The application refuses the certificate.** {{cert-pinning}} {{pinning-exempt-by-app-or-domain}} The second kind of refusal, an application that embeds its own CA bundle, is open {{gap:ca-bundle-pinned-vendor-apps}}.
 
 **The protocol cannot be decrypted.** {{client-certs-and-ciphers}} The setting that blocks it is Block Undecryptable Traffic in [[zia.ssl-inspection.actions]].
 

@@ -30,6 +30,37 @@
       "to": "zia.terraform.field-fidelity"
     }
   ],
+  "checks": [
+    {
+      "do": "When an attribute shows a perpetual diff, or a configured setting has no effect on the client, check the request type first.",
+      "uses": [
+        "action-fields-never-sent",
+        "tunnel-fields-never-sent",
+        "trusted-network-lists-read-only",
+        "configured-values-silently-ignored"
+      ]
+    },
+    {
+      "do": "Before using a ZCC data source's boolean as a policy input for the fields named above, confirm it against the resource or a raw API read.",
+      "uses": [
+        "data-sources-report-false-for-dropped-fields",
+        "strict-versus-lenient-boolean-strings"
+      ]
+    },
+    {
+      "do": "After a failed refresh of the fail-open policy, confirm in the console that the policy still exists before trusting a plan that proposes to create it.",
+      "uses": [
+        "failopen-read-error-removes-state"
+      ]
+    },
+    {
+      "do": "Whether any block list has two blocks with the same network_type, which the schema does not reject.",
+      "uses": [
+        "duplicate-network-type-collapses",
+        "duplicate-network-type-not-rejected"
+      ]
+    }
+  ],
   "claims": {
     "action-fields-exposed-and-read": {
       "statement": "The forwarding-profile resource declares four ZIA action attributes as Optional and Computed, `system_proxy`, `send_all_dns_to_trusted_server`, `drop_ipv6_traffic_in_ipv6_network` and `optimise_for_unstable_connections`, and its flatten function fills them from the API response.",

@@ -38,6 +38,39 @@
       "to": "zia.terraform.activation"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the live object matches the configuration after a failed apply: read it (the list, the cluster and its nodes, the category's entries, the user's enrollment) before retrying.",
+      "uses": [
+        "delta-partial-apply",
+        "vzen-delete-is-detach-update-delete",
+        "custom-category-partial-state",
+        "user-auth-methods-not-in-request-or-state"
+      ]
+    },
+    {
+      "do": "Whether another writer's change to a list survives the delta write, since the delta is computed from an earlier read.",
+      "uses": [
+        "delta-stale-snapshot",
+        "concurrent-edit-overwrite"
+      ]
+    },
+    {
+      "do": "Whether a static IP for the address exists after a failed static IP create: list the static IPs for the address.",
+      "uses": [
+        "static-ip-orphan-on-failure",
+        "static-ip-transient-lookup-duplicates",
+        "static-ip-duplicate-create"
+      ]
+    },
+    {
+      "do": "Whether the cluster's node list is still attached after a failed cluster delete: check the cluster's node list.",
+      "uses": [
+        "vzen-delete-effect",
+        "vzen-empty-nodes-semantics"
+      ]
+    }
+  ],
   "claims": {
     "delta-helpers-read-then-add-then-remove": {
       "statement": "The SDK's malicious-URL and exempted-URL updaters do not send the desired list. Each reads the current list, computes additions and removals locally, then sends the additions as one write and the removals as a second write, in that order. An error from either write is returned immediately.",

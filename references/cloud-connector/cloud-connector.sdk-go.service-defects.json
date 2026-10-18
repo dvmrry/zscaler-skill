@@ -42,6 +42,22 @@
       "to": "cloud-connector.terraform.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "When a location template update changes fields the configuration never mentions, compare the PUT body with a fresh read.",
+      "uses": [
+        "location-template-editable-always-false",
+        "ztw-update-replaces-template"
+      ]
+    },
+    {
+      "do": "Which ZTC update endpoints answer a PUT with an empty body, from live status codes, before treating the update panic as latent.",
+      "uses": [
+        "ztw-update-deref-after-ignored-assertion",
+        "ztw-update-empty-reply"
+      ]
+    }
+  ],
   "claims": {
     "update-admin-user-zero-result": {
       "statement": "`UpdateAdminUser` in the ZTW package passes the admin user by value to the PUT helper, which builds its response object with `reflect.New` (a pointer), then asserts the response to the value type `AdminUsers`. The assertion fails, its failure is discarded, and the function returns a pointer to a zero-value `AdminUsers` with a nil error, whatever the server returned.",

@@ -1,11 +1,13 @@
-The ZPA provider orders policy rules differently from the ZIA provider described in [[zia.terraform.rule-order]]. There is no parking and no background worker. The reorder resource computes one complete ordered list of rule IDs and replaces the policy set's order with a single request. {{sends-id-list-only}} {{synchronous-and-reports-failure}} {{delete-is-a-noop}}
+The ZPA provider orders policy rules differently from the ZIA provider described in [[zia.terraform.rule-order]]. The reorder resource computes one complete ordered list of rule IDs and replaces the policy set's order with a single request. {{sends-id-list-only}} {{synchronous-and-reports-failure}} {{delete-is-a-noop}}
 
-The list is built from the rules the configuration names, and that is where the policy-level risk comes from. {{comparator-managed-first}} {{default-rule-pinned-last-by-name}} {{map-holds-configured-rules}} {{unmanaged-rules-sent-below-managed}} {{terminal-rule-can-be-displaced}} {{configured-deception-rule-treated-as-unmanaged}} After any apply of a reorder resource, re-read the whole policy type's order, not only the configured rules, and confirm that terminal rules are still last. The ZIA provider can fail to restore an order and report success; the ZPA provider can instead reorder unlisted rules as a side effect of a successful call.
+**Sort order of the list.** {{comparator-managed-first}} {{default-rule-pinned-last-by-name}} {{map-holds-configured-rules}} {{unmanaged-rules-sent-below-managed}} {{terminal-rule-can-be-displaced}} {{configured-deception-rule-treated-as-unmanaged}}
 
-The configured numbers are weaker than they look. {{validates-positive-and-unique-numbers}} {{numbers-are-relative-only}} {{gapped-numbers-drift}} {{deception-offset-drift}} A reasonable practice is to write contiguous numbers starting at 1 and list every rule you care about, so that what is configured is what the list contains; with Deception at order 1, expect the plan to show the offset.
+**Configured numbers.** {{validates-positive-and-unique-numbers}} {{numbers-are-relative-only}} {{gapped-numbers-drift}} {{deception-offset-drift}}
 
-IDs are not checked either. {{sdk-sends-only-listed-ids}} {{provider-does-not-check-ids-exist}} {{read-keeps-configured-value-when-id-missing}} {{nonexistent-id-persists}} Duplicates inside the configuration are lost before validation. {{duplicate-ids-collapse-into-map}} {{duplicate-ids-pass-validation}}
+**Configured IDs.** {{sdk-sends-only-listed-ids}} {{provider-does-not-check-ids-exist}} {{read-keeps-configured-value-when-id-missing}} {{nonexistent-id-persists}} How the reorder endpoint applies a submitted list, including nonexistent IDs and gapped numbers, is open {{gap:api-bulk-reorder-semantics}}.
 
-Smaller behaviors worth knowing when a reorder looks wrong or hangs. {{first-two-reads-ignore-caller-context}} {{read-skips-unparseable-order}}
+**Duplicate IDs.** {{duplicate-ids-collapse-into-map}} {{duplicate-ids-pass-validation}}
 
-Concurrency is the last difference. The package serializes single-rule writes with a mutex but not the bulk reorder. {{reorder-not-under-rule-mutex}} {{concurrent-bulk-reorder-last-writer-wins}} As a precaution (not something the provider enforces), make a reorder resource depend explicitly on the rule resources it orders, and avoid two reorder resources over the same policy type.
+**Context and unparseable orders.** {{first-two-reads-ignore-caller-context}} {{read-skips-unparseable-order}}
+
+**Concurrency.** {{reorder-not-under-rule-mutex}} {{concurrent-bulk-reorder-last-writer-wins}} What the API does with overlapping rule writes is open {{gap:api-concurrent-writes}}.

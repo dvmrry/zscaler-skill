@@ -8,22 +8,22 @@
 
 An authentication level represents a specific strength of authentication with hierarchical levels where higher levels represent stronger authentication methods. When users are authenticated at a higher level, their authentication level satisfies policies that require a sub-level of authentication. These authentication levels are mapped with access policies in supported Zscaler services to enable step-up authentication for resources.
 To configure an authentication level:
-- From the navigation menu, go to Administration > Authentication > Authentication Levels.
-- The Authentication Levels page appears.
-- On the Authentication Levels page:
-  - Click New Authentication Level.
-  - Level Name: Enter a name for the level.
-  - Validity: Enter a validity period for this level of authentication. You can specify the validity period in minutes, hours, or days.
-  - Description: Enter a description for the level.
-  - Message to the user (optional): Enter a message that you want to be shown to the users via Zscaler Client Connector notifications while accessing resources that require this level of authentication.
+- From the navigation menu, go to **Administration** > **Authentication** > **Authentication Levels**.
+- The **Authentication Levels** page appears.
+- On the **Authentication Levels** page:
+  - Click **New Authentication Level**.
+  - **Level Name**: Enter a name for the level.
+  - **Validity**: Enter a validity period for this level of authentication. You can specify the validity period in minutes, hours, or days.
+  - **Description**: Enter a description for the level.
+  - **Message to the user (optional)**: Enter a message that you want to be shown to the users via Zscaler Client Connector notifications while accessing resources that require this level of authentication.
   - (Optional) If you want to create sub-levels of authentication with different authentication contexts:
-    - Click Create level beneath the level you want to add a sub-level.
-    - Sub-Level Name: Enter a name for the sub-level.
-    - Validity: Enter a validity period for this level of authentication. You can specify the validity period in minutes, hours, or days.
-    - Description: Enter a description for the sub-level.
-    - Message to the user (optional): Enter a message that you want to be shown to the users via Zscaler Client Connector notifications while accessing resources that require this level of authentication.
+    - Click **Create level** beneath the level you want to add a sub-level.
+    - **Sub-Level** **Name**: Enter a name for the sub-level.
+    - **Validity**: Enter a validity period for this level of authentication. You can specify the validity period in minutes, hours, or days.
+    - **Description**: Enter a description for the sub-level.
+    - **Message to the user (optional)**: Enter a message that you want to be shown to the users via Zscaler Client Connector notifications while accessing resources that require this level of authentication.
 - See image.
-- Click Save.
+- Click **Save**.
 - You can create multiple sub-levels forming a tree hierarchy. A tree can contain a total of up to 32 authentication levels and the maximum depth for any branch cannot exceed 4.
 - The validity period for a parent level must be less than the validity period defined for any of its sub-levels.
 After configuring authentication levels, you need to create access policies in the supported Zscaler services.

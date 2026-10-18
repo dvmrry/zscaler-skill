@@ -7,15 +7,15 @@
 ---
 
 Zscaler recommends the following configuration for the Advanced Threat Protection policy:
-- Suspicious Content Protection (Page Risk): 35
-- Botnet Protection: Block all
-- Malicious Active Content Protection: Block all
-- Fraud Protection: Block all
-- Unauthorized Communication Protection: Block all
-- Cross-Site Scripting (XSS) Protection: Block all
-- P2P File Sharing Protection:
-  - BitTorrent: Block
-- P2P Anonymizer Protection:
-  - Tor: Block
-- P2P VoIP Protection:
-  - Google Hangouts: Block
+- **Suspicious Content Protection (Page Risk)**: 35
+- **Botnet Protection**: Block all
+- **Malicious Active Content Protection**: Block all
+- **Fraud Protection**: Block all
+- **Unauthorized Communication Protection**: Block all
+- **Cross-Site Scripting (XSS) Protection**: Block all
+- **P2P File Sharing Protection**:
+  - **BitTorrent**: Block
+- **P2P Anonymizer Protection**:
+  - **Tor**: Block
+- **P2P VoIP Protection**:
+  - **Google Hangouts**: Block

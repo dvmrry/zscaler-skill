@@ -13,13 +13,13 @@ Segment groups provide the following benefits and enable you to:
 # About the Segment Groups Page
 On the Segment Groups page (Resource Management > Application Management > Segment Groups), you can do the following:
 - Expand one or all rows in the table to see more information about each segment group.
-- If there are required fields missing, the Incomplete Configuration icon () appears next to the indicated item.
+- If there are required fields missing, the **Incomplete Configuration** icon () appears next to the indicated item.
 - Add a new segment group.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all segment groups configured for your organization. For each segment group, you can see:
-  - Name: The segment group name.
-  - Status: Whether the segment group is enabled or disabled.
-  - Actions: The available actions you can take for the segment group.
+  - **Name**: The segment group name.
+  - **Status**: Whether the segment group is enabled or disabled.
+  - **Actions**: The available actions you can take for the segment group.
 - View a configuration graph of connected objects.
 - Edit a segment group.
 - Delete a segment group.

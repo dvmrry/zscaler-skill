@@ -11,11 +11,11 @@ You can create rules to control access to specific cloud applications. Cloud app
 Additionally, you can define a daily quota by bandwidth or time. When users browse these sites after their quota has been reached, the Zscaler service displays a message that explains that the content cannot be viewed because they exceeded their daily quota.
 # Policy Execution
 The Cloud App Control policy supports different rule conditions, grouped into categories. A series of AND and OR logical operators are applied between these criteria to form a combination of rule sets that are used to evaluate for traffic matches. The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:
-- Applications: [ Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile ]
-- Who, Where, & When: [ (Groups OR Users OR Departments) AND (Location Groups OR Locations) AND Time ]
-- Devices & Agents: [ Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile ]
+- **Applications**: [ Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile ]
+- **Who, Where, & When**: [ (Groups OR Users OR Departments) AND (Location Groups OR Locations) AND Time ]
+- **Devices & Agents**: [ Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile ]
 # Adding a Cloud App Control Rule
-To add a rule, you can go to Data Security > Inline CASB > SaaS/Cloud App Policy and choose a category.
+To add a rule, you can go to **Data Security** > **Inline CASB** > **SaaS/Cloud App Policy** and choose a category.
 See image.
 Select a cloud application category from the following list to learn more about creating rules for the category:
 - AI & ML Applications

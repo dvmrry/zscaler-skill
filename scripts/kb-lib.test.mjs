@@ -120,6 +120,50 @@ test("prose may inline a claim once, refer back with |ref, and link only to real
   assert.ok(errs.some((m) => /inlined 2 times/.test(m)));
   assert.ok(errs.some((m) => /\{\{other\|ref\}\} is not a claim/.test(m)));
   assert.ok(errs.some((m) => /\[\[zia\.missing\]\] does not resolve/.test(m)));
+  const silent = tmpRepo({
+    "vendor/fake/doc.txt": "evaluation stops at the first match.",
+    "references/zia/zia.example.json": subject(),
+    "references/zia/zia.example.md": "Rules are evaluated in order.",
+  });
+  assert.ok(messages(silent).some((m) => /claim first-match is never inlined/.test(m)));
+});
+
+test("every prose sentence rests on a marker, except a short lead, labels and headings", () => {
+  const lead = "Framing one. Framing two.";
+  assert.deepEqual(parseProse(`${lead}\n\n**Label.** {{a}} {{gap:g}} [[zia.x]]`).unanchored, []);
+  assert.deepEqual(parseProse(`${lead} Framing three.`).unanchored, ["Framing three."]);
+  // A link to a doc that is not converted yet anchors too; migrate-links retargets it later.
+  assert.deepEqual(parseProse(`${lead}\n\nSubclouds are covered in [subclouds](../shared/subclouds.md).`).unanchored, []);
+  // A claim renders as a whole sentence, so text after its marker is a sentence of its own.
+  assert.deepEqual(parseProse(`${lead}\n\n{{a}} Then a loose remark.`).unanchored, ["Then a loose remark."]);
+  assert.deepEqual(parseProse(`${lead}\n\n- {{a}}\n- A loose item.`).unanchored, ["A loose item."]);
+  assert.equal(parseProse(`${lead}\n\nWhat to check: the rule order.`).whatToCheck, 1);
+});
+
+test("checks and item markers name real claims, gaps or divergences", () => {
+  const root = tmpRepo({
+    "vendor/fake/doc.txt": "evaluation stops at the first match.",
+    "references/zia/zia.example.json": subject({
+      gaps: { order: { kind: "semantic", title: "Order", status: "open", detail: "d", resolves_with: ["lab-test"] } },
+      checks: [{ do: "Check the order.", uses: ["first-match", "order", "zia.example"] }, { do: "Check more.", uses: ["nothing"] }],
+    }),
+    "references/zia/zia.example.md": "{{first-match}} {{gap:order}} {{divergence:none}}",
+  });
+  const errs = messages(root);
+  assert.ok(errs.some((m) => /checks\[1\] uses nothing/.test(m)));
+  assert.ok(!errs.some((m) => /checks\[0\]/.test(m)));
+  assert.ok(errs.some((m) => /\{\{divergence:none\}\} is not a divergence/.test(m)));
+  assert.ok(!errs.some((m) => /\{\{gap:order\}\}/.test(m)));
+});
+
+test("capture quotes ignore the vendor's emphasis; other sources keep **", () => {
+  const sources = (kind) => JSON.stringify({ schema_version: 1, sources: { "fake-help": { kind, root: "vendor/fake", rank: 5, title: "Fake" } } });
+  const body = "| NAT-T | **Enabled** Disabled |\ndef f(**kwargs): pass\n";
+  const quotes = ["| NAT-T | Enabled Disabled |", "def f(kwargs)"];
+  const capture = tmpRepo({ "references/_meta/sources.json": sources("capture"), "vendor/fake/doc.txt": body });
+  assert.deepEqual(anchorEvidence(graphOf(capture), { source: "fake-help", path: "doc.txt", quotes }).errors, []);
+  const code = tmpRepo({ "vendor/fake/doc.txt": body });
+  assert.equal(anchorEvidence(graphOf(code), { source: "fake-help", path: "doc.txt", quotes }).errors.length, 2);
 });
 
 test("references must resolve to the right kind of node", () => {

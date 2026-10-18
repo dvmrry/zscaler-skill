@@ -16,12 +16,12 @@ On the Protected Applications page (Private Access > Private App Protection > Pr
 - Expand all the rows in the table to see more information about each application.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all applications that were specifically configured for AppProtection within an application segment. For each application, you can see:
-  - Internal Domain: The name of the application. When expanded, the following information is displayed:
-    - Segment Group: The segment group that the application segment is a member of.
-    - Server Groups: The server groups that the application is hosted on.
-    - Certificate: The certificates associated with the specified application.
-  - External Domain: The FQDN associated with the application.
-  - Application Protocol: The protocol (HTTPS or HTTP) used for the application.
-  - Application Port: The port number used for the application.
+  - **Internal Domain**: The name of the application. When expanded, the following information is displayed:
+    - **Segment Group**: The segment group that the application segment is a member of.
+    - **Server Groups**: The server groups that the application is hosted on.
+    - **Certificate**: The certificates associated with the specified application.
+  - **External Domain**: The FQDN associated with the application.
+  - **Application Protocol**: The protocol (HTTPS or HTTP) used for the application.
+  - **Application Port**: The port number used for the application.
 - Edit an application segment.
 - Delete an application.

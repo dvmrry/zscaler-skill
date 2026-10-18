@@ -17,11 +17,11 @@ On the NSS Feeds page (Logs > Log Streaming > Internet Log Streaming - Nanolog S
 - Add an HTTP NSS Feed.
 - Search for an NSS feed.
 - View a list of all configured NSS feeds. For each feed, you can see:
-  - Feed Overview: The general parts of the NSS feed (e.g., Feed Name, NSS Server, Status).
-  - Log Filter: The log type and its log type attributes.
-  - Feed Output Format: The strings pertaining to the log type. To learn more, see General Guidelines for NSS Feeds and Feed Formats.
-  - Feed Attributes: Other feed attributes (e.g., Duplicate Logs, Time Zone).
-  - Last Connectivity Test: The time of the last completed connectivity test.
+  - **Feed Overview**: The general parts of the NSS feed (e.g., Feed Name, NSS Server, Status).
+  - **Log Filter**: The log type and its log type attributes.
+  - **Feed Output Format**: The strings pertaining to the log type. To learn more, see General Guidelines for NSS Feeds and Feed Formats.
+  - **Feed Attributes**: Other feed attributes (e.g., Duplicate Logs, Time Zone).
+  - **Last Connectivity Test**: The time of the last completed connectivity test.
 - Modify the table and its columns.
 - Test the connectivity to the SIEM. This field is only populated for the HTTP NSS Feeds.
 - The feed behaves differently according to HTTP/S response status codes from the SIEM. The following responses are not specific to testing connectivity:

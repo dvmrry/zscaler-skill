@@ -13,12 +13,12 @@ Browser token validators provide the following benefits and enable you to:
 - Specify which browser token validator is used for a Browser Access-enabled application segment.
 # About the Browser Token Validator Page
 On the Browser Token Validator page (Authentication > User Authentication > Browser Token Validator), you can do the following:
-- Filter by Name to search for a specific browser token validator.
+- Filter by **Name** to search for a specific browser token validator.
 - Refresh the page.
 - Add a browser token validator.
 - View a list of browser token validators. For each browser token validator, you can see:
-  - Name: The name of the browser token validator.
-  - Type: The type of the browser token validator.
+  - **Name**: The name of the browser token validator.
+  - **Type**: The type of the browser token validator.
 - Edit a browser token validator.
 - Delete a browser token validator.
 - Customize the columns to display.

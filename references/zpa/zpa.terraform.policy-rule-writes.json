@@ -27,6 +27,29 @@
       "to": "zia.sdk-go.write-encoding"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the server groups, connector groups and device-posture flag of a rule are unchanged after an apply that changed only its name or conditions, by re-reading the rule.",
+      "uses": [
+        "v1-update-sends-fresh-request",
+        "unmanaged-fields-may-be-cleared"
+      ]
+    },
+    {
+      "do": "Whether a rule with identity provider or workload tag conditions still holds them, by comparing the stored rule with the configuration after a plan that touches it or a destroy of an object it might reference.",
+      "uses": [
+        "v2-conversion-drops-idp-and-workload-tag",
+        "idp-condition-lost-from-state-and-cleanup-writes"
+      ]
+    },
+    {
+      "do": "Which credential policy rules reference a PRA credential or pool through their `credential` and `credentialPool` fields, not their conditions, before the credential or pool is deleted.",
+      "uses": [
+        "credential-reference-is-top-level-field",
+        "credential-delete-leaves-reference"
+      ]
+    }
+  ],
   "claims": {
     "v1-update-sends-fresh-request": {
       "statement": "A v1 policy rule update builds a new request from Terraform state only; it does not read the existing rule and merge. The v1 forwarding rule is the example: its expander sets a handful of scalar fields and the conditions, and its update calls the SDK without a preceding read. The SDK request type tags `devicePostureFailureNotificationEnabled`, `appServerGroups`, `appConnectorGroups` and `serviceEdgeGroups` without `omitempty`, so they are always serialized, as `false` and `null` when the provider left them unset.",

@@ -19,10 +19,10 @@ On the Workload Groups (Internet Access > Resources > Workload Groups) page, you
 - Add a workload group.
 - Search for a workload group.
 - View a list of all configured workload groups. For each group, you can view the following information:
-  - Name: The name of the workload group.
-  - Description: Additional notes or information about the workload group.
-  - Last Modified By: The name of the latest user who modified the workload group.
-  - Last Modified On: The date and time the workload group was last modified.
+  - **Name**: The name of the workload group.
+  - **Description**: Additional notes or information about the workload group.
+  - **Last Modified By**: The name of the latest user who modified the workload group.
+  - **Last Modified On**: The date and time the workload group was last modified.
 - Modify the table and its columns.
 - Edit a workload group.
 - Delete a workload group.

@@ -10,6 +10,4 @@ GRE is the tunnel for sites whose router can build it. This subject covers what 
 
 **Provisioning.** {{provisioning}} {{vip-selection}} {{api-surface}} The firewall module's view of tunnel traffic is in [[zia.firewall.traffic-path]]; the bandwidth Bandwidth Control enforces per location is in [[zia.locations.bandwidth]].
 
-**MTU and MSS.** {{mtu-mss}} The old reference said an unclamped MSS is a common cause of "browsing works but large transfers hang"; the vendor says only that a wrong MTU degrades performance (gap `mss-symptom`). It also said premium data centers need a Support ticket; the vendor says only that the picker excludes them (gap `premium-dc-support`). Whether GRE carries IPv6 is not stated (gap `ipv6-coverage`); for IPSec it is: [[zia.traffic-forwarding.ipsec]].
-
-What to check: the tunnel's source IP is a provisioned static IP, whether the inner addresses are NATed (that sets 1 Gbps versus 250 Mbps), and that the primary and secondary VIPs are in different data centers.
+**MTU and MSS.** {{mtu-mss}} The symptom of an unclamped MSS is open {{gap:mss-symptom}}. Whether premium data centers can be used with a Support ticket is open {{gap:premium-dc-support}}. Whether GRE carries IPv6 is open {{gap:ipv6-coverage}}; IPSec's coverage is in [[zia.traffic-forwarding.ipsec]].

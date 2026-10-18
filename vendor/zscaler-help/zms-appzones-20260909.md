@@ -14,15 +14,15 @@ The AppZones page provides the following benefits and enables you to:
 - Discover insights about collective AppZone data.
 # About the AppZones Page
 On the AppZones page (Zero Trust Cloud > Microsegmentation > App Zones), you can do the following:
-- Filter the information by Name, Description, and Member Count. After configuring your preferred filters, click the button to apply the filters (e.g., Apply 1 filter, Apply 2 filters) and view the results. By default, no filters are applied.
+- Filter the information by **Name**, **Description**, and **Member Count**. After configuring your preferred filters, click the button to apply the filters (e.g., Apply 1 filter, Apply 2 filters) and view the results. By default, no filters are applied.
 - See image.
 - Refresh the AppZones page to reflect the most current information.
 - Add an AppZone.
 - Show or hide available columns.
 - View a list of all AppZones that are configured for your organization. For each AppZone, you can see:
-  - Name: The name of the AppZone.
-  - Member Count: The number of resources connected to the AppZone.
-  - Description: Contextual information about the AppZone.
+  - **Name**: The name of the AppZone.
+  - **Member Count**: The number of resources connected to the AppZone.
+  - **Description**: Contextual information about the AppZone.
 - Click an individual AppZone to view its complete information.
 - See image.
 - Edit an AppZone.

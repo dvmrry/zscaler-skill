@@ -28,6 +28,54 @@
       "to": "cloud-connector.terraform.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Which forwarding rules hold a network service group before destroying it (`nwServiceGroups`), and detach it by hand or in the same plan.",
+      "uses": [
+        "service-group-references-not-detached"
+      ]
+    },
+    {
+      "do": "Which DNS rules hold an IP source or destination group before destroying it (`srcIpGroups`, `destIpGroups`).",
+      "uses": [
+        "ip-group-references-in-dns-rules-not-detached",
+        "dns-rules-reference-ip-groups"
+      ]
+    },
+    {
+      "do": "Which rules and gateways reference an IP pool group before destroying it.",
+      "uses": [
+        "ip-pool-delete-calls-no-detach",
+        "ip-pool-references"
+      ]
+    },
+    {
+      "do": "Whether the rules that used a destroyed object were re-read afterwards, rather than trusting a successful apply.",
+      "uses": [
+        "masked-read-failure-reaches-delete"
+      ]
+    },
+    {
+      "do": "Whether any rule is edited while a destroy is detaching from it, since the PUT may replace the whole rule.",
+      "uses": [
+        "stale-snapshot-put",
+        "put-semantics"
+      ]
+    },
+    {
+      "do": "Whether a network service group ID can collide with a network application group ID, since the sweep matches on ID alone.",
+      "uses": [
+        "service-group-delete-can-strip-unrelated-application-groups",
+        "id-namespace"
+      ]
+    },
+    {
+      "do": "Whether ZTC refuses or accepts a delete of an object that live rules still reference.",
+      "uses": [
+        "in-use-enforcement"
+      ]
+    }
+  ],
   "claims": {
     "helper-sweeps-forwarding-rules-only": {
       "statement": "The helper lists forwarding rules and nothing else, and its getter and setter closures are typed on the forwarding rule model. It never lists the DNS rules or log rules.",

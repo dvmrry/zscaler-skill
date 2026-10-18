@@ -20,14 +20,14 @@ On the App Connector Provisioning Keys page (Configuration & Control > Private I
 - Expand all or one of the rows in the table to see the signing certificate of each provisioning key. The signing certificate is the enrollment certificate for the provisioning key.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all the provisioning keys. For each key, you can see:
-  - Name: The name of the key.
-  - Maximum # of App Connectors: The maximum number of App Connectors that can be deployed using the key.
-  - Provisioning Key Utilization Count: The number of times the provisioning key has been used.
-  - App Connector Group: The App Connector group associated with the key.
-  - Provisioning Key: The key needed for deploying an App Connector.
+  - **Name**: The name of the key.
+  - **Maximum # of App Connectors**: The maximum number of App Connectors that can be deployed using the key.
+  - **Provisioning Key Utilization Count**: The number of times the provisioning key has been used.
+  - **App Connector Group**: The App Connector group associated with the key.
+  - **Provisioning Key**: The key needed for deploying an App Connector.
 - Copy the provisioning key. When copying the key, consider the following:
   - Provisioning Key Utilization Count Reached
-  - If the provisioning key utilization count is reached, you cannot copy the key. A Warning icon appears next to a disabled Copy icon. You can edit the key to raise the limit.
+  - If the provisioning key utilization count is reached, you cannot copy the key. A **Warning** icon appears next to a disabled **Copy** icon. You can edit the key to raise the limit.
   - Incorrect Copy
   - When a provisioning key is incorrectly copied, the following error appears on your App Connector console when it tries to enroll:
   - notice:Checking Enrollment notice:No valid certificate. Attempting to enroll notice:Enroll: Connecting to api.private.zscaler.com via co2br.prod.zpath.net. error:Login request failed - http status(401) nonce(<3|api.private.zscaler.com|0/Z6lDT...>) fingerprint(<oXaN4RRiMc...>) notice:Certificate enrollment failed.

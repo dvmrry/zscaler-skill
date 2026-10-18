@@ -215,16 +215,27 @@ neighbours. It has no frontmatter. Markers:
 | `{{first-match\|ref}}` | a citation only | Used to refer back to a claim already inlined. |
 | `[[zia.url-filtering.category-matching]]` | a link to the subject | — |
 | `[[zia.url-filtering.rule-order:first-match]]` | a link to another subject's claim | — |
+| `{{gap:order-tiebreak}}` / `{{divergence:limit}}` | a pointer to the subject's own gap or divergence | Placed inside the sentence it supports, before the full stop. |
 
-The validator enforces two things:
+The validator enforces:
 
-- every claim in the subject is inlined exactly once, or else listed in a generated "Further facts"
-  block;
-- every marker resolves.
+- every claim in the subject is inlined exactly once (the prose is where an agent reads claims in order);
+- every marker resolves;
+- **every sentence rests on a marker** (2026-10-18). The exceptions are headings, bold run-in labels
+  (`**Maximum is a standing cap.**`) and up to two framing sentences in the first paragraph. A
+  sentence that restates a claim is deleted, one that states a fact no claim holds is cut (or becomes
+  a claim with evidence), and guidance moves to `checks`. An inlined claim renders as a whole
+  sentence, so text after a claim marker counts as a new sentence.
 
-Paragraphs with no marker are reported per subject as **unanchored**. They are allowed — argument and
-explanation need not cite — but the count is visible in review, and the CI verifier spot-checks them
-for unmarked factual assertions.
+Unmarked prose turned out to be where unsupported statements entered: across waves A–C about a third
+of verifier findings were prose sentences saying more than the claims, and a count of 2,135 sentences
+found 487 unanchored outside What-to-check paragraphs (framing, restated claims, misplaced guidance,
+and a minority of unsupported generalizations).
+
+**Checks.** What to check when an answer rests on a subject is data, not prose: the subject's `checks`
+array holds ordered steps, each with `do` (the step) and `uses` (the claims, gaps or divergences it
+rests on, local or qualified IDs). Bundles carry them as `subject.checks`; rendering lists them under
+"What to check". The prose has no What-to-check paragraph.
 
 ### Cases
 
@@ -425,10 +436,11 @@ This replaces the manual reverify cycle.
 
 ### Capture format and pointer rules (2026-10-18)
 
-- **Help captures** are written only by `scripts/help_capture.py`. A crawl4ai server supplies the
-  rendered article HTML; the repo's renderer turns it into canonical text (plain text, nested `- `
-  lists, Markdown table rows, no emphasis or link syntax), so the same HTML always gives the same
-  text and a crawl4ai upgrade cannot change a capture. `help_capture.py check` refetches committed
+- **Help captures** are written only by `scripts/help_capture.py`. It fetches the article payload
+  from the help site's content endpoint over plain HTTP (no browser or credentials, so it runs in CI)
+  and renders canonical text: nested `- ` lists, Markdown table rows, `**bold**` kept, no link syntax.
+  Bold stays because some tables mark the recommended value only by bold; quote matching against
+  capture sources ignores `**`, so a quote never has to reproduce it. `help_capture.py check` refetches committed
   captures and prints a diff on drift; `--replace` rewrites them in place, after which
   `kb.mjs validate` lists exactly the quotes the change broke. Older captures (Playwright innerText,
   PDF text) stay until they are recaptured.

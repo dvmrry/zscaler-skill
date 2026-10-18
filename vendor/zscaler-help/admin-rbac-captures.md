@@ -28,14 +28,14 @@ On the Role Management page for Internet & SaaS (Administration > Role Managemen
 - Add an API role.
 - Search for a configured admin role, SD-WAN partner API role, or API role.
 - View a list of all admin roles, SD-WAN partner API roles, and API roles configured for your organization. For each role, you can view the following information:
-  - Name: The name of the role.
-  - Admin Rank: The assigned admin rank for the admin role. This is visible only if admin ranking is enabled in the Advanced Settings. Admin rank does not apply to SD-WAN partner API or API roles.
-  - Full Access: The areas of the Zscaler Admin Console where admins with this role have full access or, for API roles, the areas in the cloud service API to which the client application has full access.
-  - View-Only Access: The areas of the Zscaler Admin Console where admins with this role have view-only access or, for API roles, the areas in the cloud service API to which the client application has view-only access.
-  - None Access: The areas of the Zscaler Admin Console where admins with this role don't have any access or, for API roles, the areas in the cloud service API to which the client application doesn't have any access.
-  - User Names: This shows whether the usernames are visible or obfuscated within the Zscaler service or APIs.
-  - Device Information: This shows whether the device information (i.e., device hostname, device name, and device owner) is visible or obfuscated within the Zscaler Admin Console or APIs.
-  - Type: The type of role. The admin role types are Standard Admin, SD-WAN Partner API, Executive App Admin, or Standard & Executive App Admin. The API role type is API Client.
+  - **Name**: The name of the role.
+  - **Admin Rank**: The assigned admin rank for the admin role. This is visible only if admin ranking is enabled in the Advanced Settings. Admin rank does not apply to SD-WAN partner API or API roles.
+  - **Full Access**: The areas of the Zscaler Admin Console where admins with this role have full access or, for API roles, the areas in the cloud service API to which the client application has full access.
+  - **View-Only Access**: The areas of the Zscaler Admin Console where admins with this role have view-only access or, for API roles, the areas in the cloud service API to which the client application has view-only access.
+  - **None Access**: The areas of the Zscaler Admin Console where admins with this role don't have any access or, for API roles, the areas in the cloud service API to which the client application doesn't have any access.
+  - **User Names**: This shows whether the usernames are visible or obfuscated within the Zscaler service or APIs.
+  - **Device Information**: This shows whether the device information (i.e., device hostname, device name, and device owner) is visible or obfuscated within the Zscaler Admin Console or APIs.
+  - **Type**: The type of role. The admin role types are **Standard Admin**, **SD-WAN Partner API**, **Executive App Admin**, or **Standard & Executive App Admin**. The API role type is **API Client.**
 - Modify the table and its columns.
 - Edit the default Executive Insights App role.
 - View a configured admin role with greater scope and higher rank, or an SD-WAN partner API role.

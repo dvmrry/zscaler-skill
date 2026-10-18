@@ -5,7 +5,8 @@ The capture is what knowledge-graph claims quote, so it must be deterministic an
 independent of the fetcher: the same article HTML always yields the same text.
 Headings become `#` lines, list items `- ` (nested by two spaces), tables Markdown
 tables (one row per line, so a row can be quoted), and everything else plain text.
-Links keep their text, images and emphasis markers are dropped.
+Links keep their text and images are dropped. Bold stays as `**text**`: the vendor marks the
+recommended value in some tables only by bold, and quote matching ignores the markers.
 
 Articles are fetched from the help site's own content endpoint (`/zapi/fetch-data`) over plain
 HTTP: no browser, no credentials, so it runs anywhere, CI included. The payload carries a node and
@@ -34,6 +35,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+BOLD = {"strong", "b"}
 BLOCK = {"p", "div", "section", "article", "header", "footer", "figure", "figcaption", "blockquote", "pre", "dl", "dt", "dd"}
 SKIP = {"script", "style", "noscript", "svg", "button", "nav", "form"}
 # Help-portal chrome that sits inside <article>.
@@ -55,12 +57,12 @@ class _Renderer(HTMLParser):
 
     # -- text accumulation
     def _flush(self) -> None:
-        text = re.sub(r"\s+", " ", "".join(self.buf)).strip()
+        text = _tidy("".join(self.buf))
         self.buf = []
         if not text:
             return
         if self.heading:
-            self.lines.append("#" * self.heading + " " + text)
+            self.lines.append("#" * self.heading + " " + text.replace("**", ""))
         elif self.lists:
             self.lines.append("  " * (len(self.lists) - 1) + "- " + text)
         else:
@@ -71,6 +73,9 @@ class _Renderer(HTMLParser):
             self.skip += 1
             return
         if self.skip:
+            return
+        if tag in BOLD:
+            (self.cell if self.cell is not None else self.buf).append("**")
             return
         if self.cell is not None:
             if tag == "br":
@@ -102,8 +107,11 @@ class _Renderer(HTMLParser):
             return
         if self.skip:
             return
+        if tag in BOLD:
+            (self.cell if self.cell is not None else self.buf).append("**")
+            return
         if tag in ("td", "th") and self.cell is not None and self.row is not None:
-            self.row.append(re.sub(r"\s+", " ", "".join(self.cell)).strip().replace("|", "\\|"))
+            self.row.append(_tidy("".join(self.cell)).replace("|", "\\|"))
             self.cell = None
         elif tag == "tr" and self.row is not None and self.table is not None:
             if any(self.row):
@@ -138,6 +146,13 @@ class _Renderer(HTMLParser):
         self.lines.append("|" + "---|" * width)
         for r in rows[1:]:
             self.lines.append("| " + " | ".join(r) + " |")
+
+
+def _tidy(text: str) -> str:
+    """Collapse whitespace; keep each bold run tight to its words and drop empty or touching runs."""
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\*\*(\s*)(.*?)(\s*)\*\*", lambda m: f"{m[1]}**{m[2]}**{m[3]}" if m[2].strip() else m[1] + m[3], text)
+    return re.sub(r" {2,}", " ", text.replace("****", "")).strip()
 
 
 def _blocks(html_text: str, cls: str) -> list[tuple[int, int]]:
@@ -186,7 +201,7 @@ def render(article_html: str) -> tuple[str, str]:
     p._flush()
     out: list[str] = []
     for line in p.lines:
-        bare = line.lstrip("#- ").strip()
+        bare = line.lstrip("#- ").replace("**", "").strip()
         if STOP.match(bare):
             break
         if CHROME.match(bare):

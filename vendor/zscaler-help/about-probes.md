@@ -30,34 +30,34 @@ Cloud Path probes are used to collect the following metrics:
 - Packet Loss: The % of packet loss at each hop point on the path.
 - Latency (Average, Minimum, Maximum, and Standard Deviation): The roundtrip path time measured in milliseconds.
 # About the Probes Page
-On the Probes page (Digital Experience > Settings & Configurations > Probes) you can do the following:
-- Switch between the views. The default view is End User.
-  - End User: View all the collections of configured applications and their configured probes. The total number of probes are displayed.
-  - Managed: View all collections of applications with configured applications and their configured Zscaler Managed probes. The total number of probes are displayed.
-  - Top Private Apps: Search and configure for top private applications based on ports and protocol.
+On the Probes page (**Digital Experience** > **Settings & Configurations** > **Probes**) you can do the following:
+- Switch between the views. The default view is **End User**.
+  - **End User**: View all the collections of configured applications and their configured probes. The total number of probes are displayed.
+  - **Managed**: View all collections of applications with configured applications and their configured Zscaler Managed probes. The total number of probes are displayed.
+  - **Top Private Apps**: Search and configure for top private applications based on ports and protocol.
 - Depending on your ZDX role and subscription level, you might not see some of the views.
 - Search through your collections.
 - Add a collection.
   - Configuring a collection for end-user applications.
   - Configuring a collection for Managed applications.
-- Sort your collection list in the menu (Latest, A-Z, Z-A).
+- Sort your collection list in the menu (**Latest**, **A-Z**, **Z-A**).
 - View the collections panel. Alternatively, you can hide the collections panel if you do not want to view it.
 - View application metrics with the following information and actions:
-  - Edit: Edit the application name.
+  - **Edit**: Edit the application name.
   - If the application is in a default collection (i.e., Unified Communication Collection, Predefined Apps Collection), then you cannot edit the application name.
-  - Status: The status of the application. Toggle to enable or disable the application.
-  - Total: The total number of enabled and disabled probes for the application.
-  - Probes: The number of Web probes and Cloud Path probes for the application.
-  - Real-User Monitoring: Whether real-user monitoring is enabled or disabled.
+  - **Status**: The status of the application. Toggle to enable or disable the application.
+  - **Total**: The total number of enabled and disabled probes for the application.
+  - **Probes**: The number of Web probes and Cloud Path probes for the application.
+  - **Real-User Monitoring**: Whether real-user monitoring is enabled or disabled.
 - Use the filters to view specific probes.
 - Search in the application for probe information.
 - View a list with the following information:
-  - Type: The type of the probe.
-  - Name: The name of the probe.
-  - Status: The status of the probe.
-  - Protocol/ Methods: The protocol or method of the probe.
-  - Frequency: The frequency of when the probe runs.
-  - Actions: Edit, delete, or copy the probe, To learn more, see Editing a Probe and Managing Zscaler Managed Probes.
+  - **Type**: The type of the probe.
+  - **Name**: The name of the probe.
+  - **Status**: The status of the probe.
+  - **Protocol/ Methods**: The protocol or method of the probe.
+  - **Frequency**: The frequency of when the probe runs.
+  - **Actions**: Edit, delete, or copy the probe, To learn more, see Editing a Probe and Managing Zscaler Managed Probes.
 - Edit, delete, or remove the application from the collection.
 - You cannot delete predefined applications.
 - Add a probe.

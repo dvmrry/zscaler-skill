@@ -38,6 +38,28 @@
       "to": "zia.atp.ai-ml-recategorization"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the destination is a false positive on one of the named C2 or security-testing profiles.",
+      "uses": [
+        "known-c2-servers",
+        "rate-based-profiles"
+      ]
+    },
+    {
+      "do": "Whether the traffic was decrypted, since Command & Control Traffic detection cannot read undecrypted HTTPS.",
+      "uses": [
+        "c2-traffic-needs-decryption"
+      ]
+    },
+    {
+      "do": "Whether the Alert for Unknown/Suspicious C2 Traffic toggle is on, since it is off by default and is the source of a reclassified URL category.",
+      "uses": [
+        "alert-unknown-c2",
+        "alert-category-name"
+      ]
+    }
+  ],
   "claims": {
     "known-c2-servers": {
       "statement": "Command & Control Servers allows or blocks connections to known C2 servers for profiles such as Cobalt Strike, Mythic, Brute Ratel and PoshC2. Known C2 botnet activity and the triggered policy actions can be viewed in the SaaS Security Insights Logs.",

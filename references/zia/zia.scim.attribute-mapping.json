@@ -31,6 +31,33 @@
       "to": "zia.ad-integration.identity-objects"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the connector sends the department inside the enterprise user extension, or omits it.",
+      "uses": [
+        "enterprise-department",
+        "connector-omits-department"
+      ]
+    },
+    {
+      "do": "Whether userName, in user@domain form, is mapped to the login rather than externalId or emails.value.",
+      "uses": [
+        "user-fields"
+      ]
+    },
+    {
+      "do": "Whether a mapping copied from a ZPA connector still uses names.givenName and names.familyName.",
+      "uses": [
+        "name-prefix"
+      ]
+    },
+    {
+      "do": "Whether the ZIA user record's department field is set after a push.",
+      "uses": [
+        "connector-omits-department"
+      ]
+    }
+  ],
   "claims": {
     "user-fields": {
       "statement": "ZIA maps these SCIM user attributes: id to a Zscaler-generated unique ID; externalId to scim_externalid; userName to the user ID (login_name) in user@domain form; displayName to the display name (user_name); groups to Groups; active to enabled or disabled; department to Department; name.givenName and name.familyName to first and last name; emails.value to scim_emails.",

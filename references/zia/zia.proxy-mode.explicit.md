@@ -4,6 +4,4 @@ In explicit mode the client knows about the proxy. {{how-it-works}}
 
 **The PAC file.** {{pac-function}} Hosting, versions and limits are in [[zia.traffic-forwarding.pac]].
 
-**Limits and authentication.** Explicit mode reaches only clients that honor the proxy setting: [[zia.traffic-forwarding.pac]] holds the stated limitations and the unverified claims about non-web protocols (gap `non-web-traffic` there). Authentication is in [[zia.authentication.methods]] (Kerberos is supported in explicit mode only) and [[zia.authentication.location-enforcement]]. The old reference's list of proxy-authentication methods and the CONNECT reply text are not in the captures (gaps `explicit-auth-detail`, `connect-response`).
-
-What to check: that the client really sends CONNECT to the Service Edge (a packet capture shows the CONNECT line), and that the PAC file returns the proxy for the destination.
+**Limits and authentication.** Explicit mode reaches only clients that honor the proxy setting: [[zia.traffic-forwarding.pac]] holds the stated limitations and the unverified claims about non-web protocols (gap `non-web-traffic` there). Authentication is in [[zia.authentication.methods]] (Kerberos is supported in explicit mode only) and [[zia.authentication.location-enforcement]]. The list of proxy-authentication methods is open {{gap:explicit-auth-detail}}, and so is the CONNECT reply text {{gap:connect-response}}.

@@ -18,7 +18,7 @@ Zscaler strongly recommends that you either use the Zscaler Kerberos PAC file or
 Before deploying Kerbero authentication, see Kerberos Authentication Deployment Guidelines and Kerberos Requirements. To learn how to deploy Kerberos, see Deploying Kerberos Authentication.
 # Using the Default Zscaler Kerberos PAC File
 To use the default Kerberos PAC file hosted by the Zscaler service:
-- Go to Infrastructure > Internet & SaaS > Hosted PAC Files.
-- Copy the Hosted URL of the default Kerberos PAC file.
+- Go to **Infrastructure** > **Internet & SaaS** > **Hosted PAC Files**.
+- Copy the **Hosted URL** of the default Kerberos PAC file.
 - See image.
 - Distribute the Keberos PAC file URL to your users.

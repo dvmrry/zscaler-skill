@@ -32,6 +32,30 @@
       "to": "zia.terraform.activation"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a clean refresh or apply actually read these settings, by re-reading them from the API, since a failed read returns no error.",
+      "uses": [
+        "read-error-returns-nil",
+        "read-error-returns-nil-sites"
+      ]
+    },
+    {
+      "do": "Whether a rule was posted twice after a create that took unusually long or errored: list the rules by name and look for a second copy or an unmanaged first one.",
+      "uses": [
+        "create-reposts-after-read-error",
+        "duplicate-post-result",
+        "duplicate-post-response"
+      ]
+    },
+    {
+      "do": "Whether a failed parent or subrule read happened earlier in the run, when DLP web rule creates hang or a subrule create crashes the provider.",
+      "uses": [
+        "dlp-web-subrule-create-nil-deref-under-lock",
+        "dlp-web-lock-not-released-on-error"
+      ]
+    }
+  ],
   "claims": {
     "read-error-returns-nil": {
       "statement": "The FTP control policy Read returns `nil` diagnostics when the SDK getter fails, before it touches the resource data. The SDK getter returns `(nil, err)` on a failed request, so a failed refresh produces no error and no change to what Terraform holds.",

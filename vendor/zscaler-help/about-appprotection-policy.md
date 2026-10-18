@@ -17,16 +17,16 @@ AppProtection policy rules are comprised of two main building blocks:
 # About the AppProtection Policy Page
 On the AppProtection Policy page (Private Access > Private App Protection > AppProtection Policy), you can do the following:
 - View a list of applied filters available from the current and previous user sessions. Applied filters must be saved to the user session first before they can be viewed. Use the drop-down menu to select the applied filters to view. To learn more, see Using Tables.
-- Hide the filters on the page by clicking Hide Filters. Click Show Filters to display the filters.
+- Hide the filters on the page by clicking **Hide Filters**. Click **Show Filters** to display the filters.
 - Refresh the AppProtection Policy page to reflect the most current information.
 - Filter the information that appears in the table. By default, no filters are applied. You can also save applied filters to your preferences so that they're visible in future user sessions. To learn more, see Using Tables.
 - Add a new AppProtection policy rule.
 - Add a dynamic rule to an AppProtection profile.
 - Expand all the displayed rows in the table to see more information about each policy rule.
 - View a list of all AppProtection policy rules that were configured. For each rule, you can see:
-  - Rule Order: The policy evaluation order number for the rule. Private Access applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering in a new value.
-  - Name: The name of the rule. The description is also displayed, if available.
-  - Rule Action: Indicates if the rule is to Inspect or Bypass Inspection. When the row is expanded, it provides a visual representation of the Criteria (e.g., SAML attributes, application segments, posture profiles, etc.) and Boolean logic used within the rule.
+  - **Rule Order:** The policy evaluation order number for the rule. Private Access applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering in a new value.
+  - **Name:** The name of the rule. The description is also displayed, if available.
+  - **Rule Action:** Indicates if the rule is to **Inspect** or **Bypass Inspection**. When the row is expanded, it provides a visual representation of the **Criteria** (e.g., SAML attributes, application segments, posture profiles, etc.) and Boolean logic used within the rule.
 - Copy an existing AppProtection policy rule's criteria, and use it to create a new rule.
 - Edit an existing AppProtection policy rule.
 - Delete an AppProtection policy rule.

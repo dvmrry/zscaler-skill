@@ -17,11 +17,11 @@ Zscaler DLP engines can scan files with a maximum size of 400 MB. For an archive
 On the DLP Engines page (Data Security > Common Resources > Dictionaries & Engines > DLP Engines), you can do the following:
 - Add a custom DLP engine.
 - View a list of all DLP engines that were configured for your organization. For DLP engines, you can see:
-  - Name: The name of the DLP engine. You can sort this column.
-  - Channels: The specific channels (Network Share, Personal Cloud Storage, Printing, or Removable Storage) associated with the DLP engine. (Endpoint DLP, SaaS Security, DSPM, Inline Web, and Email DLP) associated with the DLP engine.
+  - **Name**: The name of the DLP engine. You can sort this column.
+  - **Channels**: The specific channels (Network Share, Personal Cloud Storage, Printing, or Removable Storage) associated with the DLP engine. (Endpoint DLP, SaaS Security, DSPM, Inline Web, and Email DLP) associated with the DLP engine.
   - You can select the checkboxes for each engine in the list to add channels directly from the DLP Engines page. To learn more, see Editing Predefined DLP Engines.
-  - Dictionaries: The DLP dictionaries included in the engine.
-  - Description: The description of the engine, if available. You can sort this column.
+  - **Dictionaries**: The DLP dictionaries included in the engine.
+  - **Description**: The description of the engine, if available. You can sort this column.
 - Search for a DLP engine.
 - Modify the table and its columns.
 - Edit or clone a DLP engine.

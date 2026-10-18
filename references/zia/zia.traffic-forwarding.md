@@ -6,4 +6,4 @@
 4. **Users who leave the network.** [[zia.traffic-forwarding.zcc]].
 5. **Several at once.** [[zia.traffic-forwarding.mixed-deployments]].
 
-What the service does once the traffic arrives is a different question. How it learns the destination host (explicit versus transparent) is [[zia.proxy-mode]]; where ZIA sends traffic onward is [[zia.forwarding-control]]; how users are identified on each path is [[zia.authentication]]; which source networks are known is [[zia.locations]]; and how the firewall sees each path is [[zia.firewall.traffic-path]].
+**Once the traffic arrives.** How it learns the destination host (explicit versus transparent) is [[zia.proxy-mode]]; where ZIA sends traffic onward is [[zia.forwarding-control]]; how users are identified on each path is [[zia.authentication]]; which source networks are known is [[zia.locations]]; and how the firewall sees each path is [[zia.firewall.traffic-path]].

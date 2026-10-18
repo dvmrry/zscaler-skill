@@ -1,5 +1,5 @@
-The help page lists what a rule can be scoped by. {{condition-list}} The configuring page is the detailed console vocabulary. {{console-dns-conditions}} {{condition-logic}} {{unset-ignored}} {{limits-32}}
+{{condition-list}} {{console-dns-conditions}} {{condition-logic}} {{unset-ignored}} {{limits-32}}
 
-DNS record types are stored in `dnsRuleRequestTypes`. {{request-types-field}} IP-side matching is less clear. {{res-categories-field}} The mapping between the console's resolved-IP and category conditions and the fields `resCategories`, `destCountries`, `destIpCategories` is not established (gap `resolved-ip-field-mapping`), so do not infer a console condition from a field name alone. Whether identity criteria need Advanced Firewall is untested (gap `advanced-firewall-criteria`).
+{{request-types-field}} {{res-categories-field}} The mapping between the console's resolved-IP conditions and those fields is open {{gap:resolved-ip-field-mapping}}. Whether identity criteria need Advanced Firewall is open {{gap:advanced-firewall-criteria}}.
 
-Scoping by identity, location, label and time uses the same reference fields as other ZIA rules; the type is `zia/firewall-dns-rules`. What a matching rule does is in [[zia.dns-control.actions]]; domain classification for newly registered domains is in [[zia.dns-control.nrod]]; tunnels as a matchable item are in [[zia.dns-control.tunnel-detection]].
+What a matching rule does is in [[zia.dns-control.actions]]; domain classification for newly registered domains is in [[zia.dns-control.nrod]]; tunnels as a matchable item are in [[zia.dns-control.tunnel-detection]].

@@ -22,23 +22,23 @@ The following IPSec VPN parameters for IKEv2 and IKEv1 are supported:
 - The following table shows the supported IPSec VPN parameters for IKEv2. Zscaler recommends using the bolded parameters in blue.
 | IKEv2 Supported Parameters |  |  |
 |---|---|---|
-| Components | Phase 1 | Phase 2 |
-| Confidentiality | AES-256 AES-192 AES-128 3DES | AES-256-GCM AES-192-GCM AES-128-GCM NULL AES-256 AES-192 AES-128 |
-| Integrity | SHA-512 SHA-384 SHA-256 SHA-1 | MD5 SHA-512 SHA-384 SHA-256 SHA-1 |
+| **Components** | **Phase 1** | **Phase 2** |
+| Confidentiality | **AES-256** AES-192 AES-128 3DES | **AES-256-GCM** **AES-192-GCM** **AES-128-GCM** NULL AES-256 AES-192 AES-128 |
+| Integrity | SHA-512 SHA-384 **SHA-256** **SHA-1** | MD5 SHA-512 SHA-384 **SHA-256** **SHA-1** |
 | Authentication | Pre-Shared Key (PSK) | N/A |
 | Protocol | N/A | AH ESP |
 | Encapsulation Mode | N/A | Tunnel Mode |
 | Key Exchange Method | Diffie-Hellman | Diffie-Hellman |
-| Diffie-Hellman Group | 2 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) | 2 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) |
+| Diffie-Hellman Group | **2** 5 14 19 (ECP256) 20 (ECP384) 21 (ECP521) | 2 5 **14** 19 (ECP256) 20 (ECP384) 21 (ECP521) |
 | Total Child SAs Supported | N/A | 8 |
 | SA Lifetime | 24 Hours | 8 Hours |
 | SA Lifebytes | Unlimited | Unlimited |
-| NAT-Traversal | Enabled Disabled | N/A |
+| NAT-Traversal | **Enabled** Disabled | N/A |
 | NAT Keepalive Interval | 20 Seconds | N/A |
-| Dead Peer Detection (DPD) | Enabled Disabled | N/A |
+| Dead Peer Detection (DPD) | **Enabled** Disabled | N/A |
 | DPD Timeout Interval | 20 Seconds | N/A |
 | DPD Maximum Retries | 5 | N/A |
-| Perfect Forward Secrecy (PFS) | N/A | Enabled Disabled |
+| Perfect Forward Secrecy (PFS) | N/A | Enabled **Disabled** |
 | Maximum Transmission Unit (MTU) | N/A | Your Optimal MTU 1400 Bytes |
 | Maximum Segment Size (MSS) | N/A | 1360 Bytes |
 | VPN Type | N/A | Route-Based VPN Policy-Based VPN |
@@ -48,11 +48,11 @@ The following IPSec VPN parameters for IKEv2 and IKEv1 are supported:
 - The following table shows the supported IPSec VPN parameters for IKEv1. Zscaler recommends using the bolded parameters in blue.
 | IKEv1 Supported Parameters |  |  |
 |---|---|---|
-| Components | Phase 1 | Phase 2 |
+| **Components** | **Phase 1** | **Phase 2** |
 | IKE Mode | Main Aggressive | Quick |
-| Confidentiality | AES-256 AES-192 AES-128 3DES | AES-256-GCM AES-192-GCM AES-128-GCM NULL AES-256 AES-192 AES-128 |
-| Integrity | SHA-1 | MD5 SHA-1 |
-| Authentication | Pre-Shared Key (PSK) RSA Digital Signature External Authentication with PSK External Authentication with RSA | N/A |
+| Confidentiality | AES-256 AES-192 **AES-128** 3DES | **AES-256-GCM** **AES-192-GCM** **AES-128-GCM** NULL AES-256 AES-192 AES-128 |
+| Integrity | SHA-1 | MD5 **SHA-1** |
+| Authentication | **Pre-Shared Key (PSK)** RSA Digital Signature External Authentication with PSK External Authentication with RSA | N/A |
 | Protocol | N/A | AH ESP |
 | Encapsulation Mode | N/A | Tunnel Mode |
 | Key Exchange Method | Diffie-Hellman | Diffie-Hellman |
@@ -60,12 +60,12 @@ The following IPSec VPN parameters for IKEv2 and IKEv1 are supported:
 | Total IPSec SAs Supported | N/A | 8 |
 | SA Lifetime | 24 Hours | 8 Hours |
 | SA Lifebytes | Unlimited | Unlimited |
-| NAT-Traversal | Enabled Disabled | N/A |
+| NAT-Traversal | **Enabled** Disabled | N/A |
 | NAT Keepalive Interval | 20 Seconds | N/A |
-| Dead Peer Detection (DPD) | Enabled Disabled | N/A |
+| Dead Peer Detection (DPD) | **Enabled** Disabled | N/A |
 | DPD Timeout Interval | 20 Seconds | N/A |
 | DPD Maximum Retries | 5 | N/A |
-| Perfect Forward Secrecy (PFS) | N/A | Enabled Disabled |
+| Perfect Forward Secrecy (PFS) | N/A | Enabled **Disabled** |
 | Maximum Transmission Unit (MTU) | N/A | Your Optimal MTU 1400 Bytes |
 | Maximum Segment Size (MSS) | N/A | 1360 Bytes |
 | VPN Type | N/A | Route-Based VPN Policy-Based VPN |
@@ -132,9 +132,9 @@ The following is general information about the different IPSec components:
     - The initiator sends the SA proposals, traffic selectors, and nonce in the request. When creating new Child SAs, the initiator optionally can include a Diffie-Hellman value. The responder then activates the Child SA and completes the Diffie-Hellman exchange. Using the Diffie-Hellman exchange provides perfect forward secrecy (PFS) for the Child SA and ensures the Child SA and IKE SA are derived independently. The CREATE_CHILD_SA exchange has one encrypted request-response pair and is equivalent to the IKEv1 Phase 2 exchange (Quick mode). It repeats for every rekey or new SA.
     - INFORMATIONAL
     - In the INFORMATIONAL exchange, peers can share control messages regarding errors or notifications of specific events during the operation of an IKE SA. The messages in an INFORMATIONAL can include any of the following payloads:
-      - Notification Payload: Carries error or status information regarding the SAs.
-      - Delete Payload: Informs the peer that the initiator deleted one or more of its SAs. The responder must delete the SAs and send a response message with the deleted payloads.
-      - Configuration Payload: Negotiates configuration data between peers.
+      - **Notification Payload**: Carries error or status information regarding the SAs.
+      - **Delete Payload**: Informs the peer that the initiator deleted one or more of its SAs. The responder must delete the SAs and send a response message with the deleted payloads.
+      - **Configuration Payload**: Negotiates configuration data between peers.
     - The INFORMATIONAL exchange message can include any combination of the preceding payloads. The responder must reply with a response, or the initiator assumes that the message was lost and retransmits it. The response can also be an empty message with no payload. This is a common method for a peer to check the other peer's liveliness. This exchange has one encrypted request-response pair.
   - To learn more about IKEv2, refer to RFC 7296 Internet Key Exchange Protocol Version 2 (IKEv2).
   - IKEv1

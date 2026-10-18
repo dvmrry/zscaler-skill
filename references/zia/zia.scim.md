@@ -8,4 +8,4 @@
 6. **How quickly does a change show up?** [[zia.scim.propagation]].
 7. **Is the problem the Go or Python client rather than the service?** [[zia.scim.sdk-coverage]].
 
-Provisioning choices around SCIM (the alternatives, the directory-sync migration) are in [[zia.ad-integration.provisioning-methods]]. What SAML does to the same users is in [[zia.ad-integration.saml-auto-provisioning]]. The migration flag is in [[zia.authentication.settings:scim-migration-flag]]. The shared protocol-level mechanics and ZPA's different handling of SCIM live under the shared and ZPA references, not here.
+The shared SCIM protocol mechanics are in [shared SCIM provisioning](../shared/scim-provisioning.md), and the ZPA side is in [ZPA SCIM policy mapping](../zpa/scim-policy-mapping.md). Provisioning choices around SCIM (the alternatives, the directory-sync migration) are in [[zia.ad-integration.provisioning-methods]]. What SAML does to the same users is in [[zia.ad-integration.saml-auto-provisioning]]. The migration flag is in [[zia.authentication.settings:scim-migration-flag]].

@@ -8,10 +8,10 @@
 
 When creating a data source to ingest data into the platform, you can either use a dedicated vendor connector, or you can use the AnySource connector. The AnySource connector allows you to upload files directly to the platform. Uploaded files are stored in their original format and can be mapped to the platform's data model. Each source maintains a consistent field mapping, so all files uploaded to a given source should match the structure of the original file (e.g., headers, file type).
 To set up the AnySource connector:
-- Go to Configure > Sources.
-- Click Create.
-- Search for and select AnySource from the tiles.
-- On the Create AnySource Source page, in the Retrieval section, select a file upload method:
+- Go to **Configure** > **Sources**.
+- Click **Create**.
+- Search for and select **AnySource** from the tiles.
+- On the **Create AnySource Source** page, in the **Retrieval** section, select a file upload method:
 - Upload File
 - AWS S3
 - GCP
@@ -30,7 +30,7 @@ The ingestion layer is designed to support a wide variety of file formats and st
 ## Recommended Fields (by Entity Type)
 Each entity type (e.g., assets, vulnerabilities) has its own set of core recommended fields. The following examples are the key fields typically associated with assets and vulnerabilities.
 ### Assets
-| Attribute | Description |
+| **Attribute** | **Description** |
 |---|---|
 | Asset Name/Hostname | The name or hostname of the asset |
 | Asset Type | The type of asset (e.g., server, workstation) |
@@ -43,7 +43,7 @@ Each entity type (e.g., assets, vulnerabilities) has its own set of core recomme
 | Software Installed | A list of installed software and software versions |
 | Asset Criticality | The importance of the asset to the organization (e.g., critical, non-critical) |
 ### Findings
-| Attribute | Description |
+| **Attribute** | **Description** |
 |---|---|
 | Vulnerability Name/ID | The name or unique identifier for the vulnerability |
 | Severity Score/CVSS/Scanner Score | The severity score assigned to the vulnerability, including the numerical score (8.1) and the category (High) |

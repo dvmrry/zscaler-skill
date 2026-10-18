@@ -27,6 +27,42 @@
       "to": "zia.terraform.activation"
     }
   ],
+  "checks": [
+    {
+      "do": "Which DNS control rules hold a DNS application group before destroying it (`applicationGroups`), and detach it by hand or in the same plan.",
+      "uses": [
+        "dns-group-references-not-detached",
+        "dns-rule-model-has-application-groups"
+      ]
+    },
+    {
+      "do": "Which firewall filtering rules hold a network service group before destroying it (`nwServiceGroups`), and detach it by hand or in the same plan.",
+      "uses": [
+        "service-group-references-not-detached",
+        "filtering-rule-model-separates-service-groups"
+      ]
+    },
+    {
+      "do": "Whether the rules that used a destroyed group were re-read afterwards, rather than trusting a successful apply.",
+      "uses": [
+        "masked-read-failure-reaches-delete"
+      ]
+    },
+    {
+      "do": "Whether ZIA refuses or accepts a delete of a group that live rules still reference.",
+      "uses": [
+        "in-use-enforcement"
+      ]
+    },
+    {
+      "do": "Whether the ID-only match can strip an entry for an unrelated object type from a rule.",
+      "uses": [
+        "dns-group-delete-can-strip-unrelated-source-groups",
+        "service-group-delete-can-strip-unrelated-application-groups",
+        "id-namespace"
+      ]
+    }
+  ],
   "claims": {
     "helper-purpose": {
       "statement": "Before deleting a group-like object, the provider runs a shared helper whose stated purpose is to avoid the API's RESOURCE_IN_USE refusal by removing the object's ID from the rules that reference it.",

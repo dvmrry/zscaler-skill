@@ -18,11 +18,11 @@ On the NSS Servers page (Data Explorer > Log Streaming > Internet Log Streaming 
 - Download MIB files.
 - Search for an NSS server.
 - View a list of all configured NSS servers. For each server, you can see:
-  - Server Name: The name of the server.
-  - Type: The server type.
-  - Status: The server status.
-  - State: The health state of the server.
-  - SSL Certificate: The option to download the SSL certificate.
+  - **Server Name**: The name of the server.
+  - **Type**: The server type.
+  - **Status**: The server status.
+  - **State**: The health state of the server.
+  - **SSL Certificate**: The option to download the SSL certificate.
 - Modify the table and its columns.
 - Download the SSL Certificate for an NSS server.
 - Add a new SSL Certificate for an NSS Server.

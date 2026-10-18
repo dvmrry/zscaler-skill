@@ -10,53 +10,94 @@
     "predefined time interval",
     "terraform time interval resource"
   ],
-  "binds": ["zia/time-windows", "zia/time-intervals"],
+  "binds": [
+    "zia/time-windows",
+    "zia/time-intervals"
+  ],
   "related": [
-    { "rel": "see-also", "to": "zia.time-intervals.schema" },
-    { "rel": "see-also", "to": "zia.time-intervals.api-surface" },
-    { "rel": "see-also", "to": "zia.time-intervals.rule-usage" }
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.schema"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.rule-usage"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the catalog's predefined names, such as Work hours, appear in a live list of intervals.",
+      "uses": [
+        "predefined-intervals"
+      ]
+    }
   ],
   "claims": {
     "catalog-endpoints": {
       "statement": "`GET /timeWindows` and `GET /timeWindows/lite` list the time intervals used by the Firewall policy or the URL Filtering policy; they are separate from `/timeIntervals`.",
       "tier": "A",
-      "binds": ["zia/time-windows"],
+      "binds": [
+        "zia/time-windows"
+      ],
       "evidence": [
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1timeWindows/get",
-          "expect": { "operationId": "Time Window Resource Get Time Windows", "tags": ["Firewall Policies", "URL Filtering Policy"] }
+          "expect": {
+            "operationId": "Time Window Resource Get Time Windows",
+            "tags": [
+              "Firewall Policies",
+              "URL Filtering Policy"
+            ]
+          }
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1timeWindows~1lite/get",
-          "expect": { "tags": ["Firewall Policies", "URL Filtering Policy"] }
+          "expect": {
+            "tags": [
+              "Firewall Policies",
+              "URL Filtering Policy"
+            ]
+          }
         }
       ]
     },
     "read-only": {
       "statement": "The time window catalog is read-only in the API specification: both paths expose only GET.",
       "tier": "B",
-      "derived_from": ["catalog-endpoints"],
+      "derived_from": [
+        "catalog-endpoints"
+      ],
       "conditions": "Absence of any other method on the two paths in the captured OpenAPI document."
     },
     "day-key-singular": {
       "statement": "A time window names its days in `dayOfWeek` (singular), where a time interval uses `daysOfWeek`; the other four fields match.",
       "tier": "A",
-      "binds": ["zia/time-windows#dayOfWeek"],
+      "binds": [
+        "zia/time-windows#dayOfWeek"
+      ],
       "evidence": [
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1timeWindows/get/responses/200/content/application~1json/schema/items/properties/dayOfWeek",
-          "expect": { "type": "array" }
+          "expect": {
+            "type": "array"
+          }
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/models/cloud_firewall_time_windows.py",
-          "quotes": ["\"dayOfWeek\": self.days_of_week,"]
+          "quotes": [
+            "\"dayOfWeek\": self.days_of_week,"
+          ]
         }
       ]
     },
@@ -79,7 +120,9 @@
     "no-managed-resource": {
       "statement": "The Terraform provider has no managed resource or data source for user-created time intervals; only the time window data source exists in the documentation.",
       "tier": "B",
-      "derived_from": ["tf-data-source"],
+      "derived_from": [
+        "tf-data-source"
+      ],
       "conditions": "Absence: the provider docs directories at the pin contain no time interval resource or data source page."
     }
   },
@@ -88,28 +131,46 @@
       "kind": "semantic",
       "title": "Whether a Terraform time interval resource is planned or deliberately excluded",
       "status": "open",
-      "former_ids": ["zia-23"],
+      "former_ids": [
+        "zia-23"
+      ],
       "detail": "The provider has no resource for `/timeIntervals`; whether that is planned, excluded on purpose, or available only through the API and SDKs is not stated in the provider source. The provider changelog or issue tracker may say.",
-      "resolves_with": ["source-read", "support-ticket"],
-      "about": ["zia.time-intervals.time-windows:no-managed-resource"]
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "about": [
+        "zia.time-intervals.time-windows:no-managed-resource"
+      ]
     },
     "predefined-intervals": {
       "kind": "data",
       "title": "Whether predefined objects such as Work hours also exist in /timeIntervals",
       "status": "open",
-      "former_ids": ["zia-25"],
+      "former_ids": [
+        "zia-25"
+      ],
       "detail": "The Terraform data source documents Work hours, Weekends and Off hours as names in the time window catalog. Whether the same predefined objects also appear in the `/timeIntervals` list, or that endpoint is entirely user-managed, is not shown. A list on a clean tenant answers it.",
-      "resolves_with": ["tenant-data"],
-      "resolvable_by": ["live"],
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
       "live_command": "zscalerctl zia time-intervals list",
-      "about": ["zia.time-intervals.time-windows:catalog-endpoints"]
+      "about": [
+        "zia.time-intervals.time-windows:catalog-endpoints"
+      ]
     },
     "rule-field-references": {
       "kind": "semantic",
       "title": "Which object a rule's timeWindows entry references: an interval or a window",
       "status": "open",
       "detail": "Unverified legacy statement: the shared `timeWindows` field \"accepts a list of {id, name} references to either Time Interval or Firewall Time Window objects depending on the rule type\". The API describes the field only as time intervals or windows in which the rule applies. Which catalog supplies the ID for each rule type is not stated.",
-      "resolves_with": ["lab-test", "source-read"]
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
     }
   }
 }

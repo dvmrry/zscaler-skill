@@ -6,7 +6,7 @@
 
 ---
 
-Infrastructure as Code (IaC) deployment templates are available in GitHub to assist in the deployment of Zscaler Cloud Connector in Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP). AWS deployment templates are available in CloudFormation and Terraform repositories. Azure and GCP deployment templates are available in Terraform repositories. Links to the repositories are included in this article and in the Zscaler Admin Console (Zero Trust Cloud > Cloud Connector > Deployment Templates).
+Infrastructure as Code (IaC) deployment templates are available in GitHub to assist in the deployment of Zscaler Cloud Connector in Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP). AWS deployment templates are available in CloudFormation and Terraform repositories. Azure and GCP deployment templates are available in Terraform repositories. Links to the repositories are included in this article and in the Zscaler Admin Console (**Zero Trust Cloud** > **Cloud Connector** > **Deployment Templates**).
 When deploying a Cloud Connector, only deploy an autoscaling group (ASG) with an ASG template or a non-ASG with a non-ASG template.
 # AWS Deployment Templates
 When you deploy Cloud Connector with AWS, Instance Metadata Service Version 2 (IMDSv2) is enforced by default. To learn more about IMDSv2, refer to the AWS documentation.
@@ -110,7 +110,7 @@ The following table lists the templates you need for standard and advanced deplo
   - (Optional) Zscaler Cloud Connector service interface security group
   - AWS Secrets Manager secret name
   - Zscaler Cloud Connector instance size
-- Currently, only small instance types are supported for Cloud Connector.
+- Currently, only **small** instance types are supported for Cloud Connector.
   - Cloud Connector VM AWS EC2 instance type
   - Cloud Connector provisioning URL
   - HTTP monitor probe port
@@ -827,7 +827,7 @@ Use the templates in the Terraform repository to create the deployment resources
     - Cloud Scheduler Job (Resource Sync)
     - Storage bucket containing Zscaler Cloud Function ZIP file
     - Service account attached to both Cloud Functions with IAM access to the following roles:
-      - Secret Manager Secret Accessor (for GCP Secret Manager) or Service Account Token Creator (for HashiCorp Vault)
+      - Secret Manager Secret Accesso**r** (for GCP Secret Manager) or Service Account Token Creator (for HashiCorp Vault)
       - Compute Instance Admin (v1)
       - Monitoring Viewer
       - Logs Writer

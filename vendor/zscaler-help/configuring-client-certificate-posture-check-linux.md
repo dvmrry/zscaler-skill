@@ -28,21 +28,21 @@ Follow these steps to configure the Client Certificate for Linux:
 - sudo update-ca-trust force-enable sudo cp ca.crt /etc/pki/ca-trust/source/anchors/ sudo update-ca-trust extract
   - Copy the Client Certificate file client_cert.pem to the following locations on the Linux client:
   - The certificate file must be Base64-encoded and the file name must end with the extension .pem.
-    - If Non-Exportable Private Key is disabled, copy to ~/.Zscaler/certificates/. The Client Certificate file has user access permission.
-    - If Non-Exportable Private Key is enabled, copy to /opt/zscaler/client_cert/. The Client Certificate file has root access only.
+    - If **Non-Exportable Private Key** is disabled, copy to ~/.Zscaler/certificates/. The Client Certificate file has user access permission.
+    - If **Non-Exportable Private Key** is enabled, copy to /opt/zscaler/client_cert/. The Client Certificate file has root access only.
   - Confirm that certificates are properly installed by running the following commands:
     - On Ubuntu systems: openssl verify -show_chain -CApath /etc/ssl/certs/ <client_cert_file>
     - On CentOS/Fedora systems: openssl verify -show_chain -CApath /etc/pki/ca-trust/extracted/pem/ <client_cert_file>
 - An intermediate certificate. If there are intermediate CAs on the certificate chain of trust, they must be installed either in the system store or the directory /opt/zscaler/intermediate_ca/.
 - Copy the Client Certificate file client_cert.pem to the following locations on the Linux client:
 The certificate file must be Base64-encoded and the file name must end with the extension .pem.
-- If Non-Exportable Private Key is disabled, copy to ~/.Zscaler/certificates/. The Client Certificate file has user access permission.
-- If Non-Exportable Private Key is enabled, copy to /opt/zscaler/client_cert/. The Client Certificate file has root access only.
+- If **Non-Exportable Private Key** is disabled, copy to ~/.Zscaler/certificates/. The Client Certificate file has user access permission.
+- If **Non-Exportable Private Key** is enabled, copy to /opt/zscaler/client_cert/. The Client Certificate file has root access only.
 Confirm that certificates are properly installed by running the following commands:
 - On Ubuntu systems: openssl verify -show_chain -CApath/etc/ssl/certs/ <client_cert_file>
 - On CentOS/Fedora systems: openssl verify -show_chain -CApath /etc/pki/ca-trust/extracted/pem/ <client_cert_file>
-- Copy the private key that is associated with the Client Certificate to the Linux client system. The private key store location depends on whether or not Non-Exportable Private Key is enabled or disabled:
-- If Non-Exportable Private Key is disabled, copy the private key in the user's home directory: ~/.Zscaler/certificates/private/
-- If Non-Exportable Private Key is enabled, copy the private key to the directory: /opt/zscaler/private_key/. This directory is created when you install Zscaler Client Connector. This directory is owned by the root and has a permission setting of 755. Zscaler Client Connector checks the private key file's permission. Posture validation fails if the file can be accessed by non-root users.
+- Copy the private key that is associated with the Client Certificate to the Linux client system. The private key store location depends on whether or not **Non-Exportable Private Key** is enabled or disabled:
+- If **Non-Exportable Private Key** is disabled, copy the private key in the user's home directory: ~/.Zscaler/certificates/private/
+- If **Non-Exportable Private Key** is enabled, copy the private key to the directory: /opt/zscaler/private_key/. This directory is created when you install Zscaler Client Connector. This directory is owned by the root and has a permission setting of 755. Zscaler Client Connector checks the private key file's permission. Posture validation fails if the file can be accessed by non-root users.
 The private key file should be Base64-encoded and the file name must end with the extension .key.
 - Log in to Zscaler Client Connector.

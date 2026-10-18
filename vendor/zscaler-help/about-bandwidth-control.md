@@ -50,20 +50,20 @@ You can go to the Bandwidth Control dashboard to view your organization's bandwi
 # About the Bandwidth Control Page
 On the Bandwidth Control page (Internet Access > Policy > Bandwidth Control), you can:
 - Configure a Bandwidth Control policy rule.
-- Select one or more Rule Labels to display only the associated Bandwidth Control rules. Clear the selection to display all rules.
+- Select one or more **Rule Labels** to display only the associated Bandwidth Control rules. **Clear** the selection to display all rules.
 - Search for a configured Bandwidth Control policy rule.
 - Modify the table and its columns.
 - View a list of all configured Bandwidth Control policy rules:
-  - Rule Order: The order in which the rules are evaluated. Bandwidth Control rules are evaluated in ascending numerical order and the default rule is evaluated last. You can sort this column.
-  - Rule Name: The name of the policy rule. You can sort this column.
-  - Admin Rank: The assigned admin rank for the rule. This is only visible if you have enabled admin ranking in the Advanced Settings. You can sort this column.
-  - Bandwidth Classes: The bandwidth classes associated with the rule.
-  - Rule Action: Displays the configured Bandwidth Control actions of the rule.
-  - Rule Status: Indicates whether the rule is Enabled or Disabled.
-  - Protocols: The protocols to which the rule applies.
-  - Locations: The locations where the rule is applied.
-  - Time: The time schedule associated with the rule, if configured.
-  - Rule Label: The rule label assigned to the policy, if configured.
+  - **Rule Order:** The order in which the rules are evaluated. Bandwidth Control rules are evaluated in ascending numerical order and the default rule is evaluated last. You can sort this column.
+  - **Rule Name:** The name of the policy rule. You can sort this column.
+  - **Admin Rank:** The assigned admin rank for the rule. This is only visible if you have enabled admin ranking in the Advanced Settings. You can sort this column.
+  - **Bandwidth Classes:** The bandwidth classes associated with the rule.
+  - **Rule Action:** Displays the configured Bandwidth Control actions of the rule.
+  - **Rule Status:** Indicates whether the rule is **Enabled** or **Disabled**.
+  - **Protocols:** The protocols to which the rule applies.
+  - **Locations:** The locations where the rule is applied.
+  - **Time:** The time schedule associated with the rule, if configured.
+  - **Rule Label:** The rule label assigned to the policy, if configured.
 - Edit the Bandwidth Control policy rule.
 - Delete the Bandwidth Control policy rule.
 - Duplicate the Bandwidth Control policy rule.

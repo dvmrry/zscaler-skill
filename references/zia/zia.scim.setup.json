@@ -34,6 +34,33 @@
       "to": "zia.ad-integration.directory-sync"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether SCIM is enabled on the IdP and the base URL in the client matches the one shown after enabling.",
+      "uses": [
+        "enable-per-idp",
+        "base-url"
+      ]
+    },
+    {
+      "do": "Whether the bearer token was regenerated without updating the IdP.",
+      "uses": [
+        "bearer-token"
+      ]
+    },
+    {
+      "do": "Whether SAML auto-provisioning is off for the same IdP.",
+      "uses": [
+        "zia.ad-integration.saml-auto-provisioning:scim-excludes"
+      ]
+    },
+    {
+      "do": "Whether the user's domain is registered with Zscaler.",
+      "uses": [
+        "domain-preregistered"
+      ]
+    }
+  ],
   "claims": {
     "scim2-and-saml": {
       "statement": "Zscaler supports only SCIM version 2.0, and SAML must be the authentication method to use SCIM for provisioning.",

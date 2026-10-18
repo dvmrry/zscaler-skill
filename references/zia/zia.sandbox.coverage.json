@@ -27,6 +27,28 @@
       "to": "zia.sandbox.report"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the tenant's tier covers the file's type and size.",
+      "uses": [
+        "tier-limits",
+        "out-of-scope-not-analyzed"
+      ]
+    },
+    {
+      "do": "Whether the file was not sent to Sandbox, by walking SSL inspection, file type, file size, the static pre-check and the previously-analyzed MD5, in that order.",
+      "uses": [
+        "not-analyzed-checklist",
+        "check-order-vs-report"
+      ]
+    },
+    {
+      "do": "Whether the SSL rule that matched the source URL is a DO_NOT_INSPECT or DO_NOT_DECRYPT rule.",
+      "uses": [
+        "needs-decryption"
+      ]
+    }
+  ],
   "claims": {
     "tier-limits": {
       "statement": "Basic Sandbox analyzes only .exe, .dll, .scr, .ocx, .sys and .zip files up to 2 MB. Advanced Sandbox covers all common types including Office, PDF, APK and scripts, up to 20 MB (50 MB for .exe files and archives).",

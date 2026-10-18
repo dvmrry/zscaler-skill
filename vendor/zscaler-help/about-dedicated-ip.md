@@ -33,11 +33,11 @@ On the Gateways page (Infrastructure > Internet & SaaS > Dedicated IP > Gateways
 - Add a dedicated IP gateway.
 - Modify the table and its columns.
 - View the list of all configured gateways. For each gateway, you can view:
-  - Name: The name of the gateway.
-  - Primary DC: The location of the primary data center for the gateway.
-  - Secondary DC: The location of the secondary data center for the gateway. If you have selected Auto, the Zscaler service automatically selects a data center based on geographical proximity to the Public Service Edge servicing the traffic.
+  - **Name**: The name of the gateway.
+  - **Primary DC**: The location of the primary data center for the gateway.
+  - **Secondary DC**: The location of the secondary data center for the gateway. If you have selected **Auto**, the Zscaler service automatically selects a data center based on geographical proximity to the Public Service Edge servicing the traffic.
   - The secondary data center location is used when the dedicated IP addresses at the primary data center are unreachable.
-  - Description: Additional notes or information about the gateway.
+  - **Description**: Additional notes or information about the gateway.
 - Edit or delete a configured gateway.
 - View the default gateway data center details.
 - Go to the Dedicated IP Addresses page.

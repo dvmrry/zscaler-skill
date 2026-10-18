@@ -37,6 +37,23 @@
       "to": "shared.sdk-go.zero-value-writes"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether traffic from a provider meant to use a proxy reaches the proxy, rather than trusting the provider's http_proxy setting.",
+      "uses": [
+        "providers-append-proxy-after-rebuilds",
+        "proxy-effect"
+      ]
+    },
+    {
+      "do": "Whether a failed ZTC or ZIA create was accepted by the tenant before retrying it.",
+      "uses": [
+        "ztw-create-type-assert-fails-after-post",
+        "zia-create-same-exact-content-type",
+        "server-response-shapes"
+      ]
+    }
+  ],
   "claims": {
     "clients-built-before-options": {
       "statement": "`NewConfiguration` builds every per-service HTTP client (`setHttpClients`) before it applies the caller's option functions. Options therefore see clients that already exist, and only the options that call `setHttpClients` again rebuild them.",

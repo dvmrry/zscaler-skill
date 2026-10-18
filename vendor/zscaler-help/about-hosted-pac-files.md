@@ -17,15 +17,15 @@ On the Hosted PAC Files page (Infrastructure > Internet & SaaS > Hosted PAC File
 - You can host up to 10 versions of your custom PAC files in the Zscaler Admin Console.
 - Search for a PAC file.
 - View a list of default and custom PAC files if you've configured any. For each PAC file, you can view the following information:
-  - Name: The name of the PAC file.
-  - Description: Additional notes or information about the PAC file.
-  - Domain: The Zscaler domain in which the PAC file is hosted.
-  - Hosted URL: The hosted URL of the PAC file.
-  - Status: Indicates the verification status of the PAC file. The verification status can be:
-    - Verified: Indicates that the PAC file is verified in the Zscaler Admin Console.
-    - Error-Accepted: Indicates that the PAC file has some errors and the admin has accepted and saved it with errors at the time of verification in the Zscaler Admin Console.
-  - Number of Hits: The number of times the PAC file is hit in the last 30 days.
-  - Currently Deployed Version: The version number of the currently deployed PAC file.
+  - **Name**: The name of the PAC file.
+  - **Description**: Additional notes or information about the PAC file.
+  - **Domain**: The Zscaler domain in which the PAC file is hosted.
+  - **Hosted URL**: The hosted URL of the PAC file.
+  - **Status**: Indicates the verification status of the PAC file. The verification status can be:
+    - **Verified**: Indicates that the PAC file is verified in the Zscaler Admin Console.
+    - **Error-Accepted**: Indicates that the PAC file has some errors and the admin has accepted and saved it with errors at the time of verification in the Zscaler Admin Console.
+  - **Number of Hits**: The number of times the PAC file is hit in the last 30 days.
+  - **Currently Deployed Version**: The version number of the currently deployed PAC file.
 - Preview a PAC file.
 - Export a PAC file as a text, PAC, or JS file.
 - Manage versions of a custom PAC file.

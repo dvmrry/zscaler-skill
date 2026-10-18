@@ -46,10 +46,10 @@ On the Backup & Restore page (Administration > Backup & Restore > Internet & Saa
 - Add a restore point manually.
 - Search for an existing restore point.
 - View a list of all restore points that were configured for your organization. For each restore point, you can view and sort:
-  - Restore Point Name: The name of the restore point.
-  - Description: The description of the restore point, if available.
-  - Created By: The admin that created the restore point.
-  - Created On: The date and time the restore point was created.
-A restore point with the Flag icon alongside it represents a Golden Restore Point, which is the last known good backup of policies and configuration settings. There can be only one golden restore point at any given point in time.
+  - **Restore Point Name**: The name of the restore point.
+  - **Description**: The description of the restore point, if available.
+  - **Created By**: The admin that created the restore point.
+  - **Created On**: The date and time the restore point was created.
+A restore point with the **Flag** icon alongside it represents a Golden Restore Point, which is the last known good backup of policies and configuration settings. There can be only one golden restore point at any given point in time.
 - Modify the display of columns in the table.
 - View or restore stored policies and configurations from a restore point.

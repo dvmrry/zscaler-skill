@@ -17,7 +17,7 @@ Zscaler supports the following attributes:
 # Configuring Workload Discovery Services
 To enable workload discovery services, onboard your AWS account into the Zscaler Admin Console. After your AWS account appears in the Zscaler Admin Console, create a configuration in your AWS account. To learn more about adding an AWS account, see Adding an Amazon Web Services Account. The following changes are required to add a configuration to your AWS account:
 - Create a Role
-- To create a role, you can either select Launch Cloudformation template in AWS console while adding an AWS account in the Zscaler Admin Console or you can create it manually. To create a role, you need the following information:
+- To create a role, you can either select **Launch Cloudformation template in AWS console** while adding an AWS account in the Zscaler Admin Console or you can create it manually. To create a role, you need the following information:
   - List of permissions:
     - ec2:DescribeVpcs
     - ec2:DescribeSubnets
@@ -40,40 +40,40 @@ To enable workload discovery services, onboard your AWS account into the Zscaler
 - The default polling time for the workload discovery service is 5 minutes, which means changes can take up to 5 minutes to be distributed for policy enforcement. This polling time is sufficient for the applications of many users. For other users using auto scaling groups (ASGs), Zscaler must be notified immediately. The workload discovery service allows you to use EventBridge to trigger an update within a few seconds of an EC2 notification. You configure a rule in the EventBridge service of your account on the default bus. The rule sends a notification to an EventBridge bus in the Zscaler account assigned to your tenant. You can locate the name of the EventBridge on the account page of the Zscaler Admin Console. The format is an ARN. You must replace the REGION field, such as in the following example: arn:aws:events:<REGION>:11111111111:event-bus/zscaler-bus-146530-zsdevel.net.
 - To configure an EventBridge:
   - Log in to the AWS Management Console.
-  - In the Search field, enter EventBridge. Select Amazon EventBridge. The Amazon EventBridge page appears.
-  - On the Amazon EventBridge page, under Get started, select EventBridge Rule.
-  - On the Define rule detail page, in the Rule detail section, configure the following:
-    - Name: Enter a name for the EventBridge.
-    - Description - optional: Enter a description for the EventBridge.
-    - Event bus: Select default.
-    - Enable the rule on the selected event bus: Enable this setting.
-    - Rule type: Select Rule with an event pattern.
-    - Click Next.
+  - In the Search field, enter EventBridge. Select **Amazon EventBridge**. The Amazon EventBridge page appears.
+  - On the Amazon EventBridge page, under **Get started**, select **EventBridge Rule**.
+  - On the **Define rule detail** page, in the **Rule detail** section, configure the following:
+    - **Name**: Enter a name for the EventBridge.
+    - **Description - optional**: Enter a description for the EventBridge.
+    - **Event bus**: Select **default**.
+    - **Enable the rule on the selected event bus**: Enable this setting.
+    - **Rule type**: Select **Rule with an event pattern**.
+    - Click **Next**.
     - See image.
-  - On the Build event pattern page, configure the following:
-    - In the Event Source section, select AWS events or EventBridge partner events.
+  - On the **Build event pattern** page, configure the following:
+    - In the **Event Source** section, select **AWS events or EventBridge partner events**.
     - See image.
-    - In the Sample Event section, do not configure any settings.
-    - In the Creation method section, select Use pattern form.
+    - In the **Sample Event** section, do not configure any settings.
+    - In the **Creation method** section, select **Use pattern form**.
     - See image.
-    - In the Event pattern section, configure the following:
-      - Event source: Select AWS services.
-      - AWS service: Select EC2.
-      - Event type: Select EC2 Instance State-change Notification.
-      - Event Type Specification 1: Select Specific state(s).
-      - Specific state(s): Select pending.
-      - Event Type Specification 2: Select Any instance.
-      - Click Next.
+    - In the **Event pattern** section, configure the following:
+      - **Event source**: Select **AWS services**.
+      - **AWS service**: Select **EC2**.
+      - **Event type**: Select **EC2 Instance State-change Notification**.
+      - **Event Type Specification 1**: Select **Specific state(s)**.
+      - **Specific state(s)**: Select **pending**.
+      - **Event Type Specification 2**: Select **Any instance**.
+      - Click **Next**.
     - See image.
-  - On the Select target(s) page, in the Target 1 section, configure the following:
-    - Target types: Select EventBridge event bus.
-    - Target types: Select Event bus in a different account or Region.
-    - Event bus as target: Enter the ARN from the Zscaler Admin Console. Replace the region field with the region the rule has created.
-    - Execution role: Select Create a new role for this specific resource.
-    - Click Next.
+  - On the **Select target(s)** page, in the **Target 1** section, configure the following:
+    - **Target types**: Select **EventBridge event bus**.
+    - **Target types**: Select **Event bus in a different account or Region**.
+    - **Event bus as target**: Enter the ARN from the Zscaler Admin Console. Replace the region field with the region the rule has created.
+    - **Execution role**: Select **Create a new role for this specific resource**.
+    - Click **Next**.
     - See image.
-  - (Optional) Configure tags, then click Next.
-  - Review your settings, then click Create.
+  - (Optional) Configure tags, then click **Next**.
+  - Review your settings, then click **Create**.
 - Configure Namespace and Duplicate IP Addresses
 - You might encounter overlapping Classless Inter-Domain Routings (CIDRs). Adding a namespace makes them unique, so the IP addresses are not duplicates. If Zscaler detects a duplicate IP address, only one IP address is shown and all others are disregarded. You can see the number of duplicate IP addresses in the Zscaler Admin Console.
 - See image.

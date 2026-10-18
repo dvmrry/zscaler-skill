@@ -45,6 +45,22 @@
       "to": "zia.url-filtering.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the transaction is a GET request, a POST request or a response, since each has its own order.",
+      "uses": [
+        "get-order",
+        "post-order",
+        "response-order"
+      ]
+    },
+    {
+      "do": "Which numbered step is the earliest one that could have fired, since the first violation blocks the transaction.",
+      "uses": [
+        "first-violation-blocks"
+      ]
+    }
+  ],
   "claims": {
     "first-violation-blocks": {
       "statement": "When the web module finds a transaction violates a policy, the Public Service Edge blocks it immediately and does not enforce the policies that follow; the firewall module does not evaluate it, though firewall logs still show the web transaction as blocked.",

@@ -1,9 +1,11 @@
-What a DNS rule can do depends on whether you are reading the console or the API. {{console-actions}} That page is older; the configuring page lists more. {{console-actions-current}} Plain Block gives no response; it is silent (the older reference said it returns NXDOMAIN or drops the query; see gap `block-returns-nxdomain` for the remaining mapping question). {{response-codes}} {{nxdomain-caution}}
+{{console-actions}} Plain Block is silent, and which API enum value it maps to is open {{gap:block-returns-nxdomain}}. {{console-actions-current}} {{response-codes}} {{nxdomain-caution}}
 
-Redirects: {{redirect-response}} {{redirect-protocol-translation}} {{resolve-by-zpa-scope}} {{logging-and-eun}}
+**Redirects.** {{redirect-response}} {{redirect-protocol-translation}} {{resolve-by-zpa-scope}} {{logging-and-eun}}
 
-The API is wider. {{api-enum}} Some actions need companion fields. {{validator-requirements}} Do not treat that as an API rule yet. {{validator-inactive}} Whether a rule missing a companion field is accepted, rejected or behaves oddly at the service is unverified; when diagnosing, check the companion field for the action first. Intended use cases (split DNS, sinkhole, steering) are unconfirmed (gap `redirect-use-cases`). Field meanings: {{field-comments}} {{edns-general}}
+{{api-enum}} {{validator-requirements}} {{validator-inactive}} Intended use cases for the redirect actions are open {{gap:redirect-use-cases}}. {{field-comments}} {{edns-general}}
 
-Block with a response: {{block-response-code}} The console codes are known but their API format is not (gap `block-response-code-values`), and the SDKs word the trigger differently (divergence `block-response-wording`). Open binding questions: `redirect-ip-binding`, `redir-req-gateway`, `edns-ecs-zpa-pairing`.
+**Block with a response.** {{block-response-code}} The API format of the response codes is open {{gap:block-response-code-values}}, and the SDKs word the trigger differently {{divergence:block-response-wording}}.
+
+Whether redirectIp applies only to REDIR_RES {{gap:redirect-ip-binding}}, whether plain REDIR_REQ needs a gateway {{gap:redir-req-gateway}}, and whether ednsEcsObject must accompany zpaIpGroup {{gap:edns-ecs-zpa-pairing}} are all open.
 
 DoH-specific actions and the DoH protocol value are discussed in [[zia.dns-control.doh]]; the ZPA resolver rules are in [[zia.dns-control.predefined-rules]] (no page states which API action they use). Wire keys and client behavior: [[zia.dns-control.api-rules]].

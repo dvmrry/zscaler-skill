@@ -274,6 +274,7 @@ function subjectBundle(g, subjectId, ov, ctx) {
       id: subjectId, title: s.title,
       ...(s.aliases ? { aliases: s.aliases } : {}),
       related: (s.related || []).map((r) => ({ ...r, title: titleOf(g, r.to) })),
+      ...(s.checks ? { checks: s.checks.map((c) => ({ do: c.do, uses: c.uses.map((u) => (g.nodes.has(u) ? u : `${subjectId}:${u}`)) })) } : {}),
       prose,
     },
     claims,
@@ -337,6 +338,13 @@ export function renderProse(g, subjectId, { footnotes = true } = {}) {
     const mark = footnotes ? `[^${n}]` : `[${local}]`;
     return ref ? mark : `${claim.statement} ${mark}`;
   });
+  // A gap or divergence is listed with the subject; the prose points at it.
+  out = out.replace(/\{\{(gap|divergence):([a-z0-9]+(?:-[a-z0-9]+)*)\}\}/g, (_, kind, local) => {
+    const item = node.data[`${kind}s`]?.[local];
+    if (!item) return `{{${kind}:${local}}}`;
+    if (!footnotes) return `[${kind}:${local}]`;
+    return kind === "gap" ? `(open gap \`${local}\`)` : `(divergence \`${local}\`)`;
+  });
   out = out.replace(/\[\[([^\]\s]+)\]\]/g, (_, id) => (g.nodes.has(id) ? `[${titleOf(g, id)}](kb:${id})` : `[[${id}]]`));
   return { text: out, order };
 }
@@ -348,6 +356,11 @@ export function renderSubject(g, subjectId) {
   const { text, order } = renderProse(g, subjectId, { footnotes: true });
   const parts = [`# ${s.title}`, "", `\`${subjectId}\``, ""];
   if (text) parts.push(text, "");
+  if (s.checks) {
+    parts.push("## What to check", "");
+    s.checks.forEach((c, i) => parts.push(`${i + 1}. ${c.do} (${c.uses.map((u) => `\`${u}\``).join(", ")})`));
+    parts.push("");
+  }
   const claims = Object.keys(s.claims || {});
   const further = claims.filter((c) => !order.includes(c));
   if (further.length) {

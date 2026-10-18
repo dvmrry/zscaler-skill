@@ -22,20 +22,20 @@ On the Private Service Edge Groups page (Configuration & Control > Private Infra
 - Refresh the page to reflect the most current information.
 - Expand one row or all rows in the table to see details about each group.
   - View Private Service Edge group details.
-    - Persist Local Version Profile: Indicates whether a Private Service Edge group is enabled or disabled to persist the local version profile.
-    - Location: The location where the Private Service Edge group, which the Private Service Edge belongs to, is set up.
-    - Location Coordinates: The latitude and longitude of the Private Service Edge group location.
-    - Publicly Accessible: Indicates whether the Private Service Edge group with specific trusted networks mapping is also available publicly for all users outside these trusted networks. It is important to ensure the Private Service Edge is reachable over a public IP address if you need remote users to be able to connect to it.
-    - Client Connector Trusted Networks: Your organization's trusted networks that are mapped to the Private Service Edge group. Use this option to prioritize Private Service Edges matching the given trusted network when users connect from those trusted networks.
-    - Private Service Edge Provisioning Keys: The key used to identify the Private Service Edge group to which a Private Service Edge must deploy. You can click the Copy icon to copy the provisioning key.
-    - Private Service Edges: A list of deployed Private Service Edges that are included in the group. You can click a Private Service Edge to edit it.
-    - Description: The description of the Private Service Edge group.
-    - Disaster Recovery: Whether the Private Service Edge group is enabled for disaster recovery.
+    - **Persist Local Version Profile**: Indicates whether a Private Service Edge group is enabled or disabled to persist the local version profile.
+    - **Location:** The location where the Private Service Edge group, which the Private Service Edge belongs to, is set up.
+    - **Location Coordinates:** The latitude and longitude of the Private Service Edge group location.
+    - **Publicly Accessible:** Indicates whether the Private Service Edge group with specific trusted networks mapping is also available publicly for all users outside these trusted networks. It is important to ensure the Private Service Edge is reachable over a public IP address if you need remote users to be able to connect to it.
+    - **Client Connector Trusted Networks:** Your organization's trusted networks that are mapped to the Private Service Edge group. Use this option to prioritize Private Service Edges matching the given trusted network when users connect from those trusted networks.
+    - **Private Service Edge Provisioning Keys:** The key used to identify the Private Service Edge group to which a Private Service Edge must deploy. You can click the **Copy** icon to copy the provisioning key.
+    - **Private Service Edges:** A list of deployed Private Service Edges that are included in the group. You can click a Private Service Edge to edit it.
+    - **Description:** The description of the Private Service Edge group.
+    - **Disaster Recovery**: Whether the Private Service Edge group is enabled for disaster recovery.
 - View a list of all Private Service Edge groups. For each group, you see:
-  - Name: The name of the Private Service Edge group.
-  - Status: Whether the Private Service Edge group is enabled or disabled.
-  - Version Profile: The version profile of the Private Service Edge group.
-  - Next Periodic Software Update: The date and time of the next periodic software update for all the Private Service Edges within the group.
+  - **Name**: The name of the Private Service Edge group.
+  - **Status**: Whether the Private Service Edge group is enabled or disabled.
+  - **Version Profile**: The version profile of the Private Service Edge group.
+  - **Next Periodic Software Update**: The date and time of the next periodic software update for all the Private Service Edges within the group.
 - Modify the columns displayed in the table.
 - Edit the Private Service Edge group.
 - Delete the Private Service Edge group.

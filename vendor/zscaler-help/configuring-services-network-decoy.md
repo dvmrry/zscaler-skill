@@ -9,193 +9,193 @@
 Services are interactive components that simulate the functionality of legitimate systems, such as web pages, Gen AI applications, etc. Configuring services on a network decoy makes it look like a genuine resource to attackers. It lures the attackers to interact with the decoy and enables threat detection. This article describes how to customize services such as Generative AI (Gen AI), Web, SSH, Telnet, SCADA/IoT, and FTP on a network decoy.
 To configure services:
 - Stop the decoys.
-- Go to Deceive > Network Decoys.
-- Select the Internal or Zero Trust Network tab.
-- Click Add Decoys to create a new decoy, or click the Edit icon for an existing decoy.
+- Go to **Deceive** > **Network Decoys**.
+- Select the **Internal** or **Zero Trust Network** tab.
+- Click **Add Decoys** to create a new decoy, or click the **Edit** icon for an existing decoy.
 - See image.
-- In the Network Decoy Detail window, select the Services tab and configure the following services:
+- In the **Network Decoy Detail** window, select the **Services** tab and configure the following services:
   - Gen AI
-    - Enable GenAI.
-    - Under General, choose one of the following Gen AI application dataset types from the Type of Application drop-down menu:
+    - Enable **GenAI**.
+    - Under **General**, choose one of the following Gen AI application dataset types from the **Type of Application** drop-down menu:
       - Static
-        - Application Datasets: Select a Gen AI static application dataset.
-        - Web Server Banner: Select a banner. You can also click Create Web Server Type, enter the value that must be used for the banner message in the Name field, and then click Save to create a banner.
-        - Under Ports, enter the port number and enable or disable SSL for each port per your requirements.
-        - (Optional) Under Certificate Settings:
-          - SSL Certificate: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
-          - SSL Private Key: Upload an unencrypted SSL private key in the PEM format.
+        - **Application Datasets**: Select a Gen AI static application dataset.
+        - **Web Server Banner**: Select a banner. You can also click **Create Web Server Type**, enter the value that must be used for the banner message in the **Name** field, and then click **Save** to create a banner.
+        - Under **Ports**, enter the port number and enable or disable **SSL** for each port per your requirements.
+        - (Optional) Under **Certificate Settings**:
+          - **SSL Certificat**e: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
+          - **SSL Private Key**: Upload an unencrypted SSL private key in the PEM format.
           - The Zscaler Deception Admin Portal doesn't support encrypted private keys for custom SSL certificates.
-          - Favorites Title (Browser Lures): Enter a favorite title to be displayed in browser favorites.
-          - Cookie Name (Browser Lures): Enter a cookie name.
-        - Under Response Headers:
-          - Enable Security Headers: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the Gen AI service.
-          - Enable HTTP Strict-Transport-Policy Response Header: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the Gen AI service.
-        - Under Custom Response Headers:
-          - Click Add to add custom response headers that you can use to manipulate the HTTP response headers. The custom response headers are visible in a browser when an adversary accesses an Internal decoy. Custom headers make the decoy look realistic, so that an adversary engages with the decoy for a longer time.
+          - **Favorites Title (Browser Lures)**: Enter a favorite title to be displayed in browser favorites.
+          - **Cookie Name (Browser Lures)**: Enter a cookie name.
+        - Under **Response Headers**:
+          - **Enable Security Headers**: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the Gen AI service.
+          - **Enable HTTP Strict-Transport-Policy Response Header**: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the Gen AI service.
+        - Under **Custom Response Headers:**
+          - Click **Add** to add custom response headers that you can use to manipulate the HTTP response headers. The custom response headers are visible in a browser when an adversary accesses an Internal decoy. Custom headers make the decoy look realistic, so that an adversary engages with the decoy for a longer time.
           - Enter the custom header key and value.
         - See image.
       - High Interaction
-        - High Interaction Dataset: Select a Gen AI high-interaction container.
-        - Model Name: Select an AI model name. An AI model is a program trained to identify patterns, process information, and make decisions with little human intervention. You can add model names according to your organization's use case by configuring Gen AI model names in a datalist.
-        - System Prompt: Edit the text per your requirements. The system prompt outlines the chatbot's behavior and provides initial instructions to guide its responses. Deception provides a default system prompt and automatically retrieves some details. For example, the customer's name is automatically populated, and if Private Access (ZPA) is enabled for a customer, the domain names configured in the Zscaler Admin Console are automatically populated.
+        - **High Interaction Dataset**: Select a Gen AI high-interaction container.
+        - **Model Name**: Select an AI model name. An AI model is a program trained to identify patterns, process information, and make decisions with little human intervention. You can add model names according to your organization's use case by configuring Gen AI model names in a datalist.
+        - **System Prompt**: Edit the text per your requirements. The system prompt outlines the chatbot's behavior and provides initial instructions to guide its responses. Deception provides a default system prompt and automatically retrieves some details. For example, the customer's name is automatically populated, and if Private Access (ZPA) is enabled for a customer, the domain names configured in the Zscaler Admin Console are automatically populated.
         - See image.
-        - Under Decoy Type, choose one of the following decoy types to customize the decoy:
-          - Select API to use APIs that are fully compatible with OpenAI specifications. Optionally, enable Authentication. When enabled, adversaries can leverage decoy credentials deployed via browser lures or file decoys to authenticate the API, and then use the returned bearer token to access other APIs that provide functionalities such as chat completion and model retrieval.
+        - Under **Decoy Type**, choose one of the following decoy types to customize the decoy:
+          - Select **API** to use APIs that are fully compatible with OpenAI specifications. Optionally, enable **Authentication**. When enabled, adversaries can leverage decoy credentials deployed via browser lures or file decoys to authenticate the API, and then use the returned bearer token to access other APIs that provide functionalities such as chat completion and model retrieval.
           - See image.
-          - Select UI to configure the decoy user interface (UI).
-            - (Optional) Enable Authentication.
-            - Under Customize Theme:
-              - Mode: Select Light or Dark to configure the background theme for the UI.
-              - Header Color: Select a color for the header, or enter a hexadecimal color code and click Add to include it in the palette. If you add multiple custom colors, only the last selected and saved color is applied and persists. When you close and reopen the modal, the palette displays the default colors along with the last selected and saved custom color.
-              - Icon Color: Enter a hexadecimal color code for the Edit icon.
-              - Brand Name: Enter the company or brand name to display.
-              - Brand Color: Enter a hexadecimal color code to configure the color for the company or brand name.
-              - Surface Color: Enter a hexadecimal color code (e.g., #FFC0CB) or linear gradient (e.g., linear-gradient(to right, #c471f5, #fa71cd)) for the surface color.
-              - Background: Enter a hexadecimal color code (e.g., #FFC0CB) or linear gradient (e.g., linear-gradient(to right, #c471f5, #fa71cd)) for the background color.
-              - SVG Icon: Upload a company or brand logo in SVG format.
+          - Select **UI** to configure the decoy user interface (UI).
+            - (Optional) Enable **Authentication**.
+            - Under **Customize Theme**:
+              - **Mode**: Select **Light** or **Dark** to configure the background theme for the UI.
+              - **Header Color**: Select a color for the header, or enter a hexadecimal color code and click **Add** to include it in the palette. If you add multiple custom colors, only the last selected and saved color is applied and persists. When you close and reopen the modal, the palette displays the default colors along with the last selected and saved custom color.
+              - **Icon Color**: Enter a hexadecimal color code for the **Edit** icon.
+              - **Brand Name**: Enter the company or brand name to display.
+              - **Brand Color**: Enter a hexadecimal color code to configure the color for the company or brand name.
+              - **Surface Color**: Enter a hexadecimal color code (e.g., #FFC0CB) or linear gradient (e.g., linear-gradient(to right, #c471f5, #fa71cd)) for the surface color.
+              - **Background**: Enter a hexadecimal color code (e.g., #FFC0CB) or linear gradient (e.g., linear-gradient(to right, #c471f5, #fa71cd)) for the background color.
+              - **SVG Icon**: Upload a company or brand logo in SVG format.
             - See image.
-            - Click Preview to review your customizations before deploying the decoy.
+            - Click **Preview** to review your customizations before deploying the decoy.
             - See image.
-            - If Authentication is enabled and the decoy is deployed, then adversaries are required to access the decoy via a login page using credentials deployed via browser lures or file decoys.
+            - If **Authentication** is enabled and the decoy is deployed, then adversaries are required to access the decoy via a login page using credentials deployed via browser lures or file decoys.
             - See image.
-        - Under Ports, enter the port number.
-        - (Optional) Under Certificate Settings:
-          - SSL Certificate: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
-          - SSL Private Key: Upload an unencrypted SSL private key in the PEM format.
+        - Under **Ports**, enter the port number.
+        - (Optional) Under **Certificate Settings**:
+          - **SSL Certificat**e: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
+          - **SSL Private Key**: Upload an unencrypted SSL private key in the PEM format.
           - The Deception Admin Portal doesn't support encrypted private keys for custom SSL certificates.
-        - Under Response Headers:
-          - Enable Security Headers: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the Gen AI service.
-          - Enable HTTP Strict-Transport-Policy Response Header: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the Gen AI service.
+        - Under **Response Headers**:
+          - **Enable Security Headers**: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the Gen AI service.
+          - **Enable HTTP Strict-Transport-Policy Response Header**: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the Gen AI service.
         - See image.
       - Adaptive
       - An adaptive Gen AI application is an interactive application that dynamically adjusts to attackers' requests and provides tailored responses using AI. It addresses attacks such as SQL injection, exfiltration of exposed cloud credentials (e.g., https://<application server>/.aws/credentials), etc., by adapting to the requests and generating contextually appropriate responses that lure attackers into entering various crafted malicious intent requests.
-        - High Interaction Dataset: Select a Gen AI high-interaction container.
-        - Model Name: Select an AI model name. An AI model is a program trained to identify patterns, process information, and make decisions with little human intervention. You can add model names according to your organization's use case by configuring Gen AI model names in a datalist.
-        - Under Ports, enter the port number and enable or disable SSL for each port per your requirements.
-        - (Optional) Under Certificate Settings:
-          - SSL Certificate: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
-          - SSL Private Key: Upload an unencrypted SSL private key in the PEM format.
+        - **High Interaction Dataset**: Select a Gen AI high-interaction container.
+        - **Model Name**: Select an AI model name. An AI model is a program trained to identify patterns, process information, and make decisions with little human intervention. You can add model names according to your organization's use case by configuring Gen AI model names in a datalist.
+        - Under **Ports**, enter the port number and enable or disable **SSL** for each port per your requirements.
+        - (Optional) Under **Certificate Settings**:
+          - **SSL Certificat**e: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
+          - **SSL Private Key**: Upload an unencrypted SSL private key in the PEM format.
           - The Deception Admin Portal doesn't support encrypted private keys for custom SSL certificates.
-        - Under Response Headers:
-          - Enable Security Headers: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the Gen AI service.
-          - Enable HTTP Strict-Transport-Policy Response Header: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the Gen AI service.
-        - Under Custom Response Headers:
-          - Click Add to add custom response headers that you can use to manipulate the HTTP response headers. The custom response headers are visible in a browser when an adversary accesses an Internal decoy. Custom headers make the decoy look realistic, so that an adversary engages with the decoy for a longer time.
+        - Under **Response Headers**:
+          - **Enable Security Headers**: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the Gen AI service.
+          - **Enable HTTP Strict-Transport-Policy Response Header**: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the Gen AI service.
+        - Under **Custom Response Headers:**
+          - Click **Add** to add custom response headers that you can use to manipulate the HTTP response headers. The custom response headers are visible in a browser when an adversary accesses an Internal decoy. Custom headers make the decoy look realistic, so that an adversary engages with the decoy for a longer time.
           - Enter the custom header key and value.
         - See image.
       - MCP Server
       - An MCP (Model Context Protocol) Server Gen AI application allows you to create an MCP server decoy that mimics a standard MCP server. A standard MCP server acts as middleware, bridging AI applications to external systems and data sources via the MCP protocol.
       - In Deception, the MCP server decoy integrates an AI application or a Large Language Model (LLM) chatbot with various applications, such as Google, Salesforce, Confluence, Jira, etc. Each application contains multiple decoy tools. To learn more, see Supported MCP Server Decoy Applications and Tools. A decoy tool defines a specific operation, and an AI application can invoke it based on user requests. For example, an LLM chatbot can use decoy tools to access Confluence for document retrieval or query databases for real-time information and provide a response. Any AI application that works with the MCP protocol, such as the MCP Inspector, can interact with these decoy tools in the MCP server.
       - The AI application or LLM chatbot generates fake responses using these decoy tools. The Deception Admin Portal automatically leverages the hostnames of the deployed decoys (e.g., Threat Intelligence (TI), Zero Trust Network) and provides this information to the AI application. This allows the AI application to embed these hostnames into the tool's responses, thereby deflecting attackers to other decoys within the customer's environment.
-        - MCP Server Name: Enter the MCP server name.
-        - MCP Server Version: Enter the MCP server version.
-        - MCP Server Applications: Select one or more MCP applications from the drop-down menu.
-        - Under Ports, enter the port number and enable or disable SSL for each port per your requirement.
-        - (Optional) Under Certificate Settings:
-          - SSL Certificate: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
-          - SSL Private Key: Upload an unencrypted SSL private key in the PEM format.
+        - **MCP Server Name**: Enter the MCP server name.
+        - **MCP Server Version**: Enter the MCP server version.
+        - **MCP Server Applications**: Select one or more MCP applications from the drop-down menu.
+        - Under **Ports**, enter the port number and enable or disable SSL for each port per your requirement.
+        - (Optional) Under **Certificate Settings**:
+          - **SSL Certificate**: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
+          - **SSL Private Key**: Upload an unencrypted SSL private key in the PEM format.
           - The Deception Admin Portal doesn't support encrypted private keys for custom SSL certificates.
         - See image.
   - Web
-    - Enable Web.
-    - Under General, choose one of the following web application types from the Type of Application drop-down menu:
+    - Enable **Web**.
+    - Under **General**, choose one of the following web application types from the **Type of Application** drop-down menu:
       - Static
-        - Application Dataset: Select a static dataset from the drop-down menu.
-        - Web Server Banner: Select a banner. You can also click Create Web Server Type, enter the value that must be used for the banner message in the Name field, and then click Save to create a banner.
+        - **Application Dataset**: Select a static dataset from the drop-down menu.
+        - **Web Server Banner**: Select a banner. You can also click **Create Web Server Type**, enter the value that must be used for the banner message in the **Name** field, and then click **Save** to create a banner.
         - See image.
       - Dynamic
-        - Dynamic Dataset: Select a dynamic dataset from the drop-down menu.
-        - Server Type: Select a server. You can also click Create Web Server Type, enter the name of the server, and then click Save to create a server.
+        - **Dynamic Dataset**: Select a dynamic dataset from the drop-down menu.
+        - **Server Type**: Select a server. You can also click **Create Web Server Type**, enter the name of the server, and then click **Save** to create a server.
         - See image.
       - High Interaction
-        - High Interaction Dataset: Select a high-interaction dataset from the drop-down menu.
+        - **High Interaction Dataset**: Select a high-interaction dataset from the drop-down menu.
         - See image.
-    - Under Ports, enter the port number and enable or disable SSL for each port per your requirement.
-    - (Optional) Under Certificate Settings:
-      - SSL Certificate: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
-      - SSL Private Key: Upload an unencrypted SSL private key in the PEM format.
+    - Under **Ports**, enter the port number and enable or disable **SSL** for each port per your requirement.
+    - (Optional) Under **Certificate Settings**:
+      - **SSL Certificat**e: Upload an SSL certificate in the privacy-enhanced mail (PEM) format.
+      - **SSL Private Key**: Upload an unencrypted SSL private key in the PEM format.
       - Deception Admin Portal doesn't support encrypted private keys for custom SSL certificates.
-      - Favorites Title (Browser Lures): Enter a favorite title to be displayed in browser favorites.
-      - Cookie Name (Browser Lures): Enter a cookie name.
-    - Under Response Headers:
-      - Enable Security Headers: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the Gen AI service.
-      - Enable HTTP Strict-Transport-Policy Response Header: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the Gen AI service.
-    - Under Custom Response Headers:
-      - Click Add to add custom response headers that you can use to manipulate the HTTP response headers. The custom response headers are visible in a browser when an adversary accesses an Internal decoy. Custom headers make the decoy look realistic, so that an adversary engages with the decoy for a longer time.
+      - **Favorites Title (Browser Lures)**: Enter a favorite title to be displayed in browser favorites.
+      - **Cookie Name (Browser Lures)**: Enter a cookie name.
+    - Under **Response Headers**:
+      - **Enable Security Headers**: Select to add HTTP security headers, such as X-Content-Type-Options, Referrer-Policy, Permissions-Policy, and Content-Security-Policy to the Gen AI service.
+      - **Enable HTTP Strict-Transport-Policy Response Header**: Select to add the HTTP Strict-Transport-Security (HSTS) response header to the Gen AI service.
+    - Under **Custom Response Headers**:
+      - Click **Add** to add custom response headers that you can use to manipulate the HTTP response headers. The custom response headers are visible in a browser when an adversary accesses an Internal decoy. Custom headers make the decoy look realistic, so that an adversary engages with the decoy for a longer time.
       - Enter the custom header key and value.
     - See image.
   - Shares
-    - Enable Shares.
-    - In the SMB Banner section, choose one of the following options:
-      - From the SMB Banner from the drop-down menu, select an option.
-      - To create a custom SMB banner, click Create SMB Banner. In the Create SMB Banner window:
-        - Name: Enter the value that must be used for the banner message.
-        - Operating System: Select the operating system from the drop-down menu.
-        - Click Save.
+    - Enable **Shares**.
+    - In the **SMB Banner** section, choose one of the following options:
+      - From the **SMB Banner** from the drop-down menu, select an option.
+      - To create a custom SMB banner, click **Create SMB Banner**. In the **Create SMB Banner** window:
+        - **Name**: Enter the value that must be used for the banner message.
+        - **Operating System**: Select the operating system from the drop-down menu.
+        - Click **Save**.
       - See image.
-      - (Optional) Enable Admin$ share to create an Admin$ shared folder. This option is shown only for Windows-specific SMB banners.
-      - (Optional) Enable C$ share to create a C$ shared folder. This option is shown only for Windows-specific SMB banners.
-      - (Optional) Enable Guest Accessible to allow access to the shared folder with guest access privileges.
-      - Disable Guest Accessible to specify custom user credentials for accessing the shared folder.
+      - (Optional) Enable **Admin$ share** to create an Admin$ shared folder. This option is shown only for Windows-specific SMB banners.
+      - (Optional) Enable **C$ share** to create a C$ shared folder. This option is shown only for Windows-specific SMB banners.
+      - (Optional) Enable **Guest Accessible** to allow access to the shared folder with guest access privileges.
+      - Disable **Guest Accessible** to specify custom user credentials for accessing the shared folder.
       - See image.
     - See image.
-    - Under File Shares, click Add to add a shared folder:
-      - Folder Name: Enter a folder name.
-      - Read Only: Enable or disable per your requirements.
-      - Comment: (Optional) Enter a comment for your reference.
-      - File Dataset: Select a dynamic or static dataset.
+    - Under **File Shares**, click **Add** to add a shared folder:
+      - **Folder Name**: Enter a folder name.
+      - **Read Only**: Enable or disable per your requirements.
+      - **Comment**: (Optional) Enter a comment for your reference.
+      - **File Dataset**: Select a dynamic or static dataset.
     - See image.
   - FTP
-    - Enable FTP.
+    - Enable **FTP**.
     - Choose one of the following options:
-      - From the Banner drop-down menu, select an option.
-      - To create a custom FTP banner, click Create FTP Banner. In the Create FTP Banner window:
-        - Name: Enter the value that must be used for the banner message.
-        - Operating System: Select the operating system from the drop-down menu.
-        - Click Save.
+      - From the **Banner** drop-down menu, select an option.
+      - To create a custom FTP banner, click **Create FTP Banner**. In the **Create FTP Banner** window:
+        - **Name**: Enter the value that must be used for the banner message.
+        - **Operating System**: Select the operating system from the drop-down menu.
+        - Click **Save**.
       - See image.
-    - Select a preconfigured application or a service you want to deploy on the decoy from the Pre-configured Application/Service drop-down menu.
+    - Select a preconfigured application or a service you want to deploy on the decoy from the **Pre-configured Application/Service** drop-down menu.
     - See image.
   - SSH
-    - Enable SSH.
-    - Select an operating system (OS) from the Operating System drop-down menu.
-    - In the Banner field, enter the text for the decoy. The banner text is visible when the decoy is accessed via SSH.
+    - Enable **SSH**.
+    - Select an operating system (OS) from the **Operating System** drop-down menu.
+    - In the **Banner** field, enter the text for the decoy. The banner text is visible when the decoy is accessed via SSH.
     - See image.
   - Telnet
-    - Enable Telnet.
-    - Select an operating system (OS) from the Operating System drop-down menu.
-    - In the Banner field, enter the text for the decoy. The banner text is visible when the decoy is accessed via telnet.
+    - Enable **Telnet**.
+    - Select an operating system (OS) from the **Operating System** drop-down menu.
+    - In the **Banner** field, enter the text for the decoy. The banner text is visible when the decoy is accessed via telnet.
     - See image.
   - Windows
-    - Enable Windows.
-    - Select a Windows virtual machine from the Virtual Machine drop-down menu.
+    - Enable **Windows**.
+    - Select a Windows virtual machine from the **Virtual Machine** drop-down menu.
     - See image.
   - AMQP, MQTT, MySQL, PostgreSQL, MongoDB, and RADIUS
-  - Enable the respective services, and click Submit. No additional configuration is required for these services.
+  - Enable the respective services, and click **Submit**. No additional configuration is required for these services.
   - When enumerating AMQP, the default credentials pair (admin/admin) is supported for authentication.
   - See image.
   - SCADA/IoT
-    - Enable SCADA/IoT.
-    - Select an application or service you want to deploy on the decoy from the Pre-configured Application/Service drop-down menu.
+    - Enable **SCADA/IoT**.
+    - Select an application or service you want to deploy on the decoy from the **Pre-configured Application/Service** drop-down menu.
     - See image.
   - Custom
   - A custom service enables you to add a TCP or UDP port to the network decoy. You can enable multiple TCP and UDP ports on a single network decoy. You can configure a custom service dataset, which includes a customizable banner, request, and response. A custom service dataset mimics network signatures of systems, which use proprietary text or binary-based protocols that run on customized ports.
-    - Enable Custom Service.
-    - Click Add.
-    - In the Port field, enter a port number.
-    - Choose a protocol from the Protocol drop-down menu:
-      - Select UDP.
+    - Enable **Custom Service**.
+    - Click **Add**.
+    - In the **Port** field, enter a port number.
+    - Choose a protocol from the **Protocol** drop-down menu:
+      - Select **UDP**.
       - See image.
-      - Select TCP:
-        - Select an application dataset from the Dataset drop-down menu.
-        - Enable or disable Keep Connection Open per the decoy application's requirement.
+      - Select **TCP**:
+        - Select an application dataset from the **Dataset** drop-down menu.
+        - Enable or disable **Keep Connection Open** per the decoy application's requirement.
         - See image.
   - Custom Docker
-    - Enable Custom Dockers.
-    - Select a docker dataset from the Custom Docker Dataset drop-down menu.
+    - Enable **Custom Dockers**.
+    - Select a docker dataset from the **Custom Docker Dataset** drop-down menu.
     - See image.
 - See image.
-- Click Submit to save the configuration.
+- Click **Submit** to save the configuration.
 - Start the decoys.
-To disable a service, you can deselect it and click Submit to save the changes.
+To disable a service, you can deselect it and click **Submit** to save the changes.
 See image.

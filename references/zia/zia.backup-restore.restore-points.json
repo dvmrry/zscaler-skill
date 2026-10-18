@@ -19,6 +19,22 @@
       "to": "zia.audit-logs.what-is-recorded"
     }
   ],
+  "checks": [
+    {
+      "do": "How many restore points exist, and whether the point you need is the golden one, before a change window.",
+      "uses": [
+        "limit-12",
+        "golden"
+      ]
+    },
+    {
+      "do": "Whether a scheduled backup is due that would evict the point you need, since the oldest point is removed to make room.",
+      "uses": [
+        "scheduled-evicts",
+        "golden"
+      ]
+    }
+  ],
   "claims": {
     "manual-or-scheduled": {
       "statement": "Backups are created manually on demand or automatically on a schedule in the Admin Console; each restore point records the date and time its backup was created.",

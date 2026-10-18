@@ -22,6 +22,27 @@
       "to": "zia.authentication.frequency"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the tenant uses an OIDC external IdP, since step-up is not available with Hosted DB or SAML alone.",
+      "uses": [
+        "oidc-only",
+        "not-for-hosted-saml"
+      ]
+    },
+    {
+      "do": "Whether each authentication level is mapped to its acr value in the IdP.",
+      "uses": [
+        "oidc-only"
+      ]
+    },
+    {
+      "do": "Whether the failing rule sits in a policy that the step-up flow applies to.",
+      "uses": [
+        "flow"
+      ]
+    }
+  ],
   "claims": {
     "what-it-is": {
       "statement": "Step-up authentication prompts a user to re-authenticate at a higher assurance level, typically with MFA, when accessing a sensitive resource. It is configured with authentication levels that are hierarchical: higher levels are stronger, and a user authenticated at a higher level satisfies policies requiring a sub-level. The levels are mapped to access policies in supported Zscaler services.",

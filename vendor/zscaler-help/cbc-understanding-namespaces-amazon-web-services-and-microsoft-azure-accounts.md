@@ -21,14 +21,14 @@ Namespaces influence AWS accounts by:
 - Applying security policies based on tags even when the tags are associated with overlapping IP addresses.
 See image.
 In the diagram, there are three AWS accounts (Acct_1, Acct_2, and Acct_3). The VPC in Acct_1 has an overlapping IP address range with the VPC in Acct_2. The VPC in Acct_3 is the security VPC that has the Cloud Connectors deployed. You want to use the user-defined tags on workloads in Acct_1 and Acct_2 in Zscaler policies. They tag the Acct_1 VPC with zs:namespace=project-green. The AWS admin tags the Acct_2 VPC with zs:namespace=project-blue. The Zscaler discovery service reads the accounts and VPC tags to create the following mapping:
-| Endpoint ID | Namespace |
+| **Endpoint ID** | **Namespace** |
 |---|---|
 | vpce-111 | project-blue |
 | vpce-222 | project-blue |
 | vpce-333 | project-green |
 | vpce-444 | project-green |
 The Zscaler discovery service also fetches the IP addresses and the associated tags to create the following mapping for the same IP address present in both VPCs:
-| IP Address | VPC Endpoint | Tag Index | Tag List |
+| **IP Address** | **VPC Endpoint** | **Tag Index** | **Tag List** |
 |---|---|---|---|
 | 172.31.0.1 | vpce-111 | 172.31.0.1+project-green | Tag-A, Tag-B |
 | 172.31.0.1 | vpce-444 | 172.31.0.1+project-blue | Tag-C, Tag-D |

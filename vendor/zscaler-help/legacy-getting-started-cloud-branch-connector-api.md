@@ -8,11 +8,11 @@
 
 Your organization must meet the following prerequisites before you can access the Zscaler Cloud & Branch Connector API:
 - You must enable the API for your organization. To enable the API, contact Zscaler Support or submit a Zscaler Support ticket.
-- You must have your Admin Role configured with API Key Management permission in the Zscaler Cloud & Branch Connector Admin Portal.
+- You must have your Admin Role configured with **API Key Management** permission in the Zscaler Cloud & Branch Connector Admin Portal.
 - You must add an API key.
 Once these prerequisites are met, you can:
 - Access your base URL and API key
-- You can access your base URL and API key from the API Key Management page (Administration > API Key Management) in the Zscaler Cloud & Branch Connector Admin Portal. To learn more, see API Key Management.
+- You can access your base URL and API key from the **API Key Management** page (**Administration** > **API Key Management**) in the Zscaler Cloud & Branch Connector Admin Portal. To learn more, see API Key Management.
 - Authenticate and create an API session
   - Obfuscate the API key using one of the following obfuscateApiKey() implementation methods:
   - PHP

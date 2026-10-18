@@ -23,6 +23,58 @@
       "to": "zia.terraform.error-handling"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether an earlier create of the same resource type failed its post-POST read, when an apply hangs or a rule lands in the wrong place.",
+      "uses": [
+        "undone-entry-hangs-later-waiters",
+        "create-registers-before-read-sites"
+      ]
+    },
+    {
+      "do": "Whether the resource shares a registry key with a different resource or rule type, since the callbacks then judge rules they cannot list.",
+      "uses": [
+        "traffic-capture-create-uses-firewall-key",
+        "cloud-app-control-one-key-for-all-types",
+        "mixed-subtype-cycle-skips-rules",
+        "rule-type-order-scope"
+      ]
+    },
+    {
+      "do": "Which resource type registered first under a shared key, when a rule of another type does not take its order in a mixed apply.",
+      "uses": [
+        "mixed-subtype-cycle-skips-rules",
+        "cloud-app-control-one-key-for-all-types"
+      ]
+    },
+    {
+      "do": "Whether a rule deleted earlier in the run is still registered under its key.",
+      "uses": [
+        "registry-entries-are-never-removed",
+        "deleted-rules-skew-later-cycles"
+      ]
+    },
+    {
+      "do": "Whether the rule's rank differs from its declared rank, which the worker reports on every pass without repairing.",
+      "uses": [
+        "rank-mismatch-never-repaired"
+      ]
+    },
+    {
+      "do": "Whether a create that posts at the staging order collides with an existing rule's order.",
+      "uses": [
+        "staging-order-collision-effect",
+        "staging-order-never-reserved",
+        "duplicate-order-on-create"
+      ]
+    },
+    {
+      "do": "Whether the policy's order and rank match the declared values after an apply: re-read every rule in the policy rather than trusting the apply result.",
+      "uses": [
+        "zia.terraform.rule-order:wrong-order-reported-success"
+      ]
+    }
+  ],
   "claims": {
     "registry-key-is-a-string": {
       "statement": "All ZIA rule resources share one in-process registry, `rules`, whose entries are keyed only by a resource-type string chosen by the calling resource. A cycle's background worker is started by the first registration under a key, with that registration's `getCurrent` and `updateOrder` closures; a registration that finds the cycle open only adds its rule to the registry, and its own closures are never used.",

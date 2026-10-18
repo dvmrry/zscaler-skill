@@ -2,4 +2,4 @@ The temptation when an app breaks on pinning or inspection is to bypass the CDN 
 
 If one bucket, container or distribution really must be exempt: {{exact-subdomain-only}} {{parent-exemption-is-exfil-path}}
 
-Whether `googleusercontent.com` belongs on the list is open (gap `googleusercontent-wildcard`). What stops working for traffic that is exempted is in [[zia.ssl-inspection.bypass-impact]]; where a Cloud Application exists, prefer it to a hand-maintained domain list.
+Whether `googleusercontent.com` belongs on the list is open {{gap:googleusercontent-wildcard}}. What stops working for traffic that is exempted is in [[zia.ssl-inspection.bypass-impact]]; where a Cloud Application exists, prefer it to a hand-maintained domain list.

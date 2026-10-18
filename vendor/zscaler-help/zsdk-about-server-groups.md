@@ -17,10 +17,10 @@ On the Server Groups page (Configuration & Control > Private Infrastructure > Se
 - Add a new server group.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all server groups defined for your organization. For each server group, you can see:
-  - Name: The server group name.
-  - Status: Whether the server group is enabled or disabled.
-  - Dynamic Server Discovery: Whether the server group has Dynamic Server Discovery enabled or disabled. To learn more, see Managing Server Groups.
-  - App Connector Groups: The App Connector groups that have access to the data center or virtual private cloud that contains the servers in this server group. To learn more, see About App Connector Groups.
+  - **Name**: The server group name.
+  - **Status**: Whether the server group is enabled or disabled.
+  - **Dynamic Server Discovery**: Whether the server group has Dynamic Server Discovery enabled or disabled. To learn more, see Managing Server Groups.
+  - **App Connector Groups**: The App Connector groups that have access to the data center or virtual private cloud that contains the servers in this server group. To learn more, see About App Connector Groups.
 - View a configuration graph of connected objects.
 - Edit an existing server group.
 - Delete a server group.

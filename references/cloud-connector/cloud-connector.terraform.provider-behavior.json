@@ -34,6 +34,43 @@
       "to": "shared.sdk-go.auth-lifecycle"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a removed description is really removed on the server after editing one of the nine resources, since the diff is suppressed when the new text is empty.",
+      "uses": [
+        "multiline-diff-suppress-ignores-clears",
+        "multiline-helpers-on-nine-resources"
+      ]
+    },
+    {
+      "do": "Whether a plan run after applying a description containing `$` comes back clean.",
+      "uses": [
+        "multiline-normalizer-doubles-dollar",
+        "dollar-description-diff"
+      ]
+    },
+    {
+      "do": "Whether a rule created or updated through these resources matches the intent: read it back from the API and compare the ZPA IP group (DNS rules) and the network application groups (forwarding rules).",
+      "uses": [
+        "dns-rule-zpa-ip-group-dropped",
+        "forwarding-rule-no-nw-application-groups",
+        "omitted-zpa-ip-group-on-write",
+        "omitted-nw-application-groups"
+      ]
+    },
+    {
+      "do": "Which field decides whether a location can be changed, since the data source's non_editable attribute is never set.",
+      "uses": [
+        "location-management-non-editable-never-set"
+      ]
+    },
+    {
+      "do": "Whether the provider release is identified by the tag that was installed, not by the version string in a request log.",
+      "uses": [
+        "version-metadata-user-agent"
+      ]
+    }
+  ],
   "claims": {
     "configure-builds-client-twice": {
       "statement": "Provider configuration builds the SDK client twice. `providerConfigure` first calls `loadClients`, which builds a client through `zscalerSDKV3Client` and stores it on the config, then calls `Client()`, which builds a second client through the same function and returns that one to Terraform. `Client()` never uses the stored client. The legacy-client branch does the same with `zscalerSDKV2Client`.",

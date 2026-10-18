@@ -19,7 +19,7 @@ On the Tag Management page (Zero Trust Cloud > Microsegmentation > Tag Managemen
 - Add a tag.
 - Show or hide available columns.
 - View a list of all tags configured for your namespace.
-- Click an individual tag key to view its Tag Details.
+- Click an individual tag key to view its **Tag Details**.
 - See image.
 - Edit a tag.
 - Delete a tag.

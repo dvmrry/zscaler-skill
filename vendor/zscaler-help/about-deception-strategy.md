@@ -16,12 +16,12 @@ Deception Strategy provides the following benefits and enables you to:
 # About the Deception Strategy Page
 On the Deception Strategy page (Miragemaker > Strategy Builder > Deception Strategy), you can do the following:
 - View a list of all the strategies. For each strategy, you can view:
-  - Name: The name of the strategy.
-  - Description: The description of the strategy.
-  - Network Decoys: The personalities or tags used for creating network decoys.
-  - Threat Intelligence (TI): The personalities or tags used in the TI decoy.
-  - Active Directory: The personalities or tags used in the AD decoy.
-  - Landmine: The personalities used on endpoints.
+  - **Name**: The name of the strategy.
+  - **Description**: The description of the strategy.
+  - **Network Decoys**: The personalities or tags used for creating network decoys.
+  - **Threat Intelligence (TI)**: The personalities or tags used in the TI decoy.
+  - **Active Directory**: The personalities or tags used in the AD decoy.
+  - **Landmine**: The personalities used on endpoints.
 - Create a strategy.
 - Export strategies.
 - Download a strategy.

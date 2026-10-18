@@ -14,15 +14,15 @@ Zscaler Client Connector Forwarding Profiles provide the following benefits and 
 - Save time locating a profile using the Search feature.
 - Easily manage existing profiles using view, edit, copy, and delete features.
 Zscaler Client Connector recognizes the following network environments:
-- On-Trusted Network: When a user is connected to a private network that belongs to your organization. To allow the app to detect this network, you must set the Trusted Network Criteria.
-- VPN-Trusted Network: When a user is connected to a trusted network through a VPN in full-tunnel mode. The VPN must be configured to capture all, and not just some, of the user's traffic to the trusted network by installing a default route in the routing table of the client device.
+- **On-Trusted Network**: When a user is connected to a private network that belongs to your organization. To allow the app to detect this network, you must set the Trusted Network Criteria.
+- **VPN-Trusted Network**: When a user is connected to a trusted network through a VPN in full-tunnel mode. The VPN must be configured to capture all, and not just some, of the user's traffic to the trusted network by installing a default route in the routing table of the client device.
 - The app does not consider the network a VPN-Trusted network and treats the user as connected to an Off-Trusted Network in the following scenarios:
   - The VPN doesn't install a default route and uses some other mechanism to capture all of the user's traffic.
   - The default interface description does not contain the words Cisco, Juniper, Fortinet, PanGP, or VPN.
   - macOS does not check the interface description for keywords. Instead, it only checks if the VPN created an utun, PPP, or GPD interface.
   - The VPN runs in split-tunnel mode, so that the app takes only some of the user traffic. The VPN can do this by only installing routes for some subnets (e.g., 10/8 or 192.168/16) or by installing a DNS on the device to resolve specific requests.
-- Off-Trusted Network: When a user is connected to an untrusted network.
-- Split VPN-Trusted Network: When a user is connected to a trusted network in split-tunnel mode through a VPN. The app does not consider the network a Split VPN-Trusted Network if:
+- **Off-Trusted Network**: When a user is connected to an untrusted network.
+- **Split VPN-Trusted Network**: When a user is connected to a trusted network in split-tunnel mode through a VPN. The app does not consider the network a Split VPN-Trusted Network if:
   - The VPN runs as a default adapter.
   - The VPN interface description does not contain the words Cisco, Juniper, Fortinet, PanGP, or VPN. If these words are missing, the app treats the user as connected to an Off-Trusted Network.
   - The defined Trusted Network Criteria evaluated against the VPN adapter does not match.
@@ -37,12 +37,12 @@ On the Forwarding Profile page (Infrastructure > Client Connector > Forwarding P
 - Copy an existing forwarding profile that you can customize to create a new profile.
 - Delete a forwarding profile.
 - View the default forwarding profile.
-- If you don't configure additional forwarding profiles, Zscaler provides a default forwarding profile that is applied automatically. It is always the last forwarding profile in the table on the Forwarding Profile page. Click the View icon to see the profile's settings.
+- If you don't configure additional forwarding profiles, Zscaler provides a default forwarding profile that is applied automatically. It is always the last forwarding profile in the table on the Forwarding Profile page. Click the **View** icon to see the profile's settings.
 ## Default Forwarding Profile Action for Internet & SaaS
-  - On-Trusted Network: When the user is connected to a trusted network, Zscaler Client Connector uses the Tunnel mode to forward user traffic to Zscaler. It also disables System Proxy settings so that users cannot change proxy settings to bypass Zscaler Client Connector for internet security.
-  - VPN-Trusted Network: When a VPN client on the user's device is running in full-tunnel mode, the app does not forward user traffic to Zscaler. All proxy settings are disabled to ensure users do not send their traffic to a different proxy.
-  - Off-Trusted Network: When the user is off a trusted network, the app uses the Tunnel mode to forward user traffic to Zscaler. It also disables System Proxy settings so that users cannot change proxy settings to bypass the app for internet security.
+  - **On-Trusted Network**: When the user is connected to a trusted network, Zscaler Client Connector uses the Tunnel mode to forward user traffic to Zscaler. It also disables System Proxy settings so that users cannot change proxy settings to bypass Zscaler Client Connector for internet security.
+  - **VPN-Trusted Network**: When a VPN client on the user's device is running in full-tunnel mode, the app does not forward user traffic to Zscaler. All proxy settings are disabled to ensure users do not send their traffic to a different proxy.
+  - **Off-Trusted Network**: When the user is off a trusted network, the app uses the Tunnel mode to forward user traffic to Zscaler. It also disables System Proxy settings so that users cannot change proxy settings to bypass the app for internet security.
 ## Default Forwarding Profile Action for Private Access
-  - On-Trusted Network: Zscaler Client Connector uses the Private Access service to provide users with access to internal applications even when users are on trusted networks.
-  - VPN-Trusted Network: Private Access is disabled, and the app does not provide users with access to internal applications.
-  - Off-Trusted Network: The app uses the Private Access service to provide users with access to internal applications even when users are on trusted networks.
+  - **On-Trusted Network**: Zscaler Client Connector uses the Private Access service to provide users with access to internal applications even when users are on trusted networks.
+  - **VPN-Trusted Network**: Private Access is disabled, and the app does not provide users with access to internal applications.
+  - **Off-Trusted Network**: The app uses the Private Access service to provide users with access to internal applications even when users are on trusted networks.

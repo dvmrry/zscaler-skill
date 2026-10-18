@@ -17,10 +17,10 @@ On the Rule Labels page (Internet Access > Resources > Rule Labels), you can do 
 - Edit a rule label.
 - Delete a rule label.
 - View a list of all configured rule labels. For each rule label, you can see and sort the following:
-- Name: The name of the rule label that is displayed when configuring a policy rule.
-- Number of Policies and Rules Tagged: The number of policies and rules with which the rule label is associated.
-- Last Modified By: The name of the user who last modified the rule label.
-- Last Modified On: The date and time on which the rule label was last modified.
-- Description: The description of the rule label if available.
+- **Name**: The name of the rule label that is displayed when configuring a policy rule.
+- **Number of Policies and Rules Tagged**: The number of policies and rules with which the rule label is associated.
+- **Last Modified By**: The name of the user who last modified the rule label.
+- **Last Modified On**: The date and time on which the rule label was last modified.
+- **Description**: The description of the rule label if available.
 - Add a rule label.
 You can delete a rule label only if it's not associated with any policy rule.

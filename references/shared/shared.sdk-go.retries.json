@@ -16,6 +16,16 @@
       "to": "zia.sdk-go.write-encoding"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a provider build carries SDK v3.8.43 or later, which decides whether an operator sees the API's own error and whether a retried write keeps its body.",
+      "uses": [
+        "provider-sdk-pins",
+        "exhaustion-hid-api-error-before-3-8-43",
+        "outer-retry-reused-consumed-body-before-3-8-43"
+      ]
+    }
+  ],
   "claims": {
     "retry-policy-ignores-method": {
       "statement": "The SDK's OneAPI client decides whether to retry from the response or error only, never from the HTTP method: its policy retries configured status codes and edit-lock conflicts, then defers to the retryablehttp default. From v3.8.43 it also stops retrying a 5xx that carries a deterministic API verdict; before that, every 5xx except 501 was retried.",

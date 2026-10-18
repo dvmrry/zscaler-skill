@@ -38,6 +38,38 @@
       "to": "zpa.sdk-go.service-defects"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the remote object matches the configuration after an apply on these resources, by reading it from the API rather than trusting state.",
+      "uses": [
+        "cloud-config-read-error-is-success",
+        "capabilities-read-never-clears",
+        "pra-console-read-never-clears-application",
+        "lss-read-drops-policy-rule-resource"
+      ]
+    },
+    {
+      "do": "Whether the remote schedule setting is read directly after create, import or destroy, since an empty resource ID is the first symptom of the create path.",
+      "uses": [
+        "schedule-create-discards-server-id",
+        "schedule-read-never-sets-id",
+        "schedule-delete-is-noop"
+      ]
+    },
+    {
+      "do": "Whether the object exists and holds the first request's changes before a failed multi-request write is retried.",
+      "uses": [
+        "private-cloud-create-then-fire-drill-put",
+        "user-code-verification-after-write"
+      ]
+    },
+    {
+      "do": "Whether an imported provisioning key of an association type the import does not probe was actually found, rather than assuming its type was read.",
+      "uses": [
+        "zpa.sdk-go.service-defects:provisioning-key-all-associations-fixed-list"
+      ]
+    }
+  ],
   "claims": {
     "schedule-create-discards-server-id": {
       "statement": "Creating the Service Edge assistant schedule discards the object the SDK returns from the POST, then stores the ID of the request as the resource ID. The request ID was read from the resource's own computed `id`, which is empty on a first create, so the first-create path sets an empty ID. Only the already-exists branch sets the real ID, by reading the singleton. An empty ID after create probably makes Terraform report an inconsistent result rather than record the resource (Terraform core behavior, inferred, not shown here).",

@@ -7,4 +7,4 @@ A Virtual Service Edge (VSE) is the software form factor of an on-premises Servi
 5. **Who runs it day to day?** Upgrades, who can see it, logging and hardening: [[zia.virtual-service-edge.upgrades]], [[zia.virtual-service-edge.operations]].
 6. **What does it not do, and how is it automated?** [[zia.virtual-service-edge.limits]], [[zia.virtual-service-edge.api-surface]].
 
-The hardware form factor is a different operating model with different limits: [[zia.private-service-edge]]. Do not reuse its sizing or its Zscaler-managed assumptions here.
+The hardware form factor is a different operating model with different limits: [[zia.private-service-edge]].

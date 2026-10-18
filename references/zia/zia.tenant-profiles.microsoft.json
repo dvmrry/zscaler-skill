@@ -38,6 +38,27 @@
       "to": "zia.tenant-profiles.api-surface"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the profile version matches the tenant, since whether a Version 1 profile on a Version 2 tenant fails open is an open question.",
+      "uses": [
+        "v1-for-v2-tenant-fails-open",
+        "two-versions"
+      ]
+    },
+    {
+      "do": "Whether every profile associated with one rule shares one tenant directory ID.",
+      "uses": [
+        "caveats"
+      ]
+    },
+    {
+      "do": "Whether the login services are decrypted, before reading the profile.",
+      "uses": [
+        "zia.tenant-profiles.ssl-prerequisite:ssl-rule-required"
+      ]
+    }
+  ],
   "claims": {
     "two-versions": {
       "statement": "A Microsoft Login Services profile is Version 1 or Version 2. Version 1 takes a Tenant Directory ID plus Office 365 tenant names or IDs. Version 2 takes a single Tenant Directory ID:Policy ID value.",

@@ -32,6 +32,27 @@
       "to": "zia.scim.setup"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether auto-provisioning is on for the IdP.",
+      "uses": [
+        "create-update"
+      ]
+    },
+    {
+      "do": "What the IdP actually puts in the SAML response, against the login name, group and department the service reads.",
+      "uses": [
+        "response-limits",
+        "attribute-scope"
+      ]
+    },
+    {
+      "do": "Whether SCIM is also enabled on the same IdP.",
+      "uses": [
+        "scim-excludes"
+      ]
+    }
+  ],
   "claims": {
     "create-update": {
       "statement": "With SAML auto-provisioning a user missing from the database is added, with the group and department values from the SAML response, activated, and policies are enforced. For an existing user the display name, group and department in the response update the database, and values absent from the response are removed from the database.",

@@ -11,16 +11,16 @@ DSPM aggregates security data and prioritizes risk based on severity, coupled wi
 DSPM is robust and extends data security for cloud resources and on-premises data centers. It provides complete visibility into data flows, blocks unsanctioned apps, and eliminates risks, enabling granular control over sensitive data. This helps prevent accidental exposure, overly permissive or unauthorized access, and potential compliance violations.
 # Key Features and Benefits
 DSPM includes the following key features and benefits:
-- Monitor data: Continuous data monitoring for any potential risks or vulnerabilities.
-- Secure sensitive data: Discover sensitive data and its access level in your cloud environments, perform AI-powered data classification based on severity, threat category, and identify areas of exposure.
-- Policy and compliance: Implement security policies to comply with stringent security and privacy regulations (e.g., GDPR, NIST).
-- Incident response: Expedite identification, investigation, containment, and recovery in the event of a security incident.
-- Data duplication: Detect duplicate files at multiple locations to manage redundant data, reduce attack surface, and limit exposure to unauthorized users.
+- **Monitor data**: Continuous data monitoring for any potential risks or vulnerabilities.
+- **Secure sensitive data**: Discover sensitive data and its access level in your cloud environments, perform AI-powered data classification based on severity, threat category, and identify areas of exposure.
+- **Policy and compliance**: Implement security policies to comply with stringent security and privacy regulations (e.g., GDPR, NIST).
+- **Incident response**: Expedite identification, investigation, containment, and recovery in the event of a security incident.
+- **Data duplication**: Detect duplicate files at multiple locations to manage redundant data, reduce attack surface, and limit exposure to unauthorized users.
 # How Does DSPM Work?
 DSPM comprises the following features to achieve continuous security, compliance, and governance for data in your cloud infrastructure:
-- Scan and monitor cloud and on-premises resources: Works with minimal access to resources in cloud environments (AWS, Azure, and GCP), on-premises data centers, and discovers sensitive data.
-- Agentless deep scanning: Uses an agentless approach to continuously scan resources (cloud storage, databases, virtual machines, on-premises data centers).
-- Detect data misconfigurations: Scans data for any vulnerabilities such as data exposure, publicly exposed sensitive data, over-privileged access to data without proper role-based access control (RBAC), sensitive data exposed to unmanaged services and models, etc.
-- Apply security policies: Identifies security policy violations at the resource and data level. It also provides a complete mapping of security policies within various compliance frameworks.
-- Dashboard, graphs, and reports: Intuitive dashboards, graphs, and analytical reports provide detailed insights into the risks and issues associated with sensitive data.
-- Remediate issues: Provides remediation for every issue, enabling you to immediately take action and maintain a strong cloud data security posture for your organization.
+- **Scan and monitor cloud and on-premises resources**: Works with minimal access to resources in cloud environments (AWS, Azure, and GCP), on-premises data centers, and discovers sensitive data.
+- **Agentless deep scanning**: Uses an agentless approach to continuously scan resources (cloud storage, databases, virtual machines, on-premises data centers).
+- **Detect data misconfigurations**: Scans data for any vulnerabilities such as data exposure, publicly exposed sensitive data, over-privileged access to data without proper role-based access control (RBAC), sensitive data exposed to unmanaged services and models, etc.
+- **Apply security policies**: Identifies security policy violations at the resource and data level. It also provides a complete mapping of security policies within various compliance frameworks.
+- **Dashboard, graphs, and reports**: Intuitive dashboards, graphs, and analytical reports provide detailed insights into the risks and issues associated with sensitive data.
+- **Remediate issues**: Provides remediation for every issue, enabling you to immediately take action and maintain a strong cloud data security posture for your organization.

@@ -8,7 +8,7 @@
 
 Zscaler Zero Trust Gateways are supported in the following regions:
 # Amazon Web Services
-| Region Code | Display Name | Location |
+| **Region Code** | **Display Name** | **Location** |
 |---|---|---|
 | us-east-1 | US East (N. Virginia) | Virginia, USA |
 | us-east-2 | US East (Ohio) | Ohio, USA |
@@ -29,7 +29,7 @@ Zscaler Zero Trust Gateways are supported in the following regions:
 | sa-east-1 | South America (São Paulo) | São Paulo, Brazil |
 | me-south-1 | Middle East (Bahrain) | Bahrain |
 # Google Cloud Platform
-| Region Code | Location |
+| **Region Code** | **Location** |
 |---|---|
 | us-west1 | Oregon, USA |
 | us-west2 | Los Angeles, California, USA |

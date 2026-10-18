@@ -27,6 +27,28 @@
       "to": "zia.terraform.activation"
     }
   ],
+  "checks": [
+    {
+      "do": "How many rules still hold the label, by reading `referencedRuleCount`, before trying a delete.",
+      "uses": [
+        "help-delete-constraint"
+      ]
+    },
+    {
+      "do": "Which rules of each rule type still reference the label before a destroy, and clear the label from them.",
+      "uses": [
+        "terraform-delete-detaches-firewall-rules-only",
+        "help-delete-constraint"
+      ]
+    },
+    {
+      "do": "Whether those rules were re-read after the destroy.",
+      "uses": [
+        "terraform-delete-detaches-firewall-rules-only",
+        "referenced-label-delete-api"
+      ]
+    }
+  ],
   "claims": {
     "help-delete-constraint": {
       "statement": "The help text states that a rule label can be deleted only if it is not associated with any policy rule.",

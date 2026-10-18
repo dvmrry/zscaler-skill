@@ -30,6 +30,34 @@
       "to": "shared.sdk-go.zero-value-writes"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a key of one of the two unprobed association types must be managed, by creating it in Terraform, or left unmanaged.",
+      "uses": [
+        "provider-provisioning-key-schema-and-importer",
+        "provisioning-key-all-associations-fixed-list"
+      ]
+    },
+    {
+      "do": "Whether `frequency_interval` is valid before a schedule update, since an empty or invalid value fails the same way as a disabled schedule.",
+      "uses": [
+        "provider-schedule-resources-pass-enabled-through"
+      ]
+    },
+    {
+      "do": "Whether the error reads `cannot update a disabled schedule` before a failed schedule update is attributed to the server.",
+      "uses": [
+        "assistant-schedule-update-rejects-disabled"
+      ]
+    },
+    {
+      "do": "Whether a lookup by a name containing punctuation failed with `no ... named ... was found`, which points at the search sanitizer.",
+      "uses": [
+        "search-sanitizer-strips-name-characters",
+        "provider-segment-group-lookups-use-sanitized-search"
+      ]
+    }
+  ],
   "claims": {
     "provisioning-key-all-associations-fixed-list": {
       "statement": "The provisioning-key lookups that do not take an association type (`GetByNameAllAssociations`, `GetByIDAllAssociations`) iterate a fixed SDK list of three association types: CONNECTOR_GRP, SERVICE_EDGE_GRP, NP_ASSISTANT_GRP. They also treat any error from one type's lookup (not only not-found) as a reason to try the next, and return the last attempt's error. A key stored under any other association type cannot be found through these helpers.",

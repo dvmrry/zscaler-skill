@@ -17,15 +17,15 @@ On the Azure page (Zero Trust Cloud > Common Resources > Azure), you can do the 
 - Add an Azure account.
 - Search for an account.
 - View a list of all accounts. For each account, you can view:
-  - Application ID: The ID of the Azure application. Select the application ID to view the dashboard details.
-  - Name: The name of the account.
-  - Last Modified By: The last admin to modify the account.
-  - Last Modified On: The date and time when the account was last modified.
-  - Regions: The number of regions in the account.
-  - Subscriptions: The number of subscriptions in the account.
-  - Cloud Connectors: The number of Cloud Connectors in the account.
-  - Event Grid: The number of event grids in the account.
-  - You can select the Regions, Subscriptions, Cloud Connectors, or Event Grid number in an account to view the dashboard details.
+  - **Application ID**: The ID of the Azure application. Select the application ID to view the dashboard details.
+  - **Name**: The name of the account.
+  - **Last Modified By**: The last admin to modify the account.
+  - **Last Modified On**: The date and time when the account was last modified.
+  - **Regions**: The number of regions in the account.
+  - **Subscriptions**: The number of subscriptions in the account.
+  - **Cloud Connectors**: The number of Cloud Connectors in the account.
+  - **Event Grid**: The number of event grids in the account.
+  - You can select the **Regions**, **Subscriptions**, **Cloud Connectors**, or **Event Grid** number in an account to view the dashboard details.
 - Modify the table and its columns.
 - Edit an account.
 - Delete an account.

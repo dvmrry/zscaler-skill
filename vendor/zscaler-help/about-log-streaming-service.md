@@ -41,7 +41,7 @@ A log receiver can capture several log types.
   - Private Cloud Controller Metrics: Information related to a Private Cloud Controller's metrics. To learn more, see Understanding Private Cloud Controller Metrics Log Fields.
   - Private Cloud Controller Status: Information related to a Private Cloud Controller's availability and connection to Private Access. To learn more, see Understanding Private Cloud Controller Status Log Fields.
   - User Status - VPN Service Edge (IP Address Reservation): Information related to a user status for VPN (ZPA Service Edge). To learn more, see Understanding User Status - VPN Service Edge (IP Address Reservation) Log Fields.
-  - User Status - [[variable:vpn-service-edge]]: Information related to a user status for VPN Service Edge. To learn more, see Understanding User Status - VPN Service Edge Log Fields.
+  - User Status - [[variable:vpn-service-edge]**]**: Information related to a user status for VPN Service Edge. To learn more, see Understanding User Status - VPN Service Edge Log Fields.
   - Traffic Flow - VPN: Information related to VPN traffic flow metrics. To learn more, see Understanding Traffic Flow for VPN (for Legacy Apps) Log Fields.
   - Private Service Edge Metrics: Information related to a Private Service Edge's metrics. To learn more, see Understanding Private Service Edge Metrics Log Fields.
   - Private Service Edge Status: Information related to a Private Service Edge's availability and connection to Private Access. To learn more, see Understanding Private Service Edge Status Log Fields.
@@ -79,19 +79,19 @@ On the Log Receivers page (Data Explorer > Log Streaming > Log Receivers), you c
 - Refresh the Log Receivers page to reflect the most current information.
 - Modify the columns displayed in the table.
 - View a list of all log receivers that are configured for your organization. For each receiver, you can see:
-  - Name: The name of the receiver. Click the name to view details for each Log Receiver.
-    - Name: The name of the Log Receiver.
-    - Description: The description of the log receiver.
-    - Domain Name or IP Address: The destination address of the server that collects the logs (e.g., your SIEM collector).
-    - TCP Port: The TCP port that the log receiver is listening on for incoming log streams.
-    - TLS Encryption: The status of whether the log receiver is secured using TLS.
-    - Log Type: The specific category of data you want to stream. Each type represents a different data source.
-    - App Connector Groups: The App Connector group that sends the logs to the log receiver.
-    - Log Stream Content: Defines the exact structure and fields included in each log message.
-  - Domain Name or IP Address: The domain name or IP address for the receiver.
-  - TCP Port: The TCP port number for the receiver.
-  - TLS Encryption: Indicates that TLS encryption is enabled or disabled for the receiver.
-  - Log Type: The log type the receiver is capturing (e.g., User Activity, User Status, App Connector Status, Browser Access).
+  - **Name**: The name of the receiver. Click the name to view details for each Log Receiver.
+    - **Name**: The name of the Log Receiver.
+    - **Description**: The description of the log receiver.
+    - **Domain Name or IP Address**: The destination address of the server that collects the logs (e.g., your SIEM collector).
+    - **TCP Port**: The TCP port that the log receiver is listening on for incoming log streams.
+    - **TLS Encryption**: The status of whether the log receiver is secured using TLS.
+    - **Log Type**: The specific category of data you want to stream. Each type represents a different data source.
+    - **App Connector Groups**: The App Connector group that sends the logs to the log receiver.
+    - **Log Stream Content**: Defines the exact structure and fields included in each log message.
+  - **Domain Name or IP Address**: The domain name or IP address for the receiver.
+  - **TCP Port**: The TCP port number for the receiver.
+  - **TLS Encryption**: Indicates that TLS encryption is enabled or disabled for the receiver.
+  - **Log Type**: The log type the receiver is capturing (e.g., **User Activity**, **User Status**, **App Connector Status**, **Browser Access**).
 - Copy a log receiver's configuration and use it to create a new configuration.
 - Edit a log receiver.
 - Delete a log receiver.

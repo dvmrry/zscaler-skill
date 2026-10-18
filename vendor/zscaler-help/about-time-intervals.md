@@ -23,6 +23,6 @@ On the Time Intervals page (Internet Access > Resources > Time Intervals), you c
 - Search for a configured time interval.
 - Modify the table and its columns.
 - View a list of all configured time intervals:
-  - Name: The name of the time interval. You can sort this column.
-  - Timeframe: The days of the week and the time of day.
+  - **Name:** The name of the time interval. You can sort this column.
+  - **Timeframe:** The days of the week and the time of day.
 - Edit or delete a time interval.

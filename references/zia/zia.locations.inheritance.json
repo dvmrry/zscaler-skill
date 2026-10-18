@@ -41,6 +41,23 @@
       "to": "zia.authentication.location-enforcement"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the setting is parent-only in the API, and what the console shows for it, before assuming a sublocation has its own value.",
+      "uses": [
+        "parent-only-fields",
+        "console-sublocation-firewall-toggles",
+        "sublocation-firewall-source"
+      ]
+    },
+    {
+      "do": "Each setting on a new sublocation against its parent, since whether most settings are inherited is open.",
+      "uses": [
+        "inherit-everything",
+        "surrogate-not-inherited"
+      ]
+    }
+  ],
   "claims": {
     "parent-only-fields": {
       "statement": "The OpenAPI schema marks `ofwEnabled` (Enable Firewall), `ipsControl`, `xffForwardEnabled`, `ports`, `vpnCredentials`, `ipv6Enabled` and `ipv6Dns64Prefix` as applying to top-level locations only. For a sublocation `xffForwardEnabled` is read-only and inherited from the parent.",

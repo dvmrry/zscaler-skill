@@ -15,20 +15,20 @@ VM[(Environment = Prod) OR (SecurityGroup = Load Balancer)] AND VPC[(Region = Eu
 The workloads with user-defined tags and attributes that match the expression are considered a part of workload group A. Therefore, when workload group A is added as a criterion in the Internet & SaaS policies, the traffic from the workloads under workload group A is forwarded by Cloud Connectors to the Zero Trust Exchange (ZTE), and the selected security policies are applied.
 Ensure that your organization has a subscription to one of the Workloads SKUs and an account with Cloud & Branch Connector in the Zscaler Admin Console. When subscribed, contact Zscaler Support to enable the Workload Discovery Service Endpoint to access the Workload Groups feature.
 # Workload Resources
-Workload groups are created using hierarchical scopes, meaning each workload inherits the tags (key-value pair) from the VPC, subnet, VM, and Network Interface resources. When creating workload groups, if you select the tag type Any, you can add tags from any of the resources. However, if there is a conflict with the tags such as duplication of tag keys, you need to choose the appropriate resource to specify that tag.
+Workload groups are created using hierarchical scopes, meaning each workload inherits the tags (key-value pair) from the VPC, subnet, VM, and Network Interface resources. When creating workload groups, if you select the tag type **Any**, you can add tags from any of the resources. However, if there is a conflict with the tags such as duplication of tag keys, you need to choose the appropriate resource to specify that tag.
 For example, let us consider a Bastion host having different tags (key-value pair) than the other workloads you have configured. The VPC resource tag type has a tag APP=ACME (key-value pair). However, for the same tag type, the Bastion host has the tag APP=Bastion. In this case, the workload inherits both the tags, and the tag key is duplicated. To resolve this conflict, you can provide alternate permissions by selecting the tag on the VM resource tag type. Then, specify the VM as the tag type for the workload. The tag APP=Bastion is only considered based on the hierarchical scopes.
 Zscaler supports the following tag types or resources:
 - Network Interface
 - Subnet
 - VM
 - VPC
-Zscaler also provides an Attribute as a tag type. The user does not define an attribute through tags. However, it is defined by a cloud service provider such as AWS. Zscaler supports the following attributes:
-- GroupId: The ID of the security group assigned to the attached Elastic Network Interface (ENI). This can identify the AWS Lambda function workload.
-- GroupName: The name of the security group assigned to the attached ENI.
-- ImageId: The ID of the image used to launch the instance.
-- PlatformDetails: The platform. Zscaler also supports AWS Lambda and other services when not used in the context of EC2.
-- Vpc-id: The ID of the virtual private cloud (VPC) that ENI runs in.
-- The Vpc-id attribute as a tag type is different from the VPC resource tag type. When configuring a workload expression, if you select the Attribute tag type, and then select Vpc-id as the tag key, then you must add the VPC ID given by AWS as the tag value. However, if you select the VPC resource tag type instead of Attribute, and then select Vpc-id as the tag key, you can add any user-defined tag value for the Vpc-id key.
-- IamInstanceProfile-Arn: The Amazon Resource Name (ARN) of the IAM instance profile.
+Zscaler also provides an **Attribute** as a tag type. The user does not define an attribute through tags. However, it is defined by a cloud service provider such as AWS. Zscaler supports the following attributes:
+- **GroupId**: The ID of the security group assigned to the attached Elastic Network Interface (ENI). This can identify the AWS Lambda function workload.
+- **GroupName**: The name of the security group assigned to the attached ENI.
+- **ImageId**: The ID of the image used to launch the instance.
+- **PlatformDetails**: The platform. Zscaler also supports AWS Lambda and other services when not used in the context of EC2.
+- **Vpc-id**: The ID of the virtual private cloud (VPC) that ENI runs in.
+- The Vpc-id attribute as a tag type is different from the VPC resource tag type. When configuring a workload expression, if you select the **Attribute** tag type, and then select Vpc-id as the tag key, then you must add the VPC ID given by AWS as the tag value. However, if you select the **VPC** resource tag type instead of Attribute, and then select Vpc-id as the tag key, you can add any user-defined tag value for the Vpc-id key.
+- **IamInstanceProfile-Arn**: The Amazon Resource Name (ARN) of the IAM instance profile.
 Every IP address discovered on an ENI contains all the user-defined tags from the tag types that Zscaler supports: Network Interface, Subnet, VM. and VPC. Additionally, the attributes derived from the workload are added to the Attributes list.
 The final expression of the workload group built using different tag types and key-value pairs displays a 2-dimensional table with a single operator in each row and column.

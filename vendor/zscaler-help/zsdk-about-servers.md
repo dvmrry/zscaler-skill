@@ -17,9 +17,9 @@ On the Servers page (Configuration & Control > Private Infrastructure > App Conn
 - Add a new server and explicitly define it to support one or more of your applications.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all servers that were explicitly defined for your organization. For each server, you can see:
-  - Name: The server name.
-  - Status: Whether the server is enabled or disabled.
-  - Domain or IP Address: The FQDN or IP address of the server.
+  - **Name**: The server name.
+  - **Status**: Whether the server is enabled or disabled.
+  - **Domain or IP Address**: The FQDN or IP address of the server.
 - Edit an existing server.
 - Delete a server.
 - Go to the Server Groups page to create server groups from servers you've defined previously, or to enable Dynamic Server Discovery, which allows ZSDK to discover the appropriate servers for your applications as users request them, as opposed to explicitly defining them.

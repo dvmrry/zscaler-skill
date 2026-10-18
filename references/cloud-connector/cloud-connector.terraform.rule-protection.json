@@ -21,6 +21,36 @@
       "to": "zia.terraform.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Which rules in the plan are predefined or default rules, before any destroy or resource-block removal in a configuration that manages Cloud Connector traffic rules: list the rule IDs in the plan.",
+      "uses": [
+        "destroy-sends-delete-for-protected-rules",
+        "resources-ignore-default-flag"
+      ]
+    },
+    {
+      "do": "Whether each rule's `defaultRule` or `predefined` flag is set, checked through the console or API, since the three resources never read that flag.",
+      "uses": [
+        "resources-ignore-default-flag"
+      ]
+    },
+    {
+      "do": "Whether the validators' fixed names match the predefined rules on the tenant, since they test the name only.",
+      "uses": [
+        "guards-match-fixed-names",
+        "log-guard-uses-dns-names",
+        "predefined-log-rule-names"
+      ]
+    },
+    {
+      "do": "Whether a destroy of a predefined rule would be refused, since the provider sends the delete without a check and the API's answer is open.",
+      "uses": [
+        "destroy-sends-delete-for-protected-rules",
+        "api-predefined-delete"
+      ]
+    }
+  ],
   "claims": {
     "guards-match-fixed-names": {
       "statement": "The forwarding-rule and DNS-rule resources each define a validator that rejects deletion of a rule only when its name is one of a short hard-coded list (for forwarding rules, six names such as \"ZPA Forwarding Rule\" and \"Client Connector to ZPA\"; for DNS rules, two). The validators test the name only, not any default or predefined flag on the rule.",

@@ -34,6 +34,28 @@
       "to": "zia.firewall.criteria"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the group's type matches the fields it sets, following the pairing rules.",
+      "uses": [
+        "field-pairing",
+        "pairing-not-enforced"
+      ]
+    },
+    {
+      "do": "Whether a rule still references the group before deleting it, since the delete helper sweeps firewall filtering rules only.",
+      "uses": [
+        "zia.terraform.delete-detach:helper-sweeps-firewall-filtering-rules-only",
+        "zia.terraform.delete-detach:helper-callers"
+      ]
+    },
+    {
+      "do": "Whether the override flag is set deliberately on an update that edits addresses, since the default replaces the existing set.",
+      "uses": [
+        "override-appends"
+      ]
+    }
+  ],
   "claims": {
     "type-values": {
       "statement": "A destination group's type is one of DSTN_IP, DSTN_FQDN, DSTN_DOMAIN or DSTN_OTHER. The Python SDK rejects any other value for the list filter and the MCP tool enforces the same four values on input.",

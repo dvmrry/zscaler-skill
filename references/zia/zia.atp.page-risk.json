@@ -38,6 +38,22 @@
       "to": "zia.atp.enforcement-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the logged riskscore of the blocked transaction is above the configured tolerance.",
+      "uses": [
+        "threshold-blocks-above",
+        "wire-range",
+        "zia.atp.block-diagnosis:riskscore-field"
+      ]
+    },
+    {
+      "do": "Whether the URL is in Security Exceptions, which the enforcement order checks before Page Risk.",
+      "uses": [
+        "zia.atp.enforcement-order:get-order"
+      ]
+    }
+  ],
   "claims": {
     "threshold-blocks-above": {
       "statement": "A single slider sets the organization's page risk tolerance. The service blocks users from web pages whose Page Risk Index score is higher than the value set, and the score is computed in real time.",

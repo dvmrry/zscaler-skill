@@ -1,4 +1,4 @@
-A rule's own decision and the places a match is reported are separate. Operators moving from another DLP product often expect a third party to be able to overrule the decision; here it cannot.
+A rule's own decision and the places a match is reported are separate.
 
 **The decision.** {{native-action}} The action and its enum are in [[zia.dlp.rules]] and [[zia.dlp.rule-wire-shape]].
 
@@ -10,4 +10,4 @@ A rule's own decision and the places a match is reported are separate. Operators
 
 **Email and end user notification.** {{notification-needs-both}} {{end-user-notification}}
 
-**Workflow Automation.** {{zwa-captures-incidents}} Do not assert how the incidents travel there; the ingest path is an open question (`zwa-ingest-path`).
+**Workflow Automation.** {{zwa-captures-incidents}} How ZWA ingests its incidents is open {{gap:zwa-ingest-path}}.

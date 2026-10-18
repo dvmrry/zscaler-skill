@@ -30,13 +30,13 @@ On the Browser Access page (Zero Trust Browser > Web Access > Browser Access), y
 - Expand all the rows in the table to see more information about each application.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all applications that were specifically configured for Browser Access within an application segment. For each application, you can see:
-  - Internal Domain: The name of the application. When expanded, the following information is displayed:
-    - Segment Group: The segment group that the application segment is a member of.
-    - Server Groups: The server groups that the application is hosted on.
-    - Canonical Name (CNAME): The canonical name associated to the application. You can click the Copy icon to copy the CNAME record to your clipboard.
-    - Certificate: The Browser Access (web server) certificate associated to the specified application.
-  - External Domain: The fully qualified domain name (FQDN) associated to the application.
-  - Application Protocol: The protocol (HTTPS or HTTP) used for the application.
-  - Application Port: The port number used for the application.
+  - **Internal Domain**: The name of the application. When expanded, the following information is displayed:
+    - **Segment Group**: The segment group that the application segment is a member of.
+    - **Server Groups**: The server groups that the application is hosted on.
+    - **Canonical Name (CNAME)**: The canonical name associated to the application. You can click the **Copy** icon to copy the CNAME record to your clipboard.
+    - **Certificate**: The Browser Access (web server) certificate associated to the specified application.
+  - **External Domain**: The fully qualified domain name (FQDN) associated to the application.
+  - **Application Protocol**: The protocol (HTTPS or HTTP) used for the application.
+  - **Application Port**: The port number used for the application.
 - Edit an application segment.
 - Delete an application.

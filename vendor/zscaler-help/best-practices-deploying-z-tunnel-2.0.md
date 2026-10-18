@@ -18,25 +18,25 @@ Following the best practices in this article can ensure successful deployment of
 - In the Zscaler Admin Console, identify and create a small group of users for testing Z-Tunnel 2.0. Groups you configure in User Management in Internet & SaaS are automatically available for selection in the Advanced Settings tab of Directory Sync & Custom Root Cert in Client Connector. You can also manually sync the groups between Internet & SaaS and Client Connector. To learn more, see Syncing Directory Groups in the Zscaler Admin Console.
 - To prevent confusion, Zscaler recommends creating a new forwarding profile for your Z-Tunnel 2.0 test. The forwarding profile policy determines what traffic Zscaler Client Connector captures from users’ devices. You enable the forwarding mechanism for Z-Tunnel 2.0 in this policy.
 - To enable Z-Tunnel 2.0, you must configure the following settings in the forwarding profile:
-  - Tunnel Driver Type: Select Packet Filter-Based.
-  - On-Trusted Network: Select Tunnel.
-  - Tunnel version selection: Select Z-Tunnel 2.0.
-  - VPN-Trusted Network and Off-Trusted Network: Select Same as "On-Trusted Network".
-- For testing purposes, Zscaler recommends that you don’t configure the VPN-Trusted Network and Off-Trusted Network forwarding profile actions. After initial testing, you can change the behavior for all network environments.
+  - **Tunnel Driver Type**: Select **Packet Filter-Based**.
+  - **On-Trusted Network:** Select **Tunnel**.
+  - **Tunnel version selection:** Select **Z-Tunnel 2.0**.
+  - **VPN-Trusted Network** and **Off-Trusted Network:** Select **Same as "On-Trusted Network"**.
+- For testing purposes, Zscaler recommends that you don’t configure the **VPN-Trusted Network** and **Off-Trusted Network** forwarding profile actions. After initial testing, you can change the behavior for all network environments.
 - For all other settings, keep the default. To learn more, see Configuring Forwarding Profiles for Zscaler Client Connector.
 - Don’t route Z-Tunnel 2.0 traffic through GRE tunnels. For on-premises environments with existing GRE infrastructure, implement one of the following options to prevent performance issues:
   - Configure the Zscaler Client Connector forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met.
   - Configure a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE tunnel.
 - Create a new app profile policy and associate your test users and the Z-Tunnel 2.0 forwarding profile to it.
 - To configure Z-Tunnel 2.0, you must configure the following in the app profile:
-  - Under General, select the following:
-    - Rule Order: Select 1 to ensure that your users receive this app profile before other profiles.
-    - Status: Select Enabled.
-    - Forwarding Profile: Select the forwarding profile you created for testing from the drop-down menu.
-    - Enable Install Zscaler SSL Certificate.
-  - Under Groups, select your test users group from the User Groups drop-down menu.
-  - Under Traffic Steering, on the PAC and Proxy tab, leave the Custom PAC URL field empty.
-  - Under Passwords, leave the Logout Password and Disable Password ZIA fields empty.
+  - Under **General**, select the following:
+    - **Rule Order**: Select **1** to ensure that your users receive this app profile before other profiles.
+    - **Status**: Select **Enabled**.
+    - **Forwarding Profile**: Select the forwarding profile you created for testing from the drop-down menu.
+    - Enable **Install Zscaler SSL Certificate**.
+  - Under **Groups**, select your test users group from the **User Groups** drop-down menu.
+  - Under **Traffic Steering**, on the **PAC and Proxy** tab, leave the **Custom PAC URL** field empty.
+  - Under **Passwords**, leave the **Logout Password** and **Disable Password ZIA** fields empty.
 - For all other settings, keep the default. To learn more, see Configuring Zscaler Client Connector App Profiles.
 - You can configure a Zscaler Client Connector Store app update to assign a supported Zscaler Client Connector version to your test users. To learn more, see Configuring an App Update in the Zscaler Client Connector App Store.
 - Phase 2: Block ICMP Traffic to Perform Initial Testing
@@ -48,7 +48,7 @@ Following the best practices in this article can ensure successful deployment of
   - Ping google.com to test this rule.
   - Verify that ICMP traffic is blocked on all logs.
 - Phase 3: Exclude Internal Network Ranges from Z-Tunnel 2.0
-- To exclude these ranges, you must add them to the IPv4 Exclusion or IPv6 Exclusion list in the app profile you created for testing. To learn more, see VPN Gateway Bypasses.
+- To exclude these ranges, you must add them to the **IPv4** **Exclusion** or **IPv6** **Exclusion** list in the app profile you created for testing. To learn more, see VPN Gateway Bypasses.
 - To learn more, see Configuring Zscaler Client Connector App Profiles.
 - Phase 4: Continue to Test the Group for One to Two Weeks
 - Continue to test this group of test users for one to two weeks.

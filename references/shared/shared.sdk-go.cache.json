@@ -19,6 +19,16 @@
       "to": "zia.url-filtering.list-pagination"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a stale result after a write from the same client, within the cache lifetime, is a cached read rather than a server fault.",
+      "uses": [
+        "write-invalidates-but-inflight-get-repopulates",
+        "parent-collection-invalidation",
+        "zia-provider-enables-cache"
+      ]
+    }
+  ],
   "claims": {
     "zia-provider-enables-cache": {
       "statement": "The ZIA Terraform provider turns on the SDK's response cache for its OneAPI client, with a 10-minute entry lifetime. The provider's \"idle timeout\" setting is actually the cache's cleanup interval, so an expired entry can survive until the next cleanup.",

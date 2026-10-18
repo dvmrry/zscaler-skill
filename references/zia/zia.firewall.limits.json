@@ -35,6 +35,22 @@
       "to": "zia.firewall.network-services"
     }
   ],
+  "checks": [
+    {
+      "do": "Which tier the tenant is on, since the standard tier has a 10-rule cap on Firewall Filtering.",
+      "uses": [
+        "filtering-rule-cap"
+      ]
+    },
+    {
+      "do": "Which cap the failing criterion hits, and whether that number comes from the product table or from the provider schema.",
+      "uses": [
+        "provider-caps",
+        "time-window-cap",
+        "workload-group-cap"
+      ]
+    }
+  ],
   "claims": {
     "filtering-rule-cap": {
       "statement": "Firewall Filtering is capped at 1,021 rules with Advanced Firewall and 10 on the standard tier. The row is labeled 'including DNAT' and notes up to 4,000 with strict criteria.",

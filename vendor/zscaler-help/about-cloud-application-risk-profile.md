@@ -20,10 +20,10 @@ On the Risk Profiles page (Data Security > Inline CASB > Risk Profiles), you can
 - Add a cloud application risk profile.
 - Modify the column option to view the risk profiles accordingly.
 - View a list of all configured cloud application risk profiles. For each cloud application risk profile, you can see the following:
-  - Profile Name: The name of the cloud application risk profile that is displayed when configuring the Cloud App Control policy rule. You can sort this column.
-  - Application Status: The state of the application (Sanctioned or Unsanctioned). You can sort this column.
-  - Risk Index: The risk index number of the cloud applications. It represents the risk score assigned to each cloud application based on the risk attribute values.
+  - **Profile Name**: The name of the cloud application risk profile that is displayed when configuring the Cloud App Control policy rule. You can sort this column.
+  - **Application Status**: The state of the application (Sanctioned or Unsanctioned). You can sort this column.
+  - **Risk Index**: The risk index number of the cloud applications. It represents the risk score assigned to each cloud application based on the risk attribute values.
   - All the cloud applications, including those with risk index overrides from the Application Information page, are evaluated in the policy if the risk index criterion matches.
-  - Certifications: The types of certifications that the cloud applications support. You can choose to include or exclude certificates.
-  - Details: The details of the cloud application risk profile.
+  - **Certifications**: The types of certifications that the cloud applications support. You can choose to include or exclude certificates.
+  - **Details**: The details of the cloud application risk profile.
 - Edit, duplicate, or delete a cloud application risk profile.

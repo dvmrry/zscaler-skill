@@ -251,7 +251,7 @@ The cloud service API gives you programmatic access to the following ZIA feature
 - To learn more, see:
   - Reference Guide > Location Management
   - Reference Guide > Traffic Forwarding for information on the POST /vpnCredentials resource
-  - To make calls to Locations and VPN Credentials resources, the authenticated SD-WAN partner API client must have SD-WAN Partner Access for their SD-WAN partner API role as well as a partner API key. To learn more, see SD-WAN API Integration for IPSec VPN Tunnel Provisioning and Getting Started.
+  - To make calls to Locations and VPN Credentials resources, the authenticated SD-WAN partner API client must have **SD-WAN Partner Access** for their SD-WAN partner API role as well as a partner API key. To learn more, see SD-WAN API Integration for IPSec VPN Tunnel Provisioning and Getting Started.
   - SD-WAN API Integration for IPSec VPN Tunnel Provisioning
   - About Locations
   - About VPN Credentials

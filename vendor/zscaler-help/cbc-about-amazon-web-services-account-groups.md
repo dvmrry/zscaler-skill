@@ -15,16 +15,16 @@ To use AWS tags with Zero Trust Gateways, you must configure AWS groups as descr
 # About the Groups Page
 On the Account Groups page (Zero Trust Cloud > Common Resources > AWS > Account Groups), you can do the following:
 - Filter the list of groups by the following criteria:
-  - Account ID: The ID of the account.
-  - Name: The name of the account.
-  - Cloud Connector: The Cloud Connector assigned to the group.
+  - **Account ID**: The ID of the account.
+  - **Name**: The name of the account.
+  - **Cloud Connector**: The Cloud Connector assigned to the group.
 - Add an AWS group.
 - Search for a group.
 - View a list of all groups. For each group, you can view:
-  - Name: The name of the group. Select an account group name to view the dashboard details.
-  - Number of Accounts: The number of accounts in the account group.
-  - Cloud Connector Groups: The number of Cloud Connector groups associated with the AWS group.
-  - Description: The description of the group.
+  - **Name**: The name of the group. Select an account group name to view the dashboard details.
+  - **Number of Accounts**: The number of accounts in the account group.
+  - **Cloud Connector Groups**: The number of Cloud Connector groups associated with the AWS group.
+  - **Description**: The description of the group.
 - Modify the table and its columns.
 - Edit a group.
 - Delete a group.

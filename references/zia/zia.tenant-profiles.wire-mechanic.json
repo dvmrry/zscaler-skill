@@ -35,6 +35,27 @@
       "to": "zia.ssl-inspection.bypass-impact"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the profile is associated with the rule, when a restriction does not work.",
+      "uses": [
+        "microsoft-headers"
+      ]
+    },
+    {
+      "do": "Whether the login service sits in an inspection rule that matches before any bypass.",
+      "uses": [
+        "needs-decrypted-traffic"
+      ]
+    },
+    {
+      "do": "For Microsoft, whether the version and personal-domain setting are as intended.",
+      "uses": [
+        "zia.tenant-profiles.microsoft:personal-domains-default",
+        "zia.tenant-profiles.microsoft:two-versions"
+      ]
+    }
+  ],
   "claims": {
     "microsoft-headers": {
       "statement": "When a tenant profile is associated with a Cloud App Control rule and a request reaches login.microsoftonline.com, login.microsoft.com, login.windows.net or login.live.com, ZIA inserts `Restrict-Access-Context` (the Tenant Directory ID) and `Restrict-Access-To-Tenants` (the Office 365 Tenants or Tenant IDs). It inserts `sec-Restrict-Tenant-Access-Policy` only for login.live.com traffic, and only when Allow Personal Office 365 Domains is No.",

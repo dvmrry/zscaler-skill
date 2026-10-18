@@ -12,18 +12,18 @@ Configure the default Unknown DNS Traffic rule to block traffic. This rule preve
 See image.
 # Block DNS Tunnels
 Create a DNS filtering rule to block the following DNS tunnels by using the DNS Tunnel & Network Apps criteria:
-- Commonly Blocked DNS Tunnels: These are DNS tunnels in the denylist classification that are determined to be malicious by ThreatLabZ (Zscaler's security research team).
-- Unknown DNS Tunnels: These are DNS tunnels in the graylist classification that are yet to be classified and are determined to be potentially malicious by ThreatLabZ.
-- (Optional) Commonly Allowed DNS Tunnels: These are legitimate tunnels operated by security services, but they typically have alternate, more standard modes of communication.
+- **Commonly Blocked DNS Tunnels**: These are DNS tunnels in the denylist classification that are determined to be malicious by ThreatLabZ (Zscaler's security research team).
+- **Unknown DNS Tunnels**: These are DNS tunnels in the graylist classification that are yet to be classified and are determined to be potentially malicious by ThreatLabZ.
+- (Optional) **Commonly Allowed DNS Tunnels**: These are legitimate tunnels operated by security services, but they typically have alternate, more standard modes of communication.
 See image.
 To learn how Zscaler detects tunneling in your network, see Detecting and Controlling DNS Tunnels.
 # Block Risky URL Categories
 Configure your DNS filtering rule to block the following risky URL categories using Request Categories and Response Categories criteria:
-- Advanced Security and Security: These categories target both domains and IP addresses that are known to host targeted malicious content, host hijacked domains, or be used as a backchannel (command and control) communication. This includes adware/spyware sites, botnets, phishing sites, Domain Generation Algorithm (DGA) Domains, and other malicious content.
-- Miscellaneous: This includes sites that are not yet classified by Zscaler. There is minimal business need to allow all unknown and unclassified applications or sites.
+- **Advanced Security and Security**: These categories target both domains and IP addresses that are known to host targeted malicious content, host hijacked domains, or be used as a backchannel (command and control) communication. This includes adware/spyware sites, botnets, phishing sites, Domain Generation Algorithm (DGA) Domains, and other malicious content.
+- **Miscellaneous**: This includes sites that are not yet classified by Zscaler. There is minimal business need to allow all unknown and unclassified applications or sites.
 - Zscaler recommends blocking the entire Miscellaneous super category on the DNS request side (i.e., using the Request Categories condition) with caution. Blocking this entire category on the response side is not recommended as it can have an overly broad impact, given that relatively few IP addresses are categorized, as opposed to domains.
 - Blocking the Newly Registered and Observed Domains (NRODs) category is especially recommended. NRODs are often part of attack chains; for example, they act as termination points for DNS exfiltration by using tunneling techniques or hosting drive-by and other malware before the domain is classified. There is also minimal general business need for a business-critical (or commonly-used) application to be hosted at an NROD.
-- Other Risky URL Categories: Block other categories of domains and resolved IP addresses that have no business need for users, such as Gambling, Adult Content, etc. For categories that are exclusive to web browsing, you can use the URL categorization of the secure web gateway (i.e., web proxy) and display block or caution end user notifications (EUNs) when users browse to specific websites (beacons to the outside server in the case of HTTPS).
+- **Other Risky URL Categories**: Block other categories of domains and resolved IP addresses that have no business need for users, such as Gambling, Adult Content, etc. For categories that are exclusive to web browsing, you can use the URL categorization of the secure web gateway (i.e., web proxy) and display block or caution end user notifications (EUNs) when users browse to specific websites (beacons to the outside server in the case of HTTPS).
 See image.
 To learn about URL categorization, see About URL Categories.
 # Create Block Rules for DNS Request and Response Phases

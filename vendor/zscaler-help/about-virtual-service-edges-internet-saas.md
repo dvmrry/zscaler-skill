@@ -33,14 +33,14 @@ Following are the Virtual Service Edge specifications and sizing:
 | Number of Load Balancers per VM | 1 | 1 | 1 | 1 | - |
 | Maximum VMs per Cluster | 16 | - | - | 16 | - |
 | vMotion Support | VMware ESXi 7.0 and above | - | - | - | - |
-| Hypervisor Resource Requirements |  |  |  |  |  |
+| **Hypervisor Resource Requirements** |  |  |  |  |  |
 | Number of V-CPUs | 4 | 4 | 4 | 4 | 4 |
 | Minimum Required Memory Allocation for Standalone Deployments | 48 GB | 48 GB | 48 GB | 48 GB | 48 GB |
 | Minimum Required Memory Allocation for Cluster Deployments | 48 GB | - | - | 48 GB | - |
 | Virtual Interfaces | 3 | 3 | 3 | 3 | 3 |
 | SSL Acceleration Card per VM | 1 x Marvell NITROX CNN3510-500-C5-NHB-2.0-G | - | - | - | - |
 | Disk Space | 500 GB | 500 GB | 500 GB | 500 GB | 500 GB |
-| Throughput & SSL Specifications |  |  |  |  |  |
+| **Throughput & SSL Specifications** |  |  |  |  |  |
 | Total Throughput | 600 Mbps | - | - | - | - |
 | SSL CPS with Acceleration Card | 3500 CPS | - | - | - | - |
 | SSL CPS without Acceleration Card | 400 CPS | 400 CPS | 400 CPS | 400 CPS | 400 CPS |
@@ -62,15 +62,15 @@ On the Virtual Service Edges page (Infrastructure > Internet & SaaS > Virtual Se
   - Download the Nutanix VM.
 - Search for a Virtual Service Edge.
 - View a list of all Virtual Service Edges that were configured for your organization. For each Virtual Service Edge, you can see the following:
-  - Name: The name of the Virtual Service Edge. You can sort this column.
-  - Status: Displays whether the Virtual Service Edge is enabled or disabled. You can sort this column.
-  - Type: The Virtual Service Edge subscription type.
-  - Deployment Status: The Virtual Service Edge deployment status (In Production or Trial).
-  - Deployment Mode: The Virtual Service Edge deployment mode (Cluster or Standalone). You can sort this column.
-  - Load Balancer IP Address: The load balancer IP address for Virtual Service Edges in Cluster deployment mode. You can sort this column.
-  - Proxy IP Address: The proxy IP address for the Virtual Service Edge. You can sort this column.
-  - Cluster Name: The Virtual Service Edge cluster name. You can sort this column.
-  - IPSec Local Termination: The status of IPSec local termination for the Virtual Service Edge.
+  - **Name**: The name of the Virtual Service Edge. You can sort this column.
+  - **Status**: Displays whether the Virtual Service Edge is enabled or disabled. You can sort this column.
+  - **Type**: The Virtual Service Edge subscription type.
+  - **Deployment Status**: The Virtual Service Edge deployment status (**In Production** or **Trial**).
+  - **Deployment Mode**: The Virtual Service Edge deployment mode (**Cluster** or **Standalone**). You can sort this column.
+  - **Load Balancer IP Address**: The load balancer IP address for Virtual Service Edges in **Cluster** deployment mode. You can sort this column.
+  - **Proxy IP Address**: The proxy IP address for the Virtual Service Edge. You can sort this column.
+  - **Cluster Name**: The Virtual Service Edge cluster name. You can sort this column.
+  - **IPSec Local Termination**: The status of IPSec local termination for the Virtual Service Edge.
 - Modify the table and its columns.
 - Download the Virtual Service Edge SSL certificate.
 - Open the New Client Certificate window. You can upload provisioning blob data.

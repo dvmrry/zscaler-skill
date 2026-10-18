@@ -26,19 +26,19 @@ On the GCP page (Zero Trust Cloud > Zero Trust Gateway > GCP), you can do the fo
 - Refresh the list of GCP gateways.
 - Add a GCP gateway.
 - Modify the table and its columns.
-- Show or hide the Service Status, Availability Zone, and ID filters from view.
-- Filter the list of GCP gateways by their Service Status, Availability Zone, and ID.
+- Show or hide the **Service Status**, **Availability Zone**, and **ID** filters from view.
+- Filter the list of GCP gateways by their **Service Status**, **Availability Zone**, and **ID**.
 - View a list of all GCP gateways. For each GCP gateway, you can view:
-  - Name: The name of the GCP gateway.
-  - ID: The ID of the GCP gateway.
-  - Region: The region associated with the GCP gateway.
-  - Availability Zone ID: The ID of the GCP availability zone associated with the GCP gateway.
-  - Intercept Deployment Group: A GCP-provided resource that allows the Zscaler service to intercept and inspect workload traffic from your VPCs. To learn more, refer to the GCP documentation.
-  - Intercept Endpoint Groups Count: The number of a project-wide resource that allows you to access a Zscaler-managed security service in GCP. To learn more, refer to the GCP documentation.
-  - Location: The location associated with the GCP gateway.
-  - Created Date: The date and time when the GCP gateway was created.
-  - Last Modified On: The date and time when the GCP gateway was last modified.
-  - Service Status: The service status of the GCP gateway (i.e., Healthy, Unhealthy, or Not Available).
+  - **Name**: The name of the GCP gateway.
+  - **ID**: The ID of the GCP gateway.
+  - **Region**: The region associated with the GCP gateway.
+  - **Availability Zone ID**: The ID of the GCP availability zone associated with the GCP gateway.
+  - **Intercept Deployment Group**: A GCP-provided resource that allows the Zscaler service to intercept and inspect workload traffic from your VPCs. To learn more, refer to the GCP documentation.
+  - **Intercept Endpoint Groups Count**: The number of a project-wide resource that allows you to access a Zscaler-managed security service in GCP. To learn more, refer to the GCP documentation.
+  - **Location**: The location associated with the GCP gateway.
+  - **Created Date**: The date and time when the GCP gateway was created.
+  - **Last Modified On**: The date and time when the GCP gateway was last modified.
+  - **Service Status**: The service status of the GCP gateway (i.e., **Healthy**, **Unhealthy**, or **Not Available**).
 - Edit a GCP gateway.
 - Delete a GCP gateway.
 - Analyze a specific GCP gateway and its details.

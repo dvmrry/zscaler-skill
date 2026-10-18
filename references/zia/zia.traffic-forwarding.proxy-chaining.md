@@ -5,5 +5,3 @@ Proxy chaining is a way to send an existing proxy's traffic to the service witho
 **Client identity.** {{xff-handling}} How the service uses the client address from XFF to find a sublocation, and the per-location switch that enables it, is in [[zia.locations.ip-scoping]]; user mapping from that address is [[zia.authentication.surrogate-ip]].
 
 The proxy mode of chained traffic is in [[zia.proxy-mode.forwarding-map]].
-
-What to check: both gateway names are configured, the egress IPs are registered, and (for sublocation or user policy) that the proxy inserts XFF and the location has it enabled.

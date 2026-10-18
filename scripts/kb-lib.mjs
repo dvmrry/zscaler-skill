@@ -222,8 +222,12 @@ function lineOf(text, index) {
   return text.slice(0, index).split("\n").length;
 }
 
-/** Anchor quotes or a pointer in one text. Returns { errors, anchors }. */
-function anchorIn(text, ev, label) {
+/**
+ * Anchor quotes or a pointer in one text. Returns { errors, anchors }. With `emphasis`, `**`
+ * markers are ignored on both sides: help captures keep the vendor's bold (it can mark the
+ * recommended value in a table) and a quote need not reproduce it.
+ */
+function anchorIn(text, ev, label, { emphasis = false } = {}) {
   const errors = [];
   const anchors = [];
   if (ev.pointer !== undefined) {
@@ -250,6 +254,10 @@ function anchorIn(text, ev, label) {
     let norm = "";
     let inWs = false;
     for (let i = 0; i < text.length; i++) {
+      if (emphasis && text[i] === "*" && text[i + 1] === "*") {
+        i++;
+        continue;
+      }
       if (IGNORABLE.test(text[i])) {
         if (!inWs && norm.length) { norm += " "; map.push(i); }
         inWs = true;
@@ -263,14 +271,14 @@ function anchorIn(text, ev, label) {
     // its first occurrence after it; without it, each quote must be unique.
     let from = 0;
     if (ev.after !== undefined) {
-      const na = normalizeWs(ev.after);
+      const na = normalizeWs(emphasis ? ev.after.replaceAll("**", "") : ev.after);
       const at = norm.indexOf(na);
       if (at === -1) errors.push(`${label}: after-anchor not found: "${ev.after.slice(0, 80)}"`);
       else if (norm.indexOf(na, at + 1) !== -1) errors.push(`${label}: after-anchor is ambiguous: "${ev.after.slice(0, 80)}"`);
       else from = at + na.length;
     }
     for (const q of ev.quotes) {
-      const nq = normalizeWs(q);
+      const nq = normalizeWs(emphasis ? q.replaceAll("**", "") : q);
       const first = norm.indexOf(nq, from);
       if (first === -1) { errors.push(`${label}: quote not found${ev.after ? " after its anchor" : ""}: "${q.slice(0, 80)}"`); continue; }
       if (ev.after === undefined && norm.indexOf(nq, first + 1) !== -1) {
@@ -298,7 +306,7 @@ export function anchorEvidence(g, ev, cache = new Map()) {
     const text = textAt(f, ref, cache);
     const label = ref === "HEAD" ? f.repoPath : `${f.repoPath}@${ref}`;
     if (text === null) { errors.push(`${label} does not exist`); continue; }
-    const r = anchorIn(text, ev, label);
+    const r = anchorIn(text, ev, label, { emphasis: f.src.kind === "capture" });
     errors.push(...r.errors);
     if (ref === "HEAD" || !anchors.length) anchors = r.anchors;
   }
@@ -343,22 +351,63 @@ export function sha256File(file) {
 // ---------------------------------------------------------------- prose
 
 const CLAIM_MARKER = /\{\{([a-z0-9]+(?:-[a-z0-9]+)*)(\|ref)?\}\}/g;
+const ITEM_MARKER = /\{\{(gap|divergence):([a-z0-9]+(?:-[a-z0-9]+)*)\}\}/g;
 const LINK_MARKER = /\[\[([^\]\s]+)\]\]/g;
-const HAS_MARKER = /\{\{[a-z0-9]+(?:-[a-z0-9]+)*(?:\|ref)?\}\}|\[\[[^\]\s]+\]\]/;
+// A Markdown link to a repo doc that is not yet converted (or to a kb: ID) also anchors a sentence;
+// `kb.mjs migrate-links` retargets it when that doc converts.
+const HAS_MARKER = /\{\{(?:(?:gap|divergence):)?[a-z0-9]+(?:-[a-z0-9]+)*(?:\|ref)?\}\}|\[\[[^\]\s]+\]\]|\]\((?:kb:[^)\s]+|[^)\s:]+\.md(?:#[\w-]+)?)\)/;
+const ANY_MARKER = new RegExp(HAS_MARKER.source, "g");
+// A run-in label such as "**Maximum is a standing cap.**" introduces the sentences after it.
+const LABEL = /^\*\*[^*]+\*\*$/;
+const WHAT_TO_CHECK = /^(\*\*)?what to check\b/i;
+// The lead (first paragraph) may frame the subject in this many sentences without a marker.
+export const LEAD_SENTENCES = 2;
 
-/** Parse a subject's prose: marker uses, links, and unanchored paragraph count. */
+/**
+ * Split a paragraph into sentences; each list item is one or more sentences of its own. An inlined
+ * claim renders as a whole sentence, so a claim marker ends one too.
+ */
+function sentencesOf(paragraph) {
+  return paragraph
+    .split(/\n(?=\s*(?:[-*]|\d+\.) )/)
+    .flatMap((item) => item.replace(/^\s*(?:[-*]|\d+\.) /, "").split(/(?<=[.!?]|\}\})\s+(?=[A-Z*`"\[({])/))
+    .map((t) => t.trim())
+    .filter(Boolean);
+}
+
+/** A sentence stands on its own: it carries no marker and is more than a label or punctuation. */
+function isUnanchored(sentence) {
+  if (HAS_MARKER.test(sentence)) return false;
+  const bare = sentence.replace(ANY_MARKER, "").trim();
+  return /[A-Za-z]{3}/.test(bare) && !LABEL.test(bare);
+}
+
+/**
+ * Parse a subject's prose: marker uses, links, and the sentences that rest on nothing. Every
+ * sentence carries a claim, gap, divergence or link marker, except headings, run-in labels and
+ * up to LEAD_SENTENCES framing sentences in the first paragraph; guidance belongs in `checks`.
+ */
 export function parseProse(text) {
   const inlined = new Map();
   const refs = new Set();
   const links = new Set();
+  const items = { gap: new Set(), divergence: new Set() };
   for (const m of text.matchAll(CLAIM_MARKER)) {
     if (m[2]) refs.add(m[1]);
     else inlined.set(m[1], (inlined.get(m[1]) || 0) + 1);
   }
+  for (const m of text.matchAll(ITEM_MARKER)) items[m[1]].add(m[2]);
   for (const m of text.matchAll(LINK_MARKER)) links.add(m[1]);
+  for (const m of text.matchAll(/\]\(kb:([^)\s#]+)\)/g)) links.add(m[1]);
   const paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p && !p.startsWith("#"));
-  const unanchored = paragraphs.filter((p) => !HAS_MARKER.test(p)).length;
-  return { inlined, refs, links, paragraphs: paragraphs.length, unanchored };
+  const unanchored = [];
+  let whatToCheck = 0;
+  paragraphs.forEach((p, i) => {
+    if (WHAT_TO_CHECK.test(p)) whatToCheck++;
+    const loose = sentencesOf(p).filter(isUnanchored);
+    unanchored.push(...(i === 0 ? loose.slice(LEAD_SENTENCES) : loose));
+  });
+  return { inlined, refs, links, items, paragraphs: paragraphs.length, unanchored, whatToCheck };
 }
 
 // ---------------------------------------------------------------- validation
@@ -514,6 +563,8 @@ function checkProse(g, node, err, warnings) {
     if (!claims.includes(local)) err(mdRel, `{{${local}}} is not a claim of ${node.id}`);
     if (n > 1) err(mdRel, `{{${local}}} is inlined ${n} times; inline once and use {{${local}|ref}} afterwards`);
   }
+  // Every claim is inlined once: the prose is where an agent reads it in order.
+  for (const local of claims) if (!p.inlined.has(local)) err(mdRel, `claim ${local} is never inlined; place {{${local}}} where it belongs`);
   for (const local of p.refs) {
     if (!claims.includes(local)) err(mdRel, `{{${local}|ref}} is not a claim of ${node.id}`);
     else if (!p.inlined.has(local)) err(mdRel, `{{${local}|ref}} refers back to a claim that is never inlined`);
@@ -521,7 +572,25 @@ function checkProse(g, node, err, warnings) {
   for (const id of p.links) {
     if (!g.nodes.has(id)) err(mdRel, `[[${id}]] does not resolve`);
   }
-  if (p.unanchored) warnings.push({ file: mdRel, message: `${p.unanchored} of ${p.paragraphs} paragraphs are unanchored (no claim or link)` });
+  for (const kind of ["gap", "divergence"]) {
+    const own = Object.keys(node.data[`${kind}s`] || {});
+    for (const local of p.items[kind]) if (!own.includes(local)) err(mdRel, `{{${kind}:${local}}} is not a ${kind} of ${node.id}`);
+  }
+  if (p.whatToCheck) err(mdRel, "a What-to-check paragraph belongs in the subject's `checks`, not the prose");
+  for (const sentence of p.unanchored) {
+    err(mdRel, `sentence rests on no claim, gap, divergence or link; anchor it, move guidance to \`checks\`, or cut it: "${sentence.slice(0, 100)}"`);
+  }
+  for (const [i, c] of (node.data.checks || []).entries()) {
+    for (const u of c.uses) {
+      if (!resolvesFrom(g, node, u)) err(node.file, `checks[${i}] uses ${u}, which is not a claim, gap or divergence of ${node.id} nor a kb ID`);
+    }
+  }
+}
+
+/** A reference from a subject: one of its own claims, gaps or divergences, or any kb ID. */
+export function resolvesFrom(g, node, ref) {
+  if (g.nodes.has(ref)) return true;
+  return ["claims", "gaps", "divergences"].some((k) => Object.hasOwn(node.data[k] || {}, ref));
 }
 
 const commandsCache = new Map(); // root -> Set(command path) | null

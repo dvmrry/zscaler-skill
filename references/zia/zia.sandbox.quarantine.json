@@ -23,6 +23,26 @@
       "to": "zia.sandbox.report"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the URL still serves the file, since a one-time link stops serving it after the first request.",
+      "uses": [
+        "one-time-links"
+      ]
+    },
+    {
+      "do": "Whether the MD5 differs between attempts in the logs, which points to a per-request file.",
+      "uses": [
+        "dynamic-hash"
+      ]
+    },
+    {
+      "do": "What the report says for the MD5, since a Benign report with the file still quarantined means the cache has not caught up.",
+      "uses": [
+        "pse-cache-lag"
+      ]
+    }
+  ],
   "claims": {
     "one-time-links": {
       "statement": "For one-time download links the URL stops serving the file after the first request, so later download attempts return 404 or 403 from the origin. Web Insights shows \"Sent for Analysis\" for the first transaction and \"Allowed\" afterwards, with the server-side 404.",

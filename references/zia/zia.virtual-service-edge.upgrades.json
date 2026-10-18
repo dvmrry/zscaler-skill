@@ -20,6 +20,27 @@
       "to": "zia.virtual-service-edge.clusters"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the delay-upgrade times on the cluster's nodes differ by at least an hour, since the no-downtime statement depends on the nodes upgrading one at a time.",
+      "uses": [
+        "cluster-consecutive",
+        "stagger-one-hour"
+      ]
+    },
+    {
+      "do": "Whether any two nodes share a delay-upgrade time, because identical times may defeat the staggering.",
+      "uses": [
+        "stagger-one-hour"
+      ]
+    },
+    {
+      "do": "Whether a lab node marked Trial is an upgrade canary ahead of production nodes.",
+      "uses": [
+        "trial-before-production"
+      ]
+    }
+  ],
   "claims": {
     "automatic-in-windows": {
       "statement": "The Zscaler service automatically upgrades Virtual Service Edges during scheduled maintenance windows. The dates are published in the Zscaler Trust Portal, and no admin or Zscaler Cloud Operations intervention is required.",

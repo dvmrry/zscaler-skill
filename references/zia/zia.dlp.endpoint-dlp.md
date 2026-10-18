@@ -2,7 +2,7 @@ Endpoint DLP is not a flag on an inline DLP rule. It is several management famil
 
 {{families}} {{release-note-sub-rules}} {{resource-channels}}
 
-{{outside-automate-capture}} Whether a given tenant has Endpoint DLP enabled is a question for the tenant (`tenant-entitlement`).
+{{outside-automate-capture}} Whether a tenant is entitled to Endpoint DLP is open {{gap:tenant-entitlement}}.
 
 **SDK behavior.** {{go-aggregates-pages}} {{python-single-page}} {{python-unified-client-only}} For paging details across ZIA lists see [[shared.sdk-go.list-pagination]].
 

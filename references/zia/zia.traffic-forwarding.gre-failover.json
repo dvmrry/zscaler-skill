@@ -20,6 +20,27 @@
       "to": "zia.traffic-forwarding.gre"
     }
   ],
+  "checks": [
+    {
+      "do": "Which failover profile the router runs, Fast or Conservative.",
+      "uses": [
+        "failover-profiles"
+      ]
+    },
+    {
+      "do": "Whether the health check targets the Zscaler VPN test URL rather than a public site.",
+      "uses": [
+        "health-checks",
+        "no-popular-site-checks"
+      ]
+    },
+    {
+      "do": "Whether the track is wired to the route, since failover happens only when monitoring drives it.",
+      "uses": [
+        "monitoring-required"
+      ]
+    }
+  ],
   "claims": {
     "monitoring-required": {
       "statement": "Zscaler requires monitoring of GRE tunnels, with monitoring tied to failover: when service monitoring is down the primary tunnel fails over to the backup, and it switches back when monitoring recovers.",

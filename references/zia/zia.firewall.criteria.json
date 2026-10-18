@@ -37,6 +37,27 @@
       "to": "zia.url-filtering.criteria"
     }
   ],
+  "checks": [
+    {
+      "do": "Which criteria are actually set, since an empty one means any value.",
+      "uses": [
+        "unset-unrestricted"
+      ]
+    },
+    {
+      "do": "Whether the tenant is licensed for the identity or application criterion the rule sets.",
+      "uses": [
+        "zia.firewall.licensing:identity-and-apps-need-advanced"
+      ]
+    },
+    {
+      "do": "Whether an endpoint-application block does what its attribute name suggests before relying on it.",
+      "uses": [
+        "endpoint-app-semantics",
+        "endpoint-app-condition-unmeetable"
+      ]
+    }
+  ],
   "claims": {
     "unset-unrestricted": {
       "statement": "A criterion left unset does not restrict the rule: an unset source IP list means the rule is not restricted to a specific source address, and unset destination countries mean it is not restricted to specific destination countries.",

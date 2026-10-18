@@ -97,9 +97,9 @@ ZSDK uses the following classes:
 Any text highlighted in red indicates that you must enter the specific details.
 # Notifications
 ZSDK provides notifications to monitor the state of the tunnel.
-| Notification Name | Description | Resolution |  |
+| **Notification Name** | **Description** | **Resolution** |  |
 |---|---|---|---|
-| Android | iOS |  |  |
+| **Android** | **iOS** |  |  |
 | ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_CONNECTED | NSNotification.ZscalerSDKTunnelConnected | The tunnel is in a connected state and ready for use for outbound network requests. Your application can send HTTPS and WebView traffic via the tunnel now. | No action required. |
 | ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_DISCONNECTED | NSNotification.ZscalerSDKTunnelDisconnected | Describes that the tunnel has stopped operations. | No action required. |
 | ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_RECONNECTING | NSNotification.ZscalerSDKTunnelReconnecting | There was an issue establishing a connection to the ZSDK Public Service Edge. ZSDK continues to connect and sends a Tunnel Connected notification if the connection is successfully established. | Check your network connection. If the error persists, contact Zscaler Support. |

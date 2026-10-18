@@ -51,6 +51,29 @@
       "to": "zia.terraform.error-handling"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the whole settings object was fetched before the write, so that keys left out of the PUT are not reset.",
+      "uses": [
+        "put-replaces-whole-object",
+        "omitted-key-server-behavior"
+      ]
+    },
+    {
+      "do": "Which wire name each key is sent under, including the misspelled file-format keys and the cookie-stealing Capture flag.",
+      "uses": [
+        "misspelled-file-format-key",
+        "cookie-stealing-pcap-key"
+      ]
+    },
+    {
+      "do": "Whether the write takes effect only after activation, by re-reading the object after activating.",
+      "uses": [
+        "writes-staged",
+        "put-auto-activate"
+      ]
+    }
+  ],
   "claims": {
     "endpoints": {
       "statement": "ATP is three endpoints under cyberThreatProtection: advancedThreatSettings (one settings object), securityExceptions (the allowlist) and maliciousUrls (the denylist). The settings object and the allowlist are read with GET and written with PUT; the denylist is written with an action parameter.",

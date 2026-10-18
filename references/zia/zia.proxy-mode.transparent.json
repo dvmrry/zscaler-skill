@@ -36,6 +36,20 @@
       "to": "zia.traffic-forwarding.ipsec"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the client sends SNI, which a capture of the Client Hello shows, since the host is taken from SNI when it is present.",
+      "uses": [
+        "host-identification"
+      ]
+    },
+    {
+      "do": "Whether any rule's outcome depends on the destination IP, since this mode matches on it.",
+      "uses": [
+        "zia.ssl-inspection.pipeline:transparent-matches-destination-ip"
+      ]
+    }
+  ],
   "claims": {
     "how-it-works": {
       "statement": "In transparent mode the browser has no proxy configured; traffic is directed to a Service Edge by other means, such as a GRE or IPSec tunnel at the organization's egress router, so the destination IP in the IP header is the origin server's address.",

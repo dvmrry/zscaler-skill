@@ -1,4 +1,4 @@
-Every ATP detection is a toggle in one of ten groups. {{groups}} Most are Allow or Block, and the whole tenant gets the same setting.
+{{groups}}
 
 **Malicious Active Content.** {{active-content}} The Blocked Malicious URLs list has its own subject: [[zia.atp.blocked-urls]].
 
@@ -14,6 +14,4 @@ Botnet, Page Risk and Blocked Countries are in [[zia.atp.botnet]], [[zia.atp.pag
 
 **Capture.** {{capture-on-block}}
 
-**Names in the API.** {{toggle-wire-keys}} The field-name traps are in [[zia.atp.api-surface]].
-
-What to check: which toggle's wording matches the user's symptom, whether it is on Block, and whether the URL is in Security Exceptions. If a new block has no matching policy edit, see [[zia.atp.ai-ml-recategorization]].
+**Names in the API.** {{toggle-wire-keys}} The field-name traps are in [[zia.atp.api-surface]]. A new block with no matching edit may be a recategorization: [[zia.atp.ai-ml-recategorization]].

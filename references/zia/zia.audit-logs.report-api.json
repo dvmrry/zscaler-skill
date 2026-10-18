@@ -28,6 +28,29 @@
       "to": "zia.sdk-go.service-defects"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the export is complete before downloading: poll until the status is COMPLETE rather than relying on a delay.",
+      "uses": [
+        "lifecycle",
+        "status-shape"
+      ]
+    },
+    {
+      "do": "Whether the stored report is shared between admins before automating an export, since a new report overwrites the previous one.",
+      "uses": [
+        "single-report-overwritten",
+        "report-scope"
+      ]
+    },
+    {
+      "do": "Which filters to apply in the CSV rather than through the Go request struct, since the Go struct types ClientIP and TraceId as int.",
+      "uses": [
+        "go-request-struct",
+        "spec-field-types"
+      ]
+    }
+  ],
   "claims": {
     "lifecycle": {
       "statement": "An admin audit report is generated asynchronously: POST /auditlogEntryReport starts it, GET /auditlogEntryReport reports status until it is COMPLETE, then GET /auditlogEntryReport/download returns the CSV; DELETE /auditlogEntryReport cancels the request.",

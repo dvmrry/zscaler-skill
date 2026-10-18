@@ -27,115 +27,115 @@ The following table provides the list of predefined DNS rules along with their d
 | Risky DNS Tunnels | The Risky DNS Tunnels rule is recommended and predefined to block DNS tunnels that are common security threats to an organization's network. Blocking these tunnels is recommended but the rule implementation might vary depending on your organization's requirements and corporate policies.The Risky DNS Tunnels rule is not enabled by default. Admins of sufficient rank can enable, fully customize, or delete this rule. |
 # Modifying a Predefined DNS Control Rule
 To modify a predefined DNS rule:
-- From the navigation menu, go to Internet Access > Policy > DNS Control.
-- Click the Edit icon for the rule you want to modify.
-- The Edit Rule page appears.
-- On the Edit Rule page, you can modify the rule attributes, criteria, and actions that are available to edit for the selected predefined rule:
+- From the navigation menu, go to **Internet Access** > **Policy** > **DNS Control**.
+- Click the **Edit** icon for the rule you want to modify.
+- The **Edit Rule** page appears.
+- On the **Edit Rule** page, you can modify the rule attributes, criteria, and actions that are available to edit for the selected predefined rule:
   - Unknown DNS Traffic
-  - The Notification option appears only when you select Block for Network Traffic.
-    - Select a Rule Label for the rule.
-    - Select an action for the Network Traffic field:
-      - Allow: Allows the DNS requests and responses.
-      - Block: Silently blocks all DNS requests and responses.
+  - The **Notification** option appears only when you select **Block** for **Network Traffic**.
+    - Select a **Rule Label** for the rule.
+    - Select an action for the **Network Traffic** field:
+      - **Allow**: Allows the DNS requests and responses.
+      - **Block**: Silently blocks all DNS requests and responses.
     - Configure an end user notification (EUN) using one of the following options:
     - Both Client Connector EUN and Web EUN cannot function simultaneously. When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users.
-      - Client Connector EUN: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action.
+      - **Client Connector EUN**: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action.
       - When this option is enabled, an additional Notification Message drop-down menu appears. You can select from default and custom notification messages to display for users.
-      - Web EUN: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization.
+      - **Web EUN**: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization.
     - To learn more, see DNS End User Notifications and Configuring the DNS Control Policy.
   - Default Firewall DNS Rule
-  - The Notification option appears only when you select Block for Network Traffic.
-    - Select a Rule Label for the rule.
-    - Select an action for the Network Traffic field:
-      - Allow: Allows the DNS requests and responses.
-      - Block: Silently blocks all DNS requests and responses.
+  - The **Notification** option appears only when you select **Block** for **Network Traffic**.
+    - Select a **Rule Label** for the rule.
+    - Select an action for the **Network Traffic** field:
+      - **Allow**: Allows the DNS requests and responses.
+      - **Block**: Silently blocks all DNS requests and responses.
     - Configure an end user notification (EUN) using one of the following options:
     - Both Client Connector EUN and Web EUN cannot function simultaneously. When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users.
-      - Client Connector EUN: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action.
+      - **Client Connector EUN**: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action.
       - When this option is enabled, an additional Notification Message drop-down menu appears. You can select from default and custom notification messages to display for users.
-      - Web EUN: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization.
+      - **Web EUN**: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization.
     - To learn more, see DNS End User Notifications and Configuring the DNS Control Policy.
   - Fallback ZPA Resolver for Locations
-  - Choose the Rule Label for the rule.
+  - Choose the **Rule Label** for the rule.
   - Fallback ZPA Resolver for Road Warrior
-  - Choose the Rule Label for the rule.
+  - Choose the **Rule Label** for the rule.
   - Critical Risk DNS Categories
     - Configure the rule attributes listed as follows:
-      - Modify the Rule Order as per your requirements. If Admin Rank is enabled, your assigned admin rank determines the Rule Order values you can select.
-      - Modify the Rule Status to enable or disable the rule.
-      - Configure the Rule Label.
+      - Modify the **Rule Order** as per your requirements. If Admin Rank is enabled, your assigned admin rank determines the Rule Order values you can select.
+      - Modify the **Rule Status** to enable or disable the rule.
+      - Configure the **Rule Label**.
     - View the rule criteria (read-only) information in the following bulleted list:
-    - The rule is configured only with specific criteria in the DNS Application category.
-      - Request Categories: Botnet Callback, Domain Generation Algorithm (DGA) Domains, Malicious Content, Phishing, and Spyware/Adware are selected.
-      - Response Categories: Botnet Callback, Domain Generation Algorithm (DGA) Domains, Malicious Content, Phishing, and Spyware/Adware are selected.
+    - The rule is configured only with specific criteria in the **DNS Application** category.
+      - **Request Categories**: Botnet Callback, Domain Generation Algorithm (DGA) Domains, Malicious Content, Phishing, and Spyware/Adware are selected.
+      - **Response Categories**: Botnet Callback, Domain Generation Algorithm (DGA) Domains, Malicious Content, Phishing, and Spyware/Adware are selected.
     - View the rule action details and configure the Traffic Capture option as follows:
-      - Network Traffic: (Non-modifiable) Block is selected.
-      - Logging: (Non-modifiable) Full Logging is configured.
-      - Capture: (Modifiable) If Traffic Capture is enabled, the Capture option appears. By enabling this option, you can capture blocked traffic and store it in PCAP files for later analysis. To learn more, see About Traffic Capture Settings.
+      - **Network Traffic**: (Non-modifiable) **Block** is selected.
+      - **Logging**: (Non-modifiable) **Full Logging** is configured.
+      - **Capture**: (Modifiable) If Traffic Capture is enabled, the Capture option appears. By enabling this option, you can capture blocked traffic and store it in PCAP files for later analysis. To learn more, see About Traffic Capture Settings.
     - Configure an end user notification (EUN) using one of the following options:
     - Both Client Connector EUN and Web EUN cannot function simultaneously. When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users.
-      - Client Connector EUN: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action. This EUN is supported for Block, Block with Response Code, and Redirect Response actions.
+      - **Client Connector EUN**: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action. This EUN is supported for **Block**, **Block with Response Code**, and **Redirect Response** actions.
       - When this option is enabled, an additional Notification Message drop-down menu appears. You can select from default and custom notification messages to display for users.
-      - Web EUN: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization. This EUN is supported for the Block action.
+      - **Web EUN**: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization. This EUN is supported for the **Block** action.
     - To learn more, see DNS End User Notifications and Configuring the DNS Control Policy.
   - Critical Risk DNS Tunnels
     - Configure the rule attributes listed as follows:
-      - Change the Rule Order as per your requirements. If Admin Rank is enabled, your assigned admin rank determines the Rule Order values you can select.
-      - Change the Rule Status to enable or disable the rule.
-      - Configure the Rule Label.
+      - Change the **Rule Order** as per your requirements. If Admin Rank is enabled, your assigned admin rank determines the Rule Order values you can select.
+      - Change the **Rule Status** to enable or disable the rule.
+      - Configure the **Rule Label**.
     - View the rule criteria information (read-only) in the following bulleted list:
-    - The rule is configured only with specific criteria in the DNS Application category.
-      - DNS Tunnels & Network Apps: All DNS tunnels that are classified under the Commonly Blocked DNS Tunnels category by Zscaler are selected.
+    - The rule is configured only with specific criteria in the **DNS Application** category.
+      - **DNS Tunnels & Network Apps**: All DNS tunnels that are classified under the **Commonly Blocked DNS Tunnels** category by Zscaler are selected.
     - View the rule action details and configure the Traffic Capture option as follows:
-      - Network Traffic: (Non-modifiable) Block is selected.
-      - Logging: (Non-modifiable) Full Logging is configured.
-      - Capture: (Modifiable) If Traffic Capture is enabled, the Capture option appears. By enabling this option, you can capture blocked traffic and store it in PCAP files for later analysis. To learn more, see About Traffic Capture Settings.
+      - **Network Traffic**: (Non-modifiable) **Block** is selected.
+      - **Logging**: (Non-modifiable) **Full Logging** is configured.
+      - **Capture**: (Modifiable) If Traffic Capture is enabled, the Capture option appears. By enabling this option, you can capture blocked traffic and store it in PCAP files for later analysis. To learn more, see About Traffic Capture Settings.
     - Configure an end user notification (EUN) using one of the following options:
     - Both Client Connector EUN and Web EUN cannot function simultaneously. When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users.
-      - Client Connector EUN: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action. This EUN is supported for Block, Block with Response Code, and Redirect Response actions.
+      - **Client Connector EUN**: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action. This EUN is supported for **Block**, **Block with Response Code**, and **Redirect Response** actions.
       - When this option is enabled, an additional Notification Message drop-down menu appears. You can select from default and custom notification messages to display for users.
-      - Web EUN: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization. This EUN is supported for the Block action.
+      - **Web EUN**: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization. This EUN is supported for the **Block** action.
     - To learn more, see DNS End User Notifications and Configuring the DNS Control Policy.
   - High-Risk DNS Categories
     - Configure the rule attributes listed as follows:
-      - Change the Rule Order as per your requirements. If Admin Rank is enabled, your assigned admin rank determines the Rule Order values you can select.
-      - Change the Rule Status to enable or disable the rule.
-      - Configure the Rule Label.
+      - Change the **Rule Order** as per your requirements. If Admin Rank is enabled, your assigned admin rank determines the Rule Order values you can select.
+      - Change the **Rule Status** to enable or disable the rule.
+      - Configure the **Rule Label**.
     - View the rule criteria information (read-only) in the following bulleted list.
     - The rule is configured only with specific criteria in the DNS Application category.
-      - Request Categories: Newly Registered and Observed Domains, Newly Revived Domains, and Other Security are selected.
-      - Response Categories: Newly Registered and Observed Domains, Newly Revived Domains, and Other Security are selected.
+      - **Request Categories**: Newly Registered and Observed Domains, Newly Revived Domains, and Other Security are selected.
+      - **Response Categories**: Newly Registered and Observed Domains, Newly Revived Domains, and Other Security are selected.
     - View the rule action details and configure the Traffic Capture option as follows:
-      - Network Traffic: (Non-modifiable) Block is selected.
-      - Logging: (Non-modifiable) Full Logging is configured.
-      - Capture: (Modifiable) If Traffic Capture is enabled, the Capture option appears. By enabling this option, you can capture blocked traffic and store it in PCAP files for later analysis. To learn more, see About Traffic Capture Settings.
+      - **Network Traffic**: (Non-modifiable) **Block** is selected.
+      - **Logging**: (Non-modifiable) **Full Logging** is configured.
+      - **Capture**: (Modifiable) If Traffic Capture is enabled, the Capture option appears. By enabling this option, you can capture blocked traffic and store it in PCAP files for later analysis. To learn more, see About Traffic Capture Settings.
     - Configure an end user notification (EUN) using one of the following options:
     - Both Client Connector EUN and Web EUN cannot function simultaneously. When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users.
-      - Client Connector EUN: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action. This EUN is supported for Block, Block with Response Code, and Redirect Response actions.
+      - **Client Connector EUN**: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action. This EUN is supported for **Block**, **Block with Response Code**, and **Redirect Response** actions.
       - When this option is enabled, an additional Notification Message drop-down menu appears. You can select from default and custom notification messages to display for users.
-      - Web EUN: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization. This EUN is supported for the Block action.
+      - **Web EUN**: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization. This EUN is supported for the **Block** action.
     - To learn more, see DNS End User Notifications and Configuring the DNS Control Policy.
   - High-Risk DNS Tunnels
     - Configure the rule attributes listed as follows:
-      - Change the Rule Order as per your requirements. If Admin Rank is enabled, your assigned admin rank determines the Rule Order values you can select.
-      - Change the Rule Status to enable or disable the rule.
-      - Configure the Rule Label.
+      - Change the **Rule Order** as per your requirements. If Admin Rank is enabled, your assigned admin rank determines the Rule Order values you can select.
+      - Change the **Rule Status** to enable or disable the rule.
+      - Configure the **Rule Label**.
     - View the rule criteria information (read-only) in the following bulleted list.
     - The rule is configured only with specific criteria in the DNS Application category.
-      - DNS Tunnels & Network Apps: All DNS tunnels that are classified under the Unknown DNS Tunnels category by Zscaler are selected.
+      - **DNS Tunnels & Network Apps**: All DNS tunnels that are classified under the **Unknown DNS Tunnels** category by Zscaler are selected.
     - View the rule action details and configure the Traffic Capture option as follows:
-      - Network Traffic: (Non-modifiable) Block is selected.
-      - Logging: (Non-modifiable) Full Logging is configured.
-      - Capture: (Modifiable) If Traffic Capture is enabled, the Capture option appears. By enabling this option, you can capture blocked traffic and store it in PCAP files for later analysis. To learn more, see About Traffic Capture Settings.
+      - **Network Traffic**: (Non-modifiable) **Block** is selected.
+      - **Logging**: (Non-modifiable) **Full Logging** is configured.
+      - **Capture**: (Modifiable) If Traffic Capture is enabled, the Capture option appears. By enabling this option, you can capture blocked traffic and store it in PCAP files for later analysis. To learn more, see About Traffic Capture Settings.
     - Configure an end user notification (EUN) using one of the following options:
     - Both Client Connector EUN and Web EUN cannot function simultaneously. When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users.
-      - Client Connector EUN: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action. This EUN is supported for Block, Block with Response Code, and Redirect Response actions.
+      - **Client Connector EUN**: (Requires Advanced DNS provided by Advanced Firewall) Enabling this option shows pop-up notifications to users via Zscaler Client Connector for DNS transactions that match the configured policy action. This EUN is supported for **Block**, **Block with Response Code**, and **Redirect Response** actions.
       - When this option is enabled, an additional Notification Message drop-down menu appears. You can select from default and custom notification messages to display for users.
-      - Web EUN: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization. This EUN is supported for the Block action.
+      - **Web EUN**: Enable to show a web notification to end users when they access domains that are blocked by this rule. This EUN is a standard web EUN page provided by Zscaler with support for customization. This EUN is supported for the **Block** action.
     - To learn more, see DNS End User Notifications and Configuring the DNS Control Policy.
   - Risky DNS Categories
   - You can customize all attributes of the rule, rule conditions, action, and end user notifications. To learn how to configure DNS Control rules, see Configuring the DNS Control Policy.
-  - The rule cannot have different sets of URL categories selected under Request Categories and Response Categories. However, you can have only one of the two conditions configured for the rule by clearing the selection for the other condition.
+  - The rule cannot have different sets of URL categories selected under **Request Categories** and **Response Categories**. However, you can have only one of the two conditions configured for the rule by clearing the selection for the other condition.
   - Risky DNS Tunnels
   - You can customize all attributes of the rule, rule conditions, action, and end user notifications. To learn how to configure DNS Control rules, see Configuring the DNS Control Policy.
-- Click Save and activate the change.
+- Click **Save** and activate the change.

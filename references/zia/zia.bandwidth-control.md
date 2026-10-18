@@ -1,4 +1,4 @@
-Bandwidth Control decides how much of a location's internet bandwidth each traffic class gets. It is not an allow or block policy: a request is given full or reduced bandwidth, never refused by this module. "Why is my bandwidth rule not doing anything?" and "why is this app slow?" need six questions answered in order.
+Bandwidth Control decides how much of a location's internet bandwidth each traffic class gets. It is not an allow or block policy: a request is given full or reduced bandwidth, never refused by this module.
 
 1. **Does the traffic reach Bandwidth Control at all?** It is the last step of the web module, after the firewall and every earlier web policy, and only certain TCP protocols are shaped: [[zia.bandwidth-control.pipeline-position]], [[zia.bandwidth-control.allocation]].
 2. **Is the location in scope?** Only configured locations are shaped, the location must enforce Bandwidth Control and have upload and download limits, and sublocations can share or own a slice: [[zia.bandwidth-control.location-scope]].

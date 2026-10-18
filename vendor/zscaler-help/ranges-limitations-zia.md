@@ -316,7 +316,7 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 - The following table shows the ranges and limitations for other Internet & SaaS features:
 | Feature | Limit |
 |---|---|
-| String Inputs (All features) | Accepted characters: Letters (both uppercase A–Z and lowercase a–z), numbers (0–9), underscores (_), hyphens(-), periods(.), and spaces.Inputs must begin with at least one letter, number, underscore, hyphen, or period, and can optionally include spaces or additional valid characters afterward.For example: test_user1, File-Name_123.txt, and my_file with_spaces are accepted string inputs.Characters not accepted: Special characters such as #, @, or $.For example: abc!@# or #file1 are not accepted string inputs. |
+| String Inputs (All features) | **Accepted characters**: Letters (both uppercase A–Z and lowercase a–z), numbers (0–9), underscores (_), hyphens(-), periods(.), and spaces.Inputs must begin with at least one letter, number, underscore, hyphen, or period, and can optionally include spaces or additional valid characters afterward.For example: test_user1, File-Name_123.txt, and my_file with_spaces are accepted string inputs.**Characters not accepted**: Special characters such as #, @, or $.For example: abc!@# or #file1 are not accepted string inputs. |
 | Source IP and Destination Groups | 4,000 groups |
 | IP Address Entries or FQDNs per Group | 8,000 IP address entriesThe total number of IP entries across groups must adhere to the overall base IP limit. |
 | IP Address Entries per Organization | 16K IP address entriesThe limit for destination IP entries can be increased by using Custom URL Categories with Custom URLs and Custom IP Ranges. This applies only to the destination IP addresses. To learn more, see the URL Filtering & Cloud App Control section. |
@@ -354,20 +354,20 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 - Private Access (ZPA) Ranges and Limitations
 ## Administration
 - The following table shows the ranges and limitations for administration:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Admins | 5,000 admins |
 | Roles | 100 roles |
 ## App Connector Management
 - The following table shows the ranges and limitations for App Connector management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | App Connectors | 100 App Connectors |
 | App Connector Groups | 100 groups |
 | App Connector Provisioning Keys | 100 keys |
 ## Application Management
 - The following table shows the ranges and limitations for application management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Applications | 6,000 applicationsContact Zscaler Support to increase the limit up to 50K. This is only available with certain versions of Zscaler Client Connector:Version 4.0 and later for WindowsVersion 4.1 and later for macOSVersion 3.9 and later for AndroidVersion 4.4 and later for iOSVersion 4.2 and later for Linux2,000 applications per application segmentThe 2,000 applications per application segment limit applies to both IPs and domains. Wildcards also fall in the same category (i.e., every entry for the application in the Zscaler Admin Console counts as one).4,000 Source IP Anchoring-enabled domains or IP addressesDNS resolution can resolve a single domain (such as example.com or host.example.com) to no more than 200 IP addresses on the App Connector.The cloud can only handle up to 100 TXT records for any domain that it looks up. The DNS TXT records are ignored if the lookup surpasses 100 DNS TXT records.1,024 port pairsIf Multimatch is enabled, similar domains such as *.example.com, Abc.example.com, and Xyz.example.com are merged and considered the same domain when counting the first 1,024 port pairs. If disabled, each of those domains is considered separate when counting the first 1,024 port pairs. |
 | Application Segments | 6,000 segments255 Source IP Anchoring-enabled segments |
@@ -378,23 +378,23 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | Pattern Matching | 500 patterns |
 ## AppProtection Management
 - The following table shows the ranges and limitations for AppProtection management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Custom Control Parameters | 100 custom control parameters per custom control100 custom control parameters per AppProtection profile |
 ## Authentication
 - The following table shows the ranges and limitations for authentication configuration:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | IdP Configurations | 10 configurations |
 | SAML Attributes | 100 attributes |
 ## Backup and Restore
 | Feature | Limit |
 |---|---|
-| Backups | 10 backups per dayThe 10 backups per day limit applies to manually added backups, scheduled backups, and backups that are created within a Microtenant and have a Completed or In Progress status. |
+| Backups | 10 backups per dayThe 10 backups per day limit applies to manually added backups, scheduled backups, and backups that are created within a Microtenant and have a **Completed** or **In Progress** status. |
 | Restores | 10 restores per day |
 ## Browser Protection Management
 - The following table shows the ranges and limitations for Browser Protection:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Monitored Users | 20,000 users |
 ## Business-to-Business (B2B) Federation
@@ -406,47 +406,47 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 - Contact Zscaler Support to upgrade Business-to-Business (B2B) Federation limits.
 ## Certificate Management
 - The following table shows the ranges and limitations for certificate management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | (web server) Certificates | 1,000 certificates |
 | Enrollment Certificates | 1,000 certificates |
 ## Client Type Management
 - The following table shows the ranges and limitations for client type management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Client Type Microtunnel (M-Tunnel) Requests | 100 M-Tunnels per secondThe 100 M-Tunnels per second limit applies to the Zscaler Client Connector, Web Browser, Web Browser Unauthenticated, or Internet & SaaS Public Service Edge client types. To learn more, see Accessing User Activity Diagnostics.The 100 M-Tunnels per second limit can be changed. To learn more, contact Zscaler Support. |
 ## Cloud Connector Management
 - The following table shows the ranges and limitations for Cloud Connector management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Cloud Connector M-Tunnel Requests | 200 M-Tunnels per secondThe 200 M-Tunnels per second limit can be changed. To learn more, contact Zscaler Support. |
 | Workload Groups | 64 workload groups |
 ## Identity Management
 - The following table shows the ranges and limitations for identity management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | SCIM updates | 50 per second |
 | SCIM Groups | 1,000 groups per userThe 1,000 groups per user limit means that if a user is a part of more than 1,000 groups, the remaining groups are not synced until some of them are removed for the user on the IdP. There is no limit to the number of SCIM groups that can be synced. |
 ## Machine Management
 - The following table shows the ranges and limitations for machine management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Machine Groups | 100 groups |
 ## Microtenants
 - The following table shows the ranges and limitations for Microtenants:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Microtenants | 100 Microtenants |
 ## Organization
 - The following table shows the organization ranges and limitations for the organization:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Admin User Password | 100 characters |
 ## Policies
 - The following table shows the ranges and limitations for policies and rules:
 | Feature | Limit |
 |---|---|
-| Access Policy | 2,000 policy rules1,000 application segments per policy rule48 App Connector groups per policy ruleThe 48 App Connector groups per policy rule limit applies even if All App Connector groups for the application is selected when configuring an access policy rule. To learn more, see Configuring Access Policies.50 locations for extranet application support10 location groups for extranet application support |
+| Access Policy | 2,000 policy rules1,000 application segments per policy rule48 App Connector groups per policy ruleThe 48 App Connector groups per policy rule limit applies even if **All App Connector groups for the application** is selected when configuring an access policy rule. To learn more, see Configuring Access Policies.50 locations for extranet application support10 location groups for extranet application support |
 | AppProtection Policy | 500 policy rules1,000 application segments per policy rule |
 | Client Forwarding Policy | 500 policy rules1,000 application segments per policy rule |
 | Isolation Policy | 500 policy rules1,000 application segments per policy rule |
@@ -457,7 +457,7 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | Timeout Policy | 500 policy rules1,000 application segments per policy rule |
 ## Private Applications Private Service Edge Management
 - The following table shows the ranges and limitations for Private Access Private Service Edge management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Private Service Edges | 100 Private Service Edges |
 | Private Service Edge Groups | 100 groups |
@@ -472,7 +472,7 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | Maximum Number of Backups | 100 backups |
 ## Privileged Remote Access
 - The following table shows the ranges and limitations for Privileged Remote Access (PRA):
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Privileged Approvals | 20,000 privileged approvals200 application segments per privileged approvalOnly privileged approvals with approval statuses of Future or Active are counted. Privileged approvals with an approval status of Expired are not considered as part of the total amount. Each user can create up to 20 privileged approval requests on the My Requests page in the Privileged Remote Access (PRA) Portal. |
 | Privileged Consoles | 10 privileged consolesWith a license, this can be increased to the maximum limit of 9,000 privileged consoles. Contact your Zscaler Account team for more information. |
@@ -481,7 +481,7 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | Privileged Portals | 100 privileged portalsWhen configuring a privileged portal within the Default Microtenant, you can link a maximum of 9,000 privileged consoles to the privileged portal. |
 ## Support Information Management
 - The following table shows the ranges and limitations for support information management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | App Connectors | 100 App Connectors per session |
 | Private Service Edges | 100 Private Service Edges per session |
@@ -491,7 +491,7 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | Concurrent Sessions | 5 Concurrent Sessions per customerThe 5 Concurrent Sessions per customer limit is only on sessions that are in a Pending or Processing state. There is no limit on Completed, Failed, or Partially_Completed sessions. |
 ## Tag Management
 - The following table shows the ranges and limitations for tag management:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Namespaces | 1 namespace per Microtenant |
 | Keys | 3 keys per namespace |
@@ -499,13 +499,13 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | Tag Groups | 25 tag groups per policy rule50 tag groups per Microtenant25,000 total tag groups per customer when configuring a policy using the Applications criteria |
 ## User Portal
 - The following table shows the ranges and limitations for User Portal:
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Portal Links | 500 linksYou can only configure 150 links at a time when configuring portal links in the Zscaler Admin Console. |
 ## VPN (for Legacy Apps)
 - The following table shows the ranges and limitations for VPN (for Legacy Apps):
 - Some limits can be adjusted based on user count and onboarded applications.
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Number of Network Connectors per Customer | 100 per customer |
 | Number of VPN Service Edge Regions | 3 per customer |
@@ -522,7 +522,7 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 - If you must increase the maximum or adjust limits for your organization, send a request to Zscaler Support.
 ## Alerts
 - The following table shows the ranges and limitations for Alerts settings:
-| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |
+| **Feature** | **Standard** | **Microsoft 365** | **Advanced** | **Advanced Plus** |
 |---|---|---|---|---|
 | Total Alerts | 512 | 512 | 512 | 512 |
 | Total Active Alerts (Alerts with Incident Correlation) | Up to 3 | 10 | 25 | 100 |
@@ -530,7 +530,7 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | Dynamic Alerting | Not supported | Not supported | Supported | Supported |
 ## Analytics
 - The following table shows the support settings for Analytics:
-| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |
+| **Feature** | **Standard** | **Microsoft 365** | **Advanced** | **Advanced Plus** |
 |---|---|---|---|---|
 | Hop View (Granular Expanded Cloud Path) | Supported | Supported | Supported | Supported |
 | Software and Device Inventory | Not supported | Not supported | Supported | Supported |
@@ -556,7 +556,7 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 - *Identical ranges and limitations across add-ons for Standard, Microsoft 365, and Advanced subscriptions.
 ## Applications and Probes
 - The following table shows the ranges and limitations for Applications and Probes settings:
-| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |
+| **Feature** | **Standard** | **Microsoft 365** | **Advanced** | **Advanced Plus** |
 |---|---|---|---|---|
 | Total Number of Internet Web Applications | 512 | 512 | 512 | 512 |
 | Active Probes (per tenant) | 3 | 7 | 30 | 100 |
@@ -571,13 +571,13 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | ZDX Autosense (Microsoft Teams Call Quality) | Not supported | Supported | Supported | Supported |
 # Diagnostics
 - The following table shows the ranges and limitations for Diagnostics settings:
-| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |
+| **Feature** | **Standard** | **Microsoft 365** | **Advanced** | **Advanced Plus** |
 |---|---|---|---|---|
 | Total Diagnostics Sessions | Not supported | 25 | 25 | 100 |
 | Total Active Sessions | Not supported | 25 | 25 | 100 |
 ## Integrations and Data Retention
 - The following table shows the ranges and limitations for Integrations and Data Retention settings:
-| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |
+| **Feature** | **Standard** | **Microsoft 365** | **Advanced** | **Advanced Plus** |
 |---|---|---|---|---|
 | Webhooks | Not supported | 10 | 10 | 50 |
 | ZDX APIs | Not supported | Supported for Microsoft 365 events | Supported | Supported |
@@ -676,13 +676,13 @@ This article lists the ranges and limitations of rules, policies, fields, and ot
 | Branch Connector DHCP Server Static Leases | 32 leases |
 | Branch Connector Virtual local area networks (VLANs) per Interface | 9 subinterface VLANs and one main untagged VLAN per interface, or 10 subinterface VLANs without the main untagged VLAN |
 ## Zero Trust Gateways
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | Amazon Web Services (AWS) Accounts per Gateway | 128 AWS accounts |
 | Traffic Tests | 128 tests |
 | Endpoints | 128 endpoints per availability zone (AWS recommends 50 per availability zone) |
 ## Partner Integrations
-| Feature | Limit |
+| **Feature** | **Limit** |
 |---|---|
 | AWS Accounts per Organization | 512 accounts |
 | AWS Accounts per Group | 96 accounts |

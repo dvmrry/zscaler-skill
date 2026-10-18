@@ -1,13 +1,17 @@
-These are claims about the Go SDK's list helpers and the Terraform providers built on them, not about how ZPA, ZCC or ZTC behave. The helpers decide when a list is "finished" from the response they get. Where that decision is wrong, the caller receives a shorter list and no error, so a missing object looks like an object that does not exist. Whether any given API sends the responses that trigger it is server behavior; the gaps below say how to test it.
+These are claims about the Go SDK's list helpers and the Terraform providers built on them, not about how ZPA, ZCC or ZTC behave. The helpers decide when a list is "finished" from the response they get.
 
-ZPA lists read a `totalPages` field and walk to it. {{zpa-total-pages-parse-error-ignored}} {{zpa-loop-trusts-latest-total-pages}} {{zpa-post-search-same-parse}} The SCIM reader uses a different scheme and has two separate faults. {{zpa-scim-advances-by-requested-count}} {{zpa-scim-stops-on-total-results}} What that means for an operator: {{zpa-silent-truncation}} {{zpa-helper-callers}} When a ZPA name lookup, import or data source says an object does not exist, compare against the console before concluding it is absent.
+**ZPA paging.** {{zpa-total-pages-parse-error-ignored}} {{zpa-loop-trusts-latest-total-pages}} {{zpa-post-search-same-parse}}
 
-ZCC v2 lists use an offset and an envelope that reports `limit`, `count` and `total`. {{zcc-skip-advances-by-requested-size}} {{zcc-guards-need-envelope-metadata}} {{zcc-skip-records-or-loop}} {{zcc-v2-callers}}
+**ZPA SCIM paging.** {{zpa-scim-advances-by-requested-count}} {{zpa-scim-stops-on-total-results}}
 
-ZTC (ztw) lists use a fixed page size and the same short-page stop as ZIA. {{ztw-stops-on-page-shorter-than-1000}} {{ztw-capped-page-truncates}} {{ztw-helper-callers}} The ZIA helper has the same stop rule, covered for URL Filtering in [[zia.url-filtering.list-pagination]]; the one extra fact is a small cost. {{zia-readallpages-extra-request}}
+**Silent truncation and callers.** {{zpa-silent-truncation}} {{zpa-helper-callers}} Whether ZPA endpoints send such paging metadata is open {{gap:zpa-paging-metadata-shape}}.
 
-The consequences that matter most land in providers. The ZCC forwarding-profile list is read once, with no paging, and the resource treats "not in the response" as "deleted". {{zcc-forwarding-profile-single-request}} {{zcc-forwarding-profile-read-drops-state}} {{zcc-forwarding-profile-outside-first-page}}
+**ZCC v2 paging.** {{zcc-skip-advances-by-requested-size}} {{zcc-guards-need-envelope-metadata}} {{zcc-skip-records-or-loop}} {{zcc-v2-callers}} Whether ZCC v2 endpoints cap the page or fill the envelope is open {{gap:zcc-v2-envelope-behavior}}.
 
-ZIA posture profiles in the ZCC provider read through the v2 helper above, and the provider itself says the list is unreliable. {{zia-posture-import-by-name-uses-list-helper}} {{provider-documents-posture-list-truncated}} {{zia-posture-import-by-name-can-miss}} The same pattern of a truncated list feeding a decision appears in [[zia.terraform.rule-order]], where the "last rule" comes from a list that may be partial.
+**ZTC paging.** {{ztw-stops-on-page-shorter-than-1000}} {{ztw-capped-page-truncates}} {{ztw-helper-callers}} Whether a ZTC endpoint caps its page is open {{gap:page-size-caps}}.
 
-What to check: after any import by name, data-source lookup or refresh that reports an object missing, count the objects through the console or a separate API call, and compare with what the SDK-based tool returned. A count that is an exact multiple of the helper's page size (50, 500 or 1000 by default depending on the product) deserves a second look.
+**ZIA paging.** The ZIA helper stops the same way, covered for URL Filtering in [[zia.url-filtering.list-pagination]]. {{zia-readallpages-extra-request}}
+
+**ZCC forwarding profiles.** {{zcc-forwarding-profile-single-request}} {{zcc-forwarding-profile-read-drops-state}} {{zcc-forwarding-profile-outside-first-page}} Whether the endpoint pages its response by default is open {{gap:zcc-forwarding-profile-default-page}}.
+
+**ZIA posture profiles.** {{zia-posture-import-by-name-uses-list-helper}} {{provider-documents-posture-list-truncated}} {{zia-posture-import-by-name-can-miss}} Whether the truncation is server paging or the SDK helper is open {{gap:zia-posture-truncation-cause}}. The same pattern of a truncated list feeding a decision appears in [[zia.terraform.rule-order]], where the "last rule" comes from a list that may be partial.

@@ -27,6 +27,20 @@
       "to": "zia.authentication.settings"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a drift report on authentication mode can come from Terraform, given that the provider does not manage the org authentication settings object.",
+      "uses": [
+        "provider-surface"
+      ]
+    },
+    {
+      "do": "Which of the two resources a configuration actually uses, zia_user_management or zia_auth_settings_urls.",
+      "uses": [
+        "provider-surface"
+      ]
+    }
+  ],
   "claims": {
     "provider-surface": {
       "statement": "The ZIA Terraform provider registers a zia_user_management resource and data source and a zia_auth_settings_urls resource and data source. It registers no resource for the organization-wide authSettings object, so the tenant authentication mode (orgAuthType, samlEnabled and the rest) is not managed as code by the provider.",

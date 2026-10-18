@@ -18,11 +18,11 @@ On the API Clients page (Administration > API > API Clients), you can do the fol
 - Download the list of API clients as a CSV file.
 - Add an API client.
 - View the list of API clients you've configured. For each API client, you can see:
-  - Name: The name of the API client.
-  - Status: The status (Active or Inactive) of the API client.
-  - Client ID: The unique identifier for the API client.
+  - **Name**: The name of the API client.
+  - **Status**: The status (Active or Inactive) of the API client.
+  - **Client ID**: The unique identifier for the API client.
 - Reset the page to the default view.
-- Select the columns to display in the table and click Apply.
+- Select the columns to display in the table and click **Apply**.
 - Edit an API client.
 - Delete an API client.
 - Enable or disable an API client.

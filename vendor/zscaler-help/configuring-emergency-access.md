@@ -25,35 +25,35 @@ Zscaler recommends you are aware of the following when configuring emergency acc
 The steps to configure emergency access differ if the end user has migrated to Authentication Service or not.
 - For Private Access end users who have migrated to Authentication Service
   - The following must be configured in Authentication Service for the third-party user:
-    - Enable Arbitrary Guest Domains. To learn more, see Adding Guest Domains.
+    - Enable **Arbitrary Guest Domains**. To learn more, see Adding Guest Domains.
     - Add a user. To learn more, see Adding Users.
-    - Edit the user that was added, and then verify that the user is assigned to the Dynamic Group Guest Domains and the Zscaler Emergency Access groups in the drop-down menu.
+    - Edit the user that was added, and then verify that the user is assigned to the **Dynamic Group Guest Domains** and the **Zscaler Emergency Access** groups in the drop-down menu.
     - See image.
     - Assign the user to the Zscaler Private Access service entitlement. To learn more, see Assigning Entitlements to User and User Groups.
     - You must assign the Zscaler Private Access service entitlement if you are creating an emergency access user using session monitoring or privileged approvals.
-  - From the navigation menu, go to Administration > Private Access Authentication > Emergency Access.
-  - On the Emergency Access page:
-  - IdP: The IdP that has Use with Arbitrary Domains enabled. This is a read-only field.
+  - From the navigation menu, go to **Administration** > **Private Access Authentication** > **Emergency Access**.
+  - On the **Emergency Access** page:
+  - **IdP**: The IdP that has **Use with Arbitrary Domains** enabled. This is a read-only field.
 - Only Authentication Service IdPs are supported for emergency access end users who have migrated to Authentication Service. You can sign up for Authentication Service for Zscaler. To learn more, refer to What Is Authentication Service?
-  - IdP API Token: Enter the Okta API token with the necessary group administrator permissions for the group that will be designated for emergency access, but is not yet created. If the group has already been created, an Okta API token can also be entered with the necessary permissions for managing users under a group to be designated for emergency access. To learn more, refer to the Okta Developer documentation.
-  - The IdP API Token field is hidden if you are subscribed to Authentication Service for users and User Single Sign-On (SSO) is enabled for your tenant. To learn more, see What Is Authentication Service?
-  - User Group Name: The name of the user group where the new users are created.
-  - The User Group Name field is disabled if you are subscribed to Authentication Service for users and User Single Sign-On (SSO) is enabled for your tenant. To learn more, see What Is Authentication Service?
-  - Emergency Authentication Domains: Enter the email address domains to manage or limit the user authentication domains for emergency access when creating privileged approvals, and click Add Items. Click Remove All to remove all entered domains. If added, only the email address domain configured in the Emergency Authentication Domains field can be used when adding a privileged approval. When no authentication domains are specified, users can be created from any authentication domain that is not an existing primary or secondary authentication domain. When an authentication domain is specified, only the specified authentication domains can be used.
-- If an existing email address domain is removed from the Emergency Authentication Domain field, the privileged approvals created with it continue to be present. Additionally, the Emergency Access Authentication Domains field is hidden if you are subscribed to Authentication Service for users and User Single Sign-On (SSO) is enabled for your tenant. To learn more, see What Is Authentication Service?
+  - **IdP API Token**: Enter the Okta API token with the necessary group administrator permissions for the group that will be designated for emergency access, but is not yet created. If the group has already been created, an Okta API token can also be entered with the necessary permissions for managing users under a group to be designated for emergency access. To learn more, refer to the Okta Developer documentation.
+  - The **IdP API Token** field is hidden if you are subscribed to Authentication Service for users and User Single Sign-On (SSO) is enabled for your tenant. To learn more, see What Is Authentication Service?
+  - **User Group Name**: The name of the user group where the new users are created.
+  - The **User Group Name** field is disabled if you are subscribed to Authentication Service for users and User Single Sign-On (SSO) is enabled for your tenant. To learn more, see What Is Authentication Service?
+  - **Emergency Authentication Domains**: Enter the email address domains to manage or limit the user authentication domains for emergency access when creating privileged approvals, and click **Add Items**. Click **Remove All** to remove all entered domains. If added, only the email address domain configured in the **Emergency Authentication Domains** field can be used when adding a privileged approval. When no authentication domains are specified, users can be created from any authentication domain that is not an existing primary or secondary authentication domain. When an authentication domain is specified, only the specified authentication domains can be used.
+- If an existing email address domain is removed from the **Emergency Authentication Domain** field, the privileged approvals created with it continue to be present. Additionally, the **Emergency Access Authentication Domains** field is hidden if you are subscribed to Authentication Service for users and User Single Sign-On (SSO) is enabled for your tenant. To learn more, see What Is Authentication Service?
 - See image.
-  - Click Save.
+  - Click **Save**.
 - For Private Access end users who have not migrated to Authentication Service
-  - Go to Administration > Private Access Authentication > Emergency Access.
-  - On the Emergency Access page:
-    - IdP: The IdP that has Use with Arbitrary Domains enabled. This is a read-only field.
+  - Go to **Administration** > **Private Access Authentication** > **Emergency Access**.
+  - On the **Emergency Access** page:
+    - **IdP**: The IdP that has **Use with Arbitrary Domains** enabled. This is a read-only field.
     - Only Okta IdPs are supported for emergency access. You can sign up for the Okta tenant for Zscaler. To learn more, refer to the Okta documentation and Configuration Guide for Okta.
-    - IdP API Token: Enter the Okta API token with the necessary group administrator permissions for the group that will be designated for emergency access, but is not yet created. If the group has already been created, an Okta API token can also be entered with the necessary permissions for managing users under a group to be designated for emergency access. To learn more, refer to the Okta Developer documentation.
-    - User Group Name: The name of the user group where the new users are created.
-    - Emergency Authentication Domains: (Optional) Enter the email address domains to manage or limit the user authentication domains for emergency access when creating privileged approvals, and click Add Items. Click Remove All to remove all entered domains. If added, only the email address domain configured in the Emergency Authentication Domains field can be used when adding a privileged approval. When no authentication domains are specified, users can be created from any authentication domain that is not an existing primary or secondary authentication domain. When an authentication domain is specified, only the specified authentication domains can be used.
-    - If an existing email address domain is removed from the Emergency Authentication Domain field, the privileged approvals created with it continue to be present.
+    - **IdP API Token**: Enter the Okta API token with the necessary group administrator permissions for the group that will be designated for emergency access, but is not yet created. If the group has already been created, an Okta API token can also be entered with the necessary permissions for managing users under a group to be designated for emergency access. To learn more, refer to the Okta Developer documentation.
+    - **User Group Name**: The name of the user group where the new users are created.
+    - **Emergency Authentication Domains**: (Optional) Enter the email address domains to manage or limit the user authentication domains for emergency access when creating privileged approvals, and click **Add Items**. Click **Remove All** to remove all entered domains. If added, only the email address domain configured in the **Emergency Authentication Domains** field can be used when adding a privileged approval. When no authentication domains are specified, users can be created from any authentication domain that is not an existing primary or secondary authentication domain. When an authentication domain is specified, only the specified authentication domains can be used.
+    - If an existing email address domain is removed from the **Emergency Authentication Domain** field, the privileged approvals created with it continue to be present.
   - See image.
-  - Click Save.
+  - Click **Save**.
 When configuring emergency access within a Microtenant:
 - Only the Default Microtenant can configure emergency access.
 - Emergency access users can be created or edited by Microtenants that have Privileged Approvals disabled.

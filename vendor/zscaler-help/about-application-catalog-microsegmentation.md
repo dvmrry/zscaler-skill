@@ -16,13 +16,13 @@ On the Application Catalog page (Zero Trust Cloud > Microsegmentation > Applicat
 - Refresh the Application Catalog page to reflect the most current information.
 - Show or hide available columns.
 - Show or hide available filters.
-- Filter the information by Application Name, Application Category, Process, Protocol, and Port. After configuring your preferred filters, click the button to apply the filters (e.g., Apply 1 filter, Apply 2 filters) and view the results.
+- Filter the information by **Application Name**, **Application Category,** **Process**, **Protocol**, and **Port**. After configuring your preferred filters, click the button to apply the filters (e.g., Apply 1 filter, Apply 2 filters) and view the results.
 - See image.
 - View a list of all applications found. For each application, you can see:
-  - Application Name: The name of the application.
-  - Application Category: The type of application.
-  - Process Name: The name of the process file.
-  - Protocol: The protocol type (UDP, TCP, etc.).
-  - Port Start: The port starting number.
-  - Port End: The port ending number.
+  - **Application Name**: The name of the application.
+  - **Application Category**: The type of application.
+  - **Process Name**: The name of the process file.
+  - **Protocol**: The protocol type (UDP, TCP, etc.).
+  - **Port Start**: The port starting number.
+  - **Port End**: The port ending number.
 - Display more rows or a different page of the table.

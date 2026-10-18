@@ -44,8 +44,35 @@
         "title": "Where SSL inspection sits in ZIA web policy evaluation (the two passes)"
       }
     ],
+    "checks": [
+      {
+        "do": "Which category the URL belongs to, since it is resolved before any rule is walked.",
+        "uses": [
+          "zia.url-categories.membership:resolved-before-rules"
+        ]
+      },
+      {
+        "do": "Whether a higher rule fails to fire only because the URL resolved to a different category.",
+        "uses": [
+          "zia.url-categories.membership:resolved-before-rules",
+          "zia.url-filtering.rule-order:ascending-order"
+        ]
+      },
+      {
+        "do": "Whether a disabled rule is the reason a higher rule appears not to fire.",
+        "uses": [
+          "zia.url-filtering.rule-order:disabled-holds-slot"
+        ]
+      },
+      {
+        "do": "Whether an admin rank limits the positions a rule can take in the order.",
+        "uses": [
+          "zia.url-filtering.rule-order:admin-rank-precedes"
+        ]
+      }
+    ],
     "prose": {
-      "text": "URL Filtering is a first-match policy. URL Filtering rules evaluate in ascending `order` (Rule 1 before Rule 2). [ascending-order] Evaluation stops at the first rule whose criteria all match; later rules are not consulted. [first-match] So \"which rule wins\" is always the *first* matching rule, never the most specific rule and never the strictest one.\n\nThat is only half of a precedence answer. A rule \"matches\" a URL through its URL Categories criterion, and which category a URL belongs to is decided *before* any rule is walked, by most-specific-entry-wins across custom categories. A rule higher in the order can therefore silently never fire, because the URL resolved to a different category. Check category membership first, then walk the rules: see [Which URL category a URL belongs to](kb:zia.url-categories.membership).\n\nTwo order mechanics trip up \"why didn't the higher rule fire?\" questions. A disabled rule is skipped but keeps its position in the order. [disabled-holds-slot] Re-enabling a rule restores it to the same slot, so a disabled rule is invisible to evaluation while still occupying a position. With Admin Rank enabled, a rule's admin rank (0 is highest, 7 lowest) constrains the order values it can take: a higher-ranked rule always precedes a lower-ranked one, and an admin cannot pick a rank above their own. [admin-rank-precedes] When a tenant uses admin ranks, the order an admin sees in the console is bounded by rank, which explains rules that seem impossible to move above another.\n\nOrder only applies among rules that are evaluated at all. If Cloud App Control explicitly allows the transaction, URL Filtering does not run unless cascading is enabled ([Cloud App Control versus URL Filtering: which applies](kb:zia.cloud-app-control.precedence)). On inspected HTTPS, URL Filtering runs twice, once on the domain and once on the full URL ([Where SSL inspection sits in ZIA web policy evaluation (the two passes)](kb:zia.ssl-inspection.pipeline)).",
+      "text": "URL Filtering is a first-match policy. URL Filtering rules evaluate in ascending `order` (Rule 1 before Rule 2). [ascending-order] Evaluation stops at the first rule whose criteria all match; later rules are not consulted. [first-match]\n\n**Category first.** Which category a URL is in is decided before any rule is walked: [Category membership is resolved before rules are walked: a rule matches a URL through the category the URL resolved to, not through every category with a matching entry.](kb:zia.url-categories.membership:resolved-before-rules).\n\n**Disabled rules and admin ranks.** A disabled rule is skipped but keeps its position in the order. [disabled-holds-slot] With Admin Rank enabled, a rule's admin rank (0 is highest, 7 lowest) constrains the order values it can take: a higher-ranked rule always precedes a lower-ranked one, and an admin cannot pick a rank above their own. [admin-rank-precedes]\n\n**Rules that never run.** If Cloud App Control explicitly allows the transaction, URL Filtering does not run unless cascading is enabled ([Cloud App Control versus URL Filtering: which applies](kb:zia.cloud-app-control.precedence)). On inspected HTTPS, URL Filtering runs twice, once on the domain and once on the full URL ([Where SSL inspection sits in ZIA web policy evaluation (the two passes)](kb:zia.ssl-inspection.pipeline)).",
       "order": [
         "ascending-order",
         "first-match",

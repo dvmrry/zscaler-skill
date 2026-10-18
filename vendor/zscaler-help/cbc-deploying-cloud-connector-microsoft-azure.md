@@ -10,9 +10,9 @@ When deploying a Cloud Connector, only deploy an autoscaling group (ASG) with an
 This deployment guide provides information on prerequisites, how to deploy Zscaler Cloud Connector as a virtual machine (VM) in Microsoft Azure, and post-deployment configurations.
 The Azure Routing Intent and Routing Policies feature for secured virtual Wide Area Network (WAN) hubs is incompatible with Cloud Connector.
 This procedure describes two methods for deploying Cloud Connector:
-- Zscaler Cloud Connector Application in the Azure Marketplace: This method is available for static deployment of Cloud Connector.
+- **Zscaler Cloud Connector Application in the Azure Marketplace**: This method is available for static deployment of Cloud Connector.
 - The Zscaler Cloud Connector Application in the Azure Marketplace is available in all regions except China. If you are deploying Cloud Connector from the China region, you must use Terraform.
-- Terraform: This method provides support for a richer set of functions, including the option to deploy using VMSS. To learn more about the resources created when deploying Cloud Connector using a Terraform script, see Deployment Templates for Zscaler Cloud Connector. To learn more about VMSS, see Understanding Cloud Connector Deployments with Azure Virtual Machine Sets.
+- **Terraform**: This method provides support for a richer set of functions, including the option to deploy using VMSS. To learn more about the resources created when deploying Cloud Connector using a Terraform script, see Deployment Templates for Zscaler Cloud Connector. To learn more about VMSS, see Understanding Cloud Connector Deployments with Azure Virtual Machine Sets.
 - VMSS is the name of the feature in the Azure Marketplace and the Terraform templates. Auto Scaling is the name of the same feature in the Cloud Provisioning template.
 # Prerequisites
 Make sure the following prerequisites are met.
@@ -22,14 +22,14 @@ If you have already created a dedicated admin role and role-based administrator 
 - If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Cloud & Branch Connector are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.
 - To configure a new admin role:
   - Log in to the Zscaler Admin Console as a super admin.
-  - Go to Administration > Role Management > Branch and Cloud Connector.
-  - Click Add Admin Role.
-  - In the Add Admin Role window:
-    - Name: Enter a unique name for the admin role (e.g., CloudConnector-Deployment-Role).
-    - Permissions: Ensure that the admin has full access to API Key Management, Location Management, and Cloud Connector Provisioning. Set all other permissions to None. To learn more, see About Role Management.
+  - Go to **Administration** > **Role Management** > **Branch and Cloud Connector**.
+  - Click **Add Admin Role**.
+  - In the **Add Admin Role** window:
+    - **Name**: Enter a unique name for the admin role (e.g., CloudConnector-Deployment-Role).
+    - **Permissions**: Ensure that the admin has full access to **API Key Management**, **Location Management**, and **Cloud Connector Provisioning**. Set all other permissions to **None**. To learn more, see About Role Management.
   - See image.
-  - Click Save and activate the change.
-- Ensure that you have the User Access Administrator, Contributor, and Key Vault Administrator roles assigned to your Azure subscription.
+  - Click **Save** and activate the change.
+- Ensure that you have the **User Access Administrator**, **Contributor**, and **Key Vault Administrator** roles assigned to your Azure subscription.
 - 2. Configure a new role-based administrator.
   - In Zscaler Cloud Connector
   - After configuring the admin role, create a new role-based administrator dedicated to Cloud Connector deployment.
@@ -38,10 +38,10 @@ If you have already created a dedicated admin role and role-based administrator 
 - 3. Retrieve the API key.
 - To retrieve the API key:
   - Log in to the Zscaler Admin Console.
-  - Go to Administration > API > Cloud & Branch Connector API.
+  - Go to **Administration** > **API** > **Cloud & Branch Connector API**.
   - From the API Key Management page, copy the API key and store it in a secure location. Cloud Connector uses the API key to authenticate and register the VM with the Zscaler service.
 - See image.
-- If the API is not available, click Add Cloud Service API Key to add an API key. To learn more, see Managing Organization API Keys.
+- If the API is not available, click **Add Cloud Service API Key** to add an API key. To learn more, see Managing Organization API Keys.
 - 4. Add a location template.
 - Locations identify the various networks from which your organization sends its traffic. To configure a location template, see Configuring a Location Template.
 - 5. Configure a cloud provisioning template.
@@ -72,114 +72,114 @@ If you have already created a dedicated admin role and role-based administrator 
     - Storage Blob Data Reader
 - To create managed identities and assign roles:
   - Log in to the Azure Portal.
-  - Under Services, search for Managed Identities.
-  - Click Create.
-  - The Create User Assigned Managed Identity page appears.
-  - On the Basics tab:
-    - Subscription: Select the subscription with user access administrator permission to manage deployed resources.
-    - Resource group: Click Create new and enter a name for the resource group. A resource group is a collection of resources that share the same lifecycle, permissions, and policies.
-    - Region: Select the desired region for your deployment.
-    - Name: Enter a name for your user-assigned managed identity.
+  - Under **Services**, search for Managed Identities.
+  - Click **Create**.
+  - The **Create User Assigned Managed Identity** page appears.
+  - On the **Basics** tab:
+    - **Subscription**: Select the subscription with user access administrator permission to manage deployed resources.
+    - **Resource group**: Click **Create new** and enter a name for the resource group. A resource group is a collection of resources that share the same lifecycle, permissions, and policies.
+    - **Region**: Select the desired region for your deployment.
+    - **Name**: Enter a name for your user-assigned managed identity.
   - See image.
-  - Click Next: Tags >.
-  - On the Tags tab, configure tags to categorize resources, then click Next: Review + create >.
-  - On the Review + create tab, review your managed identity configuration, and then click Create.
-  - After your managed identity has been created, go to Managed Identities and select your managed identity.
-  - From the left-side navigation, click Azure role assignments, then click Add role assignment (Preview).
-  - In the Add role assignment (Preview) window:
-    - Scope: From the drop-down menu, select Subscription.
-    - Subscription: From the drop-down menu, select your subscription.
-    - Role: From the drop-down menu, select the role or roles specified above, one at a time.
+  - Click **Next: Tags >**.
+  - On the **Tags** tab, configure tags to categorize resources, then click **Next: Review + create >**.
+  - On the **Review + create** tab, review your managed identity configuration, and then click **Create**.
+  - After your managed identity has been created, go to **Managed Identities** and select your managed identity.
+  - From the left-side navigation, click **Azure role assignments**, then click **Add role assignment (Preview)**.
+  - In the **Add role assignment (Preview)** window:
+    - **Scope**: From the drop-down menu, select **Subscription**.
+    - **Subscription**: From the drop-down menu, select your subscription.
+    - **Role**: From the drop-down menu, select the role or roles specified above, one at a time.
   - See image.
-  - Click Save.
+  - Click **Save**.
   - (Scale Set deployments only) Repeat this procedure for the second managed identity.
 - 9. Create an Azure key vault.
 - To create an Azure key vault to securely store and access your secrets:
   - Log in to the Azure Portal.
-  - Go to Key vaults, then click Create.
-  - The Create a key vault page appears.
-  - On the Basics tab:
-    - Subscription: Select the subscription with user access administrator permission to manage deployed resources.
-    - Resource group: Select the resource group in which you want to create the key vault.
-    - Key vault name: Enter a name for your key vault.
-    - Region: Select the desired region for your deployment.
-    - Pricing tier: Select either Standard or Premium (includes support for HSM backed keys).
-    - Soft-delete: This setting is automatically enabled on this key vault. Soft-delete allows you to recover or permanently delete a key vault and secrets.
-    - Days to retain deleted vaults: Enter the desired period for retaining deleted vaults.
-    - Purge protection: Select either Disable purge protection (allow key vault and objects to be purged during retention period) or Enable purge protection (enforce a mandatory retention period for deleted vaults and vault objects).
+  - Go to **Key vaults**, then click **Create**.
+  - The **Create a key vault** page appears.
+  - On the **Basics** tab:
+    - **Subscription**: Select the subscription with user access administrator permission to manage deployed resources.
+    - **Resource group**: Select the resource group in which you want to create the key vault.
+    - **Key vault name**: Enter a name for your key vault.
+    - **Region**: Select the desired region for your deployment.
+    - **Pricing tier**: Select either **Standard** or **Premium (includes support for HSM backed keys)**.
+    - **Soft-delete**: This setting is automatically enabled on this key vault. Soft-delete allows you to recover or permanently delete a key vault and secrets.
+    - **Days to retain deleted vaults**: Enter the desired period for retaining deleted vaults.
+    - **Purge protection**: Select either **Disable purge protection (allow key vault and objects to be purged during retention period)** or **Enable purge protection (enforce a mandatory retention period for deleted vaults and vault objects)**.
   - See image.
-  - Click Next.
+  - Click **Next**.
   - Perform one of the following procedures to configure the key vault permission model.
   - Zscaler strongly recommends the Azure Role-Based Access Control method, because it provides a clear delineation between security operations and administrative tasks. For example, with this method, only the Owner and User Access Administrator roles can grant access to keys, secrets, and certificates.
     - Azure Role-Based Access Control (recommended)
-      - On the Access configuration tab:
-        - Permission model: Select Azure role-based access control (recommended).
-        - Resource access: Select Azure Resource Manager for template deployment.
+      - On the **Access configuration** tab:
+        - **Permission model**: Select **Azure role-based access control (recommended)**.
+        - **Resource access**: Select **Azure Resource Manager for template deployment**.
       - See image.
-      - Click Next.
-      - On the Networking tab, select Enable public access, and then select All networks.
+      - Click **Next**.
+      - On the **Networking** tab, select **Enable public access**, and then select **All networks**.
       - See image.
-      - Click Next.
-      - On the Tags tab, configure tags to categorize resources.
-      - Click Review + Create and then click Create.
-      - The key vault Overview page shows the status of the deployment.
-      - After the deployment is complete, click Go to resource.
+      - Click **Next**.
+      - On the **Tags** tab, configure tags to categorize resources.
+      - Click **Review + Create** and then click **Create.**
+      - The key vault **Overview** page shows the status of the deployment.
+      - After the deployment is complete, click **Go to resource**.
       - See image.
-      - On the key vault page, in the left navigation, select Access control (IAM). On the Access control (IAM) page, click Role assignments > Add > Add role assignment.
+      - On the key vault page, in the left navigation, select **Access control (IAM)**. On the **Access control (IAM)** page, click **Role assignments** > **Add** > **Add role assignment**.
       - See image.
-      - On the Add role assignment page, on the Job function roles tab, search for and select the Key Vault Secrets User role. Click Next.
+      - On the **Add role assignment** page, on the **Job function roles** tab, search for and select the **Key Vault Secrets User** role. Click **Next**.
       - See image.
-      - On the Members tab, for Assign access to, select Managed identity.
-      - Click Select members.
+      - On the **Members** tab, for **Assign access to**, select **Managed identity**.
+      - Click **Select members**.
       - See image.
-      - On the Select managed identities window that opens, filter by your subscription name or ID.
-      - Search for and select the Cloud Connector managed identity you created earlier, click Select, and then click Review + assign.
+      - On the **Select managed identities** window that opens, filter by your subscription name or ID.
+      - Search for and select the Cloud Connector managed identity you created earlier, click **Select**, and then click **Review + assign**.
       - See image.
-      - On the Role assignments tab of the Access control (IAM) page, click Role Assignments, enter Key Vault Secrets in the search bar, and confirm the managed identity account that is being assigned to Cloud Connector.
+      - On the **Role assignments** tab of the **Access control (IAM)** page, click **Role Assignments**, enter Key Vault Secrets in the search bar, and confirm the managed identity account that is being assigned to Cloud Connector.
       - See image.
     - Vault Access Policy
-      - Access configuration: Select Vault access policy as the permission model.
-      - Resource access: Select Azure Resource Manager for template deployment.
+      - **Access configuration**: Select **Vault access policy** as the permission model.
+      - **Resource access**: Select **Azure Resource Manager for template deployment**.
       - See image.
-      - Under Access policies, click Create.
-      - In the Create an access policy window:
-        - Secret permissions: On the Permissions tab, under Secret permissions, select Get and List, then click Next.
+      - Under **Access policies**, click **Create**.
+      - In the **Create an access policy** window:
+        - **Secret permissions**: On the **Permissions** tab, under **Secret permissions**, select **Get** and **List**, then click **Next**.
         - See image.
-        - Principal: On the Principal tab, select your recently created managed identity, then click Next.
+        - **Principal**: On the **Principal** tab, select your recently created managed identity, then click **Next**.
         - See image.
-      - Click Create.
-      - Click Next.
-      - On the Networking tab, select Enable public access, and then select All networks. Click Next.
-      - On the Tags tab, configure tags to categorize resources. Click Next.
-      - On the Review + Create tab, review the summary of your configurations and click Create.
+      - Click **Create**.
+      - Click **Next**.
+      - On the **Networking** tab, select **Enable public access**, and then select **All networks**. Click **Next.**
+      - On the **Tags** tab, configure tags to categorize resources. Click **Next**.
+      - On the **Review + Create** tab, review the summary of your configurations and click **Create**.
 - 10. Create secrets.
 - To create secrets to add to your Azure key vault:
   - Log in to the Azure Portal.
-  - Go to Key vaults, then select your newly created key vault.
-  - In the left-side navigation, click Secrets, then click Generate/Import.
-  - The Create a secret page appears.
+  - Go to **Key vaults**, then select your newly created key vault.
+  - In the left-side navigation, click **Secrets**, then click **Generate/Import**.
+  - The **Create a secret** page appears.
   - Add the following secrets:
-    - api-key: For the name of your secret, enter api-key. For the corresponding value, enter the value from the API Key Management page on the Zscaler Admin Console.
-    - password: For the name of your secret, enter password. For the corresponding value, enter your Zscaler Admin Console password.
-    - username: For the name of your secret, enter username. For the corresponding value, enter your Zscaler Admin Console username.
+    - **api-key**: For the **name** of your secret, enter api-key. For the corresponding **value**, enter the value from the API Key Management page on the Zscaler Admin Console.
+    - **password**: For the **name** of your secret, enter password. For the corresponding **value**, enter your Zscaler Admin Console password.
+    - **username**: For the **name** of your secret, enter username. For the corresponding **value**, enter your Zscaler Admin Console username.
   - See image.
-  - Click Create.
+  - Click **Create**.
 - See image.
 - 11. Create an SSH key pair.
 - To create an SSH key pair:
   - Log in to the Azure Portal.
-  - Go to SSH keys, then click Create.
-  - The Create an SSH key page appears.
-  - On the Basics tab:
-    - Subscription: From the drop-down menu, select the subscription with user access administrator permission to manage deployed resources.
-    - Resource Group: Select the resource group in which you want to create the SSH key pair or click Create new to create a new resource group.
-    - Region: From the drop-down menu, select the desired region in which to deploy the newly created resource group. If you do not select a region, the SSH key region will be in the same region as the existing resource group selected above.
-    - Key pair name: Enter a name for your key pair.
-    - SSH public key source: From the drop-down menu, select Generate new key pair.
+  - Go to **SSH keys**, then click **Create**.
+  - The **Create an SSH key** page appears.
+  - On the **Basics** tab:
+    - **Subscription**: From the drop-down menu, select the subscription with user access administrator permission to manage deployed resources.
+    - **Resource Group**: Select the resource group in which you want to create the SSH key pair or click **Create new** to create a new resource group.
+    - **Region**: From the drop-down menu, select the desired region in which to deploy the newly created resource group. If you do not select a region, the SSH key region will be in the same region as the existing resource group selected above.
+    - **Key pair name**: Enter a name for your key pair.
+    - **SSH public key source**: From the drop-down menu, select **Generate new key pair**.
   - See image.
-  - Click Next: Tags >.
-  - On the Tags tab, configure tags to categorize resources, then click Next: Review + create >.
-  - On the Review + create tab, review your SSH key configurations, and then click Create.
+  - Click **Next: Tags >**.
+  - On the **Tags** tab, configure tags to categorize resources, then click **Next: Review + create >**.
+  - On the **Review + create** tab, review your SSH key configurations, and then click **Create**.
 # Deploying the Cloud Connector
 If you want to configure your own virtual network and subnets, you must do so before launching the Zscaler Cloud Connector Application. When you deploy Cloud Connector in the Azure Marketplace, accelerated networking is enabled by default. To learn more about accelerated networking, refer to the Azure documentation.
 After you have met all the prerequisites, perform the following procedures to deploy your Cloud Connector:
@@ -189,51 +189,51 @@ After you have met all the prerequisites, perform the following procedures to de
   - Terraform (Required for VMSS and deployment in China)
 - To deploy your Cloud Connector using Azure Marketplace:
   - Log in to the Azure Portal.
-  - Under Marketplace, search for Zscaler Cloud Connector Application.
-  - Click Create and then select Zscaler Cloud Connector Application.
-  - The Zscaler Cloud Connector Application page appears.
-  - On the Basics tab:
-    - Subscription: Select the subscription with user access administrator permission to manage deployed resources.
-    - Resource group: Click Create new to create a new resource group or select an existing resource group to deploy the Zscaler Cloud Connector Application.
-    - Region: Select the desired region for your deployment.
+  - Under **Marketplace**, search for Zscaler Cloud Connector Application.
+  - Click **Create** and then select **Zscaler Cloud Connector Application**.
+  - The **Zscaler Cloud Connector Application** page appears.
+  - On the **Basics** tab:
+    - **Subscription**: Select the subscription with user access administrator permission to manage deployed resources.
+    - **Resource group**: Click **Create new** to create a new resource group or select an existing resource group to deploy the Zscaler Cloud Connector Application.
+    - **Region**: Select the desired region for your deployment.
   - See image.
-  - Click Next.
-  - On the Zscaler Settings tab:
-    - Provisioning Template URL: Paste your Cloud Connector provisioning template URL.
-    - Cloud Connectors Instance Type: The Cloud Connector instance type is set to Small by default.
-    - Zscaler Cloud Connector VM Size for small CC Instance Types: The VM size is set automatically to 1x Standard D2ds v5. To change the VM size, click Change size.
-    - Enable Encryption At Host: Select the checkbox to enable end-to-end encryption using encryption at host. The subscription's account admin must enable this feature. To learn more about host encryption, refer to the Azure product documentation.
-    - Zscaler Cloud Connector VM Public Key Source: Select Azure Key Pair to select an existing SSH key pair or SSH Public Key to paste your SSH key directly.
-    - Zscaler Cloud Connector VM SSH Keys: From the drop-down menu, select your SSH key.
-    - Zscaler Cloud Connector Key Vault Source: Select the source that your key vault belongs to.
-    - Zscaler Cloud Credentials Key Vault: Select the key vault where your Zscaler cloud credentials are stored.
-    - User assigned managed identity: Click Add to add the user-managed identity with access to the key vault and network contributor role. You must select a user-assigned managed identity before you can move to the next step.
+  - Click **Next**.
+  - On the **Zscaler Settings** tab:
+    - **Provisioning Template URL**: Paste your Cloud Connector provisioning template URL.
+    - **Cloud Connectors Instance Type**: The Cloud Connector instance type is set to **Small** by default.
+    - **Zscaler Cloud Connector VM Size for small CC Instance Types**: The VM size is set automatically to **1x Standard D2ds v5**. To change the VM size, click **Change size**.
+    - **Enable Encryption At Host**: Select the checkbox to enable end-to-end encryption using encryption at host. The subscription's account admin must enable this feature. To learn more about host encryption, refer to the Azure product documentation.
+    - **Zscaler Cloud Connector VM Public Key Source**: Select **Azure Key Pair** to select an existing SSH key pair or **SSH Public Key** to paste your SSH key directly.
+    - **Zscaler Cloud Connector VM SSH Keys**: From the drop-down menu, select your SSH key.
+    - **Zscaler Cloud Connector Key Vault Source**: Select the source that your key vault belongs to.
+    - **Zscaler Cloud Credentials Key Vault**: Select the key vault where your Zscaler cloud credentials are stored.
+    - **User assigned managed identity**: Click **Add** to add the user-managed identity with access to the key vault and network contributor role. You must select a user-assigned managed identity before you can move to the next step.
   - See image.
-  - Click Next.
-  - On the Load Balancer Settings tab:
-    - Opt out from configuring a Load Balancer: Select this setting to opt out from configuring a load balancer. Only select this setting when deploying in a non-production environment.
-    - Choose an existing load balancer: Select this setting to choose a load balancer that is already operating in this environment.
-    - Number of Cloud Connectors: Select the number of Cloud Connectors.
-    - HTTP Probe Port for Load Balancer: Enter the HTTP Probe Port 80 or 1024 to 65535. If selecting an existing load balancer, ensure that the ports match.
-    - Availability Sets and Availability Zones: Select either Availability Sets or Availability Zones.
+  - Click **Next**.
+  - On the **Load Balancer Settings** tab:
+    - **Opt out from configuring a Load Balancer**: Select this setting to opt out from configuring a load balancer. Only select this setting when deploying in a non-production environment.
+    - **Choose an existing load balancer**: Select this setting to choose a load balancer that is already operating in this environment.
+    - **Number of Cloud Connectors**: Select the number of Cloud Connectors.
+    - **HTTP Probe Port for Load Balancer**: Enter the HTTP Probe Port 80 or 1024 to 65535. If selecting an existing load balancer, ensure that the ports match.
+    - **Availability Sets and Availability Zones**: Select either **Availability Sets** or **Availability Zones**.
   - See image.
-  - Click Next.
-  - On the Network Settings tab:
-    - Availability Zones: Select up to three availability zones. This option is only displayed if you selected Availability Zones on the Load Balancer Settings tab.
+  - Click **Next**.
+  - On the **Network Settings** tab:
+    - **Availability Zones**: Select up to three availability zones. This option is only displayed if you selected **Availability Zones** on the **Load Balancer Settings** tab.
     - See image.
-    - Virtual Network: The virtual network in the resource group into which the Cloud Connector is deployed. By default, a new virtual network is automatically created. Alternatively, you can select another virtual network from the drop-down menu.
-    - zsccSubnet1: The subnet in the resource group and virtual network into which the Cloud Connector is deployed. By default, a new subnet is automatically created. Alternatively, you can select another subnet from the drop-down menu. The subnet options that appear in the drop-down menu depend on the number of availability zones you select. There can be one subnet per availability zone.
+    - **Virtual Network**: The virtual network in the resource group into which the Cloud Connector is deployed. By default, a new virtual network is automatically created. Alternatively, you can select another virtual network from the drop-down menu.
+    - **zsccSubnet1**: The subnet in the resource group and virtual network into which the Cloud Connector is deployed. By default, a new subnet is automatically created. Alternatively, you can select another subnet from the drop-down menu. The subnet options that appear in the drop-down menu depend on the number of availability zones you select. There can be one subnet per availability zone.
     - See image.
-  - On the Tags tab, configure tags to categorize resources. To opt out of Microsoft Azure Network Adapter (MANA)-enabled hardware, enable LegacyVMNVA. Then click Next. To learn more, refer to the Microsoft documentation.
-  - On the Review + Create tab, review the summary of your configurations, then click Create.
-- Cloud Connector with VMSS deployment requires using the Terraform Deployment Template with Virtual Machine Scale Sets (VMSS) and a new Cloud Provisioning Template with Auto Scaling set to Enabled. To enable autoscaling, contact Zscaler Support.
+  - On the **Tags** tab, configure tags to categorize resources. To opt out of Microsoft Azure Network Adapter (MANA)-enabled hardware, enable **LegacyVMNVA**. Then click **Next**. To learn more, refer to the Microsoft documentation.
+  - On the **Review + Create** tab, review the summary of your configurations, then click **Create**.
+- Cloud Connector with VMSS deployment requires using the Terraform Deployment Template with Virtual Machine Scale Sets (VMSS) and a new Cloud Provisioning Template with **Auto Scaling** set to **Enabled**. To enable autoscaling, contact Zscaler Support.
 - To deploy your Cloud Connector using Terraform:
   - Go to the Azure on GitHub repository.
-  - On GitHub, click Code > Download Zip to download the Terraform zip file.
+  - On GitHub, click **Code** > **Download Zip** to download the Terraform zip file.
   - Log in to the Azure Portal.
-  - In the upper-right corner, click the Cloud Shell icon.
-  - Select Manage Files > Upload to upload the ZIP file you downloaded from GitHub.
-  - Click Upload again to upload the service account JSON file created.
+  - In the upper-right corner, click the **Cloud Shell** icon.
+  - Select **Manage Files** > **Upload** to upload the ZIP file you downloaded from GitHub.
+  - Click **Upload** again to upload the service account JSON file created.
   - Unzip the Terraform ZIP file by running the following command:
   - unzip terraform-azure-cloud-connector-modules-main.zip
   - Identify the full path of the Terraform folder and JSON file.
@@ -243,48 +243,48 @@ After you have met all the prerequisites, perform the following procedures to de
 - After you complete your deployment from the Azure Portal, you must create a routing table and a workload subnet to redirect traffic to your load balancer.
 - To send traffic to your load balancer:
   - Log in to the Azure Portal.
-  - Go to Virtual networks, then select the virtual network into which your Cloud Connector is deployed.
-  - In the left-side navigation, click Subnets, then click + Subnet.
-  - In the Add subnet window that appears, add a Name and a Subnet address range for the workload subnet.
-  - Click Save.
-  - Go to Route tables.
-  - Click Create.
-  - The Create Route table page appears.
-  - On the Basics tab:
-    - Subscription: Select the subscription with user access administrator permission to manage deployed resources.
-    - Resource Group: Select the resource group in which you want to create the workload route table.
-    - Region: From the drop-down menu, select the desired region for your deployment.
-    - Name: Enter a name for your workload route table.
-    - Propagate gateway routes: Select Yes to propagate gateway routes, or No to prevent the propagation of routes to the network interfaces in associated subnets.
+  - Go to **Virtual networks**, then select the virtual network into which your Cloud Connector is deployed.
+  - In the left-side navigation, click **Subnets**, then click **+ Subnet**.
+  - In the **Add subnet** window that appears, add a **Name** and a **Subnet address range** for the workload subnet.
+  - Click **Save**.
+  - Go to **Route tables**.
+  - Click **Create**.
+  - The **Create Route table** page appears.
+  - On the **Basics** tab:
+    - **Subscription**: Select the subscription with user access administrator permission to manage deployed resources.
+    - **Resource Group**: Select the resource group in which you want to create the workload route table.
+    - **Region**: From the drop-down menu, select the desired region for your deployment.
+    - **Name**: Enter a name for your workload route table.
+    - **Propagate gateway routes**: Select **Yes** to propagate gateway routes, or **No** to prevent the propagation of routes to the network interfaces in associated subnets.
   - See image.
-  - Click Next: Tags >.
-  - On the Tags tab, configure tags to categorize resources, then click Next: Review + create >.
-  - On the Review + create tab, review the summary of your configurations, and then click Create.
-  - Select your newly created workload route table and click Routes.
-  - Click Add.
-  - On the Add route page, enter the following information:
-    - Route name: Enter a name for the workload route.
-    - Address prefix destination: From the drop-down menu, select IP Addresses.
-    - Destination IP addresses/CIDR ranges: Enter 0.0.0.0/0.
-    - Next hop type: From the drop-down menu, select Virtual appliance.
-    - Next hop address: Enter the front-end IP address of your load balancer. To find the IP address, locate your deployed load balancer and select Frontend IP configuration.
+  - Click **Next: Tags >**.
+  - On the **Tags** tab, configure tags to categorize resources, then click **Next: Review + create >**.
+  - On the **Review + create** tab, review the summary of your configurations, and then click **Create**.
+  - Select your newly created workload route table and click **Routes**.
+  - Click **Add**.
+  - On the **Add route** page, enter the following information:
+    - **Route name**: Enter a name for the workload route.
+    - **Address prefix destination**: From the drop-down menu, select **IP Addresses**.
+    - **Destination IP addresses/CIDR ranges**: Enter 0.0.0.0/0.
+    - **Next hop type**: From the drop-down menu, select **Virtual appliance**.
+    - **Next hop address**: Enter the front-end IP address of your load balancer. To find the IP address, locate your deployed load balancer and select **Frontend IP configuration**.
   - See image.
-  - Click OK.
-  - Click Subnets, then click Associate.
-  - In the Associate subnet window, from the drop-down menu, select your Virtual network and workload Subnet.
-  - Click OK.
+  - Click **OK**.
+  - Click **Subnets**, then click **Associate**.
+  - In the **Associate subnet** window, from the drop-down menu, select your **Virtual network** and workload **Subnet**.
+  - Click **OK**.
 - 3. Disable disk network access.
 - Zscaler recommends manually disabling network access to the managed disks attached to your deployed Cloud Connector.
 - To disable network access:
   - Log in to the Azure Portal.
-  - Go to Resource groups, then locate the Cloud Connector resource group and click the deployed Cloud Connector.
+  - Go to **Resource groups**, then locate the Cloud Connector resource group and click the deployed Cloud Connector.
 - See image.
-  - In the left-side navigation, click Disks. Under OS Disk, select the Disk name.
+  - In the left-side navigation, click **Disks**. Under **OS Disk**, select the **Disk name**.
 - See image.
-  - In the left-side navigation, click Networking.
-  - Under Network access, select Disable public and private access.
+  - In the left-side navigation, click **Networking**.
+  - Under **Network access**, select **Disable public and private access**.
 - See image.
-  - Click Save.
+  - Click **Save**.
 # Managing the Cloud Connector
 After your VM is fully deployed, you can manage the Cloud Connector from the Zscaler Admin Console. A deployed Cloud Connector is displayed on the dashboard. The Cloud & Branch Connector Monitoring page provides information on the name, group, location, geolocation (shown below), and status of your Cloud Connector VMs deployed in your cloud account.
 See image.

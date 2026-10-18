@@ -19,19 +19,19 @@ Zscaler is a technology partner with companies that can assist with traffic forw
 On the Traffic Forwarding page (Zero Trust Cloud > Policy > Traffic Forwarding), you can do the following:
 - Search for a traffic forwarding rule.
 - View a list of all forwarding rules. For each forwarding rule, you can view:
-  - Rule Order: The order of the rule.
-  - Rule Name: The name of the rule.
-  - Description: Additional notes or information about the gateway.
-  - Criteria: The criteria defined for the rule.
-  - Forwarding Method: The forwarding method used in the rule (Direct, ZIA, ZPA, Drop, or Local).
-  - Status: The status of the rule, which indicates if the rule is enabled or disabled.
+  - **Rule Order**: The order of the rule.
+  - **Rule Name**: The name of the rule.
+  - **Description**: Additional notes or information about the gateway.
+  - **Criteria**: The criteria defined for the rule.
+  - **Forwarding Method**: The forwarding method used in the rule (**Direct**, **ZIA**, **ZPA**, **Drop**, or **Local**).
+  - **Status**: The status of the rule, which indicates if the rule is enabled or disabled.
 - Modify the table and its columns.
 - View a list of predefined forwarding rules created by Zscaler. They are disabled by default, but you can enable them. Predefined rules appear based on the licenses enabled in your tenant:
-  - Direct rule for Zscaler Cloud Endpoints: This rule states that if the destination is a Zscaler Cloud Endpoints application service group, then the forwarding method is set to Direct.
-  - Direct rule for WAN Destinations Group: This rule states that if the destination is a WAN IP group, then the forwarding method is set to Direct.
-  - Direct rule for LAN Destinations Group: This rule states that if the destination is a LAN IP group, then the forwarding method is set to Direct.
+  - **Direct rule for Zscaler Cloud Endpoints**: This rule states that if the destination is a Zscaler Cloud Endpoints application service group, then the forwarding method is set to **Direct**.
+  - **Direct rule for WAN Destinations Group**: This rule states that if the destination is a WAN IP group, then the forwarding method is set to **Direct**.
+  - **Direct rule for LAN Destinations Group**: This rule states that if the destination is a LAN IP group, then the forwarding method is set to **Direct**.
   - Predefined forwarding rules are only applicable to hardware devices deployed in gateway mode. Additionally, you can only enable predefined forwarding rules if you have configured a location or Branch Connector group for them. Zscaler only allows devices deployed in gateway mode to be a part of the mandatory group used for these rules.
-- Edit a traffic forwarding rule. You can only edit the Rule Order, Rule Status, Location/Sublocation, and Cloud & Branch Connector Groups fields for predefined forwarding rules.
+- Edit a traffic forwarding rule. You can only edit the **Rule Order**, **Rule Status**, **Location/Sublocation**, and **Cloud & Branch Connector Groups** fields for predefined forwarding rules.
 - Duplicate a traffic forwarding rule.
 - Delete a traffic forwarding rule.
 - Add a traffic forwarding rule.

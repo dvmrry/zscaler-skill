@@ -23,8 +23,8 @@ The following sections provide a diagram depicting the topology of a VMSS deploy
   - A VMSS is created in each configured zone to provide high availability across zones.
   - A NAT Gateway (NATGW) used for outbound traffic from the Cloud Connectors is deployed in each configured zone and has a dedicated IP address associated with it.
   - There are two Azure functions:
-    - Health Monitoring: Uses the custom metrics published by each Cloud Connector to determine whether there are any unhealthy Cloud Connectors that need to be replaced. The function terminates an unhealthy instance and immediately replaces it with a new one. This function runs at one-minute intervals.
-    - Resource Sync: Ensures that the VMs in a Cloud Connector Group on the Zscaler Admin Console match the VMs in your VMSS. If the function finds a Cloud Connector in the Cloud Connector Group that is not in the VMSS, it cleans up that instance in the Cloud Connector Group to ensure that the two entities are in sync. This function runs at 30-minute intervals.
+    - **Health Monitoring**: Uses the custom metrics published by each Cloud Connector to determine whether there are any unhealthy Cloud Connectors that need to be replaced. The function terminates an unhealthy instance and immediately replaces it with a new one. This function runs at one-minute intervals.
+    - **Resource Sync**: Ensures that the VMs in a Cloud Connector Group on the Zscaler Admin Console match the VMs in your VMSS. If the function finds a Cloud Connector in the Cloud Connector Group that is not in the VMSS, it cleans up that instance in the Cloud Connector Group to ensure that the two entities are in sync. This function runs at 30-minute intervals.
   - The Azure Functions communicate with the Cloud Connector API server via REST APIs. Azure Functions do not communicate directly with Cloud Connectors.
   - The Azure Functions app contains Azure Functions and runs a ZIP file to start them. It finds the ZIP file in a new storage account that is created at runtime or from an existing storage account that you specify during deployment.
 # Scale-Out and Scale-In
@@ -45,22 +45,22 @@ Custom CPU metrics provide more detailed information about CPU usage, so Cloud C
 - In logs and reports, the CPU utilization metric is displayed as smedge_cpu_utilization.
 - Scheduled Scaling
 - If you have predictable load patterns, you can define a schedule for scale-out and scale-in events. This ensures that enough VMs are provisioned before the predicted spike. For example, if a batch job runs every Saturday at 6:00 PM, you could preemptively schedule a scale-out event for 5:45 PM. You can define the following parameters during deployment:
-  - Minimum instances: The minimum number of VMs in the scaling set during the scheduled scaling event.
-  - Days of week: The days of the week when the schedule takes effect.
-  - Start time: The time in hours and minutes to start the scheduled scaling event.
-  - End time: The time in hours and minutes to end the scheduled scaling event.
+  - **Minimum instances**: The minimum number of VMs in the scaling set during the scheduled scaling event.
+  - **Days of week**: The days of the week when the schedule takes effect.
+  - **Start time**: The time in hours and minutes to start the scheduled scaling event.
+  - **End time**: The time in hours and minutes to end the scheduled scaling event.
 # Cloud Connector Health Monitoring
 Health monitoring includes the following entities:
-- Custom Metric Publishing: Each Cloud Connector publishes a VM-level custom health metric at one-minute intervals. This metric value is 0 for an unhealthy VM or 100 for a healthy VM.
-- Health Monitoring: The Health Monitoring function consumes the health metric at one-minute intervals and initiates the termination of a VM that it determines is unhealthy.
+- **Custom Metric Publishing**: Each Cloud Connector publishes a VM-level custom health metric at one-minute intervals. This metric value is 0 for an unhealthy VM or 100 for a healthy VM.
+- **Health Monitoring**: The Health Monitoring function consumes the health metric at one-minute intervals and initiates the termination of a VM that it determines is unhealthy.
 In logs and reports, the health metric is displayed as cloud_connector_aggr_health.
 - Grace Period
 - A grace period allows a Cloud Connector to boot up before its health is evaluated, and it is potentially terminated. The grace period lasts until one of the following events occurs:
   - The VM has been alive for more than 30 minutes.
   - The VM reports at least one healthy metric.
 - After the grace period ends, a Cloud Connector is considered unhealthy if the custom health metric is reported as either:
-  - None or 0 for 7 out of the last 10 samples, starting with the first healthy sample
-  - None or 0 for 5 consecutive samples, starting with the first healthy sample
+  - **None** or **0** for 7 out of the last 10 samples, starting with the first healthy sample
+  - **None** or **0** for 5 consecutive samples, starting with the first healthy sample
 - Terminating Unhealthy VMs
 - The Health Monitoring function determines whether a VM is unhealthy. This function terminates an unhealthy VM after the grace period ends and the unhealthy criteria are met. The VM is replaced immediately.
 - Unhealthy instances are terminated in iterations. In a single iteration, a VMSS can terminate 20% of the instances, or one instance, whichever is greater. The instance to terminate is based on which instance has the most healthy statuses over a 10-sample stretch. If multiple instances have the same number of unhealthy statuses, the instances to terminate are chosen randomly.
@@ -70,49 +70,49 @@ You can view the following metrics and logs in the Azure portal.
   - Cloud Connector Metrics
   - Cloud Connectors publish health metrics at one-minute intervals and are managed by Application Insights.
   - To display the metrics:
-    - Navigate to Resource Groups > <Resource Group> > <VMSS> > <VM> > Monitoring > Metrics.
-    - On the Metrics page, click Add metric.
+    - Navigate to **Resource Groups** > <Resource Group> > <VMSS> > <VM> > **Monitoring** > **Metrics**.
+    - On the **Metrics** page, click **Add metric**.
     - Select the following parameters:
       - Scope: <VM name>
-      - Metric Namespace: zscaler/cloudconnectors
-      - Metric: cloud_connector_aggr_health
-      - Aggregation: Avg (average)
+      - Metric Namespace: **zscaler/cloudconnectors**
+      - Metric: **cloud_connector_aggr_health**
+      - Aggregation: **Avg** (average)
   - VMSS Metrics
   - Cloud Connectors in a scale set publish scaling metrics to the Health Monitoring function at one-minute intervals. VMSS consumes metrics from Azure Monitor for scaling decisions. The scaling metrics include smedge_cpu_utilization, smedge_mem_utilization, smedge_bytes_in, and smedge_bytes_out. The scaling rules compare the smedge_cpu_utilization value with the defined threshold.
   - To display the VMSS metrics:
-    - Navigate to Resource groups > <Resource Group> > <VMSS> > <VM> > Monitoring > Metrics.
-    - On the Metrics page, click Add metric.
+    - Navigate to **Resource groups** > <Resource Group> > <VMSS> > <VM> > **Monitoring** > **Metrics**.
+    - On the **Metrics** page, click **Add metric**.
     - Select the following parameters:
-      - Scope: VMSS name
-      - Metric Namespace: zscaler/cloudconnectors
-      - Metric: smedge_metrics
-      - Aggregation: Avg (average)
-    - Click Add filter.
+      - **Scope**: VMSS name
+      - **Metric Namespace**: **zscaler/cloudconnectors**
+      - **Metric**: **smedge_metrics**
+      - **Aggregation**: **Avg** (average)
+    - Click **Add filter**.
     - Select the following parameters:
-      - Property: metric_name
-      - Operator: =
-      - Values: smedge_cpu_utilization
+      - **Property**: **metric_name**
+      - **Operator**: **=**
+      - **Values**: **smedge_cpu_utilization**
 - Functions App Logs
   - Recent Invocations
   - An Azure invocation is logged each time an Azure function is executed.
   - To view recent invocations:
-    - Go to Resource groups > <Resource Group>. The Resource group page appears.
-    - In the Name column on the Resource tab, find the Functions App and click it. The Functions App page appears.
-    - On the Functions tab, click the function in the Name column. The details page for the Functions app appears.
-    - Click the Invocations tab and then click the invocation in the Date column.
+    - Go to **Resource groups** > <Resource Group>. The **Resource group** page appears.
+    - In the **Name** column on the **Resource** tab, find the Functions App and click it. The **Functions App** page appears.
+    - On the **Functions** tab, click the function in the **Name** column. The details page for the Functions app appears.
+    - Click the **Invocations** tab and then click the invocation in the **Date** column.
   - Log Streaming in Real Time
   - You can view logs in real time for functions that are executing.
   - To view real-time logs:
-    - Go to Resource groups > <Resource Group>. The Resource group page appears.
-    - In the Name column on the Resources tab, find the Functions App and click it in the Name column. The Functions App page appears.
-    - On the Functions tab, click the function in the Name column. The details page for the Functions app appears.
-    - Click the Logs tab.
+    - Go to **Resource groups** > <Resource Group>. The **Resource group** page appears.
+    - In the **Name** column on the **Resources** tab, find the Functions App and click it in the **Name** column. The **Functions App** page appears.
+    - On the **Functions** tab, click the function in the **Name** column. The details page for the Functions app appears.
+    - Click the **Logs** tab.
   - Application Insights
   - The Application Insights feature allows you to perform queries to view specific log messages, executions, time frames, and so on. For example, you can view Health Monitoring function logs that report that the VMSS found no instances to terminate. A specific message is defined when querying the logs, which allows you to refine your search instead of manually going through each invocation or continuously watching the real-time streaming of logs.
   - To view logs through Application Insights:
-    - Go to Resource groups > <Resource Group>.
-    - On the Application Insights page, click Logs.
-    - Enter a query and then click Run.
+    - Go to **Resource groups** > <Resource Group>.
+    - On the **Application Insights** page, click **Logs**.
+    - Enter a query and then click **Run**.
     - For example, the following query would show you when there are no instances to terminate.
     - union traces | union exceptions | where timestamp > ago(1d) | where customDimensions['Category'] == 'Function.healthMonitor.User' or customDimensions['Category'] == 'Function.healthMonitor' | where message contains "No instances to terminate on this iteration." | order by timestamp asc | project timestamp, message = iff(message != '', message, iff(innermostMessage != '', innermostMessage, customDimensions.['prop__{OriginalFormat}']))
 # Access to Azure Resources

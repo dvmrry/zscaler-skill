@@ -26,16 +26,16 @@ You can also use custom SCIM clients to make REST API calls to Zscaler. To learn
 The SCIM Attributes page is a read-only table, and Private Access does not support custom attributes. You must enable SCIM for any information to appear on this page. To learn more, see Enabling SCIM for Identity Management.
 On the SCIM Attributes page (Administration > Private Access Authentication > SCIM Attributes), you can do the following:
 - View a list of applied filters available from the current and previous user sessions. Applied filters must be saved to the user session first before they can be viewed. Use the drop-down menu to select the applied filters to view. To learn more, see Using Tables.
-- Hide the filters on the page by clicking Hide Filters. Click Show Filters to display the filters.
+- Hide the filters on the page by clicking **Hide Filters**. Click **Show Filters** to display the filters.
 - Refresh the SCIM Attributes page to reflect the most current information.
-- Enter a SCIM attribute associated with the IdP, and click Apply to filter the table.
+- Enter a SCIM attribute associated with the IdP, and click **Apply** to filter the table.
 - Select a SCIM-enabled IdP to generate a list of attributes in the table.
 - View a list of SCIM attributes. For each attribute, you can see:
-  - SCIM Attribute Name: The name of the SCIM attribute as it is specified in the IdP.
-  - SCIM Attribute: The SCIM attribute as it is specified in the IdP.
-  - Required Attribute: The attributes that must sync between an IdP and Zscaler. Currently, only a username is required.
+  - **SCIM Attribute Name**: The name of the SCIM attribute as it is specified in the IdP.
+  - **SCIM Attribute**: The SCIM attribute as it is specified in the IdP.
+  - **Required Attribute**: The attributes that must sync between an IdP and Zscaler. Currently, only a username is required.
   - The SCIM username attribute must match nameID in the SAML attribute.
-  - Unique Attribute: The attribute with a unique value used to identify the user or group. For example, two users cannot share the same username. Currently, the username is the only unique attribute.
+  - **Unique Attribute**: The attribute with a unique value used to identify the user or group. For example, two users cannot share the same username. Currently, the username is the only unique attribute.
 - Modify the columns displayed in the table.
 - Copy the SCIM attribute to your clipboard.
 - Display more rows or a different page of the table.

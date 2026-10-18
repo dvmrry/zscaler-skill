@@ -25,9 +25,9 @@ On the Isolation Policy page (Zero Trust Browser > Browser Isolation Private Acc
 - Filter the information that appears in the table. By default, no filters are applied. You can also save applied filters to your preferences so that they're visible in future user sessions. To learn more, see Using Tables.
 - Modify the columns displayed in the table.
 - View a list of all configured isolation policy rules. For each rule, you can see:
-  - Rule Order: The policy evaluation order number for the rule. Private Access applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering in a new value.
-  - Name: The name of the rule. The description is also displayed here, if available.
-  - Rule Action: Indicates if the rule is to allow or bypass isolation. When the row is expanded, it provides a visual representation of the criteria (e.g., SAML attributes, application segments, posture profiles, etc.) and Boolean logic used within the rule.
+  - **Rule Order**: The policy evaluation order number for the rule. Private Access applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering in a new value.
+  - **Name**: The name of the rule. The description is also displayed here, if available.
+  - **Rule Action**: Indicates if the rule is to allow or bypass isolation. When the row is expanded, it provides a visual representation of the criteria (e.g., SAML attributes, application segments, posture profiles, etc.) and Boolean logic used within the rule.
 - Edit the rule order.
 - Copy an existing isolation policy rule's criteria, and use it to create a new rule.
 - Edit an existing isolation policy rule.

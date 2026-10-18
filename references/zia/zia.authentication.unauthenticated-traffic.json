@@ -35,6 +35,28 @@
       "to": "zia.ssl-inspection.pipeline"
     }
   ],
+  "checks": [
+    {
+      "do": "Which kind of transaction it was (CONNECT, an unknown user agent, an exempted destination, or undecrypted SSL), since each of these is attributed to the location.",
+      "uses": [
+        "no-cookie-traffic",
+        "connect-sni-skip"
+      ]
+    },
+    {
+      "do": "Whether Surrogate IP is on for the source.",
+      "uses": [
+        "zia.authentication.surrogate-ip:definition"
+      ]
+    },
+    {
+      "do": "Whether enable_policy_for_unauthenticated_traffic is set in the tenant, before concluding whether user and department rules can apply.",
+      "uses": [
+        "unauthenticated-policy-setting",
+        "setting-live-value"
+      ]
+    }
+  ],
   "claims": {
     "cookie-types": {
       "statement": "The service uses a gateway cookie (login state and count), a per-domain cookie set after login for each domain the user browses, and an Acceptable Use Policy cookie set when the user accepts the AUP.",

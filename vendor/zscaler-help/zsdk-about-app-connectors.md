@@ -30,30 +30,30 @@ On the App Connectors page (Configuration & Control > Private Infrastucture > Ap
 - Expand all the rows or one row to learn more about the App Connector.
   - Expanding the App Connector Name
   - When you expand the App Connector, the following information displays depending on the defined App Connector:
-    - Description: The description of the App Connector, if available.
-    - App Connector Group: The App Connector group that the App Connector is a member of.
-    - App Connector Host Platform: The platform that the App Connector is deployed on (e.g., AWS, Azure, ESXi, Docker, or Nutanix).
-    - App Connector Host OS: The run-time OS on which the App Connector is running (e.g., CentOS Linux 7, Red Hat Enterprise Linux 7, Red Hat Enterprise Linux 8, Red Hat Enterprise Linux 9).
-    - App Connector Package OS: The compile-time OS on which the .rpm binary is packaged (e.g., Enterprise Linux 7).
-    - Last Software Update: The date and time the App Connector was last updated to a newer software version.
-    - Public Service Edge: The ZSDK Public Service Edge that the App Connector connects to.
-    - Last Connection to Zscaler: The last time when the App Connector connected to Zscaler.
-    - Last Disconnect from Zscaler: The last time when the App Connector disconnected from Zscaler.
-    - Location: The location where the App Connector group that the App Connector belongs to is set up.
-    - Public IP: The public IP address of the App Connector. Disconnected App Connectors show the last known public IP address.
-    - Private IP: The private IP address of the App Connector. Disconnected App Connectors show the last known private IP address.
-    - Uptime: The period of time the App Connector is available for use. Disconnected App Connectors show the value Not Available.
-    - Enrollment Certificate: The certificate the App Connector uses for enrollment.
+    - **Description**: The description of the App Connector, if available.
+    - **App Connector Group**: The App Connector group that the App Connector is a member of.
+    - **App Connector Host Platform**: The platform that the App Connector is deployed on (e.g., AWS, Azure, ESXi, Docker, or Nutanix).
+    - **App Connector Host OS**: The run-time OS on which the App Connector is running (e.g., CentOS Linux 7, Red Hat Enterprise Linux 7, Red Hat Enterprise Linux 8, Red Hat Enterprise Linux 9).
+    - **App Connector Package OS**: The compile-time OS on which the .rpm binary is packaged (e.g., Enterprise Linux 7).
+    - **Last Software Update**: The date and time the App Connector was last updated to a newer software version.
+    - **Public Service Edge**: The ZSDK Public Service Edge that the App Connector connects to.
+    - **Last Connection to Zscaler**: The last time when the App Connector connected to Zscaler.
+    - **Last Disconnect from Zscaler**: The last time when the App Connector disconnected from Zscaler.
+    - **Location**: The location where the App Connector group that the App Connector belongs to is set up.
+    - **Public IP**: The public IP address of the App Connector. Disconnected App Connectors show the last known public IP address.
+    - **Private IP**: The private IP address of the App Connector. Disconnected App Connectors show the last known private IP address.
+    - **Uptime**: The period of time the App Connector is available for use. Disconnected App Connectors show the value **Not Available**.
+    - **Enrollment Certificate**: The certificate the App Connector uses for enrollment.
 - Add, edit, or delete an App Connector.
 - Refresh the App Connectors page to reflect the most current information.
 - Filter the information that appears in the table. By default, no filters are applied.
 - View a list of all deployed App Connectors. For each deployed App Connector, you can see:
-  - Name: The name of the App Connector.
-  - Manager Version: The version of the current App Connector Manager software.
-  - Current Software Version: The current App Connector software version.
-  - Connection Status: The status of the App Connector connection.
-  - Upgrade Status: The status of the last App Connector software update.
-  - Status: Whether the App Connector is enabled or disabled.
+  - **Name**: The name of the App Connector.
+  - **Manager Version**: The version of the current App Connector Manager software.
+  - **Current Software Version**: The current App Connector software version.
+  - **Connection Status**: The status of the App Connector connection.
+  - **Upgrade Status**: The status of the last App Connector software update.
+  - **Status**: Whether the App Connector is enabled or disabled.
 - App Connectors that you've added, but have not deployed, are not listed.
 - View a configuration graph of connected objects.
 - Go to the App Connector Groups or App Connector Provisioning Keys pages.

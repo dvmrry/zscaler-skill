@@ -116,14 +116,14 @@ Zscaler supports the following ZscalerOS versions on Amazon Web Services:
 | Nanolog Streaming Service | ZscalerOS 24, ZscalerOS 42 |
 # Cloud Connector on Amazon Web Services, Microsoft Azure, and Google Cloud Platform Supported Versions
 Zscaler supports the following ZscalerOS versions on Amazon Web Services, Microsoft Azure, and Google Cloud Platform:
-| Zscaler VM | Supported Versions |
+| **Zscaler VM** | **Supported Versions** |
 |---|---|
 | Amazon Web Services | ZscalerOS 24, ZscalerOS 42 |
 | Microsoft Azure | ZscalerOS 24, ZscalerOS 42 |
 | Google Cloud Platform | ZscalerOS 24, ZscalerOS 42 |
 # Branch Connector on VMware Platforms, Linux KVM, and Microsoft Hyper-V Supported Versions
 Zscaler supports the following ZscalerOS versions on VMware platforms, Linux KVM, and Microsoft Hyper-V:
-| Zscaler VM | Supported Versions |
+| **Zscaler VM** | **Supported Versions** |
 |---|---|
 | VMware platforms | ZscalerOS 24, ZscalerOS 42 |
 | Linux KVM | ZscalerOS 24, ZscalerOS 42 |
@@ -131,7 +131,7 @@ Zscaler supports the following ZscalerOS versions on VMware platforms, Linux KVM
 This does not apply to Zero Trust Branch appliances.
 # Branch Connector on Hardware Appliances ZT-400, ZT-600, and ZT-800 Supported Versions
 Zscaler supports the following ZscalerOS versions on hardware appliances ZT-400, ZT-600, and ZT-800:
-| Zscaler Hardware Appliance | Supported Versions |
+| **Zscaler Hardware Appliance** | **Supported Versions** |
 |---|---|
 | ZT-400 | ZscalerOS 24, ZscalerOS 42 |
 | ZT-600 | ZscalerOS 24, ZscalerOS 42 |

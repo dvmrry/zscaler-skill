@@ -13,12 +13,12 @@ You can allowlist URLs completely by exempting them from security scans and URL 
 Adding URLs to the allowlist for security scans allows users to download content from these URLs without inspecting the traffic.
 To add URLs to the allowlist for security policies:
 - From the navigation menu, go to one of the following pages:
-  - Cyberthreat Protection > Policy > Malware Protection
-  - Cyberthreat Protection > Policy > Advanced Threat Protection
-- Click the Security Exceptions tab.
-- In Do Not Scan Content from these URLs, enter the URLs you want to allowlist and click Add Items. You can enter multiple entries by pressing Enter after each entry. You can add up to 1,024 URLs. To learn more, see Ranges & Limitations. For guidance on entering URLs, see the URL format guidelines. For item lists, you can view up to 500 items on a page; filter the list by searching for a word, phrase, or number contained in an item; and remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - **Cyberthreat Protection** > **Policy** > **Malware Protection**
+  - **Cyberthreat Protection** > **Policy** > **Advanced Threat Protection**
+- Click the **Security Exceptions** tab.
+- In **Do Not Scan Content from these URLs**, enter the URLs you want to allowlist and click **Add Items**. You can enter multiple entries by pressing Enter after each entry. You can add up to 1,024 URLs. To learn more, see Ranges & Limitations. For guidance on entering URLs, see the URL format guidelines. For item lists, you can view up to 500 items on a page; filter the list by searching for a word, phrase, or number contained in an item; and remove all items from the list (**Remove All**) or only items from a specific page (**Remove Page**). If you select **Remove All** or **Remove Page**, a confirmation window appears.
 This allowlist also applies to the Sandbox policy.
-- Click Save and activate the change.
+- Click **Save** and activate the change.
 # Adding URLs to Allowlist for URL Filtering
 Adding URLs to the allowlist for URL filtering allows access to the content without being blocked by other URL Filtering policy rules.
 To add URLs to allowlist for URL Filtering policy:

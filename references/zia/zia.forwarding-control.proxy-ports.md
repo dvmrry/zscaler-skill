@@ -2,4 +2,4 @@ A dedicated proxy port is a forwarding option for gateways that cannot build tun
 
 **Configuration.** {{configuration}} {{required-settings}}
 
-Surrogate IP mechanics and the five-minute lockout behavior are in the legacy Source IP Anchoring reference, `references/shared/source-ip-anchoring.md` (section Surrogate IP for fixed-site deployments). Forwarding rules for such traffic: [[zia.forwarding-control.methods]].
+Surrogate IP is covered in the legacy [Source IP Anchoring reference](../shared/source-ip-anchoring.md). Forwarding rules for such traffic: [[zia.forwarding-control.methods]].

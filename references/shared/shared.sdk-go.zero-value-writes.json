@@ -24,6 +24,49 @@
       "to": "zpa.terraform.delete-paths"
     }
   ],
+  "checks": [
+    {
+      "do": "Which struct and field holds the value, then its tag. Some fields send false on purpose, so do not assume every field is affected.",
+      "uses": [
+        "omitempty-drops-zero-values",
+        "zpa-some-structs-send-false"
+      ]
+    },
+    {
+      "do": "Whether a ZPA provisioning key or group that the user believes is off was written with enabled set to false.",
+      "uses": [
+        "zpa-provisioning-key-enabled-false"
+      ]
+    },
+    {
+      "do": "Whether the provider assigns the value unconditionally. A guard that sets it only when the user configures it means the zero value is not sent.",
+      "uses": [
+        "zpa-extranet-dto-empty-object",
+        "zpa-policy-rule-extranet-enabled-false"
+      ]
+    },
+    {
+      "do": "Whether the endpoint is a full PUT of a rebuilt struct, where a dropped member matters most.",
+      "uses": [
+        "omitempty-drops-zero-values",
+        "ztc-gateway-fail-closed-false"
+      ]
+    },
+    {
+      "do": "Whether the symptom is persistent drift after apply, where a plan keeps showing the same change.",
+      "uses": [
+        "omitempty-drops-zero-values",
+        "omission-semantics"
+      ]
+    },
+    {
+      "do": "Before saying the server ignores or resets a field, say the SDK does not send it until omission-semantics and empty-object-semantics are settled.",
+      "uses": [
+        "omission-semantics",
+        "empty-object-semantics"
+      ]
+    }
+  ],
   "claims": {
     "zpa-writes-marshal-caller-struct": {
       "statement": "ZPA creates, updates and deletes go through one request function that serializes the caller's struct directly with `json.Marshal`, so each field's JSON tag alone decides whether it is sent.",

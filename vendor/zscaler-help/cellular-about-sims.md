@@ -20,25 +20,25 @@ On the SIMs page (Infrastructure > Cellular > SIMs), you can do the following:
 - Show or hide filtering options.
 - Filter the SIMs page based on different parameters.
 - View the list of all Zscaler SIMs provisioned for your organization. For each SIM, you can see:
-  - ICCID: The Integrated Circuit Card Identifier is a globally unique identifier assigned to each SIM. It is used to track and manage the SIM within the network infrastructure.
-  - EID: The Embedded Identity Document for the eSIM.
-  - IMEI: The International Mobile Equipment Identity is a unique identifier for the mobile device associated with the SIM. It helps with identifying and managing the devices in the network.
-  - IMSI: The International Mobile Subscriber Identity is a unique number assigned to each mobile subscriber. It is used to identify the user on the mobile network.
-  - MSISDN: The Mobile Station International Subscriber Directory Number is the associated mobile number of the SIM, if applicable.
-  - IP Address: The IP address assigned to the device using the SIM, allowing it to connect and communicate over the internet.
-  - Form Factor: The type of SIM, indicating whether it is a physical SIM or an eSIM.
-  - Device Manufacturer: The name of the company that produces the device associated with the SIM.
-  - Device Model: The full official identifier of the type of device associated with the SIM.
-  - Device Type: The category of the device associated with the SIM (e.g., router, modem, and IoT gateway).
-  - Operating System: The operating system running on the device associated with the SIM.
-  - Usage: The amount of data consumed during the session (the duration between the start of the network connection and its termination), displayed in MB or GB.
-  - Status: The operational state of the SIM, either Active (available for use) or Inactive (not in use).
-  - Country: The country where the SIM is located.
-  - Tags: The tags associated with the SIM. You can click a specific tag to filter the SIMs page and display only the SIMs that have the tag associated with them.
-  - Connection: The connectivity state of the SIM.
-    - Online: The SIM is connected to the network.
-    - Offline: The SIM is disconnected from the network.
-    - Inventory: The SIM is ready for assignment, or if already assigned, awaiting profile registration on a device. This option applies only to eSIMs.
+  - **ICCID**: The Integrated Circuit Card Identifier is a globally unique identifier assigned to each SIM. It is used to track and manage the SIM within the network infrastructure.
+  - **EID**: The Embedded Identity Document for the eSIM.
+  - **IMEI**: The International Mobile Equipment Identity is a unique identifier for the mobile device associated with the SIM. It helps with identifying and managing the devices in the network.
+  - **IMSI**: The International Mobile Subscriber Identity is a unique number assigned to each mobile subscriber. It is used to identify the user on the mobile network.
+  - **MSISDN**: The Mobile Station International Subscriber Directory Number is the associated mobile number of the SIM, if applicable.
+  - **IP Address**: The IP address assigned to the device using the SIM, allowing it to connect and communicate over the internet.
+  - **Form Factor**: The type of SIM, indicating whether it is a physical SIM or an eSIM.
+  - **Device Manufacturer**: The name of the company that produces the device associated with the SIM.
+  - **Device Model**: The full official identifier of the type of device associated with the SIM.
+  - **Device Type**: The category of the device associated with the SIM (e.g., router, modem, and IoT gateway).
+  - **Operating System**: The operating system running on the device associated with the SIM.
+  - **Usage**: The amount of data consumed during the session (the duration between the start of the network connection and its termination), displayed in MB or GB.
+  - **Status**: The operational state of the SIM, either **Active** (available for use) or **Inactive** (not in use).
+  - **Country**: The country where the SIM is located.
+  - **Tags**: The tags associated with the SIM. You can click a specific tag to filter the SIMs page and display only the SIMs that have the tag associated with them.
+  - **Connection**: The connectivity state of the SIM.
+    - **Online**: The SIM is connected to the network.
+    - **Offline**: The SIM is disconnected from the network.
+    - **Inventory**: The SIM is ready for assignment, or if already assigned, awaiting profile registration on a device. This option applies only to eSIMs.
     - If an eSIM was originally assigned to a user and then released back to the inventory, the connection state might not be updated on the SIMs page. You can refresh the connection state by viewing the eSIM details.
 - View detailed information for each SIM.
 - Edit status, update the IMEI, or update tags for a particular SIM.

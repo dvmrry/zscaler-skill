@@ -29,6 +29,28 @@
       "to": "zia.private-service-edge.deployment"
     }
   ],
+  "checks": [
+    {
+      "do": "Budget the address pool per node, multiplied by the node count, plus the switch ports.",
+      "uses": [
+        "integrated-lb-budget",
+        "dedicated-lb-budget"
+      ]
+    },
+    {
+      "do": "Confirm the cluster VIP count with Zscaler before ordering address space.",
+      "uses": [
+        "vip-count-wording"
+      ]
+    },
+    {
+      "do": "Use 1:1 static NAT for RFC 1918 addresses, not many-to-one NAT.",
+      "uses": [
+        "nat-one-to-one-no-ipv6",
+        "shared-nat-behavior"
+      ]
+    }
+  ],
   "claims": {
     "addresses-must-be-public": {
       "statement": "The Private Service Edge IP addresses must be public.",

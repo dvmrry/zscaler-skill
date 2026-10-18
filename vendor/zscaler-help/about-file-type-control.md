@@ -23,15 +23,15 @@ On the File Type Control page (Internet Access > Policy > File Type Control), yo
 - Configure the File Type Control policy.
 - Modify the table and its columns.
 - View a list of all configured File Type Control rules. For each rule, you can see the following:
-  - Rule Order: Displays the rules based on the rule order. By default, the rules are listed in the ascending rule order. You can click the column name to display the rules in descending rule order (by default, the rules are listed in ascending rule order).
-  - Rule Name: The name of the rule.
-  - Rule Action: Displays if the rule status and whether the selected file types are allowed, blocked, or cautioned when uploaded or downloaded.
-  - Rule Label: Displays the rules based on the rule labels. The rules are grouped under the associated rule labels.
-  - Admin Rank: The assigned admin rank for the rule. This is visible only if admin ranking is enabled in the Advanced Settings.
+  - **Rule Order**: Displays the rules based on the rule order. By default, the rules are listed in the ascending rule order. You can click the column name to display the rules in descending rule order (by default, the rules are listed in ascending rule order).
+  - **Rule Name**: The name of the rule.
+  - **Rule Action**: Displays if the rule status and whether the selected file types are allowed, blocked, or cautioned when uploaded or downloaded.
+  - **Rule Label**: Displays the rules based on the rule labels. The rules are grouped under the associated rule labels.
+  - **Admin Rank**: The assigned admin rank for the rule. This is visible only if admin ranking is enabled in the Advanced Settings.
   - By default, the admin ranking is disabled. To use this feature, you must enable Admin Rank in Policies > Common Configuration > Advanced > Advanced Settings. To learn more, see Configuring Advanced Settings.
-  - Description: The description of the policy rule, if available.
+  - **Description**: The description of the policy rule, if available.
 - Edit a configured File Type Control rule.
 - Duplicate a configured File Type Control rule.
 - Delete a configured File Type Control rule.
 - Search for a configured File Type Rule.
-- Select the Filter icon to view the rules by rule label. The rules are grouped under the associated rule labels.
+- Select the **Filter** icon to view the rules by rule label. The rules are grouped under the associated rule labels.

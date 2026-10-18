@@ -16,6 +16,21 @@
       "to": "zia.terraform.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the terminal default rule is still last after an apply that edited ZTC forwarding, DNS forwarding or log forwarding rules, by re-reading the whole policy's order and rank rather than only the edited rules.",
+      "uses": [
+        "terminal-rule-can-be-displaced",
+        "writes-registered-rules-only"
+      ]
+    },
+    {
+      "do": "Whether a later plan shows rules out of their declared order after an apply that reported success.",
+      "uses": [
+        "wrong-order-reported-success"
+      ]
+    }
+  ],
   "claims": {
     "update-parks-every-update": {
       "statement": "Every update of a ZTC traffic forwarding, DNS forwarding, or log forwarding rule, whatever field changed, is first sent with rank 7 and with the order of the last rule when the existing rules are sorted by rank, then order. The declared order and rank are held back and only applied afterwards by the reorder worker. Create differs: it forces rank 7 only when the declared rank is below 7.",

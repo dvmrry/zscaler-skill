@@ -29,6 +29,28 @@
       "to": "zia.scim.setup"
     }
   ],
+  "checks": [
+    {
+      "do": "The last sync timestamps on the org settings object, and whether a sync has run since the directory change.",
+      "uses": [
+        "last-sync-fields",
+        "change-lag",
+        "periodic-or-on-demand"
+      ]
+    },
+    {
+      "do": "Whether the user is in the synced domain with a user or email attribute.",
+      "uses": [
+        "sync-actions"
+      ]
+    },
+    {
+      "do": "Whether a user in a nested group matches a rule on the parent group before relying on nesting.",
+      "uses": [
+        "nested-groups"
+      ]
+    }
+  ],
   "claims": {
     "sync-actions": {
       "statement": "Directory synchronization runs an LDAP search with the configured directory parameters and imports users that have a user or email attribute and are in the account's configured domain. It adds users, groups and departments present in the directory but not in the service, deletes those in the service but not in the directory, and modifies service data to match the directory.",

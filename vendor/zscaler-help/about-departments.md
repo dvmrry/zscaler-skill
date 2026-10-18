@@ -24,8 +24,8 @@ On the Departments page (Administration > Legacy Admin Management > Internet & S
 - Download a Sample Import CSV file that shows the correct CSV format for adding or modifying departments.
 - Search for a configured department.
 - View a list of configured departments. For each department, you can see the following information:
-  - Name: The name of the department
-  - Comments: Comments regarding the department, if available
+  - **Name**: The name of the department
+  - **Comments**: Comments regarding the department, if available
 - Modify the table and its columns.
 - Edit a configured department.
 - View the default Service Admin department.

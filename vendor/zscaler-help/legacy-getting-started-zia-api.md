@@ -34,14 +34,14 @@ When the prerequisites are met, you can securely access the API in the following
   - zsapi.zscloud.net
 - To locate your base URL:
   - Log in to the ZIA Admin Portal using your admin credentials. You must be assigned an admin role that includes the Authentication Configuration functional scope.
-  - Go to Administration > Cloud Service API Security.
-  - On the OAuth 2.0 Authorization Servers tab, the base URL is displayed within the table.
+  - Go to **Administration** > **Cloud Service API Security**.
+  - On the **OAuth 2.0 Authorization Servers** tab, the base URL is displayed within the table.
 - 2. Authenticate the client and retrieve an access token.
 - You need to configure the client application registered with the authorization server to send a POST request to the token endpoint with the following parameters and retrieve an access token:
-  - client_id: A unique, public identifier issued to the client application during registration with the authorization server. This identifier is used with client_secret for authentication. This information is obtained from the OAuth 2.0 service console.
-  - client_secret: A secret string used by the client application for authenticating with the authorization server. This information is obtained from the OAuth 2.0 service console.
-  - grant_type: The OAuth flow that defines the various methods in which a client application can obtain an authorization grant from the authorization server and the sequence in which the OAuth 2.0 authorization process takes place. The Zscaler service uses the client_credentials grant type, which allows clients to access protected resources outside of the context of users.
-  - scope: Scope defines the permissions required by the client application to access the API. You must configure the scope value in the <Zscaler Cloud Name>::<Org ID>::<API Role> format, where:
+  - **client_id:** A unique, public identifier issued to the client application during registration with the authorization server. This identifier is used with client_secret for authentication. This information is obtained from the OAuth 2.0 service console.
+  - **client_secret:** A secret string used by the client application for authenticating with the authorization server. This information is obtained from the OAuth 2.0 service console.
+  - **grant_type:** The OAuth flow that defines the various methods in which a client application can obtain an authorization grant from the authorization server and the sequence in which the OAuth 2.0 authorization process takes place. The Zscaler service uses the client_credentials grant type, which allows clients to access protected resources outside of the context of users.
+  - **scope:** Scope defines the permissions required by the client application to access the API. You must configure the scope value in the <Zscaler Cloud Name>::<Org ID>::<API Role> format, where:
     - <Zscaler Cloud Name> represents the cloud on which your organization is provisioned.
     - <Org ID> represents your organization ID obtained from the ZIA Admin Portal (under Administration > Settings > Company Profile).
     - <API Role> represents an API role configured in the ZIA Admin Portal (under Administration > Authentication > Role Management).
@@ -92,9 +92,9 @@ When these prerequisites are met, you can securely access the API in the followi
 - If you are accessing the Sandbox Submission API, your host and basePath is $csbapi.<Zscaler Cloud Name>/zscsb. (e.g., $csbapi.zscalerbeta.net/zscsb).
 - To locate your base URL and key/token:
   - Log in to the ZIA Admin Portal using your admin credentials.
-  - Go to Administration > Cloud Service API Key Security.
-- To view the Cloud Service API Key Management page, the admin must be assigned an admin role that includes the Authentication Configuration functional scope.
-  - For the cloud service API, on the Cloud Service API Key tab, the base URL and key details are displayed within the table. For the Sandbox Submission API, the base URL and token are displayed on the Sandbox Submission API Token tab.
+  - Go to **Administration** > **Cloud Service API Key Security**.
+- To view the **Cloud Service API Key Management** page, the admin must be assigned an admin role that includes the **Authentication Configuration** functional scope.
+  - For the cloud service API, on the **Cloud Service API Key** tab, the base URL and key details are displayed within the table. For the Sandbox Submission API, the base URL and token are displayed on the **Sandbox Submission API Token** tab.
 - An organization can have 1 API key for the cloud service API and up to 5 API tokens for the Sandbox Submission API. To learn more, see About Cloud Service API Key Management.
 - 2. Authenticate and create an API session.
   - Obfuscate the API key using one of the following obfuscateApiKey() implementation methods:

@@ -11,11 +11,11 @@ After you deploy an App Connector and complete the proper networking configurati
 - You can check the status of App Connectors in two ways:
   - Using the App Connectors page and Health dashboard: You can check the status by accessing the App Connectors page and using the Health dashboard within the ZSDK Admin Portal.
   - To check the App Connector's status using the ZSDK Admin Portal:
-    - Go to Configuration & Control > Private Infrastructure > App Connector Management > App Connectors. Check that the App Connector you deployed appears in the table of configured App Connectors.
-    - Go to Dashboard > Health. Check that the App Connector you deployed appears in the App Connectors widget. The App Connector must have enrolled successfully at least once for it to appear within the Health dashboard.
-    - For example, if you deployed San Jose App Connector 3, you see the following:
-      - In Configuration & Control > Private Infrastructure > App Connector Management > App Connectors:
-      - In Dashboards > Health, within the App Connectors widget:
+    - Go to **Configuration & Control** > **Private Infrastructure** > **App Connector Management** > **App Connectors**. Check that the App Connector you deployed appears in the table of configured App Connectors.
+    - Go to **Dashboard** > **Health**. Check that the App Connector you deployed appears in the **App Connectors** widget. The App Connector must have enrolled successfully at least once for it to appear within the Health dashboard.
+    - For example, if you deployed **San Jose App Connector 3**, you see the following:
+      - In **Configuration & Control** > **Private Infrastructure** > **App Connector Management** > **App Connectors**:
+      - In **Dashboards** > **Health**, within the **App Connectors** widget:
   - Using systemd: You can use systemd to check that the zpa-connector service is running on the local system.
   - To check App Connector status using systemd:
     - Log in to the App Connector console using your admin credentials.
@@ -54,7 +54,7 @@ After verifying your deployment, perform the following procedures to update and 
   - [admin@zpa-connector ~]$ logout
 - Log In to and Out of the App Connector System Console
 - To log in to the App Connector console, enter the admin credentials:
-- zpa-connector login: admin Password: *******
+- zpa-connector login: admin Password: ***
 - After the initial boot of an App Connector instance, it can take up to 15 minutes for the admin credentials to apply. So, if you receive an Invalid Credentials error after initial boot, wait a few minutes and try again.
 - To log out of the App Connector console, enter logout:
 - [admin@zpa-connector ~]$ logout
@@ -86,9 +86,9 @@ After verifying your deployment, perform the following procedures to update and 
 - Replace a Provisioning Key or Move App Connector to New Hardware
 - You must re-enroll the App Connector to replace its provisioning key or if it is moved to new hardware. For both cases, you must use a new key with the VM image that you originally deployed.
 - To replace a provisioning key for an App Connector:
-  - Log in to the ZPA Admin Portal and go to Configuration & Control > Private Infrastructure > App Connector Management > App Connectors.
-  - Locate the App Connector that you want to replace the provisioning key for and click the Delete icon.
-  - In the confirmation window that appears, click Delete.
+  - Log in to the ZPA Admin Portal and go to **Configuration & Control** > **Private Infrastructure** > **App Connector Management** > **App Connectors**.
+  - Locate the App Connector that you want to replace the provisioning key for and click the **Delete** icon.
+  - In the confirmation window that appears, click **Delete**.
   - (Optional) If you do not already have your new App Connector provisioning key, be sure to complete the procedure for adding a new App Connector with a new provisioning key.
   - Log in to the App Connector console using your admin credentials.
   - Temporarily enable sshd:
@@ -120,14 +120,14 @@ After verifying your deployment, perform the following procedures to update and 
   - For AWS and Azure, make sure that you disable inbound access via port 22.
 - Replace an App Connector Using an Existing App Connector Provisioning Key
 - If you need to replace a deployed App Connector using a new provisioning key on an existing VM image, complete the Replace an App Connector provisioning key procedure. If you need to replace a deployed App Connector using an existing provisioning key on a new VM image:
-  - Log in to the ZSDK Admin Portal and go to Configuration & Control > Private Infrastructure > App Connector Management > App Connector Provisioning Keys.
-  - On the App Connector Provisioning Keys page, locate the existing key that you want to use and click the Edit icon.
-  - In the Edit App Connector Provisioning Key window, increase the Maximum Reuse of Provisioning Key value to accommodate the number of App Connectors that you are going to replace. To learn more, see Managing App Connector Provisioning Keys.
+  - Log in to the ZSDK Admin Portal and go to **Configuration & Control > Private Infrastructure > App Connector Management > App Connector Provisioning Keys**.
+  - On the **App Connector Provisioning Keys** page, locate the existing key that you want to use and click the **Edit** icon.
+  - In the **Edit App Connector Provisioning Key** window, increase the **Maximum Reuse of Provisioning Key** value to accommodate the number of App Connectors that you are going to replace. To learn more, see Managing App Connector Provisioning Keys.
   - Deploy the new replacement App Connector VM images using the existing provisioning key from the previous step. By doing so, these new App Connectors automatically join the same App Connector group as the App Connectors that you are replacing. To learn more, see the Deployment Guide for your App Connector.
-  - When the new App Connectors are deployed, they appear within the Health dashboard. Verify that the new App Connectors in the App Connector group are enabled and showing an Up Time. To learn more, see Viewing App Connector Details.
-  - Go to Configuration & Control > Private Infrastructure > App Connector Management > App Connectors.
-  - On the App Connectors page, locate the App Connectors that you want to replace and click the Edit icon.
-  - In the Edit App Connector window, set the Status to Disabled. To learn more, see Managing App Connectors.
+  - When the new App Connectors are deployed, they appear within the Health dashboard. Verify that the new App Connectors in the App Connector group are enabled and showing an **Up Time**. To learn more, see Viewing App Connector Details.
+  - Go to **Configuration & Control** > **Private Infrastructure** > **App Connector Management** > **App Connectors**.
+  - On the **App Connectors** page, locate the App Connectors that you want to replace and click the **Edit** icon.
+  - In the **Edit App Connector** window, set the **Status** to **Disabled**. To learn more, see Managing App Connectors.
   - Verify that user access to your applications is still working as desired.
   - To ensure that all user traffic has fully transferred to the new replacement App Connectors, wait at least 24 hours before deleting the disabled App Connectors.
 - When the user sessions have expired on the disabled App Connectors, delete them within the ZSDK Admin Portal and remove any old VM instances from your environment.

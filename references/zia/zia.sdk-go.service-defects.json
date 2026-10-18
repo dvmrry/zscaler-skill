@@ -30,6 +30,20 @@
       "to": "zia.ssl-inspection.pipeline"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether an ISOLATE rule read through the URL filtering Get carries a CBI profile, rather than trusting a nil error.",
+      "uses": [
+        "url-filtering-get-fallback-swallows-error"
+      ]
+    },
+    {
+      "do": "For an import by name, whether any listed DC exclusion lacks a dcName.",
+      "uses": [
+        "dc-exclusion-name-lookup-nil-deref"
+      ]
+    }
+  ],
   "claims": {
     "update-admin-user-zero-result": {
       "statement": "`UpdateAdminUser` asserts the helper's response to the value type `AdminUsers`, but the update helper builds its response object with `reflect.New`, which is a pointer. The assertion fails, its failure is discarded, and the function returns a pointer to a zero-value `AdminUsers` with a nil error, whatever the server returned.",

@@ -13,12 +13,12 @@ Federated partners provide the following benefits and enable you to:
 # About the Federated Partners Page
 On the Federated Partners page (Private Access > B2B Exchange > Federation > Federated Partners), you can do the following:
 - Add a partner.
-- Click the Filter icon to display or hide the filters.
-- Filter the information that appears in the table. By default, no filters are applied. Click Clear to clear the applied filters. To learn more, see Using Tables.
+- Click the **Filter** icon to display or hide the filters.
+- Filter the information that appears in the table. By default, no filters are applied. Click **Clear** to clear the applied filters. To learn more, see Using Tables.
 - View a list of all federated partners that are configured for your organization. For each federated partner, you can see:
-  - Partner: The name of the federated partner.
-  - Federated On: The date that the trust between two business partners was established.
-  - Status: The status of the federated partner (i.e., Active, Pause, or Terminate). Click the drop-down menu to view a list of statuses, or to pause or terminate the status of the federated partner.
+  - **Partner**: The name of the federated partner.
+  - **Federated On**: The date that the trust between two business partners was established.
+  - **Status**: The status of the federated partner (i.e., **Active**, **Pause**, or **Terminate**). Click the drop-down menu to view a list of statuses, or to pause or terminate the status of the federated partner.
 - Modify the columns displayed in the table.
 - View the federated applications for the federated partner. You can federate applications to make them eligible to share with host partners.
 - Display more rows or a different page of the table.

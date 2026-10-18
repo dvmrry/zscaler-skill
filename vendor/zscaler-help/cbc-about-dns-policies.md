@@ -18,15 +18,15 @@ The DNS Policies page has a default rule that allows all DNS traffic. These rule
 On the DNS Policies page (Zero Trust Cloud > Policy > DNS Forwarding), you can do the following:
 - Add a DNS Filtering rule.
 - View a list of all configured DNS Filtering policy rules. For each policy rule, you can view:
-  - Rule Order: The policy rule's order number. DNS Policies rules are evaluated in ascending numerical order.
-  - Rule Name: The name of the rule.
-  - Criteria: A description of the different criteria that have been added to the rule.
-  - Action: Whether the policy is set to Allow, Block, Resolved by ZPA, or Redirect Request.
-  - Status: The status of the rule, which indicates whether the rule is enabled or disabled.
-  - Description: A description of the rule.
+  - **Rule Order**: The policy rule's order number. DNS Policies rules are evaluated in ascending numerical order.
+  - **Rule Name**: The name of the rule.
+  - **Criteria**: A description of the different criteria that have been added to the rule.
+  - **Action**: Whether the policy is set to **Allow**, **Block**, **Resolved by ZPA**, or **Redirect Request**.
+  - **Status**: The status of the rule, which indicates whether the rule is enabled or disabled.
+  - **Description**: A description of the rule.
 - View a list of predefined policy rules created by Zscaler. They are disabled by default, but you can enable them:
-  - Redirect Resolution of Zscaler Domains to WAN CTR: This policy rule matches Zscaler domains from the predefined Zscaler Cloud Endpoints application service group. It only applies to hardware devices deployed in gateway mode and appears based on the licenses enabled in your tenant. You can only edit certain fields for this rule (i.e., Rule Order, Rule Status, Location/Sublocation, and Cloud & Branch Connector Groups).
-  - Default Connector DNS Rule: The default catch-all rule that permits all DNS queries.
+  - **Redirect Resolution of Zscaler Domains to WAN CTR**: This policy rule matches Zscaler domains from the predefined Zscaler Cloud Endpoints application service group. It only applies to hardware devices deployed in gateway mode and appears based on the licenses enabled in your tenant. You can only edit certain fields for this rule (i.e., **Rule Order**, **Rule Status**, **Location/Sublocation**, and **Cloud & Branch Connector Groups**).
+  - **Default Connector DNS Rule**: The default catch-all rule that permits all DNS queries.
 - Edit a DNS filtering rule.
 - Duplicate a DNS filtering rule.
 - Delete a DNS filtering rule.

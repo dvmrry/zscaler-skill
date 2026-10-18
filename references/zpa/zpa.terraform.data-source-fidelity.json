@@ -26,6 +26,47 @@
       "to": "zpa.sdk-go.service-defects"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether a field that reads empty is declared and set by the read path, before it is treated as unconfigured.",
+      "uses": [
+        "fields-declared-or-in-sdk-but-not-set",
+        "set-errors-ignored-across-data-sources"
+      ]
+    },
+    {
+      "do": "Whether a block made only of empty strings and false values is treated as unknown rather than as a configured object.",
+      "uses": [
+        "lss-empty-config-becomes-a-block",
+        "app-connector-assistant-version-always-a-block",
+        "cbi-external-profile-empty-objects-become-blocks"
+      ]
+    },
+    {
+      "do": "Whether a block the data source reports is configured, before a consumer tests whether it exists or takes an ID from it.",
+      "uses": [
+        "lss-empty-config-becomes-a-block",
+        "app-connector-assistant-version-always-a-block",
+        "service-edge-group-brokers-always-blocks",
+        "cbi-external-profile-empty-objects-become-blocks",
+        "customer-version-profile-empty-side-becomes-empty-id"
+      ]
+    },
+    {
+      "do": "Whether the `zpa_policy_type` rules and the microtenant `user` block populate on the plugin SDK and provider versions in use, before either is used as an input.",
+      "uses": [
+        "policy-type-flattener-emits-undeclared-keys",
+        "microtenant-user-flattener-keys-mismatch-schema",
+        "microtenant-user-set-error-discarded"
+      ]
+    },
+    {
+      "do": "Whether `zpn_auth_log` on `zpa_lss_config_status_codes` is used as the auth log, since it carries the AST mapping rather than the ordinary one.",
+      "uses": [
+        "lss-status-codes-auth-log-mapped-from-ast"
+      ]
+    }
+  ],
   "claims": {
     "policy-type-flattener-emits-undeclared-keys": {
       "statement": "The `zpa_policy_type` flattener puts keys into every rule map (`microtenant_id`, `microtenant_name`, `zpn_isolation_profile_id`, `zpn_inspection_profile_name`), and into every condition and operand map (`microtenant_id`), that the nested `rules` schema does not declare. The read checks the error of `d.Set(\"rules\", ...)`, so a policy set that contains a rule is expected to return a diagnostic instead of state.",

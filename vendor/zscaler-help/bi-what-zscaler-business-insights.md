@@ -16,17 +16,17 @@ Business Insights serves as a centralized engagement interface for all your lice
 By analyzing your application usage trends with Business Insights, you're equipped with accurate data to renew the correct number of licenses required by your organization. For example, if an organization purchases more than the required number of Microsoft 365 licenses, the data for how many of the purchased licenses are actually being used can be analyzed with the help of Business Insights and, subsequently, reduce the number of licenses during the renewal process.
 ## Key Features and Benefits
 The key features and benefits of Business Insights for your applications landscape are as follows:
-- Instant Discovery: Configure your applications and start viewing their metrics instantly.
-- Engagement Data: Glance into the application's engagement ratio, spending trends, saving opportunities, inactive user data, usage by department, etc.
-- Shadow IT: View and calculate spending on Shadow IT applications purchased by departments or users within your organization.
-- SaaS Visibility: Experience total visibility into your application landscape. View the list of all your applications in one place, including overlaps.
-- Cost Control: Reduce unnecessary and redundant application expenses.
+- **Instant Discovery**: Configure your applications and start viewing their metrics instantly.
+- **Engagement Data**: Glance into the application's engagement ratio, spending trends, saving opportunities, inactive user data, usage by department, etc.
+- **Shadow IT**: View and calculate spending on Shadow IT applications purchased by departments or users within your organization.
+- **SaaS Visibility**: Experience total visibility into your application landscape. View the list of all your applications in one place, including overlaps.
+- **Cost Control**: Reduce unnecessary and redundant application expenses.
 # Office Workplace & Workforce Management
 Understanding office workplace utility helps you manage and control costs, ensure employee productivity, and maintain a seamless office experience. However, these insights can be hard to access, spread out across multiple departments and numerous standalone tools. Stringing together the data places enormous pressure on IT and other relevant teams. Business Insights provides a better way to access these insights and visualize the trends granularly. The HR and Workplace & Facilities leaders can conduct data-based office capacity planning and understand hour-by-hour office utilization down to department and employee levels.
 ## Key Features and Benefits
 The key features and benefits of Business Insights for your office workplace utilization are as follows:
-- Workplace Insights: Optimize office overheads with details on what days workers spend in the office vs. hybrid vs. remote, as well as which departments come into the office most frequently.
-- Cost Control: Rich insights and predictive cost-saving models enable you to save money by optimizing workplace utilization.
-- Back-to-Office Strategy: Leverage hour-by-hour office utilization data, and access weekly, monthly, and quarterly workplace usage data across all your office locations to make data-backed decisions on your back-to-office strategy.
-- Workplace and Workforce Metrics: Stay informed of your workplace and workforce utilization with the help of graphs and metrics.
+- **Workplace Insights**: Optimize office overheads with details on what days workers spend in the office vs. hybrid vs. remote, as well as which departments come into the office most frequently.
+- **Cost Control**: Rich insights and predictive cost-saving models enable you to save money by optimizing workplace utilization.
+- **Back-to-Office Strategy**: Leverage hour-by-hour office utilization data, and access weekly, monthly, and quarterly workplace usage data across all your office locations to make data-backed decisions on your back-to-office strategy.
+- **Workplace and Workforce Metrics**: Stay informed of your workplace and workforce utilization with the help of graphs and metrics.
 To learn more, see Understanding Business Insights Architecture.

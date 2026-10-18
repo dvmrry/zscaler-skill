@@ -18,9 +18,9 @@ The following section explains the steps and process of verifying and securing y
 - Create an ROA.
   - Create a Route Origin Authorization (ROA) object in your RIR which contains your prefix and a Zscaler ASN. A ROA proves you own the IP address and that you authorize Zscaler to announce your prefix via a Zscaler ASN.
   - Zscaler operates three Autonomous Systems (ASes), one in each of the following regions. Use one of these Autonomous System Numbers (ASN) depending upon which region the BYOIP is deployed:
-    - APAC: AS53813
-    - Americas: AS22616
-    - EMEA: AS62044
+    - **APAC**: AS53813
+    - **Americas**: AS22616
+    - **EMEA**: AS62044
 - When creating an ROA, the ROA object must be the same prefix length that is announced from a data center. For example, if you announce 200.100.100.0/24 from data center 1, a corresponding ROA object must be created for 200.100.100.0/24.
 - Generate a self-signed certificate.
   - Create a self-signed x.509 certificate (standard format of digital certificates used to verify entities in online communications) which creates a public and private certificate. This is used to sign the Zscaler BYOIP message and to ensure the authenticity of the message.
@@ -28,9 +28,9 @@ The following section explains the steps and process of verifying and securing y
   - openssl genrsa -out private.key 2048
   - openssl req -new -x509 -key private.key -days 365 | tr -d '\n' > publickey.cer
   - When generated, attach the public certificate to your netblock where the BYOIP prefix is allocated, in the comment or remarks section of your RIR:
-    - ARIN: Edit the comments of the prefix record
-    - RIPE: Edit the remarks of the inetnum record
-    - APNIC: Edit the remarks of the inetnum record
+    - **ARIN**: Edit the comments of the prefix record
+    - **RIPE**: Edit the remarks of the inetnum record
+    - **APNIC**: Edit the remarks of the inetnum record
   - Ensure that there are no spaces or carriage returns when pasting the message into the comments or remarks section.
 - Create and sign the Zscaler BYOIP message.
   - For Zscaler to authenticate your IP addresses and advertise the routes, create a Zscaler BYOIP message with the following format: <version>|<prefix>|<mesg_expire_date>

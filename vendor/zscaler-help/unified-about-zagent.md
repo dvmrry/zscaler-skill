@@ -22,7 +22,7 @@ There are many different use cases for ZAgent to interact with Zscaler features.
 | Data Protection Agent | Complimentary with Data Protection. |
 ZAgent retains prompts and responses for a rolling period of 14 days as part of the session history. To learn more, see ZAgent Logs.
 # About ZAgent
-To access ZAgent, click the Wand icon () in your Zscaler Admin Console to open the ZAgent drawer.
+To access ZAgent, click the **Wand** icon () in your Zscaler Admin Console to open the ZAgent drawer.
 See image.
 You can expand the drawer to a window to see more details on a wider screen.
 In ZAgent (showing expanded window), you can:

@@ -42,6 +42,34 @@
       "to": "zia.firewall.rule-order"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the rule is enabled, since a disabled rule keeps its place in the order but is not enforced.",
+      "uses": [
+        "disabled-holds-slot"
+      ]
+    },
+    {
+      "do": "Whether the rule's location and time criteria match the traffic, since all the criteria must match.",
+      "uses": [
+        "criteria-expression"
+      ]
+    },
+    {
+      "do": "Whether an earlier rule holds the same class, since bandwidth is allocated by rule order.",
+      "uses": [
+        "order-is-priority",
+        "ascending-order",
+        "multi-rule-class"
+      ]
+    },
+    {
+      "do": "Whether the location enforces Bandwidth Control and has limits, since rules do not shape its traffic otherwise.",
+      "uses": [
+        "zia.bandwidth-control.location-scope"
+      ]
+    }
+  ],
   "claims": {
     "rule-terms": {
       "statement": "Each rule defines a maximum and minimum bandwidth for the bandwidth classes in the rule, along with other parameters such as location and time of day.",

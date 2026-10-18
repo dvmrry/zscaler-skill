@@ -48,73 +48,73 @@ Before you can integrate ZIA with AI Guard, ensure that you:
 # Configuring ZIA
 - Uploading your AI Guard CA certificate to ZIA
 - To upload your AI Guard CA certificate to ZIA:
-  - In the Zscaler Admin Console, go to Infrastructure > Internet & SaaS > Network Policies > Root Certificates.
-  - Click Add Root Certificates. The Add Root Certificate window appears.
+  - In the Zscaler Admin Console, go to **Infrastructure** > **Internet & SaaS** > **Network Policies** > **Root Certificates**.
+  - Click **Add Root Certificates**. The **Add Root Certificate** window appears.
   - See image.
-  - In the Add Root Certificate window:
-    - Name: Enter a name for your certificate.
-    - Type: From the drop-down menu, select Proxy Chaining.
-    - File: Browse and select the AI Guard CA certificate (.pem file) from your system.
-  - Click Save.
+  - In the **Add Root Certificate** window:
+    - **Name**: Enter a name for your certificate.
+    - **Type**: From the drop-down menu, select **Proxy Chaining**.
+    - **File**: Browse and select the AI Guard CA certificate (.pem file) from your system.
+  - Click **Save**.
 - Configuring the ZIA Proxy
 - To configure your ZIA proxy:
-  - In the Zscaler Admin Console, go to Infrastructure > Internet & SaaS > Network Policies > Proxies and Gateways.
-  - In the Proxies tab, click Add Proxy. The Add Proxy window appears.
+  - In the Zscaler Admin Console, go to **Infrastructure** > **Internet & SaaS** > **Network Policies** > **Proxies and Gateways**.
+  - In the **Proxies** tab, click **Add Proxy**. The **Add Proxy** window appears.
   - See image.
-  - In the Add Proxy window:
-    - Proxy Name: Enter a user-friendly name for the third-party proxy that you are defining.
-    - IP Address/FQDN: forward.prod.zsaiguard.net.
-    - Port: 9443.
-    - Proxy's Root Certificate: Select the root certificate you previously created.
-    - Insert X-Authenticated-User: Enable this setting.
-    - Enable Base64 Encoding for X-Authenticated-User value: Disable this setting.
-    - Description (Optional): Enter additional notes or information. The description cannot exceed 256 characters.
-  - Click Save.
-  - In the Proxy Gateways tab, click Add Gateway for Proxies. The Add Gateway for Proxies window appears.
+  - In the **Add Proxy** window:
+    - **Proxy Name**: Enter a user-friendly name for the third-party proxy that you are defining.
+    - **IP Address/FQDN**: forward.prod.zsaiguard.net.
+    - **Port**: 9443.
+    - **Proxy's Root Certificate**: Select the root certificate you previously created.
+    - **Insert X-Authenticated-User**: Enable this setting.
+    - **Enable Base64 Encoding for X-Authenticated-User value**: Disable this setting.
+    - **Description (Optional)**: Enter additional notes or information. The description cannot exceed 256 characters.
+  - Click **Save**.
+  - In the **Proxy Gateways** tab, click **Add Gateway for Proxies**. The **Add Gateway for Proxies** window appears.
   - See image.
-  - In the Add Gateway and Proxies window:
-    - Name: Enter a name for your proxy gateway.
-    - Fail Close: Leave selected.
-    - Primary Proxy: Select the proxy you previously created.
-    - Secondary Proxy: Leave blank.
-  - Click Save.
+  - In the **Add Gateway and Proxies** window:
+    - **Name**: Enter a name for your proxy gateway.
+    - **Fail Close**: Leave selected.
+    - **Primary Proxy**: Select the proxy you previously created.
+    - **Secondary Proxy**: Leave blank.
+  - Click **Save**.
 - Creating a rule for ZIA to drop QUIC traffic
 - To create a rule for ZIA to drop QUIC traffic:
-  - In the Zscaler Admin Console, go to Policies > Access Control > Firewall > Firewall Filtering Policy.
+  - In the Zscaler Admin Console, go to **Policies** > **Access Control** > **Firewall** > **Firewall Filtering Policy**.
   - See image.
-  - On the Firewall Filtering Policy page, click Add Rule. The Add Rule window appears.
-  - In the Add Rule window:
-    - Criteria: Select Network Services from the drop-down menu.
-      - Network Services: Select QUIC from the dropdown menu.
-    - Network Services: In the Services tab, click the drop-down menu and select QUIC.
-    - Network Traffic: From the drop-down menu, select Block/ICMP.
-    - Rule Name: Enter a name for the rule.
+  - On the **Firewall Filtering Policy** page, click **Add Rule**. The **Add Rule** window appears.
+  - In the **Add Rule** window:
+    - **Criteria**: Select **Network Services** from the drop-down menu.
+      - **Network Services**: Select **QUIC** from the dropdown menu.
+    - **Network Services**: In the **Services** tab, click the drop-down menu and select **QUIC**.
+    - **Network Traffic**: From the drop-down menu, select **Block/ICMP**.
+    - **Rule Name**: Enter a name for the rule.
     - See image.
   - If you have ZIA Tunnel 1.0, disable the QUIC protocol from your browser. Refer to your specific browser's instructions to disable QUIC.
-  - Click Save.
+  - Click **Save**.
 - Creating a wildcard destination group and forwarding rule
 - To create a wildcard destination group and forwarding rule:
-  - In the Zscaler Admin Console, go to Policies > Access Control > Firewall > IP &FQDN Groups.
+  - In the Zscaler Admin Console, go to **Policies** > **Access Control** > **Firewall** > **IP &FQDN Groups**.
   - See image.
-  - On the Destination IPv4 Groups tab, click Add Destination IPv4 Group. The Add Destination IPv4 Group window opens.
-  - In the Add Destination IPv4 Group window:
-    - Name: Enter a name such as AI Guard.
-    - Type: Select Wildcard FQDN.
-    - Wildcard FQDN: Add in the required domains for your desired AI providers and click Add Items. The AI domains are found in the Prerequisites section.
-    - Description (Optional): Enter additional information not exceeding 10240 characters.
+  - On the **Destination IPv4 Groups** tab, click **Add Destination IPv4 Group**. The **Add Destination IPv4 Group** window opens.
+  - In the **Add Destination IPv4 Group** window:
+    - **Name**: Enter a name such as AI Guard.
+    - **Type**: Select **Wildcard FQDN**.
+    - **Wildcard FQDN**: Add in the required domains for your desired AI providers and click **Add Items**. The AI domains are found in the Prerequisites section.
+    - **Description (Optional)**: Enter additional information not exceeding 10240 characters.
   - See image.
-  - Click Save.
-  - In the Zscaler Admin Console, go to Infrastructure > Internet & SaaS > Network Policies > Forwarding Control Policy.
+  - Click **Save**.
+  - In the Zscaler Admin Console, go to **Infrastructure** > **Internet & SaaS** > **Network Policies** > **Forwarding Control Policy**.
   - See image.
-  - On the Forwarding Control page, click Add Rule. The Add Forwarding Rule window appears.
-  - In the Add Forwarding Rule window:
-    - Criteria: Select Destination IPv4 Groups.
-      - Destination IPv4 Groups: Select the wildcard FQDN destination group you previously created.
-    - Rule Name: Enter a name for the forwarding rule.
-    - Forwarding Method: Select Proxy Chaining.
-    - Forward to Proxy Gateway: Select the proxy gateway you previously created.
+  - On the **Forwarding Control** page, click **Add Rule**. The **Add Forwarding Rule** window appears.
+  - In the **Add Forwarding Rule** window:
+    - **Criteria**: Select **Destination IPv4 Groups**.
+      - **Destination IPv4 Groups**: Select the wildcard FQDN destination group you previously created.
+    - **Rule Name**: Enter a name for the forwarding rule.
+    - **Forwarding Method**: Select **Proxy Chaining**.
+    - **Forward to Proxy Gateway**: Select the proxy gateway you previously created.
     - See image.
 - For traffic forwarding to work, users must have signed in to ZIA through mechanisms such as Zscaler Client Connector, and they must be authenticated by your IdP. You can check the logs in ZIA to ensure that traffic forwarding is enabled. To learn more, see About Insights Logs.
 # Configuring AI Guard
-AI users defined in Authentication Service show up automatically in AI Guard after you have configured ZIA successfully. Groups are not yet automatically populated. You can define policies in Policy Match for both individual users and groups you've created. The default group is AllUsersGroup.
+AI users defined in Authentication Service show up automatically in AI Guard after you have configured ZIA successfully. Groups are not yet automatically populated. You can define policies in **Policy Match** for both individual users and groups you've created. The default group is **AllUsersGroup**.
 See image.

@@ -39,6 +39,35 @@
       "to": "zpa.terraform.data-source-selection"
     }
   ],
+  "checks": [
+    {
+      "do": "Whether the failing object has the shape that triggers a flattener failure, before concluding the data source is broken on every tenant.",
+      "uses": [
+        "undeclared-key-write-errors",
+        "api-response-shape-for-flattener-failures"
+      ]
+    },
+    {
+      "do": "Whether the two selectors given to a data source agree, since the first matching entry is returned.",
+      "uses": [
+        "id-and-name-first-match-wins"
+      ]
+    },
+    {
+      "do": "Which policy criteria a rule read through a data source is missing, starting with the URL filtering, traffic capture and location data sources.",
+      "uses": [
+        "url-filtering-criteria-dropped",
+        "traffic-capture-ipv6-groups-dropped",
+        "location-association-arrays-dropped"
+      ]
+    },
+    {
+      "do": "Whether an empty attribute is never set: search the data source file for its snake_case key, where one hit, in the schema, means it is never set.",
+      "uses": [
+        "declared-or-sdk-fields-never-populated"
+      ]
+    }
+  ],
   "claims": {
     "sandbox-rss-signature-sources-scalar-in-set": {
       "statement": "In the sandbox report data source, each risk/signature entry declares `signature_sources` as a `TypeSet`, but the SDK field it is filled from is a single `string`, and the flattener assigns that string directly into the map handed to `d.Set`.",

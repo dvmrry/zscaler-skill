@@ -10,12 +10,40 @@
     "overnight time interval",
     "midnight spanning interval"
   ],
-  "binds": ["zia/time-intervals"],
+  "binds": [
+    "zia/time-intervals"
+  ],
   "related": [
-    { "rel": "depends-on", "to": "zia.time-intervals.timezone" },
-    { "rel": "depends-on", "to": "zia.url-filtering.rule-order" },
-    { "rel": "see-also", "to": "zia.time-intervals.schema" },
-    { "rel": "see-also", "to": "zia.time-intervals.rule-usage" }
+    {
+      "rel": "depends-on",
+      "to": "zia.time-intervals.timezone"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.schema"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.rule-usage"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an overnight period is split into two intervals, one ending at 1439 and one starting at 0, since no source states that a window can wrap midnight.",
+      "uses": [
+        "midnight-spanning"
+      ]
+    },
+    {
+      "do": "Whether an after-hours request is blocked, since an out-of-window allow rule yields no verdict and the outcome depends on the rules below it.",
+      "uses": [
+        "falls-through"
+      ]
+    }
   ],
   "claims": {
     "outside-window-not-triggered": {
@@ -34,13 +62,18 @@
     "falls-through": {
       "statement": "An out-of-window rule yields no verdict of its own: evaluation continues down the ordered list, so an allow rule limited to business hours stops allowing after hours and the outcome depends on the rules below it, ending at the default rule.",
       "tier": "B",
-      "derived_from": ["outside-window-not-triggered", "zia.url-filtering.rule-order:first-match"],
+      "derived_from": [
+        "outside-window-not-triggered",
+        "zia.url-filtering.rule-order:first-match"
+      ],
       "conditions": "Follows from first-match evaluation as documented for URL Filtering; the same behavior for other rule types was not read."
     },
     "no-holiday-exclusions": {
       "statement": "A time interval cannot exclude dates such as public holidays; the schema has no date or calendar field. Staying outside a window on a given date means disabling or reordering the rule yourself.",
       "tier": "B",
-      "derived_from": ["zia.time-intervals.schema:weekly-recurrence-only"],
+      "derived_from": [
+        "zia.time-intervals.schema:weekly-recurrence-only"
+      ],
       "conditions": "Absence of a date field in the schema and drawer; the remedy follows from rules being skipped when disabled (zia.url-filtering.rule-order:disabled-holds-slot)."
     }
   },
@@ -49,10 +82,16 @@
       "kind": "semantic",
       "title": "Whether an interval can cross midnight (end earlier than start)",
       "status": "open",
-      "former_ids": ["zia-24"],
+      "former_ids": [
+        "zia-24"
+      ],
       "detail": "Unverified legacy statement: \"`endTime` ... must be > `startTime` within the same calendar day.\" No source states the constraint, and none says whether 22:00 to 02:00 is accepted with `endTime` less than `startTime` or needs two intervals. Resolve by creating such an interval on a scratch tenant and testing a rule at 23:00 and 01:00.",
-      "resolves_with": ["lab-test"],
-      "about": ["zia.time-intervals.schema:fields"],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "about": [
+        "zia.time-intervals.schema:fields"
+      ],
       "blocks": "advising how to schedule overnight windows"
     }
   }

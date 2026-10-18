@@ -13,173 +13,173 @@ However, this behavior changes if you enable Allow Cascading to URL Filtering in
 Non-English characters are not supported in URL Filtering, except those from the ISO/IEC 8859-1 character set.
 # Policy Execution
 The URL Filtering policy supports different rule conditions, grouped into categories. A series of AND and OR logical operators are applied between these criteria to form a combination of rule set that is used to evaluate for traffic matches. The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:
-- Who, Where, & When: [ (Users OR/AND Groups OR/AND Departments) AND User Risk Profile AND Adaptive Access Profile AND (Location Groups OR Locations) AND Time ] AND
-- What: [ Request Methods AND Protocols AND URL Categories AND User Agent AND HTTP Header Profiles ] AND
-- Source: [ Source IP Groups AND Source Countries ] AND
-- Device: [ (Device Groups OR Devices) AND Workload Groups AND Device Trust Level ]
-You can apply either AND or OR logical operator between Users, Groups, and Departments by clicking the drop-down icon for the logical operator.
+- **Who, Where, & When**: [ (Users OR/AND Groups OR/AND Departments) AND User Risk Profile AND Adaptive Access Profile AND (Location Groups OR Locations) AND Time ] AND
+- **What**: [ Request Methods AND Protocols AND URL Categories AND User Agent AND HTTP Header Profiles ] AND
+- **Source**: [ Source IP Groups AND Source Countries ] AND
+- **Device**: [ (Device Groups OR Devices) AND Workload Groups AND Device Trust Level ]
+You can apply either AND or OR logical operator between Users, Groups, and Departments by clicking the **drop-down** icon for the logical operator.
 See image.
 # Adding a URL Filtering Rule
 To add a URL Filtering rule:
-- From the navigation menu, go to Internet Access > Policy > URL Filtering.
-- Click Add Rule. You can also copy an existing rule by clicking the Duplicate icon.
-- The Add URL Filtering Rule page appears.
-- On the Add URL Filtering Rule page, you can configure the following sections:
+- From the navigation menu, go to **Internet Access** > **Policy** > **URL Filtering**.
+- Click **Add Rule**. You can also copy an existing rule by clicking the **Duplicate** icon.
+- The **Add URL Filtering Rule** page appears.
+- On the **Add URL Filtering Rule** page, you can configure the following sections:
   - Criteria
-  - In the Criteria section, when you click the Add Criteria drop-down menu, you see the rule condition categories in gray (e.g., Who) and the individual rule conditions (e.g., Users, Groups & Departments) under each category.
+  - In the **Criteria** section, when you click the **Add Criteria** drop-down menu, you see the rule condition categories in gray (e.g., Who) and the individual rule conditions (e.g., Users, Groups & Departments) under each category.
   - See image.
-  - The conditions contain preconfigured values (e.g., Users, Groups & Departments). A multi-select window with a search bar appears. You can select values by selecting the checkbox for individual items or by clicking Select All. After selecting the values, click outside the window to close it. To clear selected items, click the field to open the multi-select window, then use the Remove icon displayed for individual entries. To remove all selected values, click Remove All.
+  - The conditions contain preconfigured values (e.g., Users, Groups & Departments). A multi-select window with a search bar appears. You can select values by selecting the checkbox for individual items or by clicking **Select All**. After selecting the values, click outside the window to close it. To clear selected items, click the field to open the multi-select window, then use the **Remove** icon displayed for individual entries. To remove all selected values, click **Remove All**.
   - See image.
   - Refer to the following condition categories for details on configuring their individual conditions:
     - Who
-    - Contact Zscaler Support to increase the limit of Users, Groups, or Departments.
-      - Users: Select up to 32 general or special users or both. Select General Users for all authenticated users and Special Users for all unauthenticated users if you've enabled the Policy for Unauthenticated Traffic. Selecting no value ignores this criterion in the policy evaluation.
-      - Groups: Select up to 32 groups. Selecting no value ignores this criterion in the policy evaluation.
-      - (Optional) Click Add More Groups to add another Groups field to the criteria. You can add up to three Groups fields, and they are connected with a logical AND operator. This allows you to create rules that are triggered when they match the selected groups in all the Groups fields. For example, a block rule is created with the Admins, Super Admins, and Executive Admins groups being selected in the three Groups fields. If the admins belong to all the groups (i.e., Admins, Super Admins, and Executive Admins), only then is access to the admins blocked.
+    - Contact Zscaler Support to increase the limit of **Users**, **Groups**, or **Departments**.
+      - **Users**: Select up to 32 general or special users or both. Select **General Users** for all authenticated users and **Special Users** for all unauthenticated users if you've enabled the Policy for Unauthenticated Traffic. Selecting no value ignores this criterion in the policy evaluation.
+      - **Groups**: Select up to 32 groups. Selecting no value ignores this criterion in the policy evaluation.
+      - (Optional) Click **Add More Groups** to add another **Groups** field to the criteria. You can add up to three **Groups** fields, and they are connected with a logical AND operator. This allows you to create rules that are triggered when they match the selected groups in all the **Groups** fields. For example, a block rule is created with the Admins, Super Admins, and Executive Admins groups being selected in the three **Groups** fields. If the admins belong to all the groups (i.e., Admins, Super Admins, and Executive Admins), only then is access to the admins blocked.
       - See image.
-      - Departments: Select up to 32 departments. If you've enabled the Policy for Unauthenticated Traffic, you can select Special Departments to apply this rule to all unauthenticated transactions. Selecting no value ignores this criterion in the policy evaluation.
+      - **Departments**: Select up to 32 departments. If you've enabled the Policy for Unauthenticated Traffic, you can select Special Departments to apply this rule to all unauthenticated transactions. Selecting no value ignores this criterion in the policy evaluation.
       - Any rule that applies to unauthenticated traffic also applies to the groups and users that are selected. So, if you have chosen to apply this rule to unauthenticated traffic for the following fields:
-        - Users: Either Departments, Groups, or both are ignored in the policy evaluation if there isn't any specific selection in the respective fields.
-        - Departments: Either Users, Groups, or both are ignored in the policy evaluation if there isn't any specific selection in the respective fields.
-      - User Risk Profile: Select the user risk score levels to which the rule applies. Selecting no value ignores the criterion in the policy evaluation.
+        - **Users**: Either **Departments**, **Groups**, or both are ignored in the policy evaluation if there isn't any specific selection in the respective fields.
+        - **Departments**: Either **Users**, **Groups**, or both are ignored in the policy evaluation if there isn't any specific selection in the respective fields.
+      - **User Risk Profile**: Select the user risk score levels to which the rule applies. Selecting no value ignores the criterion in the policy evaluation.
       - Users are assigned a risk score based on their browsing activities. A range of risk scores is grouped as a risk score level.
       - By default, the following user risk score levels are available:
-        - Low: Level with user risk scores ranging from 0 to 29
-        - Medium: Level with user risk scores ranging from 30 to 59
-        - High: Level with user risk scores ranging from 60 to 79
-        - Critical: Level with user risk scores ranging from 80 to 100
+        - **Low**: Level with user risk scores ranging from 0 to 29
+        - **Medium**: Level with user risk scores ranging from 30 to 59
+        - **High**: Level with user risk scores ranging from 60 to 79
+        - **Critical**: Level with user risk scores ranging from 80 to 100
       - Contact Zscaler Support to customize the user risk score range of these levels for your organization.
-      - Adaptive Access Profile: This field shows the adaptive access profile that you want to enforce for the policy. The profiles contain contextual parameters that are constantly monitored for dynamic access control. This option is currently not functional in the Zscaler Admin Console. However, you can contact your Zscaler Account team to subscribe to Experience Center to use this feature. To learn more, see Understanding Adaptive Access Engine.
+      - **Adaptive Access Profile**: This field shows the adaptive access profile that you want to enforce for the policy. The profiles contain contextual parameters that are constantly monitored for dynamic access control. This option is currently not functional in the Zscaler Admin Console. However, you can contact your Zscaler Account team to subscribe to Experience Center to use this feature. To learn more, see Understanding Adaptive Access Engine.
     - Where
-    - Contact Zscaler Support to increase the limit of Locations.
-      - Location Groups: Select up to 32 location groups. Selecting no value ignores this criterion in the policy evaluation.
-      - If the values selected for Locations are not part of the selected Location Groups, then the rule triggers when either the Locations value or the Location Groups value matches. For example, if you select London for Locations and USA for Location Groups, then the rule triggers when either it matches London for Locations or USA for Location Groups.
-      - Locations: Select up to 32 locations. Selecting no value ignores the criterion in the policy evaluation.
+    - Contact Zscaler Support to increase the limit of **Locations**.
+      - **Location Groups**: Select up to 32 location groups. Selecting no value ignores this criterion in the policy evaluation.
+      - If the values selected for **Locations** are not part of the selected **Location Groups**, then the rule triggers when either the **Locations** value or the **Location Groups** value matches. For example, if you select **London** for **Locations** and **USA** for **Location Groups**, then the rule triggers when either it matches **London** for **Locations** or **USA** for **Location Groups**.
+      - **Locations**: Select up to 32 locations. Selecting no value ignores the criterion in the policy evaluation.
     - When
-    - Time: Select Always to apply this rule to all time intervals, or select up to two time intervals.
+    - **Time**: Select **Always** to apply this rule to all time intervals, or select up to two time intervals.
     - What
-      - Request Methods: Select the required HTTP request methods for which you want to apply the rule.
+      - **Request Methods**: Select the required HTTP request methods for which you want to apply the rule.
       - The following HTTP request methods are available:
-        - OPTIONS: Requests for information about communication options for the specified resource.
-        - GET: Requests for and retrieves the specified resource from the server.
-        - HEAD: Requests for and retrieves only the header information from the server. This is similar to the GET request but does not retrieve a response body from the server.
-        - POST: Requests the specified resource to accept the data enclosed in the request message and process it according to the resource’s semantics.
-        - PUT: Requests the specified resource to create or replace the data enclosed in the request message.
-        - DELETE: Requests the server to delete the specified resource.
-        - TRACE: Requests a remote loopback of the message along the path to the target resource. This method is useful for diagnostic purposes.
-        - CONNECT: Requests an HTTP Proxy server to tunnel the TCP connection with the client.
-        - PROPFIND: Requests for and retrieves the properties of the specified resource from the server.
-        - PROPPATCH: Requests the specified resource to set or remove properties enclosed in the request message.
-        - COPY: Requests the specified resource to create a duplicate of it.
-        - MOVE: Requests the specified resource to move to the location enclosed in the request message.
-        - MKCOL: Requests the specified resource to create a new collection (directory) at the location enclosed in the request message.
-        - LOCK: Requests the server to lock the specified resource.
-        - UNLOCK: Requests the server to unlock the specified resource.
-        - PATCH: Requests the specified resource to apply partial modifications to it.
-        - OTHER: All other request methods.
+        - **OPTIONS**: Requests for information about communication options for the specified resource.
+        - **GET**: Requests for and retrieves the specified resource from the server.
+        - **HEAD**: Requests for and retrieves only the header information from the server. This is similar to the GET request but does not retrieve a response body from the server.
+        - **POST**: Requests the specified resource to accept the data enclosed in the request message and process it according to the resource’s semantics.
+        - **PUT**: Requests the specified resource to create or replace the data enclosed in the request message.
+        - **DELETE**: Requests the server to delete the specified resource.
+        - **TRACE**: Requests a remote loopback of the message along the path to the target resource. This method is useful for diagnostic purposes.
+        - **CONNECT**: Requests an HTTP Proxy server to tunnel the TCP connection with the client.
+        - **PROPFIND**: Requests for and retrieves the properties of the specified resource from the server.
+        - **PROPPATCH**: Requests the specified resource to set or remove properties enclosed in the request message.
+        - **COPY**: Requests the specified resource to create a duplicate of it.
+        - **MOVE**: Requests the specified resource to move to the location enclosed in the request message.
+        - **MKCOL**: Requests the specified resource to create a new collection (directory) at the location enclosed in the request message.
+        - **LOCK**: Requests the server to lock the specified resource.
+        - **UNLOCK**: Requests the server to unlock the specified resource.
+        - **PATCH**: Requests the specified resource to apply partial modifications to it.
+        - **OTHER**: All other request methods.
       - This criterion is mandatory, and you must select a value for it.
-      - Protocols: Select the protocols to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
-        - DNS Over HTTPS: URLs that use DNS Over HTTPS.
-        - FTP over HTTP: URLs that use FTP over HTTP.
-        - HTTP: URLs that use HTTP.
-        - HTTP Proxy: URLs that use HTTP Proxy server when the client is configured in explicit proxy mode, which makes the HTTP CONNECT request to the proxy server to tunnel the TCP connections. The tunnel is typically set up when using TLS.
-        - HTTPS: URLs that use HTTP encrypted by SSL/TLS.
-        - Native FTP: URLs that use FTP.
-        - SSL/TLS: URLs that use SSL/TLS encryption and haven't been decrypted. For example, URLs you've exempted from SSL/TLS Inspection.
-        - Tunnel: Encrypted URLs that use an unidentified protocol. For example, URLs from tunneling applications such as Telnet or SSH that are encapsulated in HTTP or HTTPS.
-        - Tunnel SSL/TLS: Undecodable protocol within an SSL/TLS connection.
-        - WebSocket: URLs that use WebSocket.
-        - WebSocket SSL/TLS: URLs that use WebSocket within an SSL/TLS connection
-      - URL Categories: Select any number of URL super categories or categories or both. Selecting no value ignores this criterion in the policy evaluation.
-      - (Optional) Click Add More URL Categories next to this field to add an additional URL Categories field to the criteria. The URL Categories fields are connected with a logical AND operator. This allows you to create rules that are triggered when they match the selected categories in both the URL Categories fields. For example, a block rule is created with the Social Networking category selected in one of the URL Categories fields and the Gambling category selected in the other. If the URLs belong to both the categories (i.e., Social Networking and Gambling), only then access to the URLs is blocked.
+      - **Protocols**: Select the protocols to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
+        - **DNS Over HTTPS**: URLs that use DNS Over HTTPS.
+        - **FTP over HTTP**: URLs that use FTP over HTTP.
+        - **HTTP**: URLs that use HTTP.
+        - **HTTP Proxy**: URLs that use HTTP Proxy server when the client is configured in explicit proxy mode, which makes the HTTP CONNECT request to the proxy server to tunnel the TCP connections. The tunnel is typically set up when using TLS.
+        - **HTTPS**: URLs that use HTTP encrypted by SSL/TLS.
+        - **Native FTP**: URLs that use FTP.
+        - **SSL/TLS**: URLs that use SSL/TLS encryption and haven't been decrypted. For example, URLs you've exempted from SSL/TLS Inspection.
+        - **Tunnel**: Encrypted URLs that use an unidentified protocol. For example, URLs from tunneling applications such as Telnet or SSH that are encapsulated in HTTP or HTTPS.
+        - **Tunnel SSL/TLS**: Undecodable protocol within an SSL/TLS connection.
+        - **WebSocket**: URLs that use WebSocket.
+        - **WebSocket SSL/TLS**: URLs that use WebSocket within an SSL/TLS connection
+      - **URL Categories**: Select any number of URL super categories or categories or both. Selecting no value ignores this criterion in the policy evaluation.
+      - (Optional) Click **Add More URL Categories** next to this field to add an additional **URL Categories** field to the criteria. The **URL Categories** fields are connected with a logical AND operator. This allows you to create rules that are triggered when they match the selected categories in both the **URL Categories** fields. For example, a block rule is created with the Social Networking category selected in one of the **URL Categories** fields and the Gambling category selected in the other. If the URLs belong to both the categories (i.e., Social Networking and Gambling), only then access to the URLs is blocked.
       - This is the only place you can select the Newly Registered and Observed Domains category. You can also select custom TLD categories in this field.
-      - User Agent: Select any number of user agents to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
-      - HTTP Header Profiles: Select up to 16 HTTP header profiles for which you want to apply the rule. Selecting no value ignores this criterion in the policy evaluation.
+      - **User Agent**: Select any number of user agents to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
+      - **HTTP Header Profiles**: Select up to 16 HTTP header profiles for which you want to apply the rule. Selecting no value ignores this criterion in the policy evaluation.
     - Source
-      - Source IP Groups: Select any number of source IP groups. Selecting no value ignores this criterion in the policy evaluation.
-      - Source Countries: Select any number of source countries from which the traffic originates. When configuring this criterion, you can either choose the Include option to apply the rules to the selected countries or choose the Exclude option to apply the rules to all the countries except those that are selected. Selecting no value ignores this criterion in the policy evaluation.
-      - If you choose the Exclude option, you must select the countries you want to exclude. However, it's not mandatory to select countries if you choose the Include option.
+      - **Source IP Groups**: Select any number of source IP groups. Selecting no value ignores this criterion in the policy evaluation.
+      - **Source Countries**: Select any number of source countries from which the traffic originates. When configuring this criterion, you can either choose the **Include** option to apply the rules to the selected countries or choose the **Exclude** option to apply the rules to all the countries except those that are selected. Selecting no value ignores this criterion in the policy evaluation.
+      - If you choose the **Exclude** option, you must select the countries you want to exclude. However, it's not mandatory to select countries if you choose the **Include** option.
     - Device
-      - Device Trust Level: Select the device trust level values (High Trust, Medium Trust, Low Trust, or Unknown) to which the rule applies. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. Selecting no value ignores the criterion in the policy evaluation.
+      - **Device Trust Level**: Select the device trust level values (**High Trust**, **Medium Trust**, **Low Trust**, or **Unknown**) to which the rule applies. While the **High Trust**, **Medium Trust**, or **Low Trust** evaluation is applicable only to Zscaler Client Connector traffic, **Unknown** evaluation applies to all traffic. Selecting no value ignores the criterion in the policy evaluation.
       - The trust levels assigned to the devices are based on your posture configurations in the Zscaler Admin Console.
-      - Device Groups: Select the device groups to which the rule applies. For Zscaler Client Connector traffic, select the appropriate group based on the device platform. Select Cloud Browser Isolation, IoT, or No Client Connector to apply the rule to isolation traffic, IoT traffic, or traffic that is not tunneled through Zscaler Client Connector, respectively. Selecting no value ignores this criterion in the policy evaluation.
-      - The Cloud Browser Isolation and IoT groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for your organization, respectively.
-      - Devices: Select the devices to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
-      - Workload Groups: Select up to 8 workload groups for which you want to apply the rule. Selecting no value ignores the criterion in the policy evaluation.
-  - You can expand or collapse all the criteria using the Expand All or Collapse All button, respectively.
+      - **Device Groups**: Select the device groups to which the rule applies. For Zscaler Client Connector traffic, select the appropriate group based on the device platform. Select **Cloud Browser Isolation**, **IoT**, or **No Client Connector** to apply the rule to isolation traffic, IoT traffic, or traffic that is not tunneled through Zscaler Client Connector, respectively. Selecting no value ignores this criterion in the policy evaluation.
+      - The **Cloud Browser Isolation** and **IoT** groups are available only if Zero Trust Browser (formerly Isolation) and IoT discovery are enabled for your organization, respectively.
+      - **Devices**: Select the devices to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
+      - **Workload Groups**: Select up to 8 workload groups for which you want to apply the rule. Selecting no value ignores the criterion in the policy evaluation.
+  - You can expand or collapse all the criteria using the **Expand All** or **Collapse All** button, respectively.
   - See image.
   - Actions
-  - In the Actions section, for Web Traffic, select one of the following action to apply when the rule conditions are met:
+  - In the **Actions** section, for **Web Traffic**, select one of the following action to apply when the rule conditions are met:
     - Allow
     - Select this to allow access to all sites in the selected URL categories.
-      - Daily Bandwidth Quota (MB): (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. To enforce the quota on specific users, groups, or departments, Zscaler recommends that IP surrogacy is used to aid in identification. To learn more, see About Surrogate IP.
+      - **Daily Bandwidth Quota (MB)**: (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. To enforce the quota on specific users, groups, or departments, Zscaler recommends that IP surrogacy is used to aid in identification. To learn more, see About Surrogate IP.
       - In addition, if you have different policies for different groups, Zscaler recommends that you create a catchall “any” user policy with a higher limit. This catchall policy should only apply to unidentified users (do not use “any” user to define “all remaining groups or departments”). This is helpful if you encounter a scenario where there are a high number of unidentified users as the users have a higher combined limit, facilitating continuity of service.
       - If a user comes from a known location, the quota is reset at midnight based on the location time zone; for remote users, the quota is reset based on the organization's time zone. The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.
-      - Daily Time Quota (min): (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
-      - ICAP Receiver: Select an ICAP Receiver to forward the inbound and outbound traffic (e.g., client request and server response) of all sites in the selected URL categories to the ICAP Receiver. To learn more, see About ICAP Receivers.
+      - **Daily Time Quota (min)**: (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
+      - **ICAP Receiver**: Select an ICAP Receiver to forward the inbound and outbound traffic (e.g., client request and server response) of all sites in the selected URL categories to the ICAP Receiver. To learn more, see About ICAP Receivers.
       - This action is available only if ICAP Receivers is enabled for your organization.
-      - HTTP Header Insertion Profile: Appears only when you select Allow. Select up to 16 HTTP header insertion profiles for which you want to apply the rule. You can also search for a profile. Selecting no value ignores this criterion in the policy evaluation.
-        - If the rule is triggered and action is set to Allow, then the headers from the selected profiles are inserted.
+      - **HTTP Header Insertion Profile**: Appears only when you select **Allow**. Select up to 16 HTTP header insertion profiles for which you want to apply the rule. You can also search for a profile. Selecting no value ignores this criterion in the policy evaluation.
+        - If the rule is triggered and action is set to **Allow**, then the headers from the selected profiles are inserted.
         - The HTTP custom header insertion works only for custom URL categories.
     - Caution
-    - Select to display an EUN that cautions users before allowing them access to the site. When you select this value, the service can either display the default EUN or redirect users to an EUN that is hosted on the site you specify in the Redirect URL field.
-      - You can select this action for only one of the following request methods: CONNECT, GET, or HEAD.
-        - Daily Bandwidth Quota (MB): (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. To enforce the quota on specific users, groups, or departments, Zscaler recommends that IP surrogacy is used to aid in identification. To learn more, see About Surrogate IP.
+    - Select to display an EUN that cautions users before allowing them access to the site. When you select this value, the service can either display the default EUN or redirect users to an EUN that is hosted on the site you specify in the **Redirect URL** field.
+      - You can select this action for only one of the following request methods: **CONNECT**, **GET**, or **HEAD**.
+        - **Daily Bandwidth Quota (MB)**: (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. To enforce the quota on specific users, groups, or departments, Zscaler recommends that IP surrogacy is used to aid in identification. To learn more, see About Surrogate IP.
         - In addition, if you have different policies for different groups, Zscaler recommends that you create a catchall “any” user policy with a higher limit. This catchall policy should only apply to unidentified users (do not use “any” user to define “all remaining groups or departments”). This is helpful if you encounter a scenario where there are a high number of unidentified users as the users have a higher combined limit, facilitating continuity of service.
         - If a user comes from a known location, the quota is reset at midnight based on the location time zone; for remote users, the quota is reset based on the organization's time zone. The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.
-        - Daily Time Quota (MB): (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
-        - ICAP Receiver: Select an ICAP Receiver to forward the inbound and outbound traffic (e.g., client request and server response) of all sites in the selected URL categories to the ICAP Receiver. To learn more, see About ICAP Receivers.
+        - **Daily Time Quota (MB)**: (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
+        - **ICAP Receiver**: Select an ICAP Receiver to forward the inbound and outbound traffic (e.g., client request and server response) of all sites in the selected URL categories to the ICAP Receiver. To learn more, see About ICAP Receivers.
         - This action is available only if ICAP Receivers is enabled for your organization.
-        - Redirect URL: (Optional) Leave the field blank to display the service's default notification. If you want to redirect users to a site that hosts a custom notification, enter the site URL. The URL requires the schema (for example, https://redirect.company.com/redirectpage.cgi) and can be HTTP or HTTPS. During the redirection, all query parameters are sent to the external site to enable notification customization.
+        - **Redirect URL**: (Optional) Leave the field blank to display the service's default notification. If you want to redirect users to a site that hosts a custom notification, enter the site URL. The URL requires the schema (for example, https://redirect.company.com/redirectpage.cgi) and can be HTTP or HTTPS. During the redirection, all query parameters are sent to the external site to enable notification customization.
     - Block
     - Select to block access to all sites in the selected URL categories.
-      - The Allow Override option is available when you select Block as the action. Enabling this option allows specific users or groups to access a blocked site, providing controlled user-specific access to restricted content while still maintaining the overall security policy.
-      - By default, traffic matching the Allow Override rule is permitted without any restrictions if SSL/TLS Inspection is disabled and the Show End User Notifications option is disabled in the SSL/TLS Inspection rule for the corresponding traffic.
-        - Override Users: Select Any to allow the override to all users, or select up to 4 users. You can search for users or click the Add icon to add a new user. You cannot select users if you want to select override groups.
-        - Override Groups: Select Any to allow the override to all groups, or you can select up to 8 groups. You can search for groups or click the Add icon to add a new group. You cannot select groups if you want to select override users.
+      - The **Allow Override** option is available when you select **Block** as the action. Enabling this option allows specific users or groups to access a blocked site, providing controlled user-specific access to restricted content while still maintaining the overall security policy.
+      - By default, traffic matching the Allow Override rule is permitted without any restrictions if SSL/TLS Inspection is disabled and the **Show End User Notifications** option is disabled in the SSL/TLS Inspection rule for the corresponding traffic.
+        - **Override Users**: Select **Any** to allow the override to all users, or select up to 4 users. You can search for users or click the **Add** icon to add a new user. You cannot select users if you want to select override groups.
+        - **Override Groups**: Select **Any** to allow the override to all groups, or you can select up to 8 groups. You can search for groups or click the **Add** icon to add a new group. You cannot select groups if you want to select override users.
       - If you enable this option, the EUN provides the users with a link to access the blocked page. The users are then prompted to enter their single sign-on credentials or hosted database credentials based on the Enable Identity-Based Block Override settings. The authenticated users are allowed to access the blocked page only during their current browser session. They must reauthenticate if they try to access it through another browser session.
-        - Redirect URL: (Optional) If you choose not to allow an override, the service blocks access and displays a notification. The service can either display the default EUN or redirect users to an EUN that is hosted on the site you specify in the Redirect URL field. Leave the field blank to display the service’s default notification. If you want to redirect users to a site that hosts a custom notification, enter the site URL. The URL requires the schema (for example, https://redirect.company.com/redirectpage.cgi) and can be HTTP or HTTPS. During the redirection, all query parameters are sent to the external site to enable notification customization.
-        - Capture: Appears when you select Block while Traffic Capture is enabled. Enable this option to capture and store traffic in PCAP files. To learn more, see Configuring Traffic Capture Settings.
+        - **Redirect URL**: (Optional) If you choose not to allow an override, the service blocks access and displays a notification. The service can either display the default EUN or redirect users to an EUN that is hosted on the site you specify in the **Redirect URL** field. Leave the field blank to display the service’s default notification. If you want to redirect users to a site that hosts a custom notification, enter the site URL. The URL requires the schema (for example, https://redirect.company.com/redirectpage.cgi) and can be HTTP or HTTPS. During the redirection, all query parameters are sent to the external site to enable notification customization.
+        - **Capture**: Appears when you select **Block** while Traffic Capture is enabled. Enable this option to capture and store traffic in PCAP files. To learn more, see Configuring Traffic Capture Settings.
     - Isolate
     - Select to isolate all the traffic that matches the URL Filtering rule through a remote browser. To learn more, see What Is Zero Trust Browser?
     - This action is available only if Zero Trust Browser is enabled for your organization.
-      - Isolation Profile: Appears when you select Isolate. You can choose the isolation profiles to which the rule applies.
+      - **Isolation Profile**: Appears when you select **Isolate**. You can choose the isolation profiles to which the rule applies.
       - Ensure to create isolation profiles for your organization.
-      - Daily Bandwidth Quota (MB): (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. To enforce the quota on specific users, groups, or departments, Zscaler recommends that IP surrogacy is used to aid in identification. To learn more, see About Surrogate IP.
+      - **Daily Bandwidth Quota (MB)**: (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. To enforce the quota on specific users, groups, or departments, Zscaler recommends that IP surrogacy is used to aid in identification. To learn more, see About Surrogate IP.
       - In addition, if you have different policies for different groups, Zscaler recommends that you create a catchall “any” user policy with a higher limit. This catchall policy should only apply to unidentified users (do not use “any” user to define “all remaining groups or departments”). This is helpful if you encounter a scenario where there are a high number of unidentified users as the users have a higher combined limit, facilitating continuity of service.
       - If a user comes from a known location, the quota is reset at midnight based on the location time zone; for remote users, the quota is reset based on the organization's time zone. The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.
-      - Daily Time Quota (min): (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
-      - ICAP Receiver: Select an ICAP Receiver to forward the inbound and outbound traffic (e.g., client request and server response) of all sites in the selected URL categories to the ICAP Receiver. To learn more, see About ICAP Receivers.
+      - **Daily Time Quota (min)**: (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
+      - **ICAP Receiver**: Select an ICAP Receiver to forward the inbound and outbound traffic (e.g., client request and server response) of all sites in the selected URL categories to the ICAP Receiver. To learn more, see About ICAP Receivers.
       - This action is available only if ICAP Receivers is enabled for your organization.
     - Conditional
     - Select to provide conditional access to the URL to all sites in the selected URL categories.
-      - Conditional Access: Allows access to the selected URL categories by enforcing step-up authentication. Step-up authentication enforces stronger authentication and only provides access to sites when the authentication satisfies the additional authentication levels. In the Authentication Level field, select an authentication level from the drop-down menu. The authentication levels must be configured in the Zscaler Admin Console before configuring a URL filtering policy in the Zscaler Admin Console to select this option. When you try to access websites that require additional authentication, Zscaler Client Connector displays a pop-up notification prompting you to verify your access. To learn more, see Understanding Step-Up Authentication.
+      - **Conditional Access**: Allows access to the selected URL categories by enforcing step-up authentication. Step-up authentication enforces stronger authentication and only provides access to sites when the authentication satisfies the additional authentication levels. In the **Authentication** **Level** field, select an authentication level from the drop-down menu. The authentication levels must be configured in the Zscaler Admin Console before configuring a URL filtering policy in the Zscaler Admin Console to select this option. When you try to access websites that require additional authentication, Zscaler Client Connector displays a pop-up notification prompting you to verify your access. To learn more, see Understanding Step-Up Authentication.
       - This option is available only if your organization is provisioned with Authentication Service for end users and the traffic forwarding method is Zscaler Client Connector. However, if your traffic is routed via a Private Service Edge or Virtual Service Edge, conditional access is not supported and the user access to the URL category is blocked with a notification from the browser. Conditional access doesn't apply to isolation traffic. To enable this feature, you can raise a provisioning support ticket.
-      - Daily Bandwidth Quota (MB): (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. To enforce the quota on specific users, groups, or departments, Zscaler recommends that IP surrogacy is used to aid in identification. To learn more, see About Surrogate IP.
+      - **Daily Bandwidth Quota (MB)**: (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. To enforce the quota on specific users, groups, or departments, Zscaler recommends that IP surrogacy is used to aid in identification. To learn more, see About Surrogate IP.
       - In addition, if you have different policies for different groups, Zscaler recommends that you create a catchall “any” user policy with a higher limit. This catchall policy should only apply to unidentified users (do not use “any” user to define “all remaining groups or departments”). This is helpful if you encounter a scenario where there are a high number of unidentified users as the users have a higher combined limit, facilitating continuity of service.
       - If a user comes from a known location, the quota is reset at midnight based on the location time zone; for remote users, the quota is reset based on the organization's time zone. The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.
-      - Daily Time Quota (min): (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
+      - **Daily Time Quota (min)**: (Optional) The daily time limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.
   - See image.
   - URL Filtering Rule
-  - In the URL Filtering Rule section, provide general information about the rule:
-    - Rule Name: Enter a unique name for the rule or use the default name.
-    - Add Rule Label: (Optional) Select a rule label to associate it with the rule. To learn more, see About Rule Labels.
-    - Edit Rule Order: Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order. You can change the value, but if you've enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
+  - In the **URL Filtering Rule** section, provide general information about the rule:
+    - **Rule Name**: Enter a unique name for the rule or use the default name.
+    - **Add Rule Label**: (Optional) Select a rule label to associate it with the rule. To learn more, see About Rule Labels.
+    - **Edit Rule Order**: Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order. You can change the value, but if you've enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
     - The evaluation of the policy rules stops at the first match.
-    - Edit Admin Rank: Enter a value from 0 to 7 (0 is the highest rank). Your assigned admin rank determines the values you can select. You cannot select a rank that is higher than your own. The rule's admin rank determines the value you can select in the rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.
-    - Rule Status: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule.
-    - Description: (Optional) Click Add Description and enter additional notes or information. The description cannot exceed 10,240 characters.
+    - **Edit Admin Rank**: Enter a value from 0 to 7 (0 is the highest rank). Your assigned admin rank determines the values you can select. You cannot select a rank that is higher than your own. The rule's admin rank determines the value you can select in the rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.
+    - **Rule Status**: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule.
+    - **Description**: (Optional) Click **Add Description** and enter additional notes or information. The description cannot exceed 10,240 characters.
   - See image.
   - Rule Expiration
-  - In the Rule Expiration section, you can define the validity of the rule:
-    - Enable Rule Expiration: Enable this option to set a validity period for the rule.
-      - Start Date and Time: Select a start date and time. The rule is valid starting on this date and time.
-      - End Date and Time: Select an end date and time. The rule ceases to be valid on this date and time.
-      - Time Zone: Select the time zone in which the rule should be valid.
+  - In the **Rule Expiration** section, you can define the validity of the rule:
+    - **Enable Rule Expiration**: Enable this option to set a validity period for the rule.
+      - **Start Date and Time**: Select a start date and time. The rule is valid starting on this date and time.
+      - **End Date and Time**: Select an end date and time. The rule ceases to be valid on this date and time.
+      - **Time Zone**: Select the time zone in which the rule should be valid.
   - You can use the rule expiration feature to temporarily allow or block access for a set period of time to a category if any configured rules block or allow access to it, respectively.
   - After the rule expires, Zscaler either blocks or allows the traffic based on the default rules configured for your organization.
   - See image.
   - Notification
-  - (Optional) In the Notification section, you can enable end user notifications (EUNs) to be triggered by the rule when Caution or Block actions are configured and select the notification message that appears:
-    - Browser Notification Template: Select a browser-based EUN message from the drop-down menu to display the message on the browser when the user activity triggers the URL Filtering rule.
-- Click Save and activate the change.
+  - (Optional) In the **Notification** section, you can enable end user notifications (EUNs) to be triggered by the rule when Caution or Block actions are configured and select the notification message that appears:
+    - **Browser Notification Template**: Select a browser-based EUN message from the drop-down menu to display the message on the browser when the user activity triggers the URL Filtering rule.
+- Click **Save** and activate the change.
