@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.terraform.rule-protection",
+  "title": "Whether the ZTC Terraform provider protects predefined traffic rules",
+  "aliases": [
+    "terraform destroy predefined rule",
+    "cannot be deleted predefined rule",
+    "validatePredefinedRules",
+    "delete default forwarding rule terraform",
+    "ztc_traffic_forwarding_rule destroy",
+    "ZPA Resolver rule deleted"
+  ],
+  "binds": [
+    "ztw/forwarding-rules#defaultRule",
+    "ztw/traffic-dns-rules#predefined",
+    "ztw/traffic-log-rules#defaultRule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    }
+  ],
+  "claims": {
+    "guards-match-fixed-names": {
+      "statement": "The forwarding-rule and DNS-rule resources each define a validator that rejects deletion of a rule only when its name is one of a short hard-coded list (for forwarding rules, six names such as \"ZPA Forwarding Rule\" and \"Client Connector to ZPA\"; for DNS rules, two). The validators test the name only, not any default or predefined flag on the rule.",
+      "tier": "A",
+      "binds": [
+        "ztw/forwarding-rules#defaultRule",
+        "ztw/traffic-dns-rules#predefined"
+      ],
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func validatePredefinedRules(req forwarding_rules.ForwardingRules) error {",
+            "req.Name == \"ZPA Forwarding Rule\" || req.Name == \"Direct rule for Zscaler Cloud Endpoints\"",
+            "req.Name == \"Client Connector to ZPA\" || req.Name == \"ZPA Pool For Stray Traffic\""
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func validatePredefinedDNSRules(req traffic_dns_rules.ECDNSRules) error {",
+            "req.Name == \"ZPA Resolver\" || req.Name == \"Redirect Resolution of Zscaler Domains to WAN CTR\""
+          ]
+        }
+      ]
+    },
+    "log-guard-uses-dns-names": {
+      "statement": "The log-forwarding validator tests for the same two names as the DNS-rule validator (\"ZPA Resolver\" and \"Redirect Resolution of Zscaler Domains to WAN CTR\"), not for any name written for log rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "func validatePredefinedLogRules(req traffic_log_rules.ECTrafficLogRules) error {",
+            "req.Name == \"ZPA Resolver\" || req.Name == \"Redirect Resolution of Zscaler Domains to WAN CTR\""
+          ]
+        }
+      ],
+      "gaps": [
+        "predefined-log-rule-names"
+      ]
+    },
+    "forwarding-delete-skips-guard": {
+      "statement": "The forwarding-rule Delete reads the rule ID and sends the API delete. It does not fetch the rule and does not call validatePredefinedRules.",
+      "tier": "B",
+      "conditions": "Rests on the absence of a call. Read the whole body of resourceTrafficForwardingRuleDelete and searched for validatePredefined across ztc/ at v0.2.0 and HEAD: the validator appears only at its definition in the forwarding-rule, DNS-rule and log-rule resource files, and (as comments) in the DNS and log Delete functions. The same search at other tags was not run.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "id, ok := getIntFromResourceData(d, \"rule_id\")",
+            "if _, err := forwarding_rules.Delete(ctx, service, id); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dns-delete-guard-commented-out": {
+      "statement": "In the DNS-rule Delete, the code that fetches the rule and calls validatePredefinedDNSRules is commented out, and the function goes on to send the API delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_forwarding_dns_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingDNSRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// rule, err := traffic_dns_rules.Get(ctx, service, id)",
+            "// if err := validatePredefinedDNSRules(*rule); err != nil {",
+            "if _, err := traffic_dns_rules.Delete(ctx, service, id); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "log-delete-guard-commented-out": {
+      "statement": "In the log-rule Delete, the code that fetches the rule and calls validatePredefinedLogRules is commented out, and the function goes on to send the API delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/resource_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "after": "func resourceTrafficForwardingLogRuleRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// rule, err := traffic_log_rules.Get(ctx, service, id)",
+            "// if err := validatePredefinedLogRules(*rule); err != nil {",
+            "if _, err := traffic_log_rules.Delete(ctx, service, id); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "resources-ignore-default-flag": {
+      "statement": "The three traffic-rule resources never read the rule's default or predefined flag. Only the log-rule data source copies default_rule into state.",
+      "tier": "B",
+      "binds": [
+        "ztw/traffic-dns-rules#predefined",
+        "ztw/traffic-log-rules#defaultRule"
+      ],
+      "conditions": "Rests on an absence. Searched ztc/ at v0.2.0 and HEAD, case-insensitively, for DefaultRule, default_rule, Predefined and predefined, including schema keys and expand/flatten functions: the only reads are in the log-rule data source; other hits are comments and the name validators. The SDK rule models do carry these fields; the provider resources never read them.",
+      "evidence": [
+        {
+          "source": "tf-ztc",
+          "path": "ztc/data_source_ztc_traffic_log_forwarding_rule.go",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"default_rule\", resp.DefaultRule)"
+          ]
+        }
+      ]
+    },
+    "destroy-sends-delete-for-protected-rules": {
+      "statement": "A terraform destroy, or removing the resource block, of a predefined traffic rule that is under management (for example after an import) sends the API delete for it with no provider-side refusal, for forwarding, DNS and log rules alike.",
+      "tier": "C",
+      "derived_from": [
+        "forwarding-delete-skips-guard",
+        "dns-delete-guard-commented-out",
+        "log-delete-guard-commented-out"
+      ],
+      "conditions": "Depends on the rule being in state (a predefined rule enters a resource's state by import, since Terraform did not create it), and on the API then accepting the delete. Whether the API refuses to delete predefined rules is not known from the provider code (gap api-predefined-delete). If the API refuses, the apply fails with the API's error instead of the provider's, and the protection is the server's alone.",
+      "gaps": [
+        "api-predefined-delete"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-predefined-delete": {
+      "kind": "semantic",
+      "title": "Whether the ZTC API refuses to delete predefined traffic rules",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether an unguarded delete removes a predefined rule or only returns an error",
+      "detail": "The provider code only shows that it sends the delete. In a scratch tenant, import a predefined forwarding, DNS and log rule, run destroy, and record the API response and whether the rule still exists."
+    },
+    "predefined-log-rule-names": {
+      "kind": "semantic",
+      "title": "Names of the predefined log-forwarding rules",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the log-rule validator would protect any real log rule if it were called",
+      "detail": "The validator lists DNS-rule names. List the log rules in a scratch tenant and compare their predefined names with the validator's two entries."
+    }
+  }
+}

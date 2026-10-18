@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.delete-detach",
+  "title": "How the ZIA Terraform provider detaches references before deleting objects",
+  "aliases": [
+    "terraform destroy RESOURCE_IN_USE",
+    "terraform delete group still associated with rule",
+    "DetachRuleIDNameExtensions",
+    "destroy dns application group fails",
+    "destroy network service group fails",
+    "group deleted but rule still references it"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules#nwServiceGroups",
+    "zia/firewall-filtering-rules#nwApplicationGroups",
+    "zia/firewall-filtering-rules#srcIpGroups",
+    "zia/firewall-dns-rules#applicationGroups",
+    "zia/network-service-groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.activation"
+    }
+  ],
+  "claims": {
+    "helper-purpose": {
+      "statement": "Before deleting a group-like object, the provider runs a shared helper whose stated purpose is to avoid the API's RESOURCE_IN_USE refusal by removing the object's ID from the rules that reference it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "// avoid {\"code\":\"RESOURCE_IN_USE\",\"message\":\"GROUP is associated with 1 rule(s). Deletion of this group is not allowed.\"}"
+          ]
+        }
+      ]
+    },
+    "helper-sweeps-firewall-filtering-rules-only": {
+      "statement": "The helper lists firewall filtering rules and nothing else, and its getter and setter closures are typed on the firewall filtering rule model. It cannot see DNS control rules or any other policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func DetachRuleIDNameExtensions(",
+          "quotes": [
+            "rules, err := filteringrules.GetAll(ctx, service, nil)"
+          ]
+        }
+      ]
+    },
+    "helper-label-selects-nothing": {
+      "statement": "The `resource` string a caller passes to the helper is used only in a log line. Which field is swept is decided entirely by the getter and setter closures.",
+      "tier": "B",
+      "conditions": "Absence claim: read the whole helper body at both refs; `resource` appears in the signature and in the one log call quoted here, and nowhere else.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func DetachRuleIDNameExtensions(",
+          "quotes": [
+            "log.Printf(\"[INFO] Detaching filtering rule from %s: %d\\n\", resource, id)"
+          ]
+        }
+      ]
+    },
+    "helper-callers": {
+      "statement": "Nine resources call this helper on delete: DNS application groups, IP destination groups, IP source groups, network application groups, network services, network service groups, location management, rule labels, and users.",
+      "tier": "B",
+      "conditions": "Count from `git grep -n DetachRuleIDNameExtensions` over zia/ at v4.8.3 and at the pin; both refs list the same nine call sites plus the declaration. Only the DNS application group and network service group sites are quoted in this subject; the other sites were not audited for field choice.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dns_application_groups.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := DetachRuleIDNameExtensions("
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_fw_filtering_network_services_groups.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := DetachRuleIDNameExtensions("
+          ]
+        }
+      ]
+    },
+    "dns-group-delete-sweeps-src-ip-groups": {
+      "statement": "Deleting a DNS application group calls the helper with closures over the firewall filtering rule's `SrcIpGroups` field, for both reading and writing. The \"DNSApplicationGroups\" label does not change that.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dns_application_groups.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceDNSApplicationGroupsDelete(",
+          "quotes": [
+            "\"DNSApplicationGroups\",",
+            "return r.SrcIpGroups",
+            "r.SrcIpGroups = ids"
+          ]
+        }
+      ]
+    },
+    "dns-rule-model-has-application-groups": {
+      "statement": "In the Go SDK, the DNS control rule model has its own `ApplicationGroups` field (JSON `applicationGroups`), separate from the firewall filtering rule model that the helper sweeps. The SDK comment and the provider documentation both describe it as the DNS application groups the rule applies to.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-dns-rules#applicationGroups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "ApplicationGroups []common.IDNameExtensions `json:\"applicationGroups,omitempty\"`",
+            "// DNS application groups to which the rule applies"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_dns_rule.md",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "`application_groups` (List of Objects) DNS application groups to which the rule applies"
+          ]
+        }
+      ]
+    },
+    "dns-group-references-not-detached": {
+      "statement": "So deleting a DNS application group never removes the group from the DNS control rules that use it. The detach step edits only firewall filtering rules, and the delete follows regardless.",
+      "tier": "B",
+      "derived_from": [
+        "helper-sweeps-firewall-filtering-rules-only",
+        "dns-group-delete-sweeps-src-ip-groups",
+        "dns-rule-model-has-application-groups",
+        "delete-follows-detach"
+      ],
+      "conditions": "Depends on no other code in the delete path touching DNS control rules (the delete function body at both refs contains only the helper call and the group delete). What ZIA then does with a group that rules still reference is gap in-use-enforcement.",
+      "binds": [
+        "zia/firewall-dns-rules#applicationGroups"
+      ],
+      "gaps": [
+        "in-use-enforcement"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "dns-group-delete-can-strip-unrelated-source-groups": {
+      "statement": "The same sweep removes any entry whose numeric ID equals the DNS application group's ID from the source IP groups of every firewall filtering rule, a different kind of object.",
+      "tier": "C",
+      "derived_from": [
+        "helper-sweeps-firewall-filtering-rules-only",
+        "dns-group-delete-sweeps-src-ip-groups"
+      ],
+      "conditions": "Code shows the match is on ID alone. It matters only if a DNS application group and an IP source group can share a numeric ID, which depends on how ZIA allocates IDs across object types (gap id-namespace).",
+      "binds": [
+        "zia/firewall-filtering-rules#srcIpGroups"
+      ],
+      "gaps": [
+        "id-namespace"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "service-group-delete-sweeps-nw-application-groups": {
+      "statement": "Deleting a network service group calls the helper labelled \"NwApplicationGroups\", with getter and setter closures over the firewall filtering rule's `NwApplicationGroups` field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_fw_filtering_network_services_groups.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceFWNetworkServiceGroupsDelete(",
+          "quotes": [
+            "\"NwApplicationGroups\",",
+            "return r.NwApplicationGroups",
+            "r.NwApplicationGroups = ids"
+          ]
+        }
+      ]
+    },
+    "filtering-rule-model-separates-service-groups": {
+      "statement": "In the Go SDK, the firewall filtering rule model has separate `NwApplicationGroups` and `NwServiceGroups` fields.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#nwServiceGroups",
+        "zia/firewall-filtering-rules#nwApplicationGroups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "NwApplicationGroups []common.IDNameExtensions `json:\"nwApplicationGroups,omitempty\"`",
+            "NwServiceGroups []common.IDNameExtensions `json:\"nwServiceGroups,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "service-group-references-not-detached": {
+      "statement": "So deleting a network service group never removes the group from the `nwServiceGroups` of the firewall rules that use it, and the delete follows regardless.",
+      "tier": "B",
+      "derived_from": [
+        "service-group-delete-sweeps-nw-application-groups",
+        "filtering-rule-model-separates-service-groups",
+        "delete-follows-detach"
+      ],
+      "conditions": "Depends on no other code in the delete path touching nwServiceGroups (the delete function body at both refs contains only the helper call and the group delete). What ZIA then does with a group that rules still reference is gap in-use-enforcement.",
+      "binds": [
+        "zia/firewall-filtering-rules#nwServiceGroups"
+      ],
+      "gaps": [
+        "in-use-enforcement"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "service-group-delete-can-strip-unrelated-application-groups": {
+      "statement": "The same sweep removes any entry whose numeric ID equals the network service group's ID from the network application groups of every firewall filtering rule, a different kind of object.",
+      "tier": "C",
+      "derived_from": [
+        "service-group-delete-sweeps-nw-application-groups"
+      ],
+      "conditions": "Code shows the match is on ID alone. It matters only if a network service group and a network application group can share a numeric ID, which depends on how ZIA allocates IDs across object types (gap id-namespace).",
+      "binds": [
+        "zia/firewall-filtering-rules#nwApplicationGroups"
+      ],
+      "gaps": [
+        "id-namespace"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "get-failure-skips-update-silently": {
+      "statement": "For each rule that references the object, the helper first re-reads the rule. If that read fails, the rule is skipped: the update is inside `if err == nil`, and the failure is neither logged nor returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func DetachRuleIDNameExtensions(",
+          "quotes": [
+            "_, err = filteringrules.Get(ctx, service, rule.ID)",
+            "if err == nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "reread-result-discarded": {
+      "statement": "The re-read is only an existence gate: its result is discarded, and the update sends the rule copy taken from the earlier listing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func DetachRuleIDNameExtensions(",
+          "quotes": [
+            "_, err = filteringrules.Update(ctx, service, rule.ID, &rule)"
+          ]
+        }
+      ]
+    },
+    "five-second-sleep-per-rule": {
+      "statement": "The helper sleeps five seconds for each rule that references the object, before re-reading it, even if that rule is then skipped, so detaching from many rules makes the delete slow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func DetachRuleIDNameExtensions(",
+          "quotes": [
+            "time.Sleep(time.Second * 5)"
+          ]
+        }
+      ]
+    },
+    "delete-follows-detach": {
+      "statement": "Both callers quoted here delete the object whenever the helper returns no error, so a rule skipped because its re-read failed does not stop the delete. The other seven callers have the same shape by a pattern search, not quoted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dns_application_groups.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceDNSApplicationGroupsDelete(",
+          "quotes": [
+            "if _, err := dns_application_groups.Delete(ctx, service, id); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_fw_filtering_network_services_groups.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceFWNetworkServiceGroupsDelete(",
+          "quotes": [
+            "if _, err := networkservicegroups.DeleteNetworkServiceGroups(ctx, service, id); err != nil {"
+          ]
+        }
+      ]
+    },
+    "masked-read-failure-reaches-delete": {
+      "statement": "So a transient failure re-reading one referencing rule leaves that rule attached, yet the group delete is still attempted. The operator sees either an opaque in-use refusal on the delete or, if ZIA allows it, a deleted group still referenced in policy.",
+      "tier": "B",
+      "derived_from": [
+        "get-failure-skips-update-silently",
+        "delete-follows-detach"
+      ],
+      "conditions": "Depends on how ZIA answers a delete of an object that rules still reference (gap in-use-enforcement); the code comment in helper-purpose says it refuses, but no captured source states it for every object type or states what happens when it does not refuse.",
+      "gaps": [
+        "in-use-enforcement"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "in-use-enforcement": {
+      "kind": "semantic",
+      "title": "How ZIA treats deleting an object that rules still reference",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating whether a missed detach shows up as a failed delete or as a dangling reference",
+      "detail": "The provider's own comment quotes a RESOURCE_IN_USE refusal for a group. No captured source says this holds for DNS application groups and network service groups, or for references held by DNS control rules. Test in a scratch tenant: reference a group from a rule, delete the group directly, and re-read the rule."
+    },
+    "id-namespace": {
+      "kind": "semantic",
+      "title": "Whether numeric IDs of different ZIA object types can collide",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating whether the ID-only match can strip a reference to an unrelated object",
+      "detail": "The helper matches on numeric ID alone. Whether, for example, a DNS application group and an IP source group can have the same ID depends on server-side ID allocation, which no captured source describes. Compare IDs across object types in a scratch tenant."
+    }
+  }
+}

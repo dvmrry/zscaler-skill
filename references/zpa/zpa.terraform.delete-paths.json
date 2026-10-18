@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "id": "zpa.terraform.delete-paths",
+  "title": "What the ZPA Terraform provider does when deleting objects with dependents",
+  "aliases": [
+    "terraform destroy zpa",
+    "terraform destroy partial detach",
+    "zpa delete leaves references",
+    "delete pra portal deleted console",
+    "server group delete reported success",
+    "segment group delete partially detached",
+    "detach from policy rules on delete"
+  ],
+  "binds": [
+    "zpa/server-groups",
+    "zpa/segment-groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    }
+  ],
+  "claims": {
+    "portal-delete-detaches-first": {
+      "statement": "Deleting a PRA portal first runs a cleanup that walks every PRA console, and returns an error without deleting the portal if that cleanup fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_portal_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePRAPortalControllerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := detachAndCleanUpPRAPortals(ctx, portalID, consoleService); err != nil {",
+            "consoles, _, err := praconsole.GetAll(ctx, consoleService)"
+          ]
+        }
+      ]
+    },
+    "portal-cleanup-deletes-emptied-console": {
+      "statement": "When removing the portal from a console would leave that console with no portals, the cleanup deletes the whole console instead of updating it. The only test is the remaining portal count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_portal_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachAndCleanUpPRAPortals(ctx context.Context, portalID string, consoleService *zscaler.Service) error {",
+          "quotes": [
+            "if len(updatedPortals) == 0 {",
+            "// Delete the console if it no longer contains any portals",
+            "_, err = praconsole.Delete(ctx, consoleService, console.ID)"
+          ]
+        }
+      ]
+    },
+    "console-is-its-own-resource": {
+      "statement": "A PRA console is also managed as its own Terraform resource, with its own name, description, icon text, application and portal list. The portal cleanup reads none of those before deleting a console: it checks only the remaining portal count.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_console_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandPRAConsole(d *schema.ResourceData) praconsole.PRAConsole {",
+          "quotes": [
+            "IconText:      d.Get(\"icon_text\").(string),",
+            "PRAPortals:    expandPRAPortal(d),"
+          ]
+        }
+      ],
+      "conditions": "The absence of any ownership or state check in detachAndCleanUpPRAPortals rests on reading that function in full at v4.4.10 and at the pin; it is not a quotable fact."
+    },
+    "portal-delete-can-delete-console": {
+      "statement": "So deleting a portal that is the only portal of a console also deletes that console, including a console Terraform manages as its own resource (in another configuration or state, or when the portal is removed or targeted alone). On the next refresh that console drops out of state and the plan recreates it.",
+      "tier": "B",
+      "derived_from": [
+        "portal-delete-detaches-first",
+        "portal-cleanup-deletes-emptied-console",
+        "console-is-its-own-resource"
+      ],
+      "conditions": "Applies when the portal is listed as the sole portal of at least one console. Whether the API itself requires a console to keep at least one portal (which is the likely reason for the provider's choice) is gap api-console-without-portals.",
+      "gaps": [
+        "api-console-without-portals"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "portal-cleanup-partial-on-failure": {
+      "statement": "The portal cleanup updates or deletes consoles one at a time in a loop and returns on the first failure. Consoles handled earlier in the loop keep their change, and the portal is not deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_portal_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachAndCleanUpPRAPortals(ctx context.Context, portalID string, consoleService *zscaler.Service) error {",
+          "quotes": [
+            "for _, console := range consoles {",
+            "return fmt.Errorf(\"failed to update PRAConsoleController with ID %s: %s\", console.ID, err)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "console-delete-cleans-credential-policy-only": {
+      "statement": "Deleting a PRA console first removes it from policy rules of one type only, CREDENTIAL_POLICY, and aborts the delete if that cleanup fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_console_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "types := []string{\"CREDENTIAL_POLICY\"} // Add others if needed",
+            "return diag.FromErr(fmt.Errorf(\"failed to detach PRA console from policy: %w\", err))"
+          ]
+        }
+      ]
+    },
+    "console-policy-cleanup-partial-on-failure": {
+      "statement": "The console's policy cleanup rewrites matching rules one at a time, making up to three attempts at each, and returns on the first rule that still fails. Rules rewritten earlier stay changed and the console is not deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_console_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachPRAConsoleFromPolicy(ctx context.Context, id string, svc *zscaler.Service) error {",
+          "quotes": [
+            "maxRetries := 3",
+            "return fmt.Errorf(\"failed to update rule %s after %d attempts: %w\", rule.ID, maxRetries, err)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "segment-group-delete-two-loops": {
+      "statement": "Deleting a segment group first rewrites policy rules in two sequential loops, version 1 rules and then version 2 rules, and each loop returns an error on the first rule update that fails, except a not-found update, which is skipped. The group delete call comes only after both succeed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachSegmentGroupFromAllPolicyRules(ctx context.Context, id string, service *zscaler.Service) error {",
+          "quotes": [
+            "if err := detachSegmentGroupFromV1Policies(ctx, id, service); err != nil {",
+            "if err := detachSegmentGroupFromV2Policies(ctx, id, service); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "return fmt.Errorf(\"failed to update v1 policy rule %s: %w\", rule.ID, err)",
+            "return fmt.Errorf(\"failed to update v2 policy rule %s: %w\", rule.ID, err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceSegmentGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {",
+            "if _, err := segmentgroup.Delete(ctx, service, d.Id()); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "segment-group-list-failures-skipped": {
+      "statement": "In the segment-group cleanup, a failure to fetch the policy set or the rules of one policy type is logged as a warning and that type is skipped. No error is returned, so the delete proceeds without having cleaned that type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachSegmentGroupFromV1Policies(ctx context.Context, id string, service *zscaler.Service) error {",
+          "quotes": [
+            "log.Printf(\"[WARN] Failed to fetch policy rules of type %s: %v\", t, err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachSegmentGroupFromV2Policies(ctx context.Context, id string, service *zscaler.Service) error {",
+          "quotes": [
+            "log.Printf(\"[WARN] Failed to fetch v2 policy rules of type %s: %v\", t, err)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "server-group-delete-ignores-cleanup": {
+      "statement": "Deleting a server group logs and ignores an error from the connector-group cleanup, calls the policy-rule and application-segment cleanups (which return nothing), and then deletes the group regardless.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceServerGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "log.Printf(\"[ERROR] Detaching server group ID: %v from app connector groups failed: %v\\n\", d.Id(), err)",
+            "detachServerGroupFromAllAccessPolicyRules(ctx, d.Id(), service)",
+            "detachServerGroupFromAllAppSegments(ctx, d.Id(), service)",
+            "if _, err := servergroup.Delete(ctx, service, d.Id()); err != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "server-group-cleanup-failures-only-logged": {
+      "statement": "Every failure inside the three server-group cleanups is logged and dropped: listing or updating policy rules, listing or updating application segments, and fetching or updating individual connector groups. The connector-group helper returns nil after its loop whatever happened there; only a failure to fetch the server group itself returns an error, and the caller logs and ignores that too.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachServerGroupFromAllAccessPolicyRules(ctx context.Context, id string, service *zscaler.Service) {",
+          "quotes": [
+            "log.Printf(\"[WARN] Failed to update access policy rule %s: %v\", accessPolicyRule.ID, err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachServerGroupFromAllAppSegments(ctx context.Context, id string, service *zscaler.Service) {",
+          "quotes": [
+            "log.Printf(\"[WARN] Failed to update application segment %s: %v\", app.ID, err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachServerGroupFromAppConnectorGroups(ctx context.Context, serverGroupID string, service *zscaler.Service, appConnectorGroupService *zscaler.Service) error {",
+          "quotes": [
+            "log.Printf(\"[WARN] Failed to update app connector group %s: %v\", app.ID, err)"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "server-group-delete-can-succeed-with-references": {
+      "statement": "So a server-group destroy can finish successfully in Terraform while policy rules, application segments or connector groups still reference the deleted group, with the only trace in the provider's debug log.",
+      "tier": "C",
+      "derived_from": [
+        "server-group-delete-ignores-cleanup",
+        "server-group-cleanup-failures-only-logged"
+      ],
+      "conditions": "Depends on a cleanup write failing and on the ZPA API then accepting deletion of a group that is still referenced (gap api-delete-referenced-object). If the API rejects such a delete, Terraform reports that error instead.",
+      "gaps": [
+        "api-delete-referenced-object"
+      ]
+    },
+    "cleanups-can-leave-partial-detach": {
+      "statement": "A failed segment-group, PRA portal or PRA console destroy can leave the object detached from some rules or consoles and still attached to others. A retry starts from that partially changed state and is not equivalent to one atomic operation.",
+      "tier": "B",
+      "derived_from": [
+        "segment-group-delete-two-loops",
+        "portal-cleanup-partial-on-failure",
+        "console-policy-cleanup-partial-on-failure"
+      ],
+      "conditions": "Follows from sequential writes with no rollback; the quoted code shows no rollback or batching, established by reading each cleanup function in full at v4.4.10 and the pin. Assumes each earlier write took effect on the server."
+    },
+    "portal-deleted-console-skips-policy-detach": {
+      "statement": "A console deleted by the portal cleanup is deleted with a direct API call, not through the console resource's delete, so the credential-policy detach that the console resource runs first is skipped.",
+      "tier": "B",
+      "derived_from": [
+        "portal-cleanup-deletes-emptied-console",
+        "console-delete-cleans-credential-policy-only"
+      ],
+      "conditions": "The portal cleanup function, read in full at v4.4.10 and the pin, calls the console delete directly and never calls the console's policy detach. What the API does with credential-policy rules that still reference a deleted console is gap api-delete-referenced-object.",
+      "gaps": [
+        "api-delete-referenced-object"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-console-without-portals": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API allows a PRA console with no portals",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "knowing whether deleting the emptied console is required by the API or a provider choice",
+      "detail": "No captured source states whether a console may exist with an empty portal list. Test in a scratch tenant by updating a console to an empty portal list and observing the response."
+    },
+    "api-delete-referenced-object": {
+      "kind": "semantic",
+      "title": "What the ZPA API does when deleting a server group that is still referenced",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating whether a failed provider cleanup surfaces as a delete error or as silent dangling references",
+      "detail": "The provider assumes it must detach references before deleting. No captured source states whether the API rejects deleting a referenced server group or removes the references itself. Test in a scratch tenant by deleting a server group still used by a rule and a segment, then re-reading both."
+    }
+  }
+}
