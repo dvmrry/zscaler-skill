@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "id": "zpa.microtenants.user-mapping",
+  "title": "How users are mapped to a Microtenant",
+  "aliases": [
+    "microtenant authentication domain",
+    "microtenant priority",
+    "microtenant criteria",
+    "user assigned to wrong microtenant",
+    "microtenant list order",
+    "criteria_attribute",
+    "AuthDomain microtenant",
+    "microtenant saml scim criteria"
+  ],
+  "binds": [
+    "zpa/microtenants#criteriaAttribute",
+    "zpa/microtenants#criteriaAttributeValues",
+    "zpa/microtenants#operator",
+    "zpa/microtenants#priority"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.policy-evaluation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A user is assigned to one Microtenant by its criteria and the list order."
+    },
+    {
+      "label": "Criteria.",
+      "text": "{{criteria-map-users}} {{criteria-types}} {{attribute-operators}} {{idp-setting-disabled}} The Terraform resource accepts one criteria attribute: {{terraform-criteria-authdomain}}"
+    },
+    {
+      "label": "Order.",
+      "text": "{{list-order-first-match}} {{priority-change-impact}}"
+    },
+    {
+      "label": "Overlap.",
+      "text": "{{domain-in-other-microtenant-error}} Whether an authentication domain can sit in two Microtenants at all is open {{gap:auth-domain-uniqueness}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The order of the Microtenant list, since the first match is the user's Microtenant and a reorder can reassign users.",
+      "uses": [
+        "list-order-first-match",
+        "priority-change-impact"
+      ]
+    },
+    {
+      "do": "Which criteria the Microtenant uses, and the operator between multiple attributes or IdPs.",
+      "uses": [
+        "criteria-map-users",
+        "criteria-types",
+        "attribute-operators"
+      ]
+    },
+    {
+      "do": "Whether the IdP setting for SAML or SCIM attributes for policy is enabled when the Microtenant uses those criteria.",
+      "uses": [
+        "idp-setting-disabled"
+      ]
+    },
+    {
+      "do": "Whether an authentication domain may appear in more than one Microtenant.",
+      "uses": [
+        "domain-in-other-microtenant-error",
+        "auth-domain-uniqueness"
+      ]
+    }
+  ],
+  "claims": {
+    "criteria-map-users": {
+      "statement": "End users that are authenticated to Private Access with the selected authentication domains are mapped to their relevant Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-microtenants.json",
+          "quotes": [
+            "End users that are authenticated to Private Access with the selected authentication domains are mapped to their relevant Microtenant."
+          ]
+        }
+      ]
+    },
+    "list-order-first-match": {
+      "statement": "Private Access applies Microtenants in the order they are listed, top to bottom, and assigns the first match as the most relevant Microtenant; a newly created Microtenant is prioritized last by default.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#priority"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "Private Access applies Microtenants based on the order they are listed (i.e., top to bottom), and assigns the first match as the most relevant Microtenant.",
+            "By default, newly created Microtenants are prioritized last in the table."
+          ]
+        }
+      ]
+    },
+    "priority-change-impact": {
+      "statement": "Updating the priority order impacts user access to applications and applied policies, because users can be reassigned to new Microtenants.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#priority"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "Updating the priority order impacts user access to applications and applied policies, as users can be reassigned to new Microtenants."
+          ]
+        }
+      ]
+    },
+    "criteria-types": {
+      "statement": "A Microtenant's criteria can be authentication domains, External IAM IdPs (supported only for IdPs created in Authentication Service), or SAML and SCIM attributes (in limited availability, where existing users must reauthenticate or reconnect to use them).",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#criteriaAttribute",
+        "zpa/microtenants#criteriaAttributeValues"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-microtenants.json",
+          "quotes": [
+            "Authentication Domain: Select the available authentication domains from the drop-down menu.",
+            "This criteria is the external IdP attribute configured in Service Edge and is only supported for IdPs created in Authentication Service.",
+            "SAML and SCIM attributes for Microtenants are in limited availability. Existing users must reauthenticate or reconnect to the Zscaler cloud in order to use this feature."
+          ]
+        }
+      ]
+    },
+    "attribute-operators": {
+      "statement": "Multiple attributes or groups in a Microtenant use an OR operator by default, multiple IdPs use an OR operator by default, and either can be toggled to AND.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#operator"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-microtenants.json",
+          "quotes": [
+            "If you add multiple attributes or groups to the Microtenant, an OR Boolean operator is used between them by default.",
+            "If you selected multiple IdPs for the Microtenant, Private Access uses an OR Boolean operator between them by default."
+          ]
+        }
+      ]
+    },
+    "terraform-criteria-authdomain": {
+      "statement": "The Terraform `zpa_microtenant` resource documents `AuthDomain` as the only supported value of `criteria_attribute`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_microtenant_controller.go",
+          "quotes": [
+            "Description: \"The criteria attribute for the Microtenant. The supported value is AuthDomain.\","
+          ]
+        }
+      ]
+    },
+    "domain-in-other-microtenant-error": {
+      "statement": "The Go share and move tests retry a Microtenant create that fails with the error `domains.already.exists.in.other.microtenant`, which indicates the API can reject a create because the authentication domain is already used by another Microtenant.",
+      "tier": "B",
+      "conditions": "Derived from test code that matches an error string, not from a vendor statement of the rule. The string appears in the Go share and move tests (commented-out blocks); no test asserts the rule under which the API returns it. Statement reworded to name the tests rather than 'the Go SDK's Microtenant tests'.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment_share/applicationsegment_share_test.go",
+          "quotes": [
+            "strings.Contains(err.Error(), \"domains.already.exists.in.other.microtenant\")",
+            "Domain already exists in another microtenant, retrying..."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment_move/applicationsegment_move_test.go",
+          "quotes": [
+            "strings.Contains(err.Error(), \"domains.already.exists.in.other.microtenant\")"
+          ]
+        }
+      ]
+    },
+    "idp-setting-disabled": {
+      "statement": "When the IdP setting for SAML or SCIM attributes for policy is disabled but the Microtenant has criteria for them, an OR operator skips those criteria and keeps evaluating the others, while an AND operator stops Private Access from evaluating the Microtenant until the criteria are removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-microtenants.json",
+          "quotes": [
+            "OR: Private Access skips evaluating the criteria for SAML attributes, but continues to evaluate the criteria for SCIM attributes and SCIM groups.",
+            "AND: Private Access does not evaluate this Microtenant. You must remove the criteria under SAML Attributes for Private Access to process the Microtenant.",
+            "OR: Private Access skips evaluating the criteria for SCIM attributes and SCIM groups, but continues to evaluate the criteria for SCIM attributes and SAML attributes.",
+            "AND: Private Access does not evaluate this Microtenant. You must remove the criteria for SCIM attributes and SCIM groups for Private Access to process the Microtenant."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "auth-domain-uniqueness": {
+      "kind": "semantic",
+      "title": "Whether one authentication domain can belong to more than one Microtenant",
+      "status": "open",
+      "detail": "Unverified legacy statement: If a user's domain matches multiple Microtenants, the first Microtenant in the list claims them, and a misconfigured order silently routes users to the wrong Microtenant. The list-order rule is sourced; whether two Microtenants can hold the same authentication domain is not, and the SDK tests show the API rejecting at least some duplicates. SAML and SCIM criteria can still overlap. A lab create of two Microtenants with one domain would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "answering whether a domain collision can occur, or only attribute-criteria overlap"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.logs",
+  "title": "Browser Access in LSS: log type and identity field",
+  "aliases": [
+    "browser access lss",
+    "zpn_http_trans_log",
+    "web browser log type",
+    "browser access log source type",
+    "browser access nameid",
+    "browser_access source log"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Browser Access has its own LSS log type, distinct from the user activity log."
+    },
+    {
+      "label": "Log type.",
+      "text": "{{lss-source-log-type}} {{http-log-and-nameid}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which LSS source log type a Browser Access question needs, since user activity is a different type.",
+      "uses": [
+        "lss-source-log-type"
+      ]
+    },
+    {
+      "do": "Whether the identity in a Browser Access record is the SAML NameID, which differs from the user activity record.",
+      "uses": [
+        "http-log-and-nameid"
+      ]
+    }
+  ],
+  "claims": {
+    "lss-source-log-type": {
+      "statement": "The LSS source log type for Browser Access is zpn_http_trans_log, shown as Web Browser, and the Python SDK maps browser_access to it. User activity is a separate source log type, zpn_trans_log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "\"browser_access\": \"zpn_http_trans_log\",",
+            "\"user_activity\": \"zpn_trans_log\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_web_browser.md",
+          "quotes": [
+            "zpn_http_trans_log`               |         `Web Browser`"
+          ]
+        }
+      ]
+    },
+    "http-log-and-nameid": {
+      "statement": "The Browser Access log type carries HTTP log information, and its NameID field is the NameID Private Access received in the SAML assertion from the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "browser-access-log-fields.json",
+          "quotes": [
+            "The Log Streaming Service (LSS) can send HTTP log information related to Browser Access to any third-party log analytics tool.",
+            "NameID | The NameID received by Private Access in the SAML assertion from the IdP"
+          ]
+        }
+      ]
+    }
+  }
+}

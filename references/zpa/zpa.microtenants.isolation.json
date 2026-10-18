@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "id": "zpa.microtenants.isolation",
+  "title": "What a Microtenant isolates",
+  "aliases": [
+    "what is a microtenant",
+    "microtenant isolation",
+    "microtenant vs tenant",
+    "subsidiary isolation",
+    "microtenant end users",
+    "default microtenant"
+  ],
+  "binds": [
+    "zpa/microtenants"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.admin-permissions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.policy-evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Microtenant sits inside a tenant and scopes who administers what and which resources users reach."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{delegated-scope}} {{intended-use}} {{enablement}} {{same-customer-path}}"
+    },
+    {
+      "label": "What its admin manages.",
+      "text": "{{managed-config}} {{default-only-config}} What is shared with the parent tenant beyond that is open {{gap:shared-billing-infrastructure}}. Whether connectors are shared or owned per Microtenant is open {{gap:app-connectors-shared}}. Per-resource permission levels are in [[zpa.microtenants.admin-permissions]]."
+    },
+    {
+      "label": "What its end users reach.",
+      "text": "{{end-user-visibility}} Sharing an application across Microtenants is in [[zpa.microtenants.share-and-move]], and whose policy decides is in [[zpa.microtenants.policy-evaluation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the resource asked about was created in the Microtenant or in the Default Microtenant, since a Microtenant admin manages its own resources and sees most Default resources read only.",
+      "uses": [
+        "managed-config",
+        "zpa.microtenants.admin-permissions:default-resources-read-only"
+      ]
+    },
+    {
+      "do": "Whether the application was shared explicitly when an end user in one Microtenant reaches an application configured in another.",
+      "uses": [
+        "end-user-visibility",
+        "zpa.microtenants.share-and-move:share-explicit"
+      ]
+    },
+    {
+      "do": "Whether the configuration in question is one only the Default Microtenant admin can change.",
+      "uses": [
+        "default-only-config"
+      ]
+    },
+    {
+      "do": "Whether a billing, subscription or infrastructure claim was taken from this knowledge base, since none is sourced.",
+      "uses": [
+        "shared-billing-infrastructure"
+      ]
+    },
+    {
+      "do": "Whether an answer says App Connectors are owned by the Default tenant or by the Microtenant, which no source states.",
+      "uses": [
+        "app-connectors-shared"
+      ]
+    }
+  ],
+  "claims": {
+    "delegated-scope": {
+      "statement": "A Microtenant is a delegated administrator responsibility that an admin with Microtenant administrator privileges assigns to an admin; Microtenants are defined by an authentication domain and assigned to admins by country, department and company.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "A Microtenant is a delegated administrator responsibility that is assigned to an admin by an admin with Microtenant administrator privileges.",
+            "Microtenants are defined by an authentication domain and assigned to admins based on country, department, and company for role-based administration control."
+          ]
+        }
+      ]
+    },
+    "intended-use": {
+      "statement": "A Microtenant is created within a tenant and is used when departments or subsidiaries within an organization want to manage their configurations independently.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "A Microtenant is created within a tenant and is used when departments or subsidiaries within an organization want to manage their configurations independently."
+          ]
+        }
+      ]
+    },
+    "same-customer-path": {
+      "statement": "The Python and Go SDKs address Microtenants under the parent tenant's own customer ID (`/zpa/mgmtconfig/v1/admin/customers/{customerId}/microtenants`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "microtenantsEndpoint = \"/microtenants\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants/get",
+          "expect": {
+            "description": "Gets all configured Microtenants for the specified customer."
+          }
+        }
+      ]
+    },
+    "enablement": {
+      "statement": "Zscaler Support enables the Microtenants feature for an organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "Contact Zscaler Support to enable this feature for your organization."
+          ]
+        }
+      ]
+    },
+    "managed-config": {
+      "statement": "A Microtenant admin can manage the configuration of shared application segments, segment groups, servers, server groups, App Connectors, App Connector groups and policies exclusive to users within their country, department and operating company, and can view the dashboard and logs exclusive to those users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "Manage the configuration of shared application segments, segment groups, servers, server groups, App Connectors, App Connector groups, and policies exclusive to users within their country, department, and operating company.",
+            "View the dashboard and logs exclusive to the users within their country, department, and operating company."
+          ]
+        }
+      ]
+    },
+    "end-user-visibility": {
+      "statement": "End users of a Microtenant can access resources from the default (global) tenant as well as those created within their own Microtenant, and by default end users of different subsidiaries cannot access resources configured in other Microtenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "End users of each subsidiary (i.e., Microtenants) can access resources (e.g., applications) from the default or global tenant, as well as those created within their respective subsidiaries.",
+            "By default, end users of different subsidiaries cannot access resources configured in other Microtenants."
+          ]
+        }
+      ]
+    },
+    "default-only-config": {
+      "statement": "IdP configuration, Enrollment (CA) certificates and Microtenants can be managed or configured only by the Default Microtenant admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "after": "Configurations That Can Only Be Managed or Configured by the Default Microtenant Admin",
+          "quotes": [
+            "IdP Configuration",
+            "Enrollment (CA) Certificates",
+            "Contact the Default Microtenant admin if you need help configuring or managing certain features and use cases."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "shared-billing-infrastructure": {
+      "kind": "semantic",
+      "title": "Whether billing, subscription and Zscaler infrastructure are shared across Microtenants",
+      "status": "open",
+      "detail": "Unverified legacy statement: Billing and subscription, and Zscaler infrastructure (Service Edges, CA network), are shared at the default tenant level and not isolated. No registered source states this; the permission matrix lists Private Service Edges as read only to a Microtenant admin but says nothing about billing or the CA network. A vendor statement or a support answer would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "blocks": "answering what a Microtenant shares with its parent tenant beyond IdP configuration and enrollment certificates"
+    },
+    "app-connectors-shared": {
+      "kind": "semantic",
+      "title": "Whether App Connectors are shared and not owned by Microtenants",
+      "status": "open",
+      "detail": "Unverified legacy statement: App Connectors and App Connector Groups are default-tenant-managed; Microtenants reference but don't own them. The permission matrix gives a Microtenant admin Read only on Default-owned App Connectors and App Connector Groups, which is consistent, and the help lists App Connectors among what a Microtenant admin manages, which may refer to the Microtenant's own. No registered source states who owns them. A vendor statement or a lab create of a connector group in a Microtenant would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "answering whether connectors are owned by the Default tenant or by each Microtenant"
+    }
+  }
+}

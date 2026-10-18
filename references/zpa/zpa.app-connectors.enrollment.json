@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.enrollment",
+  "title": "App Connector enrollment, certificates and re-enrollment",
+  "aliases": [
+    "app connector enrollment",
+    "connector will not enroll",
+    "oauth user code enrollment",
+    "enrollment certificate",
+    "connector certificate",
+    "app connector allow list",
+    "re-enroll app connector",
+    "delete app connector re-enroll",
+    "clone app connector vm"
+  ],
+  "binds": [
+    "zpa/app-connectors"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.provisioning-keys"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "How an App Connector gets its identity: the two enrollment methods, the certificate it receives, and what blocks or repeats enrollment."
+    },
+    {
+      "label": "Methods.",
+      "text": "{{two-methods}} {{oauth-name-format}} {{groups-accept-user-codes}} {{module-onboarding-default}} {{module-onboarding-switch}} Provisioning keys are covered in [[zpa.app-connectors.provisioning-keys]]."
+    },
+    {
+      "label": "Certificate and trust.",
+      "text": "{{mutual-verification}} {{cert-signed-by-tenant-ca}} {{signing-cert-on-group}} {{private-keys-stay-on-device}} {{offline-signing}} The certificate lifetime and renewal are open {{gap:certificate-validity-window}}."
+    },
+    {
+      "label": "Restricting enrollment.",
+      "text": "{{allow-list}}"
+    },
+    {
+      "label": "Replacing and re-enrolling.",
+      "text": "{{replace-by-reenroll}} {{deleted-connector-unrecoverable}} {{wipe-and-rebuild}} {{imdsv2-reenroll-creates-new}} {{csr-and-fingerprint}} {{single-account-never-clone}} What happens to clones that were made anyway is unsourced {{gap:vm-clone-fingerprint}}."
+    },
+    {
+      "label": "When a new connector will not enroll.",
+      "text": "{{new-connector-prechecks}} {{clock-skew-delays-cert}}"
+    },
+    {
+      "text": "Terraform and SDK behavior around `enrollment_cert_id` and `user_codes` is in [[zpa.app-connectors.connector-groups]] and [[zpa.terraform.resource-fidelity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the connector was enrolled with a provisioning key or an OAuth token, since the failure checks differ.",
+      "uses": [
+        "two-methods",
+        "oauth-name-format"
+      ]
+    },
+    {
+      "do": "The connector's clock, domain name length and the zscaler user's file permissions before suspecting the key.",
+      "uses": [
+        "new-connector-prechecks",
+        "clock-skew-delays-cert"
+      ]
+    },
+    {
+      "do": "Whether an Allow List restricts enrollment to addresses that no longer match the connector.",
+      "uses": [
+        "allow-list"
+      ]
+    },
+    {
+      "do": "Whether a re-enrollment created a second connector that now consumes a key use and counts toward the tenant limit.",
+      "uses": [
+        "imdsv2-reenroll-creates-new",
+        "wipe-and-rebuild"
+      ]
+    }
+  ],
+  "claims": {
+    "two-methods": {
+      "statement": "An App Connector is enrolled with either an OAuth 2.0 enrollment token or a provisioning key; the help calls OAuth tokens preferred.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "Deploy App Connectors in your tenant using OAuth 2.0 enrollment tokens or provisioning keys.",
+            "applying OAuth enrollment tokens (preferred) or obtaining an App Connector provisioning key"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "oauth-name-format": {
+      "statement": "OAuth-enrolled App Connectors are added with a name of the form GroupName-UserCode-TimeStamp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "OAuth-enabled App Connectors are added with a name format of GroupName-UserCode-TimeStamp."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#name"
+      ]
+    },
+    "groups-accept-user-codes": {
+      "statement": "The ZPA Ansible App Connector Group module takes OAuth user codes generated from deployed App Connector VMs and verifies them after create or update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_app_connector_groups.py",
+          "quotes": [
+            "OAuth user codes generated from deployed App Connector VMs.",
+            "When provided, the module invokes OAuth user code verification after create/update."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups"
+      ]
+    },
+    "mutual-verification": {
+      "statement": "During enrollment the App Connector and Zscaler verify each other using a provisioning key and a corresponding TLS client certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Using a key pair (i.e., a provisioning key and a corresponding TLS client certificate), the App Connector and the ZTE verify each other as part of enrollment."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "cert-signed-by-tenant-ca": {
+      "statement": "Private Access accepts App Connector connections only when the client certificate is signed by a CA associated with the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Private Access only accepts connections from Zscaler Client Connector and the App Connector instances that present a client certificate signed by a CA associated with each tenant."
+          ]
+        }
+      ]
+    },
+    "private-keys-stay-on-device": {
+      "statement": "Private keys for certificates used in the Private Access infrastructure, including organization-operated systems, never leave the physical device where they were generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "All certificates used within the Private Access infrastructure, including all organization-operated systems, have private keys that never leave the physical device in which they were generated."
+          ]
+        }
+      ]
+    },
+    "offline-signing": {
+      "statement": "All Zscaler certificates are signed through an offline-only, air-gapped, signing ceremony.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "All Zscaler certificates are signed through an offline-only, air-gapped, signing ceremony."
+          ]
+        }
+      ]
+    },
+    "signing-cert-on-group": {
+      "statement": "An App Connector group selects the Signing Certificate that Private Access uses to sign the certificates it issues to its App Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-connector-groups.json",
+          "quotes": [
+            "Select the certificate that Private Access (ZPA) uses to sign certificates it issues to the App Connector."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#enrollmentCertId"
+      ]
+    },
+    "allow-list": {
+      "statement": "The App Connector Allow List (limited availability) restricts enrollment to the listed IP address or subnet: enrollment stays pending for an address not on the list, and a DHCP or network change of the address makes the group fail to enroll.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-connector-groups.json",
+          "quotes": [
+            "This feature is used to add a layer of security to the App Connector enrollment process, in addition to the provisioning key and signing certificate.",
+            "App Connector enrollment stays pending if the App Connector IP address is not configured in the App Connector Allow List field.",
+            "If the IP address of the App Connector group changes due to Dynamic Host Configuration Protocol (DHCP) or other network changes, then the App Connector groups fail to enroll.",
+            "This feature is in limited availability."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups"
+      ]
+    },
+    "replace-by-reenroll": {
+      "statement": "A deployed App Connector is replaced by deleting its configuration and re-enrolling it; the new provisioning key can be applied to the already-deployed VM image in place of the old key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "To replace a deployed App Connector, you must delete the configuration and then re-enroll it. However, you can apply the new App Connector provisioning key to the virtual machine (VM) image that you already deployed by replacing the old key."
+          ]
+        }
+      ]
+    },
+    "deleted-connector-unrecoverable": {
+      "statement": "A connector deleted from the Admin Console, even accidentally, is cut off immediately and cannot be recovered; the deployed instance's local state must be removed and the connector enrolled again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "This error often occurs when an App Connector is deleted from the Zscaler Admin Console accidently. Private Access immediately recognizes that it should not communicate with the App Connector, and it breaks the active connection. There is no way to recover the App Connector.",
+            "Restart the process of configuring an App Connector and deploying on a platform."
+          ]
+        }
+      ]
+    },
+    "new-connector-prechecks": {
+      "statement": "For a new connector that fails to come up, the help checks three things: the primary domain name is shorter than 36 characters (longer names can cause problems forming a certificate), the zscaler user can read /etc/resolv.conf, and the zscaler user can write /opt/zscaler/var.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "The primary domain name length is less than 36 characters. Names greater than 36 characters can cause problems when forming a certificate.",
+            "The user account “zscaler” has read access to /etc/resolv.conf",
+            "The user account “zscaler” has write access to /opt/zscaler/var"
+          ]
+        }
+      ]
+    },
+    "clock-skew-delays-cert": {
+      "statement": "If the connector's clock does not match the Private Access back-end, the certificate can be not yet valid, delaying enrollment; the fix is a correct, maintained time on the connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "If the App Connector’s timestamp does not match the timestamp on the Private Access back-end servers, there can be a delay before the certificate becomes valid and enrolls the App Connector.",
+            "To resolve this issue, verify that the time on the App Connector is properly set and maintained."
+          ]
+        }
+      ]
+    },
+    "imdsv2-reenroll-creates-new": {
+      "statement": "An AWS connector provisioned in an IMDSv2-required environment on version 24.566.1 or earlier creates a new App Connector on re-enrollment because its hardware fingerprint changed (IMDSv2 support arrived in 24.650.1); Zscaler recommends deleting the original manually to avoid consuming provisioning key uses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "If an App Connector was provisioned in an AWS IMDSv2 required environment with App Connector version 24.566.1 or earlier, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change.",
+            "Zscaler recommends that you manually delete the original App Connector from the Zscaler Admin Console to avoid consuming provisioning keys."
+          ],
+          "after": "IMDSv2 Migrated App Connector Fails to Enroll to Private Access"
+        }
+      ]
+    },
+    "wipe-and-rebuild": {
+      "statement": "Re-enrolling a stuck connector with a provisioning key means wiping the connector's local state, writing the key to /opt/zscaler/var/provision_key, and starting the service; the key's enrolled count must first be below its maximum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "On the App Connector Provisioning Keys page, verify that the number of provisioning keys in the # of Enrolled Connectors column is less than the number in the Maximum # of Connectors column for the provisioning key.",
+            "[admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key",
+            "Start the App Connector. The App Connector service should pick up the provisioning key and re-enroll the App Connector under the appropriate App Connector group."
+          ]
+        }
+      ]
+    },
+    "module-onboarding-default": {
+      "statement": "Both reference modules' base_ac examples take onboarding_method as oauth (the default) or provisioning_key. With oauth, AWS connectors publish their user code to SSM Parameter Store using the instance role, and Azure connectors publish to a Key Vault secret using the VM's user-assigned managed identity; Terraform reads the codes back to create the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "examples/base_ac/variables.tf",
+          "quotes": [
+            "default = \"oauth\"",
+            "var.onboarding_method == \"provisioning_key\""
+          ],
+          "after": "variable \"onboarding_method\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "examples/base_ac/variables.tf",
+          "quotes": [
+            "default = \"oauth\"",
+            "var.onboarding_method == \"provisioning_key\""
+          ],
+          "after": "variable \"onboarding_method\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "README.md",
+          "quotes": [
+            "Each VM publishes its user code (from `/etc/issue`) to AWS SSM Parameter Store using its instance role"
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "README.md",
+          "quotes": [
+            "publishes it to an Azure Key Vault secret via the VM's user-assigned Managed Identity"
+          ]
+        }
+      ]
+    },
+    "module-onboarding-switch": {
+      "statement": "The AWS module README says both methods are selectable per deployment through onboarding_method and that you can switch between them per deployment (not a one-way migration at the module level), but that switching on an existing App Connector Group typically requires re-deploying the connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "README.md",
+          "quotes": [
+            "Both methods are selectable per deployment via the `onboarding_method` variable:",
+            "You can switch between methods per deployment by changing `onboarding_method`; it is not a one-way migration at the module level.",
+            "Note that switching enrollment methods on an existing App Connector Group typically requires re-deploying the connectors."
+          ]
+        }
+      ],
+      "conditions": "Statement widened to include the README's per-deployment selection wording; the legacy 'pick one method per deployment' is largely supported."
+    },
+    "csr-and-fingerprint": {
+      "statement": "A first-installed connector generates a local private key encrypted with a hardware fingerprint, creates a CSR, authenticates it to the cloud with the provisioning key, and receives a signed TLS client certificate that is pinned to the connector's hardware fingerprint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-deploying-connectors.json",
+          "quotes": [
+            "the App Connector must first generate the local private key, which it encrypts using a hardware fingerprint.",
+            "It uses the provisioning key to authenticate the CSR to the Private Access cloud.",
+            "The signed TLS client certificate is pinned to the App Connector's hardware fingerprint."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#fingerprint"
+      ]
+    },
+    "single-account-never-clone": {
+      "statement": "An enrolled connector is paired with a single customer account and cannot be enrolled again; connectors in VMs should never be cloned because the keys no longer match the virtual hardware fingerprints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-deploying-connectors.json",
+          "quotes": [
+            "Once the App Connector is enrolled, it is paired with a single customer account, and it cannot be enrolled again.",
+            "App Connectors that are running in virtual machine (VM) environments should never be cloned, because the keys will no longer match the virtual hardware fingerprints."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#fingerprint"
+      ]
+    }
+  },
+  "gaps": {
+    "vm-clone-fingerprint": {
+      "kind": "semantic",
+      "title": "What happens to cloned connectors",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZPA detects the collision and disables all but one. The remedy is re-enrollment with unique fingerprints per clone. A suspected signal is a connector whose last_upgrade_time is significantly older than the group's peers.\" and the rows \"Multiple connectors disabled after VM clone\" and \"Cloned connector still enrolled, original disabled\". The deployment article says only that clones should never be made because keys stop matching the hardware fingerprint (single-account-never-clone); it does not describe collision detection, which connector survives, or the last_upgrade_time signal.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "certificate-validity-window": {
+      "kind": "semantic",
+      "title": "Connector certificate validity and renewal",
+      "status": "open",
+      "detail": "Tracked as legacy ledger item zpa-28. Unverified legacy statement: \"Certificate validity window - exactly how long an App Connector cert is valid before re-enrollment is required. Not captured.\" and \"Connectors don't auto-rotate certs; if a cert approaches expiry, re-enrollment is required.\" The connector's status output prints the time left on its certificate (see health) and CERT_EXPIRY is a pause reason, but no source gives the validity period or says renewal is manual.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "former_ids": [
+        "zpa-28"
+      ]
+    }
+  }
+}

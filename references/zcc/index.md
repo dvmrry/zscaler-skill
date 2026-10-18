@@ -57,7 +57,7 @@ Almost every ZIA or ZPA answer leans on ZCC implicitly. "User X is blocked" migh
 ## When the question spans ZCC + another product
 
 - **"Why didn't ZIA see this traffic?"** — start here (`forwarding-profile.md`), then `kb:zia.ssl-inspection` or `url-filtering.md`.
-- **"Why didn't ZPA match this app?"** — start at `references/zpa/app-segments.md` (client-side segment matching happens in ZCC, but the segment *config* is the primary question). Cross to `forwarding-profile.md` only if the profile's Trusted-Network evaluation is suspect.
+- **"Why didn't ZPA match this app?"** — start at `kb:zpa.app-segments` (client-side segment matching happens in ZCC, but the segment *config* is the primary question). Cross to `forwarding-profile.md` only if the profile's Trusted-Network evaluation is suspect.
 - **"Traffic goes direct instead of through Zscaler"** — this is almost always a ZCC forwarding-profile issue (`action_type: NONE` on the active network-type branch, or a permissive TrustedNetwork match). Start here.
 
 ## Open questions

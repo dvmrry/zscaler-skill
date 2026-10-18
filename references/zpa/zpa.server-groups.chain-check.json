@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "id": "zpa.server-groups.chain-check",
+  "title": "Checking the segment to server group to connector chain",
+  "aliases": [
+    "verify server group chain",
+    "segment has no connector",
+    "server group connector group connected",
+    "connectionStatus connected",
+    "controlChannelStatus",
+    "ctrlChannelStatus",
+    "connector group has no connected connectors",
+    "app segment server group app connector group chain"
+  ],
+  "binds": [
+    "zpa/application-segments#serverGroups",
+    "zpa/server-groups#appConnectorGroups",
+    "zpa/app-connectors#appConnectorGroupId",
+    "zpa/app-connectors#controlChannelStatus"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.server-groups.connector-binding"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.server-groups.role"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.multiple-on-segment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The chain runs from the application segment to its server groups, to their App Connector groups, to connected App Connectors."
+    },
+    {
+      "label": "Hops one and two.",
+      "text": "{{segment-lists-server-groups}} {{server-group-lists-connector-groups}} Whether an empty connector list can exist is open [[zpa.server-groups.connector-binding:empty-connector-group-rejected]]."
+    },
+    {
+      "label": "Hop three and the status field.",
+      "text": "{{connector-group-id-field}} {{connector-status-field}} [[zpa.app-connectors.health:mcp-status-table]] {{no-connection-status-member}}"
+    },
+    {
+      "label": "Beyond the chain.",
+      "text": "[[zpa.server-groups.connector-binding:no-connector-available]] A segment in one microtenant using a server group from another is unconfirmed {{gap:cross-microtenant-server-group}}."
+    },
+    {
+      "text": "Why a group may have no connector list is in [[zpa.server-groups.connector-binding]]; the segment-to-server-group relationship is in [[zpa.server-groups.role]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Find the application segment for the destination and port and read its serverGroups list; an empty list ends the chain at the segment.",
+      "uses": [
+        "segment-lists-server-groups"
+      ]
+    },
+    {
+      "do": "For each server group id on the segment, read the server group's appConnectorGroups list; an empty list ends the chain at the server group.",
+      "uses": [
+        "server-group-lists-connector-groups",
+        "zpa.server-groups.connector-binding:empty-connector-group-rejected"
+      ]
+    },
+    {
+      "do": "For each connector group id, list the App Connectors whose appConnectorGroupId matches it and read their controlChannelStatus; ZPN_STATUS_AUTHENTICATED is the healthy value. Do not filter on connectionStatus, which no source defines.",
+      "uses": [
+        "connector-status-field",
+        "zpa.app-connectors.health:mcp-status-table",
+        "connector-group-id-field",
+        "no-connection-status-member"
+      ]
+    },
+    {
+      "do": "Treat connector status as live state: it comes from a live read, and an IaC export taken earlier may not carry it.",
+      "uses": [
+        "connector-status-field"
+      ]
+    },
+    {
+      "do": "If every hop passes, move on to reachability of the backend and to the policy side rather than to the server group.",
+      "uses": [
+        "zpa.server-groups.connector-binding:no-connector-available"
+      ]
+    },
+    {
+      "do": "If the tenant uses microtenants, read each object within its own microtenant and flag a segment whose server group is in another one.",
+      "uses": [
+        "cross-microtenant-server-group"
+      ]
+    }
+  ],
+  "claims": {
+    "segment-lists-server-groups": {
+      "statement": "An application segment carries its server groups in a `serverGroups` list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "ServerGroups []servergroup.ServerGroup `json:\"serverGroups\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/application-segments#serverGroups"
+      ]
+    },
+    "server-group-lists-connector-groups": {
+      "statement": "A server group carries its App Connector groups in an `appConnectorGroups` list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#appConnectorGroups"
+      ]
+    },
+    "connector-group-id-field": {
+      "statement": "An App Connector carries the id of its group in `appConnectorGroupId`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "self.app_connector_group_id = config[\"appConnectorGroupId\"] if \"appConnectorGroupId\" in config else None"
+          ],
+          "after": "self.control_channel_status = config[\"controlChannelStatus\"]"
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#appConnectorGroupId"
+      ]
+    },
+    "connector-status-field": {
+      "statement": "An App Connector's control channel state is read from `controlChannelStatus` in the Python model, and the OpenAPI document names the same status `ctrlChannelStatus` with the values UNKNOWN, ZPN_STATUS_AUTHENTICATED and ZPN_STATUS_DISCONNECTED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "self.control_channel_status = config[\"controlChannelStatus\"] if \"controlChannelStatus\" in config else None"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1connector/get/responses/200/content/*~1*/schema/properties/list/items/properties/assistantVersion/properties/ctrlChannelStatus",
+          "expect": {
+            "description": "The status of the control channel.",
+            "enum": [
+              "UNKNOWN",
+              "ZPN_STATUS_AUTHENTICATED",
+              "ZPN_STATUS_DISCONNECTED"
+            ],
+            "type": "string"
+          }
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#controlChannelStatus"
+      ]
+    },
+    "no-connection-status-member": {
+      "statement": "No `connectionStatus` member is defined for an App Connector in the Python SDK, the Go SDK or the OpenAPI document; the status members are the control channel ones.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "\"controlChannelStatus\": self.control_channel_status,"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Searched with `grep -rn connectionStatus` over zscaler/zpa in the Python SDK and in the Go SDK's zscaler/zpa at the pins and `grep -c connectionStatus` over the captured zpa.openapi.json: no hits in any of them.",
+      "binds": [
+        "zpa/app-connectors#controlChannelStatus"
+      ]
+    }
+  },
+  "gaps": {
+    "cross-microtenant-server-group": {
+      "kind": "semantic",
+      "title": "Whether a segment in one microtenant can use a server group in another",
+      "status": "open",
+      "about": [
+        "zpa/server-groups",
+        "zpa/application-segments#serverGroups"
+      ],
+      "detail": "Unverified legacy statement: \"A segment in microtenant A with a server group in microtenant B is a config error worth flagging.\" The microtenant article says the target segment group and server group must be configured before moving a segment, which implies the pair is per microtenant, but it does not say what the API does with a mismatch.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "moving-resources-microtenant.json",
+          "quotes": [
+            "The target segment group and server group associated to the application segment must be configured."
+          ]
+        }
+      ]
+    }
+  }
+}

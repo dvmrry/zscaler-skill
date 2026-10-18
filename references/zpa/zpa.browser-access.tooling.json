@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.tooling",
+  "title": "Writing Browser Access segments: Python SDK, MCP server, Go SDK and Terraform",
+  "aliases": [
+    "app_segments_ba_v2",
+    "common_apps_dto apps_config",
+    "clientless_app_ids",
+    "mcp browser access",
+    "zpa_application_segment_browser_access",
+    "invalid.clientless.port",
+    "browser access terraform",
+    "browserAccessGroups"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.ansible-children"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.segment-constraints"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Tools that write Browser Access segments differ in what they send. This subject covers the Python SDK, the MCP server, the Go SDK and the Terraform resource; Ansible child reconciliation is in [[zpa.app-segments.ansible-children]]."
+    },
+    {
+      "label": "Python SDK.",
+      "text": "{{v2-injects-app-types}} {{sdk-ids-not-coerced}}"
+    },
+    {
+      "label": "MCP server.",
+      "text": "{{mcp-forwards-clientless-ids}} The create tool sends a different structure than the SDK reads {{divergence:mcp-payload-mismatch}}. The bundled skill describes validation the tool does not do {{divergence:mcp-skill-stale}}. Whether writes work end to end is open {{gap:mcp-writes-functional}}."
+    },
+    {
+      "label": "Go SDK.",
+      "text": "{{go-browser-access-groups}} Whether a tenant has the resource is open {{gap:browser-access-groups-enabled}}."
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{tf-certificate-conflicts-ext-fields}} {{tf-select-connector-not-forcenew}} The base resource is in [[zpa.app-segments.settings]]. {{tf-port-prewrite}} Child-ID matching and delete behavior for Browser Access segments are in [[zpa.terraform.app-segment-lifecycle]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which tool wrote the segment, since the Python SDK v2, the MCP tools and Terraform build the clientless applications differently.",
+      "uses": [
+        "v2-injects-app-types",
+        "mcp-forwards-clientless-ids",
+        "tf-port-prewrite"
+      ]
+    },
+    {
+      "do": "Whether an MCP write was read back, because the tool payload and the SDK path disagree.",
+      "uses": [
+        "mcp-payload-mismatch",
+        "mcp-skill-stale",
+        "mcp-writes-functional"
+      ]
+    },
+    {
+      "do": "Whether a Terraform plan sets certificate_id with ext_label or ext_domain, and whether older notes about select_connector_close_to_app apply.",
+      "uses": [
+        "tf-certificate-conflicts-ext-fields",
+        "tf-select-connector-not-forcenew"
+      ]
+    }
+  ],
+  "claims": {
+    "v2-injects-app-types": {
+      "statement": "The Python SDK v2 Browser Access create reads common_apps_dto, adds app_types [\"BROWSER_ACCESS\"] to each apps_config entry that lacks it, and sends the object as commonAppsDto.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "# Auto-add `\"app_types\": [\"BROWSER_ACCESS\"]` if missing",
+            "common_apps_dto = kwargs.get(\"common_apps_dto\")",
+            "app_config[\"app_types\"] = [\"BROWSER_ACCESS\"]",
+            "body[\"commonAppsDto\"] = common_apps_dto"
+          ],
+          "after": "def add_segment_ba(self, **kwargs)"
+        }
+      ]
+    },
+    "sdk-ids-not-coerced": {
+      "statement": "Both Python SDK Browser Access services, v1 and v2, call transform_common_id_fields with coerce_ids=False on create and update, which keeps ZPA's opaque string IDs instead of coercing numeric-looking ones to integers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+          ],
+          "after": "def add_segment_ba(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba_v2.py",
+          "quotes": [
+            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+          ],
+          "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba.py",
+          "quotes": [
+            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+          ],
+          "after": "def add_segment_ba(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_ba.py",
+          "quotes": [
+            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+          ],
+          "after": "def update_segment_ba(self, segment_id: str, **kwargs)"
+        }
+      ]
+    },
+    "mcp-forwards-clientless-ids": {
+      "statement": "The MCP server's Browser Access create and update tools take an optional clientless_app_ids list and forward it unchanged to the Python SDK v2 call. Neither tool requires or builds common_apps_dto.apps_config.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/app_segments_ba.py",
+          "quotes": [
+            "Browser-access (clientless) app configs forwarded as-is.",
+            "\"clientless_app_ids\",",
+            "created, _, err = api.add_segment_ba(**_build_body(args))"
+          ]
+        }
+      ]
+    },
+    "go-browser-access-groups": {
+      "statement": "The Go SDK declares a separate admin-customer /browserAccessGroups resource with a typed BrowserAccessGroups model and read-only GetAll and Get functions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/browser_access_groups/browser_access_groups.go",
+          "quotes": [
+            "browserAccessGroupsEndpoint = \"/browserAccessGroups\"",
+            "type BrowserAccessGroups struct {",
+            "func GetAll(ctx context.Context, service *zscaler.Service) ([]BrowserAccessGroups, *http.Response, error) {",
+            "func Get(ctx context.Context, service *zscaler.Service, browserAccessGroupsID string) (*BrowserAccessGroups, *http.Response, error) {"
+          ]
+        }
+      ]
+    },
+    "tf-certificate-conflicts-ext-fields": {
+      "statement": "In the Terraform Browser Access resource, a clientless app that sets certificate_id together with ext_label or ext_domain is rejected with the error \"'certificate_id' cannot be set when either 'ext_label' or 'ext_domain' is configured\".",
+      "tier": "A",
+      "binds": [
+        "zpa/browser-access#clientlessApps"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "quotes": [
+            "\"clientless_apps app %q: 'certificate_id' cannot be set when either 'ext_label' or 'ext_domain' is configured\","
+          ]
+        }
+      ]
+    },
+    "tf-select-connector-not-forcenew": {
+      "statement": "In the Terraform Browser Access resource, select_connector_close_to_app is a plain optional boolean without ForceNew.",
+      "tier": "A",
+      "binds": [
+        "zpa/browser-access#selectConnectorCloseToApp"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "quotes": [
+            "\"select_connector_close_to_app\": { Type: schema.TypeBool, Optional: true, },"
+          ]
+        }
+      ]
+    },
+    "tf-port-prewrite": {
+      "statement": "When a Browser Access update introduces a port that the segment's persisted port ranges do not yet include, the Terraform resource first writes the union of the existing and desired port ranges while keeping the existing clientless apps, and then writes the full desired state. The comment gives the reason: the API validates each clientless app's port against the persisted ranges, so a single PUT fails with invalid.clientless.port.",
+      "tier": "A",
+      "binds": [
+        "zpa/browser-access#clientlessApps",
+        "zpa/browser-access#tcpPortRanges"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_browser_access.go",
+          "quotes": [
+            "// fails with \"invalid.clientless.port\" because the new range is not yet",
+            "portPrewrite.ClientlessApps = existingSegment.ClientlessApps",
+            "func browserAccessClientlessPortsNeedPrewrite(existing, req *applicationsegmentbrowseraccess.BrowserAccess) bool {"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mcp-payload-mismatch": {
+      "summary": "What the MCP Browser Access tools send versus what the Python SDK v2 create reads",
+      "positions": [
+        {
+          "says": "The MCP create tool builds its body from clientless_app_ids and forwards it to the SDK v2 add_segment_ba without a common_apps_dto.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zpa/app_segments_ba.py",
+            "quotes": [
+              "created, _, err = api.add_segment_ba(**_build_body(args))",
+              "\"clientless_app_ids\","
+            ]
+          }
+        },
+        {
+          "says": "The SDK v2 create reads common_apps_dto, iterates its apps_config and sends commonAppsDto.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_segments_ba_v2.py",
+            "quotes": [
+              "common_apps_dto = kwargs.get(\"common_apps_dto\")",
+              "body[\"commonAppsDto\"] = common_apps_dto"
+            ],
+            "after": "def add_segment_ba(self, **kwargs)"
+          }
+        }
+      ],
+      "impact": "A Browser Access create or update through the MCP tools with clientless_app_ids does not supply the structure the SDK v2 path populates, so the per-application records may not be written. Treat a successful MCP result as unconfirmed and read the segment back."
+    },
+    "mcp-skill-stale": {
+      "summary": "What the bundled MCP onboarding skill says the create tool does versus what the tool does",
+      "positions": [
+        {
+          "says": "The onboarding skill says common_apps_dto.apps_config is required and that certificate and domain checks are made client-side by the create tool.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zpa/application_segment-ba-onboard/SKILL.md",
+            "quotes": [
+              "**`common_apps_dto.apps_config` is required**",
+              "Both are validated client-side by `zpa_create_application_segment_ba` so the API doesn't have to."
+            ]
+          }
+        },
+        {
+          "says": "The create tool checks only that name and segment_group_id are present, then forwards the body.",
+          "evidence": {
+            "source": "mcp-server",
+            "path": "src/zscaler_mcp/tools/zpa/app_segments_ba.py",
+            "quotes": [
+              "raise ValueError(\"name and segment_group_id are required\")"
+            ]
+          }
+        }
+      ],
+      "impact": "Agents following the skill expect validation the tool does not perform. Rely on the tool code, not on the skill text."
+    }
+  },
+  "gaps": {
+    "mcp-writes-functional": {
+      "kind": "semantic",
+      "title": "Whether MCP Browser Access writes work end to end",
+      "status": "open",
+      "detail": "The MCP tools forward clientless_app_ids while the SDK v2 create reads common_apps_dto (divergence mcp-payload-mismatch). Whether the service accepts the resulting request, and whether the per-application records are created, requires a live call or an upstream test.",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ]
+    },
+    "browser-access-groups-enabled": {
+      "kind": "data",
+      "title": "Whether /browserAccessGroups is available to a tenant",
+      "status": "open",
+      "detail": "The Go SDK package is client-surface evidence only. It does not show that the resource is enabled for a tenant or that a Browser Access entitlement is required. Cross-SDK notes are in references/zpa/api-divergences.md under PR 456.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

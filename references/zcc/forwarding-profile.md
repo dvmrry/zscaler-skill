@@ -327,7 +327,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `ve
 - Web Policy / App Profile (where scope + Forwarding Profile selection lives) — [`./web-policy.md`](./web-policy.md)
 - ZCC API surface / wire format — [`./api.md`](./api.md)
 - Where ZIA picks up after ZCC has decided to forward — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
-- ZPA client-side segment matching (runs on ZCC) — [`../zpa/app-segments.md`](../zpa/app-segments.md)
+- ZPA client-side segment matching (runs on ZCC) — [`zpa.app-segments`](kb:zpa.app-segments)
 - Cross-product policy evaluation — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
 - Field shapes for `zcc/forwarding-profiles` (profile-ID join to web-policy) — `node scripts/kb.mjs resolve zcc/forwarding-profiles`
 - QUIC bypass and Cloud App Control interaction — [`zia.cloud-app-control`](kb:zia.cloud-app-control)

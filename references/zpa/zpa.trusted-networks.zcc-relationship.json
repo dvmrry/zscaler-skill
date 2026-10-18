@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "id": "zpa.trusted-networks.zcc-relationship",
+  "title": "Trusted networks in ZPA and in Client Connector",
+  "aliases": [
+    "zpa trusted network vs zcc trusted network",
+    "are zpa and zcc trusted networks the same",
+    "send trusted network result to zpa",
+    "where do zpa trusted networks come from",
+    "trusted network provisioning"
+  ],
+  "binds": [
+    "zpa/trusted-networks",
+    "zcc/trusted-networks",
+    "zcc/forwarding-profiles"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.trusted-networks.object"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.trusted-networks.policy-operand"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers how ZPA trusted networks relate to Client Connector. Criteria fields and forwarding profile network types are in [[doc:references/zcc/trusted-networks.md]] and [[doc:references/zcc/forwarding-profile.md]]."
+    },
+    {
+      "label": "Where networks are defined.",
+      "text": "{{zcc-defines-criteria}} {{policy-menu-source}} {{zpa-objects-are-zcc-networks}} Whether the two identifiers match is open {{gap:id-correspondence}}."
+    },
+    {
+      "label": "The result sent to ZPA.",
+      "text": "{{send-result-setting}} How and when the exchange happens is open {{gap:signal-path}}. What ZPA does differently for such users is open {{gap:policy-effects}}."
+    },
+    {
+      "text": "How a rule names a network: [[zpa.trusted-networks.policy-operand]]. Provider fields on the Client Connector side: [[zcc.terraform.field-fidelity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Where the trusted network is defined; detection criteria are configured on the Client Connector side.",
+      "uses": [
+        "zcc-defines-criteria",
+        "policy-menu-source",
+        "zpa-objects-are-zcc-networks"
+      ]
+    },
+    {
+      "do": "Whether the forwarding profile sends the result to ZPA for the network type in question.",
+      "uses": [
+        "send-result-setting"
+      ]
+    },
+    {
+      "do": "Whether a ZPA networkId can be matched to a Client Connector record, which needs a tenant comparison.",
+      "uses": [
+        "id-correspondence"
+      ]
+    },
+    {
+      "do": "How and when the result reaches ZPA, which no source describes.",
+      "uses": [
+        "signal-path",
+        "policy-effects"
+      ]
+    }
+  ],
+  "claims": {
+    "zcc-defines-criteria": {
+      "statement": "Zscaler Client Connector identifies a trusted network by criteria defined for it on the Trusted Networks page, and a forwarding profile can select several predefined trusted networks.",
+      "tier": "A",
+      "binds": [
+        "zcc/trusted-networks"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-trusted-networks.json",
+          "quotes": [
+            "To have Zscaler Client Connector identify one of your organization's trusted networks, you must first define conditions for that network as criteria that Zscaler Client Connector uses for verification.",
+            "Predefining the Trusted Network Criteria for your networks on the Trusted Networks page allows you to select multiple trusted networks in a forwarding profile."
+          ]
+        }
+      ]
+    },
+    "policy-menu-source": {
+      "statement": "The trusted networks offered when building a ZPA access policy rule are the ones configured in the Client Connector Portal or Admin Console.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks",
+        "zcc/trusted-networks"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "Make sure you have configured your Trusted Network Criteria within the Zscaler Client Connector Portal. The trusted networks you configure in the Zscaler Client Connector Portal appear in the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "The trusted networks you configure in the Zscaler Admin Console appear in the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "zpa-objects-are-zcc-networks": {
+      "statement": "The read-only trusted network records ZPA returns are the trusted networks configured on the Client Connector side.",
+      "tier": "B",
+      "binds": [
+        "zpa/trusted-networks",
+        "zcc/trusted-networks"
+      ],
+      "conditions": "Inference: the rule menu is fed from the Client Connector configuration and the provider points its trusted network documentation at the Client Connector article; no source states that a ZPA `networkId` equals a Client Connector identifier.",
+      "derived_from": [
+        "policy-menu-source"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_trusted_network.md",
+          "quotes": [
+            "Official documentation https://help.zscaler.com/client-connector/about-trusted-networks"
+          ]
+        }
+      ]
+    },
+    "send-result-setting": {
+      "statement": "A Client Connector forwarding profile's ZPA action has a Send Trusted Network Result to ZPA setting, described by the Client Connector API as indicating whether it is enabled.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/onNetPolicy/properties/forwardingProfileZpaActions/items/properties/sendTrustedNetworkResultToZpa",
+          "expect": {
+            "description": "Indicates whether Send Trusted Network Result to ZPA is enabled.",
+            "format": "byte",
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "SendTrustedNetworkResultToZpa  int         `json:\"sendTrustedNetworkResultToZpa\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "id-correspondence": {
+      "kind": "data",
+      "title": "Whether a ZPA networkId equals the identifier of the Client Connector trusted network",
+      "status": "open",
+      "about": [
+        "zpa/trusted-networks#networkId"
+      ],
+      "detail": "The Client Connector trusted network has a `guid` and the ZPA trusted network has a GUID-style `networkId`. No source states they are the same value. Compare both lists for one network in a tenant that uses both.",
+      "blocks": "saying a ZPA networkId can be read from a Client Connector record",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zpa trusted-networks list"
+    },
+    "signal-path": {
+      "kind": "semantic",
+      "title": "How and when Client Connector reports the trusted network result to ZPA",
+      "status": "open",
+      "former_ids": [
+        "zpa-80"
+      ],
+      "about": [
+        "zpa/trusted-networks",
+        "zcc/forwarding-profiles"
+      ],
+      "detail": "Unverified legacy statement: \"When a match occurs, ZCC signals to ZPA at session establishment: this user is on Trusted Network X. ZPA policy evaluation happens at session establishment and per-request.\" The Client Connector API has a Send Trusted Network Result to ZPA setting, but no source describes the exchange, its timing, or re-evaluation. Capture the tunnel setup and a network change in a lab tenant.",
+      "blocks": "saying when a trusted network change takes effect in ZPA policy",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "policy-effects": {
+      "kind": "semantic",
+      "title": "What ZPA policy can do differently for users on a trusted network",
+      "status": "open",
+      "about": [
+        "zpa/trusted-networks"
+      ],
+      "detail": "Unverified legacy statement: \"When a user's ZPA session is established from a known trusted network, ZPA can apply different policy logic, for example routing through a local Private Service Edge or relaxing authentication requirements for specific apps.\" Preferring matching Private Service Edges is documented ([[zpa.trusted-networks.service-edge-groups:prioritize-matching]]); relaxed authentication is not stated in any captured source.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "id": "zpa.server-groups.role",
+  "title": "What a server group is and what selects it",
+  "aliases": [
+    "what is a server group",
+    "server group purpose",
+    "server group vs connector group",
+    "which connector group serves this segment",
+    "app connector selection method"
+  ],
+  "binds": [
+    "zpa/server-groups",
+    "zpa/server-groups#appConnectorGroups",
+    "zpa/application-segments#serverGroups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.server-groups.connector-binding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.discovery-mode"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.multiple-on-segment"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A server group is one of two grouping objects on an application segment, and it governs delivery rather than policy scoping."
+    },
+    {
+      "label": "Where it attaches.",
+      "text": "{{segment-names-server-group}} {{python-segment-requires-server-groups}} {{server-group-pairs-servers-and-connectors}}"
+    },
+    {
+      "label": "What selects the connector.",
+      "text": "{{selection-follows-segment-server-group}} {{selection-can-be-overridden-in-policy}} {{rule-can-name-connector-or-server-groups}} How the group's own connector list is defined is in [[zpa.server-groups.connector-binding]]."
+    },
+    {
+      "label": "Open points.",
+      "text": "Whether a server group is consulted only at brokering and never during policy evaluation is unsourced {{gap:brokering-vs-policy-split}}. What `ipAnchored` does on a server group is not documented {{gap:ip-anchored-effect}}."
+    },
+    {
+      "label": "Limits.",
+      "text": "{{limits}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which server groups the application segment names, since the segment is where a server group is attached.",
+      "uses": [
+        "segment-names-server-group",
+        "python-segment-requires-server-groups"
+      ]
+    },
+    {
+      "do": "Whether the access policy rule that matched sets its own App Connector or server groups, which can override the segment's.",
+      "uses": [
+        "rule-can-name-connector-or-server-groups",
+        "selection-follows-segment-server-group"
+      ]
+    },
+    {
+      "do": "Whether the claim that a server group is not consulted during policy evaluation is being relied on; it has no source.",
+      "uses": [
+        "brokering-vs-policy-split"
+      ]
+    }
+  ],
+  "claims": {
+    "segment-names-server-group": {
+      "statement": "When an application segment is configured, the server group that contains the servers hosting its applications must be identified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-server-groups.json",
+          "quotes": [
+            "you must identify the server group that contains the servers hosting the defined applications"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/application-segments#serverGroups"
+      ]
+    },
+    "server-group-pairs-servers-and-connectors": {
+      "statement": "A server group paired with servers maps applications to specific servers and to App Connector groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-servers.json",
+          "quotes": [
+            "Provide mapping of applications to specific servers and App Connector groups when paired with a server group."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#servers",
+        "zpa/server-groups#appConnectorGroups"
+      ]
+    },
+    "python-segment-requires-server-groups": {
+      "statement": "The Python SDK documents `server_group_ids` as required when creating an application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "server_group_ids (list of str): **Required**. List of server group IDs this segment belongs to."
+          ]
+        }
+      ]
+    },
+    "selection-follows-segment-server-group": {
+      "statement": "With Multimatch disabled, App Connector selection is primarily based on the application segment's server group configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "the App Connector selection is primarily based on the application segment's server group configuration"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/application-segments#serverGroups"
+      ]
+    },
+    "selection-can-be-overridden-in-policy": {
+      "statement": "The selection that follows the segment's server group can be overridden in an access policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "This selection can be overridden in an access policy."
+          ]
+        }
+      ]
+    },
+    "rule-can-name-connector-or-server-groups": {
+      "statement": "An access policy rule can be set to specific App Connector groups, server groups, or a mixture of both, instead of all App Connector groups for the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "App Connector Selection Method: Select All App Connector groups for the application or Specific App Connector or Server groups for the application",
+            "choose which App Connector groups, server groups, or a mixture of both you want the access policy to use"
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "A tenant can hold up to 1,000 server groups and up to 10,000 explicitly defined servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-server-groups.json",
+          "quotes": [
+            "you can add up to 1,000 server groups"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "explicitly-defining-servers.json",
+          "quotes": [
+            "You can add up to 10,000 servers."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "brokering-vs-policy-split": {
+      "kind": "semantic",
+      "title": "Whether a server group is consulted only at connection brokering and never during access policy evaluation",
+      "status": "open",
+      "about": [
+        "zpa/server-groups"
+      ],
+      "detail": "Unverified legacy statement: \"The Server Group is not consulted during access policy evaluation — it is only consulted during connection brokering (connector selection, backend IP determination).\" No captured source states the split, and the help states that a rule can name server groups itself. A lab test would show whether a rule that matches on a segment whose server group has no usable connector still reports an allow in the access log.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying where in the request path a bad server group assignment is detected"
+    },
+    "ip-anchored-effect": {
+      "kind": "semantic",
+      "title": "What ipAnchored does on a server group",
+      "status": "open",
+      "about": [
+        "zpa/server-groups#ipAnchored"
+      ],
+      "detail": "Unverified legacy statement: \"`ipAnchored` — enables IP anchoring; source IPs visible to the backend are the connector's IP.\" The Python docstring says only \"Enable IP Anchoring\" and the OpenAPI field has no description. The help ties Source IP Anchor to the application segment, not the server group. A help article or a lab test with a flow log is needed.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "**ip_anchored (bool): Enable IP Anchoring."
+          ],
+          "after": "def add_group(self, **kwargs)"
+        }
+      ]
+    }
+  }
+}

@@ -17,7 +17,7 @@ sources:
   - "references/cloud-connector/overview.md"
   - "references/cloud-connector/aws-deployment.md"
   - "references/cloud-connector/azure-deployment.md"
-  - "references/zpa/app-connector.md"
+  - "`kb:zpa.app-connectors`"
   - "references/zpa/logs/app-connector-metrics.md"
 dependencies: []
 author-status: draft
@@ -77,9 +77,9 @@ No GCP-specific grounding exists yet. If the scope names GCP, say that provider-
 
 ## Load when scope names ZPA capacity
 
-- [`references/zpa/app-connector.md`](../../../references/zpa/app-connector.md)
-- [`references/zpa/app-segments.md`](../../../references/zpa/app-segments.md)
-- [`references/zpa/segment-server-groups.md`](../../../references/zpa/segment-server-groups.md)
+- [`zpa.app-connectors`](kb:zpa.app-connectors)
+- [`zpa.app-segments`](kb:zpa.app-segments)
+- [`zpa.server-groups`](kb:zpa.server-groups)
 - [`references/zpa/logs/app-connector-metrics.md`](../../../references/zpa/logs/app-connector-metrics.md)
 
 ## Discipline

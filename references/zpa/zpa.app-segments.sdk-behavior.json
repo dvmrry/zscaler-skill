@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.sdk-behavior",
+  "title": "What the Python and Go SDKs send for application segments",
+  "aliases": [
+    "python sdk clientless_app_ids",
+    "No matching clientless App found",
+    "python sdk enabled default true",
+    "cannot use both tcp_port_ranges and tcp_port_range",
+    "guestDetails partnerInfo python",
+    "bypassOnReauth false dropped go",
+    "python update_segment clears port ranges"
+  ],
+  "binds": [
+    "zpa/application-segments#enabled",
+    "zpa/application-segments#bypassOnReauth",
+    "zpa/browser-access#clientlessApps"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.api-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.federate-applications"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers what the Python and Go SDKs and the MCP server send or fail on for application segments."
+    },
+    {
+      "label": "Python models and writes.",
+      "text": "{{python-enabled-default}} {{python-rejects-both-port-forms}} {{python-update-clears-port-forms}}"
+    },
+    {
+      "label": "Browser Access key.",
+      "text": "{{python-clientless-key-presence}} {{mcp-clientless-param-removed}}"
+    },
+    {
+      "label": "Federation decoding.",
+      "text": "The Python `guestDetails` decoding defect is in [[zpa.b2b-federation.federate-applications:python-guestdetails-decode-defect]], and the field set is in [[zpa.app-segments.api-fields]]."
+    },
+    {
+      "label": "Go serialization.",
+      "text": "{{go-bypass-on-reauth}} The always-serialized flags and the Terraform update path are in [[zpa.terraform.app-segment-lifecycle]] and [[shared.sdk-go.zero-value-writes]]; other Go service defects are in [[zpa.sdk-go.service-defects]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Python update call passes only one port form, since update_segment sends the other as an empty list.",
+      "uses": [
+        "python-update-clears-port-forms",
+        "python-rejects-both-port-forms"
+      ]
+    },
+    {
+      "do": "Whether a Python update for a standard segment includes the clientless_app_ids key at all, with any value.",
+      "uses": [
+        "python-clientless-key-presence",
+        "mcp-clientless-param-removed"
+      ]
+    },
+    {
+      "do": "Which segment kind a Go write sends an explicit bypassOnReauth false for.",
+      "uses": [
+        "go-bypass-on-reauth"
+      ]
+    },
+    {
+      "do": "Whether a segment's guestDetails carries partnerInfo before reading it through the Python model.",
+      "uses": [
+        "zpa.b2b-federation.federate-applications:python-guestdetails-decode-defect"
+      ]
+    }
+  ],
+  "claims": {
+    "python-enabled-default": {
+      "statement": "When the Python `ApplicationSegments` model is built from a dict that has no `enabled` key, it sets `enabled` to True.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#enabled"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "self.enabled = config[\"enabled\"] if \"enabled\" in config else True"
+          ]
+        }
+      ]
+    },
+    "python-rejects-both-port-forms": {
+      "statement": "`add_segment` and `update_segment` in the Python SDK return an error when both `tcp_port_ranges` and `tcp_port_range`, or both `udp_port_ranges` and `udp_port_range`, are passed in one request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "return None, None, ValueError(\"Cannot use both 'tcp_port_ranges' and 'tcp_port_range' in the same request.\")"
+          ],
+          "after": "def add_segment(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "return None, None, ValueError(\"Cannot use both 'udp_port_ranges' and 'udp_port_range' in the same request.\")"
+          ],
+          "after": "def update_segment(self, segment_id: str, **kwargs)"
+        }
+      ]
+    },
+    "python-update-clears-port-forms": {
+      "statement": "`update_segment` in the Python SDK sends `tcpPortRanges`, `tcpPortRange`, `udpPortRanges` and `udpPortRange` as empty lists for any form the caller did not pass.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpPortRanges",
+        "zpa/application-segments#tcpPortRange"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "body[\"tcpPortRanges\"] = []",
+            "body[\"tcpPortRange\"] = []",
+            "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
+            "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
+          ],
+          "after": "def update_segment(self, segment_id: str, **kwargs)"
+        }
+      ]
+    },
+    "python-clientless-key-presence": {
+      "statement": "In the Python SDK `update_segment` tests whether the key `clientless_app_ids` is present, not whether it has a value, and a present key triggers a `BROWSER_ACCESS` lookup by the segment ID that returns 'No matching clientless App found' for a segment that has no Browser Access app; `add_segment` only renames the key to `clientlessApps`.",
+      "tier": "A",
+      "binds": [
+        "zpa/browser-access#clientlessApps"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "if \"clientless_app_ids\" in body:",
+            "get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
+            "No matching clientless App found with appId"
+          ],
+          "after": "def update_segment(self, segment_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "body[\"clientlessApps\"] = body.pop(\"clientless_app_ids\")"
+          ],
+          "after": "def add_segment(self, **kwargs)"
+        }
+      ]
+    },
+    "mcp-clientless-param-removed": {
+      "statement": "The MCP server removed the `clientless_app_ids` parameter from `zpa_create_application_segment` and `zpa_update_application_segment` because passing it for a standard segment triggered a stray `BROWSER_ACCESS` lookup, and serves Browser Access through dedicated `zpa_*_application_segment_ba` tools.",
+      "tier": "A",
+      "binds": [
+        "zpa/browser-access#clientlessApps"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Removed the `clientless_app_ids` parameter from `zpa_create_application_segment` and `zpa_update_application_segment`.",
+            "previously triggered a stray `BROWSER_ACCESS` lookup when passed against a standard segment."
+          ]
+        }
+      ]
+    },
+    "go-bypass-on-reauth": {
+      "statement": "In the Go SDK the base and Browser Access segment models serialize `bypassOnReauth` without omitempty, so an explicit false is sent, while the Inspection and PRA models tag it `omitempty` and drop an explicit false.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#bypassOnReauth"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "BypassOnReauth bool `json:\"bypassOnReauth\"`"
+          ],
+          "after": "type ApplicationSegmentResource struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "quotes": [
+            "BypassOnReauth bool `json:\"bypassOnReauth\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "BypassOnReauth bool `json:\"bypassOnReauth,omitempty\"`"
+          ]
+        }
+      ]
+    }
+  }
+}

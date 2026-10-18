@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.selection",
+  "title": "How a session is assigned to an App Connector",
+  "aliases": [
+    "which app connector is used",
+    "app connector selection",
+    "closest app connector",
+    "connector affinity 15 minutes",
+    "app connector load not balanced",
+    "app connector id zero",
+    "NO_CONNECTOR_AVAILABLE",
+    "wrong app connector"
+  ],
+  "binds": [
+    "zpa/app-connectors"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Which connector a session lands on, and what a missing or zero connector in the logs means."
+    },
+    {
+      "label": "Selection inputs.",
+      "text": "{{closest-by-location-and-latency}} {{nearest-is-not-geography-alone}} {{group-location-feeds-path-selection}} {{segment-prefers-nearest-connector}} {{browser-access-closest-responds}} How often latency is measured is open {{gap:latency-probe-cadence}}."
+    },
+    {
+      "label": "Stickiness and balance.",
+      "text": "{{affinity-15-minutes}} {{affinity-rebalance}} {{uneven-load-expected}}"
+    },
+    {
+      "label": "When no connector is shown.",
+      "text": "{{connector-id-zero}} Reading a closed session by connector assignment is unsourced {{gap:close-with-connector-failure-table}}."
+    },
+    {
+      "label": "Eligibility.",
+      "text": "The eligibility rules and the effect of turning the segment setting off are not sourced {{gap:eligibility-filter}} {{gap:round-robin-setting}}."
+    },
+    {
+      "text": "Connection state and target counts that bear on a connector are in [[zpa.app-connectors.health]]; the segment-to-group chain is in [[zpa.app-connectors.connector-groups]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The user's location, the connector's group location and the connector-to-application latency, rather than distance alone.",
+      "uses": [
+        "closest-by-location-and-latency",
+        "group-location-feeds-path-selection",
+        "nearest-is-not-geography-alone"
+      ]
+    },
+    {
+      "do": "Whether the user's last request to the application was within 15 minutes, which pins them to the same connector.",
+      "uses": [
+        "affinity-15-minutes",
+        "affinity-rebalance"
+      ]
+    },
+    {
+      "do": "Whether the application segment has selectConnectorCloseToApp set.",
+      "uses": [
+        "segment-prefers-nearest-connector",
+        "round-robin-setting"
+      ]
+    },
+    {
+      "do": "Which session status code accompanies a zero connector ID before assuming no connector qualified.",
+      "uses": [
+        "connector-id-zero",
+        "close-with-connector-failure-table"
+      ]
+    },
+    {
+      "do": "Whether the connector load imbalance is within what the help calls expected.",
+      "uses": [
+        "uneven-load-expected",
+        "affinity-rebalance"
+      ]
+    }
+  ],
+  "claims": {
+    "closest-by-location-and-latency": {
+      "statement": "Private Access selects the closest App Connector given the location of the user and the App Connector-to-application latency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "Private Access selects the closest App Connector given the location of the user and the App Connector-to-application latency."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-connector-groups.json",
+          "quotes": [
+            "Private Access (ZPA) selects the closest App Connector given the location of the user and the App Connector-to-application latency."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ],
+      "gaps": [
+        "latency-probe-cadence"
+      ]
+    },
+    "nearest-is-not-geography-alone": {
+      "statement": "Because latency to the application is an input, the geographically nearest connector is not necessarily the one selected.",
+      "tier": "B",
+      "derived_from": [
+        "closest-by-location-and-latency"
+      ],
+      "conditions": "Inference from the two named inputs; no source gives a case of a farther connector being chosen."
+    },
+    "group-location-feeds-path-selection": {
+      "statement": "The location set on the App Connector group is used in application path selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-connector-groups.json",
+          "quotes": [
+            "Configure the preferred local version profile for associated App Connectors and the App Connector’s location used in application path selection."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#latitude",
+        "zpa/app-connector-groups#longitude"
+      ]
+    },
+    "affinity-15-minutes": {
+      "statement": "Private Access keeps an active user on the same App Connector for 15 minutes after the user's last request to the application; the timer starts at selection and refreshes on each request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "Private Access maintains App Connector affinity for an active user for 15 minutes following the user's last application request.",
+            "The 15-minute timer starts at selection. If the user continues accessing the same application, the timer refreshes on each request"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "affinity-rebalance": {
+      "statement": "If a connector's load exceeds 70% and the load difference between connectors is greater than 20%, the system might reevaluate affinity and shift traffic to a different connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "However, if an App Connector's load exceeds 70% and the load difference between App Connectors is greater than 20%, the system might reevaluate App Connector affinity and shift traffic to a different App Connector."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "uneven-load-expected": {
+      "statement": "Load (interface statistics) is not always split equally between connectors in a group; the Health Dashboard shows how applications are split between them over a period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "Sometimes the load (i.e., the interface stats) is not equally split between the App Connectors in the App Connector group.",
+            "You can check the Health Dashboard to help you address your questions about App Connector load balance and to see the application split between App Connectors in a given period of time."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "connector-id-zero": {
+      "statement": "Logs and diagnostics show the App Connector ID as zero when the Central Authority cannot determine the application or resolve the connection to a connector; this occurs for the session status codes APP_NOT_REACHABLE, INVALID_DOMAIN and NO_CONNECTOR_AVAILABLE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "If the Central Authority cannot determine an application or resolve the connection to the App Connector for the user, it displays the App Connector ID as zero.",
+            "APP_NOT_REACHABLE.",
+            "INVALID_DOMAIN",
+            "NO_CONNECTOR_AVAILABLE"
+          ]
+        }
+      ]
+    },
+    "segment-prefers-nearest-connector": {
+      "statement": "Application segments carry a boolean selectConnectorCloseToApp, documented in the Python SDK as 'Prefer nearest connector routing'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "SelectConnectorCloseToApp bool `json:\"selectConnectorCloseToApp\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "select_connector_close_to_app (bool): Prefer nearest connector routing."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/application-segments"
+      ],
+      "gaps": [
+        "round-robin-setting"
+      ]
+    },
+    "browser-access-closest-responds": {
+      "statement": "For Browser Access, the Service Edge asks the App Connectors at the application level and the connector closest to the internal web application responds by connecting to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "the App Connector sitting closest to the internal web application responds by connecting to the Public Service Edge or Private Service Edge."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "latency-probe-cadence": {
+      "kind": "semantic",
+      "title": "Latency measurement cadence",
+      "status": "open",
+      "detail": "Tracked as legacy ledger item zpa-27. Unverified legacy statement: \"ZPA picks by app-to-connector latency from continuous Zscaler-side measurements (not static geography).\" No source states how often connector-to-application latency is measured or how long a network path change takes to be noticed.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "former_ids": [
+        "zpa-27"
+      ]
+    },
+    "eligibility-filter": {
+      "kind": "semantic",
+      "title": "Eligibility filter before latency selection",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZPA's connector-selection step happens in two phases - eligibility filtering, then latency-based selection. Phase 1: a connector must be a member of a group associated with the Server Group referenced by the matching Application Segment, report CONNECTED to a Service Edge, and have a recent reachability probe showing the target alive. A sick connector or one that cannot reach the target is filtered out before assignment.\" The legacy doc itself notes the internal ordering and algorithm are not publicly published. The group-to-segment chain is sourced (see connector-groups); the filter order is not.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "round-robin-setting": {
+      "kind": "semantic",
+      "title": "Effect of selectConnectorCloseToApp = false",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If select_connector_close_to_app = false is set on a Server Group, selection is round-robin instead of latency-based.\" The setting is on application segments, not server groups (see segment-prefers-nearest-connector), and no registered source says what false does; the SDKs say only that it prefers nearest connector routing.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "close-with-connector-failure-table": {
+      "kind": "semantic",
+      "title": "Reading a closed session by whether a connector was assigned",
+      "status": "open",
+      "detail": "Unverified legacy statement: a table mapping \"LSS ConnectionStatus = Close, no Connector populated, no policy block\" to every candidate being rejected by the eligibility filter, \"Close with Connector populated and high ConnectionSetupTime\" to a failure during the connection attempt, and \"Open/Active with elevated ConnectionSetupTime/ServerSetupTime\" to an eligible but slow connector, plus the advice to check whether a connector was assigned before suspecting the connector-to-app hop. The sourced finding is narrower: a zero connector ID also occurs for APP_NOT_REACHABLE and INVALID_DOMAIN (connector-id-zero), not only when no connector qualifies.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

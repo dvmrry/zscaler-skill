@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy",
+  "title": "ZPA policy evaluation",
+  "aliases": [
+    "zpa policy",
+    "zpa access policy",
+    "access policy precedence",
+    "zpa policy precedence",
+    "why was access blocked in zpa",
+    "zpa rule order",
+    "zpa first match",
+    "zpa policy rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.evaluation-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.access-rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.multimatch"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.patterns"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.rule-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.scim-sync"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.rule-order"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.server-groups"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.matching"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.segment-groups.policy-use"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.microtenants.policy-evaluation"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.scim.provisioning-timing"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.saml-attributes.policy-criteria"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.scim.policy-criteria"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.trusted-networks.policy-operand"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-groups.policy-use"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.b2b-federation.access-policy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Why was this ZPA request allowed or blocked?\" needs five questions answered in order."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which policy types run, and in what order?",
+          "text": "Client forwarding comes before access, a bypass skips access, and each type has a default when nothing matches: [[zpa.policy.evaluation-order]]."
+        },
+        {
+          "label": "Which application segment did the request map to?",
+          "text": "The most specific one, unless Multimatch is on: [[zpa.policy.multimatch]]."
+        },
+        {
+          "label": "Which rule is first?",
+          "text": "First match by rule order, with the Deception exception: [[zpa.policy.access-rule-order]]."
+        },
+        {
+          "label": "Do the rule's criteria match?",
+          "text": "The criteria, their combinations and limits: [[zpa.policy.criteria]]; the AND and OR logic and operand forms: [[zpa.policy.conditions]]."
+        },
+        {
+          "label": "What does the rule do?",
+          "text": "The action and its prerequisites: [[zpa.policy.actions]]."
+        }
+      ]
+    },
+    {
+      "text": "Segment matching is also covered in [[zpa.app-segments.matching]]. Segment groups in rules are covered in [[zpa.segment-groups.policy-use]], and microtenant evaluation in [[zpa.microtenants.policy-evaluation]]. Identity criteria are covered in [[zpa.saml-attributes.policy-criteria]] and [[zpa.scim.policy-criteria]], with SCIM sync timing in [[zpa.scim.provisioning-timing]]. Trusted networks, machine groups and federated rules are covered in [[zpa.trusted-networks.policy-operand]], [[zpa.machine-groups.policy-use]] and [[zpa.b2b-federation.access-policy]]."
+    },
+    {
+      "text": "Session timing is a separate rule set: [[zpa.policy.timeout-rules]]. Rule fields beyond criteria are in [[zpa.policy.rule-fields]]. SCIM criteria depend on sync timing: [[zpa.policy.scim-sync]]. Common rule layouts are in [[zpa.policy.patterns]]."
+    },
+    {
+      "text": "How Terraform orders and writes these rules is in [[zpa.terraform.rule-order]] and [[zpa.terraform.policy-rule-writes]]. The server group a rule may name is in [[zpa.server-groups]]."
+    }
+  ]
+}

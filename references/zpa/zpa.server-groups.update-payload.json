@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "id": "zpa.server-groups.update-payload",
+  "title": "What the Python SDK sends when it updates a server group",
+  "aliases": [
+    "update_group server group",
+    "server group update clears servers",
+    "dynamicDiscovery forced true",
+    "server group applications dropped",
+    "server group payload size cap",
+    "explicit servers lost on update"
+  ],
+  "binds": [
+    "zpa/server-groups#servers",
+    "zpa/server-groups#dynamicDiscovery",
+    "zpa/server-groups#applications"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.server-groups.discovery-mode"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK builds a server group update body from the group it reads, which drops some fields and omits others."
+    },
+    {
+      "label": "Body construction.",
+      "text": "{{update-reads-then-merges}} {{update-drops-applications}}"
+    },
+    {
+      "label": "Servers.",
+      "text": "{{model-has-no-servers-member}} {{servers-sent-only-with-server-ids}} What ZPA does with a PUT that omits servers is open {{gap:servers-omitted-update-effect}}."
+    },
+    {
+      "label": "Dynamic discovery.",
+      "text": "{{dynamic-discovery-guard-never-fires}} {{absent-dynamic-discovery-written-as-true}}"
+    },
+    {
+      "text": "The mode defaults across sources are in [[zpa.server-groups.discovery-mode]]. The Terraform update omits the name unless it changed: [[zpa.terraform.resource-fidelity:server-group-update-name-only-on-change]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an update was made through the Python SDK's update_group without server_ids, because the body it builds has no servers member.",
+      "uses": [
+        "model-has-no-servers-member",
+        "servers-sent-only-with-server-ids"
+      ]
+    },
+    {
+      "do": "Whether the group's servers and dynamicDiscovery are the same after the update as before, by re-reading the group.",
+      "uses": [
+        "servers-omitted-update-effect",
+        "absent-dynamic-discovery-written-as-true"
+      ]
+    },
+    {
+      "do": "Whether the group is attached to many application segments, in which case applications is deliberately left out of the body.",
+      "uses": [
+        "update-drops-applications"
+      ]
+    }
+  ],
+  "claims": {
+    "update-reads-then-merges": {
+      "statement": "Python `update_group` first fetches the existing group, starts the request body from its `request_format()`, and then merges the caller's keyword arguments over it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "existing_group, _, err = self.get_group(group_id)",
+            "body = existing_group.request_format()",
+            "body.update(kwargs)"
+          ]
+        }
+      ]
+    },
+    "update-drops-applications": {
+      "statement": "Python `update_group` removes `applications` from the body unless the caller passes it, because, per a code comment, sending it back can exceed the API's payload-size cap for a group tied to many application segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "not required to update connector-group / server membership, and round-tripping it can",
+            "exceed the API's payload-size cap on tenants where the group is associated with a",
+            "if \"applications\" not in kwargs:",
+            "body.pop(\"applications\", None)"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#applications"
+      ]
+    },
+    "model-has-no-servers-member": {
+      "statement": "The Python `ServerGroup` model has no `servers` attribute and its `request_format()` emits no `servers` key, so a body built from it never contains the group's servers.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/server_group.py",
+          "quotes": [
+            "\"appConnectorGroups\": [group.request_format() for group in self.app_connector_groups],",
+            "\"dynamicDiscovery\": True if self.dynamic_discovery else False,"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. Searched with `grep -n -i servers zscaler/zpa/models/server_group.py` at the pin: no hits.",
+      "binds": [
+        "zpa/server-groups#servers"
+      ]
+    },
+    "servers-sent-only-with-server-ids": {
+      "statement": "In Python `update_group`, `server_ids` is translated to `servers`; a `servers` keyword is merged as given, and without either the body has no `servers` member.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "body[\"servers\"] = [{\"id\": group_id} for group_id in body.pop(\"server_ids\")]"
+          ],
+          "after": "body.update(kwargs)"
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#servers"
+      ],
+      "conditions": "Statement changed per verifier: `body.update(kwargs)` also merges a `servers` keyword passed directly."
+    },
+    "dynamic-discovery-guard-never-fires": {
+      "statement": "The default that forces `dynamicDiscovery` to true when the key is missing from the body cannot fire on this path, because `request_format()` always sets the key.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "if \"dynamicDiscovery\" not in body:",
+            "body[\"dynamicDiscovery\"] = True"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/server_group.py",
+          "quotes": [
+            "\"dynamicDiscovery\": True if self.dynamic_discovery else False,"
+          ]
+        }
+      ],
+      "conditions": "Derived from the two files together. It holds while the body starts from `request_format()` and the caller passes no key that deletes `dynamicDiscovery`; keyword arguments can only add or replace keys.",
+      "binds": [
+        "zpa/server-groups#dynamicDiscovery"
+      ]
+    },
+    "absent-dynamic-discovery-written-as-true": {
+      "statement": "If a GET response omits `dynamicDiscovery`, the model reads it as true and `request_format()` writes true back, so an update can switch a group to dynamic discovery without the caller asking.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/server_group.py",
+          "quotes": [
+            "self.dynamic_discovery = config[\"dynamicDiscovery\"] if \"dynamicDiscovery\" in config else True",
+            "\"dynamicDiscovery\": True if self.dynamic_discovery else False,"
+          ]
+        }
+      ],
+      "conditions": "Applies only when the API response lacks the field. Whether it ever does is unknown; the OpenAPI document describes the request field only.",
+      "binds": [
+        "zpa/server-groups#dynamicDiscovery"
+      ]
+    }
+  },
+  "gaps": {
+    "servers-omitted-update-effect": {
+      "kind": "semantic",
+      "title": "Whether a PUT that omits servers clears an explicit server list",
+      "status": "open",
+      "about": [
+        "zpa/server-groups#servers"
+      ],
+      "detail": "Unverified legacy statement: the default injection \"can silently clear an explicit server list on a read-modify-write update. Pass `dynamic_discovery=False` explicitly to preserve a static group.\" The injection is dead code (dynamic-discovery-guard-never-fires), so that advice does not follow. What does follow from the code is that the body never carries servers unless server_ids is passed; whether ZPA then keeps or clears them depends on PUT semantics that no captured source states. Update a static group through update_group without server_ids in a scratch tenant and re-read it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a Python SDK update loses a static group's servers"
+    }
+  }
+}

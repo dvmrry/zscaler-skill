@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "zpa.scim.attributes-and-groups",
+  "title": "SCIM attributes and groups in Private Access",
+  "aliases": [
+    "scim attributes page",
+    "scim groups page",
+    "supported scim attributes",
+    "scim username nameid",
+    "scim custom attributes",
+    "internal group id",
+    "scim group read only"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.policy-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.group-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.attribute-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.deactivation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers what SCIM provides to Private Access. {{purpose}}"
+    },
+    {
+      "label": "Groups.",
+      "text": "{{groups-from-idp}} {{group-page-fields}}"
+    },
+    {
+      "label": "Attributes.",
+      "text": "{{supported-attributes}} {{required-unique}} The first-name path is spelled differently in two places {{divergence:given-name-path}}. ZIA's own name-attribute prefix is in [[zia.scim.attribute-mapping]]."
+    },
+    {
+      "label": "What cannot be authored.",
+      "text": "{{read-only-objects}}"
+    },
+    {
+      "label": "IdPs.",
+      "text": "{{any-idp}}"
+    },
+    {
+      "text": "How a flag in the user record, or a deletion, takes effect is in [[zia.scim.deactivation]] and [[zpa.scim.group-lifecycle]]; the shared lifecycle is in the general [[doc:references/shared/scim-provisioning.md]] reference."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the attribute or group in question is a supported SCIM attribute or a synced group, rather than a custom attribute, which Private Access does not support.",
+      "uses": [
+        "supported-attributes",
+        "read-only-objects"
+      ]
+    },
+    {
+      "do": "Whether the SCIM username attribute matches nameID in the SAML assertion, since it is the required and unique attribute.",
+      "uses": [
+        "required-unique"
+      ]
+    },
+    {
+      "do": "Which spelling of a name attribute the IdP's header list uses before writing a lookup by name.",
+      "uses": [
+        "given-name-path",
+        "supported-attributes"
+      ]
+    },
+    {
+      "do": "Whether the group is listed on the SCIM Groups page for the IdP, with its Last Updated time.",
+      "uses": [
+        "groups-from-idp",
+        "group-page-fields"
+      ]
+    },
+    {
+      "do": "How an active flag or a deletion reaches Private Access, which is covered for ZIA and ZPA together.",
+      "uses": [
+        "zia.scim.deactivation:zpa-deletes"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "Enabling SCIM lets the Zero Trust Exchange quickly remove users from Private Access when a user is disabled or deleted in the user directory, and enforce policies based on SCIM attributes and SCIM groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-zpa.json",
+          "quotes": [
+            "Enabling SCIM allows the Zero Trust Exchange (ZTE) to quickly remove users from Private Access when a user is disabled or deleted in your user directory and to enforce policies based on SCIM attributes and SCIM groups."
+          ]
+        }
+      ]
+    },
+    "any-idp": {
+      "statement": "Private Access works with any IdP that supports the SCIM standard, SailPoint being one example, and the IdP set up for SAML authentication is most often the one used for SCIM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-zpa.json",
+          "quotes": [
+            "Private Access works with any IdP that supports the SCIM standard (e.g., SailPoint).",
+            "Most of the time, the IdP you set up for SAML authentication will be the same one you use for SCIM identity management."
+          ]
+        }
+      ]
+    },
+    "groups-from-idp": {
+      "statement": "SCIM groups are groups configured in the IdP that are pulled into Private Access when SCIM is enabled, and the SCIM Groups page lists the groups synced to Private Access over SCIM by the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-groups.json",
+          "quotes": [
+            "SCIM groups are attributes configured in your identity provider (IdP) that get pulled into Private Access (ZPA) when SCIM is enabled.",
+            "Review the list of SCIM groups synced to Private Access over SCIM by the IdP."
+          ]
+        }
+      ]
+    },
+    "read-only-objects": {
+      "statement": "SCIM groups and attributes are read in Private Access rather than authored there: the API resources for them are described as read resources, the SCIM Attributes page is a read-only table, and Private Access does not support custom SCIM attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-zpa-api.json",
+          "quotes": [
+            "SCIM group API resources allow you to read SCIM groups.",
+            "SCIM attribute API resources allow you to read SCIM attributes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-zpa.json",
+          "quotes": [
+            "The SCIM Attributes page is a read-only table, and Private Access does not support custom attributes.",
+            "You must enable SCIM for any information to appear on this page."
+          ]
+        }
+      ]
+    },
+    "group-page-fields": {
+      "statement": "For each SCIM group the console shows the time of its last action (Last Updated), an Internal Group ID, the SCIM Group Name as identified by the IdP, the IdP SCIM Group ID, and the total and active user counts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-groups.json",
+          "quotes": [
+            "Last Updated: The data and time of the group's last action.",
+            "Internal Group ID: The internal ID for the group.",
+            "SCIM Group Name: The name of the group as identified by the IdP.",
+            "IdP SCIM Group ID: The ID for the group as identified by the IdP.",
+            "Total Users in this Group: The total number of users associated with the group.",
+            "Active Users in this Group: The number of active users associated with the group."
+          ]
+        }
+      ]
+    },
+    "supported-attributes": {
+      "statement": "The supported SCIM attributes are active, costCenter, department, displayName, division, emails.value, names.givenName, name.formatted, name.familyName, a Zscaler-generated id, organization, title, userName and userType.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-zpa.json",
+          "quotes": [
+            "| Active | active |",
+            "| Cost Center | costCenter |",
+            "| Department | department |",
+            "| Display Name | displayName |",
+            "| Division | division |",
+            "| Email | emails.value |",
+            "| First Name | names.givenName |",
+            "| Formatted Name | name.formatted |",
+            "| Last Name | name.familyName |",
+            "| id | <unique_id> |",
+            "| Organization | organization |",
+            "| Title | title |",
+            "| Username | userName |",
+            "| UserType | userType |"
+          ]
+        }
+      ]
+    },
+    "required-unique": {
+      "statement": "Currently only the username is a required attribute and the only unique attribute, and the SCIM username attribute must match nameID in the SAML attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-zpa.json",
+          "quotes": [
+            "Currently, only a username is required.",
+            "The SCIM username attribute must match nameID in the SAML attribute.",
+            "Currently, the username is the only unique attribute."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "given-name-path": {
+      "summary": "The SCIM attribute path for a user's first name.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-scim-zpa.json",
+            "quotes": [
+              "| First Name | names.givenName | The first name of the user |"
+            ]
+          },
+          "says": "The supported attribute for first name is names.givenName."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_scim_attribute_header.md",
+            "quotes": [
+              "name     = \"name.givenName\""
+            ]
+          },
+          "says": "The data source example looks up the attribute header called name.givenName."
+        }
+      ],
+      "impact": "A lookup by header name fails if the header's name is not the one written in the configuration; which spelling the tenant's header list carries is shown only by listing the headers."
+    }
+  }
+}

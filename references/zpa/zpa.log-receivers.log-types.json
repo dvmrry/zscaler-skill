@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.log-types",
+  "title": "Log types a ZPA log receiver can carry, and their codes",
+  "aliases": [
+    "lss log types",
+    "zpn_trans_log",
+    "zpn_auth_log",
+    "zpn_ast_auth_log",
+    "zpn_http_trans_log",
+    "zpn_sys_auth_log",
+    "zpn_ast_comprehensive_stats",
+    "zpn_pbroker_comprehensive_stats",
+    "zpn_waf_http_exchanges_log",
+    "zms_flow_log",
+    "zpn_sitec_auth_log",
+    "zpn_smb_inspection_log",
+    "zpn_auth_log_1id",
+    "sourceLogType values",
+    "source_log_type"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs.streaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.logs"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.resource-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The help, the API and the tools name the log types differently and accept different sets of them."
+    },
+    {
+      "label": "The types.",
+      "text": "{{help-log-types}} The field schemas of the per-type logs are in the legacy references: User Activity [[doc:references/zpa/logs/access-log-schema.md]], User Status [[doc:references/zpa/logs/user-status-log-schema.md]], App Connector Status [[doc:references/zpa/logs/app-connector-status.md]], App Connector Metrics [[doc:references/zpa/logs/app-connector-metrics.md]], Browser Access [[doc:references/zpa/logs/browser-access-log-schema.md]], Microsegmentation Flow [[doc:references/zpa/logs/microsegmentation-flow-log-schema.md]], Private Service Edge Status [[doc:references/zpa/logs/private-service-edge-status.md]] and Metrics [[doc:references/zpa/logs/private-service-edge-metrics.md]], Private Cloud Controller Status [[doc:references/zpa/logs/private-cloud-controller-status.md]] and Metrics [[doc:references/zpa/logs/private-cloud-controller-metrics.md]]."
+    },
+    {
+      "label": "Codes in the API.",
+      "text": "{{code-map}} {{bc-event-not-writable}}"
+    },
+    {
+      "label": "Subsets in tools.",
+      "text": "{{python-source-map}} {{tf-resource-types}} {{tf-format-lookup-types}} {{tf-narrower-than-api}}"
+    },
+    {
+      "label": "Single types.",
+      "text": "The audit log stream is in [[zpa.audit-logs.streaming]], the AppProtection stream in [[zpa.appprotection.logging]] and the Browser Access stream in [[zpa.browser-access.logs]]."
+    },
+    {
+      "text": "Whether the API accepts the codes the provider's resource rejects was an open question until the API article was captured {{gap:format-only-codes}}. One format-lookup code has no label in any source {{gap:auth-log-1id-label}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which code the log type uses on the wire, from the API article's list, before reading the SDK or provider list.",
+      "uses": [
+        "code-map"
+      ]
+    },
+    {
+      "do": "Whether the tool in use accepts the code: the Python SDK takes eight keys, the Terraform resource nine codes, the format-lookup data source sixteen.",
+      "uses": [
+        "python-source-map",
+        "tf-resource-types",
+        "tf-format-lookup-types",
+        "tf-narrower-than-api"
+      ]
+    },
+    {
+      "do": "That Business Continuity Events cannot be created or updated through sourceLogType.",
+      "uses": [
+        "bc-event-not-writable"
+      ]
+    },
+    {
+      "do": "Whether zpn_auth_log_1id is being used, which only the format lookup knows.",
+      "uses": [
+        "auth-log-1id-label"
+      ]
+    }
+  ],
+  "claims": {
+    "help-log-types": {
+      "statement": "The Log Streaming Service page lists nineteen log types a receiver can capture: AppProtection, Audit Logs, App Connector Metrics, App Connector Status, Browser Access Logs, Business Continuity Event Log Fields, KRB Inspection Logs, LDAP Inspection Logs, Microsegmentation, Private Cloud Controller Metrics and Status, two User Status VPN Service Edge types, Traffic Flow - VPN, Private Service Edge Metrics and Status, SMB Inspection Logs, User Activity and User Status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "A log receiver can capture several log types.",
+            "AppProtection: Information related to AppProtection policy activity in your organization.",
+            "Business Continuity Event Log Fields: Information related to Business Continuity Events activity.",
+            "Microsegmentation: Information related to Microsegmentation Flow activity.",
+            "User Status - VPN Service Edge (IP Address Reservation): Information related to a user status for VPN (ZPA Service Edge).",
+            "Traffic Flow - VPN: Information related to VPN traffic flow metrics.",
+            "Private Cloud Controller Metrics: Information related to a Private Cloud Controller's metrics.",
+            "SMB Inspection Logs: Information related to SMB inspection log activity in your organization.",
+            "User Activity: Information on end user requests to applications."
+          ]
+        }
+      ]
+    },
+    "code-map": {
+      "statement": "The LSS API article lists sixteen sourceLogType values: zpn_trans_log (User Activity), zpn_auth_log (User Status), zpn_ast_auth_log (App Connector Status), zpn_http_trans_log (Browser Access), zpn_audit_log (Audit Log), zpn_sys_auth_log (Private Service Edge Status), zpn_ast_comprehensive_stats (App Connector Metrics), zpn_waf_http_exchanges_log (AppProtection), zpn_smb_inspection_log, zpn_ldap_inspection_log, zpn_krb_inspection_log, zpn_pbroker_comprehensive_stats (Private Service Edge Metrics), zpn_sitec_auth_log and zpn_sitec_comprehensive_stats (Private Cloud Controller Status and Metrics), zms_flow_log (Microsegmentation Flow Logs) and zpn_siem_type_bc_event_log (Business Continuity Events).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "zpn_trans_log: Denotes the User Activity log type.",
+            "zpn_auth_log: Denotes the User Status log type.",
+            "zpn_ast_auth_log: Denotes the App Connector Status log type.",
+            "zpn_http_trans_log: Denotes the Browser Access log type.",
+            "zpn_audit_log: Denotes the Audit Log log type.",
+            "zpn_sys_auth_log: Denotes the Private Service Edge Status log type.",
+            "zpn_ast_comprehensive_stats: Denotes the App Connector Metrics log type.",
+            "zpn_waf_http_exchanges_log: Denotes the AppProtection log type.",
+            "zpn_smb_inspection_log: Denotes the SMB Inspection log type.",
+            "zpn_ldap_inspection_log: Denotes the LDAP Inspection log type.",
+            "zpn_krb_inspection_log: Denotes the KRB Inspection log type.",
+            "zpn_pbroker_comprehensive_stats: Denotes the Private Service Edge Metrics log type.",
+            "zpn_sitec_auth_log: Denotes the Private Cloud Controller Status log type.",
+            "zpn_sitec_comprehensive_stats: Denotes the Private Cloud Controller Metrics log type.",
+            "zms_flow_log: Denotes the Microsegmentation Flow Logs log type.",
+            "zpn_siem_type_bc_event_log: Denotes the Business Continuity Events log type."
+          ],
+          "after": "The log type of the LSS resource. The supported values are:"
+        }
+      ]
+    },
+    "bc-event-not-writable": {
+      "statement": "LSS configurations cannot be created or updated with zpn_siem_type_bc_event_log as the sourceLogType.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "You cannot create or update LSS configurations using the zpn_siem_type_bc_event_log value for sourceLogType."
+          ],
+          "after": "The log type of the LSS resource. The supported values are:"
+        }
+      ]
+    },
+    "python-source-map": {
+      "statement": "The Python SDK maps exactly eight keys to codes, and these are the only values it accepts for a receiver's source log type: app_connector_metrics, app_connector_status, audit_logs, browser_access, private_svc_edge_status, user_activity, user_status and web_inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "\"app_connector_metrics\": \"zpn_ast_comprehensive_stats\",",
+            "\"app_connector_status\": \"zpn_ast_auth_log\",",
+            "\"audit_logs\": \"zpn_audit_log\",",
+            "\"browser_access\": \"zpn_http_trans_log\",",
+            "\"private_svc_edge_status\": \"zpn_sys_auth_log\",",
+            "\"user_activity\": \"zpn_trans_log\",",
+            "\"user_status\": \"zpn_auth_log\",",
+            "\"web_inspection\": \"zpn_waf_http_exchanges_log\",",
+            "if source_log_type not in self.source_log_map:"
+          ]
+        }
+      ]
+    },
+    "tf-resource-types": {
+      "statement": "The Terraform resource zpa_lss_config_controller accepts nine source_log_type codes: zpn_trans_log, zpn_auth_log, zpn_ast_auth_log, zpn_http_trans_log, zpn_audit_log, zpn_ast_comprehensive_stats, zpn_sys_auth_log, zpn_waf_http_exchanges_log and zpn_pbroker_comprehensive_stats.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "\"zpn_trans_log\",",
+            "\"zpn_auth_log\",",
+            "\"zpn_ast_auth_log\",",
+            "\"zpn_http_trans_log\",",
+            "\"zpn_audit_log\",",
+            "\"zpn_ast_comprehensive_stats\",",
+            "\"zpn_sys_auth_log\",",
+            "\"zpn_waf_http_exchanges_log\",",
+            "\"zpn_pbroker_comprehensive_stats\","
+          ]
+        }
+      ]
+    },
+    "tf-format-lookup-types": {
+      "statement": "The zpa_lss_config_log_type_formats data source validates log_type against sixteen codes: the nine of the resource plus zpn_smb_inspection_log, zpn_auth_log_1id, zpn_sitec_auth_log, zpn_sitec_comprehensive_stats, zpn_ldap_inspection_log, zms_flow_log and zpn_krb_inspection_log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_log_types_formats.go",
+          "quotes": [
+            "\"zpn_smb_inspection_log\",",
+            "\"zpn_auth_log_1id\",",
+            "\"zpn_sitec_auth_log\",",
+            "\"zpn_sitec_comprehensive_stats\",",
+            "\"zpn_ldap_inspection_log\",",
+            "\"zms_flow_log\",",
+            "\"zpn_krb_inspection_log\",",
+            "\"zpn_pbroker_comprehensive_stats\","
+          ]
+        }
+      ]
+    },
+    "tf-narrower-than-api": {
+      "statement": "The Terraform resource rejects six codes the API article lists as supported for a receiver: zpn_smb_inspection_log, zpn_ldap_inspection_log, zpn_krb_inspection_log, zpn_sitec_auth_log, zpn_sitec_comprehensive_stats and zms_flow_log, so those receivers cannot be created through the resource.",
+      "tier": "B",
+      "derived_from": [
+        "code-map",
+        "tf-resource-types"
+      ],
+      "conditions": "Set difference between the two sourceLogType lists; the resource validates source_log_type with validation.StringInSlice, which rejects any value outside its list. The server-side behavior of the API is taken from the article, not tested."
+    }
+  },
+  "gaps": {
+    "format-only-codes": {
+      "kind": "semantic",
+      "title": "Whether the API accepts the format-only codes on a receiver's sourceLogType",
+      "status": "resolved",
+      "detail": "Tracked as legacy ledger item zpa-41: seven codes in the format-lookup list were absent from the Python SDK map and from the Terraform resource validator, and receiver acceptance was unconfirmed.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "former_ids": [
+        "zpa-41"
+      ],
+      "resolution": "The LSS API article lists zms_flow_log, zpn_sitec_comprehensive_stats, zpn_sitec_auth_log, zpn_smb_inspection_log, zpn_ldap_inspection_log and zpn_krb_inspection_log among the supported sourceLogType values (claim code-map); zpn_auth_log_1id is not in that list and remains open (auth-log-1id-label)."
+    },
+    "auth-log-1id-label": {
+      "kind": "semantic",
+      "title": "What zpn_auth_log_1id is",
+      "status": "open",
+      "detail": "Tracked as legacy ledger item zpa-40. The code is a valid log_type for the format-lookup data source (tf-format-lookup-types) and appears in no other source: not in the API article's list of sourceLogType values, not in the Log Streaming Service page and not in the Python SDK. Unverified legacy statement: \"User Status (Zidentity) (inferred)\", a label inferred from the auth_log stem and the _1id suffix.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "former_ids": [
+        "zpa-40"
+      ]
+    }
+  }
+}

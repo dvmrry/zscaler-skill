@@ -1,0 +1,549 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.api-fields",
+  "title": "Application segment fields in the API and SDK models",
+  "aliases": [
+    "tcpPortRange vs tcpPortRanges",
+    "dual port range formats",
+    "tcp_keep_alive string",
+    "zpnErId",
+    "hbrEnabled stickyEntity stickyGroup guestDetails",
+    "inconsistentConfigDetails",
+    "readOnly zscalerManaged restrictionType",
+    "weightedLoadBalancing fqdnDnsCheck healthCheckType",
+    "defaultIdleTimeout defaultMaxAge",
+    "appRecommendationId"
+  ],
+  "binds": [
+    "zpa/application-segments#tcpPortRanges",
+    "zpa/application-segments#tcpPortRange",
+    "zpa/application-segments#zpnErId",
+    "zpa/application-segments#hbrEnabled",
+    "zpa/application-segments#stickyEntity",
+    "zpa/application-segments#stickyGroup",
+    "zpa/application-segments#tags"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.sdk-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.federate-applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the field names and wire types of an application segment as the API, the SDK models and Terraform expose them."
+    },
+    {
+      "label": "Ports.",
+      "text": "{{port-range-forms}} Whether endpoints prefer one form is open {{gap:port-form-endpoint-preference}}. {{tcp-keep-alive-values}} The spec and the SDK type it differently {{divergence:tcp-keep-alive-type-differs}}."
+    },
+    {
+      "label": "Enums.",
+      "text": "{{health-check-type-values}} The health reporting values and their meaning are in [[zpa.app-segments.settings:health-reporting-default]], and the bypass, ICMP, match style and policy style values are in [[zpa.app-segments.bypass]], [[zpa.app-segments.settings]] and [[zpa.policy.multimatch:match-style-values]]."
+    },
+    {
+      "label": "Flags in both SDKs.",
+      "text": "{{shared-model-fields}} {{tf-flag-descriptions}} What the remaining flags control is open {{gap:flag-meanings}}."
+    },
+    {
+      "label": "Extranet, recommendations and tags.",
+      "text": "{{zpn-er-id}} {{app-recommendation-id}} {{tags}}"
+    },
+    {
+      "label": "Session timers.",
+      "text": "The timers have different types in the spec and the Go model {{divergence:session-timer-type-differs}}."
+    },
+    {
+      "label": "Server-reported state.",
+      "text": "{{inconsistent-config-details}} {{governance-fields}} What the governance flags mean is open {{gap:governance-meaning}}."
+    },
+    {
+      "label": "Federation fields.",
+      "text": "{{hbr-sticky-guest-fields}} Their accepted values and meaning are open {{gap:hbr-sticky-guest-semantics}}. The guest record shape and the Python decoding defect are in [[zpa.b2b-federation.federate-applications:guest-details-shape]] and [[zpa.b2b-federation.federate-applications:python-guestdetails-decode-defect]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a port appears in both port forms when reading tenant JSON, before concluding it is configured twice.",
+      "uses": [
+        "port-range-forms",
+        "port-form-endpoint-preference"
+      ]
+    },
+    {
+      "do": "Which wire type tcpKeepAlive, defaultIdleTimeout and defaultMaxAge are sent as by the tool in use, since the API spec, Go SDK and Terraform schema differ.",
+      "uses": [
+        "tcp-keep-alive-type-differs",
+        "session-timer-type-differs"
+      ]
+    },
+    {
+      "do": "Whether a segment is read-only or Zscaler-managed before proposing a change to it.",
+      "uses": [
+        "governance-fields",
+        "governance-meaning"
+      ]
+    },
+    {
+      "do": "Which of the hbrEnabled, stickyEntity and stickyGroup fields a caller can rely on, given that no source defines their values.",
+      "uses": [
+        "hbr-sticky-guest-fields",
+        "hbr-sticky-guest-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "port-range-forms": {
+      "statement": "The API carries ports in two forms, `tcpPortRanges` and `udpPortRanges` as lists of strings in the SDKs (integers in the API spec) and `tcpPortRange` and `udpPortRange` as lists of from/to objects, and the Go model, the Python model and the Terraform schema expose both.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpPortRanges",
+        "zpa/application-segments#tcpPortRange"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "TCPPortRanges []string `json:\"tcpPortRanges\"`",
+            "TCPAppPortRange []common.NetworkPorts `json:\"tcpPortRange,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "\"tcpPortRanges\": self.tcp_port_ranges,",
+            "\"tcpPortRange\": [{\"from\": pr[\"from\"], \"to\": pr[\"to\"]} for pr in self.tcp_port_range],"
+          ],
+          "after": "Formats the Application Segment data into a dictionary suitable for API requests."
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "\"tcp_port_range\": resourceAppSegmentPortRange(\"tcp port range\"),",
+            "Description: \"TCP port ranges used to access the app.\","
+          ]
+        }
+      ],
+      "conditions": "Statement changed after verification: the API spec types tcpPortRanges and udpPortRanges as int32 arrays, while the Go and Python models use strings."
+    },
+    "tcp-keep-alive-values": {
+      "statement": "The Terraform schema restricts `tcp_keep_alive` to the strings `\"0\"` and `\"1\"`, and the Go model types `tcpKeepAlive` as a string.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpKeepAlive"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "\"0\", \"1\","
+          ],
+          "after": "\"tcp_keep_alive\": {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "TCPKeepAlive string `json:\"tcpKeepAlive,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "zpn-er-id": {
+      "statement": "`zpnErId` on a segment is the extranet resource: the Go type `ZPNERID` carries ZIA extranet fields (`ziaErId`, `ziaErName`, `ziaOrgId`), and the Terraform provider labels it the extranet resource ID.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#zpnErId"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "ZIAErName string `json:\"ziaErName,omitempty\"`",
+            "ZIAOrgID string `json:\"ziaOrgId,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "// Expand zpn_er_id (extranet resource ID)"
+          ]
+        }
+      ]
+    },
+    "shared-model-fields": {
+      "statement": "Both SDK models carry `bypassOnReauth`, `extranetEnabled`, `apiProtectionEnabled`, `autoAppProtectEnabled`, `adpEnabled`, `weightedLoadBalancing`, `fqdnDnsCheck`, `healthCheckType` and `policyStyle` on the base application segment, and the Python `request_format` writes them.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#bypassOnReauth",
+        "zpa/application-segments#extranetEnabled",
+        "zpa/application-segments#apiProtectionEnabled",
+        "zpa/application-segments#autoAppProtectEnabled",
+        "zpa/application-segments#adpEnabled",
+        "zpa/application-segments#weightedLoadBalancing",
+        "zpa/application-segments#fqdnDnsCheck",
+        "zpa/application-segments#healthCheckType"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "BypassOnReauth bool `json:\"bypassOnReauth\"`",
+            "ExtranetEnabled bool `json:\"extranetEnabled\"`",
+            "APIProtectionEnabled bool `json:\"apiProtectionEnabled\"`",
+            "AutoAppProtectEnabled bool `json:\"autoAppProtectEnabled\"`",
+            "ADPEnabled bool `json:\"adpEnabled\"`",
+            "FQDNDnsCheck bool `json:\"fqdnDnsCheck\"`",
+            "HealthCheckType string `json:\"healthCheckType,omitempty\"`",
+            "PolicyStyle string `json:\"policyStyle,omitempty\"`",
+            "WeightedLoadBalancing bool `json:\"weightedLoadBalancing\"`"
+          ],
+          "after": "type ApplicationSegmentResource struct {"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "\"bypassOnReauth\": self.bypass_on_reauth,",
+            "\"extranetEnabled\": self.extranet_enabled,",
+            "\"apiProtectionEnabled\": self.api_protection_enabled,",
+            "\"autoAppProtectEnabled\": self.auto_app_protect_enabled,",
+            "\"adpEnabled\": self.adp_enabled,",
+            "\"fqdnDnsCheck\": self.fqdn_dns_check,",
+            "\"healthCheckType\": self.health_check_type,",
+            "\"policyStyle\": self.policy_style,",
+            "\"weightedLoadBalancing\": self.weighted_load_balancing,"
+          ],
+          "after": "Formats the Application Segment data into a dictionary suitable for API requests."
+        }
+      ]
+    },
+    "health-check-type-values": {
+      "statement": "The API field `healthCheckType` takes `DEFAULT` or `NONE`.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#healthCheckType"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/healthCheckType",
+          "expect": {
+            "enum": [
+              "DEFAULT",
+              "NONE"
+            ],
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "tf-flag-descriptions": {
+      "statement": "The Terraform schema describes `weighted_load_balancing` as designating the segment for weighted load balancing and `api_protection_enabled` as designating it for API traffic inspection.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#weightedLoadBalancing",
+        "zpa/application-segments#apiProtectionEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "Description: \"If set to true, designates the application segment for weighted load balancing\",",
+            "Description: \"If set to true, designates the application segment for API traffic inspection\","
+          ]
+        }
+      ]
+    },
+    "app-recommendation-id": {
+      "statement": "`appRecommendationId` is a string field on the segment in the API spec and the Go model, and the Python SDK reads it on the Browser Access app resource.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#appRecommendationId"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/appRecommendationId",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "AppRecommendationId string `json:\"appRecommendationId,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "self.app_recommendation_id = config[\"appRecommendationId\"] if \"appRecommendationId\" in config else None"
+          ]
+        }
+      ]
+    },
+    "tags": {
+      "statement": "A segment's tags are namespace, tag key and tag value objects, which the console assigns by Namespace, Key and Values.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tags"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "Namespace common.CommonSummary `json:\"namespace,omitempty\"`",
+            "TagKey common.CommonSummary `json:\"tagKey,omitempty\"`",
+            "TagValue common.CommonIDName `json:\"tagValue,omitempty\"`"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Namespace: Choose a namespace to assign to the application segment to organize and group related tags within that namespace."
+          ]
+        }
+      ]
+    },
+    "inconsistent-config-details": {
+      "statement": "The API reports `inconsistentConfigDetails` on a segment, a set of name and reason entries for inconsistent configuration of related objects such as the segment group, server group, App Connector group and IdP, and the Python Browser Access `AppResource` model carries it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/inconsistentConfigDetails",
+          "expect": {
+            "title": "InconsistentConfigDetails"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "\"inconsistentConfigDetails\": self.inconsistent_config_details,"
+          ]
+        }
+      ]
+    },
+    "hbr-sticky-guest-fields": {
+      "statement": "The Go models for the base, Browser Access, Inspection and PRA application segments, and the Python segment model, carry `hbrEnabled`, `stickyEntity` and `stickyGroup`.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#hbrEnabled",
+        "zpa/application-segments#stickyEntity",
+        "zpa/application-segments#stickyGroup"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`",
+            "StickyEntity string `json:\"stickyEntity,omitempty\"`",
+            "StickyGroup string `json:\"stickyGroup,omitempty\"`"
+          ],
+          "after": "type ApplicationSegmentResource struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "quotes": [
+            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "HBREnabled bool `json:\"hbrEnabled,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "\"hbrEnabled\": self.hbr_enabled,",
+            "\"stickyEntity\": self.sticky_entity,",
+            "\"stickyGroup\": self.sticky_group,"
+          ],
+          "after": "Formats the Application Segment data into a dictionary suitable for API requests."
+        }
+      ]
+    },
+    "governance-fields": {
+      "statement": "The Go and Python segment models carry `readOnly`, `zscalerManaged` and `restrictionType`.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#readOnly",
+        "zpa/application-segments#zscalerManaged",
+        "zpa/application-segments#restrictionType",
+        "zpa/application-segments#microtenantId"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "ReadOnly bool `json:\"readOnly,omitempty\"`",
+            "RestrictionType string `json:\"restrictionType,omitempty\"`",
+            "ZscalerManaged bool `json:\"zscalerManaged,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "\"readOnly\": self.read_only,",
+            "\"restrictionType\": self.restriction_type,",
+            "\"zscalerManaged\": self.zscaler_managed,"
+          ],
+          "after": "Formats the Application Segment data into a dictionary suitable for API requests."
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "tcp-keep-alive-type-differs": {
+      "summary": "The API spec, the Go SDK and the Terraform schema type `tcpKeepAlive` differently.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/tcpKeepAlive",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "says": "The API spec types tcpKeepAlive as a 32-bit integer."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_application_segment.go",
+            "quotes": [
+              "\"0\", \"1\","
+            ],
+            "after": "\"tcp_keep_alive\": {"
+          },
+          "says": "The Terraform schema accepts only the strings \"0\" and \"1\"; the Go model also types the field as a string."
+        }
+      ],
+      "impact": "A caller writing the JSON body directly from the spec may send an integer where the SDK and provider send a string; which literal the API accepts on the wire is not shown by these sources."
+    },
+    "session-timer-type-differs": {
+      "summary": "The API spec types `defaultIdleTimeout` as an integer while the Go model types it as a string.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/defaultIdleTimeout",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "says": "The API spec types defaultIdleTimeout as a 32-bit integer."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+            "quotes": [
+              "DefaultIdleTimeout string `json:\"defaultIdleTimeout,omitempty\"`"
+            ]
+          },
+          "says": "The Go model types defaultIdleTimeout (and defaultMaxAge) as strings."
+        }
+      ],
+      "impact": "Code that reads the timers from Go or compares them with spec-typed values must convert between string and integer."
+    }
+  },
+  "gaps": {
+    "port-form-endpoint-preference": {
+      "kind": "semantic",
+      "title": "Whether some endpoints prefer one port form and how the two forms relate in stored JSON",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "saying whether the same ports appearing in both forms in tenant JSON is one setting or two",
+      "detail": "Unverified legacy statement: different endpoints may prefer one port form or the other, both are tolerated, and tenant config JSON may show the same ports twice in two formats. The sources show both fields on the models but not how the service reconciles them. Read one segment from the API and from the console and compare."
+    },
+    "governance-meaning": {
+      "kind": "semantic",
+      "title": "What readOnly, zscalerManaged and restrictionType mean for a segment",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "saying a segment cannot be edited because of one of these flags",
+      "detail": "Unverified legacy statement: read_only is set by Zscaler-managed or microtenant-restricted objects and cannot be modified by customer admins; zscaler_managed means Zscaler owns the segment (for example one configured by Deception) and edit and delete are unavailable through the API; restriction_type is a further microtenant-scope indicator. The help states the Deception edit and delete restriction for segment groups only."
+    },
+    "flag-meanings": {
+      "kind": "semantic",
+      "title": "What extranetEnabled, autoAppProtectEnabled, adpEnabled, fqdnDnsCheck and healthCheckType control",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "mapping these API flags to console settings",
+      "detail": "Unverified legacy statements: extranetEnabled is the extranet access toggle; apiProtectionEnabled, autoAppProtectEnabled and adpEnabled are AppProtection and Application Data Protection flags; fqdnDnsCheck is an FQDN DNS-resolution health check; healthCheckType discriminates health-check strategies beyond healthReporting; bypassOnReauth affects hybrid users who reauthenticate mid-session. The console has Active Directory Inspection and Auto AppProtection toggles but no source maps them to these fields."
+    },
+    "hbr-sticky-guest-semantics": {
+      "kind": "semantic",
+      "former_ids": [
+        "zpa-83"
+      ],
+      "title": "Accepted values and meaning of hbrEnabled, stickyEntity, stickyGroup and guestDetails",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data",
+        "support-ticket"
+      ],
+      "blocks": "interpreting or writing these four fields",
+      "detail": "The static source does not define what HBR abbreviates here, accepted values for the sticky fields, how entity and group stickiness interact, which fields are server-computed versus writable, or the lifecycle that populates and removes guest details. The API spec has no entries for the four names. Resolve with captured B2B or application-segment API bodies, current Help documentation, or tenant create, read and update observations."
+    }
+  }
+}

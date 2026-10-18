@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.segment-constraints",
+  "title": "Browser Access applications on a segment: per-application keys and where the constraints live",
+  "aliases": [
+    "browser access double encryption",
+    "browser access multimatch",
+    "browser access port range",
+    "browser access tcp only",
+    "is_cname_enabled browser access",
+    "browser access sipa",
+    "clientlessApps fields",
+    "why is double encryption failing on this segment"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-segments.definition"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-segments.multimatch-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.app-segments"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A segment that hosts a Browser Access application is constrained by settings that other subjects hold, and each clientless application carries its own set of keys."
+    },
+    {
+      "label": "Per-application keys.",
+      "text": "{{clientless-app-fields}}"
+    },
+    {
+      "label": "Settings that apply to a segment hosting Browser Access.",
+      "text": "Double Encryption cannot be enabled with Browser Access ([[zpa.app-segments.settings]]). For Source IP Anchoring (open) and the CNAME setting (not applicable to Browser Access) see [[zpa.app-segments.settings]]. The TCP port range and FQDN-only rules are in [[zpa.app-segments.definition]]. Whether Multimatch applies to Browser Access differs between captures of the article: [[zpa.app-segments.multimatch-requirements]]."
+    },
+    {
+      "text": "Port and clientless-application write ordering in Terraform is in [[zpa.browser-access.tooling]]. The certificate and hostname choices are in [[zpa.browser-access.certificates]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which key of the clientless application a setting maps to before reading it back from an API or SDK object.",
+      "uses": [
+        "clientless-app-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "clientless-app-fields": {
+      "statement": "Each clientless (Browser Access) application on a segment includes, in the Python SDK model, the keys id, appId, name, description, enabled, certificateId, certificateName, applicationPort, applicationProtocol, domain, hidden, localDomain, portal, trustUntrustedCert, allowOptions, cname, microtenantId, microtenantName, extDomain, extDomainName and extLabel, among others such as appResource.",
+      "tier": "A",
+      "binds": [
+        "zpa/browser-access#clientlessApps"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "self.certificate_id = config[\"certificateId\"] if \"certificateId\" in config else None",
+            "self.application_port = config[\"applicationPort\"] if \"applicationPort\" in config else None",
+            "self.application_protocol = config[\"applicationProtocol\"] if \"applicationProtocol\" in config else None",
+            "self.domain = config[\"domain\"] if \"domain\" in config else None",
+            "self.hidden = config[\"hidden\"] if \"hidden\" in config else None",
+            "self.local_domain = config[\"localDomain\"] if \"localDomain\" in config else None",
+            "self.cname = config[\"cname\"] if \"cname\" in config else None",
+            "self.ext_domain = config[\"extDomain\"] if \"extDomain\" in config else None",
+            "self.ext_label = config[\"extLabel\"] if \"extLabel\" in config else None"
+          ],
+          "after": "A class for Clientless Application Segment Entity objects."
+        }
+      ],
+      "conditions": "Statement changed: the key list is not complete (the model also sets appResource)."
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.logging",
+  "title": "Where AppProtection events go: the LSS log type and its fields",
+  "aliases": [
+    "appprotection logs siem",
+    "zpn_waf_http_exchanges_log",
+    "appprotection log fields",
+    "lss appprotection nss",
+    "krb ldap smb inspection logs",
+    "appprotection events not in nss"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.appprotection.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.active-directory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AppProtection events are Private Access log data. {{lss-log-type}} [[zpa.log-receivers.architecture:two-components]]"
+    },
+    {
+      "label": "Not NSS.",
+      "text": "[[zpa.log-receivers.architecture:not-nss]] {{no-nss-delivery}}"
+    },
+    {
+      "label": "Configuring it.",
+      "text": "{{wire-id}}"
+    },
+    {
+      "label": "Fields.",
+      "text": "{{field-set}} {{no-per-control-fields}}"
+    },
+    {
+      "label": "Active Directory.",
+      "text": "{{ad-log-types}} Whether Active Directory control hits also appear in the AppProtection log type is open {{gap:ad-in-appprotection-log}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That an LSS log receiver exists with an AppProtection log type, rather than looking in NSS.",
+      "uses": [
+        "lss-log-type",
+        "zpa.log-receivers.architecture:two-components",
+        "no-nss-delivery"
+      ]
+    },
+    {
+      "do": "The source_log_type value used when configuring the receiver by API or Terraform.",
+      "uses": [
+        "wire-id"
+      ]
+    },
+    {
+      "do": "Which of the profile, policy, paranoia and hit-count fields the template includes, and that per-control detail is not among them.",
+      "uses": [
+        "field-set",
+        "no-per-control-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "lss-log-type": {
+      "statement": "A Log Streaming Service log receiver can capture an AppProtection log type: information related to AppProtection policy activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "AppProtection: Information related to AppProtection policy activity in your organization."
+          ]
+        }
+      ]
+    },
+    "no-nss-delivery": {
+      "statement": "AppProtection events reach a SIEM through an LSS receiver, so a ZIA NSS feed does not carry them.",
+      "tier": "B",
+      "derived_from": [
+        "lss-log-type",
+        "zpa.log-receivers.architecture:not-nss"
+      ],
+      "conditions": "Derived from the AppProtection log type being listed under LSS and NSS being the ZIA Nanolog stream. No source states that NSS cannot carry AppProtection events."
+    },
+    "wire-id": {
+      "statement": "The source_log_type value for the AppProtection log type is zpn_waf_http_exchanges_log, shown as ZPA App Protection in the provider's log type table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_audit_logs.md",
+          "quotes": [
+            "* `zpn_waf_http_exchanges_log`",
+            "| `zpn_waf_http_exchanges_log` | `ZPA App Protection` |"
+          ]
+        }
+      ]
+    },
+    "field-set": {
+      "statement": "The default AppProtection log fields include InspectionPolicy, InspectionProfile, ParanoiaLevel and InspectionControlsHitCount, and the log content can be edited to specific fields with a custom template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-appprotection-log-fields.json",
+          "quotes": [
+            "| InspectionPolicy | The AppProtection policy |",
+            "| InspectionProfile | The AppProtection profile |",
+            "| ParanoiaLevel | The OWASP Predefined Paranoia Level |",
+            "| InspectionControlsHitCount | The number of AppProtection control hits |",
+            "you can edit the default log stream content to capture only specific fields, and create a custom log template."
+          ]
+        }
+      ]
+    },
+    "no-per-control-fields": {
+      "statement": "The default AppProtection log fields have no field for the control number, severity or action of a hit, only a hit count.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-appprotection-log-fields.json",
+          "quotes": [
+            "By default, the AppProtection log type includes the fields listed in the table below for each log template"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. The full default field table was read (the Field column from LogTimestamp to TotalBytesProcessed); no row names a control number, severity or action. The vendor example record could not add fields beyond that table."
+    },
+    "ad-log-types": {
+      "statement": "Kerberos, LDAP and SMB inspection each have their own LSS log type: KRB Inspection Logs, LDAP Inspection Logs and SMB Inspection Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "KRB Inspection Logs: Information related to Kerberos inspection log activity in your organization.",
+            "LDAP Inspection Logs: Information related to LDAP inspection log activity in your organization.",
+            "SMB Inspection Logs: Information related to SMB inspection log activity in your organization."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ad-in-appprotection-log": {
+      "kind": "semantic",
+      "title": "Whether Active Directory control hits also appear in the AppProtection log type",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"AD controls also flow through the AppProtection LSS log stream like other controls.\" The help lists separate KRB, LDAP and SMB Inspection log types, and does not say Active Directory hits are also in the AppProtection type.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.multimatch",
+  "title": "Segment matching and policy search with and without Multimatch",
+  "aliases": [
+    "multimatch",
+    "app segment multimatch",
+    "exact match vs multimatch",
+    "carved out wildcard segment",
+    "dropped at the client level",
+    "matchStyle",
+    "EXCLUSIVE INCLUSIVE",
+    "policy evaluation under multimatch"
+  ],
+  "binds": [
+    "zpa/application-segments#matchStyle"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.evaluation-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.multiple-on-segment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The segment a request maps to decides which rules are searched, and Multimatch changes that mapping."
+    },
+    {
+      "label": "Without Multimatch.",
+      "text": "{{multimatch-definition}} {{exact-match-default}} {{carved-out-by-default}} {{port-mismatch-dropped}}"
+    },
+    {
+      "label": "With Multimatch.",
+      "text": "{{limited-availability}} {{multimatch-catches-undefined-ports}} {{match-order}} {{rules-of-all-matched-segments}} Whether a block rule on the specific segment fires first is open {{gap:block-rule-with-multimatch}}."
+    },
+    {
+      "label": "API values.",
+      "text": "{{match-style-values}} {{match-style-domain-constraint}} The link to the console setting is open {{gap:match-style-vs-multimatch}}."
+    },
+    {
+      "text": "Which server group serves a Multimatch segment is in [[zpa.server-groups.multiple-on-segment]]. The rule search itself is in [[zpa.policy.evaluation-order]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Check whether the matching segments have Multimatch enabled; without it only the most specific segment is matched.",
+      "uses": [
+        "multimatch-definition",
+        "exact-match-default"
+      ]
+    },
+    {
+      "do": "If the request port is not defined on the most specific segment, check whether traffic is dropped at the client, where it never reaches policy or the diagnostics.",
+      "uses": [
+        "port-mismatch-dropped",
+        "carved-out-by-default"
+      ]
+    },
+    {
+      "do": "With Multimatch, list the rules of every matching segment in rule order and take the first one that matches the user.",
+      "uses": [
+        "rules-of-all-matched-segments",
+        "match-order"
+      ]
+    },
+    {
+      "do": "If a block rule on the specific segment is being relied on, check whether it sits above the allow rules of the broader segment.",
+      "uses": [
+        "block-rule-with-multimatch"
+      ]
+    }
+  ],
+  "claims": {
+    "multimatch-definition": {
+      "statement": "Without Multimatch a request is mapped to a single application segment and the policy search is then performed; Multimatch allows a request to match multiple application segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Multimatch allows an application request to match multiple application segments.",
+            "When a user tries to access a private application without Multimatch, a request is mapped to an application segment.",
+            "After the application is mapped to an application segment, the policy search is performed, and the request is either allowed or blocked based on the policy configuration."
+          ]
+        }
+      ]
+    },
+    "limited-availability": {
+      "statement": "Application segment Multimatch is in limited availability and requires Zscaler Support to enable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "This feature is in limited availability. To learn more, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "exact-match-default": {
+      "statement": "Exact match is the default application match behavior, in which Zscaler Client Connector attempts to match traffic to the more granular of two segments covering the same destination address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Exact match is the default behavior.",
+            "If two or more application segments cover the same destination address, Zscaler Client Connector attempts to match traffic to the more granular application segment. Consider the following example of two application segments with the overlapping domain name example.com:"
+          ]
+        }
+      ]
+    },
+    "carved-out-by-default": {
+      "statement": "By default, once a specific FQDN is configured in an application segment, the destination is removed from the wildcard application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "By default, after a specific FQDN is configured in an application segment, the destination is removed from the wildcard application segment."
+          ]
+        }
+      ]
+    },
+    "port-mismatch-dropped": {
+      "statement": "When the more specific segment lacks the requested port, the access is dropped at the client level, traffic is not sent to the Private Access cloud, and the attempt is not visible in the diagnostics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "the attempt to access server1.example.com on TCP port 3389 is dropped at the client level, traffic is not sent to the Private Access cloud, and logs aren't visible in the diagnostics."
+          ]
+        }
+      ]
+    },
+    "multimatch-catches-undefined-ports": {
+      "statement": "After Multimatch is enabled, the wildcard application segment catches the UDP or TCP ports that are not configured in the more specific application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "After Multimatch is enabled, the wildcard application segment catches all UDP or TCP ports that are not configured in the more specific application segment."
+          ]
+        }
+      ]
+    },
+    "match-order": {
+      "statement": "Multiple matches apply from the most specific application to the least specific, and multimatching stops at the first application that does not support Multimatch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Multiple matches apply to applications from most specific to least specific. As soon as an application is encountered that does not support Multimatch, the multimatching stops."
+          ]
+        }
+      ]
+    },
+    "rules-of-all-matched-segments": {
+      "statement": "With Multimatch a request that matches a specific and a broader segment can be allowed by a rule on the broader one when it fails the specific segment's rule, whereas without Multimatch the same request meets only the specific segment's rules and falls to the implicit block.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "| user2 | IT_Grp | 10.0.0.1:TCP+3389 | Subnet_ASIPAddress_AS | IPAddress_AS | Allow Subnet_AS for All (#2) | No policy match. Blocked by implicit default block policy. |",
+            "| user1 | Admin_Grp | 10.0.0.1:TCP+3389 | Subnet_ASIPAddress_AS | IPAddress_AS | Allow IPAddress_AS for Admin (#1) | Allow IPAddress_AS for Admin (#1) |"
+          ]
+        }
+      ],
+      "conditions": "Derived from the IP-based worked example, where user2 is outside Admin_Grp. It is read as the same mechanism for FQDN segments; the FQDN example's tables are images or garbled text in the captures."
+    },
+    "match-style-values": {
+      "statement": "The application segment request field `matchStyle` takes the values EXCLUSIVE and INCLUSIVE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/matchStyle",
+          "expect": {
+            "enum": [
+              "EXCLUSIVE",
+              "INCLUSIVE"
+            ],
+            "type": "string"
+          }
+        }
+      ],
+      "binds": [
+        "zpa/application-segments#matchStyle"
+      ]
+    },
+    "match-style-domain-constraint": {
+      "statement": "A domain can only be INCLUSIVE or EXCLUSIVE for the `matchStyle` field, and any application segment can only contain inclusive or exclusive domains.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#matchStyle"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment_multimatch_bulk.md",
+          "quotes": [
+            "A domain can only be INCLUSIVE or EXCLUSIVE, and any application segment can only contain inclusive or exclusive domains."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "block-rule-with-multimatch": {
+      "kind": "semantic",
+      "title": "Whether a block rule on the specific segment fires before an allow rule on the broader segment under Multimatch",
+      "status": "open",
+      "about": [
+        "zpa.policy.multimatch"
+      ],
+      "detail": "Unverified legacy statement: \"A block rule on any matched segment can fire before an allow rule further down, even if the allow rule applies to a more-specific or different segment.\" The Multimatch article has a section on inserting a block rule, but its policy tables are garbled in the PDF text capture and absent from the current capture, the recapture keeps only the section heading, so the evidence quote is that heading and does not show the policy result. Recapture the article with its tables or run the example in a scratch tenant. Documented example, previously sourced from Using_Application_Segment_Multimatch.txt: with rules 1 'Allow Server1_AS for Admin', 2 'Block Server1_AS for All' and 3 'Allow Wildcard_AS for All', a non-admin user requesting server1.example.com on TCP 443 under Multimatch matches both segments and is blocked by rule 2.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Behavior after inserting a block rule"
+          ]
+        }
+      ]
+    },
+    "match-style-vs-multimatch": {
+      "kind": "semantic",
+      "title": "Whether matchStyle INCLUSIVE is the Multimatch setting and EXCLUSIVE the default exact match",
+      "status": "open",
+      "about": [
+        "zpa/application-segments#matchStyle"
+      ],
+      "detail": "Unverified legacy statement: \"With `EXCLUSIVE` (default): one segment is selected per request ... With `INCLUSIVE` (Multimatch): all overlapping segments are matched.\" The wire values are documented (claim match-style-values) and the help describes exact match and Multimatch, but no captured source ties the two vocabularies together or says which value is the default.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

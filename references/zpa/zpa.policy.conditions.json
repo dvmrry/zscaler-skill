@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.conditions",
+  "title": "Boolean logic and operand forms of ZPA policy conditions",
+  "aliases": [
+    "zpa and or logic",
+    "condition blocks",
+    "operands",
+    "entry_values",
+    "values vs entry_values",
+    "objectType",
+    "APP_GROUP",
+    "CLIENT_TYPE",
+    "POSTURE lhs rhs",
+    "PLATFORM rhs true",
+    "RISK_FACTOR_TYPE",
+    "CHROME_ENTERPRISE",
+    "empty conditions",
+    "rule with no conditions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.policy-rule-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A rule's conditions combine by fixed AND and OR logic, and each operand has one of two forms."
+    },
+    {
+      "label": "Between and inside criteria.",
+      "text": "{{segments-or}} {{segment-or-group-or}} {{criteria-and}} {{or-within-most-criteria}} {{and-within-some-criteria}}"
+    },
+    {
+      "label": "Condition blocks in the API format.",
+      "text": "{{condition-block-single-type}} {{saml-scim-group-share-block}} {{values-vs-entry-values}}"
+    },
+    {
+      "label": "Entry values.",
+      "text": "{{boolean-rhs-entry-types}} {{risk-factor-entry}}"
+    },
+    {
+      "label": "Chrome operands.",
+      "text": "{{chrome-operand-forms}} Whether the API enforces the same split is open {{gap:chrome-operand-form-api-enforcement}}. Whether it rejects a mixed operand is open {{gap:mixed-forms-invalid}}."
+    },
+    {
+      "label": "Other policy types.",
+      "text": "Which condition types an inspection rule accepts is open {{gap:inspection-condition-set}}."
+    },
+    {
+      "label": "Blank and empty.",
+      "text": "{{blank-criteria-mean-any}} {{empty-conditions-match-all}}"
+    },
+    {
+      "text": "The list of criteria is in [[zpa.policy.criteria]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Read each condition block as one criterion with one object type, ORed inside the block and ANDed with the other blocks.",
+      "uses": [
+        "condition-block-single-type",
+        "criteria-and"
+      ]
+    },
+    {
+      "do": "For a POSTURE, PLATFORM, COUNTRY_CODE or TRUSTED_NETWORK operand, check lhs for the identifier and rhs for the string true or false.",
+      "uses": [
+        "boolean-rhs-entry-types"
+      ]
+    },
+    {
+      "do": "For a Chrome rule, check that CHROME_POSTURE_PROFILE uses values and CHROME_ENTERPRISE uses entry_values with lhs managed.",
+      "uses": [
+        "chrome-operand-forms"
+      ]
+    },
+    {
+      "do": "Check whether the rule has no conditions at all, since it then applies to everything of its policy type.",
+      "uses": [
+        "empty-conditions-match-all",
+        "blank-criteria-mean-any"
+      ]
+    },
+    {
+      "do": "Do not rely on the API refusing mixed operand forms or the Chrome form split until the open gaps are closed.",
+      "uses": [
+        "mixed-forms-invalid",
+        "chrome-operand-form-api-enforcement"
+      ]
+    }
+  ],
+  "claims": {
+    "segments-or": {
+      "statement": "Private Access uses an implicit OR between multiple application segments, and between multiple segment groups, in one rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "Private Access uses an implicit OR Boolean operator between multiple application segments.",
+            "Similar to application segments, Private Access uses an implicit OR Boolean operator between multiple segment groups."
+          ]
+        }
+      ]
+    },
+    "segment-or-group-or": {
+      "statement": "Private Access uses an explicit OR between the application segment criteria and the segment group criteria, so a request matches the application scope if its segment or its segment group is present.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "Private Access uses an explicit OR Boolean operator between application segment and segment group criteria."
+          ]
+        }
+      ]
+    },
+    "criteria-and": {
+      "statement": "Where a rule has additional criteria, Private Access uses an explicit AND between them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "If additional criteria are included, Private Access uses an explicit AND Boolean operator between them."
+          ]
+        }
+      ]
+    },
+    "or-within-most-criteria": {
+      "statement": "Multiple client types, platforms, trusted networks, application segments or segment groups in one rule are joined by OR, and multiple SAML or SCIM attributes, groups or IdPs are joined by OR by default, with a toggle to AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "If you added multiple client types to the policy rule, Private Access uses an OR Boolean operator between them.",
+            "If you added multiple platforms to the policy rule, Private Access uses an OR Boolean operator between them.",
+            "If you added multiple trusted networks to the policy rule, Private Access uses an OR Boolean operator between them.",
+            "If you added multiple attributes or groups to the policy rule, Private Access uses an OR Boolean operator between them by default.",
+            "If you selected multiple IdPs for the policy rule, Private Access uses an OR Boolean operator between them by default."
+          ]
+        }
+      ]
+    },
+    "and-within-some-criteria": {
+      "statement": "Multiple Cloud Connector groups and multiple posture profile condition sets in one rule are joined by AND, while profiles inside one condition set are joined by OR by default with a toggle to AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "If you've added multiple Cloud Connector groups to the policy rule, Private Access uses an AND Boolean operator between them.",
+            "If you added multiple posture profile condition sets to the policy rule, Private Access uses an AND Boolean operator between them.",
+            "If you added multiple posture profiles within a posture profile condition set, Private Access uses an OR Boolean operator between them by default."
+          ]
+        }
+      ]
+    },
+    "condition-block-single-type": {
+      "statement": "In the MCP server's v2 access rule format each condition block holds a single object type, multiple blocks are ANDed, and multiple operands or entry values inside one block are ORed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+          "quotes": [
+            "Each condition block must contain a **single object type**. Multiple condition blocks are ANDed together. Within a condition block, multiple operands or entry_values are ORed."
+          ]
+        }
+      ]
+    },
+    "values-vs-entry-values": {
+      "statement": "Value-based object types such as APP, APP_GROUP and CLIENT_TYPE use `values`, and entry-based types such as SAML, SCIM_GROUP and PLATFORM use `entry_values` with `lhs` and `rhs`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+          "quotes": [
+            "Value-based types (`APP`, `APP_GROUP`, `CLIENT_TYPE`, etc.) use `values`",
+            "Entry-based types (`SAML`, `SCIM_GROUP`, `PLATFORM`, etc.) use `entry_values`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/policyset_controller_v2.py",
+          "quotes": [
+            "self.values = config.get(\"values\", [])"
+          ],
+          "after": "class OperandResource(ZscalerObject):"
+        }
+      ]
+    },
+    "boolean-rhs-entry-types": {
+      "statement": "PLATFORM, COUNTRY_CODE, POSTURE and TRUSTED_NETWORK operands carry the identifier in lhs (the platform name, an ISO country code, the posture profile's posture_udid, the trusted network's network_id) and the string true or false in rhs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+          "quotes": [
+            "| `PLATFORM` | `linux`, `android`, `ios`, `mac`, `windows` | `\"true\"` or `\"false\"` |",
+            "| `COUNTRY_CODE` | ISO 3166 Alpha-2 code (`US`, `CA`, `GB`) | `\"true\"` or `\"false\"` |",
+            "| `POSTURE` | Posture profile `posture_udid` | `\"true\"` or `\"false\"` |",
+            "| `TRUSTED_NETWORK` | Trusted network `network_id` | `\"true\"` or `\"false\"` |"
+          ]
+        }
+      ]
+    },
+    "risk-factor-entry": {
+      "statement": "A RISK_FACTOR_TYPE operand has lhs ZIA and rhs one of UNKNOWN, LOW, MEDIUM, HIGH or CRITICAL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+          "quotes": [
+            "| `RISK_FACTOR_TYPE` | `ZIA` | `UNKNOWN`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` |"
+          ]
+        }
+      ]
+    },
+    "saml-scim-group-share-block": {
+      "statement": "SAML and SCIM_GROUP operands can share one condition block as identity types and are ORed within it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+          "quotes": [
+            "SAML and SCIM_GROUP operands can share a condition block since they are identity types. They are ORed within the block:"
+          ]
+        }
+      ]
+    },
+    "chrome-operand-forms": {
+      "statement": "The Terraform provider requires CHROME_POSTURE_PROFILE operands to carry a profile ID in values, and CHROME_ENTERPRISE operands to carry entry_values with lhs managed and rhs true or false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "return fmt.Errorf(\"a Chrome Posture Profile ID must be provided when object_type = CHROME_POSTURE_PROFILE\")",
+            "return fmt.Errorf(\"entry_values must be provided for CHROME_ENTERPRISE object_type\")",
+            "return fmt.Errorf(\"LHS must be 'managed' for CHROME_ENTERPRISE object_type\")",
+            "return fmt.Errorf(\"rhs value must be 'true' or 'false' for CHROME_ENTERPRISE object_type\")"
+          ]
+        }
+      ]
+    },
+    "empty-conditions-match-all": {
+      "statement": "A rule with no conditions applies to everything of its policy type: an access rule to all users and applications, a forwarding rule globally (a global bypass if the action is BYPASS), and a timeout rule as the default for all users and applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+          "quotes": [
+            "A rule with no conditions applies to all users and all applications:"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-forwarding-policy-rule/SKILL.md",
+          "quotes": [
+            "A forwarding rule with no conditions applies globally:"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+          "quotes": [
+            "A rule with no conditions applies as the default timeout for all users and applications:"
+          ]
+        }
+      ]
+    },
+    "blank-criteria-mean-any": {
+      "statement": "In the console, leaving the Application Segments, Segment Groups and SAML Attributes fields unselected makes the rule apply to any user from any IdP and any application segment and segment group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-configuration-examples.json",
+          "quotes": [
+            "By not selecting a specific application segment, segment group, or SAML attribute you are indicating that the policy rule should allow any user (from any IdP) access to any application segment and segment group."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "mixed-forms-invalid": {
+      "kind": "semantic",
+      "title": "Whether an operand that mixes values and entry_values is rejected",
+      "status": "open",
+      "about": [
+        "zpa.policy.conditions"
+      ],
+      "detail": "Unverified legacy statement: \"Operand match forms are mutually exclusive ... mixing forms on a single Operand is invalid.\" The Python OperandResource and the Go Operands type carry both members side by side, and the MCP skill says each type uses one form, but no captured source says the API refuses a mix. Submit a mixed operand in a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "inspection-condition-set": {
+      "kind": "semantic",
+      "title": "Which condition types an inspection policy rule accepts",
+      "status": "open",
+      "about": [
+        "zpa.policy.conditions"
+      ],
+      "detail": "Unverified legacy statement: \"These semantics apply identically across Access, Forwarding, and Timeout policies — but the Inspection policy (v2) has its own narrower condition set.\" The MCP skills cover access, forwarding and timeout rules only, and the access and forwarding skills both say forwarding supports the same object types as access. No captured source lists the inspection rule's condition types. Read the inspection rule resource's validation or create a rule with each type.",
+      "resolves_with": [
+        "code-read",
+        "lab-test"
+      ]
+    },
+    "chrome-operand-form-api-enforcement": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API enforces the CHROME_POSTURE_PROFILE versus CHROME_ENTERPRISE operand-form split",
+      "status": "open",
+      "former_ids": [
+        "zpa-46"
+      ],
+      "about": [
+        "zpa.policy.conditions"
+      ],
+      "detail": "The split is confirmed only in the Terraform provider's validation (claim chrome-operand-forms). Whether the backend enforces the same split, or the provider is stricter than the server, is unconfirmed. Submit a mismatched operand form directly to the API and see whether it is rejected.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

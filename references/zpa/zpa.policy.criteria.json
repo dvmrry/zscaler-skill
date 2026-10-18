@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.criteria",
+  "title": "Criteria available on ZPA access policy rules",
+  "aliases": [
+    "access policy criteria",
+    "zpa rule criteria",
+    "client types zpa policy",
+    "platforms zpa policy",
+    "country codes zpa policy",
+    "federated applications criteria",
+    "saml attributes for policy",
+    "chrome posture profile",
+    "criteria that cannot be combined"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.conditions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.scim-sync"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.role"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A rule matches only when its criteria all match, and the criteria have limits on how they combine."
+    },
+    {
+      "label": "The criteria.",
+      "text": "{{criteria-list}} {{all-criteria-must-match}} {{application-segments-criterion}}"
+    },
+    {
+      "label": "Spellings.",
+      "text": "The client type names differ between the help and the wire {{divergence:client-type-names}}. The platform list differs too {{divergence:platform-values}}."
+    },
+    {
+      "label": "Combination limits.",
+      "text": "Web Browser rules cannot use posture or trusted network criteria: [[zpa.browser-access.policy:no-posture-with-web-browser]]. {{cloud-connector-groups-exclude-saml}} A machine group needs the Machine Tunnel client type: [[zpa.machine-groups.policy-use:console-pairs-client-type]]. {{gap:workload-group-cloud-connector-client-type}}"
+    },
+    {
+      "label": "Country.",
+      "text": "{{country-last-nat-ip}} Browser Access and PRA do not support it: [[zpa.browser-access.policy:country-codes-unsupported]]."
+    },
+    {
+      "label": "Identity criteria.",
+      "text": "{{nameid-unsupported}} {{idp-policy-setting-disabled}} Timing of SCIM data is in [[zpa.policy.scim-sync]]."
+    },
+    {
+      "label": "Federated and Chrome.",
+      "text": "The guest partner criteria are in [[zpa.b2b-federation.access-policy:guest-criteria-limited]]. {{chrome-posture-profile-sub-option}}"
+    },
+    {
+      "label": "Risk.",
+      "text": "{{risk-score-values-call}}"
+    },
+    {
+      "text": "The AND and OR logic is in [[zpa.policy.conditions]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which criteria the rule uses, and whether the request must match every one of them.",
+      "uses": [
+        "criteria-list",
+        "all-criteria-must-match"
+      ]
+    },
+    {
+      "do": "If the rule is scoped on application segments, remember that a rule may name individual segments as well as segment groups.",
+      "uses": [
+        "application-segments-criterion"
+      ]
+    },
+    {
+      "do": "If a country criterion is used with Source IP Anchoring, Cloud Connector or multi-hop traffic, check which public IP the country is derived from, and that the application is not Browser Access or PRA.",
+      "uses": [
+        "country-last-nat-ip",
+        "zpa.browser-access.policy:country-codes-unsupported"
+      ]
+    },
+    {
+      "do": "If a rule has SAML or SCIM criteria, check the IdP's SAML Attributes for Policy and SCIM Attributes and Groups for Policy settings.",
+      "uses": [
+        "idp-policy-setting-disabled"
+      ]
+    },
+    {
+      "do": "If a rule seems unable to combine two criteria, check the combinations the help rules out.",
+      "uses": [
+        "zpa.browser-access.policy:no-posture-with-web-browser",
+        "cloud-connector-groups-exclude-saml",
+        "zpa.machine-groups.policy-use:console-pairs-client-type",
+        "workload-group-cloud-connector-client-type"
+      ]
+    },
+    {
+      "do": "When matching a client type or platform name between the console and an export, compare all the spellings the sources use.",
+      "uses": [
+        "client-type-names",
+        "platform-values"
+      ]
+    }
+  ],
+  "claims": {
+    "criteria-list": {
+      "statement": "The help lists these access policy criteria: Adaptive Access Profiles, Applications, Branch Connector Groups, Chrome Enterprise Browser, Client Connector Posture Profiles, Client Connector Trusted Networks, Client Types, Cloud Connector Groups, Country Codes, Extranet, Federated Applications, Locations, Machine Groups, Platforms, Risk Scores, SAML Attributes, SCIM Attributes, SCIM Groups, Segment Groups, Tag Groups, Tag Value and Workload Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "Adaptive Access Profiles: The profiles defined by user and device context signals from the Adaptive Access Engine.",
+            "Applications: A grouping of defined applications based upon access type or user privileges.",
+            "Branch Connector Groups: The group of Branch Connectors to which the policy applies.",
+            "Chrome Enterprise Browser: Verify if the users are accessing private applications by using the Chrome Enterprise browser.",
+            "Client Connector Posture Profiles: Zscaler Client Connector device posture profiles are the set of criteria that a user's device must meet",
+            "Client Connector Trusted Networks: The type of network the user is connected to that Zscaler Client Connector can trust.",
+            "Client Types: The available client types are",
+            "Cloud Connector Groups: The group of Cloud Connectors to which the policy applies.",
+            "Country Codes: The country that a user's IP address is located in.",
+            "Extranet: The extranet resources (i.e., extranet locations or extranet sublocations).",
+            "Federated Applications: The defined application segments that are created, owned, and managed by the host partner",
+            "Locations: The Branch Connector, Cloud Connector, or other locations and sublocations.",
+            "Machine Groups: The group of configured machines.",
+            "Platforms: The user devices to which the policy applies.",
+            "Risk Scores: User risk scores from a risk source",
+            "SAML Attributes: User attributes obtained from the SAML assertion from an IdP.",
+            "SCIM Attributes: User attributes learned via SCIM from an IdP.",
+            "SCIM Groups: SCIM groups learned via SCIM from an IdP.",
+            "Segment Groups: The group of configured application segments.",
+            "Tag Groups: The tags associated with the tag group defined within the application segment.",
+            "Tag Value: The values associated with configured application segments.",
+            "Workload Groups: The Workload Groups from your cloud workloads."
+          ]
+        }
+      ]
+    },
+    "all-criteria-must-match": {
+      "statement": "A user's application request must match all the conditions within a policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "A user's application request must match all the conditions within a policy rule."
+          ]
+        }
+      ]
+    },
+    "application-segments-criterion": {
+      "statement": "A rule can include individual application segments as well as segment groups: segments are used to apply different policies to individual applications, and segment groups to give a set of users similar access across many applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "When you need to apply different policies to individual applications, create an access policy rule that includes one or more application segments.",
+            "if you want all applications within a group of users who need a similar level of access across those applications, create an access policy rule that includes one or more segment groups."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+          "quotes": [
+            "| `APP` | Application segments | Application segment IDs |"
+          ]
+        }
+      ]
+    },
+    "country-last-nat-ip": {
+      "statement": "For Cloud Connectors, Source IP Anchoring traffic and Private Access multi-hop, the country criterion uses the last NATed layer 3 public IP address, so SIPA traffic takes its country from the Internet & SaaS Public Service Edge's public IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "In the case of Cloud Connectors, Source IP Anchoring traffic, or Private Access multi-hop, Private Access country criteria policy is applied using the last NATed layer 3 public IP address."
+          ]
+        }
+      ]
+    },
+    "cloud-connector-groups-exclude-saml": {
+      "statement": "The Cloud Connector Groups criteria cannot be configured with the SAML and SCIM Attributes criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "The Cloud Connector Groups criteria cannot be configured with the SAML and SCIM Attributes criteria."
+          ]
+        }
+      ]
+    },
+    "chrome-posture-profile-sub-option": {
+      "statement": "The help presents the Chrome posture profile as an option under Chrome Enterprise Browser rather than as its own criterion, while the Terraform provider validates it as the separate object type CHROME_POSTURE_PROFILE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "When enabled, you can also select a configured Chrome posture profile to evaluate criteria for access to private applications."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "case \"CHROME_POSTURE_PROFILE\":"
+          ]
+        }
+      ]
+    },
+    "idp-policy-setting-disabled": {
+      "statement": "If the IdP's SAML Attributes for Policy (or SCIM Attributes and Groups for Policy) setting is disabled but a rule has criteria of that kind, an OR operator skips those criteria and evaluates the other kind, while an AND operator makes Private Access not evaluate the rule at all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "OR: Private Access skips evaluating the criteria for SAML attributes, but continues to evaluate the criteria for SCIM attributes and SCIM groups.",
+            "You must remove the criteria under SAML Attributes for Private Access to process the policy rule.",
+            "OR: Private Access skips evaluating the criteria for SCIM attributes and SCIM groups, but continues to evaluate the criteria for SAML attributes.",
+            "You must remove the criteria for SCIM attributes and SCIM groups for Private Access to process the policy rule."
+          ]
+        }
+      ]
+    },
+    "nameid-unsupported": {
+      "statement": "Using the SAML NameID as a SAML attribute within access and timeout policy rules is not supported; the same value can be used by defining it as a user attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "Using NameID as a SAML attribute within access and timeout policy rules is not supported.",
+            "However, you can use the value associated with NameID within your policy rule criteria by explicitly defining a user attribute"
+          ]
+        }
+      ]
+    },
+    "risk-score-values-call": {
+      "statement": "The Go SDK reads the valid risk score values from `GET .../riskScoreValues`, with an optional `excludeUnknown` flag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + \"/riskScoreValues\""
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "client-type-names": {
+      "summary": "The About Access Policy article, the Configuring Access Policies article and the wire values name client types differently.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-access-policy-20260909.json",
+            "quotes": [
+              "Client Types: The available client types are Zscaler Client Connector, Client Connector for VDI, Client Connector Partner, Branch Connector, Cloud Connector, Machine Tunnel, Web Browser, Internet & SaaS Service Edge, or Extranet."
+            ]
+          },
+          "says": "Nine types, ending Web Browser, Internet & SaaS Service Edge and Extranet, with no Cloud Browser."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-access-policies.json",
+            "quotes": [
+              "Cloud Browser: To learn more, see What Is Isolation?",
+              "ZIA Service Edge: To learn more, see Understanding Source IP Anchoring."
+            ]
+          },
+          "says": "The list includes Cloud Browser and names the service edge type ZIA Service Edge."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+            "quotes": [
+              "| `CLIENT_TYPE` | Client connector type | `zpn_client_type_zapp`, `zpn_client_type_exporter`, `zpn_client_type_machine_tunnel`, `zpn_client_type_browser_isolation`, `zpn_client_type_ip_anchoring`, `zpn_client_type_edge_connector`, `zpn_client_type_branch_connector`, `zpn_client_type_zapp_partner` |"
+            ]
+          },
+          "says": "The wire values are zpn_client_type_* strings. Pairing browser_isolation, ip_anchoring and edge_connector with the console's Cloud Browser, service edge and Cloud Connector is an inference; no source states the mapping."
+        }
+      ],
+      "impact": "A rule exported from the API cannot be matched to console wording by name alone, and the two articles disagree on whether Cloud Browser is a type."
+    },
+    "platform-values": {
+      "summary": "The About Access Policy article omits iOS from the platform list, while the configuration article and the MCP skill include it.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-access-policy-20260909.json",
+            "quotes": [
+              "The available platform types are Windows, macOS, Linux, and Android."
+            ]
+          },
+          "says": "Four platforms: Windows, macOS, Linux and Android."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-access-policies.json",
+            "quotes": [
+              "- Windows - macOS - Linux - iOS - Android"
+            ]
+          },
+          "says": "Five platforms, with iOS."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+            "quotes": [
+              "| `PLATFORM` | `linux`, `android`, `ios`, `mac`, `windows` | `\"true\"` or `\"false\"` |"
+            ]
+          },
+          "says": "The wire lhs values are linux, android, ios, mac and windows."
+        }
+      ],
+      "impact": "Whether iOS can be targeted by a Platforms criterion depends on which article is read."
+    }
+  },
+  "gaps": {
+    "workload-group-cloud-connector-client-type": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether selecting a Workload Group requires Cloud Connector as a client type",
+      "blocks": "the client-type requirement for rules that use Workload Group criteria",
+      "detail": "Unverified legacy statement: \"If a Workload Group is selected, Cloud Connector is required as a client type.\" Previously sourced from Configuring_Access_Policies.txt (PDF text). The recapture (configuring-access-policies.json) has no Workload Group client-type rule, and zpa-access-policy-20260909.json lists Workload Groups only as a criterion.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

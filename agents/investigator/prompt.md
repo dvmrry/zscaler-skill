@@ -150,12 +150,12 @@ A `kb:<id>` entry is a knowledge-graph subject: load it with `node scripts/kb.mj
 | Framing mentions... | Load via file-read tool |
 |---|---|
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
-| App Connector, connector health, connector flap, connector status, connector assignment | `references/zpa/app-connector.md` and `references/zpa/segment-server-groups.md` |
+| App Connector, connector health, connector flap, connector status, connector assignment | `kb:zpa.app-connectors` and `kb:zpa.server-groups` |
 | App Connector Metrics, AliveTargetCount, TargetCount | `references/zpa/logs/app-connector-metrics.md` |
-| ZPA reachability, private app unreachable, app missing, application not found | `references/zpa/app-segments.md`, `references/zpa/segment-server-groups.md`, and `references/zpa/policy-precedence.md` |
-| ZPA segment, app segment, application segment, segment scope | `references/zpa/app-segments.md` and `references/zpa/segment-server-groups.md` |
-| ZPA policy evaluation, access policy, policy precedence | `references/zpa/policy-precedence.md` |
-| Server group | `references/zpa/segment-server-groups.md` |
+| ZPA reachability, private app unreachable, app missing, application not found | `kb:zpa.app-segments`, `kb:zpa.server-groups`, and `kb:zpa.policy` |
+| ZPA segment, app segment, application segment, segment scope | `kb:zpa.app-segments` and `kb:zpa.server-groups` |
+| ZPA policy evaluation, access policy, policy precedence | `kb:zpa.policy` |
+| Server group | `kb:zpa.server-groups` |
 | ZIA URL filtering, URL category, allow / block rule | `kb:zia.url-filtering` |
 | SSL inspection, TLS inspection, inspection bypass | `kb:zia.ssl-inspection` and `kb:zia.ssl-inspection.pipeline` |
 | ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | start at `references/zcc/index.md` |
@@ -185,7 +185,7 @@ block must list every file read in this step (one path per line). Example:
 ```
 Grounding files loaded:
   - references/shared/source-ip-anchoring.md
-  - references/zpa/app-connector.md
+  - `kb:zpa.app-connectors`
   - references/zpa/logs/access-log-schema.md
   - overlay IaC for zia/url-filtering-rules
 ```

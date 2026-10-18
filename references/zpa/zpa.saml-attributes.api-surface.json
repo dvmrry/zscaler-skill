@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "id": "zpa.saml-attributes.api-surface",
+  "title": "The SAML attribute API, SDK and Terraform surface",
+  "aliases": [
+    "samlAttribute endpoint",
+    "saml-attr-controller",
+    "list saml attributes by idp",
+    "zpa_saml_attribute data source",
+    "samlName",
+    "add_saml_attribute"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.saml-attributes.registration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The SAML attribute API is documented as read-only, while the SDKs also write."
+    },
+    {
+      "label": "Documented calls.",
+      "text": "{{docs-read-only}} {{read-endpoints}} {{spec-get-only}}"
+    },
+    {
+      "label": "Writes.",
+      "text": "{{sdks-write}} The sources disagree on write support {{divergence:write-support}}, and acceptance by ZPA is open {{gap:write-accepted}}."
+    },
+    {
+      "label": "Fields.",
+      "text": "{{model-fields}} {{saml-name-holds-assertion-name}} The meaning of userAttribute and delta is open {{gap:zpa-62-user-attribute-delta}}. {{docstring-wrong}}"
+    },
+    {
+      "label": "Terraform data source.",
+      "text": "{{data-source-exact-name}} Whether it needs an IdP is disputed {{divergence:data-source-idp-required}}."
+    },
+    {
+      "text": "Shared lookup and provider defects are in [[zpa.terraform.data-source-selection]] and [[zpa.terraform.data-source-fidelity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the task is a read of SAML attributes, which every source supports, or a write, which only the SDKs send.",
+      "uses": [
+        "docs-read-only",
+        "read-endpoints",
+        "sdks-write",
+        "write-support"
+      ]
+    },
+    {
+      "do": "Which path version a call uses: the v2 path lists, and the v1 path reads one attribute.",
+      "uses": [
+        "read-endpoints"
+      ]
+    },
+    {
+      "do": "Which field carries the assertion attribute name when scripting.",
+      "uses": [
+        "saml-name-holds-assertion-name",
+        "docstring-wrong"
+      ]
+    },
+    {
+      "do": "Whether the Terraform lookup names the IdP and spells the attribute name exactly.",
+      "uses": [
+        "data-source-idp-required",
+        "data-source-exact-name"
+      ]
+    }
+  ],
+  "claims": {
+    "docs-read-only": {
+      "statement": "Zscaler's ZPA API overview says the SAML attribute API resources allow you to read SAML attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-zpa-api.json",
+          "quotes": [
+            "SAML attribute API resources allow you to read SAML attributes."
+          ]
+        }
+      ]
+    },
+    "read-endpoints": {
+      "statement": "The documented SAML attribute calls are three GETs in the saml-attr-controller: one attribute by ID on the v1 path, all attributes by page on the v2 path, and all attributes of one IdP on the v2 IdP path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-saml-attribute-details-using-api.json",
+          "quotes": [
+            "Send a GET request to the following endpoint in the saml-attr-controller: /mgmtconfig/v1/admin/customers/{customerId}/samlAttribute/{attrId}.",
+            "Send a GET request to the following endpoint in the saml-attr-controller: /mgmtconfig/v2/admin/customers/{customerId}/samlAttribute.",
+            "Send a GET request to the following endpoint in the saml-attr-controller: /mgmtconfig/v2/admin/customers/{customerId}/samlAttribute/idp/{idpId}."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1samlAttribute~1{attrId}/get",
+          "expect": {
+            "description": "Gets the SAML attribute details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1samlAttribute/get",
+          "expect": {
+            "description": "Get all SAML attributes by page."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1samlAttribute~1idp~1{idpId}/get",
+          "expect": {
+            "description": "Gets all SAML attributes configured for the specified ID."
+          }
+        }
+      ]
+    },
+    "spec-get-only": {
+      "statement": "The captured API specification has no create, update or delete operation for SAML attributes: its three samlAttribute paths each define only a get.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1samlAttribute~1{attrId}/get",
+          "expect": {
+            "description": "Gets the SAML attribute details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1samlAttribute/get",
+          "expect": {
+            "description": "Get all SAML attributes by page."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1samlAttribute~1idp~1{idpId}/get",
+          "expect": {
+            "description": "Gets all SAML attributes configured for the specified ID."
+          }
+        }
+      ],
+      "conditions": "Absence claim from a search: in zpa.openapi.json the paths containing samlAttribute are these three and each has only a get member; the OneAPI Postman collection's SAML Attribute Controller folder lists the same three GET requests."
+    },
+    "sdks-write": {
+      "statement": "The Python SDK's SAMLAttributesAPI sends a POST (add_saml_attribute), a PUT (update_saml_attribute) and a DELETE (delete_saml_attribute) against samlAttribute on the /zpa/mgmtconfig/v1 path, and the Go SDK's samlattribute package has Create, Update and Delete on the same v1 path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "http_method = \"post\".upper()"
+          ],
+          "after": "def add_saml_attribute(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "http_method = \"put\".upper()"
+          ],
+          "after": "def update_saml_attribute(self, attribute_id: str, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "http_method = \"delete\".upper()"
+          ],
+          "after": "def delete_saml_attribute(self, attribute_id: str, microtenant_id: str = None)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/samlattribute/zpa_saml_attribute.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", url, nil, samlAttribute, v)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", url, nil, attribute, nil)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", url, nil, nil, nil)"
+          ]
+        }
+      ]
+    },
+    "model-fields": {
+      "statement": "A SAML attribute object has name, samlName (a string of at most 128 characters), idpId, idpName, userAttribute (boolean) and delta (string) besides its ID and audit fields, and name, samlName and idpId are required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1samlAttribute~1{attrId}/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "required": [
+              "idpId",
+              "name",
+              "samlName"
+            ],
+            "title": "SamlAttribute"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1samlAttribute~1{attrId}/get/responses/200/content/*~1*/schema/properties/samlName",
+          "expect": {
+            "type": "string",
+            "maxLength": 128
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1samlAttribute~1{attrId}/get/responses/200/content/*~1*/schema/properties/userAttribute",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1samlAttribute~1{attrId}/get/responses/200/content/*~1*/schema/properties/delta",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "saml-name-holds-assertion-name": {
+      "statement": "The samlName field holds the attribute name as the IdP sends it, while name is the console's reference label, so a script supplies the assertion attribute name in samlName.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-saml-attribute-details-using-api.json",
+          "quotes": [
+            "\"name\": \"Department\", \"userAttribute\": false, \"idpId\": \"217246660303022502\", \"samlName\": \"Dept\""
+          ]
+        }
+      ],
+      "derived_from": [
+        "zpa.saml-attributes.registration:table-fields"
+      ],
+      "conditions": "No source maps the console's SAML Attribute column to the samlName key by name; this follows from the console column definitions and the API example in which name and samlName differ."
+    },
+    "docstring-wrong": {
+      "statement": "The Python SDK's add_saml_attribute docstring describes saml_name as 'Whether to enable the cloud browser isolation banner', which is the description of a different feature's field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/saml_attributes.py",
+          "quotes": [
+            "saml_name (str): Whether to enable the cloud browser isolation banner."
+          ]
+        }
+      ]
+    },
+    "data-source-exact-name": {
+      "statement": "The zpa_saml_attribute data source finds an attribute by listing the IdP's attributes and comparing name with ==, so the match is exact and case-sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_saml_attribute.go",
+          "quotes": [
+            "if attr.Name == name {",
+            "samlAttrs, _, err := samlattribute.GetAllByIdp(ctx, service, idpResp.ID)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "write-support": {
+      "summary": "Whether SAML attributes can be created, changed and deleted through the API.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-understanding-zpa-api.json",
+            "quotes": [
+              "SAML attribute API resources allow you to read SAML attributes."
+            ]
+          },
+          "says": "The API resources for SAML attributes are for reading."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/saml_attributes.py",
+            "quotes": [
+              "http_method = \"post\".upper()"
+            ],
+            "after": "def add_saml_attribute(self, **kwargs)"
+          },
+          "says": "The Python SDK has an add operation that sends a POST to the samlAttribute path; it also has update and delete."
+        }
+      ],
+      "impact": "Automation that mirrors the specification finds only reads; an SDK or provider that writes SAML attributes relies on endpoints the documentation does not list, and whether ZPA accepts them is not shown by the sources."
+    },
+    "data-source-idp-required": {
+      "summary": "Whether the zpa_saml_attribute data source needs an IdP name or ID.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_saml_attribute.md",
+            "quotes": [
+              "When multiple Identity Providers (IdP) are onboarded in ZPA, the parameter ``idp_name`` is required in order to reture the attribute from the correct IdP."
+            ]
+          },
+          "says": "idp_name is marked Optional, and is required when more than one IdP is onboarded."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/data_source_zpa_saml_attribute.go",
+            "quotes": [
+              "return diag.FromErr(fmt.Errorf(\"idp name or id is required\"))"
+            ]
+          },
+          "says": "The read fails unless idp_id or idp_name is set, whatever the number of IdPs."
+        }
+      ],
+      "impact": "A configuration that omits idp_name on a single-IdP tenant, as the documentation allows, fails at read time."
+    }
+  },
+  "gaps": {
+    "write-accepted": {
+      "kind": "semantic",
+      "title": "Whether ZPA accepts SAML attribute create, update and delete calls",
+      "status": "open",
+      "detail": "The SDKs send them; the documentation and specification list only reads. Send a create, update and delete for a test attribute in a scratch tenant and record the responses.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying SAML attributes can be managed programmatically"
+    },
+    "zpa-62-user-attribute-delta": {
+      "kind": "semantic",
+      "title": "What the userAttribute and delta fields of a SAML attribute mean",
+      "status": "open",
+      "former_ids": [
+        "zpa-62"
+      ],
+      "detail": "The specification types them (userAttribute boolean, delta string) and help examples show userAttribute false, but no captured source says what userAttribute toggles in policy or what delta tracks. A source with field descriptions, or a test that flips userAttribute and observes policy behavior, would resolve it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "advising whether to set userAttribute when creating an attribute"
+    }
+  }
+}

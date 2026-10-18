@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.logging",
+  "title": "Private Service Edge logs in the Log Streaming Service",
+  "aliases": [
+    "pse status log",
+    "pse metrics log",
+    "zpn_sys_auth_log",
+    "zpn_pbroker_comprehensive_stats",
+    "private service edge lss",
+    "pse cpu utilization log"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Two Log Streaming Service log types describe a Private Service Edge."
+    },
+    {
+      "label": "Types and relay.",
+      "text": "{{lss-log-types}} {{lss-components}} {{lss-relay-group}}"
+    },
+    {
+      "label": "What each holds.",
+      "text": "{{cpu-in-both-logs}} The legacy split is unverified {{gap:metrics-needed-for-capacity}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which log type carries the question: status for connection state and auth, metrics for capacity counters, and note that both include CPUUtilization.",
+      "uses": [
+        "lss-log-types",
+        "cpu-in-both-logs"
+      ]
+    },
+    {
+      "do": "Whether an App Connector group exists to relay the logs, since the Log Streaming Service needs an App Connector as its relay.",
+      "uses": [
+        "lss-components",
+        "lss-relay-group"
+      ]
+    }
+  ],
+  "claims": {
+    "lss-log-types": {
+      "statement": "The Log Streaming Service has two Private Service Edge log types: Private Service Edge Status, with source log type zpn_sys_auth_log, and Private Service Edge Metrics, with source log type zpn_pbroker_comprehensive_stats.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_private_service_edge_status.md",
+          "quotes": [
+            "for Private Service Edge Status `zpn_sys_auth_log`."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_private_service_metrics.md",
+          "quotes": [
+            "for Private Service Edge Metrics `zpn_pbroker_comprehensive_stats`."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "Private Service Edge Metrics: Information related to a Private Service Edge's metrics.",
+            "Private Service Edge Status: Information related to a Private Service Edge's availability and connection to Private Access."
+          ]
+        }
+      ]
+    },
+    "lss-components": {
+      "statement": "The Log Streaming Service has two components, a log receiver and an App Connector, and the events it analyzes are reported primarily by Public or Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "The LSS has two components: a log receiver and an App Connector.",
+            "by analyzing events reported, primarily by the Public Service Edges or Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "lss-relay-group": {
+      "statement": "A Terraform LSS configuration for either Private Service Edge log type requires an App Connector group whose ID receives the forwarded logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_lss_private_service_edge_status.md",
+          "quotes": [
+            "App Connector Group ID(s) where logs will be forwarded to."
+          ],
+          "after": "`lss_port` - (Required) The destination port of the SIEM (Log Receiver) where logs will be forwarded to."
+        }
+      ]
+    },
+    "cpu-in-both-logs": {
+      "statement": "The status log field CPUUtilization is the CPU utilization in percent at the log instant and the metrics log field CPUUtilization is the maximum CPU usage in the past five minutes; the monitoring guidance reads CPU from the status log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-status-log-fields.json",
+          "quotes": [
+            "| CPUUtilization | The CPU utilization in % |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "private-service-edge-metrics-log-fields.json",
+          "quotes": [
+            "| CPUUtilization | The maximum CPU usage in the past 5 minutes |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "monitoring-private-service-edge-performance.json",
+          "quotes": [
+            "Status logs are generated periodically for each Private Service Edge, and the field CPUUtilization displays the Private Service Edge host"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "metrics-needed-for-capacity": {
+      "kind": "semantic",
+      "title": "Whether only the metrics log supports capacity monitoring",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Configuring only zpn_sys_auth_log gives visibility into PSE health events; zpn_pbroker_comprehensive_stats is needed for capacity monitoring.\" Both logs carry CPUUtilization, so the statement is at most partly right; which counters only the metrics log holds is in its field table. Resolve with the field tables.",
+      "blocks": "advising which log type to stream for capacity",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

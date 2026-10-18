@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.slow",
+  "title": "A ZPA application is slow",
+  "aliases": [
+    "zpa slow",
+    "zpa latency",
+    "zpa app slow to load",
+    "ConnectionSetupTime high",
+    "AppLearnTime high"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Slowness is located by phase using the timing fields, then by what the phase involves."
+    },
+    {
+      "label": "What each phase involves.",
+      "text": "The field definitions are in [[zpa.troubleshooting.log-fields:timing-fields]]; the readings of high values are open [[zpa.troubleshooting.log-fields:timing-readings]] [[zpa.troubleshooting.log-fields:app-learn-health-reporting]]."
+    },
+    {
+      "label": "Health reporting.",
+      "text": "The values are in [[zpa.app-connectors.health:health-reporting-values]] and the cadence per value is open [[zpa.app-connectors.health:health-reporting-cadence]]."
+    },
+    {
+      "label": "Connector choice.",
+      "text": "Selection is in [[zpa.app-connectors.selection:closest-by-location-and-latency]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which timing field is anomalously high on User Activity records for the affected user and host.",
+      "uses": [
+        "zpa.troubleshooting.log-fields:timing-fields"
+      ]
+    },
+    {
+      "do": "What the high phase measures, before assigning a cause: the readings are not published.",
+      "uses": [
+        "zpa.troubleshooting.log-fields:timing-readings",
+        "zpa.troubleshooting.log-fields:app-learn-health-reporting"
+      ]
+    },
+    {
+      "do": "The segment's Health Reporting and connector selection method, which the settings subject holds.",
+      "uses": [
+        "zpa.app-segments.settings:health-reporting-default",
+        "zpa.app-segments.settings:closer-to-app"
+      ]
+    },
+    {
+      "do": "Which connector and Public Service Edge served the session, and whether it is the expected nearest one.",
+      "uses": [
+        "zpa.troubleshooting.log-fields:connector-fields",
+        "zpa.app-connectors.selection:nearest-is-not-geography-alone"
+      ]
+    },
+    {
+      "do": "Whether byte counters per interval are low while setup is high, noting the reading is not sourced.",
+      "uses": [
+        "zpa.troubleshooting.log-fields:byte-counters",
+        "zpa.troubleshooting.log-fields:byte-counter-reading"
+      ]
+    }
+  ]
+}

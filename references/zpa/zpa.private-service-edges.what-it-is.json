@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.what-it-is",
+  "title": "What a ZPA Private Service Edge is",
+  "aliases": [
+    "zpa private service edge",
+    "zpa pse",
+    "on-prem zpa broker",
+    "private service edge for private access",
+    "is the zpa pse the same as the zia pse",
+    "pse vs public service edge zpa"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.public-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.what-it-is"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.data-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A ZPA Private Service Edge (PSE) is the customer-side session broker of Private Access; Internet & SaaS has its own Service Edges."
+    },
+    {
+      "label": "Identity.",
+      "text": "{{single-tenant-broker}} {{broker-function}} {{zpa-appliance}} Whether it is also sold as physical hardware is open {{gap:pse-hardware-sales}}."
+    },
+    {
+      "label": "Not the ZIA product.",
+      "text": "{{separate-from-zia}} The ZIA inline inspection cluster is [[zia.private-service-edge.what-it-is]]. {{no-inspection}}"
+    },
+    {
+      "label": "Relation to Public Service Edges.",
+      "text": "{{coexists-with-public}} {{upstream-public-se}} {{relay-via-public}} The Public tier is in [[zpa.public-service-edges.what-it-is]]."
+    },
+    {
+      "text": "Where it sits in the tunnel path is in [[zpa.private-service-edges.data-path]]; whether to deploy one is in [[zpa.private-service-edges.when-to-deploy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product the question is about, since ZPA and ZIA both have a Private Service Edge and they are different products.",
+      "uses": [
+        "separate-from-zia"
+      ]
+    },
+    {
+      "do": "Whether the question assumes the Private Service Edge inspects traffic, which a Private Access Service Edge does not.",
+      "uses": [
+        "no-inspection"
+      ]
+    },
+    {
+      "do": "Whether a user whose application is unreachable is being relayed through a Public Service Edge because no App Connector has a data connection to the Private Service Edge.",
+      "uses": [
+        "relay-via-public",
+        "upstream-public-se"
+      ]
+    },
+    {
+      "do": "Whether a ZPA Appliance host platform appears on the Private Service Edge, to tell the appliance from a customer-built image.",
+      "uses": [
+        "zpa-appliance"
+      ]
+    }
+  ],
+  "claims": {
+    "single-tenant-broker": {
+      "statement": "A ZPA Private Service Edge is a single-tenant instance broker that provides the functionality of a Public Service Edge for Private Access in the organization's environment. The organization hosts it within its site or on a cloud service, and Zscaler manages it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "single-tenant instance brokers that provide the functionality of a Public Service Edge for Private Access",
+            "Your organization hosts them either within your site or on a cloud service, but Zscaler manages them."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges"
+      ]
+    },
+    "broker-function": {
+      "statement": "Like a Public Service Edge, a Private Service Edge manages the connections between Zscaler Client Connector and App Connectors. It registers with the Private Access Cloud, which lets it download the relevant policies and configurations and enforce all Private Access policies, and it caches path selection decisions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "a Private Service Edge manages the connections between Zscaler Client Connector and App Connectors.",
+            "This allows a Private Service Edge to download the relevant policies and configurations so it can enforce all Private Access policies.",
+            "It also caches path selection decisions."
+          ]
+        }
+      ]
+    },
+    "no-inspection": {
+      "statement": "In Private Access the Service Edge does not inspect the data as traffic flows through it, unlike a Service Edge in Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-service-edges.json",
+          "quotes": [
+            "In Private Access, the Service Edge does not inspect the data as traffic flows through it.",
+            "In Internet & SaaS, the Service Edge inspects the data as traffic flows through it."
+          ]
+        }
+      ]
+    },
+    "separate-from-zia": {
+      "statement": "Both Internet & SaaS (ZIA) and Private Access have Service Edges, and Private Access runs on a multi-tenant infrastructure separate from that of Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-service-edges.json",
+          "quotes": [
+            "Both Internet & SaaS (ZIA) and Private Access have Service Edges."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Private Access runs on a unique multi-tenant infrastructure, separate from that of Internet & SaaS"
+          ]
+        }
+      ]
+    },
+    "upstream-public-se": {
+      "statement": "Each deployed Private Service Edge connects to a Public Service Edge, and the console shows which one. The name that Private Service Edges resolve to locate Public Service Edges is pb2br.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "The Public Service Edge that the Private Service Edge connects to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-private-service-edges.json",
+          "quotes": [
+            "The endpoint for Private Service Edges to locate Public Service Edges is pb2br."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges"
+      ]
+    },
+    "relay-via-public": {
+      "statement": "When the Private Service Edge has no direct connection to the App Connector serving an application, or no App Connector can establish a data connection to the Private Service Edge where the user is connected, the Private Service Edge relays the request to the nearest Public Service Edge. The Public Service Edge connects to the closest App Connector it can reach and completes the request through the Private Service Edge with an additional hop.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-private-service-edges.json",
+          "quotes": [
+            "the Private Service Edge forwards traffic to the nearest Public Service Edge for Private Access.",
+            "then the Private Service Edge relays the Zscaler Client Connector request to a Public Service Edge.",
+            "completes the application request via the Private Service Edge through an additional hop."
+          ]
+        }
+      ]
+    },
+    "coexists-with-public": {
+      "statement": "A tenant's Private Service Edge groups sit alongside Public Service Edges: a group can be configured to be prioritized over a closer Public Service Edge.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "to be prioritized over a closer Public Service Edge for Private Access."
+          ]
+        }
+      ],
+      "conditions": "Inferred: a per-group override that compares against Public Service Edges presupposes that both exist in one tenant."
+    },
+    "zpa-appliance": {
+      "statement": "A ZPA Appliance is a Private Service Edge host platform: the console shows \"ZT-8010-Zscaler Red Hat Image\" as the host platform for one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "If you are using a ZPA Appliance, ZT-8010-Zscaler Red Hat Image appears in this field."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges#platform"
+      ]
+    }
+  },
+  "gaps": {
+    "pse-hardware-sales": {
+      "kind": "semantic",
+      "title": "Whether the ZPA Appliance is sold as dedicated hardware",
+      "status": "partial",
+      "former_ids": [
+        "zpa-50"
+      ],
+      "detail": "Unverified legacy statement: \"It is not confirmed whether ZPA PSEs are virtual-only or also available as dedicated hardware. The help sources describe only VM images.\" The console field names a ZPA Appliance image ({{zpa-appliance}}), which shows an appliance exists, but no captured page says whether it is a physical unit, how it is ordered, or its sizing. Resolve with the ZPA Appliance product documentation or Zscaler support.",
+      "blocks": "telling a customer whether a Private Service Edge can be bought as a physical appliance",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

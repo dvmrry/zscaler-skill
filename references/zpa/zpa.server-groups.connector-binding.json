@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "zpa.server-groups.connector-binding",
+  "title": "How a server group binds App Connector groups",
+  "aliases": [
+    "server group app connector groups",
+    "appConnectorGroups",
+    "server group has no connector group",
+    "connector group server group",
+    "no app connector available",
+    "closest app connector"
+  ],
+  "binds": [
+    "zpa/server-groups#appConnectorGroups",
+    "zpa/app-connector-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.server-groups.role"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.chain-check"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A server group's connector binding decides which App Connectors can carry traffic for the segments that use it."
+    },
+    {
+      "label": "What the list means.",
+      "text": "{{connector-groups-reach-servers}} {{only-group-capable-servers}} The groups' own association with server groups is in [[zpa.app-connectors.connector-groups:every-connector-one-group]]."
+    },
+    {
+      "label": "How a connector is picked.",
+      "text": "The closest connector by location and latency is chosen: [[zpa.app-connectors.selection:closest-by-location-and-latency]]."
+    },
+    {
+      "label": "How the clients treat the list.",
+      "text": "{{python-requires-connector-group-ids}} {{tf-connector-groups-optional}} Whether the API rejects an empty list is open {{gap:empty-connector-group-rejected}}. What happens when the last group is removed is open {{gap:removing-last-connector-group}}."
+    },
+    {
+      "label": "When no connector is available.",
+      "text": "{{no-connector-available}} The symptoms of a mis-assigned group are not established {{gap:misassigned-symptoms}}."
+    },
+    {
+      "text": "Deleting a server group also detaches it from connector groups: [[zpa.terraform.delete-paths]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the server group lists at least one App Connector group, since a group with none has no connector path.",
+      "uses": [
+        "connector-groups-reach-servers",
+        "zpa.app-connectors.connector-groups:every-connector-one-group"
+      ]
+    },
+    {
+      "do": "Whether the listed App Connector groups can reach the servers, which is what the group is declared to mean.",
+      "uses": [
+        "connector-groups-reach-servers",
+        "no-connector-available"
+      ]
+    },
+    {
+      "do": "Whether an empty or removed connector list was rejected by the API or accepted, because the legacy statement is unverified.",
+      "uses": [
+        "empty-connector-group-rejected",
+        "removing-last-connector-group"
+      ]
+    }
+  ],
+  "claims": {
+    "connector-groups-reach-servers": {
+      "statement": "A server group's App Connector groups are the groups that have access to the data center or VPC containing the servers in that server group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-server-groups.json",
+          "quotes": [
+            "The App Connector groups that have access to the data center or virtual private cloud (VPC) that contains the servers in this server group."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#appConnectorGroups"
+      ]
+    },
+    "only-group-capable-servers": {
+      "statement": "Only servers capable of hosting the same applications should be grouped in one server group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-server-groups.json",
+          "quotes": [
+            "When you configure server groups, only group servers that are capable of hosting the same applications."
+          ]
+        }
+      ]
+    },
+    "no-connector-available": {
+      "statement": "For an application that is not accessible because no App Connector is available, the help's checks are that the access policies define the correct App Connectors, that general network connectivity works, and that the App Connector is connected to the Public or Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "Application is not accessible due to No App Connector Available:",
+            "Check that the Access Policies define the correct App Connectors that can access the application.",
+            "Check that the App Connector is connected to the ZPA Public Service Edge or Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "python-requires-connector-group-ids": {
+      "statement": "The Python SDK lists `app_connector_group_ids` as a named argument of `add_group` without saying it is required, and the code does not enforce it; it sends the value as `appConnectorGroups: [{id}]`. The segment docstring, by contrast, marks `server_group_ids` as **Required**.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "app_connector_group_ids (list of str): A list of App connector IDs that will be attached to the server group."
+          ],
+          "after": "def add_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "body[\"appConnectorGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"app_connector_group_ids\")]"
+          ],
+          "after": "body = kwargs"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "server_group_ids (list of str): **Required**. List of server group IDs this segment belongs to."
+          ]
+        }
+      ],
+      "conditions": "Statement changed per verifier: the docstring never says required and no code checks it. The contrast quote is the segment docstring's `server_group_ids ... **Required**`."
+    },
+    "tf-connector-groups-optional": {
+      "statement": "In the Terraform provider `app_connector_groups` is an optional block on a server group, not a required one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "\"app_connector_groups\": { Type: schema.TypeList, Optional: true, // MaxItems: 1,"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "empty-connector-group-rejected": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API rejects a server group with no App Connector groups",
+      "status": "open",
+      "about": [
+        "zpa/server-groups#appConnectorGroups"
+      ],
+      "detail": "Unverified legacy statement: \"the ZPA API itself will reject a Server Group with an empty `appConnectorGroups` array.\" The Python docstring lists the argument as required and the Terraform schema marks the block optional; no captured source shows the API response. Create a group with an empty list in a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a server group with an empty connector list cannot exist"
+    },
+    "removing-last-connector-group": {
+      "kind": "semantic",
+      "title": "What happens to traffic when the last App Connector group is removed from a server group",
+      "status": "open",
+      "about": [
+        "zpa/server-groups#appConnectorGroups"
+      ],
+      "detail": "Unverified legacy statement: \"Removing the last Connector Group from a Server Group leaves no valid connector path; new connections will fail. Pre-existing sessions may persist until timeout depending on session state.\" The legacy doc marked it an inference. A lab test with an established session would show both parts.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "misassigned-symptoms": {
+      "kind": "semantic",
+      "title": "Observable symptoms of a segment whose server group has no connector that reaches the backend",
+      "status": "open",
+      "about": [
+        "zpa/server-groups#appConnectorGroups"
+      ],
+      "detail": "Unverified legacy statement: with such a server group \"the access policy evaluates correctly (rule matches, user appears authorized)\", \"connection times out or fails immediately\", \"App Connector logs show no matching sessions for the expected destination\" and \"LSS User Activity log shows `ConnectionStatus = Close` with no connector-side byte counters\". The user activity log field reference lists ConnectionStatus values of Open, Close and Active but does not tie Close to this cause. A reproduction with the logs captured would settle each symptom.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "id": "zpa.machine-groups.api-surface",
+  "title": "Machine groups through the ZPA API, SDKs and Terraform",
+  "aliases": [
+    "can I create a machine group with terraform",
+    "machine group api",
+    "zpa_machine_group data source",
+    "machine group sdk",
+    "machine group read only",
+    "machine group summary"
+  ],
+  "binds": [
+    "zpa/machine-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.machine-groups.definition"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-groups.policy-use"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers machine groups in the API, the SDKs and Terraform."
+    },
+    {
+      "label": "The API.",
+      "text": "{{api-read-only}} {{summary-endpoint}} {{paging}} Whether the live API would reject a write is open {{gap:create-endpoint-absence}}."
+    },
+    {
+      "label": "The SDKs.",
+      "text": "{{sdk-no-writes}} {{name-lookup}} {{python-model-omits-machines}} How the Go SDK pages these lists: [[shared.sdk-go.list-pagination]]."
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{terraform-data-source-only}} {{data-source-attributes}} {{data-source-feeds-policy}} {{search-note}} Data source defects common to the provider: [[zpa.terraform.data-source-selection]], [[zpa.terraform.data-source-fidelity]]."
+    },
+    {
+      "label": "Certificate key.",
+      "text": "The per-machine certificate is named differently by the sources {{divergence:signing-cert-field-name}}."
+    },
+    {
+      "label": "Microtenants.",
+      "text": "{{microtenant-permissions}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the task needs to create or change a group, which no documented client does; use the console.",
+      "uses": [
+        "api-read-only",
+        "sdk-no-writes",
+        "terraform-data-source-only",
+        "create-endpoint-absence"
+      ]
+    },
+    {
+      "do": "Which certificate key a client reads from a machine record.",
+      "uses": [
+        "signing-cert-field-name"
+      ]
+    },
+    {
+      "do": "Whether a Python caller needs the machines list, which its model does not carry.",
+      "uses": [
+        "python-model-omits-machines"
+      ]
+    },
+    {
+      "do": "Whether the caller is in a custom microtenant, where groups are read-only.",
+      "uses": [
+        "microtenant-permissions"
+      ]
+    }
+  ],
+  "claims": {
+    "api-read-only": {
+      "statement": "ZPA's API documentation describes machine group resources as read-only. The documented operations are a GET on the collection and a GET on a single group.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-zpa-api.json",
+          "quotes": [
+            "Machine group API resources allow you to read machine groups."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1machineGroup/get",
+          "expect": {
+            "operationId": "Get Machine Groups"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1machineGroup~1{Id}/get",
+          "expect": {
+            "operationId": "Get Machine Group"
+          }
+        }
+      ]
+    },
+    "summary-endpoint": {
+      "statement": "The Go and Python SDKs also call `GET /machineGroup/summary`, a name-and-ID listing; the OpenAPI capture does not list that path.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/machinegroup/zpa_machine_group.go",
+          "quotes": [
+            "machineGroupEndpoint + \"/summary\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/machine_groups.py",
+          "quotes": [
+            "/machineGroup/summary"
+          ]
+        }
+      ]
+    },
+    "sdk-no-writes": {
+      "statement": "The Go machinegroup package exposes Get, GetByName, GetAll and GetMachineGroupSummary, and the Python MachineGroupsAPI exposes list_machine_groups, list_machine_group_summary and get_group. Neither SDK has a create, update or delete function for machine groups.",
+      "tier": "B",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "conditions": "Rests on absence: both files were read in full and define no other public function.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/machinegroup/zpa_machine_group.go",
+          "quotes": [
+            "func Get(ctx context.Context",
+            "func GetByName(ctx context.Context",
+            "func GetAll(ctx context.Context",
+            "func GetMachineGroupSummary(ctx context.Context"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/machine_groups.py",
+          "quotes": [
+            "def list_machine_groups(",
+            "def list_machine_group_summary(",
+            "def get_group("
+          ]
+        }
+      ]
+    },
+    "terraform-data-source-only": {
+      "statement": "The ZPA Terraform provider has a `zpa_machine_group` data source and no machine group resource.",
+      "tier": "B",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "conditions": "Rests on absence: searched the provider's docs/resources and zpa/ directories (2026-10-18) and found data_source_zpa_machine_group.go but no resource file or resource document for machine groups.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_machine_group.md",
+          "quotes": [
+            "Use the **zpa_machine_group** data source to get information about a machine group created in the Zscaler Private Access cloud."
+          ]
+        }
+      ]
+    },
+    "data-source-attributes": {
+      "statement": "The data source exports `id`, `creation_time`, `description`, `enabled`, `modified_by`, `modified_name`, `microtenant_id`, `microtenant_name` and a `machines` list. Each machine entry has `fingerprint`, `issued_cert_id`, `machine_group_id`, `machine_group_name`, `machine_token_id` and `signing_cert`.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups#machines"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_machine_group.md",
+          "quotes": [
+            "* `modified_name` (string)",
+            "* `machines` (string)",
+            "* `machine_token_id` (string)",
+            "* `signing_cert` (string)",
+            "* `issued_cert_id` (string)"
+          ]
+        }
+      ]
+    },
+    "data-source-feeds-policy": {
+      "statement": "The provider documents the machine group data source as the way to reference a machine group in an access, timeout, forwarding, inspection or isolation policy.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_machine_group.md",
+          "quotes": [
+            "This data source can then be referenced in an Access Policy, Timeout policy, Forwarding Policy, Inspection Policy or Isolation Policy."
+          ]
+        }
+      ]
+    },
+    "name-lookup": {
+      "statement": "The Go SDK's GetByName lists machine groups with the name as a search filter and returns the first result whose name matches case-insensitively.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups#name"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/machinegroup/zpa_machine_group.go",
+          "quotes": [
+            "common.Filter{Search: machineGroupName, MicroTenantID: service.MicroTenantID()}",
+            "strings.EqualFold(app.Name, machineGroupName)"
+          ]
+        }
+      ]
+    },
+    "search-note": {
+      "statement": "The provider asks that search queries for the machine group data source avoid multiple spaces and special characters.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups#name"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_machine_group.md",
+          "quotes": [
+            "To ensure consistent search results across data sources, please avoid using multiple spaces or special characters in your search queries."
+          ]
+        }
+      ]
+    },
+    "paging": {
+      "statement": "The machine group list takes `page` and `pagesize`, with a default page size of 20 and a maximum of 500.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-machine-group-details-using-api.json",
+          "quotes": [
+            "If not provided, the default page size is 20. The maximum page size is 500."
+          ]
+        }
+      ]
+    },
+    "python-model-omits-machines": {
+      "statement": "The Python MachineGroup model reads `id`, `name`, `enabled`, `description`, `creationTime`, `modifiedTime` and `modifiedBy`. It has no attribute for the `machines` list or the microtenant fields.",
+      "tier": "B",
+      "binds": [
+        "zpa/machine-groups#machines"
+      ],
+      "conditions": "Rests on absence: the model's __init__ and request_format were read in full and mention no machines or microtenant key.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/machine_groups.py",
+          "quotes": [
+            "self.creation_time = config[\"creationTime\"] if config and \"creationTime\" in config else None",
+            "self.modified_by = config[\"modifiedBy\"] if config and \"modifiedBy\" in config else None"
+          ]
+        }
+      ]
+    },
+    "microtenant-permissions": {
+      "statement": "Under microtenant configuration permissions, machine groups are fully editable in the default microtenant and read-only in a custom microtenant, while machine provisioning keys are not visible in a custom microtenant.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups#microtenantId"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuration-permissions-microtenants.json",
+          "quotes": [
+            "| Machine Groups | Full | Read only |",
+            "| Machine Provisioning Keys | Full | Not visible |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "signing-cert-field-name": {
+      "summary": "The OpenAPI capture names the per-machine certificate `enrollmentCert`; the SDKs and Terraform call it `signingCert`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1machineGroup/get/responses/200/content/*~1*/schema/properties/list/items/properties/machines/items/properties/enrollmentCert",
+            "expect": {
+              "type": "object"
+            }
+          },
+          "says": "A machine record carries an `enrollmentCert` object."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/machinegroup/zpa_machine_group.go",
+            "quotes": [
+              "SigningCert      map[string]interface{} `json:\"signingCert,omitempty\"`"
+            ]
+          },
+          "says": "The Go SDK reads and sends the certificate under `signingCert`."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_machine_group.md",
+            "quotes": [
+              "* `signing_cert` (string)"
+            ]
+          },
+          "says": "The Terraform data source exports it as `signing_cert`."
+        }
+      ],
+      "impact": "A client written from the OpenAPI capture and one written from the SDK read different keys for the same certificate, so a field that is empty in one may be populated in the other."
+    }
+  },
+  "gaps": {
+    "create-endpoint-absence": {
+      "kind": "semantic",
+      "title": "Whether the live API accepts a write on machine groups",
+      "status": "open",
+      "former_ids": [
+        "zpa-11"
+      ],
+      "about": [
+        "zpa/machine-groups"
+      ],
+      "detail": "The documentation and OpenAPI capture show only GET operations and the SDKs and provider expose none. No source states that the live API would reject a POST, PUT or DELETE on /machineGroup. Try the write in a scratch tenant and compare with the console, which does add, edit and delete groups.",
+      "blocks": "saying the API cannot create a group, as opposed to saying no documented client does",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

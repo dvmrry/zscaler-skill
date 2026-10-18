@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.architecture",
+  "title": "How the Log Streaming Service reaches a SIEM",
+  "aliases": [
+    "how does lss work",
+    "lss app connector log forwarding",
+    "lss vs nss",
+    "log receiver reachable",
+    "lss data flow"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.delivery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.configuration"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.bypass"
+    }
+  ],
+  "prose": [
+    {
+      "text": "LSS forwards ZPA logs through an App Connector, so the path, the order of deployment and the reach of the receiver follow from that."
+    },
+    {
+      "label": "Components.",
+      "text": "{{purpose}} {{two-components}} {{tcp-port}} {{not-nss}} {{third-party-siem}}"
+    },
+    {
+      "label": "Before configuring.",
+      "text": "{{connectors-first}} {{receiver-reachable-from-connector}}"
+    },
+    {
+      "label": "Which connector group carries the stream.",
+      "text": "{{closest-group}} {{duplicate-per-group}}"
+    },
+    {
+      "label": "Receiver address and application segments.",
+      "text": "{{internal-segment}}"
+    },
+    {
+      "text": "Capacity of a receiver and reaching an internet-exposed SIEM are not sourced {{gap:capacity-limits}} {{gap:internet-exposed-receiver}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That the App Connector group named on the receiver exists and has deployed, connected connectors.",
+      "uses": [
+        "connectors-first",
+        "closest-group",
+        "zpa.app-connectors.health:connection-health-column"
+      ]
+    },
+    {
+      "do": "That the SIEM address and port are reachable from the network the App Connector sits in, not from the internet or the cloud.",
+      "uses": [
+        "two-components",
+        "receiver-reachable-from-connector"
+      ]
+    },
+    {
+      "do": "Whether the receiver's address overlaps an application segment whose Bypass setting changes what a user device can reach.",
+      "uses": [
+        "internal-segment"
+      ]
+    },
+    {
+      "do": "Whether more than one connector group points at the same stream, which sends the log once per group.",
+      "uses": [
+        "duplicate-per-group"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "LSS lets an organization create log receivers that receive information about App Connectors and users in Private Access; the help lists forwarding diagnostics and status logs to a SIEM and storing logs longer than the cloud retention period among its benefits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "allowing you to create log receivers that receive information about App Connectors and users.",
+            "Forward your diagnostics and status logs to a SIEM.",
+            "Store logs for longer than the cloud retention period."
+          ]
+        }
+      ]
+    },
+    "two-components": {
+      "statement": "LSS is deployed using two components, a log receiver and an App Connector: LSS resides in the Zero Trust Exchange and starts a log stream through a Public Service Edge, and the App Connector in the company's environment receives the stream and forwards it to the log receiver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "LSS is deployed using two components: a log receiver and an App Connector.",
+            "LSS resides in the Zero Trust Exchange (ZTE) and initiates a log stream through a Public Service Edge for Private Access.",
+            "It receives the log stream and then forwards it to a log receiver."
+          ]
+        }
+      ]
+    },
+    "tcp-port": {
+      "statement": "A receiver is addressed by a domain name or IP address and a TCP port, the port on which the log receiver listens for incoming log streams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "TCP Port: The TCP port that the log receiver is listening on for incoming log streams."
+          ]
+        }
+      ]
+    },
+    "not-nss": {
+      "statement": "LSS captures log data about App Connectors and users in Private Access, while the Nanolog Streaming Service resides in Internet & SaaS (ZIA) and streams traffic logs from the Zscaler Nanolog to a SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "the Nanolog Streaming Service (NSS) resides in Internet & SaaS (ZIA) and allows streaming of traffic logs from the Zscaler Nanolog to your SIEM."
+          ]
+        }
+      ]
+    },
+    "third-party-siem": {
+      "statement": "Zscaler supports third-party SIEM integrations for LSS and points to its Private Access and Splunk Deployment Guide and Zscaler and Splunk Deployment Guide.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "Zscaler supports third-party SIEM integrations for the LSS."
+          ]
+        }
+      ]
+    },
+    "connectors-first": {
+      "statement": "App Connectors must be deployed before a log receiver is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "Your App Connectors must be deployed prior to configuring a log receiver."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "Your App Connectors must be deployed prior to configuring a log receiver."
+          ]
+        }
+      ]
+    },
+    "receiver-reachable-from-connector": {
+      "statement": "Because the App Connector forwards the stream to the receiver, the receiver's address and port must be reachable from the App Connector's network.",
+      "tier": "B",
+      "derived_from": [
+        "two-components"
+      ],
+      "conditions": "Inference from the documented path (cloud to connector to receiver); the help does not state a reachability requirement in these words."
+    },
+    "closest-group": {
+      "statement": "Logs go to the App Connector group that is geographically closest to the LSS instance, and transmission switches to App Connectors in another location when the connectors of the previously selected group are unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "Logs go to the App Connector group that is geographically closest to the instance of the Log Streaming Service (LSS).",
+            "then log transmission switches to App Connectors in another location."
+          ]
+        }
+      ]
+    },
+    "duplicate-per-group": {
+      "statement": "If each App Connector group points to a different log receiver and is configured for the exact same LSS, the same log is sent to an App Connector in each group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "If each App Connector group points to a different log receiver and is configured for the exact same LSS, then the same log is sent to an App Connector in each App Connector group."
+          ]
+        }
+      ]
+    },
+    "internal-segment": {
+      "statement": "When a log receiver is created, the service also creates an internal application segment with the receiver's FQDN or IP address, and if that address overlaps an application segment, the segment's Bypass setting takes precedence, so a bypassed address on a trusted network is unreachable from the user's device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "the Bypass setting configured for the application segment takes precedence.",
+            "the user's device cannot communicate with the log receiver.",
+            "When creating a log receiver, the Zscaler service also creates an internal application segment with the same FQDN or IP address."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "internet-exposed-receiver": {
+      "kind": "semantic",
+      "title": "A receiver exposed to the internet and Splunk transports",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Internet-exposed SIEM endpoints work if the App Connector has outbound internet access. Splunk (HTTP Event Collector or raw TCP).\" The stream is addressed by host and TCP port (tcp-port) and the help names the Splunk deployment guides (third-party-siem); no captured source says that an internet-exposed endpoint works or that Splunk HTTP Event Collector is a supported transport.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "capacity-limits": {
+      "kind": "semantic",
+      "title": "Receiver throughput and capacity",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Log receiver capacity limits are determined by the App Connector's throughput and network path, not by a Zscaler-side quota. The help doc does not publish explicit per-receiver throughput limits. Capacity is constrained by App Connector CPU/network and the log receiver's ingestion capacity. High-volume tenants may need to distribute log types across multiple receivers or increase App Connector resources.\" No captured source states a throughput limit or quota for a receiver, or what constrains it. The only published limit near receivers is 1,000 application segments per Log Receiver Policy rule (see zpa.log-receivers.filtering).",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

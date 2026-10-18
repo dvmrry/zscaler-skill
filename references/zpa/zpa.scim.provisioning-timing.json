@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "zpa.scim.provisioning-timing",
+  "title": "When SCIM data is ready for ZPA policy",
+  "aliases": [
+    "scim 48 hours",
+    "scim initial sync",
+    "scim rollout policy",
+    "okta scim connection error",
+    "scim groups per user limit",
+    "scim sync lag",
+    "scim user not recognized"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.scim-sync"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.policy-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.attributes-and-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.propagation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers when SCIM data is ready for ZPA policy."
+    },
+    {
+      "label": "Before enabling SCIM policy.",
+      "text": "The initial cycle and the wait are in [[zpa.policy.scim-sync:scim-initial-cycle-first]] and [[zpa.policy.scim-sync:scim-wait-48-hours]]. {{several-days}}"
+    },
+    {
+      "label": "While records are missing.",
+      "text": "What an unrecognized user gets is in [[zpa.policy.scim-sync:scim-user-presence-decides]] and its open question [[zpa.policy.scim-sync:mid-sync-result]]."
+    },
+    {
+      "label": "Limits and Okta.",
+      "text": "{{group-limits}} {{okta-first-enable}}"
+    },
+    {
+      "label": "Open questions.",
+      "text": "Which side drives the sync is open {{gap:idp-initiates-sync}}. How stale the data can be is open {{gap:sync-lag}}. The failure modes of the push are open {{gap:push-failure-modes}}. Whether membership is read once per session is open {{gap:zpa-67-membership-resolution}}."
+    },
+    {
+      "text": "Rules that use the synced data are in [[zpa.scim.policy-criteria]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether SCIM policy was enabled before the initial sync finished, and how long ago sync was enabled.",
+      "uses": [
+        "zpa.policy.scim-sync:scim-initial-cycle-first",
+        "zpa.policy.scim-sync:scim-wait-48-hours",
+        "several-days"
+      ]
+    },
+    {
+      "do": "Whether the affected user is present in the SCIM database, since an unrecognized user is evaluated differently.",
+      "uses": [
+        "zpa.policy.scim-sync:scim-user-presence-decides",
+        "zpa.policy.scim-sync:mid-sync-result"
+      ]
+    },
+    {
+      "do": "Whether the IdP is Okta with SCIM freshly enabled, which can show a connection error until users are re-synced.",
+      "uses": [
+        "okta-first-enable"
+      ]
+    },
+    {
+      "do": "Whether a user belongs to more than 1,000 groups, whose excess groups are not synced.",
+      "uses": [
+        "group-limits"
+      ]
+    },
+    {
+      "do": "The group's Last Updated time on the SCIM Groups page, to judge whether a sync has reached ZPA, since the sync direction and lag are not documented.",
+      "uses": [
+        "idp-initiates-sync",
+        "sync-lag",
+        "zpa.scim.attributes-and-groups:group-page-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "several-days": {
+      "statement": "It can take several days for the IdP to sync all user information to ZPA completely.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "It can take several days for the IdP to sync all user information to ZPA completely."
+          ]
+        }
+      ]
+    },
+    "okta-first-enable": {
+      "statement": "When SCIM sync is enabled with Okta, users may see a connection error in Zscaler Client Connector because Okta had not synced users to Private Access before SCIM was enabled; Zscaler recommends enabling PROVISION_OUT_OF_SYNC_USERS in Okta and unassigning and reassigning all users and groups from Zscaler Private Access in Okta, then waiting for the sync.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-scim-zpa.json",
+          "quotes": [
+            "Users might encounter a connection error in Zscaler Client Connector when enabling SCIM sync with Okta.",
+            "Enable PROVISION_OUT_OF_SYNC_USERS in Okta.",
+            "Unassign and reassign all users and groups from Zscaler Private Access in Okta, and then wait for the sync to occur."
+          ]
+        }
+      ]
+    },
+    "group-limits": {
+      "statement": "Private Access syncs at most 1,000 groups per user, leaving the rest unsynced until some are removed for that user in the IdP, with no limit on the number of SCIM groups synced, and lists a limit of 50 SCIM updates per second.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| SCIM updates | 50 per second |",
+            "The 1,000 groups per user limit means that if a user is a part of more than 1,000 groups, the remaining groups are not synced until some of them are removed for the user on the IdP.",
+            "There is no limit to the number of SCIM groups that can be synced."
+          ]
+        }
+      ],
+      "conditions": "Rows under Identity Management in the Private Access (ZPA) part of the unified ranges page."
+    }
+  },
+  "gaps": {
+    "idp-initiates-sync": {
+      "kind": "semantic",
+      "title": "Whether ZPA only receives SCIM pushes or also pulls, and whether a resync can be forced",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZPA does not poll the IdP; the IdP initiates every sync\" and \"There is no ZPA-side mechanism to force an immediate re-sync; the operator must trigger a resync from the IdP side\". The captured SCIM Groups page says groups \"get pulled into Private Access (ZPA)\", and no capture states the sync direction or a force-sync control. Unverified legacy statement: \"ZPA stores group membership on the user record\" and the IdP \"sends SCIM /Groups and /Users operations to create, update, or delete records in ZPA\", with no ZPA capture for either. Resolve from SCIM architecture documentation or by watching a tenant's SCIM sync logs.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "telling an operator where to trigger a resync"
+    },
+    "sync-lag": {
+      "kind": "semantic",
+      "title": "How stale SCIM data can be compared with SAML at session start",
+      "status": "open",
+      "detail": "Unverified legacy statement: SAML attributes \"are always current at session start. SCIM data, in contrast, reflects the last sync cycle and may lag behind IdP state by minutes to hours.\" The captures give the several-days first sync (claim several-days) but no steady-state lag figure. Measure by changing a group in the IdP and timing its appearance on the SCIM Groups page.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating a staleness bound for SCIM-based rules"
+    },
+    "push-failure-modes": {
+      "kind": "semantic",
+      "title": "Failure modes of the IdP push to ZPA",
+      "status": "open",
+      "detail": "Unverified legacy statement: a shared secret rotated in ZPA but not in the IdP \"causes 401s on every push\"; an IdP that does not send groups before users leaves \"the user without that group membership, backfilled on the next sync cycle\"; and groups outside the IdP app's scope \"are never sent to ZPA\". No ZPA capture states the first two. Resolve from the SCIM setup articles for ZPA or sync-log observations.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ],
+      "blocks": "diagnosing a missing group or failed push"
+    },
+    "zpa-67-membership-resolution": {
+      "kind": "semantic",
+      "title": "Whether group membership is resolved once per session or on every policy evaluation",
+      "status": "open",
+      "former_ids": [
+        "zpa-67"
+      ],
+      "detail": "Not confirmed whether ZPA re-reads SCIM group membership on each evaluation in a session or fixes it at session start. Unverified legacy statement: \"When a user authenticates, ZPA resolves their current SCIM group memberships ... and evaluates each SCIM_GROUP operand as a membership check against that snapshot\". Test by changing a user's group while a session is open.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a mid-session group change takes effect"
+    }
+  }
+}

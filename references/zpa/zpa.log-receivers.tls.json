@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.tls",
+  "title": "TLS between the App Connector and the log receiver",
+  "aliases": [
+    "lss tls",
+    "mutual tls log receiver",
+    "use_tls",
+    "log receiver certificate",
+    "lss certificate trust",
+    "app connector enrollment certificate trust store"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "TLS on the stream is optional and mutual, and its trust is set up outside the receiver object."
+    },
+    {
+      "label": "Behavior.",
+      "text": "{{mutual-tls-optional}} {{tls-default-off}}"
+    },
+    {
+      "label": "Receiver requirements.",
+      "text": "{{receiver-requirements}}"
+    },
+    {
+      "label": "App Connector side.",
+      "text": "{{connector-trust}}"
+    },
+    {
+      "label": "What the tools expose.",
+      "text": "{{tls-flag-only}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "That the receiver supports TLS and presents a client certificate from a public root CA when TLS Encryption is on.",
+      "uses": [
+        "receiver-requirements",
+        "mutual-tls-optional"
+      ]
+    },
+    {
+      "do": "That the receiver's trust store holds the App Connector's enrollment certificate.",
+      "uses": [
+        "receiver-requirements",
+        "connector-trust"
+      ]
+    },
+    {
+      "do": "That a trust problem is fixed on the receiver or connector, not in the receiver object, which carries only a TLS flag.",
+      "uses": [
+        "tls-flag-only"
+      ]
+    }
+  ],
+  "claims": {
+    "mutual-tls-optional": {
+      "statement": "Mutual TLS between the log receiver and the App Connector can be enabled when configuring a log receiver, and LSS traffic flows between them only after mutual authentication is established, which requires them to exchange certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "It is possible to use mutual TLS encryption between the log receiver and the App Connector, which you can enable when configuring a log receiver.",
+            "LSS traffic only occurs between the App Connector and the log receiver after mutual authentication is established."
+          ]
+        }
+      ]
+    },
+    "tls-default-off": {
+      "statement": "TLS Encryption is disabled by default on a receiver and requires the receiver to support TLS communication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "To use this setting, the log receiver must support TLS communication.",
+            "By default, this setting is disabled."
+          ]
+        }
+      ]
+    },
+    "receiver-requirements": {
+      "statement": "The log receiver must support TLS, must have a client certificate for mutual TLS that uses a public root CA, and must validate the chain of trust to the App Connector's enrollment certificate, for example by holding that certificate in its trust store.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "Has a client certificate for mutual TLS encryption that uses a public root CA.",
+            "Validates the chain of trust to the App Connector's enrollment certificate.",
+            "The log receiver must have a certificate signed by a public root certificate authority (CA)."
+          ]
+        }
+      ]
+    },
+    "connector-trust": {
+      "statement": "The App Connector receives a root certificate automatically during deployment and is designed to trust log receiver certificates signed by the global public root CAs or by custom root CAs used as its enrollment certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "App Connector: Automatically receives a root certificate during deployment.",
+            "or signed by custom root CAs that are used as the App Connector's enrollment certificate."
+          ]
+        }
+      ]
+    },
+    "tls-flag-only": {
+      "statement": "The receiver object in the Go SDK, the Python SDK model and the Terraform schema carries only a boolean useTls: it has no CA, certificate or peer-verification attribute.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "UseTLS bool `json:\"useTls,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/lss.py",
+          "quotes": [
+            "self.use_tls = config[\"useTls\"] if \"useTls\" in config else False"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: the Go LSSConfig struct, the Python LSSConfig model and the Terraform config schema were read in full and hold no attribute for a CA, certificate or peer verification."
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.app-segments",
+  "title": "PRA application segments: protocols, ports, connection security and constraints",
+  "aliases": [
+    "pra application segment",
+    "zpa_application_segment_pra",
+    "connection_security",
+    "NLA_EXT",
+    "VM_CONNECT",
+    "SECURE_REMOTE_ACCESS",
+    "pra rdp connection security",
+    "realvnc terraform",
+    "pra multimatch",
+    "pra application protocol"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.segment-constraints"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-segments.multimatch-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.consoles-policy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A PRA application is a protocol and port on a segment, and the segment is a PRA-enabled variant. This subject holds what the help and the Terraform resource say about that configuration."
+    },
+    {
+      "label": "Application settings.",
+      "text": "{{enable-and-defaults}} {{connection-security-help}}"
+    },
+    {
+      "label": "Terraform and API.",
+      "text": "{{tf-protocol-enum}} {{tf-app-types-forced}} The help and the resource disagree on RealVNC {{divergence:realvnc-validation}}."
+    },
+    {
+      "label": "Constraints.",
+      "text": "Whether Source IP Anchoring is allowed on a PRA segment is open {{gap:sipa-on-pra}}. The Multimatch restriction, where two captures disagree about PRA, is in [[zpa.app-segments.multimatch-requirements]]."
+    },
+    {
+      "text": "Other settings blocked by Browser Access are in [[zpa.browser-access.segment-constraints]]. VNC file transfer needs SSH on port 22, covered in [[zpa.pra.consoles-policy]]. Update behavior of nested PRA apps in Terraform is in [[zpa.terraform.app-segment-lifecycle]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the RDP connection security matches the Windows version of the target.",
+      "uses": [
+        "connection-security-help"
+      ]
+    },
+    {
+      "do": "Whether Terraform input uses only RDP, SSH or VNC and a connection_security value in the validated list, and whether the application is RealVNC.",
+      "uses": [
+        "tf-protocol-enum",
+        "realvnc-validation"
+      ]
+    },
+    {
+      "do": "Whether a Source IP Anchoring question rests on the unverified exclusivity statement.",
+      "uses": [
+        "sipa-on-pra"
+      ]
+    }
+  ],
+  "claims": {
+    "enable-and-defaults": {
+      "statement": "Enabling Privileged Remote Access for an application means choosing a protocol (VNC, RealVNC, SSH or RDP) and a port; the defaults are 5900 for VNC and RealVNC, 3389 for RDP and 22 for SSH.",
+      "tier": "A",
+      "binds": [
+        "zpa/pra-app-segments#praApps"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Select the privileged console from the Protocol drop-down menu. You can select VNC, RealVNC, SSH, or RDP.",
+            "By default, port 5900 is entered for VNC and RealVNC, port 3389 is entered for RDP, and port 22 is entered for SSH."
+          ]
+        }
+      ]
+    },
+    "connection-security-help": {
+      "statement": "For an RDP application the Connection Security options are Any, TLS, RDP and NLA. Any is for Windows 10, 11 and Server 2016 or later and uses the strongest mutually supported protocol including NLA, while RDP is for Windows Server 2012 R2 and earlier or Windows 7 and 8.x, which do not support TLS, NLA or Any.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "The options are Any, TLS, RDP, or NLA.",
+            "Windows 10, 11, and Windows Server 2016 or later: Select Any. This option uses the strongest mutually supported protocol, including NLA.",
+            "These versions do not support TLS, NLA, or Any options."
+          ]
+        }
+      ]
+    },
+    "tf-protocol-enum": {
+      "statement": "In the Terraform PRA segment resource, each app's application_protocol is validated against RDP, SSH and VNC, and connection_security against ANY, NLA, NLA_EXT, TLS, VM_CONNECT and RDP. VM_CONNECT is a connection-security value, not a separate action.",
+      "tier": "A",
+      "binds": [
+        "zpa/pra-app-segments#praApps"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "quotes": [
+            "\"RDP\", \"SSH\", \"VNC\",",
+            "\"ANY\", \"NLA\", \"NLA_EXT\", \"TLS\", \"VM_CONNECT\", \"RDP\","
+          ]
+        }
+      ]
+    },
+    "tf-app-types-forced": {
+      "statement": "The Terraform PRA segment resource sets app_types to SECURE_REMOTE_ACCESS on every PRA app it builds, which is what distinguishes a PRA segment from a standard segment at the API layer.",
+      "tier": "A",
+      "binds": [
+        "zpa/pra-app-segments#praApps"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "quotes": [
+            "AppTypes:            []string{\"SECURE_REMOTE_ACCESS\"},"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "realvnc-validation": {
+      "summary": "Whether RealVNC is a PRA application protocol",
+      "positions": [
+        {
+          "says": "The help lists RealVNC next to VNC, SSH and RDP as a protocol for a PRA application and privileged console.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "Select the privileged console from the Protocol drop-down menu. You can select VNC, RealVNC, SSH, or RDP."
+            ]
+          }
+        },
+        {
+          "says": "The Terraform PRA segment resource validates application_protocol against RDP, SSH and VNC only.",
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_application_segment_pra.go",
+            "quotes": [
+              "\"RDP\", \"SSH\", \"VNC\","
+            ]
+          }
+        }
+      ],
+      "impact": "A RealVNC application configured in the console cannot be expressed through this Terraform resource as written, and a plan that reads one back may not validate. Check the provider version and the resource schema before importing RealVNC applications."
+    }
+  },
+  "gaps": {
+    "sipa-on-pra": {
+      "kind": "semantic",
+      "title": "Source IP Anchoring on a PRA segment",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"SIPA is not supported on PRA segments - same architectural reason as Browser Access (protocol relay terminates before backend sees the packet).\" No captured source says Source IP Anchoring is unsupported on PRA segments, or gives that reason. A lab attempt to enable both would resolve it.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

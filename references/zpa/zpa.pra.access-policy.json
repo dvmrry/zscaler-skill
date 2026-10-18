@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.access-policy",
+  "title": "Access policy for PRA: privileged approval, step-up and rule criteria",
+  "aliases": [
+    "allow with privileged approval",
+    "pra step-up authentication",
+    "pra conditional access",
+    "pra posture",
+    "pra access policy",
+    "pra country codes",
+    "pra saml scim criteria"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.approvals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.evaluation-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "PRA ties one access policy option to itself, Allow with Privileged Approval. The step-up option depends on an Authentication Service subscription, and PRA has its own console rules."
+    },
+    {
+      "label": "Access policy options.",
+      "text": "{{allow-with-privileged-approval}} {{step-up-level}} The step-up announcement for PRA is open {{gap:step-up-announcement}}."
+    },
+    {
+      "label": "Consoles-policy rules.",
+      "text": "{{consoles-rule-criteria}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Posture for clientless sessions is open {{gap:posture-on-clientless-pra}}."
+    },
+    {
+      "text": "The Web Browser client type and the posture and country restrictions are in [[zpa.browser-access.policy]]. Approval requests are in [[zpa.pra.approvals]]. Rule evaluation order is in [[zpa.policy.evaluation-order]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant has PRA and ZIdentity before relying on the privileged-approval or step-up options.",
+      "uses": [
+        "allow-with-privileged-approval",
+        "step-up-level"
+      ]
+    },
+    {
+      "do": "Whether a posture or country criterion is being applied to a browser or PRA session, which the help restricts.",
+      "uses": [
+        "posture-on-clientless-pra"
+      ]
+    },
+    {
+      "do": "Whether a step-up availability answer rests on the unverified announcement.",
+      "uses": [
+        "step-up-announcement"
+      ]
+    }
+  ],
+  "claims": {
+    "allow-with-privileged-approval": {
+      "statement": "In an access policy rule, the Allow with Privileged Approval option is available only to tenants that have PRA and is aimed at PRA-enabled application segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "The Allow with Privileged Approval checkbox is only an option if you have",
+            "Privileged Remote Access (PRA) and is primarily targeted for PRA-enabled"
+          ]
+        }
+      ]
+    },
+    "step-up-level": {
+      "statement": "A Conditional Access rule can require a step-up authentication level, available only to tenants subscribed to Authentication Service. A user who is not at the defined level is prompted to reinforce authentication, and the level must be configured in the Zscaler Admin Console.",
+      "conditions": "Statement word changed on recapture (2026-10-18): the capture now says \"Authentication Service\" where the statement said \"ZIdentity\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "Conditional Access: Allows access to sensitive resources for step-up authentication, and is only an option if you are subscribed to Authentication Service.",
+            "The authentication levels must be configured in the Zscaler Admin Console.",
+            "If a user is not at the defined authentication level, they are prompted to reinforce their authentication level."
+          ]
+        }
+      ]
+    },
+    "consoles-rule-criteria": {
+      "statement": "A consoles-policy rule chooses users with SAML and SCIM attributes (or session and user attributes), joined by OR by default and switchable to AND, and chooses application segments and segment groups joined by OR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-consoles-policies.json",
+          "quotes": [
+            "If you added multiple attributes or groups to the policy rule, Private Access uses an OR Boolean operator between them by default.",
+            "If you added multiple application segments to the policy rule, Private Access (ZPA) uses an OR Boolean operator between them."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "step-up-announcement": {
+      "kind": "data",
+      "title": "Step-Up Authentication for PRA as a limited-availability feature",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Zscaler announced Step-Up Authentication for Privileged Remote Access as a limited-availability feature on July 20, 2026. It can require a user to complete additional authentication before application access, and the Zscaler Admin Console supports conditional access for this flow.\" The captured July 2026 release summary page holds only its header text, so the announcement is not quotable. The access policy page documents the step-up option (claim step-up-level) without calling it limited availability for PRA. A re-capture of the release summary with its tab content would resolve it.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ]
+    },
+    "posture-on-clientless-pra": {
+      "kind": "semantic",
+      "title": "Device posture for clientless PRA sessions",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"PRA sessions don't respect ZCC posture on clientless flows. When a user reaches PRA via a browser on an unmanaged device, ZCC posture doesn't evaluate - posture policies that gate RDP access only work when the user comes from a ZCC-enrolled device.\" The help ties the posture restriction to the Web Browser client type (claim zpa.browser-access.policy:no-posture-with-web-browser). It does not say which client type a PRA session presents, or that posture is skipped for it. A lab test of a posture rule against a PRA session would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "id": "zpa.machine-tunnels.client-type-policy",
+  "title": "The Machine Tunnel client type in ZPA policy",
+  "aliases": [
+    "zpn_client_type_machine_tunnel policy",
+    "machine tunnel access policy rule",
+    "does my access rule cover the machine tunnel",
+    "machine tunnel blocked by default",
+    "client type machine tunnel forwarding rule",
+    "client type enum"
+  ],
+  "binds": [
+    "zpa/client-types#zpn_client_type_machine_tunnel",
+    "zpa/client-types#zpn_client_type_zapp"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.machine-tunnels.requirements"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-groups.policy-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.posture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers how policy types refer to the Machine Tunnel client type."
+    },
+    {
+      "label": "In access policy.",
+      "text": "{{client-type-listed}} {{wire-labels}} {{client-types-or}} [[zpa.policy.evaluation-order:default-access-block]] {{machine-tunnel-needs-own-rule}}"
+    },
+    {
+      "label": "In other policy types.",
+      "text": "{{client-forwarding-meaning}} {{forwarding-rule-accepts}} {{redirection-client-types}} The order between forwarding and access policy for these sessions is open {{gap:order-forwarding-vs-access}}."
+    },
+    {
+      "label": "What the Terraform provider accepts.",
+      "text": "{{tf-v1-client-types}} {{tf-v2-client-types}} {{tf-lss-validator}} The v2 documents disagree with that validation {{divergence:v2-docs-omit-machine-tunnel}}. How the provider writes and loses rule fields: [[zpa.terraform.policy-rule-writes]]."
+    },
+    {
+      "text": "Pairing a machine group with this client type: [[zpa.machine-groups.policy-use]]. Posture on the same sessions: [[zpa.machine-tunnels.posture]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an access rule selects Machine Tunnel; a rule that selects only Client Connector does not cover the tunnel.",
+      "uses": [
+        "client-type-listed",
+        "machine-tunnel-needs-own-rule",
+        "client-types-or"
+      ]
+    },
+    {
+      "do": "Whether no rule matched, in which case access is blocked by default.",
+      "uses": [
+        "zpa.policy.evaluation-order:default-access-block"
+      ]
+    },
+    {
+      "do": "Which client type value the Terraform resource generation accepts, and which validator list applies.",
+      "uses": [
+        "tf-v1-client-types",
+        "tf-v2-client-types",
+        "tf-lss-validator",
+        "v2-docs-omit-machine-tunnel"
+      ]
+    },
+    {
+      "do": "What a client forwarding or redirection rule means for a machine tunnel session.",
+      "uses": [
+        "client-forwarding-meaning",
+        "redirection-client-types",
+        "order-forwarding-vs-access"
+      ]
+    },
+    {
+      "do": "Which label the console shows for a client type value.",
+      "uses": [
+        "wire-labels"
+      ]
+    }
+  ],
+  "claims": {
+    "client-type-listed": {
+      "statement": "Machine Tunnel is one of the client types an access policy rule can select, beside Zscaler Client Connector, Client Connector for VDI, Client Connector Partner, Branch Connector, Cloud Connector, Web Browser, Internet & SaaS Service Edge and Extranet.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "The available client types are Zscaler Client Connector, Client Connector for VDI, Client Connector Partner, Branch Connector, Cloud Connector, Machine Tunnel, Web Browser, Internet & SaaS Service Edge, or Extranet."
+          ]
+        }
+      ]
+    },
+    "wire-labels": {
+      "statement": "The SDK's client types test expects the clientTypes endpoint to label `zpn_client_type_machine_tunnel` as Machine Tunnel and `zpn_client_type_zapp` as Client Connector.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/clienttypes/clienttypes_test.go",
+          "quotes": [
+            "\"zpn_client_type_machine_tunnel\":    \"Machine Tunnel\",",
+            "\"zpn_client_type_zapp\":              \"Client Connector\","
+          ]
+        }
+      ]
+    },
+    "client-types-or": {
+      "statement": "When a rule selects more than one client type, Private Access combines them with OR.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "If you added multiple client types to the policy rule, Private Access uses an OR Boolean operator between them."
+          ],
+          "after": "Machine Tunnel: To learn more, see About Machine Tunnels."
+        }
+      ]
+    },
+    "machine-tunnel-needs-own-rule": {
+      "statement": "An access rule that selects only the Client Connector client type does not select Machine Tunnel, so a machine tunnel session is covered only by a rule that selects Machine Tunnel; a session no rule covers meets the default Block Access outcome.",
+      "tier": "B",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "conditions": "Chain of evidence: the console lists Client Connector and Machine Tunnel as separate client types and says nothing of one standing in for the other.",
+      "derived_from": [
+        "client-type-listed",
+        "client-types-or",
+        "zpa.policy.evaluation-order:default-access-block"
+      ]
+    },
+    "client-forwarding-meaning": {
+      "statement": "Client forwarding policy rules define when application requests are forwarded to Private Access from Zscaler Client Connector; with no matching rule the application is implicitly set to Forward to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "Client forwarding policy rules allow you to create rules that define when application requests are forwarded to Private Access from the Zscaler Client Connector.",
+            "For client forwarding policy, access to the application is implicitly set to Forward to Private Access."
+          ]
+        }
+      ]
+    },
+    "forwarding-rule-accepts": {
+      "statement": "The provider documents `zpn_client_type_machine_tunnel` as a `CLIENT_TYPE` value for the v1 forwarding rule.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule.md",
+          "quotes": [
+            "``zpn_client_type_zapp_partner``,  ``zpn_client_type_machine_tunnel``, ``zpn_client_type_zapp``"
+          ]
+        }
+      ]
+    },
+    "redirection-client-types": {
+      "statement": "Redirection policy rules set criteria for preferring Private Service Edges over Public Service Edges for Private Access. The Python SDK's add_redirection_rule_v2 helper accepts exactly five client type values: edge connector, branch connector, machine tunnel, zapp and zapp partner.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "Redirection policy rules allow you to set criteria for preferring Private Service Edges for Private Access over Public Service Edges for Private Access."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "\"zpn_client_type_zapp_partner\",\n        ]"
+          ],
+          "after": "def add_redirection_rule_v2(self, name: str, action: str, service_edge_group_ids: list = [], **kwargs)"
+        }
+      ]
+    },
+    "tf-v1-client-types": {
+      "statement": "The provider's v1 policy rule validation accepts eleven client type values, including `zpn_client_type_machine_tunnel`; it does not accept `zpn_client_type_zia_inspection`.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "id != \"zpn_client_type_machine_tunnel\" &&",
+            "id != \"zpn_client_type_vdi\" {"
+          ],
+          "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {"
+        }
+      ]
+    },
+    "tf-v2-client-types": {
+      "statement": "The provider's v2 policy rule validation accepts twelve client type values, the eleven above plus `zpn_client_type_zia_inspection`.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "validClientTypes := []string{",
+            "\"zpn_client_type_zia_inspection\","
+          ],
+          "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {"
+        }
+      ]
+    },
+    "tf-lss-validator": {
+      "statement": "The provider's twelve-value `supportedClientTypes` map is consulted when validating log receiver filters (the `zpn_auth_log` and `zpn_trans_log` source types), not policy rule operands.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/client-types#zpn_client_type_zapp"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "case \"zpn_trans_log\":\n\t\t\tvalidObjectTypes = validObjectTypesForTransLog",
+            "if _, exists := supportedClientTypes[value]; !exists {"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "v2-docs-omit-machine-tunnel": {
+      "summary": "The provider's v2 forwarding rule document leaves `zpn_client_type_machine_tunnel` out of its CLIENT_TYPE value list, while the provider's v2 validation accepts it and the v1 document lists it.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_policy_forwarding_rule_v2.md",
+            "quotes": [
+              "``zpn_client_type_zappl``, ``zpn_client_type_exporter``, ``zpn_client_type_browser_isolation``, ``zpn_client_type_ip_anchoring``, ``zpn_client_type_edge_connector``, ``zpn_client_type_branch_connector``,  ``zpn_client_type_zapp_partner``, ``zpn_client_type_zapp``"
+            ]
+          },
+          "says": "The v2 forwarding rule CLIENT_TYPE values are listed without machine tunnel (and with a misspelt `zpn_client_type_zappl`)."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/common.go",
+            "quotes": [
+              "\"zpn_client_type_machine_tunnel\","
+            ],
+            "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {"
+          },
+          "says": "The v2 validation list includes `zpn_client_type_machine_tunnel`."
+        }
+      ],
+      "impact": "A reader of the v2 document would conclude machine tunnel cannot be selected in a v2 forwarding rule, which the provider's own validation contradicts."
+    }
+  },
+  "gaps": {
+    "order-forwarding-vs-access": {
+      "kind": "semantic",
+      "title": "Whether client forwarding policy for a machine tunnel is evaluated before access policy",
+      "status": "open",
+      "about": [
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "detail": "Unverified legacy statement: \"Forwarding Policy evaluates before Access Policy. A forwarding rule with client type zpn_client_type_machine_tunnel can be used to route machine-tunnel traffic to a specific Service Edge group, or to bypass ZPA entirely for certain destinations.\" The policies help defines client forwarding policy as deciding when requests are forwarded to Private Access, not as routing to a Service Edge group, and gives no evaluation order against access policy. Confirm the order and the available actions in a scratch tenant.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

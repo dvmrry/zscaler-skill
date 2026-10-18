@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.private-cloud-controller",
+  "title": "Private Cloud Controllers and Private Clouds as the Business Continuity layer",
+  "aliases": [
+    "private cloud controller",
+    "privatecloudcontroller",
+    "private cloud group",
+    "private cloud",
+    "zpa business continuity",
+    "restart_private_controller",
+    "zpa_private_cloud_group",
+    "is a private cloud controller a pse group"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Private Cloud Controller is the Business Continuity controller; it is not a Private Service Edge group type."
+    },
+    {
+      "label": "Role.",
+      "text": "{{controller-role}} {{controller-version}} {{private-cloud-grouping}} {{controller-group-site}}"
+    },
+    {
+      "label": "Restart.",
+      "text": "Whether a restart is graceful is unverified {{gap:restart-semantics}}."
+    },
+    {
+      "text": "The endpoints for controllers and controller groups are in [[zpa.private-service-edges.api-surface]]. Disaster recovery: [[zpa.private-service-edges.disaster-recovery]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question is about a Private Cloud Controller: it is a per-tenant controller for outages of the Private Access cloud, not a Private Service Edge group type.",
+      "uses": [
+        "controller-role",
+        "private-cloud-grouping"
+      ]
+    },
+    {
+      "do": "Whether Private Cloud Controllers run the same or a later software version than the App Connectors and Private Service Edges they serve.",
+      "uses": [
+        "controller-version"
+      ]
+    },
+    {
+      "do": "Whether the restart endpoint is safe on a live controller, which the sources do not settle.",
+      "uses": [
+        "restart-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "controller-role": {
+      "statement": "A Private Cloud Controller is a per-tenant controller that users, Private Service Edges and App Connectors use when the Private Access cloud is not available or reachable: it persists a complete copy of configuration and policies, distributes them to onsite Private Service Edges and App Connectors, acts as an authentication redirection endpoint and log streaming endpoint, and redirects users to Private Service Edges when Business Continuity is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-cloud-controllers.json",
+          "quotes": [
+            "Private Cloud Controllers behave as a per-tenant controller for users, Private Service Edges for Private Access (ZPA), and App Connectors to leverage when the Private Access cloud is not available or reachable.",
+            "Downloads and persists a complete copy of customer configuration and policies.",
+            "Acts as an authentication redirection endpoint when Business Continuity is enabled.",
+            "Redirects users to Private Service Edges when Business Continuity is enabled."
+          ]
+        }
+      ]
+    },
+    "controller-version": {
+      "statement": "Private Cloud Controllers must run the same or a later software version as the App Connectors and Private Service Edges for Business Continuity to function, and their enrollment certificate is valid for one year unless a certificate renewal threshold is configured on the Private Cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-cloud-controllers.json",
+          "quotes": [
+            "Private Cloud Controllers must run on the same or a later",
+            "Private Cloud Controller certificate enrollment is valid for one year."
+          ]
+        }
+      ]
+    },
+    "private-cloud-grouping": {
+      "statement": "A Private Cloud is a logical grouping of Private Cloud Controller groups, App Connector groups, Private Service Edge groups and log receivers, required for uninterrupted application access via Business Continuity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-clouds.json",
+          "quotes": [
+            "Private Clouds are a logical grouping of Private Cloud Controller groups, App Connector groups, Private Service Edge for Private Access (ZPA) groups, and log receivers.",
+            "Configuring a Private Cloud is required for uninterrupted access to applications without any manual intervention via Business Continuity."
+          ]
+        }
+      ]
+    },
+    "controller-group-site": {
+      "statement": "The Python SDK Private Cloud Group carries a site_id, \"the unique identifier of the site associated with this Private Cloud Group\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/private_cloud_group.py",
+          "quotes": [
+            "The unique identifier of the site associated with this Private Cloud Group."
+          ],
+          "after": "def add_cloud_group"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "restart-semantics": {
+      "kind": "semantic",
+      "title": "Operational semantics of restarting a Private Cloud Controller",
+      "status": "open",
+      "former_ids": [
+        "zpa-52"
+      ],
+      "detail": "The Python SDK exposes PUT /privateCloudController/{id}/restart, but the OpenAPI document lists no restart operation and no source says whether the restart drains sessions or is hard. Unverified legacy statement: \"no equivalent restart action exists for ordinary serviceEdge instances (none is present in service_edges.py)\". Resolve with a lab test.",
+      "blocks": "restarting a controller during Business Continuity",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

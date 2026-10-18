@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.configuration",
+  "title": "What a ZPA log receiver holds and which fields are required",
+  "aliases": [
+    "lss config",
+    "lssConfig fields",
+    "lss_host",
+    "lss_port",
+    "log receiver required fields",
+    "lss connector groups empty",
+    "log receiver one destination"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.formats"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.tls"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.resource-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A receiver has a config block, the App Connector groups that forward it, and an optional streaming policy."
+    },
+    {
+      "label": "Config block.",
+      "text": "{{config-fields}} {{required-fields}} {{defaults}} {{port-is-string}} {{name-characters}}"
+    },
+    {
+      "label": "Target.",
+      "text": "{{one-target}} The same log type to two SIEMs by two receivers is not sourced {{gap:two-siems}}."
+    },
+    {
+      "label": "Connector groups.",
+      "text": "{{connector-groups-purpose}} {{connector-groups-optional}} {{python-groups-update}} The documents disagree on whether groups are required {{divergence:connector-groups-required}}, and what an empty list does is open {{gap:empty-groups}}."
+    },
+    {
+      "label": "Streaming policy.",
+      "text": "{{policy-rule-resource}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which fields the tool requires: name, format, lss_host, lss_port and source_log_type in Terraform.",
+      "uses": [
+        "required-fields",
+        "config-fields"
+      ]
+    },
+    {
+      "do": "That a receiver names a single host and port, so a second destination needs a second receiver.",
+      "uses": [
+        "one-target"
+      ]
+    },
+    {
+      "do": "Whether connector groups are set, noting that the sources disagree on whether they are required.",
+      "uses": [
+        "connector-groups-purpose",
+        "connector-groups-required",
+        "empty-groups"
+      ]
+    },
+    {
+      "do": "That lssPort travels as a string and the name avoids special characters other than period, hyphen and underscore.",
+      "uses": [
+        "port-is-string",
+        "name-characters"
+      ]
+    }
+  ],
+  "claims": {
+    "config-fields": {
+      "statement": "The Go SDK models a receiver as an id, a config object, optional connectorGroups, an optional policyRule and an optional policyRuleResource; the config object carries id, name, description, enabled, filter, format, auditMessage, lssHost, lssPort, sourceLogType, microtenantId, microtenantName and useTls, with creationTime, modifiedBy and modifiedTime.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "LSSConfig *LSSConfig `json:\"config\"`",
+            "ConnectorGroups []ConnectorGroups `json:\"connectorGroups,omitempty\"`",
+            "PolicyRule *PolicyRule `json:\"policyRule,omitempty\"`",
+            "PolicyRuleResource *PolicyRuleResource `json:\"policyRuleResource,omitempty\"`"
+          ],
+          "after": "type LSSResource struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "Filter []string `json:\"filter,omitempty\"`",
+            "Format string `json:\"format,omitempty\"`",
+            "AuditMessage string `json:\"auditMessage,omitempty\"`",
+            "LSSHost string `json:\"lssHost,omitempty\"`",
+            "SourceLogType string `json:\"sourceLogType,omitempty\"`",
+            "MicroTenantID string `json:\"microtenantId,omitempty\"`",
+            "UseTLS bool `json:\"useTls,omitempty\"`"
+          ],
+          "after": "type LSSConfig struct {"
+        }
+      ]
+    },
+    "required-fields": {
+      "statement": "The Terraform resource requires name (non-empty), format, lss_host, lss_port and source_log_type in its config block; description, enabled, filter and use_tls are optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "Required: true, ValidateFunc: validation.StringIsNotEmpty, Description: \"Name of the LSS configuration\",",
+            "Required: true, Description: \"Format of the log type. Format given by the following API to get formats: /mgmtconfig/v2/admin/lssConfig/logType/formats\",",
+            "Required: true, Description: \"Host of the LSS configuration\",",
+            "Required: true, Description: \"Port of the LSS configuration\",",
+            "Required: true, Description: \"Log type of the LSS configuration\","
+          ]
+        }
+      ]
+    },
+    "defaults": {
+      "statement": "A receiver is enabled by default and TLS is off by default; the API article gives enabled the default true and useTls the default false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "| config.enabled | Whether this LSS configuration is enabled or not | No | Default: trueSupported values: true, false |",
+            "| config.useTls | Whether TLS is enabled or not | Yes | Default: falseSupported values: true, false |"
+          ]
+        }
+      ]
+    },
+    "port-is-string": {
+      "statement": "lssPort is a string in the Go SDK, the Python SDK and the Terraform schema, and the API article gives its value type as String.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "LSSPort string `json:\"lssPort,omitempty\"`"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "| config.lssPort | The port of the LSS configuration | Yes | String |"
+          ]
+        }
+      ]
+    },
+    "name-characters": {
+      "statement": "A log receiver's name cannot contain special characters except periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "one-target": {
+      "statement": "A receiver carries a single lssHost and lssPort, so it streams to one destination.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
+          "quotes": [
+            "LSSHost string `json:\"lssHost,omitempty\"`",
+            "LSSPort string `json:\"lssPort,omitempty\"`"
+          ]
+        }
+      ],
+      "conditions": "The receiver object and all three clients (Go, Python, Terraform) define host and port once and no list of destinations; read in full for the Go struct and the Terraform config schema."
+    },
+    "connector-groups-purpose": {
+      "statement": "The App Connector Groups on a receiver are the groups that can forward logs to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "App Connector Groups: Choose the App Connector groups that can forward logs to the receiver."
+          ]
+        }
+      ]
+    },
+    "connector-groups-optional": {
+      "statement": "The API article marks appConnectorGroups as not required, and the Terraform schema declares connector_groups Optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "| appConnectorGroups | The App Connector groups to be added to the LSS configuration | No |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "Optional: true, Description: \"App Connector Group(s) to be added to the LSS configuration\","
+          ]
+        }
+      ]
+    },
+    "python-groups-update": {
+      "statement": "In the Python SDK's update, connectorGroups is sent only when app_connector_group_ids is supplied, and passing an empty list clears the associations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "connectorGroups is included only when the caller supplied",
+            "Passing an empty list explicitly will",
+            "clear the associations on the server."
+          ]
+        }
+      ]
+    },
+    "policy-rule-resource": {
+      "statement": "A receiver may carry a policyRuleResource that restricts what is streamed; the API article lists its objectType values as APP, APP_GROUP, CLIENT_TYPE, SAML, SCIM and SCIM_GROUP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "policyRuleResource.objectType | The object type of the rule as part of the log receiver configuration.",
+            "APP: Denotes the Applications streaming policy criteria for the log receiver."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "connector-groups-required": {
+      "summary": "Whether a receiver must have App Connector groups: the provider's documentation marks connector_groups Required, while its schema and the API article treat the groups as optional.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_lss_audit_logs.md",
+            "quotes": [
+              "* `connector_groups` - (Required)"
+            ],
+            "after": "The following arguments are supported:"
+          },
+          "says": "The provider documentation lists connector_groups as Required."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_lss_config_controller.go",
+            "quotes": [
+              "Optional: true, Description: \"App Connector Group(s) to be added to the LSS configuration\","
+            ]
+          },
+          "says": "The provider schema declares connector_groups Optional."
+        }
+      ],
+      "impact": "A configuration that omits connector_groups is accepted by the schema although the documentation calls it required; what such a receiver does is not shown (see gap empty-groups)."
+    }
+  },
+  "gaps": {
+    "empty-groups": {
+      "kind": "semantic",
+      "title": "A receiver with no connector groups",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If `connector_groups` is empty, the receiver has no source connectors and will emit nothing. The Python SDK `add_lss_config` accepts `app_connector_group_ids=None` without error, but the resulting receiver is non-functional until connector groups are added.\" The SDK does accept a missing list (add_lss_config sends an empty connectorGroups list), but no source says what the service does with a receiver that has no groups.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "two-siems": {
+      "kind": "semantic",
+      "title": "Sending one log type to two SIEMs",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"To send the same log type to two SIEMs, create two Log Receiver objects with identical configurations targeting different endpoints. Both objects consume connector resources independently.\" The single host and port per receiver is sourced (one-target); the instruction to create two receivers and the claim about independent connector resource use are not stated by any source.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

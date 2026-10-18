@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.enrollment",
+  "title": "Enrolling a Private Service Edge",
+  "aliases": [
+    "pse enrollment",
+    "pse provisioning key",
+    "oauth2 user code private service edge",
+    "enrollment token",
+    "pse clone",
+    "private service edge deleted by mistake",
+    "pse not listed in console",
+    "enrollment_cert_id service edge"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Enrolling a Private Service Edge is the step that gives an added instance its identity in a group."
+    },
+    {
+      "label": "Console side.",
+      "text": "{{enrollment-tokens-preferred}} {{oauth-name-format}} {{listed-only-when-deployed}} {{enrollment-cert-shown}}"
+    },
+    {
+      "label": "Terraform side.",
+      "text": "{{tf-two-methods}} {{tf-provisioning-key}} {{enrollment-cert-autoresolve}} Failure to verify user codes after the group is written is a provider behavior: [[zpa.terraform.resource-fidelity:user-code-verification-after-write]]. Association types for provisioning keys: [[zpa.sdk-go.service-defects:provisioning-key-all-associations-fixed-list]]. OAuth2 licensing beyond the version is open {{gap:oauth2-prerequisites}}. The module's OAuth2 default and provider minimum are in [[zpa.private-service-edges.reference-modules]]."
+    },
+    {
+      "label": "Identity and cloning.",
+      "text": "{{enrollment-steps}} {{pse-clone-rule}} {{same-provisioning-key-scales}} {{oauth-min-version}}"
+    },
+    {
+      "label": "Recovery.",
+      "text": "{{deleted-pse-unrecoverable}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Private Service Edge appears on the console page: only deployed instances are listed, so an added but undeployed one is absent.",
+      "uses": [
+        "listed-only-when-deployed"
+      ]
+    },
+    {
+      "do": "Which enrollment method the instance used, from its name: OAuth-enabled instances are named GroupName-UserCode-TimeStamp.",
+      "uses": [
+        "oauth-name-format",
+        "enrollment-tokens-preferred"
+      ]
+    },
+    {
+      "do": "Whether a Private Service Edge deleted from the console is still running; it cannot be recovered and must be removed on the host and redeployed.",
+      "uses": [
+        "deleted-pse-unrecoverable"
+      ]
+    },
+    {
+      "do": "Whether the Terraform group was applied with user codes and the verification step failed after the group was created, which leaves the group written.",
+      "uses": [
+        "zpa.terraform.resource-fidelity:user-code-verification-after-write"
+      ]
+    },
+    {
+      "do": "Whether a cloned VM is the reason an instance fails to enroll.",
+      "uses": [
+        "enrollment-steps",
+        "pse-clone-rule"
+      ]
+    }
+  ],
+  "claims": {
+    "enrollment-tokens-preferred": {
+      "statement": "Adding a Private Service Edge in the console includes applying enrollment tokens (preferred) or obtaining a Private Service Edge provisioning key, and then deploying on a supported platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "which includes applying enrollment tokens (preferred) or obtaining a Private Service Edge provisioning key."
+          ]
+        }
+      ]
+    },
+    "oauth-name-format": {
+      "statement": "OAuth-enabled Private Service Edges are added with a name in the format GroupName-UserCode-TimeStamp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "OAuth-enabled Private Service Edges are added with a name format of GroupName-UserCode-TimeStamp."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges#name"
+      ]
+    },
+    "listed-only-when-deployed": {
+      "statement": "The Private Service Edges page lists deployed instances; instances that were added but not deployed are not listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "View a list of all deployed Private Service Edges.",
+            "but have not deployed are not listed."
+          ]
+        }
+      ]
+    },
+    "enrollment-cert-shown": {
+      "statement": "A Private Service Edge shows the enrollment certificate used to authenticate it during enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "The certificate used to authenticate Private Service Edges during the enrollment process."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges#issuedCertId"
+      ]
+    },
+    "tf-two-methods": {
+      "statement": "The Terraform Service Edge group resource supports two onboarding methods: OAuth2 user codes, recommended for new deployments, and a provisioning key, described as legacy and still supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "ZPA Private Service Edges can be onboarded into ZPA in two ways. This resource supports both:",
+            "recommended for new deployments",
+            "legacy / still supported"
+          ]
+        }
+      ]
+    },
+    "tf-provisioning-key": {
+      "statement": "For the provisioning-key method, a zpa_provisioning_key is created after the group that references the group's ID and the SERVICE_EDGE_GRP association type; the key is injected into the Private Service Edge VM at deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Create the Service Edge Group, then create a `zpa_provisioning_key` that references the group's ID.",
+            "The provisioning key is then injected into the Service Edge VM at deployment time."
+          ]
+        }
+      ]
+    },
+    "enrollment-cert-autoresolve": {
+      "statement": "If enrollment_cert_id is empty on a Service Edge group, the provider looks up the enrollment certificate named \"Service Edge\" and uses it; since 4.4.10 this runs on update as well as create.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "The resolution now also runs on update for the resources `zpa_app_connector_group`, `zpa_service_edge_group`, and `zpa_private_cloud_group`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "if v, ok := d.GetOk(\"enrollment_cert_id\"); ok && v.(string) != \"\" {",
+            "cert, _, err := enrollmentcert.GetByName(ctx, service, certName)"
+          ]
+        }
+      ]
+    },
+    "deleted-pse-unrecoverable": {
+      "statement": "A Private Service Edge deleted from the console by accident is immediately refused by Private Access and cannot be recovered; the instance must be cleaned on the host (service stopped, /opt/zscaler/var/* removed, service restarted) and the configure-and-deploy process restarted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-private-service-edges.json",
+          "quotes": [
+            "Private Access immediately recognizes that it should not communicate with the Private Service Edge, and it breaks the active connection. There is no way to recover the Private Service Edge.",
+            "rm -rf /opt/zscaler/var/*",
+            "Restart the process for configuring a Private Service Edge and deploying on a platform."
+          ]
+        }
+      ]
+    },
+    "enrollment-steps": {
+      "statement": "A Private Service Edge first generates a local private key encrypted with a hardware fingerprint, then enrolls: it generates a Certificate Signing Request, authenticates it with the provisioning key from the Admin Console, receives a signed TLS client certificate from the Private Access cloud, and the certificate is pinned to its hardware fingerprint. Once enrolled it is paired with a single customer account and cannot be enrolled again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-deploying-service-edges.json",
+          "quotes": [
+            "the Private Service Edge must first generate the local private key, which it encrypts using a hardware fingerprint.",
+            "It uses the provisioning key to authenticate the CSR to the Private Access cloud.",
+            "The signed TLS client certificate is pinned to the Private Service Edge's hardware fingerprint.",
+            "it is paired with a single customer account, and it cannot be enrolled again."
+          ]
+        }
+      ]
+    },
+    "pse-clone-rule": {
+      "statement": "Private Service Edges running in VM environments should never be cloned, because the keys will no longer match the virtual hardware fingerprints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-deploying-service-edges.json",
+          "quotes": [
+            "should never be cloned, because the keys will no longer match the virtual hardware fingerprints."
+          ]
+        }
+      ]
+    },
+    "same-provisioning-key-scales": {
+      "statement": "Additional Private Service Edges can be deployed at any time with the same provisioning key to join the existing group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "using the same provisioning key to add them to the existing Private Service Edge group"
+          ]
+        }
+      ]
+    },
+    "oauth-min-version": {
+      "statement": "OAuth 2.0 enrollment requires Manager software and Private Service Edge version 25.48.4 or later, and an enrollment token from a hyperscaler marketplace, virtual image or RPM installer provided by Zscaler (or a provisioning key); the OAuth server supports IPv4 only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "For OAuth 2.0 enrollment, Manager software and Private Service Edge version 25.48.4 or later",
+            "The OAuth server only supports IPv4-based communication."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "oauth2-prerequisites": {
+      "kind": "semantic",
+      "title": "Licensing and tenant prerequisites for OAuth2 enrollment",
+      "status": "open",
+      "former_ids": [
+        "zpa-55"
+      ],
+      "detail": "The version prerequisite is stated, but whether OAuth2 enrollment needs a license or tenant-side enablement is not. Resolve with tenant confirmation or Zscaler support.",
+      "blocks": "standardizing on the OAuth2 flow",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

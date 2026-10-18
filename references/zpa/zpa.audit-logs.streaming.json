@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "id": "zpa.audit-logs.streaming",
+  "title": "Streaming ZPA audit logs to a SIEM: log type, fields, filtering",
+  "aliases": [
+    "zpn_audit_log",
+    "lss audit log",
+    "audit log fields",
+    "auditOldValue",
+    "auditNewValue",
+    "auditOperationType",
+    "clientAuditUpdate",
+    "stream zpa audit logs to splunk",
+    "siem policy audit"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs.what-is-recorded"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.microtenants.admin-permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Audit logs are streamed by a log receiver of the Audit Logs type; the receiver mechanics are in [[zpa.log-receivers]]."
+    },
+    {
+      "label": "Log type.",
+      "text": "{{audit-log-type}} {{audit-source-type}}"
+    },
+    {
+      "label": "Fields.",
+      "text": "The field list was an open question until the field article was captured {{gap:field-schema}}. {{default-fields}} {{operation-values}} {{old-new-value}} {{object-fields}} {{client-audit-update}} {{custom-template}}"
+    },
+    {
+      "label": "Delivery.",
+      "text": "The audit-log exception to the loss behavior is in [[zpa.app-connectors.health]]; what the exception means is open {{gap:audit-recovery-mechanism}}."
+    },
+    {
+      "label": "Filtering.",
+      "text": "{{no-audit-status-filter}} {{no-audit-policy-rule}} [[zpa.log-receivers.filtering:siem-policy-set]] What the API itself accepts for an audit-log receiver is open {{gap:audit-filter-api}} {{gap:siem-policy-purpose}}."
+    },
+    {
+      "label": "Microtenants.",
+      "text": "{{disabled-microtenant-audit-only}} Audit Logs of the Default Microtenant are not visible to a Microtenant admin [[zpa.microtenants.admin-permissions]], and deleting a Microtenant deletes the log receivers it is associated with [[zpa.microtenants.lifecycle]]. How a microtenant's own audit entries are scoped between it and its parent is open {{gap:microtenant-scoping}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That the receiver's log type is Audit Logs (source log type zpn_audit_log) rather than User Activity.",
+      "uses": [
+        "audit-log-type",
+        "audit-source-type"
+      ]
+    },
+    {
+      "do": "Which fields the receiver's stream content includes, against the default field list, if a custom template was saved.",
+      "uses": [
+        "default-fields",
+        "custom-template"
+      ]
+    },
+    {
+      "do": "Whether the entry is a change or a session event from auditOperationType, and which of auditOldValue or auditNewValue applies.",
+      "uses": [
+        "operation-values",
+        "old-new-value"
+      ]
+    },
+    {
+      "do": "That no status-code filter or streaming policy is expected to narrow an audit-log receiver.",
+      "uses": [
+        "no-audit-status-filter",
+        "no-audit-policy-rule"
+      ]
+    },
+    {
+      "do": "Whether a gap in the SIEM data coincides with a connection loss, and that the audit-log exception is not described further.",
+      "uses": [
+        "zpa.app-connectors.health:lss-retransmit-limits",
+        "audit-recovery-mechanism"
+      ]
+    },
+    {
+      "do": "Whether microtenants are enabled on the receiver when a microtenant's audit entries are missing, and which microtenant the admin belongs to.",
+      "uses": [
+        "disabled-microtenant-audit-only",
+        "zpa.microtenants.admin-permissions:default-resources-not-visible",
+        "microtenant-scoping"
+      ]
+    }
+  ],
+  "claims": {
+    "audit-log-type": {
+      "statement": "The Audit Logs log type carries session information for all admins accessing the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "Audit Logs: Session information for all admins accessing the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "audit-source-type": {
+      "statement": "A log receiver's source log type for audit logs is `zpn_audit_log`; the Python SDK reaches it through the `audit_logs` key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "zpn_audit_log: Denotes the Audit Log log type."
+          ],
+          "after": "The log type of the LSS resource. The supported values are:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "\"audit_logs\": \"zpn_audit_log\","
+          ]
+        }
+      ]
+    },
+    "default-fields": {
+      "statement": "By default the audit stream carries thirteen fields in each template (CSV, JSON, TSV): modifiedTime, creationTime, modifiedBy, requestID, auditOldValue, auditNewValue, auditOperationType, objectType, objectName, objectID, customerID, modifiedByUser and clientAuditUpdate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-audit-log-fields.json",
+          "quotes": [
+            "By default, the audit log type includes the fields listed in the table below for each log template (i.e., CSV, JSON, TSV).",
+            "| modifiedTime | The time when an object is created, deleted, or updated |",
+            "| creationTime | The time when the log was generated |",
+            "| modifiedBy | The user ID for the admin that made the change |",
+            "| requestID | The ID for the associated configuration change, as related to the action that was made |",
+            "| objectName | The name of the object. This corresponds to the Resource Name on the Audit Log page.",
+            "| objectID | The ID associated with the object name |",
+            "| customerID | The Private Access tenant ID of the customer.",
+            "| modifiedByUser | The username of the admin associated with the audit action |"
+          ]
+        }
+      ]
+    },
+    "operation-values": {
+      "statement": "auditOperationType takes Create, Client Session Revoked, Delete, Download, Sign In, Sign In Failure, Sign Out and Update; the Nonce MaxUsage Increment action of the console is not listed for this field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-audit-log-fields.json",
+          "quotes": [
+            "The action performed.The expected values for this field:CreateClient Session RevokedDeleteDownloadSign InSign In FailureSign OutUpdate"
+          ]
+        }
+      ]
+    },
+    "old-new-value": {
+      "statement": "auditOldValue holds the previous value when the action is delete, sign out or update, and auditNewValue holds the new value when the action is create, sign in or update; for a policy object the value is Allow for an access policy, Intercept for a client forwarding policy and Re_Auth for a timeout policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-audit-log-fields.json",
+          "quotes": [
+            "The previous value that was changed if the action type is delete, sign out, or update.",
+            "The new value that was changed if the action type is create, sign in, or update."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-audit-log-fields.json",
+          "quotes": [
+            "Allow: the policy type is access policyIntercept: the policy type is client forwarding policyRe_Auth: the policy type is timeout policy"
+          ],
+          "after": "The previous value that was changed if the action type is delete, sign out, or update."
+        }
+      ]
+    },
+    "object-fields": {
+      "statement": "objectType is the location in the Admin Console where the action was performed and corresponds to the Resource Type on the Audit Log page; objectName corresponds to the Resource Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-audit-log-fields.json",
+          "quotes": [
+            "The location within the Zscaler Admin Console where the Action was performed. This corresponds to the Resource Type on the Audit Log page.",
+            "The name of the object. This corresponds to the Resource Name on the Audit Log page."
+          ]
+        }
+      ]
+    },
+    "client-audit-update": {
+      "statement": "clientAuditUpdate indicates whether the entry is associated with admin or client credentials, with expected values 0 and 1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-audit-log-fields.json",
+          "quotes": [
+            "Indicates whether the logs are associated with admin or client credentials. The expected values for this field are 0 and 1."
+          ]
+        }
+      ]
+    },
+    "custom-template": {
+      "statement": "While configuring the log receiver the default log stream content can be edited to capture only specific fields, which creates a Custom log template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-audit-log-fields.json",
+          "quotes": [
+            "you can edit the default log stream content to capture only specific fields, and create a Custom log template."
+          ]
+        }
+      ]
+    },
+    "no-audit-status-filter": {
+      "statement": "The Terraform provider rejects a status-code filter on a `zpn_audit_log` receiver, and the documented status-codes response lists codes only for the User Status, App Connector Status, User Activity and Private Service Edge Status log types.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "\"zpn_audit_log\": \"Audit Logs\",",
+            "return fmt.Errorf(\"filter is not supported for source log type %s - %s\", sourceLogType, displayName)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "- \"zpn_ast_auth_log\": {",
+            "- \"zpn_sys_auth_log\": {"
+          ]
+        }
+      ],
+      "conditions": "Provider behavior plus an absence in an example response: the status-codes example in the API article shows four top-level log types and none for audit logs. What the server does with a filter sent directly is not shown (see gap audit-filter-api).",
+      "gaps": [
+        "audit-filter-api"
+      ]
+    },
+    "no-audit-policy-rule": {
+      "statement": "The Terraform provider accepts policy rule operands only on User Status and User Activity receivers and returns an invalid-source-log-type error for any other source log type, which includes `zpn_audit_log`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "validObjectTypes = validObjectTypesForAuthLog",
+            "validObjectTypes = validObjectTypesForTransLog"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "return fmt.Errorf(\"invalid source_log_type: %s\", sourceLogType)"
+          ],
+          "after": "validObjectTypes = validObjectTypesForTransLog"
+        }
+      ],
+      "conditions": "Reading the object-type switch in validateLSSConfigControllerFilters: the cases are zpn_auth_log and zpn_trans_log and the default returns the error. This is the client's validation, not the server's.",
+      "gaps": [
+        "siem-policy-purpose"
+      ]
+    },
+    "disabled-microtenant-audit-only": {
+      "statement": "On a log receiver, when a Microtenant is disabled only audit logs are streamed for it, and all Microtenants are selected by default when the receiver is configured in the Default Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "If a Microtenant is disabled, then only audit logs are streamed to the log receiver.",
+            "All Microtenants are selected by default if you are configuring a log receiver within the Default Microtenant."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "field-schema": {
+      "kind": "semantic",
+      "title": "Fields of a zpn_audit_log stream entry",
+      "status": "resolved",
+      "detail": "Tracked as legacy ledger item zpa-32: the specific fields present in a zpn_audit_log LSS stream entry were not captured.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "former_ids": [
+        "zpa-32"
+      ],
+      "resolution": "The Understanding Audit Log Fields article is captured and lists the default fields; see claim default-fields."
+    },
+    "audit-recovery-mechanism": {
+      "kind": "semantic",
+      "title": "What the audit-log exception to the loss behavior does",
+      "status": "open",
+      "detail": "The help says that, with the exception of audit log data, LSS transmits nothing generated during a connection loss between the App Connector and the SIEM. It does not say what happens to audit log data during such a loss, how long it is held, or whether the 15-minute retransmit applies. Unverified legacy statement: \"After a connection is restored, the LSS can retransmit the last 15 minutes of audit log data.\" The legacy wording attributes the retransmit to the audit-log case; the source attaches the 15 minutes to the loss between Private Access and the App Connectors.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "audit-filter-api": {
+      "kind": "semantic",
+      "title": "Whether the API accepts a filter on an audit-log receiver",
+      "status": "partial",
+      "detail": "Tracked as legacy ledger item zpa-35. The Terraform provider rejects any filter on a `zpn_audit_log` receiver and the documented status-codes response has no audit-log entry (no-audit-status-filter), which answers the valid-expression question for the provider. Whether the server rejects, ignores or accepts a filter on this log type when called directly is not shown.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "former_ids": [
+        "zpa-35"
+      ]
+    },
+    "siem-policy-purpose": {
+      "kind": "semantic",
+      "title": "Whether a SIEM policy rule can narrow an audit-log stream",
+      "status": "partial",
+      "detail": "Tracked as legacy ledger item zpa-33. The SDK says SIEM_POLICY is the parent policy set of a receiver's policy rule (siem-policy-set), and the provider accepts policy operands only for User Status and User Activity (no-audit-policy-rule). Whether the API applies a policy rule to an audit-log receiver, and what the unused `zpa_policy_type` SIEM_POLICY lookup in the provider's audit-log example is for, are not shown.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "former_ids": [
+        "zpa-33"
+      ]
+    },
+    "microtenant-scoping": {
+      "kind": "semantic",
+      "title": "Whether a microtenant's audit entries are isolated or visible to the parent",
+      "status": "partial",
+      "detail": "Tracked as legacy ledger item zpa-34. The help ties audit streaming to the microtenant selection on a receiver (disabled-microtenant-audit-only), and the microtenant subjects source that the Default Microtenant's Audit Logs are not visible to a Microtenant admin; no source says whether the audit logs of a microtenant stream only through that microtenant's receivers or also through the parent's.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "former_ids": [
+        "zpa-34"
+      ]
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.certificates",
+  "title": "Certificate and encryption failures: Browser Access, double encryption, pinned clients",
+  "aliases": [
+    "zpa certificate error",
+    "browser access certificate warning",
+    "double encryption failure",
+    "zpa certificate pinned client",
+    "wildcard certificate one level"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.browser-access.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.hostnames"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.segment-constraints"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Certificate failures differ by access method, and a failure in the application's own TLS is not a ZPA policy failure."
+    },
+    {
+      "label": "Browser Access.",
+      "text": "Hostname and certificate rules are in [[zpa.browser-access.hostnames]] and [[zpa.browser-access.certificates]], the wildcard depth in [[zpa.browser-access.certificates]]."
+    },
+    {
+      "label": "Double Encryption.",
+      "text": "{{double-encryption-layer}} It cannot be combined with Browser Access or Source IP Anchoring: [[zpa.app-segments.settings]]."
+    },
+    {
+      "label": "Unsourced readings.",
+      "text": "Connector-side handshake failures, certificate chains on double-encrypted segments, and pinned clients are not sourced {{gap:connector-handshake-failures}} {{gap:pinned-clients}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the access method is Browser Access, a double-encrypted segment or a client application, since the failure differs.",
+      "uses": [
+        "double-encryption-layer"
+      ]
+    },
+    {
+      "do": "For Browser Access, whether the external and internal hostnames differ, which shows end users a certificate error, and whether the wildcard certificate is one level too shallow.",
+      "uses": [
+        "zpa.browser-access.hostnames:different-hostnames",
+        "zpa.browser-access.certificates:wildcard-one-level",
+        "zpa.browser-access.certificates:subdomain-needs-own-wildcard"
+      ]
+    },
+    {
+      "do": "Whether the segment uses Double Encryption and whether Browser Access or Source IP Anchoring is also set on it.",
+      "uses": [
+        "double-encryption-layer",
+        "zpa.app-segments.settings:double-encryption-exclusions"
+      ]
+    },
+    {
+      "do": "Whether the DoubleEncryption field of the log matches the segment setting.",
+      "uses": [
+        "zpa.troubleshooting.log-fields:double-encryption-field"
+      ]
+    },
+    {
+      "do": "Whether a client application is rejecting the certificate while the ZPA side completed, which is not shown to be diagnosable from the log.",
+      "uses": [
+        "pinned-clients",
+        "connector-handshake-failures"
+      ]
+    }
+  ],
+  "claims": {
+    "double-encryption-layer": {
+      "statement": "Traffic between Zscaler Client Connector and the Public Service Edge for Private Access is encrypted with TLS 1.2 by default, and Double Encryption adds a second layer of encryption for traffic between Zscaler Client Connector on the user's device and the App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Traffic between Zscaler Client Connector and the Public Service Edge for Private Access is encrypted using TLS 1.2 by default.",
+            "Enable Double Encryption if you want to enable a second layer of encryption for traffic between Zscaler Client Connector on your users' devices and the App Connector that provides them with access to your enterprise applications."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "connector-handshake-failures": {
+      "kind": "semantic",
+      "title": "Handshake failures on double-encrypted segments",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Double-encrypted segments add a second layer of TLS between the ZPA Service Edge and the App Connector. The App Connector must be able to terminate this second TLS layer. If the App Connector cannot verify the ZPA Service Edge's certificate (unusual, since the certificate chain is Zscaler-signed), the connector-side TLS handshake fails and the user sees a connection failure. A segment with Double Encryption enabled requires a valid certificate chain that the App Connector can verify. If the certificate is self-signed or the chain is incomplete, the App Connector's TLS layer terminates with a handshake error even though ZPA policy allowed the connection.\" The help places the second layer between Zscaler Client Connector and the App Connector, not between the Service Edge and the App Connector (double-encryption-layer), and states nothing about certificate chains, handshake errors or what the user sees.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "pinned-clients": {
+      "kind": "semantic",
+      "title": "Certificate-pinned client applications",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Some client applications (mobile apps, thick clients) pin their TLS certificates and refuse to connect through any TLS intermediary including ZPA. The symptom is a TLS handshake failure visible in the application, while ZPA itself shows a successful policy match and connector handoff. The `DoubleEncryption` field in the LSS log and `ConnectorZENSetupTime` can confirm ZPA completed its side of the handshake while the client rejected the server certificate. Resolution requires either disabling certificate pinning in the client or exempting the application from ZPA interception via a forwarding policy `BYPASS` rule for that specific segment.\" The help states that components of Private Access use pinned certificates between themselves; no captured source describes client applications that pin certificates, or how the log fields would show it.",
+      "resolves_with": [
+        "operator-experience",
+        "lab-test"
+      ]
+    },
+    "browser-access-cert-warning-policy": {
+      "kind": "semantic",
+      "title": "Browser Access certificate warnings and policy",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If the external hostname and internal hostname differ, the internal application server's certificate may not match the external hostname. This is expected behavior and produces a server-certificate warning visible to the end user. It does not block ZPA policy evaluation.\" The hostname subject sources the certificate error for different hostnames; that it does not block policy evaluation is not stated.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

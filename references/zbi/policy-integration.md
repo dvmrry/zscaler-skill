@@ -142,7 +142,7 @@ Configuration:
 
 ### ZPA side — Isolation Policy
 
-ZPA's Isolation Policy lives in its own policy family (see [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md) for the ZPA family evaluation order).
+ZPA's Isolation Policy lives in its own policy family (see [`zpa.policy`](kb:zpa.policy) for the ZPA family evaluation order).
 
 From *About Isolation Policy*:
 
@@ -253,6 +253,6 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `
 - Claims ledger for this refresh — [`./_claims-ledger.md`](./_claims-ledger.md)
 - ZIA URL Filtering (`Isolate` action origin) — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA Malware Protection and ATP (prerequisites for Smart Isolation) — [`zia.atp`](kb:zia.atp)
-- ZPA policy precedence (Isolation Policy's place in family order) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA policy precedence (Isolation Policy's place in family order) — [`zpa.policy`](kb:zpa.policy)
 - SSL Inspection (prerequisite for HTTPS isolation) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Cross-product integration catalog — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)

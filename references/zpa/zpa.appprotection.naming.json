@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.naming",
+  "title": "AppProtection and the older Inspection names",
+  "aliases": [
+    "zpa inspection profile",
+    "inspection policy appprotection",
+    "zpa_inspection terraform appprotection",
+    "InspectionControllerAPI",
+    "zpn_inspection_profile_id",
+    "is inspection the same as appprotection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The console and help say AppProtection, while the SDKs, API paths and Terraform resources still say Inspection."
+    },
+    {
+      "label": "SDK.",
+      "text": "{{property-vs-class}}"
+    },
+    {
+      "label": "API.",
+      "text": "{{api-path-names}} {{schema-says-appprotection}}"
+    },
+    {
+      "label": "Terraform and Go.",
+      "text": "{{terraform-names}} {{go-package-names}} Provider and SDK defects for these objects are in [[zpa.terraform.app-segment-lifecycle]] and [[zpa.sdk-go.service-defects]]."
+    },
+    {
+      "label": "Reading them as one product.",
+      "text": "{{same-product}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which name the object in front of you uses, and map it: SDK class and API path say inspection, console and help say AppProtection.",
+      "uses": [
+        "property-vs-class",
+        "api-path-names",
+        "terraform-names",
+        "same-product"
+      ]
+    }
+  ],
+  "claims": {
+    "property-vs-class": {
+      "statement": "In the Python SDK, client.zpa.app_protection returns an InspectionControllerAPI, and its docstring calls it the ZPA Inspection interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zpa_service.py",
+          "quotes": [
+            "def app_protection(self) -> InspectionControllerAPI:",
+            "The interface object for the :ref:`ZPA Inspection interface <zpa-app_protection>`."
+          ]
+        }
+      ]
+    },
+    "api-path-names": {
+      "statement": "The management API serves AppProtection profiles under inspectionProfile and AppProtection controls under inspectionControls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile/get",
+          "expect": {
+            "operationId": "Get All Inspection Profiles"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionControls~1predefined/get",
+          "expect": {
+            "operationId": "Get All Inspection Controls"
+          }
+        }
+      ]
+    },
+    "schema-says-appprotection": {
+      "statement": "The inspectionProfile request schema describes its objects as AppProtection profiles and AppProtection controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile/post/requestBody/content/application~1json/schema/properties/creationTime",
+          "expect": {
+            "description": "The time the AppProtection profile is created."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile/post/requestBody/content/application~1json/schema/properties/customControls",
+          "expect": {
+            "description": "The set of AppProtection controls used to define how inspections are managed."
+          }
+        }
+      ]
+    },
+    "terraform-names": {
+      "statement": "The Terraform provider registers AppProtection profiles and custom controls as zpa_inspection_profile and zpa_inspection_custom_controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_inspection_profile\": resourceInspectionProfile(),",
+            "\"zpa_inspection_custom_controls\": resourceInspectionCustomControls(),"
+          ]
+        }
+      ]
+    },
+    "go-package-names": {
+      "statement": "The Go SDK keeps the inspection name in its package layout: inspection_profile, under services/inspectioncontrol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
+          "quotes": [
+            "package inspection_profile"
+          ]
+        }
+      ]
+    },
+    "same-product": {
+      "statement": "The objects named Inspection in the SDK, API and Terraform are the AppProtection profiles and controls of the console.",
+      "tier": "B",
+      "derived_from": [
+        "schema-says-appprotection",
+        "property-vs-class"
+      ],
+      "conditions": "Inferred from the API schema describing inspectionProfile objects as AppProtection profiles. No captured source states a rename or its date, or that every Inspection-named object is AppProtection."
+    }
+  }
+}

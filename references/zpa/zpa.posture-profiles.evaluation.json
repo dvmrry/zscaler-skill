@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "zpa.posture-profiles.evaluation",
+  "title": "When and how often posture is evaluated",
+  "aliases": [
+    "posture evaluation frequency",
+    "posture 15 minutes",
+    "existing connections posture",
+    "posture re-evaluation",
+    "posture trigger events",
+    "immediate posture evaluation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles.policy-operand"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.posture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Posture results reach ZPA from Client Connector's evaluation schedule."
+    },
+    {
+      "label": "Schedule.",
+      "text": "{{cadence}} {{frequency-setting}}"
+    },
+    {
+      "label": "Immediate and triggered evaluation.",
+      "text": "{{immediate-checks}} {{triggers}}"
+    },
+    {
+      "label": "Open questions.",
+      "text": "Whether a timeout rule bounds staleness is open {{gap:reauth-bounds-staleness}}. Why some types are absent from the machine tunnel is open {{gap:user-context-types}}. How the result reaches ZPA is open {{gap:result-reporting}}."
+    },
+    {
+      "text": "The pre-login type lists are in [[zpa.machine-tunnels.posture]], and the criteria that consume results are in [[zpa.posture-profiles.policy-operand]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When the device was last evaluated: the default is every 15 minutes, or the per-type frequency where it is configurable.",
+      "uses": [
+        "cadence",
+        "frequency-setting"
+      ]
+    },
+    {
+      "do": "Whether the posture type re-evaluates immediately on change or waits for the timer.",
+      "uses": [
+        "immediate-checks"
+      ]
+    },
+    {
+      "do": "Whether the connection in question is new or already established, since existing connections keep their posture.",
+      "uses": [
+        "cadence"
+      ]
+    },
+    {
+      "do": "Whether a network or device event just occurred that triggers evaluation.",
+      "uses": [
+        "triggers"
+      ]
+    },
+    {
+      "do": "Whether staleness is being assumed to be bounded by a timeout rule.",
+      "uses": [
+        "reauth-bounds-staleness"
+      ]
+    }
+  ],
+  "claims": {
+    "cadence": {
+      "statement": "Zscaler Client Connector evaluates device posture profiles every 15 minutes, new connections are established on the updated posture, and existing connections are not affected by updates to security postures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-device-posture-profiles.json",
+          "quotes": [
+            "Zscaler Client Connector evaluates device posture profiles every 15 minutes.",
+            "New connections are established based on updated security postures.",
+            "Existing connections are not affected by updates to security postures."
+          ]
+        }
+      ]
+    },
+    "frequency-setting": {
+      "statement": "From Zscaler Client Connector 4.4 on Windows and 4.5 on macOS, the evaluation frequency can be set per posture type in one-minute steps, with a maximum default of 15 minutes and a minimum of 2 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Zscaler Client Connector version 4.4 and later for Windows and Zscaler Client Connector version 4.5 and later for macOS.",
+            "The maximum default value is 15 minutes. The minimum value is 2 minutes."
+          ]
+        }
+      ]
+    },
+    "immediate-checks": {
+      "statement": "Process Check, Detect Carbon Black, Detect CrowdStrike, Detect SentinelOne and Detect Microsoft Defender are evaluated immediately when the posture changes on the device, regardless of the frequency setting, and the client also keeps evaluating them on the configured frequency; the feature is on by default and Zscaler Support can disable it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Process Check",
+            "Detect Carbon Black",
+            "Detect CrowdStrike",
+            "Detect SentinelOne",
+            "Detect Microsoft Defender",
+            "However, Zscaler Client Connector continues to evaluate device posture according to the configuration in the Frequency (in Minutes) field.",
+            "This feature is enabled by default. Contact Zscaler Support to disable this feature."
+          ],
+          "after": "evaluates device posture immediately when the posture changes on a device, regardless of what is configured in the Frequency (In Minutes) field"
+        }
+      ]
+    },
+    "triggers": {
+      "statement": "Network and device changes that trigger a posture evaluation are: the Zscaler service restarting, and a device rebooting, joining a network, coming out of hibernation, moving from non-domain joined to domain-joined, moving from Wi-Fi to Ethernet, or changing Wi-Fi networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-device-posture-profiles.json",
+          "quotes": [
+            "The following network changes can trigger a device posture evaluation:",
+            "The Zscaler service restarts",
+            "A device: - Reboots - Joins a network - Comes out of hibernation",
+            "Moves from non-domain joined to domain-joined",
+            "Moves from a Wi-Fi connection to an Ethernet connection",
+            "Changes Wi-Fi networks"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "reauth-bounds-staleness": {
+      "kind": "semantic",
+      "title": "Whether a ZPA reauthentication timeout bounds how stale a posture result can be",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Existing tunnels are not retroactively revoked on posture failure ... Bound posture staleness using ZPA Reauth Timeout.\" The captures say existing connections are not affected (claim cadence); none ties reauthentication to a fresh posture result. Test by failing a posture check mid-session with a short timeout rule in place.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "advising a timeout rule as a posture enforcement bound"
+    },
+    "result-reporting": {
+      "kind": "semantic",
+      "title": "How a posture result gets from Client Connector to ZPA",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"produces: PASS / FAIL per profile ... tunnel reports posture_udid + result to ZPA\". The captures say Client Connector evaluates the profiles and that policies in Private Access can be configured on the outcome, not how the result is carried. Resolve from Client Connector architecture documentation.",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "blocks": "explaining why a result is stale or missing in ZPA"
+    },
+    "user-context-types": {
+      "kind": "semantic",
+      "title": "Why some posture types cannot run on the pre-login machine tunnel",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"User-context-dependent types (Process Check, AV detection, Ownership Variable) cannot evaluate pre-login — they require a logged-in user.\" The type lists are in zpa.machine-tunnels.posture; no capture gives the reason or classifies the excluded types as user-context. Resolve from Client Connector documentation.",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "blocks": "designing a machine tunnel profile around the excluded types"
+    }
+  }
+}

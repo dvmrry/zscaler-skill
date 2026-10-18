@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.scim-sync",
+  "title": "SCIM sync timing before SCIM criteria are used",
+  "aliases": [
+    "scim policy sync",
+    "scim attributes in access policy",
+    "wait 48 hours scim",
+    "scim user not recognized zpa"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "SCIM criteria depend on user data that the sync must have delivered first."
+    },
+    {
+      "label": "Before enabling.",
+      "text": "{{scim-initial-cycle-first}} {{scim-wait-48-hours}}"
+    },
+    {
+      "label": "What happens meanwhile.",
+      "text": "{{scim-user-presence-decides}} The result for an unrecognized user is open {{gap:mid-sync-result}}."
+    },
+    {
+      "text": "The SCIM criteria themselves are in [[zpa.policy.criteria]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before enabling SCIM criteria, check that the initial SCIM cycle has completed for the users the rule covers.",
+      "uses": [
+        "scim-initial-cycle-first",
+        "scim-wait-48-hours"
+      ]
+    },
+    {
+      "do": "If SCIM-scoped users are blocked or allowed unexpectedly, check how long ago SCIM sync was enabled.",
+      "uses": [
+        "scim-user-presence-decides",
+        "mid-sync-result"
+      ]
+    }
+  ],
+  "claims": {
+    "scim-initial-cycle-first": {
+      "statement": "When SCIM is the provisioning method, the initial SCIM cycle should be complete before any SCIM attributes are used in access policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "If you use SCIM as the provisioning method, ensure that the initial SCIM cycle is complete before using any SCIM attributes in Access Policies."
+          ]
+        }
+      ]
+    },
+    "scim-user-presence-decides": {
+      "statement": "After SCIM is enabled, Zscaler checks whether a user is present in the SCIM database to decide whether the user is allowed or blocked access to ZPA, and if sync is incomplete the ZPA service evaluates policies on the users it does not recognize.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "After you enable SCIM, Zscaler checks if a user is present in the SCIM database.",
+            "If not, the ZPA service evaluates policies on the users it does not recognize."
+          ]
+        }
+      ]
+    },
+    "scim-wait-48-hours": {
+      "statement": "Zscaler recommends waiting a minimum of 48 hours, sometimes up to a week, after SCIM sync is enabled before enabling SCIM policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "After SCIM sync is enabled, Zscaler recommends waiting for a minimum of 48 hours (sometimes up to a week) before enabling SCIM policies."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "mid-sync-result": {
+      "kind": "semantic",
+      "title": "What an unrecognized mid-sync user gets under a SCIM-scoped rule",
+      "status": "open",
+      "about": [
+        "zpa.policy.scim-sync"
+      ],
+      "detail": "Unverified legacy statement: \"Effectively: SCIM criteria on a policy against a mid-sync user will likely deny by default.\" The guide says only that policies are evaluated on users the service does not recognize. Test with a user absent from SCIM against a SCIM-scoped allow rule and a SCIM-scoped block rule.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

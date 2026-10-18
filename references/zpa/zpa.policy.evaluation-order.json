@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.evaluation-order",
+  "title": "Evaluation order across ZPA policy types",
+  "aliases": [
+    "zpa policy order",
+    "policy evaluation order",
+    "forwarding before access",
+    "client forwarding policy first",
+    "bypass skips access policy",
+    "default block",
+    "implicit block access",
+    "most specific segment first-match",
+    "when both fqdns are equal"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.access-rule-order"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.multimatch"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Several ZPA policy types exist, and they do not run as one list."
+    },
+    {
+      "label": "The policy types.",
+      "text": "{{policy-types}}"
+    },
+    {
+      "label": "Within a type.",
+      "text": "{{first-match-most-specific-segment}} {{segment-then-rules}}"
+    },
+    {
+      "label": "Specific against broad.",
+      "text": "{{specific-segment-beats-rule-order}} {{equal-fqdn-top-down}} Whether a wildcard entry matches the bare domain is open {{gap:wildcard-matches-bare-domain}}."
+    },
+    {
+      "label": "Across types.",
+      "text": "{{client-forwarding-before-access}} {{bypass-skips-access}} How the other types order against access policy is not stated {{gap:remaining-type-order}}."
+    },
+    {
+      "label": "When nothing matches.",
+      "text": "{{default-access-block}} {{default-forwarding}} {{default-timeout-rule}} {{default-isolation}}"
+    },
+    {
+      "label": "Microtenants.",
+      "text": "The order for a custom microtenant user is in [[zpa.microtenants.policy-evaluation:default-first-for-custom-user]]."
+    },
+    {
+      "text": "Rule order inside the access policy is in [[zpa.policy.access-rule-order]]. How the segment is chosen is in [[zpa.policy.multimatch]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a client forwarding rule matched first, since a match there decides before any access rule is read.",
+      "uses": [
+        "client-forwarding-before-access",
+        "bypass-skips-access"
+      ]
+    },
+    {
+      "do": "Which application segment the request mapped to, because rules are searched by the most specific segment.",
+      "uses": [
+        "first-match-most-specific-segment",
+        "segment-then-rules",
+        "specific-segment-beats-rule-order"
+      ]
+    },
+    {
+      "do": "Whether any rule matched at all; if none did, the result is the policy type's default.",
+      "uses": [
+        "default-access-block",
+        "default-forwarding",
+        "default-timeout-rule",
+        "default-isolation"
+      ]
+    },
+    {
+      "do": "Whether the user sits in a custom microtenant, which changes which tenant is searched first.",
+      "uses": [
+        "zpa.microtenants.policy-evaluation:default-first-for-custom-user"
+      ]
+    },
+    {
+      "do": "Whether the order of the remaining policy types relative to access policy is being relied on; no source states it.",
+      "uses": [
+        "remaining-type-order"
+      ]
+    }
+  ],
+  "claims": {
+    "policy-types": {
+      "statement": "Private Access has separate policy types, including access, client forwarding, isolation, timeout, redirection, AppProtection and Browser Protection policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "Access Policy: Access policy rules enable you to implement role-based access control.",
+            "Client Forwarding Policy: Client forwarding policy rules allow you to create rules that define when application requests are forwarded to Private Access from the Zscaler Client Connector.",
+            "Isolation Policy: Isolation policy rules allow you to create rules that define what isolation profiles to use or bypass.",
+            "Timeout Policy: Timeout policy rules allow you to create granular rules that control authentication timeout and idle connection timeout settings.",
+            "Redirection Policy: Redirection policy rules allow you to set criteria for preferring Private Service Edges for Private Access over Public Service Edges for Private Access.",
+            "AppProtection Policy: AppProtection policy rules allow you to create rules that define when application requests need to go through an AppProtection control.",
+            "Browser Protection Policy: Browser Protection policy rules allow you to create rules that define Browser Protection requests for Browser Protection profiles."
+          ]
+        }
+      ]
+    },
+    "first-match-most-specific-segment": {
+      "statement": "Private Access evaluates policy rules using the most specific application segment and a top-down, first-match principle: the first rule whose criteria match is enforced and all later rules, including conflicting ones, are disregarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "Private Access evaluates policy rules using the most specific application segment and a top-down, first-match principle. For example, when a user requests a specific application",
+            "As soon as it finds a policy that matches the criteria that was specified in a rule, it enforces that policy rule and disregards all other rules that follow, including any potentially conflicting rules."
+          ]
+        }
+      ]
+    },
+    "segment-then-rules": {
+      "statement": "When a request arrives, Private Access identifies the matching rule first, choosing the rule that corresponds to the most specific application segment for the domain name or IP address if segments are part of the criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "If application segments are part of the criteria, then Private Access chooses the rule corresponding to the most specific application segment for a given domain name or IP address."
+          ]
+        }
+      ]
+    },
+    "specific-segment-beats-rule-order": {
+      "statement": "The Access Policy Deployment and Operations Guide says rules process on a specific and top-down methodology: if rule 1 blocks `*.web.com` and rule 2 allows `specific.web.com`, rule 2 allows `specific.web.com` and every other subdomain is blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZPA Access Policies process on a specific and top-down methodology. For example, if rule 1 blocks *.web.com but rule 2 allows specific.web.com, rule 2 allows access to specific.web.com for a user. Any other subdomain of web.com is blocked."
+          ]
+        }
+      ]
+    },
+    "equal-fqdn-top-down": {
+      "statement": "The same guide says that when both FQDNs are equal ZPA ranks top-down, so if rule 1 is `*.specific.web.com` and rule 2 is `specific.web.com`, rule 1 applies because it is processed first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "When both FQDNs are equal, ZPA performs a top-down ranking approach. So, if rule 1 is *.specific.web.com and rule 2 is specific.web.com, then rule 1 would apply, because it’s processed first."
+          ]
+        }
+      ]
+    },
+    "default-access-block": {
+      "statement": "If no access policy rule matches, or no rule is defined at all, access to the application is implicitly set to Block Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "For access policy, access to the application is implicitly set to Block Access. This is also the case if you do not define any policy rules at all within the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-deployment-and-operations-guide.json",
+          "quotes": [
+            "The default policy behavior is to block access."
+          ]
+        }
+      ]
+    },
+    "default-forwarding": {
+      "statement": "If no client forwarding rule matches, or none is defined, access to the application is implicitly set to Forward to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "For client forwarding policy, access to the application is implicitly set to Forward to Private Access. This is also the case if you do not define any policy rules at all within the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "default-timeout-rule": {
+      "statement": "If no timeout rule matches, Private Access applies the default timeout policy rule, which requires authentication every 7 days for any application and never ends a session for idle time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "For timeout policy, Private Access applies the default timeout policy rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-timeout-policy.json",
+          "quotes": [
+            "The default rule specifies that all users have to authenticate every 7 days for any application, and that their sessions never end due to an idle connection timeout expiration."
+          ]
+        }
+      ]
+    },
+    "default-isolation": {
+      "statement": "If no isolation rule matches, Private Access applies the default isolation policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "For isolation policy, Private Access applies the default isolation policy rule."
+          ]
+        }
+      ]
+    },
+    "client-forwarding-before-access": {
+      "statement": "Client forwarding policy rules are evaluated before access policy rules, and a match in client forwarding policy makes Private Access disregard the other policy rules, including conflicts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-client-forwarding-policy.json",
+          "quotes": [
+            "This process occurs before Private Access evaluates access policy rules.",
+            "When a match is found in the client forwarding policy, Private Access disregards other policy rules, including conflicts."
+          ]
+        }
+      ]
+    },
+    "bypass-skips-access": {
+      "statement": "If a forwarding rule bypasses the traffic, the access policy rule is never evaluated for it, so a bypass for an application defeats an access rule that would block it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-forwarding-policy-rule/SKILL.md",
+          "quotes": [
+            "If traffic is bypassed by a forwarding rule, the access policy rule is never evaluated for that traffic."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "remaining-type-order": {
+      "kind": "semantic",
+      "title": "Evaluation order of timeout, isolation, inspection and the other policy types relative to access policy",
+      "status": "open",
+      "about": [
+        "zpa.policy.evaluation-order"
+      ],
+      "detail": "Unverified legacy statement: \"Policy order: 1. Forwarding Policy (evaluated first) ... 2. Access Policy — only evaluates if Forwarding kept traffic on ZPA ... 3. Timeout Policy — independent of the Allow/Deny decision ... 4. Inspection Policy (v2).\" The captured help states only that client forwarding comes before access; the MCP skills state that a bypass skips access evaluation. No captured source orders timeout, isolation, inspection, AppProtection or redirection policy against access policy. A help article that states the full sequence, or a lab test with one rule of each type and a log, would settle it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "saying whether a timeout, isolation or inspection rule can act on a request an access rule has already blocked"
+    },
+    "wildcard-matches-bare-domain": {
+      "kind": "semantic",
+      "title": "Whether a wildcard entry such as *.specific.web.com also matches the bare specific.web.com",
+      "status": "open",
+      "former_ids": [
+        "zpa-08"
+      ],
+      "detail": "The Deployment and Operations Guide example treats `*.specific.web.com` and `specific.web.com` as equal FQDNs, which the legacy ledger flagged as an edge case that was never lab tested. The ledger answer that this example is \"imprecise language for a correct concept\" is an interpretation, not a source statement.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

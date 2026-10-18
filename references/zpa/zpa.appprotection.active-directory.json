@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.active-directory",
+  "title": "Active Directory controls: Kerberos, SMB and LDAP inspection",
+  "aliases": [
+    "active directory protection zpa",
+    "kerberos smb ldap inspection zpa",
+    "ad controls appprotection",
+    "active directory inspection segment",
+    "ad protection dashboard"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.appprotection.segment-opt-in"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.controls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Active Directory inspection is a separate protocol path from web inspection. {{ad-definition}}"
+    },
+    {
+      "label": "On the segment.",
+      "text": "{{ad-segment-setting}} {{ad-protocol-choice}} It cannot be enabled together with AppProtection on the same segment: [[zpa.appprotection.segment-opt-in]]."
+    },
+    {
+      "label": "In profiles and results.",
+      "text": "{{ad-in-profile}} {{ad-dashboard}} The log types for the results are in [[zpa.appprotection.logging]]."
+    },
+    {
+      "label": "What the controls detect.",
+      "text": "Which attacks the Active Directory controls cover is open {{gap:attack-coverage}}."
+    },
+    {
+      "text": "How the API and the Python SDK expose these controls: [[zpa.appprotection.api-surface]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Active Directory Inspection, not AppProtection, is enabled on the application segment.",
+      "uses": [
+        "ad-segment-setting"
+      ]
+    },
+    {
+      "do": "Which protocol the port range inspects: LDAP, SMB, Kerberos or none.",
+      "uses": [
+        "ad-protocol-choice"
+      ]
+    },
+    {
+      "do": "The Active Directory Protection dashboard and the three inspection log types for the results.",
+      "uses": [
+        "ad-dashboard",
+        "ad-in-profile"
+      ]
+    }
+  ],
+  "claims": {
+    "ad-definition": {
+      "statement": "Active Directory controls are predefined controls enforced by enabling Active Directory in an application segment, for the protocols Kerberos, SMB and LDAP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-active-directory-controls.json",
+          "quotes": [
+            "The Active Directory controls in the Zscaler Admin Console are predefined controls that are enforced by enabling Active Directory in an application segment. The supported protocols are Kerberos, SMB, and LDAP."
+          ]
+        }
+      ]
+    },
+    "ad-in-profile": {
+      "statement": "Active Directory controls can be added to an AppProtection profile, which defines how they and the other AppProtection controls are managed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-active-directory-controls.json",
+          "quotes": [
+            "You can add Active Directory controls to an AppProtection profile."
+          ]
+        }
+      ]
+    },
+    "ad-dashboard": {
+      "statement": "Active Directory control inspection results are shown on the Active Directory Protection dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-active-directory-controls.json",
+          "quotes": [
+            "You can view the Active Directory control inspection results on the Active Directory Protection dashboard."
+          ]
+        }
+      ]
+    },
+    "ad-segment-setting": {
+      "statement": "An application segment has an Active Directory Inspection setting, off by default, and its data is on the AD Protection Diagnostics page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Enable to allow this application segment's traffic to be inspected by Active Directory Inspection. The Active Directory Inspection data can be found on the AD Protection Diagnostics page."
+          ]
+        }
+      ]
+    },
+    "ad-protocol-choice": {
+      "statement": "With Active Directory Inspection enabled, each port range offers Inspect None, Inspect LDAP, Inspect SMB and Inspect Kerberos.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "additional drop-down menus are provided to the right of the port range fields with the options **Inspect None**, **Inspect LDAP**, **Inspect SMB**, and **Inspect Kerberos**"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "attack-coverage": {
+      "kind": "data",
+      "title": "Which attacks the Active Directory controls detect",
+      "status": "open",
+      "detail": "Unverified legacy statement: AppProtection inspects Kerberos, SMB and LDAP for \"AD enumeration patterns (LDAP queries that look like reconnaissance)\", \"Kerberoasting (suspicious AS-REQ / TGS-REQ patterns)\", \"DCSync-like access patterns\" and \"SMB lateral-movement signatures\". The captured pages name the protocols and the controls page, not the attacks. The control list for a tenant would resolve it.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

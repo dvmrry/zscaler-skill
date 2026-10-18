@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "zpa.server-groups.multiple-on-segment",
+  "title": "Several server groups on one application segment",
+  "aliases": [
+    "multiple server groups",
+    "weighted load balancing",
+    "weightedLbConfig",
+    "server group weight",
+    "passive server group",
+    "which server group handles traffic",
+    "two server groups on a segment"
+  ],
+  "binds": [
+    "zpa/application-segments#serverGroups",
+    "zpa/application-segments#weightedLoadBalancing"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.server-groups.role"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.chain-check"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A segment can carry several server groups, and what decides between them depends on weighted load balancing and on Multimatch."
+    },
+    {
+      "label": "Weighted load balancing.",
+      "text": "{{weighted-lb-mapping}} How traffic is spread without it is open {{gap:behavior-without-weighted-lb}}. What happens when one group is healthy and another broken is open {{gap:healthy-and-broken-group}}."
+    },
+    {
+      "label": "Multimatch.",
+      "text": "{{multimatch-specific-fqdn-server-group}} {{multimatch-same-fqdn-same-server-group}}"
+    },
+    {
+      "text": "How the segment itself is chosen when several segments match is in [[zpa.policy.multimatch]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether weighted load balancing is enabled on the segment and which weight and passive flag each server group carries.",
+      "uses": [
+        "weighted-lb-mapping"
+      ]
+    },
+    {
+      "do": "Whether the segment is a Multimatch segment, in which case the specific FQDN segment's server group is used and sibling segments for the same FQDN must share one server group.",
+      "uses": [
+        "multimatch-specific-fqdn-server-group",
+        "multimatch-same-fqdn-same-server-group"
+      ]
+    },
+    {
+      "do": "Whether the behavior without weighted load balancing is being relied on; no source states it.",
+      "uses": [
+        "behavior-without-weighted-lb",
+        "healthy-and-broken-group"
+      ]
+    }
+  ],
+  "claims": {
+    "weighted-lb-mapping": {
+      "statement": "Weighted load balancing on an application segment is configured through a mapping of server groups to a weight and a passive flag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "A list of mappings that define server groups and their associated weights and passive flags."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "ApplicationToServerGroupMaps []ApplicationToServerGroupMapping",
+            "Passive bool `json:\"passive\"`",
+            "Weight string `json:\"weight\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/application-segments#weightedLoadBalancing"
+      ]
+    },
+    "multimatch-specific-fqdn-server-group": {
+      "statement": "When both a wildcard and a specific FQDN application segment have Multimatch enabled, the specific FQDN segment's server group is used for App Connector selection even if the traffic matches the wildcard rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "the specific FQDN application segment's server group is used for App Connector selection, even if the traffic to the FQDN matches the wildcard or the specific FQDN rule."
+          ]
+        }
+      ]
+    },
+    "multimatch-same-fqdn-same-server-group": {
+      "statement": "Multimatch application segments for the same FQDN with different ports must all use the same server group; with different server groups any of them can be chosen at random to proxy the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "If multiple Multimatch application segments exist for the same FQDN but with different ports, they must all use the same server group.",
+            "If different server groups are used, any of them can be randomly selected to proxy the traffic to that FQDN, leading to unpredictable behavior."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "behavior-without-weighted-lb": {
+      "kind": "semantic",
+      "title": "How traffic is spread across several server groups when weighted load balancing is not configured",
+      "status": "open",
+      "about": [
+        "zpa/application-segments#serverGroups"
+      ],
+      "detail": "Unverified legacy statement: \"Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).\" The Multimatch article states a random choice only for the same-FQDN case. A help article on weighted load balancing, which was not found at the guessed ZPA help URLs, or a lab test with two groups would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "healthy-and-broken-group": {
+      "kind": "semantic",
+      "title": "What happens when one of several server groups is healthy and another is broken",
+      "status": "open",
+      "about": [
+        "zpa/application-segments#serverGroups"
+      ],
+      "detail": "Unverified legacy statement: \"Each is independent — at least one must satisfy hops 3 and 4 for the segment to deliver traffic. If one is healthy and another is broken, weighted load balancing decides which connectors are tried first.\" No captured source describes failover between server groups. Break one group in a scratch tenant and observe which connectors are tried.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.when-to-deploy",
+  "title": "When a Private Service Edge is warranted",
+  "aliases": [
+    "should we deploy a zpa pse",
+    "why deploy a private service edge",
+    "pse use cases",
+    "zpa data residency pse",
+    "zpa business continuity pse",
+    "air gapped zpa"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.client-selection"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.what-it-is"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Private Service Edge question starts with which documented benefit applies."
+    },
+    {
+      "label": "Documented benefits.",
+      "text": "{{onprem-ztna}} {{poor-public-placement}} {{disaster-continuity}} {{local-application-traffic}}"
+    },
+    {
+      "label": "Limits on those benefits.",
+      "text": "Residency of session metadata is not established {{gap:session-metadata-residency}}. A Private Service Edge still needs outbound reach to a Public Service Edge ([[zpa.private-service-edges.data-path:firewall-requirements]]), though outbound may be filtered if all Public Service Edge data centers stay reachable ([[zpa.private-service-edges.data-path:restricted-outbound]]), and client-side isolation is unverified {{gap:air-gapped-networks}}. Interconnect-only routing is unverified {{gap:private-interconnect-routing}}, and so is serving through degraded connectivity {{gap:survives-degraded-pop}}."
+    },
+    {
+      "text": "What a Private Service Edge is: [[zpa.private-service-edges.what-it-is]]. Disaster recovery mode: [[zpa.private-service-edges.disaster-recovery]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which of the four documented benefits the request is actually about, since each leads to different settings.",
+      "uses": [
+        "onprem-ztna",
+        "poor-public-placement",
+        "disaster-continuity",
+        "local-application-traffic"
+      ]
+    },
+    {
+      "do": "Whether the request assumes the Private Service Edge removes the need to reach Zscaler: it must still connect outbound to a Public Service Edge.",
+      "uses": [
+        "zpa.private-service-edges.data-path:firewall-requirements",
+        "air-gapped-networks"
+      ]
+    },
+    {
+      "do": "Whether a residency requirement covers only application data traffic or also session brokering and metadata.",
+      "uses": [
+        "local-application-traffic",
+        "session-metadata-residency"
+      ]
+    }
+  ],
+  "claims": {
+    "onprem-ztna": {
+      "statement": "A Private Service Edge lets an organization implement Zero Trust Network Access (ZTNA) for on-premises users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Implement Zero Trust Network Access (ZTNA) for on-premises users."
+          ]
+        }
+      ]
+    },
+    "poor-public-placement": {
+      "statement": "A Private Service Edge gives access to applications when Public Service Edges in data centers are not conveniently located between users and the applications they need to reach.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Securely access applications when Public Service Edges in data centers are not conveniently located between users and the applications they need to reach."
+          ]
+        }
+      ]
+    },
+    "disaster-continuity": {
+      "statement": "A Private Service Edge helps ensure business continuity and continued access to critical applications during disaster events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Ensure business continuity and continued access to critical apps during disaster events."
+          ]
+        }
+      ]
+    },
+    "local-application-traffic": {
+      "statement": "A Private Service Edge keeps application data traffic local to help meet compliance and regulatory requirements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Keep application data traffic local to help meet compliance and regulatory requirements."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "air-gapped-networks": {
+      "kind": "semantic",
+      "title": "Whether clients and App Connectors can reach only the Private Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Air-gapped or restricted networks: Client devices or App Connectors cannot reach Zscaler's public PoPs.\" The prerequisites page lets the Private Service Edge itself sit behind restricted outbound filtering if it reaches all Public Service Edge data centers; it does not say clients or App Connectors need no path to Zscaler. Resolve with a lab test.",
+      "blocks": "advising a restricted-network site",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "session-metadata-residency": {
+      "kind": "semantic",
+      "title": "Whether a Private Service Edge keeps ZPA session metadata in-country",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"PSEs are the mechanism for enforcing ZPA session-level data residency ... ensures that ZPA session metadata and session-brokering traffic stay within the geographic boundary.\" The help page says only that application data traffic stays local, and the Private Service Edge connects to a Public Service Edge. Resolve with Zscaler data-residency documentation.",
+      "blocks": "regulatory sign-off on control-plane location",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "private-interconnect-routing": {
+      "kind": "semantic",
+      "title": "Private-interconnect-only routing as a reason to deploy",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Private routing requirements: Traffic must stay on private interconnects (MPLS, ExpressRoute, DirectConnect) without internet breakout.\" No captured page names interconnects as a reason. Resolve with the Private Service Edge Deployment Prerequisites.",
+      "blocks": "design advice for interconnect-only sites",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "survives-degraded-pop": {
+      "kind": "semantic",
+      "title": "Whether a local Private Service Edge keeps serving sessions when PoP connectivity is degraded",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A local PSE continues servicing sessions if Zscaler PoP connectivity is degraded.\" The captured disaster-recovery page covers a global outage with activation by DNS records; degraded (not lost) connectivity is not described. See [[zpa.private-service-edges.disaster-recovery]]. Resolve with a lab test.",
+      "blocks": "promising availability during partial outages",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

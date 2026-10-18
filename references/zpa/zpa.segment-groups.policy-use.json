@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "zpa.segment-groups.policy-use",
+  "title": "How access policy rules use segment groups",
+  "aliases": [
+    "APP_GROUP operand",
+    "segment group in access policy rule",
+    "segment group OR application segment",
+    "disabled segment group policy effect",
+    "rename segment group policy"
+  ],
+  "binds": [
+    "zpa/segment-groups#enabled",
+    "zpa/segment-groups#name"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.segment-groups.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers how access policy rules refer to segment groups."
+    },
+    {
+      "label": "Operand shape.",
+      "text": "{{operand-holds-id}}"
+    },
+    {
+      "label": "Choosing a group or a segment.",
+      "text": "Rules use segments for individual applications and groups for shared access: [[zpa.policy.criteria:application-segments-criterion]]. {{new-member-extends-rule}}"
+    },
+    {
+      "label": "Boolean logic.",
+      "text": "Groups are joined by an implicit OR, and segments and groups by an explicit OR: [[zpa.policy.conditions:segments-or]], [[zpa.policy.conditions:segment-or-group-or]]. {{criterion-checks-segment-or-group}} Other criteria are joined by AND: [[zpa.policy.conditions:criteria-and]]."
+    },
+    {
+      "label": "Rename and disable.",
+      "text": "{{rename-effects}} The effect of disabling a group is open {{gap:enabled-false-effect}}."
+    },
+    {
+      "text": "Rule order and first-match evaluation are in [[zpa.policy.evaluation-order]]. The policy types the provider scans on group delete are in [[zpa.terraform.policy-rule-writes:cleanup-rewrites-rule-from-converter]]. Membership is in [[zpa.segment-groups.membership]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule names the segment group, the application segment or both, and whether other criteria in the rule are joined by AND.",
+      "uses": [
+        "zpa.policy.conditions:segments-or",
+        "zpa.policy.conditions:segment-or-group-or",
+        "zpa.policy.conditions:criteria-and"
+      ]
+    },
+    {
+      "do": "Whether the group's enabled flag is false when a rule that names it appears not to match.",
+      "uses": [
+        "enabled-false-effect"
+      ]
+    },
+    {
+      "do": "Whether a lookup by group name still resolves after a rename, since rules hold the ID.",
+      "uses": [
+        "operand-holds-id",
+        "rename-effects"
+      ]
+    }
+  ],
+  "claims": {
+    "operand-holds-id": {
+      "statement": "A policy rule refers to a segment group by ID: a v1 operand is `APP_GROUP` with `lhs` `id` and the group ID as `rhs`, and a v2 operand is `APP_GROUP` with the group ID in `values`.",
+      "tier": "A",
+      "binds": [
+        "zpa/segment-groups#id"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "if op.ObjectType == \"APP_GROUP\" && op.LHS == \"id\" && op.RHS == id {",
+            "if strings.EqualFold(op.ObjectType, \"APP_GROUP\") {",
+            "// Check if Values array contains the segment group ID"
+          ]
+        }
+      ]
+    },
+    "criterion-checks-segment-or-group": {
+      "statement": "A rule's application criterion is satisfied when the requested application segment, or the segment group that holds it, is one the rule names.",
+      "tier": "B",
+      "conditions": "Chain of evidence: the help describes the check as 'an application segment OR its segment group are present'; this restates it as the match condition.",
+      "derived_from": [
+        "zpa.policy.conditions:segment-or-group-or"
+      ]
+    },
+    "new-member-extends-rule": {
+      "statement": "A segment added to a group named in a rule falls under that rule through its group, without the rule being edited.",
+      "tier": "B",
+      "conditions": "Chain of evidence: the criterion checks the segment's group, so a new member satisfies it. The service's handling of the new membership is not stated.",
+      "derived_from": [
+        "criterion-checks-segment-or-group"
+      ]
+    },
+    "rename-effects": {
+      "statement": "Renaming a segment group leaves policy rules unchanged because they hold its ID, while a lookup by name, such as the SDK `GetByName` or a Terraform data source by name, must use the new name.",
+      "tier": "B",
+      "conditions": "Chain of evidence: operands hold the ID (operand-holds-id) and the SDK name lookup compares the name. Rule behavior after a rename was not exercised.",
+      "derived_from": [
+        "operand-holds-id"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "if strings.EqualFold(app.Name, segmentName) {"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "enabled-false-effect": {
+      "kind": "semantic",
+      "former_ids": [
+        "sg-01"
+      ],
+      "title": "The policy-evaluation effect of enabled = false on a segment group",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "using the enabled flag on a group as an access-control switch",
+      "detail": "The model carries enabled as a meaningful boolean and the console shows a Status of enabled or disabled, but no source states whether a disabled group stops matching in rules or is ignored. Unverified legacy statement: disabling takes all member segments out of policy scope at once. Create a rule on a group, set enabled to false and test a member's access in a non-production tenant."
+    }
+  }
+}

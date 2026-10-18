@@ -36,7 +36,7 @@ This document provides a cross-product view of the "who changed what config when
 ## Per-product reference documents
 
 - ZIA admin audit logs: [`zia.audit-logs`](kb:zia.audit-logs)
-- ZPA admin audit logs: [`../zpa/audit-logs.md`](../zpa/audit-logs.md)
+- ZPA admin audit logs: [`zpa.audit-logs`](kb:zpa.audit-logs)
 - ZWA customer audit logs: [`../zwa/audit-logs.md`](../zwa/audit-logs.md)
 
 ---
@@ -91,7 +91,7 @@ ZPA routes audit logs through the Log Streaming Service (LSS) rather than a dedi
 - **Formats**: JSON, CSV, TSV (selectable per receiver configuration)
 - **Provisioned via**: Terraform (`zpa_lss_config_controller`), Go SDK (`lssconfigcontroller` package), Python SDK (`client.zpa.lss`)
 
-Full detail: [`../zpa/audit-logs.md`](../zpa/audit-logs.md)
+Full detail: [`zpa.audit-logs`](kb:zpa.audit-logs)
 
 ---
 
@@ -257,7 +257,7 @@ Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 ## Cross-links
 
 - ZIA admin audit logs (per-product detail) — [`zia.audit-logs`](kb:zia.audit-logs)
-- ZPA admin audit logs (per-product detail) — [`../zpa/audit-logs.md`](../zpa/audit-logs.md)
+- ZPA admin audit logs (per-product detail) — [`zpa.audit-logs`](kb:zpa.audit-logs)
 - ZWA customer audit logs (per-product detail) — [`../zwa/audit-logs.md`](../zwa/audit-logs.md)
 - Admin RBAC (cross-product role model that audit logs record actions against) — [`./admin-rbac.md`](./admin-rbac.md)
 - Log export architecture (where each log type comes from, NSS vs. LSS) — [`./log-export-architecture.md`](./log-export-architecture.md)

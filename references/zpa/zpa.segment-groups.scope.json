@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "id": "zpa.segment-groups.scope",
+  "title": "Segment group limits, microtenant scope and managed groups",
+  "aliases": [
+    "segment group limit",
+    "segment groups microtenant",
+    "deception segment group",
+    "policyMigrated meaning",
+    "segment group sharing",
+    "segment group read only microtenant"
+  ],
+  "binds": [
+    "zpa/segment-groups#microtenantId",
+    "zpa/segment-groups#policyMigrated"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.segment-groups.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.admin-permissions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.isolation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers segment group limits, microtenant scope and groups that Deception manages."
+    },
+    {
+      "label": "Limit.",
+      "text": "{{group-limit}}"
+    },
+    {
+      "label": "Microtenants.",
+      "text": "Microtenant admins manage segment groups, and a custom microtenant can still use Default Microtenant groups in policies: [[zpa.microtenants.isolation:managed-config]], [[zpa.microtenants.admin-permissions:default-resources-usable]]. {{microtenant-field}} {{shared-microtenant-ids-field}} Visibility and sharing are open {{gap:microtenant-visibility}}. Application segment sharing is in [[zpa.microtenants.share-and-move]]."
+    },
+    {
+      "label": "Managed groups.",
+      "text": "{{deception-locked}} What the API does is open {{gap:deception-api-effect}}."
+    },
+    {
+      "label": "policyMigrated.",
+      "text": "{{policy-migrated-field}} Its meaning is open {{gap:policy-migrated-meaning}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "How many segment groups the tenant holds against the limit before proposing a restructuring that adds groups.",
+      "uses": [
+        "group-limit"
+      ]
+    },
+    {
+      "do": "Whether the group is managed by Deception, which removes the console edit and delete options.",
+      "uses": [
+        "deception-locked",
+        "deception-api-effect"
+      ]
+    },
+    {
+      "do": "Which microtenant the group is defined in, and what permission a custom microtenant has on groups defined in the Default Microtenant.",
+      "uses": [
+        "microtenant-field",
+        "zpa.microtenants.admin-permissions:default-resources-usable",
+        "microtenant-visibility"
+      ]
+    }
+  ],
+  "claims": {
+    "group-limit": {
+      "statement": "The Ranges & Limitations article lists a limit of 200 segment groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Segment Groups | 200 groups |"
+          ]
+        }
+      ]
+    },
+    "microtenant-field": {
+      "statement": "A segment group carries `microtenantId` and `microtenantName`, and the Terraform doc says `microtenant_id` requires the microtenant license and feature flag, or the `ZPA_MICROTENANT_ID` environment variable.",
+      "tier": "A",
+      "binds": [
+        "zpa/segment-groups#microtenantId"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "MicroTenantID string `json:\"microtenantId,omitempty\"`",
+            "MicroTenantName string `json:\"microtenantName,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_segment_group.md",
+          "quotes": [
+            "The attribute ``microtenant_id`` is optional and requires the microtenant license and feature flag enabled for the respective tenant.",
+            "The provider also supports the microtenant ID configuration via the environment variable `ZPA_MICROTENANT_ID` which is the recommended method."
+          ]
+        }
+      ]
+    },
+    "shared-microtenant-ids-field": {
+      "statement": "The v1 segment group body in the API spec carries a `sharedMicrotenantIds` list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/sharedMicrotenantIds",
+          "expect": {
+            "items": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "deception-locked": {
+      "statement": "If a segment group is configured using Zscaler Deception, the console's edit and delete options are unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-segment-groups.json",
+          "quotes": [
+            "If a segment group is configured using Zscaler Deception, then the edit and delete options are unavailable."
+          ]
+        }
+      ]
+    },
+    "policy-migrated-field": {
+      "statement": "A segment group carries a `policyMigrated` boolean in the API spec, the Go model and the Python model.",
+      "tier": "A",
+      "binds": [
+        "zpa/segment-groups#policyMigrated"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/policyMigrated",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "PolicyMigrated bool `json:\"policyMigrated\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/segment_group.py",
+          "quotes": [
+            "self.policy_migrated = config[\"policyMigrated\"] if \"policyMigrated\" in config else None"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "microtenant-visibility": {
+      "kind": "semantic",
+      "former_ids": [
+        "sg-05"
+      ],
+      "title": "Visibility and sharing of segment groups across microtenants",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "saying whether a group in one microtenant can be referenced from another microtenant's policies or shared like an application segment",
+      "detail": "The help documents sharing for application segments, and the v1 group body has sharedMicrotenantIds, but no source states group sharing or visibility rules. Unverified legacy statements: a group created in Microtenant A is not visible to Microtenant B's admin and cannot be referenced in B's policy rules; the default microtenant admin sees all microtenant groups; when the microtenant license is not active microtenant_id is ignored."
+    },
+    "deception-api-effect": {
+      "kind": "semantic",
+      "title": "What the API does when a Deception-managed segment group is changed",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying Terraform or SDK changes to such a group fail",
+      "detail": "Unverified legacy statement: attempting to modify these groups through Terraform or the SDK results in an API error, and they are managed from the Deception admin portal. The help states only that the console edit and delete options are unavailable."
+    },
+    "policy-migrated-meaning": {
+      "kind": "semantic",
+      "title": "What policyMigrated records",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "blocks": "setting or relying on the flag",
+      "detail": "Unverified legacy statement: policyMigrated appears to track whether legacy policy migration has been run on the group and should be treated as read-only and not set programmatically. No captured help article describes the field."
+    }
+  }
+}

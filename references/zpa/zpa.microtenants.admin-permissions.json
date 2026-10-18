@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "id": "zpa.microtenants.admin-permissions",
+  "title": "Microtenant admin permissions",
+  "aliases": [
+    "microtenant admin read only",
+    "microtenant admin cannot see",
+    "configuration permissions for microtenants",
+    "default microtenant admin",
+    "microtenant permission matrix"
+  ],
+  "binds": [
+    "zpa/microtenants"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.isolation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Permissions differ by where the resource is defined."
+    },
+    {
+      "label": "Levels.",
+      "text": "{{permission-levels}}"
+    },
+    {
+      "label": "Default Microtenant resources.",
+      "text": "{{matrix-scope}} {{default-resources-read-only}} {{default-resources-not-visible}} {{default-resources-usable}} What a Microtenant admin can do with resources the Microtenant owns is open {{gap:own-resource-permissions}}."
+    },
+    {
+      "label": "Across Microtenants.",
+      "text": "What one Microtenant admin sees of another, and what the Default admin manages, is open {{gap:cross-microtenant-admin-visibility}}. The broader scope list is in [[zpa.microtenants.isolation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which permission level the configuration has for a Microtenant admin when the resource is defined in the Default Microtenant.",
+      "uses": [
+        "permission-levels",
+        "matrix-scope",
+        "default-resources-read-only",
+        "default-resources-not-visible",
+        "default-resources-usable"
+      ]
+    },
+    {
+      "do": "Whether the question is about a resource the Microtenant owns, since the matrix covers only Default Microtenant resources.",
+      "uses": [
+        "matrix-scope",
+        "own-resource-permissions"
+      ]
+    },
+    {
+      "do": "Whether a claim that the Default admin can manage every Microtenant's resources or that Microtenant admins cannot see each other's resources came from a source.",
+      "uses": [
+        "cross-microtenant-admin-visibility"
+      ]
+    }
+  ],
+  "claims": {
+    "permission-levels": {
+      "statement": "The permission matrix defines four levels: Full is read or write access, Read only is read-only access, Read only* is read-only access that can still perform actions on resources in specific scenarios, and Not visible means the configuration is not visible to the admin or Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuration-permissions-microtenants.json",
+          "quotes": [
+            "Full: An admin or Microtenant has read or write access.",
+            "Read only: An admin or Microtenant has read-only access.",
+            "Read only*: An admin or Microtenant has read-only access, but can still perform actions on resources in specific scenarios.",
+            "Not visible: The configuration is not visible to the admin or Microtenant."
+          ]
+        }
+      ]
+    },
+    "matrix-scope": {
+      "statement": "The permission matrix gives the Default Microtenant (global administrator) level and the Microtenant level for resources defined in the Default Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuration-permissions-microtenants.json",
+          "quotes": [
+            "The following table includes admin permissions at the Default Microtenant (i.e., global administrator) and Microtenant levels for resources defined in the Default Microtenant:"
+          ]
+        }
+      ]
+    },
+    "default-resources-read-only": {
+      "statement": "For resources defined in the Default Microtenant, a Microtenant admin has Read only access to App Connectors, App Connector Groups, Private Service Edges, Private Service Edge Groups, IdP Configuration and Machine Groups, where the Default Microtenant admin has Full.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuration-permissions-microtenants.json",
+          "quotes": [
+            "| App Connectors | Full | Read only |",
+            "| App Connector Groups | Full | Read only |",
+            "| Private Service Edges | Full | Read only |",
+            "| Private Service Edge Groups | Full | Read only |",
+            "| IdP Configuration | Full | Read only |",
+            "| Machine Groups | Full | Read only |"
+          ]
+        }
+      ]
+    },
+    "default-resources-not-visible": {
+      "statement": "For resources defined in the Default Microtenant, Access Policy, Administrators, Servers, App Connector Provisioning Keys, Audit Logs, Timeout Policy, Client Forwarding Policy and Privileged Approvals are Not visible to a Microtenant admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuration-permissions-microtenants.json",
+          "quotes": [
+            "| Access Policy | Full | Not visible |",
+            "| Administrators | Full | Not visible |",
+            "| Servers | Full | Not visible |",
+            "| App Connector Provisioning Keys | Full | Not visible |",
+            "| Audit Logs | Full | Not visible |",
+            "| Timeout Policy | Full | Not visible |",
+            "| Client Forwarding Policy | Full | Not visible |",
+            "| Privileged Approvals | Full | Not visible |"
+          ]
+        }
+      ]
+    },
+    "default-resources-usable": {
+      "statement": "A Microtenant admin can still perform actions on Default Microtenant application segments for policies within the Microtenant, on segment groups in policies and Log Streaming Service configurations, and on server groups in application segments, although those three are Read only*.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuration-permissions-microtenants.json",
+          "quotes": [
+            "Actions can still be performed on the applications for policies within a Microtenant.",
+            "Actions can still be performed on segment groups in policies and Log Streaming Service (LSS) configurations.",
+            "Actions can still be performed on server groups in application segments."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cross-microtenant-admin-visibility": {
+      "kind": "semantic",
+      "title": "Whether the Default admin can manage every Microtenant's resources and Microtenant admins cannot see each other's",
+      "status": "open",
+      "detail": "Unverified legacy statement: A Microtenant admin cannot view or edit resources belonging to the Default Tenant or other Microtenants; a Default Tenant admin can view and manage all Microtenant resources. The captured matrix contradicts the first half for Default Microtenant resources (many are read only, not hidden), and no registered source states either half for resources owned by another Microtenant. A lab test with two Microtenant admins, or a vendor statement, would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "answering whether one Microtenant admin can see another Microtenant's configuration"
+    },
+    "own-resource-permissions": {
+      "kind": "semantic",
+      "title": "Permission levels for resources a Microtenant owns",
+      "status": "open",
+      "detail": "The captured matrix covers resources defined in the Default Microtenant only, so what a Microtenant admin can do with resources defined in that Microtenant is stated only by the managed-configuration list in zpa.microtenants.isolation. A per-resource statement from the vendor would settle it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "answering whether a Microtenant admin has Full access to a specific resource type it owns"
+    }
+  }
+}

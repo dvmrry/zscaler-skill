@@ -213,7 +213,7 @@ current Automate/Rosetta capture has no rows for these field names (audit-scoped
 search on 2026-08-09), so its presence comparison cannot catch an omission or
 serializer regression yet. The accepted `hbrEnabled` states, the entity/group
 vocabularies and selection rules for stickiness, and the lifecycle of
-`guestDetails` remain [clarification `zpa-83`](../_meta/clarifications.md#zpa-83-application-segment-hbr-sticky-and-guestdetails-semantics).
+`guestDetails` remain [clarification `zpa-83`](kb:zpa.app-segments.api-fields:hbr-sticky-guest-semantics).
 
 ### Python v1.9.41 cannot decode populated `guestDetails.partnerInfo`
 
@@ -1786,4 +1786,4 @@ The following are unresolved after cross-referencing all available sources. Each
     `guestDetails` as wire fields, but not their accepted values, readonly
     status, selection behavior, or lifecycle. The current Automate/Rosetta
     capture has no rows for them. Tracked as
-    [clarification `zpa-83`](../_meta/clarifications.md#zpa-83-application-segment-hbr-sticky-and-guestdetails-semantics).
+    [clarification `zpa-83`](kb:zpa.app-segments.api-fields:hbr-sticky-guest-semantics).

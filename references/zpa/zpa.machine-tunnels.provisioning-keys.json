@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "id": "zpa.machine-tunnels.provisioning-keys",
+  "title": "Machine provisioning keys for ZPA machine tunnels",
+  "aliases": [
+    "machine provisioning key",
+    "machine token",
+    "provisioning key for machine tunnel",
+    "machine tunnel enrollment",
+    "allow re-enrollment",
+    "machine key lost"
+  ],
+  "binds": [
+    "zpa/machine-groups#machines"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.machine-groups.definition"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-tunnels.requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers machine provisioning keys."
+    },
+    {
+      "label": "What the key is.",
+      "text": "{{key-form}} {{key-is-secret}} {{separate-key-type}}"
+    },
+    {
+      "label": "Creating one.",
+      "text": "{{key-fields}} {{signing-cert-first}} {{re-enrollment}} {{view-export-once}}"
+    },
+    {
+      "label": "Using it.",
+      "text": "The key goes into the Client Connector profile rule ([[zpa.machine-groups.definition:key-in-profile-rule]]), and the tenant switch and authentication options are in [[zpa.machine-tunnels.requirements]]. Certificate staging is open {{gap:certificate-distribution}} and macOS MDM is open {{gap:macos-mdm-effect}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the key exists, is enabled, and names the intended machine group and a signing certificate.",
+      "uses": [
+        "key-fields",
+        "signing-cert-first"
+      ]
+    },
+    {
+      "do": "Whether a machine that must enrol again has Allow Re-Enrollment on.",
+      "uses": [
+        "re-enrollment"
+      ]
+    },
+    {
+      "do": "Whether the key text is still retrievable; if not, a new key is needed.",
+      "uses": [
+        "view-export-once"
+      ]
+    },
+    {
+      "do": "Whether a Terraform plan was expected to manage the key, which the provider does not.",
+      "uses": [
+        "separate-key-type"
+      ]
+    },
+    {
+      "do": "Whether certificate staging or MDM is part of the failure, which no source settles.",
+      "uses": [
+        "certificate-distribution",
+        "macos-mdm-effect"
+      ]
+    },
+    {
+      "do": "Whether the key text is stored or sent unprotected; it is a secret.",
+      "uses": [
+        "key-is-secret"
+      ]
+    }
+  ],
+  "claims": {
+    "key-form": {
+      "statement": "A machine provisioning key is a text string generated when the key is added in the Admin Console. Added to a Zscaler Client Connector profile rule, it works as an ID for the machine and lets the Private Access cloud verify the machine's authenticity before Windows or macOS login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-provisioning-keys.json",
+          "quotes": [
+            "The provisioning key is a text string that is generated when you add a machine provisioning key in the Zscaler Admin Console.",
+            "the provisioning key functions like an ID to the machine, and it enables the Private Access cloud to verify the machine's authenticity prior to logging into Windows or macOS."
+          ]
+        }
+      ]
+    },
+    "key-fields": {
+      "statement": "Adding a machine provisioning key takes a name, a status, an Allow Re-Enrollment setting, an existing machine group and a signing certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-machine-provisioning-keys.json",
+          "quotes": [
+            "Name: Enter a name for the key.",
+            "Status: Make sure Enabled is selected.",
+            "Machine Group: Select an existing group from the drop-down menu.",
+            "Signing Certificate: Select a signing certificate from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "re-enrollment": {
+      "statement": "Allow Re-Enrollment permits machines to re-enrol with the same machine provisioning key, and is off by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-machine-provisioning-keys.json",
+          "quotes": [
+            "Allow Re-Enrollment: Enable to allow for the re-enrollment of machines using the same machine provisioning key. This setting is disabled by default."
+          ]
+        }
+      ]
+    },
+    "signing-cert-first": {
+      "statement": "A signing certificate is required for enrolling machines and must exist before a new provisioning key is added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-machine-provisioning-keys.json",
+          "quotes": [
+            "A signing certificate is required for enrolling machines. You must create a signing certificate before adding a new provisioning key."
+          ]
+        }
+      ]
+    },
+    "view-export-once": {
+      "statement": "The option to view or export a key after creation is on by default and cannot be turned on later if it was off at creation. If the key is then not shown and no backup exists, a new key must be generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-machine-provisioning-keys.json",
+          "quotes": [
+            "If disabled, you cannot enable this option at a later time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-provisioning-keys.json",
+          "quotes": [
+            "a new key must be generated. A new provisioning key can be created and attached to the same machine."
+          ]
+        }
+      ]
+    },
+    "separate-key-type": {
+      "statement": "A machine provisioning key is its own Admin Console object, tied to a machine group and a signing certificate. It is not one of the association types of the Terraform `zpa_provisioning_key` resource, which are CONNECTOR_GRP, SERVICE_EDGE_GRP, SITE_CONTROLLER_GRP, EXPORTER_GRP and NP_ASSISTANT_GRP.",
+      "tier": "B",
+      "conditions": "Rests on absence: none of the five association types names a machine group, and the provider has no machine provisioning key resource (searched 2026-10-18).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-machine-provisioning-keys.json",
+          "quotes": [
+            "Go to Administration > Private Access Authentication > Machine Provisioning Keys."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_provisioning_key.md",
+          "quotes": [
+            "The supported values are `CONNECTOR_GRP`, `SERVICE_EDGE_GRP`, `SITE_CONTROLLER_GRP`, `EXPORTER_GRP`, `NP_ASSISTANT_GRP`"
+          ]
+        }
+      ]
+    },
+    "key-is-secret": {
+      "statement": "Provisioning keys are to be treated as secrets and protected, because they can create a resource for a tenant, and must not be transmitted or stored in clear text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-provisioning-keys.json",
+          "quotes": [
+            "Provisioning keys should be treated as secrets and properly protected because they can create a resource for a tenant.",
+            "The provisioning key must also be secured and not transmitted or stored in clear text."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "macos-mdm-effect": {
+      "kind": "semantic",
+      "title": "Whether MDM-issued certificates on macOS change machine tunnel provisioning",
+      "status": "open",
+      "former_ids": [
+        "zpa-44"
+      ],
+      "about": [
+        "zpa/machine-groups#machines"
+      ],
+      "detail": "Whether Jamf or Intune affect the machine tunnel provisioning flow, for example a Jamf-issued certificate as the enrollment anchor, is not described in the Client Connector, machine provisioning key or posture captures. Test an enrollment on a managed macOS device.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "certificate-distribution": {
+      "kind": "semantic",
+      "title": "How the enrollment certificate reaches the device before Client Connector installs",
+      "status": "open",
+      "about": [
+        "zpa/machine-groups#machines"
+      ],
+      "detail": "Unverified legacy statement: \"Deploying a machine provisioning key requires the enrollment certificate's private key to be accessible by ZCC at enrollment time. In MDM-managed environments the certificate is distributed via MDM and the provisioning key is baked into the ZCC MSI deployment parameters. Failure to pre-stage the certificate before ZCC installation results in enrollment failure.\" The captures describe the signing certificate selected on the key and the key added to the profile rule, not certificate staging on the device. Test an enrollment with and without a pre-staged certificate.",
+      "blocks": "explaining an enrollment failure by a missing certificate",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    }
+  }
+}

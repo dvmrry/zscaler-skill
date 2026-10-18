@@ -1,0 +1,866 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.deployment",
+  "title": "App Connector deployment, redundancy and limits",
+  "aliases": [
+    "app connector deployment",
+    "app connector outbound only",
+    "app connector n+1",
+    "how many app connectors",
+    "app connector platforms",
+    "app connector limit 100",
+    "app connector sizing",
+    "app connector ssl interception"
+  ],
+  "binds": [
+    "zpa/app-connectors"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Where an App Connector runs, what it needs from the network, and how many a deployment needs."
+    },
+    {
+      "label": "Network behavior.",
+      "text": "{{outbound-only}} {{connects-to-nearest-service-edge}} {{no-ssl-interception}}"
+    },
+    {
+      "label": "Redundancy.",
+      "text": "{{always-active}} {{n-plus-1}} {{never-communicate}}"
+    },
+    {
+      "label": "Placement.",
+      "text": "{{placement}} {{reach-only-what-it-can-reach}}"
+    },
+    {
+      "label": "Forms and platforms.",
+      "text": "{{distribution-forms}} {{supported-platforms}} {{stig-images}} {{other-environments-use-rpm}}"
+    },
+    {
+      "label": "Limits and sizing.",
+      "text": "{{tenant-limit-100}} {{ranges-limits-100}} The group-level maximum is open {{gap:max-connectors-per-group}}. {{sizing-lives-in-prerequisites}} {{sizing-baseline}} {{sizing-instance-types}} {{sizing-cpu-benchmark}} {{sizing-zdx}} {{sizing-appprotection}} {{sizing-vmware-reservation}} {{throughput-500}} {{throughput-double-encryption}} {{throughput-varies}} {{scale-out-small-and-two-minimum}} {{platform-prerequisites}} A concurrent-user sizing statement is unsourced {{gap:vm-sizing}}."
+    },
+    {
+      "label": "Reference Terraform modules and July 2026 remote settings.",
+      "text": "{{module-rhel9}} {{module-aws-example-types}} {{module-azure-example-types}} {{module-aws-defaults}} {{module-azure-defaults}} {{module-network-defaults}} {{module-aws-hardening}} {{module-azure-hardening}} {{asg-no-instance-refresh}} What an apply does to running ASG instances comes from an upstream issue and is open {{gap:aws-asg-instance-refresh}}. The July 2026 remote network commands are likewise unsupported by the capture {{gap:remote-network-settings-july}}."
+    },
+    {
+      "text": "Enrollment and group membership are in [[zpa.app-connectors.enrollment]] and [[zpa.app-connectors.connector-groups]]; how a session picks a connector is in [[zpa.app-connectors.selection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "How many connectors the group runs against the N needed, since connectors are always active and never share load state with each other.",
+      "uses": [
+        "n-plus-1",
+        "always-active",
+        "never-communicate"
+      ]
+    },
+    {
+      "do": "Whether the tenant is close to the App Connector total, counting disabled connectors that were never deleted.",
+      "uses": [
+        "tenant-limit-100",
+        "max-connectors-per-group"
+      ]
+    },
+    {
+      "do": "Whether a device on the path intercepts TLS to the Zscaler cloud before concluding the connector itself is faulty.",
+      "uses": [
+        "no-ssl-interception"
+      ]
+    },
+    {
+      "do": "Whether the connector meets the recommended CPU, memory, AppProtection and ZDX sizing and the double-encryption throughput table.",
+      "uses": [
+        "sizing-baseline",
+        "sizing-appprotection",
+        "sizing-zdx",
+        "throughput-double-encryption",
+        "sizing-lives-in-prerequisites"
+      ]
+    }
+  ],
+  "claims": {
+    "outbound-only": {
+      "statement": "App Connectors only make outbound connections and need no inbound open ports to operate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "App Connectors only connect outbound; they do not need any inbound open ports to operate correctly."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "connects-to-nearest-service-edge": {
+      "statement": "After enrollment, the App Connector's TLS client certificate maintains its authentication with the nearest Public or Private Service Edge, which supplies its configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "After an App Connector is enrolled, the TLS client certificate allows it to maintain its authentication with the nearest Public Service Edge or Private Service Edge, which provides the App Connector with its configuration"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "no-ssl-interception": {
+      "statement": "Private Access does not support SSL interception between an App Connector and the Zscaler cloud: the connection uses TLS with pinned certificates, so an intercepting device makes it fail.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "Private Access does not support SSL interceptions. Private Access uses TLS connections and pinned certificates, so a device performing SSL interception causes the connection to fail between the App Connector and the Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "never-communicate": {
+      "statement": "App Connectors never communicate with each other.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "However, App Connectors never communicate with each other."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "always-active": {
+      "statement": "App Connectors are always active, so they are typically deployed in a redundant configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "App Connectors are always active, so they are typically deployed in a redundant configuration."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "n-plus-1": {
+      "statement": "Zscaler's architecture article recommends redundant (N+1) deployments, where N is the number of App Connectors needed to support the applications, because connectors are always active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "It is best to install them in redundant (N+1) configurations, where (N) is the number of App Connectors required to support the applications, because they are always active."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "placement": {
+      "statement": "App Connectors can be co-located with the enterprise applications or deployed in any location that has connectivity to them; they are typically placed on network segments that reach both the secured applications and the Private Access cloud, such as a DMZ.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "App Connectors can be co-located with your enterprise applications, or they can be deployed in any location that has connectivity to the applications.",
+            "Typically, they are deployed on network segments that can access secured applications and the Private Access cloud simultaneously, such as in a DMZ."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "reach-only-what-it-can-reach": {
+      "statement": "App Connector groups must be associated only with applications that their App Connectors can actually reach.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-connector-groups.json",
+          "quotes": [
+            "App Connector groups must be associated with applications that the App Connector can access (i.e., only assign App Connectors to applications that the App Connector is capable of reaching)."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups"
+      ]
+    },
+    "distribution-forms": {
+      "statement": "Zscaler distributes a standard VM image for data centers, local private clouds such as VMware, and public clouds such as AWS EC2, and also provides packages installable on supported Linux distributions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "Zscaler distributes a standard virtual machine (VM) image for deployment in enterprise data centers, local private cloud environments such as VMware, or public cloud environments such as Amazon Web Services (AWS) EC2.",
+            "Additionally, Zscaler provides packages that can be installed on supported Linux distributioons."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "supported-platforms": {
+      "statement": "The help lists these platforms as supported by Private Access: AWS, Docker, GCP, Kubernetes, Linux (RHEL 8 or 9), Microsoft Azure, Nutanix, OpenShift, and VMware vCenter or vSphere (ESXi).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "Linux (Red Hat Enterprise Linux 8 or 9)",
+            "OpenShift",
+            "VMware vCenter or vSphere Hypervisor (ESXi)"
+          ]
+        }
+      ]
+    },
+    "stig-images": {
+      "statement": "Private Access provides STIG images for AWS, GCP, Microsoft Azure, Nutanix, and VMware by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "Private Access provides Security Technical Implementation Guide (STIG) images for AWS, GCP, Microsoft Azure, Nutanix, and VMware by default."
+          ]
+        }
+      ]
+    },
+    "other-environments-use-rpm": {
+      "statement": "In other hypervisor or cloud environments (for example Oracle Cloud), an App Connector is built by deploying a Linux instance and following the RPM-based deployment instructions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "App Connectors can be built in other hypervisor environments, such as VMware, and other cloud environments (i.e., Google Cloud Platform, Oracle Cloud, etc.) by deploying a Linux instance and following the RPM-based deployment instructions."
+          ]
+        }
+      ]
+    },
+    "sizing-lives-in-prerequisites": {
+      "statement": "The help points to its App Connector Deployment Prerequisites article for VM image sizing and scalability, supported platform requirements and deployment best practices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "Before you begin, see App Connector Deployment Prerequisites which provides detailed information on VM image sizing and scalability, supported platform requirements, deployment best practices, and other essential guidelines."
+          ]
+        }
+      ],
+      "gaps": [
+        "vm-sizing"
+      ]
+    },
+    "tenant-limit-100": {
+      "statement": "A tenant can have up to 100 App Connectors in the Admin Console by default; the total counts active connectors and connectors that are disabled but not deleted. Zscaler Support can raise it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "Within the Zscaler Admin Console, you can have up to 100 App Connectors. This total includes both App Connectors enrolled that are active and App Connectors that are disabled, but not deleted.",
+            "If you require an increase in the number of App Connectors due to the tenant's maximum App Connector system limit being reached (100 by default), contact Zscaler Support."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ],
+      "gaps": [
+        "max-connectors-per-group"
+      ]
+    },
+    "module-rhel9": {
+      "statement": "The AWS module README says that as of module version 1.4.0 all App Connectors are deployed on Red Hat Enterprise Linux 9; the Azure README says the same as of 1.1.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "README.md",
+          "quotes": [
+            "As of version 1.4.0 of this module, all App Connectors are deployed using the new"
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "README.md",
+          "quotes": [
+            "As of version 1.1.0 of this module, all App Connectors are deployed using the new"
+          ]
+        }
+      ]
+    },
+    "module-aws-example-types": {
+      "statement": "The AWS module's example deployment types are base (VPC, subnets, NAT gateway, bastion, no connectors), base_ac (base plus connector subnets and VMs behind the NAT gateways), base_ac_asg (base plus connectors from a launch template in an Auto Scaling Group), and brownfield ac and ac_asg.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "Deployment Type: (base | base_ac | base_ac_asg):",
+            "base_ac: Base Deployment Type + Creates App Connector private subnets and App Connector VMs egressing through the NAT Gateways",
+            "base_ac_asg: Base Deployment Type + Creates App Connectors via Launch Template in an Autoscaling Group.",
+            "Deployment Type: (ac | ac_asg):"
+          ]
+        }
+      ]
+    },
+    "module-azure-example-types": {
+      "statement": "The Azure module's examples are base (resource group, VNet, bastion; no connectors), base_ac (connectors in an availability set, or zones when supported), and base_ac_vmss, ac and ac_vmss variants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "Deployment Type: (base | base_ac ):",
+            "2 App Connector VMs in an availability set (or zones if supported and specified)"
+          ]
+        }
+      ],
+      "conditions": "The ac, ac_vmss and base_ac_vmss example directories exist in the module (examples/ac, ac_vmss, base_ac_vmss); their README descriptions were not quoted."
+    },
+    "module-aws-defaults": {
+      "statement": "AWS module defaults: standalone instance type m5.large, ac_count 1 per module call, ASG min_size 2, max_size 4 and target CPU 50%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-aws/variables.tf",
+          "quotes": [
+            "default = \"m5.large\""
+          ],
+          "after": "variable \"acvm_instance_type\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-aws/variables.tf",
+          "quotes": [
+            "default = 1"
+          ],
+          "after": "variable \"ac_count\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/variables.tf",
+          "quotes": [
+            "default = 2"
+          ],
+          "after": "variable \"min_size\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/variables.tf",
+          "quotes": [
+            "default = 4"
+          ],
+          "after": "variable \"max_size\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/variables.tf",
+          "quotes": [
+            "default = 50"
+          ],
+          "after": "variable \"target_cpu_util_value\" {"
+        }
+      ]
+    },
+    "module-azure-defaults": {
+      "statement": "Azure module defaults: instance size Standard_D4s_v5, ac_count 1 (valid 1 to 250), VMSS default, minimum and maximum of 2, 2 and 10, scale-out at 70% and scale-in at 50% evaluated over PT5M, with PT15M cooldowns.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-azure/variables.tf",
+          "quotes": [
+            "default = \"Standard_D4s_v5\""
+          ],
+          "after": "variable \"acvm_instance_type\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-azure/variables.tf",
+          "quotes": [
+            "default = 1",
+            "var.ac_count >= 1 && var.ac_count <= 250"
+          ],
+          "after": "variable \"ac_count\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "quotes": [
+            "default = 2"
+          ],
+          "after": "variable \"vmss_default_acs\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "quotes": [
+            "default = 2"
+          ],
+          "after": "variable \"vmss_min_acs\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "quotes": [
+            "default = 10"
+          ],
+          "after": "variable \"vmss_max_acs\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "quotes": [
+            "default = 70"
+          ],
+          "after": "variable \"scale_out_threshold\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "quotes": [
+            "default = 50"
+          ],
+          "after": "variable \"scale_in_threshold\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "quotes": [
+            "default = \"PT5M\""
+          ],
+          "after": "variable \"scale_out_evaluation_period\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "quotes": [
+            "default = \"PT15M\""
+          ],
+          "after": "variable \"scale_out_cooldown\" {"
+        }
+      ]
+    },
+    "module-network-defaults": {
+      "statement": "Module network defaults: the AWS security group allows all egress and SSH (22/tcp) only from the VPC CIDR; the Azure NSG allows inbound SSH and ICMP from VirtualNetwork and all outbound.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-sg-aws/main.tf",
+          "quotes": [
+            "cidr_blocks = [\"0.0.0.0/0\"]",
+            "Allow SSH to App Connector VM only from within the VPC CIDR space"
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-nsg-azure/main.tf",
+          "quotes": [
+            "name = \"SSH_VNET\"",
+            "name = \"ICMP_VNET\"",
+            "name = \"OUTBOUND\""
+          ]
+        }
+      ]
+    },
+    "module-aws-hardening": {
+      "statement": "AWS module hardening defaults: imdsv2_enabled is true for standalone and ASG instances; the ASG module encrypts EBS volumes by default (ebs_encrypted true, AWS managed key when ebs_kms_key_arn is null); the standalone module sets no EBS encryption variable; the instance role trusts ec2.amazonaws.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-aws/variables.tf",
+          "quotes": [
+            "default = true"
+          ],
+          "after": "variable \"imdsv2_enabled\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/variables.tf",
+          "quotes": [
+            "default = true"
+          ],
+          "after": "variable \"imdsv2_enabled\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/variables.tf",
+          "quotes": [
+            "default = true"
+          ],
+          "after": "variable \"ebs_encrypted\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/variables.tf",
+          "quotes": [
+            "Default uses AWS managed key"
+          ],
+          "after": "variable \"ebs_kms_key_arn\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-iam-aws/main.tf",
+          "quotes": [
+            "identifiers = [\"ec2.amazonaws.com\"]"
+          ]
+        }
+      ],
+      "conditions": "Statement narrowed from the first draft, which said EBS encryption applied to all instances; ebs_encrypted exists only in terraform-zsac-asg-aws (a search of the standalone acvm module's .tf files for ebs and encrypt found no match)."
+    },
+    "module-azure-hardening": {
+      "statement": "Azure module: the VMSS OS disk is Premium_LRS with ReadWrite caching, and the default marketplace image is publisher zscaler, offer zscaler-private-access, SKU zpa-con-azure, pinned to version 2025.11.12 rather than latest.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/main.tf",
+          "quotes": [
+            "caching = \"ReadWrite\"",
+            "storage_account_type = \"Premium_LRS\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-azure/variables.tf",
+          "quotes": [
+            "default = \"zscaler\""
+          ],
+          "after": "variable \"acvm_image_publisher\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-azure/variables.tf",
+          "quotes": [
+            "default = \"zscaler-private-access\""
+          ],
+          "after": "variable \"acvm_image_offer\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-azure/variables.tf",
+          "quotes": [
+            "default = \"zpa-con-azure\""
+          ],
+          "after": "variable \"acvm_image_sku\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-azure/variables.tf",
+          "quotes": [
+            "default = \"2025.11.12\""
+          ],
+          "after": "variable \"acvm_image_version\" {"
+        }
+      ]
+    },
+    "asg-no-instance-refresh": {
+      "statement": "At the pinned AWS module (v2.0.1) the App Connector Auto Scaling Group references a launch template and no file in the module repository contains an instance_refresh block.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-aws/main.tf",
+          "quotes": [
+            "version = var.launch_template_version"
+          ]
+        }
+      ],
+      "conditions": "Absence rests on a recursive text search of vendor/terraform-aws-zpa-app-connector-modules for instance_refresh that found no match."
+    },
+    "sizing-baseline": {
+      "statement": "Zscaler's recommended App Connector specification is 4 GB RAM, 2 CPU cores (Xeon E5 class) on physical machines without hyperthreading or 4 cores on VMs with hyperthreading, 64 GB thin-provisioned disk and at least 1 NIC; AWS and GCP require at least 4 cores, and Azure VMs older than V3 need 2 cores while V3 and later need 4.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Memory: 4 GB RAM",
+            "2 CPU cores (Xeon E5 class) for physical machines without hyperthreading",
+            "4 CPU cores (Xeon E5 class) for virtual machines (VMs) with hyperthreading",
+            "Both Amazon Web Services (AWS) and Google Cloud Platform (GCP) require a minimum of 4 CPU cores due to hyperthreading.",
+            "Azure VMs older than V3 require 2 CPU cores, while VMs V3 and later require 4 CPU cores due to hyperthreading.",
+            "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+            "Network Card: 1 NIC (minimum)"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "sizing-instance-types": {
+      "statement": "Recommended instance types: AWS t3.xlarge (non-production or low traffic) or m5a.xlarge (production or high traffic); GCP n2-standard-4 or n2-highcpu-4 with a Linux RPM; Azure Standard_D4s_v4 or Standard_D4s_v5 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Zscaler recommends using t3.xlarge (for non-production or low traffic App Connectors) or m5a.xlarge (for production or high traffic App Connectors).",
+            "Zscaler recommends using a Linux RPM on n2-standard-4 or n2-highcpu-4.",
+            "Zscaler recommends using Standard_D4s_v4 or Standard_D4s_v5 or later."
+          ]
+        }
+      ]
+    },
+    "sizing-cpu-benchmark": {
+      "statement": "Zscaler recommends a minimum PassMark CPU Mark score of 2640 and requires the Intel AES-NI instruction set to be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Zscaler recommends using a minimum CPU benchmark score of 2640 when choosing a CPU processor.",
+            "The Intel Advanced Encryption Standard New Instructions (AES-NI) instruction set must also be enabled on the CPU processor."
+          ]
+        }
+      ]
+    },
+    "sizing-zdx": {
+      "statement": "For ZDX deployments Zscaler recommends 8 GB RAM and 4 CPU cores per App Connector; scaling should be reconsidered beyond 2,000 ZDX probes at a 5-minute interval, and 32 GB RAM when alerts exceed a configured 250 Mbps on a connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "For Digital Experience (ZDX) deployments, Zscaler recommends App Connectors to have 8 GB of RAM.",
+            "If the ZDX probes exceed a count of 2,000 at an interval of 5 minutes, further scaling should be considered.",
+            "For ZDX deployments, Zscaler recommends App Connectors to have 4 CPU cores."
+          ]
+        }
+      ]
+    },
+    "sizing-appprotection": {
+      "statement": "To enable AppProtection with the default profile, Zscaler recommends at least 8 CPU cores and 8 GB memory per connector, with peak CPU and memory under 40%; throughput may be 100 to 200 Mbps with AppProtection, based on a mix of 85% GET and 15% POST with 32 KB payloads.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "we recommend that your App Connectors have at least 8 CPU cores and 8 GB of memory.",
+            "Ensure that your App Connectors are less than 40% for peak memory utilization and peak CPU utilization.",
+            "Your App Connector throughput might be 100 to 200 Mbps depending on App Connector sizing when using AppProtection.",
+            "The AppProtection recommendations are based on a mix of web traffic, 85% GET requests, and 15% POST and payload and response sizes of 32 KB."
+          ]
+        }
+      ]
+    },
+    "sizing-vmware-reservation": {
+      "statement": "On VMware, dynamic resource allocation is not recommended: reserve 8 GB RAM and CPU equal to cores times GHz per core.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "For VMware platform deployment, the default configuration to allow the host to dynamically allocate VM resources is not recommended.",
+            "Memory: 8 GB RAM",
+            "CPU: total CPU GHz (the number of cores (2 or 4 cores) multiplied by the GHz per core)"
+          ]
+        }
+      ]
+    },
+    "throughput-500": {
+      "statement": "With the baseline specification each App Connector supports up to 500 Mbps aggregate throughput, which can reach 1 Gbps per connector with 8 vCPU (or 4 physical cores) and 8 GB RAM and a faster link.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Using these specifications, each App Connector supports up to 500 Mbps of throughput.",
+            "500 Mbps of throughput is an aggregate of multiple streams of traffic.",
+            "8 vCPU cores for virtual machines or 4 CPU cores for physical machines"
+          ]
+        }
+      ]
+    },
+    "throughput-double-encryption": {
+      "statement": "Per-connector throughput falls with the share of applications using double encryption: 500 Mbps at 0%, 437.5 at 25%, 375 at 50%, 312.5 at 75% and 250 at 100%; a 1 Gbps link needs 2 to 3 connectors without double encryption and 4 to 6 with it (including N+1).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "| 0% | 500 Mbps |",
+            "| 25% | 437.5 Mbps |",
+            "| 50% | 375 Mbps |",
+            "| 75% | 312.5 Mbps |",
+            "| 100% | 250 Mbps |",
+            "you would need to deploy 2 to 3 App Connectors if your applications are not using double encryption, but 4 to 6 App Connectors if they are."
+          ]
+        }
+      ]
+    },
+    "throughput-varies": {
+      "statement": "Exact throughput also depends on internal network setup, latency, and whether double encryption, AppProtection or ZDX is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "whether you have double encryption, App Protection, or ZDX enabled."
+          ]
+        }
+      ]
+    },
+    "scale-out-small-and-two-minimum": {
+      "statement": "Zscaler recommends more connectors with lower specifications over fewer large ones, and a minimum of two healthy connectors per group; more connectors can be added at any time with the same provisioning key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Zscaler recommends that you have more App Connectors with lower specifications rather than fewer App Connectors with higher specifications to horizontally scale your deployment.",
+            "Zscaler recommends you have a minimum of two healthy App Connectors to always ensure an available path.",
+            "You can deploy additional App Connectors at any time, using the same provisioning key to add them to the existing App Connector Group"
+          ]
+        }
+      ]
+    },
+    "platform-prerequisites": {
+      "statement": "Platform prerequisites include x86_64/AMD64, systemd, root or sudo, DNS and network access, a static MAC address, and for OAuth 2.0 enrollment Manager software and connector version 25.46.3 or later; the OAuth server supports only IPv4.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Intel x86_64/AMD64-based architecture",
+            "A static MAC address",
+            "For OAuth 2.0 enrollment, Manager software and App Connector version 25.46.3 or later",
+            "The OAuth server only supports IPv4-based communication."
+          ]
+        }
+      ]
+    },
+    "ranges-limits-100": {
+      "statement": "The ZPA Ranges and Limitations article lists 100 App Connectors, 100 App Connector groups and 100 App Connector provisioning keys under App Connector Management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| App Connectors | 100 App Connectors |",
+            "| App Connector Groups | 100 groups |",
+            "| App Connector Provisioning Keys | 100 keys |"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors",
+        "zpa/app-connector-groups"
+      ],
+      "conditions": "The table gives no scope (tenant, organization or group) for these limits; they are read as tenant-wide limits alongside tenant-limit-100. They are not per-group maximums."
+    }
+  },
+  "gaps": {
+    "vm-sizing": {
+      "kind": "semantic",
+      "title": "Remaining legacy sizing statement",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"App Connector VM sizing depends on concurrent-user count ... Zscaler publishes sizing guidance in their reference architecture PDFs; not captured in depth here.\" The deployment prerequisites article now sourced in sizing-baseline and related claims sizes by CPU, memory, throughput, double encryption, AppProtection and ZDX; it does not mention concurrent-user count or reference architecture PDFs.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "max-connectors-per-group": {
+      "kind": "semantic",
+      "title": "Maximum App Connectors per group",
+      "status": "partial",
+      "detail": "Tracked as legacy ledger item zpa-29. The help states a tenant-wide limit (100 by default, see tenant-limit-100) but no source states a per-group maximum. Legacy wording: \"Max connectors per group - high limits but not explicitly enumerated.\"",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ],
+      "former_ids": [
+        "zpa-29"
+      ]
+    },
+    "aws-asg-instance-refresh": {
+      "kind": "semantic",
+      "title": "Upstream issue on ASG launch-template changes",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Upstream issue #52 reports that changing user data / the launch template and running terraform apply updates configuration without automatically replacing the existing ASG instances. The issue proposes a rolling instance_refresh, but that proposal is not present at this pin. For v2.0.1 deployments, do not assume a successful apply has put changed user data onto already-running App Connectors.\" The module confirms the absence of instance_refresh (asg-no-instance-refresh), but the issue is not a registered source and the module does not show what an apply does to running instances.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "remote-network-settings-july": {
+      "kind": "semantic",
+      "title": "July 2026 remote App Connector network commands",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The July 13, 2026 release added a Get Network Interfaces command that collects the network-interface inventory used by an App Connector. The same release introduced limited-availability remote App Connector network settings that can enable SSH on the operating system and update software-interface settings on ZPA virtual machines in AWS, Azure, and GCP.\" The captured release summary (zpa-release-upgrade-summary-2026-july.md) now holds only an introduction, so the entries the legacy doc cited are not present to quote. Resolving needs a capture of the July 2026 release entries.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

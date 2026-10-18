@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.health",
+  "title": "App Connector health, status values and telemetry",
+  "aliases": [
+    "app connector disconnected",
+    "connection health",
+    "controlChannelStatus",
+    "runtime_status",
+    "ZPN_STATUS_AUTHENTICATED",
+    "AliveTargetCount",
+    "app connector metrics log",
+    "app connector status log",
+    "connector paused",
+    "lss retransmit 15 minutes",
+    "app connector cpu memory"
+  ],
+  "binds": [
+    "zpa/app-connectors"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Where an App Connector's health is reported, which fields mean what, and which status values come from which source."
+    },
+    {
+      "label": "Console and alerts.",
+      "text": "{{connection-health-column}} {{disconnected-year-alert}} {{logged-but-disconnected}} {{pause-reasons}} {{cert-expiry-in-status-output}} A disconnected connector with a running VM is not tied to a cause by the sources {{gap:cert-or-firewall-disconnect}}."
+    },
+    {
+      "label": "Log fields.",
+      "text": "{{status-log-control-session}} {{metrics-mtunnel-counts}} {{metrics-target-counts}} {{alive-below-target}} {{health-reporting-values}} The probe cadence per value is unsourced {{gap:health-reporting-cadence}}."
+    },
+    {
+      "label": "Status names across tools.",
+      "text": "{{control-channel-field}} {{mcp-status-table}} {{no-runtime-status-field}} {{lss-status-set-differs}} {{lss-codes-fetched}} Whether PENDING exists, and how it differs from NOT_ENROLLED, are open {{gap:status-pending-unverified}} {{gap:not-enrolled-vs-pending}}."
+    },
+    {
+      "label": "Version and connection fields.",
+      "text": "{{connector-object-fields}}"
+    },
+    {
+      "label": "Connectivity checks.",
+      "text": "{{cloud-connectivity-checks}}"
+    },
+    {
+      "label": "Streaming limits.",
+      "text": "{{lss-retransmit-limits}}"
+    },
+    {
+      "text": "How the status feeds session assignment is in [[zpa.app-connectors.selection]]; update status values are in [[zpa.app-connectors.upgrades]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Connection Health, the Status log SessionStatus and the control session agree, using the Status log rather than M-Tunnel counts to judge whether the connector is connected.",
+      "uses": [
+        "connection-health-column",
+        "status-log-control-session",
+        "metrics-mtunnel-counts"
+      ]
+    },
+    {
+      "do": "Whether AliveTargetCount trails TargetCount for the connector in question.",
+      "uses": [
+        "alive-below-target",
+        "metrics-target-counts"
+      ]
+    },
+    {
+      "do": "Whether the connector is paused, and for which reason, before treating it as down.",
+      "uses": [
+        "pause-reasons",
+        "cert-expiry-in-status-output"
+      ]
+    },
+    {
+      "do": "Which code family a status value belongs to before comparing an MCP status with an LSS SessionStatus.",
+      "uses": [
+        "lss-status-set-differs",
+        "no-runtime-status-field"
+      ]
+    },
+    {
+      "do": "Whether a log gap overlaps a connector outage, since LSS retransmits at most 15 minutes.",
+      "uses": [
+        "lss-retransmit-limits"
+      ]
+    }
+  ],
+  "claims": {
+    "connection-health-column": {
+      "statement": "The App Connectors page shows each connector's Connection Health as Connected or Disconnected, separately from its Status (enabled or disabled).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "Connection Health: The health of the App Connector connection (Connected or Disconnected).",
+            "Status: Indicates whether the App Connector is enabled or disabled."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#enabled"
+      ]
+    },
+    "disconnected-year-alert": {
+      "statement": "If any connectors have been disconnected for a year or more, an alert on Admin Console login links to a page filtered to them for review or deletion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "If any App Connectors have been disconnected for one year or more, an alert appears when you log in to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "status-log-control-session": {
+      "statement": "The App Connector Status log's SessionType is ZPN_ASSISTANT_BROKER_CONTROL, the session from the connector to the closest Public Service Edge, and SessionStatus is one of ZPN_STATUS_AUTHENTICATED, ZPN_STATUS_AUTH_FAILED or ZPN_STATUS_DISCONNECTED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "app-connector-status-log-fields.json",
+          "quotes": [
+            "The expected value for this field is ZPN_ASSISTANT_BROKER_CONTROL, which denotes the session from the App Connector towards the closest Public Service Edge for Private Access.",
+            "ZPN_STATUS_AUTHENTICATED: App Connector successfully authenticated in Private Access",
+            "ZPN_STATUS_AUTH_FAILED: App Connector failed to authenticate in Private Access",
+            "ZPN_STATUS_DISCONNECTED: App Connector disconnected from a Service Edge for Private Access"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#controlChannelStatus"
+      ]
+    },
+    "metrics-target-counts": {
+      "statement": "The App Connector Metrics log reports TargetCount, the targets configured for access via the connector, and AliveTargetCount, the targets alive for access via it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "TargetCount | The number of targets configured for access via this App Connector",
+            "AliveTargetCount | The number of targets alive for access via this App Connector"
+          ]
+        }
+      ]
+    },
+    "alive-below-target": {
+      "statement": "AliveTargetCount below TargetCount means some configured targets are not alive for access via that connector at that time.",
+      "tier": "B",
+      "derived_from": [
+        "metrics-target-counts"
+      ],
+      "conditions": "Reads the two definitions together; the help does not interpret the difference."
+    },
+    "metrics-mtunnel-counts": {
+      "statement": "The metrics log counts active and disconnected Microtunnel (M-Tunnel) connections separately to Public and Private Service Edges (ActiveConnectionsToPublicSE, DisconnectedConnectionsToPublicSE, ActiveConnectionsToPrivateSE, DisconnectedConnectionsToPrivateSE).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-app-connector-metrics-log-fields.json",
+          "quotes": [
+            "ActiveConnectionsToPublicSE | The number of active Microtunnel (M-Tunnel) connections to the Public Service Edge for Private Access",
+            "DisconnectedConnectionsToPublicSE | The number of disconnected Microtunnel (M-Tunnel) connections to the Public Service Edge",
+            "ActiveConnectionsToPrivateSE | The number of active Microtunnel (M-Tunnel) connections to the Private Service Edge for Private Access",
+            "DisconnectedConnectionsToPrivateSE | The number of disconnected Microtunnel (M-Tunnel) connections to the Private Service Edge"
+          ]
+        }
+      ]
+    },
+    "health-reporting-values": {
+      "statement": "An application segment's health_reporting accepts NONE, ON_ACCESS or CONTINUOUS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "Whether health reporting for the app is Continuous or On Access. Supported values: NONE, ON_ACCESS, CONTINUOUS."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/application-segments"
+      ],
+      "gaps": [
+        "health-reporting-cadence"
+      ]
+    },
+    "control-channel-field": {
+      "statement": "Both SDKs expose the connector's control-connection state as controlChannelStatus (Python control_channel_status, Go ControlChannelStatus).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "self.control_channel_status = config[\"controlChannelStatus\"] if \"controlChannelStatus\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+          "quotes": [
+            "ControlChannelStatus string `json:\"controlChannelStatus,omitempty\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#controlChannelStatus"
+      ]
+    },
+    "no-runtime-status-field": {
+      "statement": "Neither SDK nor the Terraform provider defines a field named runtime_status or runtimeStatus for connectors; that name and the ZPN_STATUS_* table used with it appear in the MCP server's skill and command markdown.",
+      "tier": "B",
+      "derived_from": [
+        "control-channel-field",
+        "mcp-status-table"
+      ],
+      "conditions": "Rests on a case-insensitive search of vendor/zscaler-sdk-python, vendor/zscaler-sdk-go and vendor/terraform-provider-zpa for runtime_status and runtimeStatus that found no match."
+    },
+    "mcp-status-table": {
+      "statement": "The MCP troubleshooting skill's connector status table gives ZPN_STATUS_AUTHENTICATED as healthy, ZPN_STATUS_DISCONNECTED as lost connection, ZPN_STATUS_NOT_ENROLLED as never enrolled or enrollment failed, and ZPN_STATUS_PENDING as enrollment in progress; the command document lists only the first three.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/troubleshoot-app-connector/SKILL.md",
+          "quotes": [
+            "| `ZPN_STATUS_AUTHENTICATED` | Healthy, control connection established |",
+            "| `ZPN_STATUS_DISCONNECTED` | Lost connection to ZPA cloud |",
+            "| `ZPN_STATUS_NOT_ENROLLED` | Never enrolled or enrollment failed |",
+            "| `ZPN_STATUS_PENDING` | Enrollment in progress |"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "commands/troubleshoot-connector.md",
+          "quotes": [
+            "`ZPN_STATUS_NOT_ENROLLED` = enrollment failed"
+          ]
+        }
+      ],
+      "gaps": [
+        "status-pending-unverified",
+        "not-enrolled-vs-pending"
+      ]
+    },
+    "lss-status-set-differs": {
+      "statement": "The LSS SessionStatus list includes ZPN_STATUS_AUTH_FAILED, which is not in the MCP connector status table, so the two lists are not identical (they share AUTHENTICATED and DISCONNECTED).",
+      "tier": "B",
+      "derived_from": [
+        "status-log-control-session",
+        "mcp-status-table"
+      ],
+      "conditions": "Compares the two code lists; no source states how the MCP field maps to LSS. Statement changed from 'different families of codes' because the lists overlap."
+    },
+    "lss-codes-fetched": {
+      "statement": "The Python SDK retrieves LSS session status codes from the API, filtered by log type, rather than defining them as constants, so the full set cannot be listed from SDK source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "Returns a list of LSS Session Status Codes filtered by log type.",
+            "def get_status_codes(self, log_type: str = \"all\") -> dict:"
+          ]
+        }
+      ]
+    },
+    "connector-object-fields": {
+      "statement": "The Python connector model carries current and expected version, last upgrade time, last broker connect and disconnect times with durations, platform and Sarge upgrade fields, all read from the response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "self.current_version = config[\"currentVersion\"] if \"currentVersion\" in config else None",
+            "self.expected_version = config[\"expectedVersion\"] if \"expectedVersion\" in config else None",
+            "self.last_upgrade_time = config[\"lastUpgradeTime\"] if \"lastUpgradeTime\" in config else None",
+            "self.last_broker_connect_time = config[\"lastBrokerConnectTime\"] if \"lastBrokerConnectTime\" in config else None",
+            "self.sarge_upgrade_status = config[\"sargeUpgradeStatus\"] if \"sargeUpgradeStatus\" in config else None"
+          ],
+          "after": "class AppConnectorController(ZscalerObject):"
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#currentVersion",
+        "zpa/app-connectors#expectedVersion",
+        "zpa/app-connectors#lastUpgradeTime",
+        "zpa/app-connectors#lastBrokerConnectTime"
+      ]
+    },
+    "cert-expiry-in-status-output": {
+      "statement": "A running connector periodically writes a status line to the local logs that includes how long its certificate has left.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "managing-deployed-software-components.json",
+          "quotes": [
+            "Certificate will expire in 370 days, 21 hours, 39 minutes"
+          ]
+        }
+      ]
+    },
+    "pause-reasons": {
+      "statement": "A connector can be paused for certificate expiry, software upgrade, session process restart or session system restart; it logs 'entering PAUSE mode because of' with the reason, and a paused connector can reject remote session commands.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "PAUSE_REASON_CERT_EXPIRY: Certificate expiry",
+            "PAUSE_REASON_UPGRADE: Software upgrade",
+            "sudo journalctl | grep \"entering PAUSE mode because of\"",
+            "entity is currently in paused mode, not taking any probe commands"
+          ]
+        }
+      ],
+      "conditions": "Statement changed from 'rejects' to 'can reject', matching the help's 'might reject additional session commands'."
+    },
+    "logged-but-disconnected": {
+      "statement": "A connector that logged a successful connection but shows as disconnected in the Admin Console most likely is not getting CPU cycles or its VM is frozen; stopping and restarting the VM is the suggested remedy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "there is most likely an issue with the connector process not getting CPU cycles on the virtual machine (VM) or the VM is frozen.",
+            "To resolve this issue, try stopping the VM and restarting it again."
+          ]
+        }
+      ]
+    },
+    "cloud-connectivity-checks": {
+      "statement": "For a connector that cannot reach the cloud, the help checks that the firewall allows the published Private Access address ranges, that co2br.prod.zpath.net resolves to two addresses, and that an openssl TLS connection to a Public Service Edge returns a certificate subject.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "Successful connectivity results in two IP addresses."
+          ],
+          "after": "Test the Connectivity"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "A successful TLS connection results in a certificate subject string returned from the Public Service Edge.",
+            "Make sure all the IP address ranges allowed by the firewall match those in the Private Access firewall policies"
+          ]
+        }
+      ]
+    },
+    "lss-retransmit-limits": {
+      "statement": "After a connection loss between Private Access and the App Connectors, LSS does not send the log data generated during the loss and can retransmit only the last 15 minutes after restoration, with delivery not guaranteed; during a loss between the App Connector and the SIEM, LSS sends nothing for that period except audit logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "The LSS does not transmit any log data generated during a connection loss between Private Access and the App Connectors. After the connection is restored, it can retransmit the last 15 minutes of the log data. However, the delivery of that log data is not guaranteed.",
+            "With the exception of audit log data, the LSS does not transmit any log data generated during a connection loss between the App Connector and the SIEM."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "status-pending-unverified": {
+      "kind": "semantic",
+      "title": "ZPN_STATUS_PENDING as a real status",
+      "status": "open",
+      "detail": "Tracked as legacy ledger item zpa-20. The value appears only in one table of the MCP skill; it is absent from the command document, from SDK source, and from the status-log-field articles.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "former_ids": [
+        "zpa-20"
+      ]
+    },
+    "not-enrolled-vs-pending": {
+      "kind": "semantic",
+      "title": "What distinguishes NOT_ENROLLED from PENDING",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"No source defines what controlChannelStatus/runtime_status value distinguishes these states at the API level; the meanings are prose in SKILL.md tables only, not from a server enum.\" The full set cannot be listed from SDK source because the codes are fetched at runtime (lss-codes-fetched).",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "health-reporting-cadence": {
+      "kind": "semantic",
+      "title": "How often health_reporting probes run",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The probe cadence depends on the segment's health_reporting: NONE = probe only at access time; ON_ACCESS = probe at access, cache result; CONTINUOUS = probe on a regular cadence regardless of access.\" The help defines the three values as reporting continuously (Continuous), while a user is accessing it (On Access) or not at all (None) (see zpa.app-segments.settings:health-reporting-default), so the legacy 'NONE = probe only at access time' is contradicted: None is not at all. How often probing runs under Continuous or On Access is still unstated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "cert-or-firewall-disconnect": {
+      "kind": "semantic",
+      "title": "Disconnected connector with a running VM",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Connector says DISCONNECTED even though the VM is running - certificate expired (if connector has been running >cert validity), or outbound firewall blocking cloud reach.\" The help supports paused-for-certificate-expiry (pause-reasons) and the connectivity checks (cloud-connectivity-checks) but never ties a Disconnected status to an expired certificate or gives the validity period.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

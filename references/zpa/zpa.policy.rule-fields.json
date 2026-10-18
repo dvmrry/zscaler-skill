@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.rule-fields",
+  "title": "Rule fields beyond criteria: reauth, posture notification and profile IDs",
+  "aliases": [
+    "reauth_timeout default none",
+    "ForceNew reauth",
+    "devicePostureFailureNotificationEnabled",
+    "zpn_isolation_profile_id",
+    "zpn_inspection_profile_id",
+    "profile id action mismatch",
+    "destroy recreate timeout rule"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.timeout-rules"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.actions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Some rule fields sit outside the criteria, and their behavior is mostly set by the clients."
+    },
+    {
+      "label": "Reauthentication fields.",
+      "text": "{{reauth-fields-none}} What an unset value means is open {{gap:reauth-unset-meaning}}. {{reauth-force-new-v1}} {{v2-timeout-not-force-new}} Whether the API refuses an in-place change is open {{gap:reauth-update-refused-by-api}}."
+    },
+    {
+      "label": "Posture notification.",
+      "text": "{{device-posture-notification}}"
+    },
+    {
+      "label": "Profile references.",
+      "text": "{{profile-id-fields}} {{isolation-profile-required-for-isolate}} What happens with a mismatched profile ID is open {{gap:irrelevant-profile-id-effect}}."
+    },
+    {
+      "text": "The credential references on PRA rules are in [[zpa.terraform.policy-rule-writes]]. Timeout values are in [[zpa.policy.timeout-rules]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before changing a timeout on an existing v1 Terraform rule, check whether the resource uses the shared schema that forces a new resource.",
+      "uses": [
+        "reauth-force-new-v1",
+        "v2-timeout-not-force-new"
+      ]
+    },
+    {
+      "do": "For a posture block users do not see explained, check the rule's device posture failure notification flag and the client version.",
+      "uses": [
+        "device-posture-notification"
+      ]
+    },
+    {
+      "do": "For an isolation or inspection rule, check that the profile ID matches the rule's action.",
+      "uses": [
+        "isolation-profile-required-for-isolate",
+        "irrelevant-profile-id-effect"
+      ]
+    }
+  ],
+  "claims": {
+    "reauth-fields-none": {
+      "statement": "The Python rule model reads `reauth_timeout` and `reauth_idle_timeout` as None when the rule does not carry them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/policyset_controller_v2.py",
+          "quotes": [
+            "self.reauth_idle_timeout = config[\"reauthIdleTimeout\"] if \"reauthIdleTimeout\" in config else None",
+            "self.reauth_timeout = config[\"reauthTimeout\"] if \"reauthTimeout\" in config else None"
+          ],
+          "after": "class PolicySetControllerV2(ZscalerObject):"
+        }
+      ]
+    },
+    "reauth-force-new-v1": {
+      "statement": "In the shared policy schema of the Terraform provider, used by the forwarding, access, timeout and redirection rule resources, `reauth_timeout` and `reauth_idle_timeout` are ForceNew, so changing either on an existing rule plans a destroy and recreate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "\"reauth_idle_timeout\": { Type: schema.TypeString, Optional: true, ForceNew: true, },",
+            "\"reauth_timeout\": { Type: schema.TypeString, Optional: true, ForceNew: true, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "quotes": [
+            "CommonPolicySchema(),"
+          ]
+        }
+      ]
+    },
+    "v2-timeout-not-force-new": {
+      "statement": "The v2 timeout rule resource declares `reauth_timeout` and `reauth_idle_timeout` without ForceNew.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "quotes": [
+            "\"reauth_idle_timeout\": { Type: schema.TypeString, Optional: true, },",
+            "\"reauth_timeout\": { Type: schema.TypeString, Optional: true, },"
+          ]
+        }
+      ]
+    },
+    "device-posture-notification": {
+      "statement": "A rule's device posture failure notification flag is the JSON key `devicePostureFailureNotificationEnabled`, and the message it enables displays only for Client Connector 4.8 or later on Windows and 5.0 or later on macOS, with a notification template that enables it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "DevicePostureFailureNotificationEnabled bool `json:\"devicePostureFailureNotificationEnabled,omitempty\"`"
+          ],
+          "after": "type PolicyRuleResource struct {"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "The message displays only if the associated access policy has the Device Posture Failure Notification enabled",
+            "Applies only to Zscaler Client Connector version 4.8 and later for Windows and Zscaler Client Connector version 5.0 and later for macOS."
+          ]
+        }
+      ]
+    },
+    "isolation-profile-required-for-isolate": {
+      "statement": "The Python `add_isolation_rule` requires `zpn_isolation_profile_id` when the action is isolate and checks nothing about the profile ID for other actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "if action == \"isolate\" and not zpn_isolation_profile_id:"
+          ],
+          "after": "def add_isolation_rule(self, name: str, action: str, zpn_isolation_profile_id: str = None, **kwargs)"
+        }
+      ]
+    },
+    "profile-id-fields": {
+      "statement": "Rules carry the profile references as `zpnIsolationProfileId`, `zpnInspectionProfileId` and `zpnInspectionProfileName`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "ZpnIsolationProfileID string `json:\"zpnIsolationProfileId,omitempty\"`",
+            "ZpnInspectionProfileID string `json:\"zpnInspectionProfileId,omitempty\"`",
+            "ZpnInspectionProfileName string `json:\"zpnInspectionProfileName,omitempty\"`"
+          ],
+          "after": "type PolicyRuleResource struct {"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "reauth-unset-meaning": {
+      "kind": "semantic",
+      "title": "What an unset reauth_timeout or reauth_idle_timeout on a rule means",
+      "status": "open",
+      "about": [
+        "zpa.policy.rule-fields"
+      ],
+      "detail": "Unverified legacy statement: \"Both default to `None`, meaning the global tenant setting applies when a rule doesn't override. If a user asks 'why is this session re-auth-ing sooner than the rule says', check both the rule value and the tenant global.\" The model default is documented (claim reauth-fields-none); the help describes a default timeout rule rather than a tenant global setting. See divergence timeout-defaults in zpa.policy.timeout-rules.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "reauth-update-refused-by-api": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API itself refuses to change reauth timeouts in place",
+      "status": "open",
+      "about": [
+        "zpa.policy.rule-fields"
+      ],
+      "detail": "Unverified legacy statement: \"Both are `ForceNew` at the Terraform/API level ... the API refuses in-place updates ... the rule is deleted and re-created, which can shuffle rule order and cause transient policy gaps.\" ForceNew is a Terraform schema property (claim reauth-force-new-v1) and the v2 timeout resource does not set it (claim v2-timeout-not-force-new), so the provider alone does not show an API refusal. Where a recreated rule lands in the order is covered in zpa.terraform.rule-order. Send a PUT that changes only the timeout in a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "irrelevant-profile-id-effect": {
+      "kind": "semantic",
+      "title": "What the API does with a profile ID that does not match the rule's action",
+      "status": "open",
+      "about": [
+        "zpa.policy.rule-fields"
+      ],
+      "detail": "Unverified legacy statement: the isolation profile is \"only relevant when `action = ISOLATE`\", the inspection profile \"only relevant when `action = INSPECT`\", the SDK does not validate that, and \"the API's behavior in that case is unstated.\" The Python helper validates presence for isolate only (claim isolation-profile-required-for-isolate); no captured source says the profile is ignored for other actions. Send a mismatched profile ID in a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

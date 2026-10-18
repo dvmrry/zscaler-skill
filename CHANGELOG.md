@@ -519,7 +519,7 @@ runtime surfaces reduced to thin loaders.
 ### Fixed
 
 - Citation-inventory baseline reconciled to the post-submodule-bump source
-  count for `references/zpa/app-segments.md` (the long-standing red was the
+  count for `kb:zpa.app-segments` (the long-standing red was the
   inventory lagging a legitimate upstream change, not a coverage loss); the
   citation gate remains blocking.
 - README now linked `CHANGELOG.md` while none existed — this entry resolves

@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "id": "zpa.machine-groups.definition",
+  "title": "What a ZPA machine group is and how machines join it",
+  "aliases": [
+    "machine group membership",
+    "how does a device join a machine group",
+    "machine group matching criteria",
+    "machine group limit",
+    "machine group provisioning key"
+  ],
+  "binds": [
+    "zpa/machine-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.machine-tunnels.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-groups.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-groups.policy-use"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers what a machine group is and how machines join it. {{purpose}} {{benefits}}"
+    },
+    {
+      "label": "Keys tie machines to a group.",
+      "text": "{{one-key-per-group}} {{key-needed-after-create}} {{key-in-profile-rule}} Key creation and the key fields are in [[zpa.machine-tunnels.provisioning-keys]]."
+    },
+    {
+      "label": "What a group holds.",
+      "text": "{{no-group-level-criteria}} {{machine-record-fields}} {{membership-via-enrollment}}"
+    },
+    {
+      "label": "Managing groups.",
+      "text": "{{name-rules}} {{console-actions}} Creating or changing groups outside the console is covered in [[zpa.machine-groups.api-surface]]. {{group-limit}} Other limits are open {{gap:capacity-other-limits}}."
+    },
+    {
+      "label": "Using a group.",
+      "text": "Rules that name a machine group are in [[zpa.machine-groups.policy-use]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the group has a key assigned and that key is in the profile rule the device receives.",
+      "uses": [
+        "key-needed-after-create",
+        "key-in-profile-rule"
+      ]
+    },
+    {
+      "do": "Whether a group-level hostname or operating-system rule is being assumed. The group has none.",
+      "uses": [
+        "no-group-level-criteria"
+      ]
+    },
+    {
+      "do": "Whether the tenant is near the group limit before adding another group.",
+      "uses": [
+        "group-limit"
+      ]
+    },
+    {
+      "do": "How many machines or keys a group can take, which no source states.",
+      "uses": [
+        "capacity-other-limits"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "A machine group is a set of an organization's internal, local machines that need to connect to Private Access, described as internal directories, such as Active Directory, that Private Access must reach before Windows login.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-groups.json",
+          "quotes": [
+            "A machine group is a set of an organization's internal, local machines that need to connect to Private Access (ZPA).",
+            "that organizations want Private Access to connect to prior to logging in to Windows"
+          ]
+        }
+      ]
+    },
+    "benefits": {
+      "statement": "Machine groups let an admin associate Zscaler Client Connector with a machine group and enable Machine Tunnels for pre-Windows login, so a device can reach internal applications even when its Zscaler Client Connector is not connected to Private Access.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-groups.json",
+          "quotes": [
+            "Associate the Zscaler Client Connector with a machine group.",
+            "Enable Machine Tunnels for Pre-Windows Login to gain access to internal applications, even when the device's Zscaler Client Connector is not connected to Private Access."
+          ]
+        }
+      ]
+    },
+    "one-key-per-group": {
+      "statement": "Zscaler recommends deploying a new machine group for every machine provisioning key.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-groups.json",
+          "quotes": [
+            "Zscaler recommends deploying a new machine group for every machine provisioning key."
+          ]
+        }
+      ]
+    },
+    "key-needed-after-create": {
+      "statement": "After a machine group is created, a machine provisioning key must be assigned to it.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-groups.json",
+          "quotes": [
+            "After a machine group is created, you must assign a machine provisioning key to it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-machine-provisioning-keys.json",
+          "quotes": [
+            "**Machine Group**: Select an existing group from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "key-in-profile-rule": {
+      "statement": "The machine provisioning key must be added to the Zscaler Client Connector profile rule, for Windows or macOS, for machine tunnel enrollment to succeed.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-groups.json",
+          "quotes": [
+            "The machine provisioning key must be added to the Zscaler Client Connector profile rule for successful machine tunnel enrollment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-provisioning-keys.json",
+          "quotes": [
+            "You need to add the key to a Zscaler Client Connector profile rule for Windows or macOS."
+          ]
+        }
+      ]
+    },
+    "name-rules": {
+      "statement": "A machine group takes a name, which cannot contain special characters other than periods, hyphens and underscores, and an optional description.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups#name",
+        "zpa/machine-groups#description"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-groups.json",
+          "quotes": [
+            "The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ ).",
+            "(Optional) Enter a description of the group."
+          ]
+        }
+      ]
+    },
+    "console-actions": {
+      "statement": "The Admin Console adds, lists, filters, edits and deletes machine groups.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-groups.json",
+          "quotes": [
+            "1. Add a machine group.",
+            "6. Edit a machine group.",
+            "7. Delete a machine group.",
+            "View a list of all the machine groups that are configured for your organization."
+          ]
+        }
+      ]
+    },
+    "group-limit": {
+      "statement": "A ZPA organization can have 100 machine groups.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Machine Groups | 100 groups |",
+            "All values are per organization unless noted otherwise."
+          ]
+        }
+      ]
+    },
+    "machine-record-fields": {
+      "statement": "A machine group in the API carries a nested `machines` list. Each machine record has `fingerprint`, `issuedCertId`, `machineGroupId`, `machineGroupName` and `machineTokenId`.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups#machines",
+        "zpa/machine-groups#machines.machineGroupId"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1machineGroup/get/responses/200/content/*~1*/schema/properties/list/items/properties/machines/items/properties",
+          "expect": {
+            "fingerprint": {
+              "type": "string"
+            },
+            "issuedCertId": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "machineGroupId": {
+              "type": "string"
+            },
+            "machineGroupName": {
+              "type": "string"
+            },
+            "machineTokenId": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/machinegroup/zpa_machine_group.go",
+          "quotes": [
+            "MachineTokenID   string                 `json:\"machineTokenId,omitempty\"`",
+            "Fingerprint      string                 `json:\"fingerprint,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "no-group-level-criteria": {
+      "statement": "A machine group has no matching criteria of its own. Its fields are an identifier, name, description, enabled flag, audit fields, microtenant fields and the `machines` list, and the console form for a new group asks only for a name and a description.",
+      "tier": "B",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "conditions": "Rests on absence: no hostname, operating system or certificate-subject field appears in the API schema, the Go struct, the Python model, or the console form (read in full 2026-10-18).",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1machineGroup/get/responses/200/content/*~1*/schema/properties/list/items/properties",
+          "expect": {
+            "description": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/machinegroup/zpa_machine_group.go",
+          "quotes": [
+            "type MachineGroup struct {",
+            "Machines        []Machines `json:\"machines,omitempty\"`"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-groups.json",
+          "quotes": [
+            "- **Description**: (Optional) Enter a description of the group."
+          ]
+        }
+      ]
+    },
+    "membership-via-enrollment": {
+      "statement": "A machine appears in a machine group's `machines` list through enrollment with a provisioning key assigned to that group, not through criteria set on the group.",
+      "tier": "B",
+      "binds": [
+        "zpa/machine-groups#machines"
+      ],
+      "conditions": "Inference: no source narrates the enrollment steps. The chain is that the key names a group, the profile rule carries the key, and the machine record points back at its group.",
+      "derived_from": [
+        "key-needed-after-create",
+        "key-in-profile-rule",
+        "machine-record-fields",
+        "no-group-level-criteria"
+      ]
+    }
+  },
+  "gaps": {
+    "capacity-other-limits": {
+      "kind": "data",
+      "title": "Limits on provisioning keys per group and enrolled machines per group",
+      "status": "partial",
+      "former_ids": [
+        "zpa-14"
+      ],
+      "about": [
+        "zpa/machine-groups#machines"
+      ],
+      "detail": "Unverified legacy statement: \"Limits on machine groups per tenant, provisioning keys per group, or enrolled machines per group\" were listed as unknown. The Ranges and Limitations capture gives 100 machine groups per organization and no figure for keys per group or machines per group.",
+      "blocks": "saying how many machines one group can hold",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

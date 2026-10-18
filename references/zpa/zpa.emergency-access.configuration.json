@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "zpa.emergency-access.configuration",
+  "title": "Configuring Emergency Access: availability, settings, authentication domains, Microtenants",
+  "aliases": [
+    "emergency access limited availability",
+    "emergency authentication domains",
+    "emergency access page not visible microtenant",
+    "emergency access settings okta group",
+    "remove authentication domain privileged approvals",
+    "emergency access default microtenant"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.emergency-access.identity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.emergency-access.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.emergency-access.scope"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Setting up the feature is a gate, then identity, then the Emergency Access page. {{limited-availability}} {{purpose}}"
+    },
+    {
+      "label": "Settings.",
+      "text": "{{settings}} The IdP and token requirements are in [[zpa.emergency-access.identity]]."
+    },
+    {
+      "label": "Authentication domains.",
+      "text": "{{domains-semantics}} {{domain-removal}} How to take back an approval whose domain was removed is open {{gap:approval-removal-paths}}."
+    },
+    {
+      "label": "Creating users.",
+      "text": "{{create-with-approval}}"
+    },
+    {
+      "label": "Microtenants.",
+      "text": "{{microtenant-rules}} {{microtenant-privileged-approvals}} The two do not obviously fit together {{divergence:microtenant-user-access}}."
+    },
+    {
+      "text": "The users page and statuses: [[zpa.emergency-access.users]]. What the feature covers and does not: [[zpa.emergency-access.scope]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the feature has been enabled by Zscaler Support, since the page does not exist otherwise.",
+      "uses": [
+        "limited-availability"
+      ]
+    },
+    {
+      "do": "Whether the tenant is the Default Microtenant, and whether the Microtenant has Privileged Approvals enabled.",
+      "uses": [
+        "microtenant-rules",
+        "microtenant-privileged-approvals"
+      ]
+    },
+    {
+      "do": "The Emergency Authentication Domains list against the domain used on a privileged approval.",
+      "uses": [
+        "domains-semantics",
+        "domain-removal"
+      ]
+    }
+  ],
+  "claims": {
+    "limited-availability": {
+      "statement": "Emergency Access is in limited availability, and Zscaler Support enables it for an organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "This feature and its procedures are in limited availability. Contact Zscaler Support to enable this feature for your organization."
+          ]
+        }
+      ]
+    },
+    "purpose": {
+      "statement": "Emergency access provisions third-party users such as contractors and vendors for access to time-bound resources, and builds on the IdPs available in Private Access with arbitrary authentication domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "You can provision third-party users (e.g., contractors and vendors) for emergency access to time-bound resources. Emergency access builds on top of identity providers (IdPs) that are available in Private Access (ZPA), along with arbitrary authentication domains"
+          ]
+        }
+      ]
+    },
+    "create-with-approval": {
+      "statement": "A user designated for emergency access is created within the emergency access IdP when a privileged approval is created for that user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "You can create a user designated for emergency access within the IdP enabled for emergency access when creating a privileged approval for that user."
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "statement": "The Emergency Access page has an IdP (read-only), an IdP API Token, a User Group Name where new users are created, and Emergency Authentication Domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "**User Group Name**: The name of the user group where the new users are created."
+          ],
+          "after": "For Private Access end users who have not migrated to Authentication Service"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "**IdP API Token**: Enter the Okta API token with the necessary group administrator permissions for the group that will be designated for emergency access, but is not yet created."
+          ],
+          "after": "For Private Access end users who have not migrated to Authentication Service"
+        }
+      ]
+    },
+    "domains-semantics": {
+      "statement": "If Emergency Authentication Domains are set, only those email domains can be used when adding a privileged approval; if none are set, users can be created from any authentication domain that is not an existing primary or secondary authentication domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "If added, only the email address domain configured in the **Emergency Authentication Domains** field can be used when adding a privileged approval. When no authentication domains are specified, users can be created from any authentication domain that is not an existing primary or secondary authentication domain."
+          ],
+          "after": "For Private Access end users who have not migrated to Authentication Service"
+        }
+      ]
+    },
+    "domain-removal": {
+      "statement": "Removing an email domain from the Emergency Authentication Domains field does not remove the privileged approvals created with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "If an existing email address domain is removed from the **Emergency Authentication Domain** field, the privileged approvals created with it continue to be present."
+          ],
+          "after": "For Private Access end users who have not migrated to Authentication Service"
+        }
+      ]
+    },
+    "microtenant-rules": {
+      "statement": "Within a Microtenant, only the Default Microtenant can configure emergency access, and Microtenants with Privileged Approvals disabled can still create or edit emergency access users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "Only the Default Microtenant can configure emergency access.",
+            "Emergency access users can be created or edited by Microtenants that have Privileged Approvals disabled."
+          ]
+        }
+      ]
+    },
+    "microtenant-privileged-approvals": {
+      "statement": "The Emergency Access and Emergency Access Users pages are not visible for Microtenants with Privileged Approvals disabled, the default for that Microtenant field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "The Emergency Access and Emergency Access Users pages are not visible for Microtenants with **Privileged Approvals** disabled. This field is **Disabled** by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-emergency-access-users.json",
+          "quotes": [
+            "The Emergency Access Users page is not visible if you are within a Microtenant that has Privileged Approvals disabled."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "approval-removal-paths": {
+      "kind": "semantic",
+      "title": "How an approval created with a removed domain is ended",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Privileged approvals created with a domain that is subsequently removed ... remain active. Expiry or manual deactivation is the only removal path.\" The help says the approvals continue to be present. The privileged-approval article says approvals expire when their window ends; manual deactivation of an approval is not described in the captures.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  },
+  "divergences": {
+    "microtenant-user-access": {
+      "summary": "Microtenants with Privileged Approvals disabled can create or edit emergency access users, yet the Emergency Access Users page is not visible to them.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-emergency-access.json",
+            "quotes": [
+              "Emergency access users can be created or edited by Microtenants that have Privileged Approvals disabled."
+            ]
+          },
+          "says": "Emergency access users can be created or edited by Microtenants that have Privileged Approvals disabled."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-emergency-access-users.json",
+            "quotes": [
+              "The Emergency Access Users page is not visible if you are within a Microtenant that has Privileged Approvals disabled."
+            ]
+          },
+          "says": "The Emergency Access Users page is not visible within a Microtenant that has Privileged Approvals disabled."
+        }
+      ],
+      "impact": "It is not stated how such a Microtenant creates or edits users without the page (possibly by API or from the Default Microtenant). Do not tell an admin in that Microtenant to use the page."
+    }
+  }
+}

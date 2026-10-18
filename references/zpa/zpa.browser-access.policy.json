@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.policy",
+  "title": "Access policy for Browser Access: client type and unsupported criteria",
+  "aliases": [
+    "browser access client type",
+    "web browser client type",
+    "zpn_client_type_exporter",
+    "zpn_client_type_browser_isolation",
+    "browser access posture",
+    "browser access posture deny",
+    "country codes browser access",
+    "agentless user posture"
+  ],
+  "binds": [
+    "zpa/client-types"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.access-policy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Browser Access sessions are matched by client type in access policy, and the Web Browser client type limits which other criteria a rule may use."
+    },
+    {
+      "label": "Targeting.",
+      "text": "{{web-browser-client-type}} {{exporter-operand}} {{browser-isolation-client-type}} What the browser-isolation value matches is open {{gap:browser-isolation-operand}}."
+    },
+    {
+      "label": "Limits on criteria.",
+      "text": "{{no-posture-with-web-browser}} {{country-codes-unsupported}} How a rule that mixes posture with other client types behaves for a browser session is open {{gap:posture-rule-outcome}}."
+    },
+    {
+      "text": "Session reauthentication is in [[zpa.browser-access.requirements]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which client type value the rule or Terraform resource uses for browser sessions, and that the provider documents the exporter value for it.",
+      "uses": [
+        "web-browser-client-type",
+        "exporter-operand",
+        "browser-isolation-client-type"
+      ]
+    },
+    {
+      "do": "Whether a rule intended for browser users also carries posture, trusted network or country criteria that the help says do not apply.",
+      "uses": [
+        "no-posture-with-web-browser",
+        "country-codes-unsupported"
+      ]
+    },
+    {
+      "do": "Whether a posture-related deny for a browser session can be explained by a source or is the unverified outcome.",
+      "uses": [
+        "posture-rule-outcome"
+      ]
+    }
+  ],
+  "claims": {
+    "web-browser-client-type": {
+      "statement": "An access policy rule can target the Web Browser client type, which refers to Browser Access. Multiple client types in one rule are joined with OR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "Web Browser: To learn more, see About Browser Access.",
+            "If you added multiple client types to the policy rule, Private Access uses an OR Boolean operator between them."
+          ]
+        }
+      ],
+      "conditions": "Statement changed: the list of other client types was removed because it is not in the quotes."
+    },
+    "exporter-operand": {
+      "statement": "In the Terraform provider's Browser Access policy rule documentation, the CLIENT_TYPE operand value zpn_client_type_exporter is the one that enforces access via browser access to application segments, and zpn_client_type_zappl is the one for Client Connector.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_browser_access.md",
+          "quotes": [
+            "zpn_client_type_exporter` - Used to support/enforce access via browser access tp application segments.",
+            "zpn_client_type_zappl` - Used to support/enforce access via Zscaler Client Connector to application segments."
+          ]
+        }
+      ]
+    },
+    "browser-isolation-client-type": {
+      "statement": "The Go SDK client-type list defines zpn_client_type_browser_isolation as a separate client type from zpn_client_type_exporter and zpn_client_type_zapp.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/clienttypes/clienttypes.go",
+          "quotes": [
+            "ZPNClientTypeExplorer         string `json:\"zpn_client_type_exporter\"`",
+            "ZPNClientTypeBrowserIsolation string `json:\"zpn_client_type_browser_isolation\"`",
+            "ZPNClientTypeZAPP             string `json:\"zpn_client_type_zapp\"`"
+          ]
+        }
+      ]
+    },
+    "no-posture-with-web-browser": {
+      "statement": "Rules that use the Web Browser or Internet & SaaS Service Edge client types cannot also use posture profiles or trusted networks criteria, which only work with Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "Rules using the Web Browser or Internet & SaaS Service Edge client types additionally can't use posture profiles or trusted networks criteria. The posture profiles or trusted networks criteria only work with Client Connector."
+          ]
+        }
+      ]
+    },
+    "country-codes-unsupported": {
+      "statement": "The Country Codes criteria type is not supported in Browser Access or Privileged Remote Access applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "The Country Codes criteria type is not supported in Browser Access or Privileged Remote Access Applications."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "posture-rule-outcome": {
+      "kind": "semantic",
+      "title": "What a Browser Access session gets from a rule that has a posture condition",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A policy rule with a posture condition (POSTURE operand) will never match for Browser Access sessions - the posture result is absent, which is treated as failure. The user gets a generic deny response with no explanation that posture is the cause.\" The help says a rule using the Web Browser client type cannot also use posture profiles (claim no-posture-with-web-browser). It does not describe how a rule that mixes a posture condition with other client types evaluates for a browser session, or what the user sees. A lab test with a mixed rule and a browser session would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "browser-isolation-operand": {
+      "kind": "semantic",
+      "title": "What zpn_client_type_browser_isolation matches",
+      "status": "open",
+      "detail": "The legacy reference named zpn_client_type_browser_isolation as the Browser Access client type. The provider documentation names zpn_client_type_exporter for that role (claim exporter-operand), and the Go SDK lists the browser-isolation value separately (claim browser-isolation-client-type). Which sessions the browser-isolation value matches, and whether it applies to Browser Access at all, is not stated. A lab test that sets each operand and observes a Browser Access session would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -105,7 +105,7 @@ Source: `vendor/zscaler-help/about-device-posture-profiles.json`; `vendor/zscale
 
 Posture changes impact **new connections only**. An existing tunnel established when the device matched the profile stays up even if the profile subsequently fails — until the tunnel itself drops (app restart, network switch, reboot, etc.).
 
-**Operational implication:** posture failure doesn't retroactively revoke access. A user who passes posture, connects to a ZPA segment, then fails a posture check ten minutes later keeps the session until their ZPA app disconnects. Use ZPA's **Reauth Timeout** (see [`../zpa/policy-precedence.md § Timeout policies`](../zpa/policy-precedence.md)) to bound this — the next reauth re-evaluates posture.
+**Operational implication:** posture failure doesn't retroactively revoke access. A user who passes posture, connects to a ZPA segment, then fails a posture check ten minutes later keeps the session until their ZPA app disconnects. Use ZPA's **Reauth Timeout** (see [`zpa.policy`](kb:zpa.policy)) to bound this — the next reauth re-evaluates posture.
 
 ## Machine Tunnel integration (the pre-login enforcement case)
 
@@ -130,7 +130,7 @@ Source: `vendor/zscaler-help/configuring-device-posture-profiles.json`.
 
 Source: `vendor/zscaler-help/about-device-posture-profiles.json`; `vendor/zscaler-help/configuring-device-posture-profiles.json`.
 
-ZPA Access Policy rules (see [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)) include a **Posture** criterion operand. Each operand references a posture profile ID plus a boolean:
+ZPA Access Policy rules (see [`zpa.policy`](kb:zpa.policy)) include a **Posture** criterion operand. Each operand references a posture profile ID plus a boolean:
 
 - `postureId: <id>, verification: TRUE` — rule matches when device **passes** this profile.
 - `postureId: <id>, verification: FALSE` — rule matches when device **fails** this profile.
@@ -187,7 +187,7 @@ Source: `vendor/zscaler-help/about-device-posture-profiles.json`; `vendor/zscale
 ## Cross-links
 
 - ZCC evaluation architecture: [`../zcc/index.md`](../zcc/index.md).
-- ZPA Access Policy posture criteria: [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md).
+- ZPA Access Policy posture criteria: [`zpa.policy`](kb:zpa.policy).
 - Posture vs Trusted Networks: [`../zcc/trusted-networks.md`](../zcc/trusted-networks.md).
 - Step-up auth can complement posture — fails-posture → require additional auth: [`../zidentity/step-up-authentication.md`](../zidentity/step-up-authentication.md).
-- Reauth timeout for bounding posture staleness: [`../zpa/policy-precedence.md § Timeout policies`](../zpa/policy-precedence.md).
+- Reauth timeout for bounding posture staleness: [`zpa.policy`](kb:zpa.policy).

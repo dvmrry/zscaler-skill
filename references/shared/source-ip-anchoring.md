@@ -206,7 +206,7 @@ This is **distinct from SIPA**: SIPA hides traffic behind a customer-controlled 
 
 Source: `vendor/zscaler-help/configuring-source-ip-anchoring.json`; `vendor/zscaler-help/understanding-source-ip-anchoring.json`.
 
-SIPA cannot coexist with several ZPA segment features. From `references/zpa/app-segments.md`:
+SIPA cannot coexist with several ZPA segment features. From `kb:zpa.app-segments`:
 
 - **Browser Access** — a SIPA segment can't also be a Browser Access segment.
 - **Double Encryption** — SIPA segments can't have Double Encryption enabled.
@@ -236,11 +236,11 @@ Source: `vendor/zscaler-help/zpa-access-policy-20260909.json`; `vendor/zscaler-h
 
 ### Country-code matching uses the wrong IP
 
-Per *About Access Policy* p.2 (and codified in `references/zpa/policy-precedence.md`): ZPA country-code criterion uses the **last NATed layer-3 public IP**. For SIPA traffic, that's the **ZIA Public Service Edge's IP**, not the user's original IP.
+Per *About Access Policy* p.2 (and codified in `kb:zpa.policy`): ZPA country-code criterion uses the **last NATed layer-3 public IP**. For SIPA traffic, that's the **ZIA Public Service Edge's IP**, not the user's original IP.
 
 Consequence: a ZPA Access Policy rule that scopes by "user in country X" misfires for SIPA users because the policy sees the ZIA PSE's country, not the user's actual country. A user in Singapore accessing a SIPA app via an ZIA PSE in Tokyo would be evaluated as "in Japan" by that rule.
 
-See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md) for the country-code criterion general description.
+See [`zpa.policy`](kb:zpa.policy) for the country-code criterion general description.
 
 ### SSL Inspection criterion filters to SIPA-enabled segments
 
@@ -329,9 +329,9 @@ For dedicated proxy ports (a related fixed-site / remote-user forwarding option 
 
 ## Cross-links
 
-- ZPA application segments (where the `Source IP Anchor` flag lives) — [`../zpa/app-segments.md`](../zpa/app-segments.md)
-- ZPA policy precedence (country-code footgun, client-type criteria) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA application segments (where the `Source IP Anchor` flag lives) — [`zpa.app-segments`](kb:zpa.app-segments)
+- ZPA policy precedence (country-code footgun, client-type criteria) — [`zpa.policy`](kb:zpa.policy)
 - ZIA SSL Inspection (the `zpa_app_segments` criterion filters to SIPA-enabled segments) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Cross-product integrations (silent-miss catalog) — [`./cross-product-integrations.md`](./cross-product-integrations.md)
-- ZPA App Connector (the VM that terminates SIPA traffic) — `references/zpa/app-segments.md` references App Connector Group conceptually
+- ZPA App Connector (the VM that terminates SIPA traffic) — `kb:zpa.app-segments` references App Connector Group conceptually
 - Cloud Architecture (shared platform context) — [`./cloud-architecture.md`](./cloud-architecture.md)

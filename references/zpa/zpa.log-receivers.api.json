@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.api",
+  "title": "Managing ZPA log receivers through the API and SDKs",
+  "aliases": [
+    "lssConfig endpoint",
+    "lss api",
+    "lss create update delete",
+    "client types endpoint",
+    "lss status codes endpoint",
+    "update_lss_config",
+    "policy.invalid.mapping.input",
+    "lss config pagination"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.formats"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Receivers are managed through the lssConfig endpoints, with lookup endpoints for formats, status codes and client types."
+    },
+    {
+      "label": "Endpoints.",
+      "text": "{{endpoints}} {{create-update-delete-codes}} {{list-pagination}} {{status-formats-clienttypes}}"
+    },
+    {
+      "label": "Client types path.",
+      "text": "{{clienttypes-deprecated-global}} {{go-clienttypes-global}} The Go and Python SDKs use different paths {{divergence:client-types-path}}; the older note is [[doc:references/zpa/api-divergences.md]]."
+    },
+    {
+      "label": "Specification and article.",
+      "text": "{{oas-collection-get-only}} The article's payload names the groups key differently from its sample {{divergence:groups-key}}."
+    },
+    {
+      "label": "SDK behavior.",
+      "text": "{{python-update-body}} {{python-update-history}} The Python and Go services are cataloged in [[doc:references/zpa/sdk.md]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which client-types path the tool calls: the customer-scoped path is the documented one, the global path is announced for deprecation.",
+      "uses": [
+        "clienttypes-deprecated-global",
+        "go-clienttypes-global",
+        "client-types-path"
+      ]
+    },
+    {
+      "do": "Whether an update failed with policy.invalid.mapping.input, and which Python SDK version made the call.",
+      "uses": [
+        "python-update-body",
+        "python-update-history"
+      ]
+    },
+    {
+      "do": "Whether the create endpoint is in the specification a client was generated from.",
+      "uses": [
+        "oas-collection-get-only",
+        "endpoints"
+      ]
+    },
+    {
+      "do": "Whether a request body names the groups as connectorGroups, as the SDKs and sample responses do.",
+      "uses": [
+        "groups-key"
+      ]
+    }
+  ],
+  "claims": {
+    "endpoints": {
+      "statement": "The API article creates a receiver with POST, reads one with GET, updates it with PUT and deletes it with DELETE, on /mgmtconfig/v2/admin/customers/{customerId}/lssConfig and .../lssConfig/{lssId}, and the specification lists GET, PUT and DELETE on the item path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/lssConfig.",
+            "Send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}.",
+            "Send a DELETE request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/lssConfig/{lssId}."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/put",
+          "expect": {
+            "operationId": "Updates the LSS configuration for the specified ID."
+          }
+        }
+      ]
+    },
+    "create-update-delete-codes": {
+      "statement": "A successful create returns 201, and a successful update or delete returns 204; a receiver configured through Zscaler Deception cannot be updated or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "A successful response returns code 201, meaning the LSS configuration is created.",
+            "A successful response returns code 204, meaning the LSS attribute is updated.",
+            "A successful response yields code 204, meaning the LSS attribute is deleted.",
+            "If an LSS attribute is configured using Zscaler Deception, then the update option is unavailable.",
+            "If an LSS attribute is configured using Zscaler Deception, then the delete option is unavailable."
+          ]
+        }
+      ]
+    },
+    "list-pagination": {
+      "statement": "Listing receivers supports pagination with a default page size of 20 and a maximum of 500.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "This API supports pagination.",
+            "If not provided, the default page size is 20. The maximum page size is 500."
+          ]
+        }
+      ]
+    },
+    "status-formats-clienttypes": {
+      "statement": "Lookups are GET /mgmtconfig/v2/admin/lssConfig/statusCodes for status codes, /mgmtconfig/v2/admin/lssConfig/logType/formats for log formats, and /mgmtconfig/v2/admin/lssConfig/customers/{customerId}/clientTypes for client types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1lssConfig~1statusCodes/get",
+          "expect": {
+            "operationId": "Gets a list of LSS status codes."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1lssConfig~1logType~1formats/get",
+          "expect": {
+            "operationId": "Gets all LSS log formats."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1lssConfig~1customers~1{customerId}~1clientTypes/get",
+          "expect": {
+            "operationId": "Gets all LSS client types for the specified customer."
+          }
+        }
+      ]
+    },
+    "clienttypes-deprecated-global": {
+      "statement": "The specification marks the global /mgmtconfig/v2/admin/lssConfig/clientTypes endpoint as one that will be deprecated in a future release, and the customer-scoped clientTypes endpoint as the one for a specified customer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1lssConfig~1clientTypes/get",
+          "expect": {
+            "operationId": "Gets all LSS client types. This API will be deprecated in a future release."
+          }
+        }
+      ]
+    },
+    "go-clienttypes-global": {
+      "statement": "The Go SDK's GetClientTypes calls the global lssConfig/clientTypes path without the customer ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_client_types.go",
+          "quotes": [
+            "lssClientTypesEndpoint = \"lssConfig/clientTypes\"",
+            "relativeURL := mgmtConfigTypesAndFormats + lssClientTypesEndpoint"
+          ]
+        }
+      ]
+    },
+    "oas-collection-get-only": {
+      "statement": "The ZPA OpenAPI document gives the lssConfig collection path only a GET operation, with no POST for creating a receiver, although the API article documents POST.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig/get",
+          "expect": {
+            "operationId": "Gets all LSS configurations for the specified customer."
+          }
+        }
+      ],
+      "conditions": "Absence claim: the path item in automate-zscaler/openapi/zpa.openapi.json lists the single method get. A client generated from the specification has no create call for receivers."
+    },
+    "python-update-body": {
+      "statement": "The Python SDK's update_lss_config builds the PUT body from scratch with only the fields the caller supplies and does not fetch and merge the current state; config.id is always included and policyRuleResource carries the policySetId resolved from SIEM_POLICY when policy_rules is passed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "The PUT body is constructed from scratch -- this function does not",
+            "pre-fetch and merge the current state.",
+            "config_block = {\"id\": lss_config_id}",
+            "\"policySetId\": policy_set_id,"
+          ],
+          "after": "def update_lss_config("
+        }
+      ]
+    },
+    "python-update-history": {
+      "statement": "Python SDK 1.9.30 changed update_lss_config to build the PUT body from caller-supplied fields, and the changelog says it fixes the earlier policy.invalid.mapping.input failure by including config.id and resolving policyRuleResource.policySetId from SIEM_POLICY; 1.9.29 fetched the current configuration and merged into it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`lss.update_lss_config()` now builds the PUT body from caller-supplied fields only",
+            "fixes the earlier `policy.invalid.mapping.input` failure by including `config.id` in the body"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "current_config, _, error = self.get_config(lss_config_id)"
+          ],
+          "at": [
+            "v1.9.29"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "client-types-path": {
+      "summary": "Which client-types endpoint to call: the Go SDK uses the global path that the specification announces for deprecation, while the Python SDK and the API article use the customer-scoped path.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_client_types.go",
+            "quotes": [
+              "lssClientTypesEndpoint = \"lssConfig/clientTypes\""
+            ]
+          },
+          "says": "Go SDK: GET /mgmtconfig/v2/admin/lssConfig/clientTypes."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/lss.py",
+            "quotes": [
+              "self._zpa_lss_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/lssConfig/customers/{customer_id}\""
+            ]
+          },
+          "says": "Python SDK: GET /mgmtconfig/v2/admin/lssConfig/customers/{customerId}/clientTypes."
+        }
+      ],
+      "impact": "Go callers of GetClientTypes use the endpoint marked for deprecation, and the Go response type models only six client types."
+    },
+    "groups-key": {
+      "summary": "What the App Connector groups key is called in a request: the article's payload template and field table say appConnectorGroups, while its sample request and responses, and both SDKs, use connectorGroups.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "| appConnectorGroups | The App Connector groups to be added to the LSS configuration | No |"
+            ]
+          },
+          "says": "appConnectorGroups."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "\"connectorGroups\":[ { \"id\":\"72057594038010497\", \"name\":\"Abcdefg\" }"
+            ]
+          },
+          "says": "connectorGroups."
+        }
+      ],
+      "impact": "A request that follows the template's key name instead of the sample's may not attach the groups; the SDKs send connectorGroups."
+    }
+  }
+}

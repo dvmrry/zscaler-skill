@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.access-rule-order",
+  "title": "Access policy rule order",
+  "aliases": [
+    "rule order",
+    "ruleOrder",
+    "why does my allow rule win",
+    "block rule after allow",
+    "reorder zpa rule",
+    "zpa rule precedence",
+    "deception rule order",
+    "priority vs rule_order"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.evaluation-order"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.rule-order"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.patterns"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Access policy rules are evaluated by their order number, and the first matching rule decides."
+    },
+    {
+      "label": "The order number.",
+      "text": "{{rule-order-is-evaluation-number}} {{priority-field-exists}} What priority does is open {{gap:priority-meaning}}."
+    },
+    {
+      "label": "Shadowed rules.",
+      "text": "{{allow-first-shadows-block}} {{segment-group-allow-shadows-deny}} {{block-before-allow}}"
+    },
+    {
+      "label": "Deception rules.",
+      "text": "{{deception-order-constraint}} The reason for the constraint is not in a captured source {{gap:deception-rule-ordering-rationale}}."
+    },
+    {
+      "label": "Reordering by API.",
+      "text": "{{go-reorder-calls}} {{python-reorder-rule}} {{tf-rule-order-deprecated}} {{new-rules-appended}} The order type differs between sources {{divergence:rule-order-type-wire}}."
+    },
+    {
+      "label": "Gapped numbers.",
+      "text": "What the API does with absent slots is not established {{gap:gap-slot-reordering}}. What the provider does with gapped numbers and the Deception offset is in [[zpa.terraform.rule-order]]."
+    },
+    {
+      "text": "How the layouts are used is in [[zpa.policy.patterns]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "List the rules in order and find the first one whose criteria match the request; rules after it never run.",
+      "uses": [
+        "rule-order-is-evaluation-number",
+        "allow-first-shadows-block",
+        "segment-group-allow-shadows-deny"
+      ]
+    },
+    {
+      "do": "If a block rule seems ignored, check whether an allow rule that also matches the user sits above it.",
+      "uses": [
+        "allow-first-shadows-block",
+        "block-before-allow"
+      ]
+    },
+    {
+      "do": "If a Deception-configured rule exists, check that regular rules are ordered after it and that it has not been edited.",
+      "uses": [
+        "deception-order-constraint",
+        "deception-rule-ordering-rationale"
+      ]
+    },
+    {
+      "do": "Before reordering by API, check which call is used and what it sends; the effect on the rest of the list is in the Terraform subjects.",
+      "uses": [
+        "go-reorder-calls",
+        "python-reorder-rule",
+        "tf-rule-order-deprecated"
+      ]
+    },
+    {
+      "do": "Compare the rule's ruleOrder and priority values and the type each client uses for them.",
+      "uses": [
+        "rule-order-type-wire",
+        "priority-field-exists",
+        "priority-meaning"
+      ]
+    }
+  ],
+  "claims": {
+    "rule-order-is-evaluation-number": {
+      "statement": "The Rule Order of an access policy rule is its policy evaluation order number; Private Access applies rules in the order listed, and the number can be changed by entering a new value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "Rule Order: The policy evaluation order number for the rule. Private Access applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering a new value."
+          ]
+        }
+      ]
+    },
+    "allow-first-shadows-block": {
+      "statement": "If an allow-any rule is listed above a rule that blocks the Sales group, Sales users match the first rule and are not blocked; moving the block rule above the allow rule resolves it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "users in the \"Sales\" group are not blocked from accessing any applications because these users match the first policy rule, which allows any users access to any applications.",
+            "the order of the access policy rules must be modified so that the policy rule blocking the \"Sales\" group comes before the policy rule allowing any users access to any applications."
+          ]
+        }
+      ]
+    },
+    "segment-group-allow-shadows-deny": {
+      "statement": "An allow rule for all applications for Marketing, listed above a rule denying Marketing the Operations Apps segment group, leaves Marketing with access to that group, because Private Access stops at the first matching rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "users from \"Marketing Dept\" still have access to the \"Operations Apps\" segment group.",
+            "It then applies that access policy rule and immediately stops checking any other policies, because a matching policy was found for the user."
+          ]
+        }
+      ]
+    },
+    "block-before-allow": {
+      "statement": "A block rule for specific users must be listed before an allow rule that also covers them, because policy rules are enforced in the order listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "so for this scenario, you must list the block rule before the allow rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-configuration-examples.json",
+          "quotes": [
+            "that allow policy must be listed after this block policy."
+          ]
+        }
+      ]
+    },
+    "deception-order-constraint": {
+      "statement": "The rule order of an access policy configured using Zscaler Deception cannot be updated, and a regular access policy's rule order must be greater than that of a Deception-configured policy; copy, edit and delete are unavailable on Deception-configured rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "Updating the rule order of an access policy configured using Zscaler Deception is not supported.",
+            "the rule order of the regular access policy must be greater than the rule order for an access policy configured using Deception.",
+            "If an access policy is configured using Deception, the copy, edit, and delete options are unavailable."
+          ]
+        }
+      ]
+    },
+    "go-reorder-calls": {
+      "statement": "The Go SDK has two reorder calls: `Reorder`, which moves one rule with a PUT to `.../rule/{ruleId}/reorder/{newOrder}`, and `BulkReorder`, which takes a map of rule ID to order and PUTs to the policy set's `reorder` endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "// PUT --> /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}/reorder/{newOrder}",
+            "// PUT --> /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySet}/reorder",
+            "// ruleIdOrders is a map[ruleID]Order"
+          ]
+        }
+      ]
+    },
+    "python-reorder-rule": {
+      "statement": "The Python SDK has `reorder_rule(policy_type, rule_id, rule_order)`, which PUTs to `.../rule/{rule_id}/reorder/{rule_order}` for the access, timeout, client forwarding, isolation, inspection, redirection, credential, capabilities and siem policy types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "def reorder_rule(self, policy_type: str, rule_id: str, rule_order: str, **kwargs)",
+            "/policySet/{policy_set_id.get(\"id\")}/rule/{rule_id}/reorder/{rule_order}"
+          ]
+        }
+      ]
+    },
+    "new-rules-appended": {
+      "statement": "The MCP server's forwarding and timeout rule skills state that new rules are appended at the end of the policy by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-forwarding-policy-rule/SKILL.md",
+          "quotes": [
+            "New ZPA forwarding rules are appended at the end of the policy by default;"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+          "quotes": [
+            "New ZPA timeout rules are appended at the end of the policy by default;"
+          ]
+        }
+      ]
+    },
+    "tf-rule-order-deprecated": {
+      "statement": "In the Terraform provider the `rule_order` argument is deprecated on all ZPA access policy resources in favour of the `zpa_policy_access_rule_reorder` resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "Deprecated: \"The `rule_order` field is now deprecated for all zpa access policy resources in favor of the resource `zpa_policy_access_rule_reorder`\","
+          ]
+        }
+      ]
+    },
+    "priority-field-exists": {
+      "statement": "A rule carries a `priority` field alongside `ruleOrder` in the API document, the Python model and the Terraform schema, where `priority` is a string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/policyset_controller_v2.py",
+          "quotes": [
+            "self.priority = config[\"priority\"] if \"priority\" in config else None"
+          ],
+          "after": "class PolicySetControllerV2(ZscalerObject):"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "\"priority\": { Type: schema.TypeString, Optional: true, Computed: true, },"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/priority",
+          "expect": {
+            "format": "int32",
+            "type": "integer"
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "rule-order-type-wire": {
+      "summary": "The OpenAPI document gives ruleOrder and priority as integers, while the Go SDK and Terraform schema use strings.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/ruleOrder",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "says": "ruleOrder is an int32 integer in the v2 rule request."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+            "quotes": [
+              "RuleOrder string `json:\"ruleOrder,omitempty\"`"
+            ],
+            "after": "type PolicyRuleResource struct {"
+          },
+          "says": "The Go SDK sends ruleOrder as a string."
+        }
+      ],
+      "impact": "A client that writes the order as a number may not match what the Go SDK, the Python SDK and the provider send, and a reader comparing exports to the specification sees two types for the same field."
+    }
+  },
+  "gaps": {
+    "deception-rule-ordering-rationale": {
+      "kind": "semantic",
+      "title": "Why Deception rules must evaluate before regular access rules",
+      "status": "partial",
+      "former_ids": [
+        "zpa-07"
+      ],
+      "about": [
+        "zpa.policy.access-rule-order"
+      ],
+      "detail": "Unverified legacy statement: \"Because ZPA is first-match-wins, Deception rules must evaluate ahead of regular rules so attacker traffic hits a decoy before matching any real-resource rule ... Copy/edit/delete are disabled because the rules are managed from the Deception Admin Portal, not the ZPA console; editing them out-of-band would desynchronize Deception's view\" and \"if the Deception product isn't licensed, they don't exist\". The Deception articles say Deception can be integrated with Private Access to deploy Zero Trust Network decoys, and the access policy article states the ordering constraint, but no captured source states the reason for the constraint or for the disabled actions. A Deception article on the ZPA policy integration would settle it.",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-deception.json",
+          "quotes": [
+            "you can integrate Deception with Private Access to deploy Zero Trust Network decoys without installing any additional network components or making any changes to your network configurations."
+          ]
+        }
+      ]
+    },
+    "gap-slot-reordering": {
+      "kind": "semantic",
+      "title": "Whether the API fills absent rule_order slots, so gapped numbers reorder unpredictably",
+      "status": "open",
+      "about": [
+        "zpa.policy.access-rule-order"
+      ],
+      "detail": "Unverified legacy statement, attributed to upstream terraform-provider-zpa issue 166: \"gaps in `rule_order` cause Terraform to reorder unpredictably because the API treats absent slots as fillable\". The provider's own behavior with gapped numbers is covered in zpa.terraform.rule-order; what the API does with a submitted list is open there as api-bulk-reorder-semantics. The issue thread itself is not a registered source.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "priority-meaning": {
+      "kind": "semantic",
+      "title": "What the priority field on a rule does",
+      "status": "open",
+      "about": [
+        "zpa.policy.access-rule-order"
+      ],
+      "detail": "Unverified legacy statement: \"`priority` is a separate metadata field (sometimes used by the admin console for display grouping). Setting them inconsistently doesn't error but confuses readers — keep them aligned (e.g., `rule_order = N, priority = N`) for clarity.\" The field exists in every client, but no captured source says what it does or whether the two interact.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -321,7 +321,7 @@ Source: `vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.json`; `vendor/zs
 
 ## Cross-links
 
-- ZPA App Connectors (conceptually similar, separately managed) — [`../zpa/app-connector.md`](../zpa/app-connector.md)
-- ZPA access policy and segment groups (parallel concepts in the ZPA product) — [`../zpa/app-segments.md`](../zpa/app-segments.md), [`../zpa/segment-groups.md`](../zpa/segment-groups.md)
+- ZPA App Connectors (conceptually similar, separately managed) — [`zpa.app-connectors`](kb:zpa.app-connectors)
+- ZPA access policy and segment groups (parallel concepts in the ZPA product) — [`zpa.app-segments`](kb:zpa.app-segments), [`zpa.segment-groups`](kb:zpa.segment-groups)
 - ZCC forwarding profile (separate — ZCC is an agent product, not an embedded SDK) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
 - OneAPI authentication (does not apply to ZSDK) — [`./oneapi.md`](./oneapi.md)

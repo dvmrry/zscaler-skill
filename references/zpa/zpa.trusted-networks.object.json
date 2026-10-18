@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "id": "zpa.trusted-networks.object",
+  "title": "The ZPA trusted network object and how to fetch it",
+  "aliases": [
+    "trusted network object",
+    "network_id vs id",
+    "trusted network api",
+    "zpa_trusted_network data source",
+    "trusted network read only",
+    "trusted network cloud suffix"
+  ],
+  "binds": [
+    "zpa/trusted-networks"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.trusted-networks.zcc-relationship"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.trusted-networks.policy-operand"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the ZPA trusted network object."
+    },
+    {
+      "label": "Fields.",
+      "text": "{{fields}} {{two-identifiers}}"
+    },
+    {
+      "label": "Fetching.",
+      "text": "{{api-operations}} {{single-fetch-takes-id}} {{lookup-by-network-id}} {{paging}}"
+    },
+    {
+      "label": "Clients.",
+      "text": "{{no-client-writes}} {{data-source-targets}} {{go-strips-cloud-suffix}} The data source document says otherwise {{divergence:cloud-suffix-in-name-lookup}}. Data source selection defects: [[zpa.terraform.data-source-selection]]."
+    },
+    {
+      "label": "Ownership.",
+      "text": "What `masterCustomerId` signals is open {{gap:master-customer-id-meaning}}. Where the networks come from: [[zpa.trusted-networks.zcc-relationship]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which identifier a call needs: `id` for a single fetch, `networkId` for a rule operand.",
+      "uses": [
+        "two-identifiers",
+        "single-fetch-takes-id",
+        "lookup-by-network-id"
+      ]
+    },
+    {
+      "do": "Whether the task needs to create or edit a trusted network, which no documented client does.",
+      "uses": [
+        "api-operations",
+        "no-client-writes"
+      ]
+    },
+    {
+      "do": "Whether a name lookup failed on a cloud suffix.",
+      "uses": [
+        "go-strips-cloud-suffix",
+        "cloud-suffix-in-name-lookup"
+      ]
+    },
+    {
+      "do": "Whether a list call is complete; page size is capped at 500.",
+      "uses": [
+        "paging"
+      ]
+    },
+    {
+      "do": "What masterCustomerId says about ownership, which no source settles.",
+      "uses": [
+        "master-customer-id-meaning"
+      ]
+    }
+  ],
+  "claims": {
+    "fields": {
+      "statement": "A ZPA trusted network has `id`, `name`, `domain`, `networkId`, `zscalerCloud`, `masterCustomerId` and creation and modification fields. The API describes `id` as the unique identifier of the trusted network and `networkId` as the unique identifier of the network.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks#id",
+        "zpa/trusted-networks#networkId",
+        "zpa/trusted-networks#zscalerCloud",
+        "zpa/trusted-networks#masterCustomerId"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1network/get/responses/200/content/*~1*/schema/properties/list/items/properties",
+          "expect": {
+            "id": {
+              "description": "The unique identifier of the trusted network.",
+              "format": "int64",
+              "type": "integer"
+            },
+            "networkId": {
+              "description": "The unique identifier of the network.",
+              "type": "string"
+            },
+            "zscalerCloud": {
+              "description": "The ZIA cloud.",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
+          "quotes": [
+            "NetworkID        string `json:\"networkId,omitempty\"`",
+            "MasterCustomerID string `json:\"masterCustomerId,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "two-identifiers": {
+      "statement": "A trusted network's `id` and `networkId` are different values: the documented example response has a numeric-style `id` and a GUID-style `networkId`.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks#id",
+        "zpa/trusted-networks#networkId"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-trusted-network-details-using-api.json",
+          "quotes": [
+            "\"id\": \"72057615512764509\", \"creationTime\": \"1571232759\", \"modifiedBy\": \"72057594037927995\", \"name\": \"Home\", \"networkId\": \"2b8a83bd-3fab-4961-b12c-e64553f15327\""
+          ]
+        }
+      ]
+    },
+    "api-operations": {
+      "statement": "The documented operations are a v2 GET of all trusted networks and a v1 GET of one trusted network by `id`.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1network/get",
+          "expect": {
+            "operationId": "Get All Trusted Networks"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1network~1{id}/get",
+          "expect": {
+            "operationId": "Gets the trusted networks for the specified ID."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-trusted-network-details-using-api.json",
+          "quotes": [
+            "Send a GET request to the following endpoint in the trusted-network-controller: /mgmtconfig/v1/admin/customers/{customerId}/network/{id}."
+          ]
+        }
+      ]
+    },
+    "no-client-writes": {
+      "statement": "The Go and Python SDKs only read trusted networks, and the Terraform provider has a `zpa_trusted_network` data source and no resource.",
+      "tier": "B",
+      "binds": [
+        "zpa/trusted-networks"
+      ],
+      "conditions": "Rests on absence: both SDK files were read in full and define no create, update or delete; the provider's docs/resources and zpa/ directories were searched (2026-10-18) and hold data_source_zpa_trusted_network.go but no resource.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
+          "quotes": [
+            "func Get(ctx context.Context",
+            "func GetByNetID(ctx context.Context",
+            "func GetByName(ctx context.Context",
+            "func GetAll(ctx context.Context"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/trusted_networks.py",
+          "quotes": [
+            "def list_trusted_networks(",
+            "def get_network("
+          ]
+        }
+      ]
+    },
+    "lookup-by-network-id": {
+      "statement": "The Go SDK finds a trusted network by `networkId` by paging the v2 list and comparing each entry's NetworkID; there is no dedicated lookup call.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks#networkId"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
+          "quotes": [
+            "list, resp, err := common.GetAllPagesGeneric[TrustedNetwork](ctx, service.Client, relativeURL, \"\")",
+            "if trustedNetwork.NetworkID == netID {"
+          ],
+          "after": "func GetByNetID(ctx context.Context, service *zscaler.Service, netID string) (*TrustedNetwork, *http.Response, error) {"
+        }
+      ]
+    },
+    "single-fetch-takes-id": {
+      "statement": "The single-fetch path is `/network/{id}`, documented as the trusted network's ID; the Python SDK's get_network sends its argument there under the name `network_id`.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks#id"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-trusted-network-details-using-api.json",
+          "quotes": [
+            "id: The ID of the desired trusted network."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/trusted_networks.py",
+          "quotes": [
+            "/network/{network_id}"
+          ]
+        }
+      ]
+    },
+    "go-strips-cloud-suffix": {
+      "statement": "The Go SDK name lookup removes a trailing parenthesised cloud name, such as `(zscalerthree.net)`, from both the requested name and each listed name before comparing case-insensitively. The Python SDK's list call passes its search string through unchanged.",
+      "tier": "B",
+      "binds": [
+        "zpa/trusted-networks#name"
+      ],
+      "conditions": "The Python half rests on absence: trusted_networks.py was read in full and does not strip a suffix.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
+          "quotes": [
+            "adaptedtrustedNetworkName := common.RemoveCloudSuffix(trustedNetworkName)",
+            "strings.EqualFold(common.RemoveCloudSuffix(trustedNetwork.Name), adaptedtrustedNetworkName)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-trusted-network-details-using-api.json",
+          "quotes": [
+            "\"name\": \"test1 (zscalerone.net)\""
+          ]
+        }
+      ]
+    },
+    "paging": {
+      "statement": "The trusted network list takes `page` and `pagesize`, with a default page size of 20 and a maximum of 500.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-trusted-network-details-using-api.json",
+          "quotes": [
+            "If not provided, the default page size is 20. The maximum page size is 500."
+          ],
+          "after": "This API supports pagination. To get a paginated response:"
+        }
+      ]
+    },
+    "data-source-targets": {
+      "statement": "The provider documents the trusted network data source as the way to reference a trusted network in an access, forwarding, inspection or isolation policy and in a service edge group.",
+      "tier": "A",
+      "binds": [
+        "zpa/trusted-networks"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_trusted_network.md",
+          "quotes": [
+            "This data source can then be referenced within the following resources:",
+            "5. Service Edge Group."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cloud-suffix-in-name-lookup": {
+      "summary": "The Terraform data source document says the cloud name must be appended to query a trusted network tied to a specific cloud; the Go SDK strips that suffix before comparing names, and the provider's release notes say name search works without it.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_trusted_network.md",
+            "quotes": [
+              "it is required to append the cloud name to the name of the trusted network"
+            ]
+          },
+          "says": "The cloud name must be appended to the name."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/trustednetwork/zpa_trusted_network.go",
+            "quotes": [
+              "adaptedtrustedNetworkName := common.RemoveCloudSuffix(trustedNetworkName)"
+            ]
+          },
+          "says": "The SDK removes a cloud suffix from the requested name before searching."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/guides/release-notes.md",
+            "quotes": [
+              "Updated search mechanism to support trusted network name search without the Zscaler cloud name."
+            ]
+          },
+          "says": "Name search without the cloud name is supported."
+        }
+      ],
+      "impact": "A name with or without the cloud suffix is accepted by the Go-based data source, so the document's instruction is stricter than the code. Because the SDK strips the suffix from both the requested name and each listed name, two networks with the same base name in different clouds match on the first one returned.",
+      "resolution": {
+        "by": "go-strips-cloud-suffix",
+        "rule": "source-rank",
+        "note": "The SDK code and the release note agree; the data source document predates the change."
+      }
+    }
+  },
+  "gaps": {
+    "master-customer-id-meaning": {
+      "kind": "semantic",
+      "title": "What masterCustomerId means for a trusted network",
+      "status": "open",
+      "about": [
+        "zpa/trusted-networks#masterCustomerId"
+      ],
+      "detail": "Unverified legacy statement: \"If master_customer_id is populated, the Trusted Network was inherited from a parent tenant in a multi-tenant hierarchy. Operators cannot modify inherited objects at the child tenant level.\" The API describes the field only as the unique identifier of the ZPA and ZIA customer. Compare the field across a parent and a child tenant.",
+      "blocks": "saying a trusted network is inherited",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

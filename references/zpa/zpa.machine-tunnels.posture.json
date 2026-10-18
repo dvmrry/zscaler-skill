@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "zpa.machine-tunnels.posture",
+  "title": "Device posture on the ZPA machine tunnel",
+  "aliases": [
+    "apply to machine tunnel",
+    "posture profile machine tunnel",
+    "posture before login",
+    "applyToMachineTunnelEnabled",
+    "posture types for machine tunnel"
+  ],
+  "binds": [
+    "zpa/posture-profiles#applyToMachineTunnelEnabled"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.machine-tunnels.requirements"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-tunnels.client-type-policy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers device posture on the pre-login machine tunnel."
+    },
+    {
+      "label": "The setting.",
+      "text": "{{apply-toggles}} {{api-field}}"
+    },
+    {
+      "label": "Which checks.",
+      "text": "{{windows-types}} {{macos-types}}"
+    },
+    {
+      "label": "In policy.",
+      "text": "{{policy-client-version}} Posture profiles in general: [[zpa.posture-profiles]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the posture profile has the machine tunnel setting for the device's platform.",
+      "uses": [
+        "apply-toggles",
+        "api-field"
+      ]
+    },
+    {
+      "do": "Whether the posture type is one that applies to the machine tunnel on that platform.",
+      "uses": [
+        "windows-types",
+        "macos-types"
+      ]
+    },
+    {
+      "do": "Whether the device runs a Client Connector version that supports posture criteria with the Machine Tunnel client type.",
+      "uses": [
+        "policy-client-version"
+      ]
+    }
+  ],
+  "claims": {
+    "apply-toggles": {
+      "statement": "A device posture profile has Apply to Windows Machine Tunnel and Apply to macOS Machine Tunnel settings. When selected, the posture type is evaluated for the pre-login Private Access machine tunnel; when not selected, it is evaluated only for Private Access and Internet & SaaS tunnels.",
+      "tier": "A",
+      "binds": [
+        "zpa/posture-profiles#applyToMachineTunnelEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Apply to Windows Machine Tunnel: When selected, the posture type is evaluated and applied to the Private Access pre-Windows login machine tunnel. If not selected, the posture type is only evaluated for Private Access and Internet & SaaS tunnels.",
+            "Apply to macOS Machine Tunnel: When selected, the posture type is evaluated and applied to the Private Access pre-macOS login machine tunnel."
+          ]
+        }
+      ]
+    },
+    "windows-types": {
+      "statement": "On the Windows machine tunnel the posture types that apply are Client Certificate, Certificate Trust, File Path, Registry Key, Firewall, Full Disk Encryption, Domain Joined, AzureAD Domain Joined, Server Validated Client Certificate, OS Version and Zscaler Client Connector Version.",
+      "tier": "A",
+      "binds": [
+        "zpa/posture-profiles#postureType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to the following device postures for Windows: Client Certificate, Certificate Trust, File Path, Registry Key, Firewall, Full Disk Encryption, Domain Joined, AzureAD Domain Joined, Server Validated Client Certificate, OS Version and Zscaler Client Connector Version."
+          ]
+        }
+      ]
+    },
+    "macos-types": {
+      "statement": "On the macOS machine tunnel the posture types that apply are CrowdStrike ZTA Score, Full Disk Encryption, File Path, Firewall, Domain Joined, OS Version and Zscaler Client Connector Version.",
+      "tier": "A",
+      "binds": [
+        "zpa/posture-profiles#postureType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to the following device postures for macOS: CrowdStrike ZTA Score, Full Disk Encryption, File Path, Firewall, Domain Joined, OS Version, and Zscaler Client Connector Version."
+          ]
+        }
+      ]
+    },
+    "api-field": {
+      "statement": "The ZPA posture profile object carries a boolean `applyToMachineTunnelEnabled`.",
+      "tier": "A",
+      "binds": [
+        "zpa/posture-profiles#applyToMachineTunnelEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/applyToMachineTunnelEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "ApplyToMachineTunnelEnabled    bool   `json:\"applyToMachineTunnelEnabled\"`"
+          ]
+        }
+      ]
+    },
+    "policy-client-version": {
+      "statement": "An access policy can use posture profile criteria with the Machine Tunnel client type when the device runs Zscaler Client Connector 3.9 or later.",
+      "tier": "A",
+      "binds": [
+        "zpa/posture-profiles",
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "Access policies can be configured with posture profile criteria for the client type machine tunnel if your end user device has Zscaler Client Connector version 3.9 or later installed."
+          ]
+        }
+      ]
+    }
+  }
+}

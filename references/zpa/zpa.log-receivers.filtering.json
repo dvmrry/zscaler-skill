@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.filtering",
+  "title": "Narrowing a ZPA log stream: status codes and streaming policy",
+  "aliases": [
+    "lss filter status codes",
+    "streaming policy",
+    "SIEM_POLICY",
+    "lss policy rule",
+    "validateLSSConfigControllerFilters",
+    "lss filter not supported",
+    "exclude session status",
+    "lss client type filter"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs.streaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes.policy-criteria"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A receiver can exclude session status codes and carry a streaming policy, and which of these a log type accepts differs by tool."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{console-policy}} {{include-exclude}} {{boolean-logic}} {{segment-limit}}"
+    },
+    {
+      "label": "Status codes.",
+      "text": "{{python-excluded}} {{status-code-log-types}} {{tf-no-filter-types}} {{tf-filter-default-rejects}}"
+    },
+    {
+      "label": "Policy rule on the wire.",
+      "text": "{{siem-policy-set}} {{tf-object-types}} {{tf-other-types-rejected}}"
+    },
+    {
+      "label": "When the provider checks.",
+      "text": "{{validation-at-apply}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which log type the receiver carries, since only User Activity, User Status, App Connector Status and Private Service Edge Status have status codes.",
+      "uses": [
+        "status-code-log-types",
+        "tf-no-filter-types"
+      ]
+    },
+    {
+      "do": "That status codes exclude and every other criterion includes, and how the criteria combine.",
+      "uses": [
+        "include-exclude",
+        "boolean-logic"
+      ]
+    },
+    {
+      "do": "Whether a streaming policy on a log type other than User Activity or User Status is rejected by the provider.",
+      "uses": [
+        "tf-object-types",
+        "tf-other-types-rejected"
+      ]
+    },
+    {
+      "do": "When a Terraform error appears: at apply, in the create or update, not at plan.",
+      "uses": [
+        "validation-at-apply"
+      ]
+    }
+  ],
+  "claims": {
+    "console-policy": {
+      "statement": "A receiver's streaming policy can restrict the stream to a specific segment group or set of session status error codes, and the criteria available depend on the Log Type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "Define a streaming policy for the log receiver.",
+            "The criteria you can use is dependent upon the Log Type you select."
+          ]
+        }
+      ]
+    },
+    "include-exclude": {
+      "statement": "Every streaming-policy field adds the values it names except session statuses, which are configured to exclude values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "With the exception of session statuses, all of these fields require configuration to include the values. Session Statuses are configured to exclude values."
+          ]
+        }
+      ]
+    },
+    "boolean-logic": {
+      "statement": "With several criteria, an OR is assumed between Application Segments and Segment Groups and an AND between the SAML attributes, the application segments or segment groups, client types and session statuses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "an OR Boolean operation is assumed between Application Segments and Segment Groups, and an AND operation is assumed between SAML Attributes, Application Segments or Segment Groups, Client Types, and Session Statuses."
+          ]
+        }
+      ]
+    },
+    "segment-limit": {
+      "statement": "A Log Receiver Policy rule is limited to 1,000 application segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Log Receiver Policy | 1,000 application segments per policy rule |"
+          ]
+        }
+      ]
+    },
+    "python-excluded": {
+      "statement": "The Python SDK's filter_status_codes is a list of session status codes that LSS excludes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "filter_status_codes (list): A list of Session Status Codes that will be excluded by LSS."
+          ],
+          "after": "def add_lss_config("
+        }
+      ]
+    },
+    "status-code-log-types": {
+      "statement": "The documented status-codes response lists codes for four log types only, zpn_auth_log, zpn_ast_auth_log, zpn_trans_log and zpn_sys_auth_log, and the Terraform validator accepts a filter for exactly those four.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "- \"zpn_auth_log\": {",
+            "- \"zpn_ast_auth_log\": {",
+            "- \"zpn_sys_auth_log\": {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "for _, validFilter := range supportedLSSUserStatus {",
+            "for _, validFilter := range supportedLSSUserActivity {",
+            "for _, validFilter := range supportedAppConnectorStatus {",
+            "for _, validFilter := range supportedPrivateServiceEdgeStatus {"
+          ]
+        }
+      ],
+      "conditions": "The API example response is an example, not an enumeration, so a fifth log type with codes is not excluded by the article alone; the validator list is the client's behavior."
+    },
+    "tf-no-filter-types": {
+      "statement": "The Terraform provider rejects a status-code filter on Browser Access, Audit Logs, AppProtection, App Connector Metrics and Private Service Edge Metrics receivers.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "\"zpn_http_trans_log\": \"Web Browser\",",
+            "\"zpn_audit_log\": \"Audit Logs\",",
+            "\"zpn_waf_http_exchanges_log\": \"AppProtection\",",
+            "\"zpn_ast_comprehensive_stats\": \"App Connector Metrics\",",
+            "\"zpn_pbroker_comprehensive_stats\": \"Private Service Edge Metrics\",",
+            "return fmt.Errorf(\"filter is not supported for source log type %s - %s\", sourceLogType, displayName)"
+          ]
+        }
+      ],
+      "conditions": "Provider behavior only; what the API does with a filter on these types is not shown."
+    },
+    "tf-filter-default-rejects": {
+      "statement": "For any other source log type the provider's filter switch falls to a default that returns an invalid-source-log-type error, so a filter on a type outside the four is rejected.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "return fmt.Errorf(\"invalid source_log_type: %s\", sourceLogType)"
+          ],
+          "after": "for _, validFilter := range supportedPrivateServiceEdgeStatus {"
+        }
+      ],
+      "conditions": "Reading the switch: cases zpn_auth_log, zpn_trans_log, zpn_ast_auth_log and zpn_sys_auth_log, then default. The no-filter list is checked first."
+    },
+    "siem-policy-set": {
+      "statement": "The Python SDK describes SIEM_POLICY as the parent policy set of a receiver's policy rule: policyRuleResource must carry the policySetId of that set, which the SDK looks up from the SIEM_POLICY policy type before it sends policy_rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "The LSS payload's ``policyRuleResource`` must include ``policySetId``",
+            "(the id of the parent SIEM_POLICY policy set)"
+          ]
+        }
+      ]
+    },
+    "tf-object-types": {
+      "statement": "The Terraform provider accepts the operand object types IDP, SCIM, SCIM_GROUP, SAML and CLIENT_TYPE on a User Status receiver and the same plus APP and APP_GROUP on a User Activity receiver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "var validObjectTypesForAuthLog = map[string]struct{}{ \"IDP\": {}, \"SCIM\": {}, \"SCIM_GROUP\": {}, \"SAML\": {}, \"CLIENT_TYPE\": {}, }",
+            "var validObjectTypesForTransLog = map[string]struct{}{ \"IDP\": {}, \"SCIM\": {}, \"SCIM_GROUP\": {}, \"SAML\": {}, \"APP\": {}, \"APP_GROUP\": {}, \"CLIENT_TYPE\": {}, }"
+          ]
+        }
+      ]
+    },
+    "tf-other-types-rejected": {
+      "statement": "For any other source log type the provider returns an invalid-source-log-type error as soon as a policy operand is present, so policy rules are not accepted by the provider on other log types.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/validator.go",
+          "quotes": [
+            "return fmt.Errorf(\"invalid source_log_type: %s\", sourceLogType)"
+          ],
+          "after": "validObjectTypes = validObjectTypesForTransLog"
+        }
+      ],
+      "conditions": "Reading the object-type switch: cases zpn_auth_log and zpn_trans_log, then default. The provider's own validation only; the API article lists the object types without restricting them by log type."
+    },
+    "validation-at-apply": {
+      "statement": "The provider's filter and object-type checks run inside the resource's create and update functions, not as schema validators, so a violation is reported when the change is applied.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "err := validateLSSConfigControllerFilters(sourceLogType, \"\", filterStr, nil, nil)"
+          ],
+          "after": "func resourceLSSConfigControllerCreate("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "err := validateLSSConfigControllerFilters(sourceLogType, \"\", filterStr, nil, nil)"
+          ],
+          "after": "func resourceLSSConfigControllerUpdate("
+        }
+      ],
+      "conditions": "The only schema-level validator on this path is StringInSlice for source_log_type; the filter and operand checks are called from CreateContext and UpdateContext."
+    }
+  }
+}

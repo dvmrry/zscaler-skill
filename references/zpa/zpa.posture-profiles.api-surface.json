@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "zpa.posture-profiles.api-surface",
+  "title": "The posture profile API, SDK and Terraform data source",
+  "aliases": [
+    "posture endpoint",
+    "posture-profile-controller",
+    "zpa_posture_profile data source",
+    "list_posture_profiles",
+    "GetByPostureUDID",
+    "posture profile api read only"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.posture-profiles.object-model"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The posture profile API is read-only in every source."
+    },
+    {
+      "label": "Calls.",
+      "text": "{{endpoints}} {{spec-get-only}} {{paging}}"
+    },
+    {
+      "label": "SDKs.",
+      "text": "{{go-functions}} {{python-methods}} {{no-sdk-writes}}"
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{no-tf-resource}} {{tf-lookup}} {{tf-omits-fields}} Id-over-name selection in data sources is in [[zpa.terraform.data-source-selection]], and fields data sources leave unset are in [[zpa.terraform.data-source-fidelity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which call reads the object: the v2 list for search and paging, the v1 call for one profile by id.",
+      "uses": [
+        "endpoints",
+        "paging"
+      ]
+    },
+    {
+      "do": "Whether the task is a read, which all sources support, rather than a write, which none document or implement.",
+      "uses": [
+        "zpa.posture-profiles.object-model:read-only-docs",
+        "spec-get-only",
+        "no-sdk-writes"
+      ]
+    },
+    {
+      "do": "How a profile is found by UDID or by name in the tool being used.",
+      "uses": [
+        "go-functions",
+        "python-methods",
+        "tf-lookup",
+        "zpa.posture-profiles.object-model:name-suffix-stripped"
+      ]
+    },
+    {
+      "do": "Whether a field the Terraform data source does not export is needed from the SDK instead.",
+      "uses": [
+        "tf-omits-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "endpoints": {
+      "statement": "The documented posture profile calls are GETs in the posture-profile-controller: all profiles by page on the v2 path, with search, and one profile by id on the v1 path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "obtaining-posture-profile-details-using-api.json",
+          "quotes": [
+            "Send a GET request to the following endpoint in the posture-profile-controller: /mgmtconfig/v2/admin/customers/{customerId}/posture.",
+            "Send a GET request to the following endpoint in the posture-profile-controller: /mgmtconfig/v1/admin/customers/{customerId}/posture/{id}."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get",
+          "expect": {
+            "description": "Gets all posture profiles for the specified customer."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get",
+          "expect": {
+            "description": "Gets the configured posture profile for the specified ID."
+          }
+        }
+      ]
+    },
+    "spec-get-only": {
+      "statement": "The captured API specification defines only get operations on its two posture paths, and no operation that creates, changes or deletes a posture profile.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get",
+          "expect": {
+            "description": "Gets all posture profiles for the specified customer."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get",
+          "expect": {
+            "description": "Gets the configured posture profile for the specified ID."
+          }
+        }
+      ],
+      "conditions": "Absence claim from a search of zpa.openapi.json: the two posture paths each define only a get member."
+    },
+    "paging": {
+      "statement": "The list call pages with page and pagesize, default page size 20 and maximum 500, and accepts a search string.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=pagesize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=search]",
+          "expect": {
+            "description": "The search string used to support search by features and fields for the API."
+          }
+        }
+      ]
+    },
+    "go-functions": {
+      "statement": "The Go SDK's postureprofile package has Get (v1 by id), and GetByPostureUDID, GetByName and GetAll on the v2 list; GetByPostureUDID reads the whole list and compares postureUdid, since there is no UDID endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "func Get(ctx context.Context, service *zscaler.Service, id string)",
+            "func GetByPostureUDID(ctx context.Context, service *zscaler.Service, postureUDID string)",
+            "func GetByName(ctx context.Context, service *zscaler.Service, postureName string)",
+            "func GetAll(ctx context.Context, service *zscaler.Service)",
+            "if postureProfile.PostureudID == postureUDID {"
+          ]
+        }
+      ]
+    },
+    "python-methods": {
+      "statement": "The Python SDK's PostureProfilesAPI has list_posture_profiles(query_params) on the v2 path and get_profile(profile_id), with no query_params argument, on the v1 path, and no lookup by name or UDID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/posture_profiles.py",
+          "quotes": [
+            "def list_posture_profiles(self, query_params: Optional[dict] = None)",
+            "def get_profile(self, profile_id: str)"
+          ]
+        }
+      ],
+      "conditions": "The no-lookup part is an absence read of posture_profiles.py: the two methods are its only public ones."
+    },
+    "no-sdk-writes": {
+      "statement": "Neither SDK has a create, update or delete function for posture profiles.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/posture_profiles.py",
+          "quotes": [
+            "def get_profile(self, profile_id: str)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a read of the Go postureprofile package and the Python posture_profiles.py: the functions in claims go-functions and python-methods are all of them."
+    },
+    "no-tf-resource": {
+      "statement": "The Terraform provider registers zpa_posture_profile as a data source only; it has no posture profile resource.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_posture_profile\": dataSourcePostureProfile(),"
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a read of the provider's ResourcesMap in provider.go: no entry names a posture profile resource."
+    },
+    "tf-lookup": {
+      "statement": "The zpa_posture_profile data source finds a profile by id when one is given and otherwise by name; posture_udid is exported, and the read ignores it as input.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_posture_profile.go",
+          "quotes": [
+            "res, _, err := postureprofile.Get(ctx, service, id)",
+            "if id == \"\" && ok && name != \"\" {",
+            "_ = d.Set(\"posture_udid\", resp.PostureudID)"
+          ]
+        }
+      ],
+      "conditions": "Wording changed: posture_udid is Optional and Computed in the schema, but the read never uses it as input."
+    },
+    "tf-omits-fields": {
+      "statement": "The zpa_posture_profile data source has no postureType, platform, rootCert or boolean-flag attributes: its schema and its d.Set calls cover only id, name, posture_udid, domain, master_customer_id, zscaler_cloud, zscaler_customer_id and the time and modified-by fields.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_posture_profile.go",
+          "quotes": [
+            "_ = d.Set(\"zscaler_customer_id\", resp.ZscalerCustomerID)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a read of data_source_zpa_posture_profile.go: neither its schema nor its flatten calls name posture_type, platform, root_cert or the three flags, which the SDK object holds."
+    }
+  }
+}

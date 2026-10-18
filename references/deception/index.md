@@ -49,5 +49,5 @@ ledger.
 ## When to start here
 
 - Start here for "what is Deception?", "how do decoys work?", "what changes in ZPA when Deception is integrated?", "what is the Deception MCP server decoy?", or "what public automation surface did this refresh find?"
-- Start in [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md) for ZPA first-match policy-order behavior and Deception rule placement.
+- Start in [`zpa.policy`](kb:zpa.policy) for ZPA first-match policy-order behavior and Deception rule placement.
 - Start in [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md) for portfolio placement.

@@ -448,6 +448,6 @@ Check:
 
 - SIPA primitive mechanics — [`./source-ip-anchoring.md`](./source-ip-anchoring.md)
 - ZIA Forwarding Control rule configuration and forward_method values — [`zia.forwarding-control`](kb:zia.forwarding-control)
-- ZPA App Connector deployment, groups, provisioning keys — [`../zpa/app-connector.md`](../zpa/app-connector.md)
-- ZPA Application Segments (Source IP Anchor flag, mutual exclusions) — [`../zpa/app-segments.md`](../zpa/app-segments.md)
-- ZPA policy precedence (country-code criterion uses PSE IP, not user IP, for SIPA traffic) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA App Connector deployment, groups, provisioning keys — [`zpa.app-connectors`](kb:zpa.app-connectors)
+- ZPA Application Segments (Source IP Anchor flag, mutual exclusions) — [`zpa.app-segments`](kb:zpa.app-segments)
+- ZPA policy precedence (country-code criterion uses PSE IP, not user IP, for SIPA traffic) — [`zpa.policy`](kb:zpa.policy)

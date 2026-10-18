@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.approvals",
+  "title": "PRA approvals: requesting, reviewing and expiry",
+  "aliases": [
+    "privileged approval",
+    "pra approval request",
+    "my requests pra portal",
+    "pra approval expires",
+    "pra approval window",
+    "approve pra access",
+    "expired privileged approvals",
+    "pra multiple approvers"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.access-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.tooling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Approvals bound when a user can reach a console. A user requests a window, an admin approves it, and access ends when the window does."
+    },
+    {
+      "label": "Requesting.",
+      "text": "{{request-flow}}"
+    },
+    {
+      "label": "Reviewing.",
+      "text": "{{approver-view}} {{request-metadata}} Whether more than one approver can be required is open {{gap:multi-approver}}."
+    },
+    {
+      "label": "Expiry.",
+      "text": "{{window-expiry}} {{request-limit}}"
+    },
+    {
+      "text": "Which consoles require an approval is open {{gap:approval-optional}}. The SDK and Ansible handling of approvals, including working hours, is in [[zpa.pra.tooling]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user's window has started or ended, since an expired approval removes access and an upcoming one shows as Future.",
+      "uses": [
+        "window-expiry"
+      ]
+    },
+    {
+      "do": "Whether the request exists in the Approval Requests table and with which status.",
+      "uses": [
+        "approver-view",
+        "request-metadata"
+      ]
+    },
+    {
+      "do": "Whether the per-user request count or the tenant approval count is at its limit.",
+      "uses": [
+        "request-limit"
+      ]
+    },
+    {
+      "do": "Whether an answer assumes multi-approver support or per-console approval requirements, which no source states.",
+      "uses": [
+        "multi-approver",
+        "approval-optional"
+      ]
+    }
+  ],
+  "claims": {
+    "request-flow": {
+      "statement": "Once an admin has enabled privileged requests in a portals policy, a user creates an approval request on the My Requests page of the PRA Portal by choosing a microtenant (Default is preselected) and consoles, a start date and a duration, and optionally a reason, then saving it for review.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "requesting-approvals-pra-portal.json",
+          "quotes": [
+            "After the admin has enabled privileged requests in a portals policy, you can access the My Requests page in the PRA Portal.",
+            "Select a Microtenant from the drop-down menu. The Default Microtenant is automatically selected.",
+            "(Optional) Enter a reason for access.",
+            "The saved privileged approval request appears on the My Requests page and is ready to be reviewed by an approver."
+          ]
+        }
+      ]
+    },
+    "approver-view": {
+      "statement": "Admins review requests on the Approval Requests page, which can be filtered by console and requester, and approve or reject each one. The table shows requested duration and approved duration separately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "accessing-privileged-requests.json",
+          "quotes": [
+            "Console: See logs for a specific privileged console.",
+            "Requester: See logs for a specific user who requested a privileged approval.",
+            "Requested Duration: The length of time that the access for the privileged approval is requested for.",
+            "Approved Duration: The length of time that the access for the privileged approval is available for.",
+            "You can approve or reject the privileged approval requests by clicking the following:"
+          ]
+        }
+      ]
+    },
+    "request-metadata": {
+      "statement": "Each request records the requester, policy name, approval ID, start and end time, duration, console, requested and approved duration, reason, status (Approved or Rejected) and the time it was requested.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "accessing-privileged-requests.json",
+          "quotes": [
+            "Policy Name: The name of the access policy associated with the privileged approval request.",
+            "Requested Time: The time stamp of when the privileged approval request was created.",
+            "Status: The status of the privileged approval request (Approved or Rejected)."
+          ]
+        }
+      ]
+    },
+    "window-expiry": {
+      "statement": "After the approved window ends the user loses access to the console without any manual revocation. Approvals whose window has ended show as Expired, upcoming ones show as Future, and an admin can purge expired approvals to clean up the table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "If an end user has a privileged approval assigned to their privileged consoles, they lose access when the scheduled time expires.",
+            "Privileged consoles with privileged approvals that have ended due to the time window completing show as Expired.",
+            "Admins can clean up their privileged approvals table by purging expired privileged approvals."
+          ]
+        }
+      ]
+    },
+    "request-limit": {
+      "statement": "Each user can create up to 20 privileged approval requests on the My Requests page, and only approvals in Future or Active status count toward the 20,000-approval limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Each user can create up to 20 privileged approval requests on the My Requests page",
+            "Only privileged approvals with approval statuses of Future or Active are counted."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "multi-approver": {
+      "kind": "semantic",
+      "title": "Requiring more than one approver",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Can we require 2-of-N approval? Not natively documented; approvals are 1-approver-approves model.\" The captured pages show one approve or reject action per request and no multi-approver setting, which is an absence and not a statement. A Zscaler statement or a configuration check would resolve it.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "approval-optional": {
+      "kind": "semantic",
+      "title": "Which consoles require an approval",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Not all PRA consoles require approval - approval is configured per-policy.\" The access policy has an Allow with Privileged Approval checkbox (claim zpa.pra.access-policy:allow-with-privileged-approval), but the captured pages do not say that consoles without that setting skip approval. A lab test would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

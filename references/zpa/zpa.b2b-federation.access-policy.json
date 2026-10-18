@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "zpa.b2b-federation.access-policy",
+  "title": "Access policies for federated applications",
+  "aliases": [
+    "defined by partners",
+    "defined by my tenant",
+    "guest partner access policy",
+    "federated application criteria",
+    "federated access policy criteria",
+    "partner policy rules"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.b2b-federation.federate-applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.api-routes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The host owns the application and the guest writes the rules that govern its users."
+    },
+    {
+      "label": "Ownership.",
+      "text": "{{federated-apps-ownership}}"
+    },
+    {
+      "label": "Where rules appear.",
+      "text": "{{partner-vs-tenant-pages}} {{host-visibility-only}} {{rule-actions}}"
+    },
+    {
+      "label": "Criteria.",
+      "text": "{{guest-criteria-limited}} {{deleted-reference-inconsistency}} The route that returns partner rules is in [[zpa.b2b-federation.api-routes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the guest partner's rule uses only the criteria federated access policies support.",
+      "uses": [
+        "guest-criteria-limited"
+      ]
+    },
+    {
+      "do": "Whether the host looked at Defined by Partners or Defined by My Tenant, and that the host views but does not manage guest rules.",
+      "uses": [
+        "partner-vs-tenant-pages",
+        "host-visibility-only"
+      ]
+    },
+    {
+      "do": "Whether a rule still references a federated application or partner that no longer exists.",
+      "uses": [
+        "deleted-reference-inconsistency"
+      ]
+    }
+  ],
+  "claims": {
+    "partner-vs-tenant-pages": {
+      "statement": "The Defined by Partners page lists policy rules created by the guest partner for the host partner's applications, and the Defined by My Tenant page lists rules defined by the host partner for internal applications and users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-defined-partners.json",
+          "quotes": [
+            "The Defined by Partners page displays the list of policy rules created by the guest partner for the host partner's applications.",
+            "The Defined by My Tenant page displays the list of policy rules that are defined by the host partner for internal applications and users."
+          ]
+        }
+      ]
+    },
+    "host-visibility-only": {
+      "statement": "Defined-by-partners policies give the host partner visibility into how guest partners configured access policies on its hosted applications, without managing them directly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-defined-partners.json",
+          "quotes": [
+            "Gain visibility into how your guest partners have configured access policies on your hosted applications, without managing them directly."
+          ]
+        }
+      ]
+    },
+    "rule-actions": {
+      "statement": "A partner-defined rule shows its action as Allow Access, Block Access or Require Approval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-defined-partners.json",
+          "quotes": [
+            "Rule Action: Indicates the action for the rule (i.e., Allow Access, Block Access, or Require Approval)."
+          ]
+        }
+      ]
+    },
+    "guest-criteria-limited": {
+      "statement": "Federated access policies support only these criteria for the guest partner: Client Type (only Client Connector), Client Connector Posture Profiles, Country Codes, Locations, Machine Groups, Platforms, Risk Scores, SAML and SCIM Attributes, and Trusted Networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "after": "Federated access policies support only the following criteria for the guest partner:",
+          "quotes": [
+            "Client Type: The only supported client type is Client Connector.",
+            "Client Connector Posture Profiles",
+            "Country Codes",
+            "Locations",
+            "Machine Groups",
+            "Platforms",
+            "Risk Scores",
+            "SAML and SCIM Attributes",
+            "Trusted Networks"
+          ]
+        }
+      ]
+    },
+    "federated-apps-ownership": {
+      "statement": "Federated applications are the defined application segments created, owned and managed by the host partner and shared with guest partners.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "Federated Applications: The defined application segments that are created, owned, and managed by the host partner and shared with guest partners."
+          ]
+        }
+      ]
+    },
+    "deleted-reference-inconsistency": {
+      "statement": "If an access policy rule contains a federated application or a federated partner that no longer exists, an inconsistency occurs with the rule criteria and the rule must be deleted to proceed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-access-policy-20260909.json",
+          "quotes": [
+            "If the access policy rule contains a federated application or a federated partner that no longer exists, an inconsistency occurs with the rule criteria, and you must delete the rule to proceed"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -47,7 +47,7 @@ evidence:
   - case:cases/2026-07-20-ba-session-drop/journal.md
   - vendor-call
 conflicts-with:
-  - references/zpa/browser-access.md
+  - `kb:zpa.browser-access`
 do-not-infer: "Says nothing about behavior across microtenants."
 ---
 

@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.api-surface",
+  "title": "Management API endpoints for Private Service Edges, groups and schedules",
+  "aliases": [
+    "serviceEdge api",
+    "serviceEdgeGroup endpoint",
+    "serviceEdgeSchedule",
+    "bulkDelete service edges",
+    "privateCloudController api",
+    "service edge api create",
+    "service edge auto delete api",
+    "pse api"
+  ],
+  "binds": [
+    "zpa/service-edges",
+    "zpa/service-edge-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The management API addresses instances, groups and the auto-delete schedule as separate resources."
+    },
+    {
+      "label": "Instances.",
+      "text": "{{instance-endpoints}} {{instances-not-created}}"
+    },
+    {
+      "label": "Groups.",
+      "text": "{{group-endpoints}} The collection POST is not in the specification {{gap:group-post-not-in-spec}}."
+    },
+    {
+      "label": "Auto-delete schedule.",
+      "text": "{{schedule-endpoints}} {{schedule-fields}} The accepted values are in [[zpa.private-service-edges.groups:schedule-values]]; the default cadence is open {{gap:schedule-default-cadence}}. Provider defects in the schedule resource: [[zpa.terraform.resource-fidelity:schedule-read-never-sets-id]]."
+    },
+    {
+      "label": "Private Cloud Controllers.",
+      "text": "{{private-cloud-endpoints}} Two SDK calls have no specification entry {{gap:sdk-only-paths}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which endpoint the operation uses: instances under /serviceEdge, groups under /serviceEdgeGroup, auto-delete under /serviceEdgeSchedule, and Private Cloud Controllers under their own paths.",
+      "uses": [
+        "instance-endpoints",
+        "group-endpoints",
+        "schedule-endpoints",
+        "private-cloud-endpoints"
+      ]
+    },
+    {
+      "do": "Whether an operation has no OpenAPI entry, so its behavior rests on the SDK alone.",
+      "uses": [
+        "sdk-only-paths",
+        "group-post-not-in-spec",
+        "instances-not-created"
+      ]
+    }
+  ],
+  "claims": {
+    "instance-endpoints": {
+      "statement": "Individual Private Service Edge instances are listed with GET /serviceEdge, read, updated and deleted by ID under /serviceEdge/{id}, and deleted in bulk with POST /serviceEdge/bulkDelete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get",
+          "expect": {
+            "description": "Gets all the configured Service Edge details for the specified customer."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1{serviceEdgeId}/put",
+          "expect": {
+            "description": "Updates the Service Edge details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1{serviceEdgeId}/delete",
+          "expect": {
+            "description": "Deletes the Service Edge for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge~1bulkDelete/post",
+          "expect": {
+            "description": "Bulk deletes the Service Edges for the specified customer."
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/service_edges.py",
+          "quotes": [
+            "{self._zpa_base_endpoint}/serviceEdge/bulkDelete"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges"
+      ]
+    },
+    "instances-not-created": {
+      "statement": "The API has no create call for a Private Service Edge instance: an instance appears when it enrolls.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get",
+          "expect": {
+            "description": "Gets all the configured Service Edge details for the specified customer."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "View a list of all deployed Private Service Edges."
+          ]
+        }
+      ],
+      "conditions": "Absence: the OpenAPI document lists only GET on /serviceEdge and the SDKs have no add method for instances; the console lists only deployed instances."
+    },
+    "group-endpoints": {
+      "statement": "Service Edge groups are listed with GET /serviceEdgeGroup and read, updated and deleted by ID, and created with POST /serviceEdgeGroup by the Go SDK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeGroup/get",
+          "expect": {
+            "description": "Get details of all configured Service Edge Groups for the specified customer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeGroup~1{serviceEdgeGroupId}/put",
+          "expect": {
+            "description": "Updates the Service Edge Group details for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeGroup~1{serviceEdgeGroupId}/delete",
+          "expect": {
+            "description": "Deletes the Service Edge Group for the specified ID."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+serviceEdgeGroupEndpoint"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups"
+      ]
+    },
+    "schedule-endpoints": {
+      "statement": "The auto-delete schedule is a tenant singleton: GET and POST /serviceEdgeSchedule and PUT /serviceEdgeSchedule/{id}, with frequency, frequencyInterval, deleteDisabled and enabled, and an optional microtenantId query parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/get",
+          "expect": {
+            "description": "Get a Configured ServiceEdge schedule frequency."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/post",
+          "expect": {
+            "description": "Configure a ServiceEdge schedule frequency to delete the in active private broker with configured frequency."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule~1{id}/put",
+          "expect": {
+            "description": "Configure a ServiceEdge schedule frequency to delete the in active private broker with configured frequency."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/get/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/service_edge_schedule.py",
+          "quotes": [
+            "/serviceEdgeSchedule/{scheduler_id}"
+          ]
+        }
+      ]
+    },
+    "schedule-fields": {
+      "statement": "The schedule response carries frequency (string), frequencyInterval (integer), deleteDisabled and enabled (booleans), customerId and a read-only id.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/get/responses/200/content/*~1*/schema/properties/frequencyInterval",
+          "expect": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeSchedule/get/responses/200/content/*~1*/schema/properties/deleteDisabled",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ]
+    },
+    "private-cloud-endpoints": {
+      "statement": "Private Cloud Controller groups are listed and created at /privateCloudControllerGroup and read, updated and deleted by ID; Private Cloud Controllers are listed at /privateCloudController and read, updated and deleted by ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1privateCloudControllerGroup/post",
+          "expect": {
+            "description": "Adds a new Private Cloud Controller Group for the specified customer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1privateCloudControllerGroup~1{privateCloudControllerGroupId}/put",
+          "expect": {
+            "description": "Updates the Private Cloud Controller Group details for the specified ID"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1privateCloudController/get",
+          "expect": {
+            "description": "Gets all the configured Private Cloud Controller details for the specified customer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1privateCloudController~1{privateCloudControllerId}/put",
+          "expect": {
+            "description": "Updates the Private Cloud Controller details for the specified ID"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "group-post-not-in-spec": {
+      "kind": "semantic",
+      "title": "OpenAPI document lacks POST /serviceEdgeGroup",
+      "status": "open",
+      "detail": "The OpenAPI document lists GET, then GET, PUT and DELETE by ID for service edge groups but no POST on the collection, while the Go SDK, Python SDK and Terraform provider create groups with POST. Resolve by reading the current API reference.",
+      "blocks": "citing the create call from the specification",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "sdk-only-paths": {
+      "kind": "semantic",
+      "title": "Python SDK paths absent from the OpenAPI document",
+      "status": "open",
+      "detail": "The Python SDK calls GET /privateCloudControllerGroup/summary and PUT /privateCloudController/{id}/restart; neither is in the OpenAPI document. Their behavior rests on the SDK alone.",
+      "blocks": "relying on those paths",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "schedule-default-cadence": {
+      "kind": "semantic",
+      "title": "Default cadence when the schedule is first enabled",
+      "status": "partial",
+      "former_ids": [
+        "zpa-53"
+      ],
+      "detail": "The provider documents frequency days and the interval values, but no source says what is applied before a schedule is configured. Resolve with the Admin Console Auto Delete setting.",
+      "blocks": "stating the out-of-the-box deletion behavior",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

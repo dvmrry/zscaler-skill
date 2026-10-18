@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.upgrades",
+  "title": "App Connector software and host OS updates",
+  "aliases": [
+    "app connector upgrade",
+    "app connector software update schedule",
+    "app connector update failure",
+    "upgrade window 4 hour",
+    "app connector host os update",
+    "update now app connector",
+    "app connector version lag",
+    "24.650.4"
+  ],
+  "binds": [
+    "zpa/app-connectors",
+    "zpa/app-connector-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-keys"
+    }
+  ],
+  "prose": [
+    {
+      "text": "App Connector software is updated on a group schedule; the host OS is the customer's to patch."
+    },
+    {
+      "label": "The scheduled update.",
+      "text": "{{schedule-per-group}} {{random-one-at-a-time}} {{four-hour-window}} {{retry-next-window}} {{leftover-after-window}} Whether the window can be extended is unsourced {{gap:window-not-extendable}}."
+    },
+    {
+      "label": "First connection and Support.",
+      "text": "{{initial-connection-upgrade}} {{support-may-update}}"
+    },
+    {
+      "label": "Statuses and manual updates.",
+      "text": "{{status-scheduled}} {{status-success-failure}} {{schedule-locks-component-time}}"
+    },
+    {
+      "label": "When an update fails.",
+      "text": "{{failed-over-24h-causes}} {{revert-to-default-version}} Whether an upgrade preserves enrollment is unsourced {{gap:upgrade-keeps-enrollment}}."
+    },
+    {
+      "label": "Host OS.",
+      "text": "{{host-os-is-customer-job}} {{automated-os-updates-scope}} {{os-update-cadence}} {{os-update-concurrency}} {{disable-before-os-update}}"
+    },
+    {
+      "label": "Release artifacts.",
+      "text": "The July and August 2026 image and RPM entries cannot be quoted from the current capture {{gap:july-august-release-artifacts}}."
+    },
+    {
+      "text": "Group scheduling fields are in [[zpa.app-connectors.connector-groups]]; the per-connector update status field is in [[zpa.app-connectors.health]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The group's update day and time and whether the failed connector's component status reads Scheduled, Success or Failure.",
+      "uses": [
+        "schedule-per-group",
+        "status-scheduled",
+        "status-success-failure"
+      ]
+    },
+    {
+      "do": "Whether the update window ended before this connector was reached, before treating a lagging version as a fault.",
+      "uses": [
+        "four-hour-window",
+        "retry-next-window",
+        "leftover-after-window"
+      ]
+    },
+    {
+      "do": "For an update failed longer than 24 hours: disk space, the co2br connection, and whether the provisioning key still exists.",
+      "uses": [
+        "failed-over-24h-causes",
+        "revert-to-default-version"
+      ]
+    },
+    {
+      "do": "Whether a host OS update would take every connector in a group down at once.",
+      "uses": [
+        "os-update-concurrency",
+        "disable-before-os-update",
+        "os-update-cadence"
+      ]
+    }
+  ],
+  "claims": {
+    "schedule-per-group": {
+      "statement": "The software update day and time are set on the App Connector group (Update Settings, App Connector Software Update Schedule), and the group's Next Periodic Software Update column shows the result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "scheduling-periodic-software-updates-private-access.json",
+          "quotes": [
+            "On the Update Settings tab, under App Connector Software Update Schedule, choose the day of the week and start time for the periodic update.",
+            "go to the App Connector Groups page and verify that the proper day and time is displayed in the Next Periodic Software Update column."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#upgradeDay",
+        "zpa/app-connector-groups#upgradeTimeInSecs"
+      ]
+    },
+    "random-one-at-a-time": {
+      "statement": "When a new version is available, one component in the group is chosen at random and updated; it restarts and is temporarily unavailable, and new application access goes to the other components.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "When a new software version is available, a software component in the group is randomly chosen to update.",
+            "While updating, the software component restarts and becomes temporarily unavailable. Any new application access is redirected to the other software components in the group."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "four-hour-window": {
+      "statement": "The update runs in a 4-hour window that starts at the scheduled time; after one component succeeds another eligible one is chosen, until the window expires or every component in the group has updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "The update occurs within a 4-hour window and starts at the specified time for the software component group.",
+            "This continues until the 4-hour window expires or all the software components in the group have updated successfully."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#upgradeTimeInSecs",
+        "zpa/service-edge-groups#upgradeTimeInSecs"
+      ]
+    },
+    "retry-next-window": {
+      "statement": "An unsuccessful update is retried at every periodic update until all components are upgraded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "If a software update is unsuccessful, the update process is retried in every periodic software update until all software components are upgraded."
+          ],
+          "after": "Software components refer to App Connectors, Private Service Edges for Private Access (ZPA), and Private Cloud Controllers."
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#upgradeStatus"
+      ]
+    },
+    "leftover-after-window": {
+      "statement": "A connector still on an old version after the scheduled night is one the window did not reach or one whose update failed, and it is picked up in a later periodic update.",
+      "tier": "B",
+      "derived_from": [
+        "four-hour-window",
+        "retry-next-window"
+      ],
+      "conditions": "Follows from the window ending before every component is updated and from failed updates being retried at each periodic update."
+    },
+    "initial-connection-upgrade": {
+      "statement": "From App Connector and Private Service Edge version 24.650.4, a version check and automated upgrade run during the initial connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "Starting with App Connector and Private Service Edge version 24.650.4 and later, a version check and automated upgrade is performed during an initial connection."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "status-scheduled": {
+      "statement": "A component scheduled to update shows Scheduled; hovering shows the scheduled version and the 4-hour upgrade window, and a component that has just been created starts at Not Scheduled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "If a software component is scheduled to update to the latest version, its Update Status displays Scheduled.",
+            "Upgrade Window: Displays the 4-hour window during which the software component updates.",
+            "After an App Connector or Private Service Edge is created, its initial Upgrade Status displays Not Scheduled."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#upgradeStatus"
+      ]
+    },
+    "status-success-failure": {
+      "statement": "Success means the component is on the scheduled version; Failure means the update failed, retries at the next periodic update, and Zscaler recommends restarting the component's VM to recover.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "If a software component successfully updates to the latest version, its Update Status displays Success.",
+            "If a software component fails to update to the latest version, its Update Status displays Failure.",
+            "Zscaler recommends that you restart the software component's virtual machine (VM) to recover it from the failure state."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#upgradeStatus"
+      ]
+    },
+    "schedule-locks-component-time": {
+      "statement": "Once a component is scheduled for an update, its periodic update time cannot be changed, but it can be updated manually before the scheduled time. Manual update (Update Now) is available only while the status is Scheduled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "When the software component is scheduled for an update, you can't change the periodic software update time for that particular software component."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "manually-updating-software-components.json",
+          "quotes": [
+            "In the Software Update column, verify that the status is Scheduled. If the status is not Scheduled, then you can't manually update the software component."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "support-may-update": {
+      "statement": "Zscaler Support may update a component before the next periodic update when its software is not functioning as expected, and informs the tenant's Private Access administrators in advance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "Zscaler Support might update software for these software components prior to the next periodic software update.",
+            "Zscaler Support informs your organization's Private Access administrators in advance if there is a need for an immediate software update."
+          ]
+        }
+      ]
+    },
+    "host-os-is-customer-job": {
+      "statement": "Zscaler updates the connector software, but updates to the host OS and software packages are the organization's responsibility; the software is designed to be compatible with host OS updates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "However, updates to the host OS are the organization's responsibility, not Zscaler's.",
+            "The component software is designed to be compatible with updates to the host OS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-updating-host-os-and-software-packages.json",
+          "quotes": [
+            "However, updates to the host operating system (OS) and software packages are the organization's responsibility."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "os-update-cadence": {
+      "statement": "Zscaler recommends updating the OS at least every 5 weeks and validating connectivity to the update servers; prebuilt images must be provisioned to a Private Access tenant to receive updates through the OS package manager. The captured procedure moves RHEL 9.4 and 9.5 to 9.6 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-updating-host-os-and-software-packages.json",
+          "quotes": [
+            "Zscaler recommends updating the OS at least every 5 weeks.",
+            "For prebuilt images, software components must be provisioned to a Private Access tenant to receive software updates via the OS package manager.",
+            "You can use this article to update RHEL 9.4 and 9.5 to RHEL 9.6 and later."
+          ]
+        }
+      ]
+    },
+    "os-update-concurrency": {
+      "statement": "A host OS update is estimated at 20 minutes of downtime per component; all connectors in a group should not be updated at once, though several may be updated together if enough running connectors remain to carry the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-updating-host-os-and-software-packages.json",
+          "quotes": [
+            "Each software component is estimated to be down for 20 minutes during the update.",
+            "you should not upgrade all App Connectors within an App Connector group or Private Service Edges within a Private Service Edge group at the same time.",
+            "provided that there are enough running App Connectors or Private Service Edges in the group to handle the traffic load."
+          ]
+        }
+      ]
+    },
+    "disable-before-os-update": {
+      "statement": "Disabling the connector in the Admin Console before stopping its service stops new connections routing to it and lets existing ones finish; stopping the service first forces connection resets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-updating-host-os-and-software-packages.json",
+          "quotes": [
+            "When you disable the App Connector in the Zscaler Admin Console prior to stopping the service and updating, Private Access no longer routes new connections through the component and existing connections will continue through to their conclusion.",
+            "If you stop the service without first disabling the App Connector and allowing traffic to drain, it results in forced connection resets for users connected through that App Connector."
+          ]
+        }
+      ]
+    },
+    "automated-os-updates-scope": {
+      "statement": "Automated OS security updates exist only for prebuilt App Connector images on RHEL 9.x; connectors installed from an RPM on a custom RHEL 9.x build are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-app-connectors.json",
+          "quotes": [
+            "Automated OS security updates are only available for prebuilt App Connector images on RHEL 9.x. App Connectors installed manually using an RPM file on a custom RHEL 9.x build are not supported."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "failed-over-24h-causes": {
+      "statement": "The help lists causes of an upgrade that stays failed for more than 24 hours: no disk space for the image, an unstable connection between the connector and co2br, and a provisioning key that was deleted in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "Upgrade is in a failed state for more than 24-hours",
+            "Image cannot download since there is no disk space left",
+            "Image cannot download due to inconsistent connection between the App Connector and co2br (App Connector to Public Service Edge endpoint)",
+            "The provisioning key was deleted in the Zscaler Admin Console"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors#upgradeStatus"
+      ]
+    },
+    "revert-to-default-version": {
+      "statement": "If none of those apply, the help restarts the connector, then checks logs and network connectivity, then removes the image, version and metadata files so it re-downloads the default version, then wipes and rebuilds the configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "Check the logs and network connectivity by addressing any issues if identified.",
+            "Remove the App Connector binary image, the version identifier file, and the image metadata file.",
+            "The App Connector reaches out to the Zscaler cloud and re-download the default App Connector software version.",
+            "Wipe and rebuild the App Connector configuration."
+          ]
+        }
+      ],
+      "conditions": "Statement extended with the intermediate logs-and-connectivity step the help places between the restart and the revert."
+    }
+  },
+  "gaps": {
+    "upgrade-keeps-enrollment": {
+      "kind": "semantic",
+      "title": "Whether an upgraded connector keeps its enrollment",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Upgraded connector re-enrollment is transparent - the connector resumes service on the new version without a new provisioning key. The client-cert chain survives the upgrade.\" The help describes a restart during update and a deleted-key failure mode, not re-enrollment.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "window-not-extendable": {
+      "kind": "semantic",
+      "title": "Whether the 4-hour window can be extended",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"4-hour upgrade window is not extendable. Groups with too many connectors to finish in 4 hours get staggered across multiple nights.\" The help gives the 4-hour window and the retry rule (see leftover-after-window) but does not say the window is fixed.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "july-august-release-artifacts": {
+      "kind": "semantic",
+      "title": "July and August 2026 App Connector release artifacts",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The July 23 release supplies updated RHEL 9 App Connector images for AWS, GCP, and Azure, plus App Connector images for Nutanix AHV and VMware; it moves the App Connector Docker image to high ciphers for microdnf calls and says the image set includes a 4 GB boot partition for seamless OS updates. The August 4 release identifies Manager software version 26.56.1 and App Connector RPM packages for RHEL 8.x and 9.x, downloadable from the Zscaler repository; that entry is RPM-specific.\" The captured release summary holds only an introduction.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.deployment",
+  "title": "Private Service Edge platforms, host OS maintenance, capacity and limits",
+  "aliases": [
+    "private service edge platforms",
+    "pse vm image",
+    "pse sizing",
+    "pse host os update",
+    "pse capacity",
+    "pse high availability",
+    "how many private service edges",
+    "pse limits",
+    "pse n+1",
+    "rhel 9 pse",
+    "pse image distribution"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Planning a Private Service Edge deployment is a question of platform, host maintenance, capacity and limits."
+    },
+    {
+      "label": "Platforms.",
+      "text": "{{supported-platforms}} {{stig-images}} {{host-os-enterprise-linux}} [[zpa.private-service-edges.what-it-is:zpa-appliance]] Image and RPM releases are not quotable {{gap:release-images}}. The reference Terraform modules are in [[zpa.private-service-edges.reference-modules]]."
+    },
+    {
+      "label": "Sizing and limits.",
+      "text": "{{throughput-sizing}} {{sizing-table}} {{platform-prereqs}} Session limits are not stated {{gap:session-limits}}. {{tenant-limits}} The per-group maximum is open {{gap:max-per-group}}."
+    },
+    {
+      "label": "Capacity and availability.",
+      "text": "{{groups-for-ha}} {{active-active}} {{cpu-headroom}} {{scale-out-options}} {{pairs-n-plus-one}} {{scale-out-small}} Selection among members is unverified {{gap:selection-within-group}}."
+    },
+    {
+      "label": "Host OS maintenance.",
+      "text": "{{org-owns-host-os}} [[zpa.app-connectors.upgrades:os-update-cadence]] {{prebuilt-os-updates}} {{os-update-downtime}} [[zpa.app-connectors.upgrades:os-update-concurrency]]"
+    },
+    {
+      "text": "Enrolling a new instance: [[zpa.private-service-edges.enrollment]]. Software update scheduling for the group: [[zpa.private-service-edges.groups]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which platform the Private Service Edge reports (host platform, host OS, package OS) before choosing an update or support path.",
+      "uses": [
+        "supported-platforms",
+        "host-os-enterprise-linux",
+        "zpa.private-service-edges.what-it-is:zpa-appliance"
+      ]
+    },
+    {
+      "do": "Whether the host was built from the prebuilt image or installed manually from an RPM, since automated OS security updates apply only to prebuilt RHEL 9.x images.",
+      "uses": [
+        "prebuilt-os-updates"
+      ]
+    },
+    {
+      "do": "Whether peak sustained CPU stays under 70% across the group with one Private Service Edge down, which sets the headroom.",
+      "uses": [
+        "cpu-headroom"
+      ]
+    },
+    {
+      "do": "Whether the tenant is near the 100 Private Service Edge, group or provisioning key limit.",
+      "uses": [
+        "tenant-limits",
+        "max-per-group"
+      ]
+    },
+    {
+      "do": "Whether a planned host OS update touches every member of a group at once.",
+      "uses": [
+        "zpa.app-connectors.upgrades:os-update-concurrency",
+        "os-update-downtime"
+      ]
+    }
+  ],
+  "claims": {
+    "supported-platforms": {
+      "statement": "Zscaler distributes Private Service Edge images for enterprise data centers and local private cloud environments such as VMware, and the platforms listed as supported by Private Access are AWS, Docker, GCP, Linux, Microsoft Azure and VMware platforms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Zscaler distributes images for deployment in enterprise data centers and local private cloud environments such as VMware.",
+            "Amazon Web Services (AWS) - Docker - Google Cloud Platform (GCP) - Linux - Microsoft Azure - VMware Platforms"
+          ]
+        }
+      ]
+    },
+    "stig-images": {
+      "statement": "Security Technical Implementation Guide (STIG) images are available for AWS, GCP, Microsoft Azure and VMware by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Private Access provides Security Technical Implementation Guide (STIG) images are available for AWS, GCP, Microsoft Azure, and VMware by default."
+          ]
+        }
+      ]
+    },
+    "host-os-enterprise-linux": {
+      "statement": "The console shows each Private Service Edge's run-time OS (for example Enterprise Linux 9) and the compile-time package OS on which its RPM binary is packaged (for example Red Hat Enterprise Linux 9).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "The run time OS on which the Private Service Edge is running (e.g., Enterprise Linux 9).",
+            "The compile time OS on which the RPM binary is packaged (e.g., Red Hat Enterprise Linux 9)."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges#runtimeOS"
+      ]
+    },
+    "throughput-sizing": {
+      "statement": "Each Private Service Edge supports up to 500 Mbps aggregate (inbound plus outbound) throughput, so a 1 Gbps connection needs 2 to 3 Private Service Edges; throughput varies with double encryption, AppProtection and ZDX.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "Each Private Service Edge supports up to 500 Mbps of throughput.",
+            "you would need to deploy 2 to 3 Private Service Edges to support the 1 Gbps connection.",
+            "whether you have double encryption, AppProtection, or ZDX enabled."
+          ]
+        }
+      ]
+    },
+    "sizing-table": {
+      "statement": "For up to 500 Mbps per Private Service Edge: up to 2,000 active users need 8 GB RAM (10 GB with ZDX) and 4 vCPUs; up to 4,000 need 16 GB (18 GB) and 8 vCPUs; up to 10,000 need 32 GB (34 GB) and 16 vCPUs; disk is 64 GB thin provisioned and at least 1 NIC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "| Up to 2,000 | 8 GB (10 GB with ZDX) | 4 vCPUs or 4 CPUs |",
+            "| Up to 4,000 | 16 GB (18 GB with ZDX) | 8 vCPUs or 8 CPUs |",
+            "| Up to 10,000 | 32 GB (34 GB with ZDX) | 16 vCPUs or 16 CPUs |",
+            "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+            "Network Card: 1 NIC (minimum)"
+          ]
+        }
+      ]
+    },
+    "scale-out-small": {
+      "statement": "Zscaler recommends more Private Service Edges with lower specifications over fewer with higher specifications, because a failure of a large one affects more traffic; they scale elastically within a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "Zscaler recommends that you have more Private Service Edges with lower specifications rather than fewer Private Service Edges with higher specifications.",
+            "Private Service Edges are designed to scale elastically."
+          ]
+        }
+      ]
+    },
+    "pairs-n-plus-one": {
+      "statement": "Zscaler recommends deploying Private Service Edges in pairs (N+1), where N is the number needed by the sizing requirements, to keep availability during software upgrades.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "Zscaler recommends that you deploy Private Service Edges in pairs (N+1), where N is the number of Private Service Edges as per the sizing requirements."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-deploying-service-edges.json",
+          "quotes": [
+            "Zscaler recommends that Private Service Edges be deployed in pairs, to ensure continuous availability during software upgrades."
+          ]
+        }
+      ]
+    },
+    "platform-prereqs": {
+      "statement": "A platform needs Intel x86_64/AMD64, systemd, root or sudo, DNS resolution, a provisioning key or OAuth token, and a static MAC address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "Intel x86_64/AMD64-based architecture",
+            "A static MAC address"
+          ]
+        }
+      ]
+    },
+    "prebuilt-os-updates": {
+      "statement": "Automated OS security updates are available only for prebuilt Private Service Edge images on RHEL 9.x; a Private Service Edge installed manually from an RPM on a custom RHEL 9.x build is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Automated OS security updates are only available for prebuilt Private Service Edge images on RHEL 9.x.",
+            "Private Service Edges installed manually using an RPM file on a custom RHEL 9.x build are not supported."
+          ]
+        }
+      ]
+    },
+    "org-owns-host-os": {
+      "statement": "Host OS and software-package updates are the organization's responsibility, while Zscaler updates the component software; the captured procedure takes RHEL 9.4 and 9.5 to RHEL 9.6 and later, and Zscaler recommends updating the OS at least every 5 weeks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-updating-host-os-and-software-packages.json",
+          "quotes": [
+            "You can use this article to update RHEL 9.4 and 9.5 to RHEL 9.6 and later.",
+            "Zscaler recommends updating the OS at least every 5 weeks.",
+            "updates to the host operating system (OS) and software packages are the organization's responsibility."
+          ]
+        }
+      ]
+    },
+    "os-update-downtime": {
+      "statement": "A host OS update is scheduled by local policy; users should be warned of rolling reconnections, and each component is estimated to be down for 20 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-updating-host-os-and-software-packages.json",
+          "quotes": [
+            "The update of the host OS is scheduled according to local policy.",
+            "Each software component is estimated to be down for 20 minutes during the update."
+          ]
+        }
+      ]
+    },
+    "groups-for-ha": {
+      "statement": "Zscaler recommends deploying Private Service Edges in groups for high availability and horizontal scaling, and every Private Service Edge belongs to a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Zscaler recommends deploying Private Service Edges for Private Access (ZPA) in groups for high availability and horizontal scaling.",
+            "Every Private Service Edge belongs to a specific Private Service Edge group."
+          ]
+        }
+      ]
+    },
+    "active-active": {
+      "statement": "Service Edges are deployed in active-active mode for availability and redundancy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-service-edges.json",
+          "quotes": [
+            "They are deployed in active-active mode to ensure availability and redundancy"
+          ]
+        }
+      ]
+    },
+    "cpu-headroom": {
+      "statement": "Peak sustained CPU utilization should stay below 70% taking into account all Private Service Edges in the group, so that each stays below 70% if one becomes unavailable; two Private Service Edges both at 50% would exceed 70% on the survivor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "monitoring-private-service-edge-performance.json",
+          "quotes": [
+            "Peak sustained CPU utilization should be less than 70%.",
+            "allow each Private Service Edge to operate under 70% utilization in the event that one of the Private Service Edges becomes unavailable."
+          ]
+        }
+      ]
+    },
+    "scale-out-options": {
+      "statement": "To reduce CPU on individual Private Service Edges, add a Private Service Edge to the group, or deploy dedicated groups for specific application segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "monitoring-private-service-edge-performance.json",
+          "quotes": [
+            "Deploy an additional Private Service Edge into the Private Service Edge group to distribute users across additional Private Service Edges.",
+            "Deploy dedicated Private Service Edge groups for specific application segments"
+          ],
+          "after": "To reduce the CPU utilization on individual Private Service Edge hosts, consider the following:"
+        }
+      ]
+    },
+    "tenant-limits": {
+      "statement": "The ranges and limitations table lists 100 Private Service Edges, 100 Private Service Edge groups and 100 Private Service Edge provisioning keys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Private Service Edges | 100 Private Service Edges |",
+            "| Private Service Edge Groups | 100 groups |",
+            "| Private Service Edge Provisioning Keys | 100 keys |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "session-limits": {
+      "kind": "semantic",
+      "title": "Per-instance session limits",
+      "status": "partial",
+      "former_ids": [
+        "zpa-47"
+      ],
+      "detail": "The prerequisites page gives throughput, CPU, memory and disk sizing but no maximum concurrent sessions or session rate per Private Service Edge. Unverified legacy statement: \"Maximum concurrent sessions and session rate per instance.\" Resolve with Zscaler support.",
+      "blocks": "sizing by session count",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "max-per-group": {
+      "kind": "semantic",
+      "title": "Maximum Private Service Edges per group",
+      "status": "partial",
+      "former_ids": [
+        "zpa-56"
+      ],
+      "detail": "The limits table gives a tenant-wide count of 100 (claim tenant-limits) and the prerequisites page gives none per group. Resolve with Zscaler support.",
+      "blocks": "sizing very large groups",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "release-images": {
+      "kind": "semantic",
+      "title": "Image and RPM distribution in the 2026 release summary",
+      "status": "open",
+      "former_ids": [
+        "zpa-49"
+      ],
+      "detail": "Unverified legacy statement: the July 23 release supplies an updated PSE Docker image, updated RHEL 9 images for AWS, GCP and Azure, and updated PSE images for Nutanix AHV and VMware with a 4 GB boot partition, and the August 4 Manager version 26.56.1 provides PSE RPM packages for RHEL 8.x and 9.x from the Zscaler repository. The captured release summary (zpa-release-upgrade-summary-2026-july.md) contains no release entries, so none of this can be quoted; it also does not show whether Hyper-V or KVM images exist, the image format on each platform, or Marketplace distribution. Resolve by recapturing the release summary.",
+      "blocks": "telling a customer which image a release shipped",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "selection-within-group": {
+      "kind": "semantic",
+      "title": "How a session picks a member of a group",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The ZPA CA selects among them for each session based on the PSE's health and proximity.\" The sources say the members are active-active and that new application access moves to other members during an update, but not the selection rule. Resolve with a lab test.",
+      "blocks": "predicting load distribution within a group",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

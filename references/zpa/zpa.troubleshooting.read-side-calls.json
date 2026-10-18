@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.read-side-calls",
+  "title": "Read-only SDK calls for ZPA triage",
+  "aliases": [
+    "GetPolicyByApplication",
+    "GetApplicationMappings",
+    "GetByPostureUDID",
+    "list_connector_groups_summary",
+    "zpa triage automation sdk",
+    "connection_state connector field"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.policy-checks"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Read-only calls can list the rules that reference a segment and look up posture profiles and connectors."
+    },
+    {
+      "label": "Policy and segments.",
+      "text": "{{go-policy-by-application}} {{go-application-mappings}}"
+    },
+    {
+      "label": "Posture.",
+      "text": "{{go-posture-by-udid}}"
+    },
+    {
+      "label": "Connectors.",
+      "text": "{{python-groups-summary}} {{no-connection-state-field}} The sourced connector fields are in [[zpa.app-connectors.health]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which policy rules reference the application segment, with the application ID and the policy type.",
+      "uses": [
+        "go-policy-by-application",
+        "go-application-mappings"
+      ]
+    },
+    {
+      "do": "Whether a posture UDID in a policy operand resolves to a profile, remembering that a miss is returned as an error.",
+      "uses": [
+        "go-posture-by-udid"
+      ]
+    },
+    {
+      "do": "Which connector field carries the control connection state, since no connection_state field exists.",
+      "uses": [
+        "no-connection-state-field",
+        "zpa.app-connectors.health:control-channel-field"
+      ]
+    },
+    {
+      "do": "What the connector groups summary call returns before relying on it for counts or windows.",
+      "uses": [
+        "python-groups-summary"
+      ]
+    }
+  ],
+  "claims": {
+    "go-policy-by-application": {
+      "statement": "The Go SDK's policysetcontrollerv2.GetPolicyByApplication, given a policy type and an application ID, calls GET .../policySet/rules/policyType/{type}/application/{id} and returns the policy rules for that application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "func GetPolicyByApplication(ctx context.Context, service *zscaler.Service, policyType string, applicationID string) ([]PolicyRuleResource, *http.Response, error) {",
+            "\"/policySet/rules/policyType/%s/application/%s\""
+          ]
+        }
+      ]
+    },
+    "go-application-mappings": {
+      "statement": "The Go SDK's applicationsegment.GetApplicationMappings calls GET .../application/{id}/mappings and returns name and type pairs for the objects mapped to the segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appSegmentEndpoint + \"/\" + applicationID + \"/mappings\"",
+            "type ApplicationMappings struct { Name string `json:\"name,omitempty\"` Type string `json:\"type,omitempty\"` }"
+          ]
+        }
+      ]
+    },
+    "go-posture-by-udid": {
+      "statement": "The Go SDK's postureprofile.GetByPostureUDID lists the posture profiles and returns the one whose postureUDID matches, and when none matches it returns a nil profile with the error 'no posture profile with postureUDID ... was found'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "if postureProfile.PostureudID == postureUDID {",
+            "return nil, resp, fmt.Errorf(\"no posture profile with postureUDID '%s' was found\", postureUDID)"
+          ]
+        }
+      ]
+    },
+    "python-groups-summary": {
+      "statement": "The Python SDK's list_connector_groups_summary is documented as retrieving all configured App Connector groups' names and IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "Retrieves all configured app connector groups Name and IDs"
+          ]
+        }
+      ]
+    },
+    "no-connection-state-field": {
+      "statement": "Neither SDK models a connection_state or ConnectionState field on an App Connector: the control connection state is controlChannelStatus.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorcontroller/zpa_app_connector_controller.go",
+          "quotes": [
+            "ControlChannelStatus string `json:\"controlChannelStatus,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connectors.py",
+          "quotes": [
+            "self.control_channel_status = config[\"controlChannelStatus\"] if \"controlChannelStatus\" in config else None"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. A search of the ZPA packages of the Go and Python SDKs, of the Terraform provider and of the ZPA OpenAPI document found no field named connection_state, connectionState or ConnectionState."
+    }
+  }
+}

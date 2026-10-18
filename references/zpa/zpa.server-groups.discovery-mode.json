@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "id": "zpa.server-groups.discovery-mode",
+  "title": "Dynamic discovery versus explicit servers on a server group",
+  "aliases": [
+    "dynamic server discovery",
+    "dynamicDiscovery",
+    "DSD",
+    "explicit servers",
+    "server group with servers",
+    "empty server group",
+    "dynamic_discovery terraform",
+    "servers must not be empty"
+  ],
+  "binds": [
+    "zpa/server-groups#dynamicDiscovery",
+    "zpa/server-groups#servers"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.update-payload"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.role"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Whether a server group lists its servers or discovers them decides which fields it must carry."
+    },
+    {
+      "label": "The two kinds.",
+      "text": "{{two-kinds}} {{dsd-needs-only-empty-group}} {{dsd-discovers-through-dns}}"
+    },
+    {
+      "label": "Explicit servers.",
+      "text": "{{explicit-servers-attach-to-non-dsd-groups}} {{python-writes-explicit-servers}}"
+    },
+    {
+      "label": "Defaults.",
+      "text": "{{ui-default-on}} The other sources disagree {{divergence:dynamic-discovery-default}}. {{tf-dsd-unset-is-false}}"
+    },
+    {
+      "label": "What the provider refuses.",
+      "text": "{{tf-servers-only-without-dsd}} {{tf-dsd-off-needs-servers}} Whether the API refuses the same combinations is open {{gap:api-dsd-with-servers}}."
+    },
+    {
+      "text": "How the Python SDK treats these fields on update is in [[zpa.server-groups.update-payload]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which mode the group is in by reading dynamicDiscovery, remembering that an absent value is read differently by the API documentation, the help and the Python SDK.",
+      "uses": [
+        "dynamic-discovery-default",
+        "ui-default-on"
+      ]
+    },
+    {
+      "do": "Whether a group with dynamicDiscovery false has servers, since the Terraform provider refuses that combination.",
+      "uses": [
+        "tf-dsd-off-needs-servers"
+      ]
+    },
+    {
+      "do": "Whether a group with servers has dynamicDiscovery true, which the provider also refuses.",
+      "uses": [
+        "tf-servers-only-without-dsd"
+      ]
+    },
+    {
+      "do": "Which servers are attached to a non-discovery group, by looking at the Servers page or the group's servers list.",
+      "uses": [
+        "explicit-servers-attach-to-non-dsd-groups"
+      ]
+    }
+  ],
+  "claims": {
+    "two-kinds": {
+      "statement": "There are two kinds of server group: one with explicitly defined servers added by hand, and one with Dynamic Server Discovery enabled so that Private Access discovers the servers as users request applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-server-groups.json",
+          "quotes": [
+            "There are two types of server groups you can configure:",
+            "You can create a server group and manually add servers you've explicitly defined.",
+            "You can create a server group with Dynamic Server Discovery enabled so that Private Access discovers the appropriate servers for your applications as users request them."
+          ]
+        }
+      ]
+    },
+    "dsd-needs-only-empty-group": {
+      "statement": "For Dynamic Server Discovery only an empty server group with the setting enabled is needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-servers.json",
+          "quotes": [
+            "For this method, you only need to create an empty server group that has Dynamic Server Discovery enabled."
+          ]
+        }
+      ]
+    },
+    "dsd-discovers-through-dns": {
+      "statement": "Dynamic Server Discovery discovers applications through DNS when an empty server group is defined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-servers.json",
+          "quotes": [
+            "Dynamically discover applications through DNS when an empty server group is defined with Dynamic Server Discovery."
+          ]
+        }
+      ]
+    },
+    "ui-default-on": {
+      "statement": "In the Admin Console the Dynamic Server Discovery setting is enabled by default on a new server group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-server-groups.json",
+          "quotes": [
+            "to discover the appropriate servers for your applications as users request them. By default, this setting is enabled."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#dynamicDiscovery"
+      ]
+    },
+    "explicit-servers-attach-to-non-dsd-groups": {
+      "statement": "An explicitly defined server must be added to a server group after it is saved, and the server form lists only server groups that have Dynamic Server Discovery disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "explicitly-defining-servers.json",
+          "quotes": [
+            "After saving, you must add the server to a server group using one of the following options:",
+            "Only server groups that have Dynamic Server Discovery (DSD) disabled are displayed."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#servers"
+      ]
+    },
+    "tf-servers-only-without-dsd": {
+      "statement": "The Terraform provider rejects a server group that has servers while dynamic discovery is on, on create and on update when servers or dynamic_discovery change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"an application server can only be attached to a server when DynamicDiscovery is disabled\"))",
+            "return diag.FromErr(fmt.Errorf(\"can't perform the changes: an application server can only be attached to a server when DynamicDiscovery is disabled\"))",
+            "if d.HasChanges(\"servers\", \"dynamic_discovery\") {"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#servers",
+        "zpa/server-groups#dynamicDiscovery"
+      ],
+      "conditions": "Statement changed per verifier: the update-path check sits inside `if d.HasChanges(\"servers\", \"dynamic_discovery\")`, so an update that changes neither is not checked."
+    },
+    "tf-dsd-off-needs-servers": {
+      "statement": "The Terraform provider rejects a server group with dynamic discovery off and no servers, on create and on update when servers or dynamic_discovery change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "return diag.FromErr(fmt.Errorf(\"servers must not be empty when DynamicDiscovery is disabled\"))",
+            "return diag.FromErr(fmt.Errorf(\"can't update server group: servers must not be empty when DynamicDiscovery is disabled\"))",
+            "if d.HasChanges(\"servers\", \"dynamic_discovery\") {"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#servers",
+        "zpa/server-groups#dynamicDiscovery"
+      ],
+      "conditions": "Statement changed per verifier: the update-path check sits inside `if d.HasChanges(\"servers\", \"dynamic_discovery\")`."
+    },
+    "tf-dsd-unset-is-false": {
+      "statement": "The Terraform `dynamic_discovery` argument has no default, so leaving it out sends `dynamicDiscovery` as false, and a group without servers then fails the provider's own check.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "Description: \"This field controls dynamic discovery of the servers.\",",
+            "DynamicDiscovery: d.Get(\"dynamic_discovery\").(bool),"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: the schema block for `dynamic_discovery` carries Type, Optional and Description only, with no Default, read at the pin. The create path then runs the empty-servers check quoted in tf-dsd-off-needs-servers.",
+      "derived_from": [
+        "tf-dsd-off-needs-servers"
+      ],
+      "binds": [
+        "zpa/server-groups#dynamicDiscovery"
+      ]
+    },
+    "python-writes-explicit-servers": {
+      "statement": "The Python SDK writes an explicit server list through the `server_ids` argument of `add_group`, which it sends as `servers: [{id}]`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "**server_ids (:obj:`list` of :obj:`str`):",
+            "dynamic_discovery=False,"
+          ],
+          "after": "def add_group(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/server_groups.py",
+          "quotes": [
+            "body[\"servers\"] = [{\"id\": group_id} for group_id in body.pop(\"server_ids\")]"
+          ],
+          "after": "body = kwargs"
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#servers"
+      ]
+    }
+  },
+  "divergences": {
+    "dynamic-discovery-default": {
+      "summary": "The OpenAPI document, the help and the Python SDK give different defaults for dynamicDiscovery.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serverGroup/post/requestBody/content/application~1json/schema/properties/dynamicDiscovery",
+            "expect": {
+              "description": "Defaults to false.",
+              "type": "boolean"
+            }
+          },
+          "says": "The request field defaults to false."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-server-groups.json",
+            "quotes": [
+              "to discover the appropriate servers for your applications as users request them. By default, this setting is enabled."
+            ]
+          },
+          "says": "The Admin Console form has the setting on by default."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/server_group.py",
+            "quotes": [
+              "self.dynamic_discovery = config[\"dynamicDiscovery\"] if \"dynamicDiscovery\" in config else True"
+            ]
+          },
+          "says": "The Python model treats an absent value as true."
+        }
+      ],
+      "impact": "A client that omits the field, or a read that does not return it, does not get one consistent mode: the API document says false, the console says true, and the Python SDK rewrites an absent value as true when it builds an update body."
+    }
+  },
+  "gaps": {
+    "api-dsd-with-servers": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API itself enforces the dynamic discovery and servers rule",
+      "status": "open",
+      "about": [
+        "zpa/server-groups#dynamicDiscovery",
+        "zpa/server-groups#servers"
+      ],
+      "detail": "The refusal of servers with dynamic discovery on, and of no servers with it off, is shown only in the Terraform provider. No captured source says whether a direct API call is refused the same way. Send both combinations to a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

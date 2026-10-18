@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.components",
+  "title": "PRA components: portals, consoles, approvals, credentials, policies and limits",
+  "aliases": [
+    "privileged portal",
+    "privileged console",
+    "pra portal",
+    "pra components",
+    "pra limits",
+    "emergency access pra",
+    "arbitrary authentication domains",
+    "pra user activity diagnostics",
+    "pra console per protocol",
+    "delete privileged console"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.pra"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.credentials"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.approvals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.consoles-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    }
+  ],
+  "prose": [
+    {
+      "text": "PRA is built from a portal, consoles, approvals, credentials, two policy types and PRA-enabled application segments."
+    },
+    {
+      "label": "Portal.",
+      "text": "{{portal}} {{portal-catalog}} {{portal-before-console}}"
+    },
+    {
+      "label": "Console.",
+      "text": "{{console}} {{console-per-host-protocol}} {{console-delete}}"
+    },
+    {
+      "label": "Time and credentials.",
+      "text": "{{approvals-def}} {{credentials-def}}"
+    },
+    {
+      "label": "Policies and segments.",
+      "text": "{{two-pra-policies}} {{segment-enablement}}"
+    },
+    {
+      "label": "Supporting features.",
+      "text": "[[zpa.emergency-access.scope:one-idp]] {{arbitrary-auth-domains}}"
+    },
+    {
+      "label": "Visibility and limits.",
+      "text": "{{diagnostics}} {{limits}}"
+    },
+    {
+      "text": "The path a session takes is open {{gap:data-path}}. Terraform behavior when portals and consoles are deleted is in [[zpa.terraform.delete-paths]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the portal exists and the console is assigned to it before looking at policy.",
+      "uses": [
+        "portal-before-console",
+        "console"
+      ]
+    },
+    {
+      "do": "Whether a host reached over two protocols has a console for each.",
+      "uses": [
+        "console-per-host-protocol"
+      ]
+    },
+    {
+      "do": "Whether a limit is the cause of a failed create, using the documented counts.",
+      "uses": [
+        "limits"
+      ]
+    },
+    {
+      "do": "Whether a question about the session path rests on the unverified gateway description.",
+      "uses": [
+        "data-path"
+      ]
+    }
+  ],
+  "claims": {
+    "portal": {
+      "statement": "A privileged portal is what end users use to reach designated servers. It has a URL and a Browser Access certificate that Private Access uses when a user opens the portal, and it can be branded with the customer's domain and text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "Privileged portals are designated with a URL and a Browser Access certificate that the Private Access (ZPA) infrastructure uses when an end user accesses a privileged portal. These can also be branded with the customer's domain and text."
+          ]
+        }
+      ]
+    },
+    "portal-catalog": {
+      "statement": "The PRA Portal is a catalog that shows the privileged consoles an end user can access after authenticating to the configured IdP. It also shows future and expired consoles, the live privileged sessions the user has access to if given permission for live sessions, and a notification banner if one is set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "The PRA Portal is a user-friendly catalog of resources that shows what privileged consoles the end user can access after they have authenticated to the configured identity provider (IdP).",
+            "End users can also view future and expired privileged consoles, if any.",
+            "If an end user has been given permissions for privileged live sessions, then there is also a carousel of the live privileged sessions they have access to.",
+            "If you have included a notification banner, it appears at the top of the PRA Portal."
+          ]
+        }
+      ],
+      "conditions": "Statement changed: \"carousel of live sessions the user may join\" reworded to the capture's \"live privileged sessions they have access to\"."
+    },
+    "portal-before-console": {
+      "statement": "A privileged portal must exist before a privileged console is created, because a console is assigned to existing portals, and the same console can appear in more than one portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-privileged-portals.json",
+          "quotes": [
+            "You need to create privileged portals before you can create privileged consoles, as the privileged consoles need to be assigned to existing privileged portals."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-privileged-consoles.json",
+          "quotes": [
+            "You can enable the same privileged console to appear in one or more privileged portals."
+          ]
+        }
+      ]
+    },
+    "console": {
+      "statement": "A privileged console is what the end user selects in the PRA Portal. Each console is assigned a protocol, a domain and a port number, and users can reach only the consoles they have been granted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "Privileged consoles are each assigned a protocol, domain, and port number.",
+            "End users can only access privileged consoles that they have been granted access to."
+          ]
+        }
+      ]
+    },
+    "console-per-host-protocol": {
+      "statement": "A host that must be reached over two protocols, such as one bastion with SSH and RDP, needs two privileged consoles, one per protocol.",
+      "tier": "B",
+      "derived_from": [
+        "console"
+      ],
+      "conditions": "Derived: a console is assigned one protocol, domain and port. No page states the two-console case in these words."
+    },
+    "console-delete": {
+      "statement": "Deleting a privileged console stops new connections and removes it from the end user's PRA Portal. Connections that already exist stay accessible until the browser is closed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-privileged-consoles.json",
+          "quotes": [
+            "If you delete a privileged console, you can no longer form a new connection and the privileged console is removed from the end user's PRA Portal.",
+            "these connections remain accessible until the browser is closed."
+          ]
+        }
+      ]
+    },
+    "approvals-def": {
+      "statement": "A privileged approval is a set start and end date and time during which an end user has access to a privileged console. After the window expires the user can no longer access the console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "A privileged approval is a set start and end date and time that an end user has access to a privileged console. After a time window expires, the end user can no longer access the privileged console."
+          ]
+        }
+      ]
+    },
+    "credentials-def": {
+      "statement": "Privileged credentials give end users access without a personalized login. To use one with a console, an admin creates a privileged credentials policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "These set credentials provide an end user access without requiring a personalized login for short-term end users",
+            "To set a privileged credential with a privileged console, you need to create a privileged credentials policy."
+          ]
+        }
+      ]
+    },
+    "two-pra-policies": {
+      "statement": "There are two PRA-specific policies, privileged credentials policies and consoles policies. An admin console may show both, one or neither, depending on how those policy options are enabled for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "There are two PRA-specific policies that can be set to provide rules for privileged consoles: privileged credentials policies and consoles policies.",
+            "You might see both PRA policy options, only one, or neither in your Zscaler Admin Console depending on your enablement of these policy options."
+          ]
+        }
+      ]
+    },
+    "segment-enablement": {
+      "statement": "When configuring a defined application segment an admin can enable PRA and assign a protocol; a PRA-enabled segment is then selectable when creating a privileged console, and selecting the console in the PRA Portal takes the user to that segment.",
+      "tier": "A",
+      "binds": [
+        "zpa/pra-app-segments"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "When you are configuring a defined application segment, you can enable PRA and assign a protocol to that application segment.",
+            "When an application segment is PRA enabled, you can select that application segment when creating a privileged console."
+          ]
+        }
+      ]
+    },
+    "arbitrary-auth-domains": {
+      "statement": "Arbitrary authentication domains let third-party users sign in to a privileged portal with single sign-on for any authentication domain without naming a specific one, and can be enabled for one IdP at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "Arbitrary authentication domains allow third-party end users to access a privileged portal with single sign-on for any authentication domain, without having to designate a specific domain.",
+            "You can enable arbitrary domains to one IdP at a time."
+          ]
+        }
+      ]
+    },
+    "diagnostics": {
+      "statement": "PRA data appears on the User Activity Diagnostics page, which covers session recordings, credentials policies, consoles policies, file transfer and PRA errors, and on the Privileged Sessions page for recorded sessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "On the User Activity Diagnostics page, you can view data for Session Recordings, privileged credentials policies, privileged consoles policies, File Transfer, and PRA-related errors.",
+            "You can view the data and analytics specific to privileged recorded sessions on the Privileged Sessions page on the Recorded tab."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "The documented PRA limits are 100 privileged portals, 10 privileged consoles by default (raisable by license to 9,000), 10,000 privileged credentials, 500 credential pools with 100 credentials each, and 20,000 privileged approvals with 200 application segments per approval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Privileged Portals | 100 privileged portalsWhen configuring a privileged portal within the Default Microtenant, you can link a maximum of 9,000 privileged consoles to the privileged portal. |",
+            "| Privileged Consoles | 10 privileged consolesWith a license, this can be increased to the maximum limit of 9,000 privileged consoles.",
+            "| Privileged Credentials | 10,000 privileged credentials |",
+            "| Privileged Credential Pools | 500 privileged credential pools100 privileged credentials per privileged credential pool |",
+            "| Privileged Approvals | 20,000 privileged approvals200 application segments per privileged approval"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "data-path": {
+      "kind": "semantic",
+      "title": "How a PRA session travels from browser to target",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"user browser -(HTTPS Privileged Portal)-> Zscaler PRA Gateway -(RDP/SSH/VNC via App Connector)-> Privileged Console. PRA Gateway is a Zscaler-hosted protocol translator that converts in-browser HTML5 session control into native RDP/SSH/VNC packets sent through the App Connector mesh. All traffic traverses ZPA's App Connector outbound mesh; no inbound ports opened on the target.\" The help names the portal, consoles and application segments but not a PRA Gateway, the HTML5 translation or the absence of inbound ports. A Zscaler architecture document would resolve it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.timeout-rules",
+  "title": "ZPA timeout policy rules",
+  "aliases": [
+    "zpa timeout policy",
+    "reauth_timeout",
+    "reauth_idle_timeout",
+    "authentication timeout zpa",
+    "idle connection timeout",
+    "default timeout rule",
+    "session re-authenticating sooner than rule",
+    "timeout rule conditions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.evaluation-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.rule-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Timeout rules are a separate rule set that controls re-authentication, not access."
+    },
+    {
+      "label": "What they control.",
+      "text": "{{auth-vs-idle}} {{evaluated-on-access}} {{reauth-notification-per-rule}}"
+    },
+    {
+      "label": "Why sessions re-authenticate sooner.",
+      "text": "{{reauth-resets-all}} {{activity-counts-per-group}}"
+    },
+    {
+      "label": "Defaults.",
+      "text": "The default rule is in [[zpa.policy.evaluation-order:default-timeout-rule]]. The MCP skill's defaults differ {{divergence:timeout-defaults}}."
+    },
+    {
+      "label": "Building a rule.",
+      "text": "{{action-re-auth-only}} {{timeout-value-format}} {{tf-read-seconds-as-strings}} The numeric type differs between sources {{divergence:reauth-value-type}}."
+    },
+    {
+      "label": "Conditions.",
+      "text": "{{condition-types-supported}} Which types a rule rejects is open {{gap:timeout-condition-restriction}}. {{posture-tiering-example}}"
+    },
+    {
+      "text": "Fields and Terraform replacement are in [[zpa.policy.rule-fields]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Read the matching timeout rule and the default rule, since the default applies to every user a rule does not cover.",
+      "uses": [
+        "auth-vs-idle",
+        "timeout-defaults"
+      ]
+    },
+    {
+      "do": "If a user is re-authenticating sooner than the rule says, check for a recent reauthentication in another application, which resets the timer for all of them.",
+      "uses": [
+        "reauth-resets-all",
+        "activity-counts-per-group"
+      ]
+    },
+    {
+      "do": "When building a rule programmatically, check the timeout value type each client uses.",
+      "uses": [
+        "timeout-value-format",
+        "reauth-value-type",
+        "tf-read-seconds-as-strings"
+      ]
+    },
+    {
+      "do": "If a rule uses country or trusted network conditions, check the rule's condition types against the supported list.",
+      "uses": [
+        "condition-types-supported",
+        "timeout-condition-restriction"
+      ]
+    }
+  ],
+  "claims": {
+    "auth-vs-idle": {
+      "statement": "A timeout policy controls the authentication timeout, after which a user must reauthenticate, and the idle connection timeout, whose expiry does not force reauthentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-timeout-policy.json",
+          "quotes": [
+            "Authentication Timeout: The time interval used to determine when a user must reauthenticate to access an application.",
+            "An idle connection timeout expiration does not force reauthentication."
+          ]
+        }
+      ]
+    },
+    "evaluated-on-access": {
+      "statement": "The authentication timeout is evaluated only when a user attempts to access an application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-timeout-policy.json",
+          "quotes": [
+            "It is only evaluated when a user attempts to access an application."
+          ]
+        }
+      ]
+    },
+    "reauth-resets-all": {
+      "statement": "A single reauthentication gets a new SAML assertion and resets the reauthentication timer for all applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-timeout-policy.json",
+          "quotes": [
+            "This means that a single reauthentication resets the reauthentication timer for all applications."
+          ]
+        }
+      ]
+    },
+    "activity-counts-per-group": {
+      "statement": "Reauthentication settings are defined per segment group, so activity in one application counts as activity in all applications of the same group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-timeout-policy.json",
+          "quotes": [
+            "Because reauthentication settings are defined per segment group and not per individual application, when a user is active in an application, Private Access considers the user to have been active in all applications that belong to the same group as that application."
+          ]
+        }
+      ]
+    },
+    "action-re-auth-only": {
+      "statement": "The only action the MCP skill supports on a timeout rule is RE_AUTH.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+          "quotes": [
+            "The only supported action is `RE_AUTH` -- when the timeout is reached, the user must re-authenticate."
+          ]
+        }
+      ]
+    },
+    "timeout-value-format": {
+      "statement": "The MCP skill writes timeout values as strings in the form N Minutes, N Hours or N Days, or as Never, with a 10 minute minimum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+          "quotes": [
+            "| `<number> Minutes` | `\"30 Minutes\"`, `\"60 Minutes\"` | Session expires after N minutes |",
+            "| `<number> Days` | `\"1 Days\"`, `\"10 Days\"`, `\"30 Days\"` | Session expires after N days |",
+            "| `Never` | `\"Never\"` | Session never expires (not recommended for sensitive apps) |",
+            "Minimum: 10 minutes. Default: `\"600\"` (seconds, i.e., 10 minutes)."
+          ]
+        }
+      ]
+    },
+    "tf-read-seconds-as-strings": {
+      "statement": "The v2 Terraform timeout rule reads the API's timeouts back as strings of seconds and treats \"-1\" as never.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "quotes": [
+            "if resp.ReauthIdleTimeout == \"-1\" {",
+            "_ = d.Set(\"reauth_timeout\", secondsToHumanReadable(resp.ReauthTimeout))"
+          ]
+        }
+      ]
+    },
+    "condition-types-supported": {
+      "statement": "The MCP skill lists these condition types for timeout rules: APP, APP_GROUP, CLIENT_TYPE, SAML, SCIM, SCIM_GROUP, PLATFORM and POSTURE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+          "quotes": [
+            "Supports conditions: APP, APP_GROUP, CLIENT_TYPE, SAML, SCIM, SCIM_GROUP, PLATFORM, and POSTURE."
+          ]
+        }
+      ]
+    },
+    "posture-tiering-example": {
+      "statement": "The MCP skill's posture example gives devices that pass a posture check a longer timeout and non-compliant devices a shorter one, using two rules with the POSTURE rhs set to true and to false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+          "quotes": [
+            "Devices that pass a posture check get a longer timeout; non-compliant devices get a shorter one."
+          ]
+        }
+      ]
+    },
+    "reauth-notification-per-rule": {
+      "statement": "Each additional timeout rule can set a custom notification message so users know which application requires reauthentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-timeout-policy.json",
+          "quotes": [
+            "If you create additional timeout policy rules, you can set a custom notification message for each, so that users know which application requires reauthentication."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "timeout-defaults": {
+      "summary": "The help describes the default timeout rule as 7 days and never idle, while the MCP skill gives parameter defaults of 2 days and 10 minutes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-timeout-policy.json",
+            "quotes": [
+              "The default rule specifies that all users have to authenticate every 7 days for any application, and that their sessions never end due to an idle connection timeout expiration."
+            ]
+          },
+          "says": "The default timeout policy rule is 7 days for authentication and no idle expiry."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+            "quotes": [
+              "Minimum: 10 minutes. Default: `\"172800\"` (seconds, i.e., 2 days)."
+            ]
+          },
+          "says": "The session timeout parameter defaults to 172800 seconds (2 days)."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+            "quotes": [
+              "Minimum: 10 minutes. Default: `\"600\"` (seconds, i.e., 10 minutes)."
+            ]
+          },
+          "says": "The idle timeout parameter defaults to 600 seconds (10 minutes)."
+        }
+      ],
+      "impact": "The legacy statement that 2 days and 10 minutes apply when a rule's reauth fields are unset cannot be reconciled with the help's 7 days and never; the skill's values are parameter defaults of its tool, not a documented tenant default."
+    },
+    "reauth-value-type": {
+      "summary": "The OpenAPI document declares reauthTimeout an integer, while the Go SDK uses a string and the MCP skill uses N Minutes strings.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/reauthTimeout",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "says": "reauthTimeout is an int32 integer."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+            "quotes": [
+              "ReauthTimeout string `json:\"reauthTimeout,omitempty\"`"
+            ],
+            "after": "type PolicyRuleResource struct {"
+          },
+          "says": "The Go SDK sends reauthTimeout as a string."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zpa/create-timeout-policy-rule/SKILL.md",
+            "quotes": [
+              "| `<number> Minutes` | `\"30 Minutes\"`, `\"60 Minutes\"` | Session expires after N minutes |"
+            ]
+          },
+          "says": "The MCP skill writes the value as an N Minutes string."
+        }
+      ],
+      "impact": "A programmatic constructor that follows the OpenAPI integer type may not match what the SDK and provider send, and the provider reads values back as seconds strings."
+    }
+  },
+  "gaps": {
+    "timeout-condition-restriction": {
+      "kind": "semantic",
+      "title": "Which condition types a timeout rule rejects at save",
+      "status": "open",
+      "about": [
+        "zpa.policy.timeout-rules"
+      ],
+      "detail": "Unverified legacy statement: \"timeout rules do NOT support `COUNTRY_CODE`, `TRUSTED_NETWORK`, `CLIENT_TYPE` criteria that are available on access/forwarding rules. Rules attempting these conditions fail at save.\" The MCP skill lists CLIENT_TYPE as supported (claim condition-types-supported), so that part is corrected, and it omits COUNTRY_CODE and TRUSTED_NETWORK without saying what happens when they are sent. Create a timeout rule with each in a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

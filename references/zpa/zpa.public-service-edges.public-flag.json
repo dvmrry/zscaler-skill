@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "zpa.public-service-edges.public-flag",
+  "title": "What is_public means on a Service Edge group",
+  "aliases": [
+    "is_public",
+    "isPublic",
+    "publicly accessible",
+    "public service edge group",
+    "zscaler managed service edge group",
+    "is_public true public service edge"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.client-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.public-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.terraform"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The is_public field is not the Public Service Edge marker the legacy reference described."
+    },
+    {
+      "label": "Reading.",
+      "text": "{{is-public-is-group-setting}} Its wire form and Terraform default are in [[zpa.private-service-edges.client-selection:is-public-field]]; the console meaning is [[zpa.private-service-edges.client-selection:publicly-accessible]]."
+    },
+    {
+      "label": "Managed groups.",
+      "text": "{{managed-not-public}} Whether the Public tier appears as groups at all is open {{gap:public-tier-readonly}}."
+    },
+    {
+      "text": "The grace distance override of a closer Public Service Edge is [[zpa.private-service-edges.client-selection:grace-distance]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the group is organization-deployed: is_public is that group's Publicly Accessible setting, so a group with is_public true is still a Private Service Edge group.",
+      "uses": [
+        "is-public-is-group-setting"
+      ]
+    },
+    {
+      "do": "Whether a read-only group is Zscaler-managed, from the readOnly and zscalerManaged flags rather than from isPublic.",
+      "uses": [
+        "managed-not-public",
+        "zpa.private-service-edges.terraform:managed-flags"
+      ]
+    },
+    {
+      "do": "Which Public Service Edge a grace-distance group overrides: the nearest closer one, within the distance, per the Private group setting.",
+      "uses": [
+        "zpa.private-service-edges.client-selection:grace-distance"
+      ]
+    }
+  ],
+  "claims": {
+    "is-public-is-group-setting": {
+      "statement": "is_public on a Service Edge group is the console's Publicly Accessible setting of a Private Service Edge group that has trusted-network mapping; it does not mark the group as a Zscaler-operated Public Service Edge group.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.private-service-edges.client-selection:publicly-accessible",
+        "zpa.private-service-edges.client-selection:is-public-field"
+      ],
+      "conditions": "Inferred from the console label and the field description, which both describe access by users outside trusted networks; no source states that is_public never appears on Zscaler-managed groups. The link from is_public to the console setting is itself Tier B (client-selection:is-public-field)."
+    },
+    "managed-not-public": {
+      "statement": "Zscaler-managed groups are identified in the group type by readOnly and zscalerManaged flags, and the console's read-only rule applies to Private Service Edge groups managed by Zscaler.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.private-service-edges.terraform:managed-flags"
+      ],
+      "conditions": "Inferred; the flag-to-behavior link is itself a Tier B claim."
+    }
+  },
+  "gaps": {
+    "public-tier-readonly": {
+      "kind": "data",
+      "title": "Whether the read-only rule applies to the Public tier",
+      "status": "open",
+      "about": [
+        "zpa/service-edge-groups#zscalerManaged"
+      ],
+      "detail": "Unverified legacy statement: \"Private Service Edges that are managed by Zscaler are read only and cannot be configured - the same read-only posture applies to the Public tier,\" and \"a Zscaler-managed (public) group is read-only.\" The console sentence is about Private Service Edges managed by Zscaler. No source shows a Public Service Edge or group in a tenant's list. Resolve with a tenant list of service edge groups.",
+      "blocks": "assuming zscalerManaged groups are the Public tier",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zpa service-edge-groups list"
+    }
+  }
+}

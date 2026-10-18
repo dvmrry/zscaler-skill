@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.formats",
+  "title": "Log stream format and content templates for a ZPA log receiver",
+  "aliases": [
+    "log stream content",
+    "lss format csv json tsv",
+    "custom log template",
+    "lss format string",
+    "zpa_lss_config_log_type_formats",
+    "restore default content"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.log-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs.streaming"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A receiver's format is the log stream content template, taken from a per-type list of CSV, TSV and JSON templates and editable into a custom one."
+    },
+    {
+      "label": "Templates.",
+      "text": "{{formats-endpoint}} {{console-templates}} {{format-is-template}} The provider documentation words it differently {{divergence:format-enum-vs-template}}."
+    },
+    {
+      "label": "Tools.",
+      "text": "{{python-default-csv}} {{python-update-refetch}} {{tf-explicit-format}}"
+    },
+    {
+      "label": "Custom content.",
+      "text": "{{custom-content}} {{format-specifiers}} {{field-names-newline}}"
+    },
+    {
+      "text": "Changing the log type without changing the format is not sourced for the provider {{gap:format-type-mismatch}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That format holds a template string for the receiver's log type, fetched from the formats endpoint, and not just the word CSV, JSON or TSV.",
+      "uses": [
+        "format-is-template",
+        "format-enum-vs-template"
+      ]
+    },
+    {
+      "do": "Whether the template was edited into a custom one and still ends each record with a newline.",
+      "uses": [
+        "custom-content",
+        "field-names-newline"
+      ]
+    },
+    {
+      "do": "Whether the SDK refetched the template when the log type was changed, and whether the provider was given the matching template.",
+      "uses": [
+        "python-update-refetch",
+        "tf-explicit-format",
+        "format-type-mismatch"
+      ]
+    }
+  ],
+  "claims": {
+    "formats-endpoint": {
+      "statement": "The formats endpoint returns, for each log type, the default templates in tsv, csv and json form, and the Terraform data source exposes them as tsv, csv and json attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1lssConfig~1logType~1formats/get",
+          "expect": {
+            "operationId": "Gets all LSS log formats."
+          }
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_log_types_formats.go",
+          "quotes": [
+            "_ = d.Set(\"tsv\", resp.Tsv)",
+            "_ = d.Set(\"csv\", resp.Csv)",
+            "_ = d.Set(\"json\", resp.Json)"
+          ]
+        }
+      ]
+    },
+    "console-templates": {
+      "statement": "In the Admin Console the Log Template is CSV (comma-separated), TSV (tab-separated) or JSON, and the Log Stream Content shown changes with the log type and template chosen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "CSV: The template uses a comma-separated values format.",
+            "TSV: The template uses a tab-separated values format.",
+            "JSON: The template uses a JavaScript Object Notation format.",
+            "The default content that is displayed changes based on the Log Type and Log Template you selected in previous steps."
+          ]
+        }
+      ]
+    },
+    "format-is-template": {
+      "statement": "The format field of a receiver is the format of the log type as given by the formats API, which is the template string with field specifiers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "| config.format | The format of the log type | Yes | The format given by the following API to get formats: /mgmtconfig/v2/admin/lssConfig/logType/formats."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "Description: \"Format of the log type. Format given by the following API to get formats: /mgmtconfig/v2/admin/lssConfig/logType/formats\","
+          ]
+        }
+      ]
+    },
+    "python-default-csv": {
+      "statement": "The Python SDK's add_lss_config takes source_log_format with the default csv and fills the format from the formats endpoint unless a custom log_stream_content is passed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "source_log_format: str = \"csv\",",
+            "log_stream_content = self.get_all_log_formats()[source_log_type][source_log_format]"
+          ],
+          "after": "def add_lss_config("
+        }
+      ]
+    },
+    "python-update-refetch": {
+      "statement": "In the Python SDK's update, the format is rebuilt from the formats endpoint when source_log_type is passed without log_stream_content, and is left out of the body (so unchanged on the server) when neither is passed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "quotes": [
+            "elif mapped_source_log_type is not None:",
+            "log_stream_content = self.get_all_log_formats()[mapped_source_log_type][source_log_format]",
+            "Otherwise the existing format on the server is preserved."
+          ]
+        }
+      ]
+    },
+    "tf-explicit-format": {
+      "statement": "The Terraform resource requires format to be given explicitly in each receiver; the format data source supplies the template to pass.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "quotes": [
+            "Required: true, Description: \"Format of the log type. Format given by the following API to get formats: /mgmtconfig/v2/admin/lssConfig/logType/formats\","
+          ]
+        }
+      ]
+    },
+    "custom-content": {
+      "statement": "The log stream content can be edited in the text field to capture specific fields, which creates a Custom log template; a Restore Default Content option appears once it is changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "You can also edit the log stream content within the text field in order to capture specific fields and create a Custom log template.",
+            "the Restore Default Content option appears, allowing you to revert to the default."
+          ]
+        }
+      ]
+    },
+    "format-specifiers": {
+      "statement": "The field format string takes the specifiers %s (string), %j (JSON string with quotation marks), %J (JSON string without quotation marks), %d (decimal integer), %x (hexadecimal), %f (float) and %o (256-bit one-way hash), each with an optional width or precision.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-log-stream-content-format.json",
+          "quotes": [
+            "Displays the field as a JSON string with quotation marks",
+            "Displays the field as a JSON string without quotation marks",
+            "Displays the field in decimal integer format",
+            "Displays the field as a number in hexadecimal (base-16) format",
+            "Displays the field as a float",
+            "Displays the field in a 256-bit (64 character) one-way hashed (obfuscated) form."
+          ]
+        }
+      ]
+    },
+    "field-names-newline": {
+      "statement": "Field names in a format string are case sensitive, and the default content adds a newline after the last field, so modified content must append at least one newline character after the last field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-log-stream-content-format.json",
+          "quotes": [
+            "Field names are case sensitive.",
+            "If you have modified the content, you must append at least one newline character after the last field."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "format-enum-vs-template": {
+      "summary": "What the format argument holds: the provider documentation calls it the format (JSON, CSV or TSV), while the provider schema and the API article describe it as the template string returned by the formats endpoint.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_lss_audit_logs.md",
+            "quotes": [
+              "The supported formats are: `JSON`, `CSV`, and `TSV`"
+            ]
+          },
+          "says": "format is one of JSON, CSV or TSV."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-log-streaming-service-configurations-using-api.json",
+            "quotes": [
+              "| config.format | The format of the log type | Yes | The format given by the following API to get formats: /mgmtconfig/v2/admin/lssConfig/logType/formats."
+            ]
+          },
+          "says": "format is the template from the formats endpoint."
+        }
+      ],
+      "impact": "The provider's own example passes the data source's json attribute, which is a template string; a bare JSON, CSV or TSV word is not what the API article describes."
+    }
+  },
+  "gaps": {
+    "format-type-mismatch": {
+      "kind": "semantic",
+      "title": "Changing the log type without the format",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Changing the log type on an existing receiver without also updating the `format` string produces a mismatch: the receiver streams data in the new type's schema but the SIEM parser still expects the old format. Update both atomically.\" The Python SDK refetches the template when the type changes (python-update-refetch); no source shows what the service or the Terraform provider does when the type changes and the format string does not.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

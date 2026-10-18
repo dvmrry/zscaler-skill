@@ -136,7 +136,7 @@ When an operator says *"the PSEN in Frankfurt"*, they mean a specific **instance
 - Cloud architecture and Service Edge form factors — [`./cloud-architecture.md`](./cloud-architecture.md)
 - GRE tunnels — [`./gre-tunnels.md`](./gre-tunnels.md)
 - Z-Tunnel 1.0 vs 2.0 — [`./z-tunnel.md`](./z-tunnel.md)
-- ZPA Public / Private / Virtual Service Edges — [`../zpa/public-service-edges.md`](../zpa/public-service-edges.md)
+- ZPA Public / Private / Virtual Service Edges — [`zpa.public-service-edges`](kb:zpa.public-service-edges)
 - ZCC forwarding profiles — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
 - Source IP Anchoring (SIPA) — [`./source-ip-anchoring.md`](./source-ip-anchoring.md)
 - ZIdentity (API clients, step-up auth) — [`../zidentity/overview.md`](../zidentity/overview.md)

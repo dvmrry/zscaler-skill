@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "id": "zpa.scim.group-lifecycle",
+  "title": "What happens when SCIM users and groups are deleted or renamed",
+  "aliases": [
+    "scim delete user zpa",
+    "scim group deleted rule",
+    "dangling scim group",
+    "scim group renamed",
+    "okta deactivate zpa",
+    "browser access scim removal",
+    "all_entries scim groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.policy-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.deactivation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.attributes-and-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers what happens to users and groups after they leave the IdP."
+    },
+    {
+      "label": "Users.",
+      "text": "{{removal-flow}} {{browser-access-excluded}} {{okta-deactivates}} The active flag itself is in [[zia.scim.deactivation:zpa-deletes]]."
+    },
+    {
+      "label": "Groups.",
+      "text": "{{deleted-groups-retrievable}} What a rule does with a deleted group is open {{gap:zpa-63-deleted-group-in-rule}}, as is how ZPA handles the IdP's delete {{gap:group-delete-handling}}."
+    },
+    {
+      "label": "Renames and lookups.",
+      "text": "{{lookup-by-current-name}} What a rename changes is open {{gap:rename-behavior}}."
+    },
+    {
+      "text": "Operand forms are in [[zpa.scim.policy-criteria]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user is connected through Zscaler Client Connector or Browser Access, since SCIM removal does not reach Browser Access users.",
+      "uses": [
+        "removal-flow",
+        "browser-access-excluded"
+      ]
+    },
+    {
+      "do": "Whether the IdP is Okta, which deactivates rather than deletes, and how ZPA treats the active flag.",
+      "uses": [
+        "okta-deactivates",
+        "zia.scim.deactivation:zpa-deletes"
+      ]
+    },
+    {
+      "do": "Whether a rule's SCIM group still exists, by listing groups with allEntries set.",
+      "uses": [
+        "deleted-groups-retrievable",
+        "zpa-63-deleted-group-in-rule"
+      ]
+    },
+    {
+      "do": "Whether a lookup by name uses the group's current IdP name, within the right IdP.",
+      "uses": [
+        "lookup-by-current-name",
+        "rename-behavior"
+      ]
+    }
+  ],
+  "claims": {
+    "removal-flow": {
+      "statement": "Deleting a user in the IdP and then a SCIM update from the IdP to Private Access removes the user from Private Access, which can be checked on the SCIM Users page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deleting-users-scim.json",
+          "quotes": [
+            "Following a SCIM update from the IdP to Private Access, the user is automatically removed from Private Access.",
+            "You can verify that the user is no longer in Private Access by going to the SCIM Users page and checking the table for the user name."
+          ]
+        }
+      ]
+    },
+    "browser-access-excluded": {
+      "statement": "SCIM user deletion applies to users connected through Zscaler Client Connector; users accessing applications through Browser Access cannot be removed from Private Access using SCIM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deleting-users-scim.json",
+          "quotes": [
+            "Deleting users in SCIM applies to users connected to Private Access (ZPA) using the Zscaler Client Connector.",
+            "Users accessing applications via Browser Access can not be removed from Private Access using SCIM."
+          ]
+        }
+      ]
+    },
+    "okta-deactivates": {
+      "statement": "With Okta as the IdP, users are not deleted but deactivated, and deactivated users can no longer access private applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deleting-users-scim.json",
+          "quotes": [
+            "If the IdP is Okta, users are not deleted. Instead, users are deactivated. Deactivated users can no longer access your private applications."
+          ]
+        }
+      ]
+    },
+    "deleted-groups-retrievable": {
+      "statement": "The SCIM group list and get calls take an allEntries parameter that returns all SCIM groups including the deleted ones when set to true, and the Python SDK exposes it as all_entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=allEntries]",
+          "expect": {
+            "description": "Return all SCIM groups including the deleted ones if set to true"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1{scimGroupId}/get/parameters/[name=allEntries]",
+          "expect": {
+            "description": "Return all SCIM groups including the deleted ones if set to true"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/scim_groups.py",
+          "quotes": [
+            "``[query_params.all_entries]`` (bool, optional): If `True`, returns all SCIM groups, including deleted ones."
+          ]
+        }
+      ]
+    },
+    "lookup-by-current-name": {
+      "statement": "The Go SDK looks a SCIM group up by name within one IdP's listing and matches case-insensitively, and fails with 'no SCIM group named ... was found' when no group has that name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/scimgroup/zpa_scim_group.go",
+          "quotes": [
+            "if strings.EqualFold(scim.Name, scimName) {",
+            "return nil, resp, fmt.Errorf(\"no SCIM group named '%s' was found\", scimName)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zpa-63-deleted-group-in-rule": {
+      "kind": "semantic",
+      "title": "What a rule does when its SCIM_GROUP operand points at a deleted group",
+      "status": "open",
+      "former_ids": [
+        "zpa-63"
+      ],
+      "detail": "Unverified legacy statement: \"The rule does not error - it silently never matches\" and \"ZPA does not surface an error\". The all_entries parameter shows deleted groups can still be read (claim deleted-groups-retrievable), but no source says whether the rule is rejected, shown with an error, or simply never true. Delete a group the rule references in a scratch tenant and read the rule and an affected user's access.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a stale group reference fails silently rather than loudly, or which way it fails"
+    },
+    "group-delete-handling": {
+      "kind": "semantic",
+      "title": "How ZPA handles an IdP's group delete",
+      "status": "open",
+      "detail": "Unverified legacy statement: when an IdP deletes a group it \"sends a DELETE /Groups/{id} to ZPA\" and \"ZPA removes the group from its userconfig store\". The captured ZPA articles describe user deletion only. Resolve from SCIM sync logs or the ZPA SCIM documentation.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "the dangling-reference question"
+    },
+    "rename-behavior": {
+      "kind": "semantic",
+      "title": "What a group rename in the IdP changes in ZPA",
+      "status": "open",
+      "detail": "Unverified legacy statement: an IdP rename \"changes the name field on the group object\" while \"the Zscaler id for the group does not change\", so rules keep working but name-based lookups \"fail with not found after the rename\". The Go lookup compares the current name (claim lookup-by-current-name); whether a rename updates it and keeps the ID is not stated. Rename a synced group in a scratch tenant and list it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "whether rules and Terraform lookups survive a rename"
+    }
+  }
+}

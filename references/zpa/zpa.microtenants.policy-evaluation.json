@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "id": "zpa.microtenants.policy-evaluation",
+  "title": "Policy evaluation between Default and custom Microtenants",
+  "aliases": [
+    "microtenant policy evaluation",
+    "microtenant policy order",
+    "which microtenant policy applies",
+    "microtenant redirection policy",
+    "default microtenant evaluated first"
+  ],
+  "binds": [
+    "zpa/microtenants"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.user-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.isolation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Which policy decides depends on the user's Microtenant and where the segment lives."
+    },
+    {
+      "label": "Same Microtenant.",
+      "text": "{{same-scope-most-specific}}"
+    },
+    {
+      "label": "Custom user, Default segment.",
+      "text": "{{default-first-for-custom-user}}"
+    },
+    {
+      "label": "Redirection.",
+      "text": "{{redirection-own-scope}} General ZPA policy precedence is outside this subject, and which Microtenant the user is in is in [[zpa.microtenants.user-mapping]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application segment is in the user's own Microtenant or in the Default Microtenant, since the Default Microtenant is evaluated first for a custom-Microtenant user.",
+      "uses": [
+        "default-first-for-custom-user",
+        "same-scope-most-specific"
+      ]
+    },
+    {
+      "do": "Whether the policy in question is a redirection policy, which is evaluated only for the user's own Microtenant.",
+      "uses": [
+        "redirection-own-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "same-scope-most-specific": {
+      "statement": "A user in the Default Microtenant accessing a Default Microtenant segment, or a user in a custom Microtenant accessing a segment in that custom Microtenant, is evaluated for access, timeout and client forwarding policy using the most specific application segment within that Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "If you are a user within the Default Microtenant attempting to access an application segment within the Default Microtenant, Private Access evaluates access policies, timeout policies, and client forwarding policies using the most specific application segment that is within the Default Microtenant.",
+            "Private Access evaluates access policies, timeout policies, and client forwarding policies using the most specific application segment that is within the custom Microtenant."
+          ]
+        }
+      ]
+    },
+    "default-first-for-custom-user": {
+      "statement": "A user in a custom Microtenant accessing a Default Microtenant segment is evaluated against the Default Microtenant first, and only if there is no match does Private Access evaluate access, timeout and client forwarding policy within the custom Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "If you are a user within a custom Microtenant attempting to access an application segment within the Default Microtenant, Private Access evaluates the Default Microtenant first. If there is no match, Private Access evaluates the access policy, timeout policy, client forwarding policy within the custom Microtenant."
+          ]
+        }
+      ]
+    },
+    "redirection-own-scope": {
+      "statement": "A user in a custom Microtenant is evaluated for redirection policies of only that custom Microtenant, and a user in the Default Microtenant only for the Default Microtenant's.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "If you are a user within a custom Microtenant, Private Access evaluates redirection policies for only the custom Microtenant you are within. If you are a user within the Default Microtenant, Private Access evaluates redirection policies only for the Default Microtenant."
+          ]
+        }
+      ]
+    }
+  }
+}

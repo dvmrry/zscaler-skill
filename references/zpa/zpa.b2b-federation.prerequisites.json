@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "zpa.b2b-federation.prerequisites",
+  "title": "B2B Federation prerequisites and limits",
+  "aliases": [
+    "b2b federation license",
+    "b2b federation requirements",
+    "federation limited availability",
+    "federation same cloud",
+    "federate application permission",
+    "partner permission",
+    "b2b federation client connector version",
+    "federation partner limit"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.trust-workflow"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.limits"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Federation needs both tenants to meet the same list before any trust step works."
+    },
+    {
+      "label": "Licensing and availability.",
+      "text": "{{limited-availability-license}} {{both-partners-requirements}}"
+    },
+    {
+      "label": "Roles.",
+      "text": "{{partner-definitions}} {{admin-roles}}"
+    },
+    {
+      "label": "Cloud.",
+      "text": "{{same-cloud}}"
+    },
+    {
+      "label": "Versions.",
+      "text": "{{component-versions}} {{client-connector-versions}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{limits}} The next stage is [[zpa.b2b-federation.trust-workflow]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether both tenants hold the licenses, roles and Experience Center and Authentication Service setup before testing the trust steps.",
+      "uses": [
+        "limited-availability-license",
+        "both-partners-requirements",
+        "admin-roles"
+      ]
+    },
+    {
+      "do": "Whether the two tenants are on the same cloud.",
+      "uses": [
+        "same-cloud"
+      ]
+    },
+    {
+      "do": "The App Connector, Private Service Edge and Client Connector versions against the minimums.",
+      "uses": [
+        "component-versions",
+        "client-connector-versions"
+      ]
+    },
+    {
+      "do": "The partner and federated application counts against the limits.",
+      "uses": [
+        "limits"
+      ]
+    }
+  ],
+  "claims": {
+    "limited-availability-license": {
+      "statement": "B2B Federation is in limited availability and requires a Private Access (ZPA) Federation license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-business-b2b-federation.json",
+          "quotes": [
+            "This feature is in limited availability, and requires a Private Access (ZPA) Federation license."
+          ]
+        }
+      ]
+    },
+    "both-partners-requirements": {
+      "statement": "Both the host and guest partners must have a Private Access tenant, complete migration to Authentication Service for admins, and have Zscaler Experience Center enabled; both need an active Private Access license, but only the host partner needs a Federation license to share applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-business-b2b-federation.json",
+          "quotes": [
+            "Have a Private Access tenant.",
+            "Complete migration to Authentication Service for admins.",
+            "Have Zscaler Experience Center enabled.",
+            "Partners must have an active Private Access license to use B2B Federation, but only the host partner needs a Federation license to share applications with a Partner."
+          ]
+        }
+      ]
+    },
+    "partner-definitions": {
+      "statement": "The host partner is the partner that owns the private applications, and the guest partner is the partner that requires access to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-business-b2b-federation.json",
+          "quotes": [
+            "Host partner | The partner that owns the private applications.",
+            "Guest partner | The partner that requires access to the private applications."
+          ]
+        }
+      ]
+    },
+    "admin-roles": {
+      "statement": "Both partners' admin roles need the Partner permission, and the host partner's admin role also needs the Federate Application permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-business-b2b-federation.json",
+          "quotes": [
+            "Have the Partner permission enabled in their admin role.",
+            "The host partner must have the Federate Application permission enabled in their admin role."
+          ]
+        }
+      ]
+    },
+    "same-cloud": {
+      "statement": "Both the host and guest partners must originate from the same cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-business-b2b-federation.json",
+          "quotes": [
+            "Both the host and guest partners must originate from the same cloud."
+          ]
+        }
+      ]
+    },
+    "component-versions": {
+      "statement": "App Connectors and Private Service Edges must be upgraded to version 24.298.1 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-business-b2b-federation.json",
+          "quotes": [
+            "App Connectors and Private Service Edges are upgraded to version 24.298.1 or later."
+          ]
+        }
+      ]
+    },
+    "client-connector-versions": {
+      "statement": "Zscaler Client Connector must be at Windows 4.7.0.88 or 4.6.0.282 or later, macOS 4.5.2.98, Android 3.10, Linux 4.2 or iOS 4.4.1, and Use Tunnel SDK version 4.3 or above must be enabled in the Client Connector Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-business-b2b-federation.json",
+          "quotes": [
+            "4.7.0.88 or later",
+            "4.6.0.282 or later",
+            "macOS version 4.5.2.98 or later",
+            "Android version: 3.10 or later",
+            "Linux version: 4.2 or later",
+            "iOS version 4.4.1 or later",
+            "Ensure Use Tunnel SDK version 4.3 or above is enabled in the Zscaler Client Connector Portal."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "The ranges and limitations article allows 1,000 federated applications and 25 partners for B2B Federation, and Zscaler Support can upgrade those limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Federated Applications | 1,000 federated applications",
+            "Partners | 25 partners",
+            "Contact Zscaler Support to upgrade Business-to-Business (B2B) Federation limits."
+          ]
+        }
+      ]
+    }
+  }
+}

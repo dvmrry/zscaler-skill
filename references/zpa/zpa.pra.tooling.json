@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.tooling",
+  "title": "PRA operations in the Python SDK and Ansible approvals",
+  "aliases": [
+    "get_credential_pool_info",
+    "expired_approval",
+    "add_bulk_console",
+    "credential_move",
+    "pra_approval working_hours",
+    "zpa_pra_approval ansible",
+    "pra bulk console",
+    "purge expired privileged approvals api"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.ansible-children"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.approvals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "SDK and Ansible calls for PRA objects map onto a few operations. Terraform behavior for PRA is in the provider-defect subjects, and the segment reconciliation in Ansible is in [[zpa.app-segments.ansible-children]]."
+    },
+    {
+      "label": "Python SDK operations.",
+      "text": "{{pool-credential-info}} {{expired-approval-cleanup}} {{bulk-console-add}} {{credential-move}}"
+    },
+    {
+      "label": "Approvals and working hours.",
+      "text": "{{working-hours-optional}} {{ansible-working-hours}} {{ansible-approval-match}}"
+    },
+    {
+      "text": "Terraform delete and credential-rule defects are in [[zpa.terraform.delete-paths]] and [[zpa.terraform.policy-rule-writes]]; approval validation and PRA console read defects are in [[zpa.terraform.resource-fidelity]]; secret handling is in [[shared.terraform.credential-handling]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a pool-exhaustion investigation can read which credentials the pool holds through the pool-info operation.",
+      "uses": [
+        "pool-credential-info"
+      ]
+    },
+    {
+      "do": "Whether an approval payload omits working_hours, which current SDK and Ansible versions allow.",
+      "uses": [
+        "working-hours-optional",
+        "ansible-working-hours"
+      ]
+    },
+    {
+      "do": "Whether two Ansible approvals for the same emails but different applications are intended.",
+      "uses": [
+        "ansible-approval-match"
+      ]
+    }
+  ],
+  "claims": {
+    "pool-credential-info": {
+      "statement": "The Python SDK's get_credential_pool_info(pool_id) calls GET /credential-pool/{pool_id}/credential and returns the credential information mapped to the pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential_pool.py",
+          "quotes": [
+            "def get_credential_pool_info(self, pool_id: str",
+            "Given Privileged credential pool id gets mapped privileged credential info",
+            "/credential-pool/{pool_id}/credential"
+          ]
+        }
+      ]
+    },
+    "expired-approval-cleanup": {
+      "statement": "The Python SDK's expired_approval(microtenant_id) deletes all expired privileged approvals through DELETE /approval/expired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "def expired_approval(self, microtenant_id: str = None)",
+            "Deletes all expired privileged approvals.",
+            "/approval/expired"
+          ]
+        }
+      ]
+    },
+    "bulk-console-add": {
+      "statement": "The Python SDK's add_bulk_console(consoles) creates several PRA consoles in one call through POST /praConsole/bulk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_console.py",
+          "quotes": [
+            "def add_bulk_console(self, consoles: list, **kwargs)",
+            "Adds multiple Privileged Remote Access (PRA) consoles in bulk.",
+            "/praConsole/bulk"
+          ]
+        }
+      ]
+    },
+    "credential-move": {
+      "statement": "The Python SDK's credential_move moves a PRA credential between the parent tenant and a microtenant through POST /credential/{credential_id}/move. It requires target_microtenant_id, and 0 targets the Default microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_credential.py",
+          "quotes": [
+            "Moves privileged remote access credentials between parent tenant and microtenants.",
+            "For Default microtenant, 0 should be passed.",
+            "raise ValueError(\"target_microtenant_id must be provided in query_params.\")",
+            "/credential/{credential_id}/move"
+          ]
+        }
+      ]
+    },
+    "working-hours-optional": {
+      "statement": "In the Python SDK pra_approval, working_hours is optional: time conversion defaults to UTC when it is omitted, and workingHours is sent only when the caller supplies it, because the API rejects a partial or empty workingHours object. The 1.9.34 release note records a working_hours fix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/pra_approval.py",
+          "quotes": [
+            "# Only include working hours when explicitly provided. The API rejects a",
+            "# partial/empty workingHours object because its sub-fields (start time, etc.)",
+            "time_zone = working_hours.get(\"time_zone\") or \"UTC\""
+          ],
+          "after": "def add_approval(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "docsrc/zs/guides/release_notes.rst",
+          "quotes": [
+            "1.9.34 (July 1, 2026)",
+            "Fixed ZPA `pra_approval` attribute `working_hours`."
+          ]
+        }
+      ],
+      "conditions": "Statement changed: \"Since 1.9.34\" removed; the release note says only that the pra_approval working_hours attribute was fixed, and the omission behavior is from the code."
+    },
+    "ansible-working-hours": {
+      "statement": "The ZPA Ansible collection made working_hours optional for zpa_pra_approval in 2.2.5 and fixed update to send the intended payload instead of the raw existing approval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "made `working_hours` truly optional so approvals can be created and updated without it."
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_pra_approval.py",
+          "quotes": [
+            "description: \"Privileged Approval WorkHours configuration.\""
+          ]
+        }
+      ]
+    },
+    "ansible-approval-match": {
+      "statement": "The Ansible zpa_pra_approval module selects an existing approval by email_ids and, when supplied, application_ids. An approval with the same email set and a different application set is skipped, so the requested approval is created rather than overwriting the unrelated one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_pra_approval.py",
+          "quotes": [
+            "# applications the approval grants access to. The same email can hold",
+            "# several approvals, one per application segment, so matching on",
+            "if current_application_ids != sorted(desired_application_ids):"
+          ]
+        }
+      ]
+    }
+  }
+}

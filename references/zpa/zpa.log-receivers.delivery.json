@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "zpa.log-receivers.delivery",
+  "title": "Retention and delivery guarantees for ZPA logs",
+  "aliases": [
+    "lss retention",
+    "lss 15 minute retransmit",
+    "lss log loss",
+    "zpa log retention 14 days",
+    "lss delivery guarantee",
+    "permanent log gap"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs.what-is-recorded"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.architecture"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.logs.nss-feed-format"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler keeps logs for a limited time, and LSS is the way to keep them longer; delivery to the SIEM is not guaranteed."
+    },
+    {
+      "label": "Retention.",
+      "text": "{{cloud-retention}} {{lss-extends}} Audit logs are worded differently on their own page {{divergence:audit-retention-wording}}."
+    },
+    {
+      "label": "Delivery.",
+      "text": "The loss and retransmit behavior, including the exception for audit logs, is in [[zpa.app-connectors.health]]. {{resend-on-nonreceipt}} {{older-than-window}}"
+    },
+    {
+      "label": "Compared with NSS.",
+      "text": "The ZIA Cloud NSS recovery window is in [[zia.logs.nss-feed-format]]."
+    },
+    {
+      "text": "What the audit-log exception actually does is open [[zpa.audit-logs.streaming]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the missing logs are older than the cloud retention period (14 days for activity, status and connector logs; 6 months for audit).",
+      "uses": [
+        "cloud-retention"
+      ]
+    },
+    {
+      "do": "Whether the gap matches a connection loss, and on which leg: Private Access to App Connector, or App Connector to SIEM.",
+      "uses": [
+        "zpa.app-connectors.health:lss-retransmit-limits",
+        "older-than-window"
+      ]
+    },
+    {
+      "do": "Whether a long-term copy was already being streamed, since the cloud keeps the logs only for the retention period.",
+      "uses": [
+        "lss-extends"
+      ]
+    }
+  ],
+  "claims": {
+    "cloud-retention": {
+      "statement": "Zscaler retains User Activity, User Status and App Connector log information for rolling periods of at least 14 days and audit log information for at least 6-month periods, during the subscription term.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "Zscaler retains User Activity, User Status, and App Connector log information for rolling periods of at least 14 days during the subscription term.",
+            "Zscaler retains audit log information for at least 6-month periods during the subscription term."
+          ]
+        }
+      ]
+    },
+    "lss-extends": {
+      "statement": "Access to logs beyond the period they are available in the Admin Console requires setting up LSS, and storing logs longer than the cloud retention period is one of its stated benefits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-log-streaming-service.json",
+          "quotes": [
+            "For access to logs beyond the 14 days they are available in the Zscaler Admin Console, setting up the LSS is necessary.",
+            "Store logs for longer than the cloud retention period."
+          ]
+        }
+      ]
+    },
+    "resend-on-nonreceipt": {
+      "statement": "LSS attempts to resend a log if it determines that the SIEM system has not received it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-receiver.json",
+          "quotes": [
+            "The LSS attempts to resend a log if it determines that a log has not been received by the SIEM system."
+          ]
+        }
+      ]
+    },
+    "older-than-window": {
+      "statement": "After a loss between Private Access and the App Connectors, the help says LSS can retransmit the last 15 minutes of the log data, with delivery not guaranteed; it does not say what happens to older data.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.app-connectors.health:lss-retransmit-limits"
+      ],
+      "conditions": "Statement changed per verifier: the earlier wording inferred that data from a longer loss is not retransmitted. The help states only the 15-minute retransmit and that delivery is not guaranteed."
+    }
+  },
+  "divergences": {
+    "audit-retention-wording": {
+      "summary": "Audit-log retention is worded as at least 6-month periods on the Log Streaming Service page and as up to 6 months on the Audit Logs page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-log-streaming-service.json",
+            "quotes": [
+              "Zscaler retains audit log information for at least 6-month periods during the subscription term."
+            ]
+          },
+          "says": "Retained for at least 6-month periods."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-audit-logs.json",
+            "quotes": [
+              "Audit logs are stored for up to 6 months."
+            ]
+          },
+          "says": "Stored for up to 6 months."
+        }
+      ],
+      "impact": "See zpa.audit-logs.what-is-recorded: a floor and a ceiling are not the same promise."
+    }
+  }
+}

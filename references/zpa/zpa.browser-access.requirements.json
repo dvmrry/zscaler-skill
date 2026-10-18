@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.requirements",
+  "title": "What Browser Access requires of the browser, server and session",
+  "aliases": [
+    "browser access requirements",
+    "clientless zpa",
+    "browser access tls 1.2",
+    "browser access cors",
+    "browser access via header",
+    "browser access session cookie",
+    "browser access http only",
+    "can browser access do ssh",
+    "browser access reauthentication",
+    "browser access websocket"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.pra"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.segment-constraints"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.policy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Browser Access is the clientless path to Private Access web applications. This subject holds what the path requires of the browser, the application and the session."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{definition}} {{existing-idp}} {{zcc-also-applied}}"
+    },
+    {
+      "label": "Protocols.",
+      "text": "{{http-https-only}} {{non-http-use-pra}} Applications are defined as FQDNs only, covered in [[zpa.app-segments.definition]]. Whether WebSocket traffic passes is open {{gap:websocket-support}}."
+    },
+    {
+      "label": "Browser and server.",
+      "text": "{{tls-requirements}} {{via-header}} {{cors}} {{cors-browsers}}"
+    },
+    {
+      "label": "Session.",
+      "text": "{{session-cookies}} {{reauthentication}} How cookies behave across tabs and incognito windows is open {{gap:cookie-edge-cases}}."
+    },
+    {
+      "label": "Not established.",
+      "text": "How the Client Connector transport differs {{gap:zcc-path-contrast}} and where TLS terminates {{gap:ingress-data-path}} are open."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application is HTTP or HTTPS, since other protocols are not Browser Access traffic and go to PRA.",
+      "uses": [
+        "http-https-only",
+        "non-http-use-pra"
+      ]
+    },
+    {
+      "do": "Whether the user's browser and any proxy meet the TLS and cipher requirement, and whether the backend strips or rejects the Via header.",
+      "uses": [
+        "tls-requirements",
+        "via-header"
+      ]
+    },
+    {
+      "do": "Whether a CORS failure involves a browser outside the listed versions or a request without the required headers.",
+      "uses": [
+        "cors",
+        "cors-browsers"
+      ]
+    },
+    {
+      "do": "Whether a re-prompt for login is the periodic Authentication Timeout or a cleared session cookie.",
+      "uses": [
+        "session-cookies",
+        "reauthentication"
+      ]
+    },
+    {
+      "do": "Whether the question depends on WebSocket support or cookie behavior across tabs, which no source settles.",
+      "uses": [
+        "websocket-support",
+        "cookie-edge-cases"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Browser Access lets users authenticate and reach Private Access applications through a web browser without installing Zscaler Client Connector. It is aimed at devices whose operating system Client Connector does not support and at third-party devices the company does not own or manage.",
+      "tier": "A",
+      "binds": [
+        "zpa/browser-access"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Browser Access allows you to leverage a web browser for user authentication and application access over Private Access (ZPA), without requiring users to install Zscaler Client Connector on their devices.",
+            "Control user access to applications on devices with operating systems that are not currently supported by Zscaler Client Connector.",
+            "Provide third-party access to applications on devices that might not be owned or managed by your company"
+          ]
+        }
+      ]
+    },
+    "existing-idp": {
+      "statement": "Browser Access uses the customer's existing identity provider, so current users, contractors and other third-party users can be given access without managing an internet footprint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Use your existing identity provider (IdP) to provide access to your current users, contractors, and other third-party users without managing an internet footprint."
+          ]
+        }
+      ]
+    },
+    "zcc-also-applied": {
+      "statement": "When an application in a segment has Browser Access enabled, Client Connector access is applied to it automatically, so the application can be requested from a browser or from Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "When you define an application within an application segment and enable Browser Access, Zscaler Client Connector access is automatically applied.",
+            "or via Zscaler Client Connector"
+          ]
+        }
+      ]
+    },
+    "http-https-only": {
+      "statement": "Private Access supports HTTP and HTTPS for Browser Access applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Private Access supports HTTP and HTTPS protocols, and Private Access inserts a Via header in HTTP requests."
+          ]
+        }
+      ]
+    },
+    "tls-requirements": {
+      "statement": "The browser must support TLS 1.2 with cipher suite ECDHE-RSA-AES128-GCM-SHA256 and any proxy in the path must not modify the page contents. The application server must also support TLS 1.2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "any web browser that supports TLS 1.2 (with cipher suite ECDHE-RSA-AES128-GCM-SHA256) with a proxy that doesn't modify the webpage contents",
+            "Browser Access requires that the application server supports TLS 1.2 encryption."
+          ]
+        }
+      ]
+    },
+    "via-header": {
+      "statement": "Private Access inserts a Via header into HTTP requests made through Browser Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Private Access inserts a Via header in HTTP requests made using Browser Access."
+          ]
+        }
+      ]
+    },
+    "cors": {
+      "statement": "Private Access accepts CORS requests with the right settings, and valid OPTIONS requests that include certain headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Private Access also accepts CORS requests with the right settings and valid OPTIONS requests that include certain headers."
+          ]
+        }
+      ]
+    },
+    "cors-browsers": {
+      "statement": "The browsers the help page lists as supported for CORS requests are Firefox 81.0, Chrome 64_65, Google Chrome 86.0.4240.75, Microsoft Edge 86.0.622.43, Safari 12.0 and Safari 13.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Supported browsers for CORS requests are Firefox 81.0, Chrome 64_65, Google Chrome 86.0.4240.75, Microsoft Edge 86.0.622.43, Safari 12.0, and Safari 13.0."
+          ]
+        }
+      ]
+    },
+    "non-http-use-pra": {
+      "statement": "SSH, RDP and VNC are not Browser Access traffic. Browser Access carries HTTP and HTTPS only, and Privileged Remote Access is the clientless path for RDP, SSH and VNC.",
+      "tier": "B",
+      "derived_from": [
+        "http-https-only",
+        "zpa.pra:definition"
+      ],
+      "conditions": "Derived: the Browser Access help names only HTTP and HTTPS, and the PRA overview names RDP, SSH and VNC as its clientless protocols. No source lists SSH over Browser Access as unsupported in those words."
+    },
+    "session-cookies": {
+      "statement": "Browser Access cookies are session based and are cleared when the browser's session ends, so users must authenticate before accessing applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Browser Access cookies are session based, so they're cleared when a web browser's session terminates. Therefore, users must authenticate before accessing applications via Browser Access."
+          ]
+        }
+      ]
+    },
+    "reauthentication": {
+      "statement": "Users are asked to reauthenticate periodically, governed by the Authentication Timeout setting of the Private Access timeout policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "users are asked to reauthenticate periodically based on the Authentication Timeout setting of the Private Access timeout policy rule."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "websocket-support": {
+      "kind": "semantic",
+      "title": "WebSocket traffic through Browser Access",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"WebSocket support: not explicitly confirmed from vendor source; treat as unsupported until confirmed.\" No captured help page, SDK or provider mentions WebSocket for Browser Access. A lab test of a WebSocket application through a Browser Access FQDN would resolve it.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "cookie-edge-cases": {
+      "kind": "semantic",
+      "title": "Cookie lifetime across tabs and incognito windows",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Incognito mode always forces re-auth. Closing a tab (not the browser) usually retains the cookie.\" The help page says only that cookies are cleared when the browser session ends. A browser test would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "zcc-path-contrast": {
+      "kind": "semantic",
+      "title": "How the Client Connector path differs from Browser Access",
+      "status": "open",
+      "detail": "Unverified legacy statement: the Client Connector path uses mutual TLS with a device certificate and an OS-level tunnel that survives a tab close, applies full posture evaluation, and handles any TCP application, while Browser Access has none of this. No captured source describes the Client Connector transport in these terms. Posture limits for Browser Access rules are claim zpa.browser-access.policy:no-posture-with-web-browser.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "ingress-data-path": {
+      "kind": "semantic",
+      "title": "Where TLS terminates for Browser Access",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"browser -(HTTPS, public CNAME)-> Zscaler ingress -(mTLS to App Connector)-> App Connector -> internal app. The Zscaler ingress terminates TLS with the browser using the Browser Access certificate. The App Connector side still uses mTLS.\" The help pages name the Browser Access (web server) certificate and the CNAME but do not describe the termination point or the connector-side transport.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

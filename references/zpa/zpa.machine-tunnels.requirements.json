@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "id": "zpa.machine-tunnels.requirements",
+  "title": "What a ZPA machine tunnel needs before it can connect",
+  "aliases": [
+    "machine tunnel prerequisites",
+    "enable machine tunnel for all",
+    "machine tunnel platforms",
+    "ZPA machine authentication",
+    "mtAuthRequired",
+    "policyToken machine tunnel",
+    "machine tunnel macos",
+    "machine tunnel webview2"
+  ],
+  "binds": [
+    "zpa/client-types#zpn_client_type_machine_tunnel"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.machine-groups.definition"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.monitoring"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers what a machine tunnel needs before it can connect."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{definition}} {{components}} What the user-tunnel side looks like for comparison is open {{gap:user-tunnel-comparison}}."
+    },
+    {
+      "label": "The tenant switch.",
+      "text": "{{enable-for-all}} {{disable-keeps-tunnels}} {{existing-config-sticky}}"
+    },
+    {
+      "label": "Authentication before login.",
+      "text": "{{machine-auth-option}} {{machine-auth-install-parameter}} {{policytoken-required}} {{auth-needs-idp-reach}} {{webview2}}"
+    },
+    {
+      "label": "Network prerequisites.",
+      "text": "{{transparent-proxy-prereqs}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "Whether macOS needs a support step is open {{gap:macos-support-enablement}}. How the machine and user tunnels coexist after login is open {{gap:session-lifecycle}}. Why Active Directory logon depends on the tunnel is open {{gap:gpo-delivery}}. How segments are matched for these sessions is open {{gap:segment-resolution}}."
+    },
+    {
+      "text": "Keys and groups: [[zpa.machine-tunnels.provisioning-keys]], [[zpa.machine-groups.definition]]. Status and removal: [[zpa.machine-tunnels.monitoring]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the platform is Windows or macOS, the only platforms with machine tunnels.",
+      "uses": [
+        "definition"
+      ]
+    },
+    {
+      "do": "Whether Enable Machine Tunnel for All is on, and that the app profile rule carries a Machine Token.",
+      "uses": [
+        "components",
+        "enable-for-all",
+        "disable-keeps-tunnels"
+      ]
+    },
+    {
+      "do": "Whether machine authentication is required and the policyToken profile bypasses the IdP login page.",
+      "uses": [
+        "machine-auth-option",
+        "machine-auth-install-parameter",
+        "policytoken-required",
+        "auth-needs-idp-reach"
+      ]
+    },
+    {
+      "do": "Whether a profile or token change was expected to move an existing machine tunnel, which it does not.",
+      "uses": [
+        "existing-config-sticky"
+      ]
+    },
+    {
+      "do": "Whether the device uses Transparent Proxy-based Interception, FileVault or WebView2 authentication.",
+      "uses": [
+        "transparent-proxy-prereqs",
+        "webview2"
+      ]
+    },
+    {
+      "do": "Whether the symptom involves a macOS support step, login coexistence or Group Policy, which no source settles.",
+      "uses": [
+        "macos-support-enablement",
+        "session-lifecycle",
+        "gpo-delivery"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "A machine tunnel lets a Windows or macOS device establish a connection to a service before the user is logged in to Zscaler Client Connector. Zscaler Client Connector does not support machine tunnels on iOS, Linux, Android or Android on ChromeOS.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "A machine tunnel allows a user's Windows or macOS device to establish a connection to a service before the user is logged in to Zscaler Client Connector.",
+            "Zscaler Client Connector doesn't support machine tunnels for iOS, Linux, Android, and Android on ChromeOS."
+          ]
+        }
+      ]
+    },
+    "components": {
+      "statement": "Using a machine tunnel takes four things: machine groups and machine provisioning keys configured in the Admin Console, the keys added to Zscaler Client Connector app profile rules for Windows or macOS, and the Private Access machine tunnel enabled for all.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel",
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "To use a machine tunnel, you must configure Machines groups and Machine Provisioning keys in the Zscaler Admin Console, add keys to Zscaler Client Connector app profile rules for Windows or macOS, and enable the Private Access machine tunnel for all."
+          ]
+        }
+      ]
+    },
+    "enable-for-all": {
+      "statement": "The tenant-wide switch is Enable Machine Tunnel for All, on the Zscaler Private Access tab under Administration > Client Connector Entitlement > Private Access. When it is on, every user with a Machine Token in the app profile can connect to ZPA without being logged in.",
+      "tier": "A",
+      "binds": [
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zpa-machine-tunnel-all.json",
+          "quotes": [
+            "If Enable Machine Tunnel For All is enabled, all users with a Machine Token configured in the app profile can establish a connection to ZPA without being logged in.",
+            "go to Administration > Client Connector Entitlement > Private Access.",
+            "On the Zscaler Private Access (ZPA) tab, enable or disable Enable Machine Tunnel for All."
+          ]
+        }
+      ]
+    },
+    "disable-keeps-tunnels": {
+      "statement": "Turning Enable Machine Tunnel for All off does not drop existing machine tunnels at once: they stay connected until a user's app profile policy is updated and the user logs out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zpa-machine-tunnel-all.json",
+          "quotes": [
+            "If Enable Machine Tunnel For All is disabled, any existing machine tunnels remain connected until a user"
+          ]
+        }
+      ]
+    },
+    "webview2": {
+      "statement": "WebView2 authentication is not supported for machine tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "WebView2 authentication is not supported for Machine Tunnels."
+          ]
+        }
+      ]
+    },
+    "transparent-proxy-prereqs": {
+      "statement": "With Transparent Proxy-based Interception mode enabled, a machine tunnel needs inbound traffic to ZscalerTunnel allowed in firewall rules, and FileVault disabled so Private Access connections work before a user logs in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "must have inbound traffic to ZscalerTunnel allowed in firewall rules to allow access to Private Access apps.",
+            "be sure to disable FileVault to allow Private Access connections before a user logs in to Zscaler Client Connector on their device."
+          ]
+        }
+      ]
+    },
+    "machine-auth-option": {
+      "statement": "The app profile option ZPA Machine Authentication requires users to authenticate against their identity provider before the machine tunnel starts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "Admins can enable ZPA Machine Authentication in App Profiles to require users to authenticate against their IdP before the machine tunnel starts."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "ZPA Machine Authentication: When you enable this option, you require users to authenticate against your IdP before the machine tunnel starts if you use the machine tunnel feature in Private Access."
+          ]
+        }
+      ]
+    },
+    "machine-auth-install-parameter": {
+      "statement": "On Windows the same requirement is an install parameter, MTAUTHREQUIRED for MSI and mtAuthRequired for EXE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MTAUTHREQUIREDEXE: mtAuthRequired | Requires users to authenticate against your IdP before the machine tunnel starts"
+          ]
+        }
+      ]
+    },
+    "policytoken-required": {
+      "statement": "The policyToken install parameter is required when a machine tunnel is configured and users should reach Private Access applications before logging in to the device. The app profile policy it names must use a custom PAC file that bypasses the IdP login page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "You configure the machine tunnel and want the users to access Private Access applications before logging in to the device.",
+            "ensure that the custom PAC file associated with that policy includes a bypass for your IdP login page"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "You configure the machine tunnel and want the users to access Private Access applications before logging in to the device.",
+            "ensure that the custom PAC file associated with that policy includes a bypass for your IdP login page"
+          ]
+        }
+      ]
+    },
+    "auth-needs-idp-reach": {
+      "statement": "policyToken is required for pre-login Private Access, and the policy it names must use a PAC file that bypasses the IdP login page. How this interacts with ZPA Machine Authentication is not stated.",
+      "tier": "B",
+      "conditions": "Chain of evidence. Statement narrowed after verification: the earlier wording (\"without that bypass the tunnel cannot start\") was not entailed by the captures and was removed.",
+      "derived_from": [
+        "machine-auth-option",
+        "policytoken-required"
+      ]
+    },
+    "existing-config-sticky": {
+      "statement": "Changing the machine token in an app profile, or applying a different app profile, does not override the configuration of an existing machine tunnel. The token must be removed from the profile and the machine tunnel removed in Enrolled Devices, or the client reinstalled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Changing the existing machine token, or applying a different app profile to users or groups, won't override the configuration of existing machine tunnels."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "macos-support-enablement": {
+      "kind": "semantic",
+      "title": "Whether macOS machine tunnels need a Zscaler Support enablement step",
+      "status": "open",
+      "about": [
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "detail": "Unverified legacy statement: \"Contact Zscaler Support to enable the feature on macOS; it is not self-serve for that platform.\" The About Machine Tunnels, Configuring ZPA Machine Tunnel for All and app profile captures name no such step. Ask Zscaler Support, or try enabling macOS machine tunnels in a scratch tenant.",
+      "blocks": "saying a macOS rollout needs a support case",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "session-lifecycle": {
+      "kind": "semantic",
+      "title": "How a machine tunnel and the user tunnel coexist after login",
+      "status": "open",
+      "former_ids": [
+        "zpa-43"
+      ],
+      "about": [
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "detail": "The Machine Tunnel page describes Active as connected to Private Access before user login. No source says whether the machine tunnel stays connected beside the user tunnel after login or hands off. Unverified legacy statement: \"After the user logs in and ZCC authenticates the user-identity session, both the machine tunnel and the user tunnel can be active simultaneously. ZPA policy evaluation is independent per session type.\" Observe the status of a machine tunnel across a login in a scratch tenant.",
+      "blocks": "saying whether a machine tunnel session can reach a segment after login",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "gpo-delivery": {
+      "kind": "semantic",
+      "title": "Why machine tunnels exist for Active Directory logon and Group Policy",
+      "status": "open",
+      "about": [
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "detail": "Unverified legacy statement: \"Enterprises relying on Active Directory for login and Group Policy require the device to reach a domain controller before Windows can authenticate a cached or new credential, enforce GPO, and complete logon scripts.\" and \"Group Policy Application requires authenticated LDAP connectivity to a domain controller, so a misconfigured or unfinished machine tunnel makes GPO delivery fail silently.\" The machine groups help names Active Directory as the reason for pre-login connectivity; no source describes the GPO or logon behaviour. Unverified legacy statement: \"Pre-login connectivity typically requires a narrow set of targets: domain controllers (TCP 389/636, 88, 53, 445, 3268/3269), DNS servers, DHCP, and potentially WSUS or SCCM endpoints.\" Resolve with a tenant test that blocks domain controller access on the machine tunnel and observes logon.",
+      "blocks": "explaining a logon or Group Policy symptom by machine tunnel state",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "segment-resolution": {
+      "kind": "semantic",
+      "title": "How application segments are matched for machine tunnel sessions",
+      "status": "open",
+      "about": [
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "detail": "Unverified legacy statement: \"Machine tunnel sessions resolve application segments and undergo policy evaluation exactly like user sessions, using the most-specific-segment-wins matching.\" No machine tunnel source states this; the general policy evaluation text does not mention machine tunnels. Check against a machine tunnel session with overlapping segments.",
+      "blocks": "predicting which segment a machine tunnel session matches",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "user-tunnel-comparison": {
+      "kind": "semantic",
+      "title": "How the machine tunnel compares with the user tunnel",
+      "status": "open",
+      "about": [
+        "zpa/client-types#zpn_client_type_machine_tunnel"
+      ],
+      "detail": "Unverified legacy statement: a comparison table gave the machine tunnel an identity of \"machine token / signing cert\", a purpose of \"AD/DC reachability, GPO, cached credential validation\", and the user tunnel \"Windows, macOS, Linux, iOS, Android\" support with IdP authentication \"always required\". The Client Connector help covers the machine side (platforms, optional ZPA Machine Authentication) but not the user tunnel side of this comparison.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

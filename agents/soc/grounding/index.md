@@ -88,14 +88,14 @@ When instructions are ambiguous, bias toward:
 - [`zia.url-filtering`](kb:zia.url-filtering)
 - [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - [`zia.cloud-app-control`](kb:zia.cloud-app-control)
-- [`references/zpa/app-segments.md`](../../../references/zpa/app-segments.md)
-- [`references/zpa/policy-precedence.md`](../../../references/zpa/policy-precedence.md)
+- [`zpa.app-segments`](kb:zpa.app-segments)
+- [`zpa.policy`](kb:zpa.policy)
 
 ### `coverage` or `activity`
 
 - [`references/shared/siem-log-mapping.md`](../../../references/shared/siem-log-mapping.md)
 - [`zia.audit-logs`](kb:zia.audit-logs)
-- [`references/zpa/audit-logs.md`](../../../references/zpa/audit-logs.md)
+- [`zpa.audit-logs`](kb:zpa.audit-logs)
 - [`references/zwa/audit-logs.md`](../../../references/zwa/audit-logs.md)
 
 ## Discipline

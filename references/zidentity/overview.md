@@ -234,4 +234,4 @@ configuration for every government tenant.
 - ZPA step-up auth level SDK object — [`../zpa/sdk.md §2.62 StepUpAuthLevelAPI`](../zpa/sdk.md)
 - Cross-product integration hooks — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
 - ZIA URL Filtering Conditional action — [`zia.url-filtering`](kb:zia.url-filtering)
-- ZPA Require Approval / Conditional Access — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA Require Approval / Conditional Access — [`zpa.policy`](kb:zpa.policy)

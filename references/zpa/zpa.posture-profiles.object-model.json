@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "id": "zpa.posture-profiles.object-model",
+  "title": "The ZPA posture profile object and where it comes from",
+  "aliases": [
+    "posture_udid",
+    "postureUdid",
+    "zpa posture profile fields",
+    "posture profile cloud suffix",
+    "posture profile read-only",
+    "posture profile platform",
+    "crlCheckEnabled",
+    "nonExportablePrivateKeyEnabled"
+  ],
+  "binds": [
+    "zpa/posture-profiles"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles.policy-operand"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.posture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the posture profile object as ZPA exposes it."
+    },
+    {
+      "label": "Origin.",
+      "text": "{{zcc-defined}} {{appear-in-policy-list}} {{read-only-docs}} How soon a new profile appears is open {{gap:appearance-delay}}. The machine tunnel flag is in [[zpa.machine-tunnels.posture:api-field]]."
+    },
+    {
+      "label": "Fields.",
+      "text": "{{fields}} {{platform-array}} The SDKs disagree on its type {{divergence:platform-type}}, and the effect is open {{gap:go-platform-decoding}}. {{bool-defaults}} {{root-cert-tab}}"
+    },
+    {
+      "label": "Names.",
+      "text": "{{name-suffix-stripped}} {{same-base-name-first-wins}} The documentation says otherwise {{divergence:cloud-suffix}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Where the profile is defined: in the Zscaler Client Connector Device Posture section, not through the ZPA API.",
+      "uses": [
+        "zcc-defined",
+        "read-only-docs",
+        "zpa.posture-profiles.api-surface:spec-get-only"
+      ]
+    },
+    {
+      "do": "Which identifier the object carries for policy use: the postureUdid, not the id.",
+      "uses": [
+        "fields"
+      ]
+    },
+    {
+      "do": "Whether the name has a cloud suffix and whether the lookup in use ignores it.",
+      "uses": [
+        "name-suffix-stripped",
+        "cloud-suffix",
+        "same-base-name-first-wins"
+      ]
+    },
+    {
+      "do": "Whether a boolean read from an SDK means false or absent, for the three flags.",
+      "uses": [
+        "bool-defaults"
+      ]
+    },
+    {
+      "do": "Whether platform is read through the Go SDK, where its type differs from the specification.",
+      "uses": [
+        "platform-array",
+        "platform-type",
+        "go-platform-decoding"
+      ]
+    }
+  ],
+  "claims": {
+    "zcc-defined": {
+      "statement": "Posture profiles for both Internet & SaaS and Private Access are created in the Device Posture section of the Zscaler Client Connector configuration, and they are used for Private Access access policies and for Internet & SaaS posture trust levels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Posture profiles for both Internet & SaaS and Private Access devices are created in the Device Posture section.",
+            "The posture profiles are used for configuring access policies for Private Access and for adding posture profile trust levels for Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "appear-in-policy-list": {
+      "statement": "The posture profiles configured in the Zscaler Client Connector portal appear in the access policy criteria drop-down menu, where a specific profile can be searched.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "The posture profiles you configure in the Zscaler Client Connector Portal appear in the drop-down menu, where you can search for a specific profile."
+          ]
+        }
+      ]
+    },
+    "read-only-docs": {
+      "statement": "Zscaler's ZPA API overview says the posture profile API resources allow you to read posture profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-zpa-api.json",
+          "quotes": [
+            "Posture profile API resources allow you to read posture profiles."
+          ]
+        }
+      ]
+    },
+    "fields": {
+      "statement": "The ZPA posture profile object has id, name, postureUdid, postureType, platform, rootCert, domain, masterCustomerId, zscalerCustomerId, zscalerCloud, applyToMachineTunnelEnabled, crlCheckEnabled, nonExportablePrivateKeyEnabled, creationTime, modifiedTime and modifiedBy, with only name required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "required": [
+              "name"
+            ],
+            "title": "PostureProfile"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/postureUdid",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/postureType",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/crlCheckEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/nonExportablePrivateKeyEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "binds": [
+        "zpa/posture-profiles#postureUdid",
+        "zpa/posture-profiles#postureType",
+        "zpa/posture-profiles#platform",
+        "zpa/posture-profiles#rootCert",
+        "zpa/posture-profiles#applyToMachineTunnelEnabled",
+        "zpa/posture-profiles#crlCheckEnabled",
+        "zpa/posture-profiles#nonExportablePrivateKeyEnabled"
+      ]
+    },
+    "platform-array": {
+      "statement": "The specification types a posture profile's platform as an array of strings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/platform",
+          "expect": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        }
+      ],
+      "binds": [
+        "zpa/posture-profiles#platform"
+      ]
+    },
+    "bool-defaults": {
+      "statement": "The Python model defaults applyToMachineTunnelEnabled, crlCheckEnabled and nonExportablePrivateKeyEnabled to False when the key is absent, and the Go struct holds all three as plain bool, so neither SDK can tell an absent key from false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/posture_profiles.py",
+          "quotes": [
+            "config[\"applyToMachineTunnelEnabled\"] if config and \"applyToMachineTunnelEnabled\" in config else False",
+            "self.crl_check_enabled = config[\"crlCheckEnabled\"] if config and \"crlCheckEnabled\" in config else False",
+            "config[\"nonExportablePrivateKeyEnabled\"] if config and \"nonExportablePrivateKeyEnabled\" in config else False"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "ApplyToMachineTunnelEnabled bool `json:\"applyToMachineTunnelEnabled\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/posture-profiles#applyToMachineTunnelEnabled",
+        "zpa/posture-profiles#crlCheckEnabled",
+        "zpa/posture-profiles#nonExportablePrivateKeyEnabled"
+      ]
+    },
+    "root-cert-tab": {
+      "statement": "The Python model's request_format() writes the key for rootCert with a trailing tab character, so the key it emits is not rootCert.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/posture_profiles.py",
+          "quotes": [
+            "\"rootCert\t\": self.root_cert,"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/posture-profiles#rootCert"
+      ]
+    },
+    "name-suffix-stripped": {
+      "statement": "The Go SDK's GetByName removes a trailing parenthesized cloud suffix from both the requested name and each listed profile name and compares the remainder case-insensitively, so the suffix plays no part in the match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "quotes": [
+            "adaptedPostureName := common.RemoveCloudSuffix(postureName)",
+            "if strings.EqualFold(common.RemoveCloudSuffix(postureProfile.Name), adaptedPostureName) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "reg := regexp.MustCompile(`(.*)[\\s]+\\([a-zA-Z0-9\\-_\\.]*\\)[\\s]*$`)"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/posture-profiles#name"
+      ]
+    },
+    "same-base-name-first-wins": {
+      "statement": "Two posture profiles whose names differ only in the cloud suffix are not told apart by the Go name lookup, which returns the first listed match.",
+      "tier": "B",
+      "derived_from": [
+        "name-suffix-stripped"
+      ],
+      "conditions": "Follows from the code: the loop returns on the first base-name match. Two profiles with the same base name in one tenant are not shown in any source.",
+      "binds": [
+        "zpa/posture-profiles#name"
+      ]
+    }
+  },
+  "divergences": {
+    "platform-type": {
+      "summary": "The type of a posture profile's platform field.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1posture~1{id}/get/responses/200/content/*~1*/schema/properties/platform",
+            "expect": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "says": "platform is an array of strings."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/posture_profiles.py",
+            "quotes": [
+              "self.platform = ZscalerCollection.form_list(config[\"platform\"] if \"platform\" in config else [], str)"
+            ]
+          },
+          "says": "The Python model builds platform as a list of strings."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+            "quotes": [
+              "Platform string `json:\"platform,omitempty\"`"
+            ]
+          },
+          "says": "The Go struct types platform as a single string."
+        }
+      ],
+      "impact": "A Go consumer that reads platform from a posture profile depends on how the SDK handles an array decoded into a string, which the sources do not show."
+    },
+    "cloud-suffix": {
+      "summary": "Whether the cloud suffix in a posture profile name matters when looking it up by name.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_posture_profile.md",
+            "quotes": [
+              "To query posture profiles that are associated with a specific Zscaler cloud, it is required to append the cloud name to the name of the posture profile"
+            ]
+          },
+          "says": "Appending the cloud name is required to query the profiles of a specific cloud."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+            "quotes": [
+              "if strings.EqualFold(common.RemoveCloudSuffix(postureProfile.Name), adaptedPostureName) {"
+            ]
+          },
+          "says": "The lookup strips the suffix from both names, so it is ignored."
+        }
+      ],
+      "impact": "A configuration that relies on the suffix to pick one cloud's profile gets whichever profile the base name matches first."
+    }
+  },
+  "gaps": {
+    "go-platform-decoding": {
+      "kind": "semantic",
+      "title": "What the Go SDK does when the API returns platform as an array",
+      "status": "open",
+      "detail": "The specification says array and the Go struct says string; no source shows whether decoding fails, is dropped or is tolerated. Unverified legacy statement: \"the Go SDK may be silently truncating\". Read a profile through the Go SDK against a tenant, or check how its client handles type mismatches.",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ],
+      "blocks": "relying on platform from a Go consumer"
+    },
+    "appearance-delay": {
+      "kind": "semantic",
+      "title": "How soon a new ZCC posture profile appears as a ZPA posture profile",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A ZPA Posture Profile appears in the API only after the corresponding ZCC Device Posture Profile is created ... or not yet synced\". The captured access policy article says only that configured profiles appear in the criteria list. Create a ZCC profile and poll the posture list.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a missing profile is only a sync delay"
+    }
+  }
+}

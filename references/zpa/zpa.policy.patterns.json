@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.patterns",
+  "title": "Common ZPA access rule patterns and their ordering",
+  "aliases": [
+    "allow any user any application zpa",
+    "block specific users zpa",
+    "allow group to segment group",
+    "block few users allow rest",
+    "block individual users within allowed group",
+    "zpa configuration examples"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.access-rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These rule layouts come from the help's configuration examples, and each depends on rule order."
+    },
+    {
+      "label": "Allowing.",
+      "text": "{{group-to-segment-group}} The default block behind them is in [[zpa.policy.evaluation-order:default-access-block]], and the blank-field form is in [[zpa.policy.conditions:blank-criteria-mean-any]]."
+    },
+    {
+      "label": "Blocking.",
+      "text": "{{block-useful-for-small-groups}} {{block-few-allow-rest}} {{block-individual-in-allowed-group}} Why the block rule must sit above is in [[zpa.policy.access-rule-order:block-before-allow]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a rule that blocks a few users, check that an allow rule for everyone else sits below it.",
+      "uses": [
+        "block-few-allow-rest",
+        "zpa.policy.access-rule-order:block-before-allow"
+      ]
+    },
+    {
+      "do": "For a rule meant to block more than a few users, check whether the default block already covers them.",
+      "uses": [
+        "zpa.policy.evaluation-order:default-access-block",
+        "block-useful-for-small-groups"
+      ]
+    },
+    {
+      "do": "To find why a rule applies to everyone, check whether its application and SAML fields are blank.",
+      "uses": [
+        "zpa.policy.conditions:blank-criteria-mean-any"
+      ]
+    }
+  ],
+  "claims": {
+    "group-to-segment-group": {
+      "statement": "To let specific users reach specific applications, a rule combines a segment group created for those applications with a SAML attribute for the users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-configuration-examples.json",
+          "quotes": [
+            "Create a segment group that includes the applications you want to configure policies for.",
+            "you might have a set of applications that you only want users from a specific department to access"
+          ]
+        }
+      ]
+    },
+    "block-useful-for-small-groups": {
+      "statement": "A rule that denies users access is useful when the number of users blocked is relatively small compared to the number with access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-configuration-examples.json",
+          "quotes": [
+            "configuring a policy rule to deny users access would only be useful for the following circumstances:",
+            "The number of users being blocked from application segments or segment groups is relatively small compared to the number of users with access."
+          ]
+        }
+      ]
+    },
+    "block-few-allow-rest": {
+      "statement": "To make applications available to most users but block a few, a rule blocking the specific users is followed by another rule allowing any other users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-configuration-examples.json",
+          "quotes": [
+            "you would create an access policy blocking the specific users, then another access policy allowing any other users."
+          ]
+        }
+      ]
+    },
+    "block-individual-in-allowed-group": {
+      "statement": "To allow a group but block individual users within it, one rule blocks the individuals on the segment group and a second allows the group on the same segment group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "access-policy-configuration-examples.json",
+          "quotes": [
+            "You want to allow a specific group of users access to application segments or segment groups, but also want to block individual users within that group."
+          ]
+        }
+      ]
+    }
+  }
+}

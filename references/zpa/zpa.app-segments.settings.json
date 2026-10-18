@@ -1,0 +1,416 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.settings",
+  "title": "Application segment settings that interact: health reporting, connector selection, CNAME, ICMP, encryption and anchoring",
+  "aliases": [
+    "health_reporting",
+    "continuous health reporting",
+    "select_connector_close_to_app",
+    "closer to application",
+    "is_cname_enabled",
+    "icmp_access_type",
+    "double encryption application segment",
+    "inspect_traffic_with_zia",
+    "source ip anchor segment",
+    "tcp keepalive application segment",
+    "policy_style"
+  ],
+  "binds": [
+    "zpa/application-segments#healthReporting",
+    "zpa/application-segments#selectConnectorCloseToApp",
+    "zpa/application-segments#isCnameEnabled",
+    "zpa/application-segments#icmpAccessType",
+    "zpa/application-segments#doubleEncrypt",
+    "zpa/application-segments#ipAnchored",
+    "zpa/application-segments#inspectTrafficWithZia",
+    "zpa/application-segments#tcpKeepAlive",
+    "zpa/application-segments#policyStyle"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.multimatch-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the segment settings whose combinations or defaults change behavior."
+    },
+    {
+      "label": "Health reporting.",
+      "text": "{{health-reporting-default}} The Terraform schema defaults differently {{divergence:health-reporting-default-differs}}. {{continuous-limits}} The Multimatch limits on Health Reporting are in [[zpa.app-segments.multimatch-requirements]]."
+    },
+    {
+      "label": "Connector selection.",
+      "text": "{{closer-to-app}} {{closer-needs-health}} {{forcenew-removed}} Other Terraform lifecycle effects on segments are in [[zpa.terraform.app-segment-lifecycle]]."
+    },
+    {
+      "label": "CNAME and ICMP.",
+      "text": "{{cname-setting}} {{icmp-default}} {{icmp-or-across-segments}} {{icmp-double-encryption}} {{icmp-access-type-values}}"
+    },
+    {
+      "label": "Encryption and anchoring.",
+      "text": "{{double-encryption-exclusions}} {{sipa-link-enabled}} {{sipa-inspect-zia-exclusive}} Whether Source IP Anchor excludes Browser Access is open {{gap:sipa-browser-access}}. The ZIA side of anchoring: [[zia.ssl-inspection.criteria:zpa-segments-sipa-only]]. Full anchoring mechanics: [[doc:references/shared/source-ip-anchoring.md]]."
+    },
+    {
+      "label": "Other settings.",
+      "text": "{{inspect-zia-purpose}} {{tcp-keepalive}} {{policy-style-tf}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Health Reporting is Continuous on a segment with more than 10 ports or a wildcard-only entry, which the console does not allow.",
+      "uses": [
+        "continuous-limits",
+        "health-reporting-default"
+      ]
+    },
+    {
+      "do": "Whether a connector-proximity change is planned through Terraform, and which provider version is in use.",
+      "uses": [
+        "closer-to-app",
+        "closer-needs-health",
+        "forcenew-removed"
+      ]
+    },
+    {
+      "do": "Whether ICMP is enabled on one segment for an application and disabled on another, since the client treats it as enabled.",
+      "uses": [
+        "icmp-or-across-segments",
+        "icmp-access-type-values"
+      ]
+    },
+    {
+      "do": "Whether Double Encryption, Source IP Anchoring, Browser Access and Inspect Traffic with ZIA are combined on one segment.",
+      "uses": [
+        "double-encryption-exclusions",
+        "sipa-inspect-zia-exclusive",
+        "sipa-browser-access"
+      ]
+    }
+  ],
+  "claims": {
+    "health-reporting-default": {
+      "statement": "Health Reporting makes the App Connector report application health continuously (Continuous), while a user is accessing it (On Access) or not at all (None), and the console default is On Access.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#healthReporting"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Choose whether the App Connector reports the health status of all applications within an application segment continuously (Continuous), while a user is accessing it (On Access), or not at all (None). The default setting is On Access."
+          ]
+        }
+      ]
+    },
+    "continuous-limits": {
+      "statement": "Continuous health reporting cannot be chosen for applications configured with more than 10 ports or when any application in the segment is defined with only a wildcard.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#healthReporting"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "You can't choose Continuous health reporting for applications configured with more than 10 ports or if any of the applications in the application segment are defined with only a wildcard (e.g., *)."
+          ]
+        }
+      ]
+    },
+    "closer-to-app": {
+      "statement": "App Connector Selection Method Closer to Application selects the App Connector with the shortest round-trip time toward the requested application; the default is Closer to User.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#selectConnectorCloseToApp"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "By default, Private Access chooses the App Connector as closest to the user (Closer to User). After you make a selection, Private Access selects an App Connector that has the shortest round-trip time towards the requested application."
+          ]
+        }
+      ]
+    },
+    "closer-needs-health": {
+      "statement": "Closer to Application cannot be enabled when Health Reporting is None, and when the limit of 6,000 health-check targets at the App Connector is exceeded Health Reporting is set to None and a random App Connector is chosen.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#selectConnectorCloseToApp"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If Health Reporting is set to None, the App Connector Selection Method feature cannot be enabled and an error message appears.",
+            "If this limit is exceeded, then the Health Reporting of the application is set to None, and a random selection of App Connectors is chosen."
+          ]
+        }
+      ]
+    },
+    "forcenew-removed": {
+      "statement": "Terraform provider v4.4.6 removed `forceNew` from `select_connector_close_to_app` on `zpa_application_segment`, and the current schema declares it as an optional bool.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#selectConnectorCloseToApp"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Remove `forceNew` from attribute `select_connector_close_to_app` in resource `zpa_application_segment`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "Optional: true,"
+          ],
+          "after": "\"select_connector_close_to_app\": {"
+        }
+      ]
+    },
+    "cname-setting": {
+      "statement": "Client Connector can receive CNAME is enabled by default, so Zscaler Client Connector receives CNAME DNS records from the App Connector; disabling it means App Connectors do not send CNAME DNS records, and it is not applicable to Browser Access applications.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#isCnameEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "This setting is enabled by default, and Zscaler Client Connector receives CNAME DNS records from the App Connector.",
+            "Disabling means App Connectors do not send CNAME DNS records.",
+            "This setting is not applicable for Browser Access applications, and Private Access functions as if the option is disabled."
+          ]
+        }
+      ]
+    },
+    "icmp-default": {
+      "statement": "ICMP Access is Disabled by default, and when enabled it lets Zscaler Client Connector, Cloud and Branch Connectors or Source IP Anchor send ICMP to the segment's applications, with access policies allowing or blocking the requests.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#icmpAccessType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "By default, this is set to Disabled. Private Access allows or blocks ICMP requests based on access policies."
+          ]
+        }
+      ]
+    },
+    "icmp-or-across-segments": {
+      "statement": "If ICMP is enabled for an application in one segment and disabled for the same application in another, Zscaler Client Connector considers ICMP enabled for it and forwards the ICMP request to Private Access.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#icmpAccessType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If ICMP is enabled for a specific application in an application segment and the same application is disabled for ICMP in a different application segment, then Zscaler Client Connector considers ICMP enabled for that application and forwards the ICMP request to Private Access."
+          ]
+        }
+      ]
+    },
+    "icmp-double-encryption": {
+      "statement": "ICMP does not work with Double Encryption.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "ICMP does not work with Double Encryption"
+          ]
+        }
+      ]
+    },
+    "icmp-access-type-values": {
+      "statement": "The API field `icmpAccessType` takes `PING_TRACEROUTING`, `PING` or `NONE`.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#icmpAccessType"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/icmpAccessType",
+          "expect": {
+            "enum": [
+              "PING_TRACEROUTING",
+              "PING",
+              "NONE"
+            ],
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "double-encryption-exclusions": {
+      "statement": "Double Encryption cannot be enabled when Browser Access or Source IP Anchoring is selected for any application, and should be disabled for extranet application segments.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#doubleEncrypt"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If you selected Browser Access or Source IP Anchoring for any application, you can't enable Double Encryption.",
+            "extranet applications don't use a traditional App Connector, so double encryption should be disabled if you're creating an application segment for it."
+          ]
+        }
+      ]
+    },
+    "sipa-inspect-zia-exclusive": {
+      "statement": "Source IP Anchor and Inspect Traffic with ZIA cannot both be enabled on a segment; Source IP Anchor must be disabled first.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#ipAnchored",
+        "zpa/application-segments#inspectTrafficWithZia"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If Source IP Anchor is enabled, you must disable it prior to enabling Inspect Traffic with ZIA as both features cannot be enabled at the same time."
+          ]
+        }
+      ]
+    },
+    "inspect-zia-purpose": {
+      "statement": "Inspect Traffic with ZIA lets a segment use a single posture for securing internet or SaaS and private applications and applies Data Loss Prevention policies to it.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#inspectTrafficWithZia"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Enable to leverage single posture for securing internet or SaaS and private applications and apply Data Loss Prevention policies to the application segment you are creating."
+          ]
+        }
+      ]
+    },
+    "sipa-link-enabled": {
+      "statement": "Source IP Anchor on a segment is tied to Source IP Anchoring for Internet & SaaS: when enabled the segment can be connected to in Internet & SaaS, and it cannot be deleted while in use by an Internet & SaaS entity.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#ipAnchored"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "When enabled, you can connect to it in Internet & SaaS. You can't delete the application while in use by a Internet & SaaS entity."
+          ]
+        }
+      ]
+    },
+    "tcp-keepalive": {
+      "statement": "TCP Keepalive makes the App Connector periodically send TCP keepalives to an application server a user has accessed on a TCP port, and is disabled by default.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpKeepAlive"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Enables the App Connector to periodically send TCP keepalives to an application server when a user has accessed that server on a TCP port. This setting is disabled by default."
+          ]
+        }
+      ]
+    },
+    "policy-style-tf": {
+      "statement": "The Terraform provider describes `policy_style` as dual policy evaluation, which resolves the FQDN to the server IP and enforces policy on both: false is NONE (disabled) and true is DUAL_POLICY_EVAL (enabled).",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#policyStyle"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "Enable dual policy evaluation (resolve FQDN to Server IP and enforce policies based on Server IP and FQDN). false = NONE (disabled), true = DUAL_POLICY_EVAL (enabled). Default: disabled."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "health-reporting-default-differs": {
+      "summary": "The help article and the Terraform schema give different defaults for Health Reporting.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "The default setting is On Access."
+            ]
+          },
+          "says": "The console default is On Access."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_application_segment.go",
+            "quotes": [
+              "Default: \"NONE\","
+            ],
+            "after": "\"health_reporting\": {"
+          },
+          "says": "The provider schema defaults `health_reporting` to NONE."
+        }
+      ],
+      "impact": "A segment created through Terraform without `health_reporting` is sent with NONE, not the console's On Access, and NONE also blocks Closer to Application."
+    }
+  },
+  "gaps": {
+    "sipa-browser-access": {
+      "kind": "semantic",
+      "title": "Whether Source IP Anchor and Browser Access can be combined on a segment",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying whether a Source IP Anchoring segment may carry Browser Access applications",
+      "detail": "Unverified legacy statement: Source IP Anchor is mutually exclusive with Browser Access, Double Encryption and Multimatch on the same segment. The help captures state the Double Encryption and Multimatch exclusions and the Double Encryption exclusion for Browser Access, not an exclusion between Browser Access and Source IP Anchor. Source IP Anchoring mechanics are in the shared source-ip-anchoring reference."
+    }
+  }
+}

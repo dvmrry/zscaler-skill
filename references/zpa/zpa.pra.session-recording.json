@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.session-recording",
+  "title": "PRA session recordings: status, transcoding, playback and sharing",
+  "aliases": [
+    "pra session recording",
+    "privileged session recording",
+    "recording status transcoding",
+    "transcode now",
+    "pra recording permalink",
+    "session recording full access",
+    "where are pra recordings stored",
+    "pra recording not streamable"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.pra.consoles-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssh-control"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Recordings are produced when a consoles policy turns on Record Sessions. They then move through transcoding states before they can be streamed."
+    },
+    {
+      "label": "Recording.",
+      "text": "{{recording-enabled-by-policy}} Where recordings are stored is open {{gap:storage-location}}."
+    },
+    {
+      "label": "Status.",
+      "text": "{{status-values}} {{transcode-now}}"
+    },
+    {
+      "label": "Playing and sharing.",
+      "text": "{{play-when-ready}} {{download-needs-full-access}} {{sharing}} The permission that gates playback is open {{gap:full-access-for-playback}}."
+    },
+    {
+      "text": "What a recording excludes is in [[zpa.pra.consoles-policy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the recording's status is one that streams, or whether it is Enqueued, Available or Transcoding Failed and needs Transcode Now or a download.",
+      "uses": [
+        "status-values",
+        "transcode-now",
+        "play-when-ready"
+      ]
+    },
+    {
+      "do": "Whether the admin's role grants Session Recordings Full Access for download.",
+      "uses": [
+        "download-needs-full-access"
+      ]
+    },
+    {
+      "do": "Whether a storage or playback-permission answer rests on the unverified statements.",
+      "uses": [
+        "storage-location",
+        "full-access-for-playback"
+      ]
+    }
+  ],
+  "claims": {
+    "recording-enabled-by-policy": {
+      "statement": "Session recording is enabled through the Record Sessions setting of a consoles policy. A user in a recorded console sees a Recording notification at the top of the console window, and the recording ends when the user ends the session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "When an end user selects the privileged console with this policy configured, the Recording notification appears at the top of the screen within the privileged console window.",
+            "After the end user ends the session for that privileged console, the recording for that privileged session ends."
+          ]
+        }
+      ]
+    },
+    "status-values": {
+      "statement": "A recording's status is one of Failed (the session did not start, for example from invalid credentials or network issues), Completed (the session is done but the recording is not yet available), Available (downloadable and viewable but not ready for streaming), Enqueued (waiting at low priority for transcoding), Transcode Now (priority was requested), Enqueued On Priority, Transcoding (converting from a raw format), Ready for Streaming, and Transcoding Failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "accessing-privileged-sessions.json",
+          "quotes": [
+            "Failed: The recording cannot be created because the associated privileged session wasn't started due to invalid credentials or network issues.",
+            "Completed: The associated privileged session is completed, but the recording is not yet available.",
+            "Available: The recording is available to download and view. This privileged session is not ready for streaming.",
+            "Enqueued: The recording is waiting in the queue with low priority to be transcoded.",
+            "Enqueued On Priority: The recording is waiting in the queue as a higher priority to be transcoded.",
+            "Transcode Now: The Transcode Now icon in the Actions column was clicked for this recording. The recording is at a higher priority to be transcoded in the queue.",
+            "Transcoding: The recording file is currently being converted from a raw format to a streamable format.",
+            "Ready for Streaming: The transcoding of the privileged session is complete and ready to view.",
+            "Transcoding Failed: The transcoding process was unable to be completed for this recording."
+          ]
+        }
+      ]
+    },
+    "transcode-now": {
+      "statement": "An admin can raise a recording's transcode priority with the Transcode Now action, which is available only when the recording is Available, Enqueued or Transcoding Failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "accessing-privileged-sessions.json",
+          "quotes": [
+            "Click the Transcode Now icon in the Actions column to move the recording to higher priority in the transcode queue.",
+            "This option is only available when the privileged recording is in the Available, Enqueued, or Transcoding Failed status."
+          ]
+        }
+      ]
+    },
+    "play-when-ready": {
+      "statement": "A recording in Ready for Streaming status plays directly; a recording in another status except Failed, Completed or Ready for Streaming must be downloaded and played offline.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "accessing-privileged-sessions.json",
+          "quotes": [
+            "If the recording is in Ready for Streaming status, then it starts to play.",
+            "If it is in any other status besides Failed, Completed, or Ready for Streaming, follow the next steps to view the recording."
+          ]
+        }
+      ]
+    },
+    "download-needs-full-access": {
+      "statement": "The Download action is available when Session Recordings is set to Full Access in the admin role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "accessing-privileged-sessions.json",
+          "quotes": [
+            "This option is available when Session Recordings is set to Full Access when configuring an admin role."
+          ]
+        }
+      ]
+    },
+    "sharing": {
+      "statement": "A recording can be shared with admins in the same tenant who have Session Recording enabled by copying the video page URL. A permalink starts the video at a specific time, and recordings an admin does not have access to cannot be viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "accessing-privileged-sessions.json",
+          "quotes": [
+            "You can share the video with admins who have access to the same tenant and have Session Recording enabled by copying the URL at the top of the video page.",
+            "If you want to direct them to a specific time in the recording, you can copy and share the permalink.",
+            "Any privileged session recordings that an admin doesn't have access to can't be viewed."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "storage-location": {
+      "kind": "semantic",
+      "title": "Where recordings are stored",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Storage and access: Server-side.\" The help describes download and streaming but not the storage location. A Zscaler statement would resolve it.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "full-access-for-playback": {
+      "kind": "semantic",
+      "title": "Which role permission gates playback and sharing",
+      "status": "open",
+      "detail": "The older capture note says access to recordings is gated by the Session Recording Full Access role permission, and the legacy reference said such admins can \"download, stream, and share.\" The current help ties only Download to Full Access (claim download-needs-full-access) and sharing to admins \"who have Session Recording enabled\" (claim sharing). Which permission level plays a recording is not stated. A role test would resolve it.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

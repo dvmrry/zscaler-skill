@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.client-selection",
+  "title": "How clients are steered to a Private Service Edge and which country policy applies",
+  "aliases": [
+    "trusted network private service edge",
+    "grace distance",
+    "public service edge proximity override",
+    "is_public",
+    "publicly accessible private service edge",
+    "why does my client use public service edge instead of pse",
+    "rfc 1918 country policy",
+    "private service edge location geoip",
+    "pse country code policy"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.public-service-edges.public-flag"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Steering to a Private Service Edge is decided by three group settings, and the user's country policy is decided by a separate rule."
+    },
+    {
+      "label": "Preference for a Private Service Edge.",
+      "text": "{{trusted-network-priority}} {{trusted-networks-zcc-only}} {{grace-distance}} {{grace-distance-fields}} Whether grace distance is needed for on-premises users is unverified {{gap:grace-distance-required}}. The base ranking is not described {{gap:nearest-by-coordinates}}."
+    },
+    {
+      "label": "Remote users.",
+      "text": "{{publicly-accessible}} {{is-public-field}} {{outside-users-excluded}} The Public-tier reading of this field is in [[zpa.public-service-edges.public-flag]]."
+    },
+    {
+      "label": "Country policy.",
+      "text": "{{public-ip-country}} {{rfc1918-uses-pse-location}} {{group-location}} A wrong country code on the group is not shown to raise an error {{gap:location-misconfiguration}}."
+    },
+    {
+      "label": "Changing the location.",
+      "text": "{{location-change-old-until-new-connection}} {{geoip-override-unsupported}} The delay across the service is unquantified {{gap:location-propagation}}. A new Private Service Edge may take time to appear to App Connectors {{gap:new-pse-propagation}}."
+    },
+    {
+      "text": "Group settings are in [[zpa.private-service-edges.groups]]; disaster recovery groups are in [[zpa.private-service-edges.disaster-recovery]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the client is on a network mapped as a trusted network on the group, and whether it is a Zscaler Client Connector (trusted networks do not apply to Cloud & Branch Connectors).",
+      "uses": [
+        "trusted-network-priority",
+        "trusted-networks-zcc-only"
+      ]
+    },
+    {
+      "do": "Whether a closer Public Service Edge wins because grace distance is off or the value is smaller than the distance to the user.",
+      "uses": [
+        "grace-distance",
+        "grace-distance-fields"
+      ]
+    },
+    {
+      "do": "Whether remote users are expected to reach the group: Publicly Accessible must be on and the Private Service Edge must be reachable on a public IP.",
+      "uses": [
+        "publicly-accessible",
+        "is-public-field",
+        "outside-users-excluded"
+      ]
+    },
+    {
+      "do": "Which location a country-criteria policy used: the user's public IP location, or the Private Service Edge location when the user connected from an RFC 1918 address.",
+      "uses": [
+        "public-ip-country",
+        "rfc1918-uses-pse-location",
+        "group-location"
+      ]
+    },
+    {
+      "do": "Whether a recent group location change applies yet: an existing connection keeps the old location until it reconnects.",
+      "uses": [
+        "location-change-old-until-new-connection",
+        "location-propagation"
+      ]
+    }
+  ],
+  "claims": {
+    "trusted-network-priority": {
+      "statement": "A Private Service Edge group can be mapped to the organization's trusted networks; the mapping prioritizes Private Service Edges matching a trusted network when users connect from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "This is used to prioritize Private Service Edges matching the given trusted network when users connect from those trusted networks."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#trustedNetworks"
+      ]
+    },
+    "trusted-networks-zcc-only": {
+      "statement": "Trusted networks are available for Zscaler Client Connectors only and are not supported with Cloud & Branch Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Trusted networks are available for Zscaler Client Connectors only. Trusted networks are not supported with Cloud & Branch Connectors."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#trustedNetworks"
+      ]
+    },
+    "publicly-accessible": {
+      "statement": "The Publicly Accessible setting makes a Private Service Edge group that has trusted-network mapping also available to all users outside those networks; the Private Service Edge must be reachable over a public IP address for remote users to connect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "is also available publicly for all users outside of these trusted networks.",
+            "It is important to ensure the Private Service Edge is reachable over a public IP address if you need remote users to be able to connect to it."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#isPublic"
+      ]
+    },
+    "is-public-field": {
+      "statement": "The API and Terraform field is_public (wire key isPublic) carries that setting; it is a boolean in Terraform that defaults to false and \"Enable[s] or disable[s] public access for the Service Edge Group\", and the Go SDK sends it as a string.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Description: \"Enable or disable public access for the Service Edge Group.\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "IsPublic:                       strings.ToUpper(strconv.FormatBool(d.Get(\"is_public\").(bool))),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Default value: `false` Supported values: `true`, `false`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "IsPublic                       string"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdgeGroup~1{serviceEdgeGroupId}/get/responses/200/content/*~1*/schema/properties/isPublic",
+          "expect": {
+            "description": "Whether or not the ZPA Private Service Edge group is public.",
+            "type": "string"
+          }
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#isPublic"
+      ],
+      "conditions": "Tier lowered from A: no quoted source ties is_public to the console's Publicly Accessible setting; the link rests on matching names and the OpenAPI description of isPublic as whether the group is public."
+    },
+    "outside-users-excluded": {
+      "statement": "A group without Publicly Accessible is not offered to users outside its mapped trusted networks.",
+      "tier": "B",
+      "derived_from": [
+        "publicly-accessible"
+      ],
+      "conditions": "Inferred from the console wording that the setting makes the group \"also\" available outside the trusted networks; no source states the off-state routing directly. Statement changed: the clause \"so those users are served by other Service Edges\" was dropped as unsupported."
+    },
+    "grace-distance": {
+      "statement": "Grace distance (console: Public Service Edge Proximity Override) allows a Private Service Edge group within a specified distance of the user to be prioritized over a closer Public Service Edge for Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Indicates whether to allow this Private Service Edge group within a specified distance from the user to be prioritized over a closer Public Service Edge for Private Access."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Allows ZPA Private Service Edge Groups within the specified distance to be prioritized over a closer ZPA Public Service Edge."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#graceDistanceEnabled"
+      ]
+    },
+    "grace-distance-fields": {
+      "statement": "grace_distance_value is the maximum distance and grace_distance_value_unit is MILES or KMS; the three grace distance fields must be set together.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Support values are: `MILES` and `KMS`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "RequiredWith: []string{\"grace_distance_enabled\", \"grace_distance_value_unit\"},",
+            "\"MILES\", \"KMS\","
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#graceDistanceValue",
+        "zpa/service-edge-groups#graceDistanceValueUnit"
+      ]
+    },
+    "public-ip-country": {
+      "statement": "After a user connects to a Private Service Edge, the user's location is determined from its public IP address and the country-based policy for that country is enforced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "After a user connects to a Private Service Edge, the location of the user is determined by its public IP address, and then a country-based policy for the mapped country is enforced."
+          ]
+        }
+      ]
+    },
+    "rfc1918-uses-pse-location": {
+      "statement": "If a user connects to a Private Service Edge with an RFC 1918 address, the location of the Private Service Edge is used to evaluate policies with country criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "If a user connects to a Private Service Edge with an RFC 1918 IP address, then the location of the Private Service Edge is used to evaluate policies with country criteria."
+          ]
+        }
+      ]
+    },
+    "group-location": {
+      "statement": "The location shown for a Private Service Edge is the location where its group is set up, and the group stores location coordinates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "The location where the Private Service Edge group that the Private Service Edge belongs to is set up."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "The latitude and longitude of the Private Service Edge group location."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#latitude",
+        "zpa/service-edge-groups#longitude"
+      ]
+    },
+    "location-change-old-until-new-connection": {
+      "statement": "If the location of a Private Service Edge group is updated for an existing connection, the Private Service Edge uses the old location until its next new connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "If the location of the Private Service Edge Group is updated for an existing connection, the Private Service Edge uses the old location until the next time it makes a new connection."
+          ]
+        }
+      ]
+    },
+    "geoip-override-unsupported": {
+      "statement": "Location changes via a GeoIP configuration override are not supported for Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Location changes via a GeoIP configuration override are not supported for Private Service Edges."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "nearest-by-coordinates": {
+      "kind": "semantic",
+      "title": "How the Central Authority ranks Private and Public Service Edges for a client",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Among available PSE Groups (and Public SEs), the CA selects the nearest based on latitude/longitude coordinates. This is why accurate location coordinates on the PSE Group matter operationally.\" The sources state trusted-network priority and the grace distance override but not the base ranking rule. Resolve with Private Access architecture documentation or a lab test.",
+      "blocks": "predicting which Service Edge a client uses outside a trusted network",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "grace-distance-required": {
+      "kind": "semantic",
+      "title": "Whether grace distance is required for LAN users to prefer the Private Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Without grace_distance_enabled, ZPA may route LAN users to a geographically close Zscaler PoP rather than to the on-prem PSE ... Always configure grace distance.\" The sources give trusted-network mapping as the priority mechanism for users on a trusted network and grace distance as an override of a closer Public Service Edge; no source says grace distance is required for LAN preference. Resolve with a lab test from a trusted network.",
+      "blocks": "advising whether grace distance must be set for on-premises sites",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "location-propagation": {
+      "kind": "semantic",
+      "title": "Propagation time for a group location change",
+      "status": "partial",
+      "former_ids": [
+        "zpa-54"
+      ],
+      "detail": "The help page gives the behavior for existing connections but no delay for the change to reach the rest of the service, and legacy advice to treat location changes as needing a maintenance window is unverified. Resolve with operator experience or Zscaler support.",
+      "blocks": "scheduling location edits",
+      "resolves_with": [
+        "operator-experience",
+        "support-ticket"
+      ]
+    },
+    "location-misconfiguration": {
+      "kind": "semantic",
+      "title": "Effect of a wrong group country code on policy",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If the location is misconfigured ... on-LAN users with RFC 1918 IPs will have country-based ZPA policies applied for the wrong country. This is a silent misconfiguration: ZPA will not error.\" The country consequence follows from the RFC 1918 rule; that no error or warning is raised is not stated. Resolve with a lab test.",
+      "blocks": "claiming the misconfiguration is undetectable",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "new-pse-propagation": {
+      "kind": "semantic",
+      "title": "Delay before App Connectors use a newly enrolled Private Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"App Connectors do not automatically know about a new PSE; they receive updated topology from the CA. After enrolling a new PSE, allow a short CA propagation interval.\" No captured page describes the interval. Resolve with a lab test.",
+      "blocks": "troubleshooting a just-enrolled Private Service Edge",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

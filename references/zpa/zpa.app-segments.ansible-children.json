@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.ansible-children",
+  "title": "How the Ansible Browser Access, PRA and Inspection modules reconcile child applications",
+  "aliases": [
+    "ansible browser access v2 child apps",
+    "ansible pra application segment drift",
+    "ansible inspection segment common_apps_dto",
+    "ba_app_id pra_app_id inspect_app_id",
+    "ansible parent port merge",
+    "zpa_application_segment_ba_v2"
+  ],
+  "binds": [
+    "zpa/browser-access#clientlessApps",
+    "zpa/pra-app-segments#praApps",
+    "zpa/inspection-app-segments#inspectionApps"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.sdk-behavior"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers Ansible module behavior for the child applications of Browser Access, PRA and Inspection segments, not ZPA's application-segment matching."
+    },
+    {
+      "label": "Child identity.",
+      "text": "{{child-ids-parent-scoped}} {{child-domains-compared-both-ways}} {{children-comparison-narrow}} What the comparison misses is open {{gap:child-field-drift}}."
+    },
+    {
+      "label": "Domain normalization.",
+      "text": "{{child-id-map-raw-keys}} {{case-variant-child-lookup}}"
+    },
+    {
+      "label": "Parent ports.",
+      "text": "{{merged-ports-not-sent}} {{omitted-ports-may-clear}}"
+    },
+    {
+      "label": "Inspection.",
+      "text": "{{inspection-module-differences}} {{inspection-merge-not-sent}} Whether it reconciles successfully is open {{gap:inspection-reconciliation-unproven}}. The legacy comparison of the three modules is in [[doc:references/zpa/api-divergences.md#ansible-2212-bapra-child-ownership-changes-port-merge-and-inspection-repair-remain-unproven]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the declared parent TCP ports reach the update payload, by reading the segment after a run that changed only children.",
+      "uses": [
+        "merged-ports-not-sent",
+        "omitted-ports-may-clear"
+      ]
+    },
+    {
+      "do": "Whether child domains differ from the live ones only by case or surrounding whitespace.",
+      "uses": [
+        "child-id-map-raw-keys",
+        "case-variant-child-lookup"
+      ]
+    },
+    {
+      "do": "Whether a change to a live child's port, protocol or certificate is detected, which the comparison does not establish.",
+      "uses": [
+        "children-comparison-narrow",
+        "child-field-drift"
+      ]
+    },
+    {
+      "do": "Whether an inspection segment run changed anything, since its lookup, deletion field and update call differ from the other two modules.",
+      "uses": [
+        "inspection-module-differences",
+        "inspection-reconciliation-unproven"
+      ]
+    }
+  ],
+  "claims": {
+    "child-ids-parent-scoped": {
+      "statement": "The Browser Access v2 and PRA modules resolve child IDs only from the children owned by the current parent segment; on create the parent and child IDs are left empty and nothing is marked for deletion, and on update stale children owned by that parent can be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_ba_v2.py",
+          "quotes": [
+            "for ba_app in existing_app.get(\"clientless_apps\") or []:",
+            "config[\"app_id\"] = existing_app[\"id\"] if existing_app else \"\"",
+            "deleted_ids = ["
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_pra.py",
+          "quotes": [
+            "for pra_app in existing_app.get(\"pra_apps\") or []:",
+            "config[\"app_id\"] = existing_app[\"id\"] if existing_app else \"\"",
+            "deleted_ids = ["
+          ]
+        }
+      ]
+    },
+    "child-domains-compared-both-ways": {
+      "statement": "Both modules compare declared and live child domains in both directions using trimmed, case-folded values, so removing a child outside Ansible, or declaring an empty child list, is treated as drift.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_ba_v2.py",
+          "quotes": [
+            "(ba_app.get(\"domain\") or \"\").strip().casefold()",
+            "if desired_domains != current_domains:"
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_pra.py",
+          "quotes": [
+            "(pra_app.get(\"domain\") or \"\").strip().casefold()",
+            "if desired_domains != current_domains:"
+          ]
+        }
+      ]
+    },
+    "merged-ports-not-sent": {
+      "statement": "Both modules merge the child domains and TCP ports into `desired_app`, but the update payload takes its TCP ports from the raw `existing_app` and the create payload from the raw `app`, so the merged `tcp_port_range` is not sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_ba_v2.py",
+          "quotes": [
+            "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
+            "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None)",
+            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),"
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_pra.py",
+          "quotes": [
+            "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
+            "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None)",
+            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),"
+          ]
+        }
+      ]
+    },
+    "omitted-ports-may-clear": {
+      "statement": "`convert_ports_list(None)` returns an empty list, and `existing_app` is overwritten with the module arguments before the update payload is built, so a parent TCP port value left out of the task can clear the segment's ports; the intermediate merge is ineffective, not port preservation.",
+      "tier": "B",
+      "conditions": "Chain of evidence: convert_ports_list returns [] for None, and existing_app.update(app) copies module arguments over the live values. Assumes an omitted option reaches `app` as None; not run.",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/module_utils/utils.py",
+          "quotes": [
+            "if obj_list is None: return []"
+          ],
+          "after": "def convert_ports_list(obj_list):"
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_ba_v2.py",
+          "quotes": [
+            "existing_app.update(app)"
+          ]
+        }
+      ]
+    },
+    "child-id-map-raw-keys": {
+      "statement": "Each module's parent-owned child ID and deletion map is keyed by the raw domain string, while the drift check compares trimmed, case-folded domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_ba_v2.py",
+          "quotes": [
+            "ba_by_domain[domain] = ba_app",
+            "ba_app = ba_by_domain.get(domain)"
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_pra.py",
+          "quotes": [
+            "pra_by_domain[domain] = pra_app",
+            "pra_app = pra_by_domain.get(domain)"
+          ]
+        }
+      ]
+    },
+    "case-variant-child-lookup": {
+      "statement": "A child domain that differs from the live one only by case or whitespace compares equal in the drift check but finds no child ID on update, leaving the child ID empty and making the owned child appear stale for deletion or replacement.",
+      "tier": "B",
+      "conditions": "Chain of evidence: normalized comparison (no drift) plus raw-key lookup (no ID). The unit tests for both modules use lowercase exact-spelling domains (for example `app1.example.com`), so they do not exercise this boundary. Not run.",
+      "derived_from": [
+        "child-domains-compared-both-ways",
+        "child-id-map-raw-keys"
+      ]
+    },
+    "children-comparison-narrow": {
+      "statement": "The general comparison excludes `id` and `common_apps_dto`, so the child check compares only normalized domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_ba_v2.py",
+          "quotes": [
+            "fields_to_exclude = [\"id\", \"common_apps_dto\"]"
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_pra.py",
+          "quotes": [
+            "fields_to_exclude = [\"id\", \"common_apps_dto\"]"
+          ]
+        }
+      ]
+    },
+    "inspection-module-differences": {
+      "statement": "The Inspection module looks up child apps only when `existing_app` is set (create skips the lookup), queries them with `get_segments_by_type` for type `INSPECT`, records deletions under `deleted_pra_apps`, and sends updates through the PRA client method `update_segment_pra`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_inspection.py",
+          "quotes": [
+            "application_type=\"INSPECT\",",
+            "desired_app[\"common_apps_dto\"][\"deleted_pra_apps\"] = deleted_ids",
+            "client.app_segments_pra.update_segment_pra(",
+            "target_app_id = existing_app.get(\"id\")"
+          ]
+        }
+      ]
+    },
+    "inspection-merge-not-sent": {
+      "statement": "The Inspection module also merges domains and ports into `desired_app` but sends the raw `existing_app` ports on update and the raw `app` ports on create.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_application_segment_inspection.py",
+          "quotes": [
+            "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
+            "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None)",
+            "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "child-field-drift": {
+      "kind": "semantic",
+      "title": "Whether a change to a live child's port, protocol, certificate or other nested field is detected",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ],
+      "blocks": "saying Ansible converges child apps beyond their domains",
+      "detail": "The sources do not establish that a change to a live child's port, protocol, certificate or other nested field is detected: common_apps_dto is excluded from the general comparison and the dedicated check compares only domains. Change one child's port outside Ansible and run the module in check mode."
+    },
+    "inspection-reconciliation-unproven": {
+      "kind": "semantic",
+      "title": "Whether the Inspection module reconciles child apps successfully",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ],
+      "blocks": "relying on the Inspection module to converge child apps",
+      "detail": "Its parent-scoped child lookup is update-only, and its detector, child recovery, deletion field and update and read client calls do not yet establish successful reconciliation. Run it against a scratch inspection segment with two children and remove one."
+    }
+  }
+}

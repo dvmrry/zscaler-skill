@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.consoles-policy",
+  "title": "PRA consoles policy: file transfer, clipboard, recording and sharing",
+  "aliases": [
+    "consoles policy",
+    "privileged capabilities policy",
+    "pra file transfer",
+    "pra clipboard",
+    "pra file upload inspect",
+    "pra vnc sftp port 22",
+    "pra share session control monitor",
+    "pra join session",
+    "pra policy change live session"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.session-recording"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A consoles policy decides what a user can do inside a console session."
+    },
+    {
+      "label": "Controls.",
+      "text": "{{scope}} {{defaults-disabled}} {{disabled-feature-display}}"
+    },
+    {
+      "label": "File transfer.",
+      "text": "{{inspect-needs-zia}} {{vnc-file-transfer}}"
+    },
+    {
+      "label": "Recording and sharing.",
+      "text": "{{recording-excludes-transfers}} {{share-modes}}"
+    },
+    {
+      "label": "Changes and limits.",
+      "text": "{{live-session-changes}} {{limits}} The older Privileged Capabilities Policy name and URL are not confirmed as retired {{gap:renamed}}."
+    },
+    {
+      "text": "Recordings and their statuses are in [[zpa.pra.session-recording]]. The Terraform defects around the portal capabilities rule are in [[zpa.terraform.resource-fidelity]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a missing control in the session is simply disabled, since every control defaults to off and File Transfer shows but does not work when off.",
+      "uses": [
+        "defaults-disabled",
+        "disabled-feature-display"
+      ]
+    },
+    {
+      "do": "Whether a VNC console with file transfer has SSH and SFTP on port 22 with the VNC credentials.",
+      "uses": [
+        "vnc-file-transfer"
+      ]
+    },
+    {
+      "do": "Whether the policy changed during a live session, which only affects the next session.",
+      "uses": [
+        "live-session-changes"
+      ]
+    },
+    {
+      "do": "Whether Inspect is selectable, which needs the ZIA integration.",
+      "uses": [
+        "inspect-needs-zia"
+      ]
+    }
+  ],
+  "claims": {
+    "scope": {
+      "statement": "A consoles policy rule is assigned to selected privileged consoles and controls file uploads, file downloads, clipboard copy and paste, session recording, session sharing and joining live sessions. The rule's criteria choose application segments and segment groups, with SAML and SCIM or session and user attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-consoles-policies.json",
+          "quotes": [
+            "The privileged consoles that you choose to assign a consoles policy rule can be set to inspect and upload files with or without inspection, download files, copy and paste to and from a privileged console, record privileged sessions, and provide monitor and control capabilities for live privileged sessions.",
+            "Choose the application segments and segment groups to which this rule applies:"
+          ]
+        }
+      ]
+    },
+    "defaults-disabled": {
+      "statement": "File Uploads, File Downloads, Clipboard Copy, Clipboard Paste, Record Sessions, Share Sessions Mode and Join Sessions Mode are each disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-consoles-policies.json",
+          "quotes": [
+            "File Uploads: Enable to allow uploads. Select Inspect to inspect uploaded files. Enable to allow uploads. By default, this field is disabled.",
+            "File Downloads: Enable to allow downloads. By default, this field is disabled.",
+            "Clipboard Copy: Enable to allow the copy action from a privileged console. By default, this field is disabled.",
+            "Clipboard Paste: Enable to allow the paste action into a privileged console. By default, this field is disabled.",
+            "Record Sessions: Enable to record a Privileged Remote Access (PRA) privileged session. By default, this field is disabled.",
+            "Join Sessions Mode: Enable to join a Privileged Remote Access (PRA) privileged session. By default, this field is disabled."
+          ]
+        }
+      ]
+    },
+    "disabled-feature-display": {
+      "statement": "A feature that is disabled in the consoles policy is not displayed to the user, except File Transfer, which is shown but not functional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "If any of the features are disabled, then they are not displayed, with the exception of the File Transfer feature, which shows if disabled but isn't functional."
+          ]
+        }
+      ]
+    },
+    "live-session-changes": {
+      "statement": "A change to a consoles policy made during a live privileged session is not reflected until a new live session starts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-consoles-policies.json",
+          "quotes": [
+            "If the consoles policy is changed while a live privileged session is in progress, the changes aren't reflected until a new live privileged session is started."
+          ]
+        }
+      ]
+    },
+    "inspect-needs-zia": {
+      "statement": "The Inspect option for file uploads can be selected only if the Internet & SaaS (ZIA) integration was successful, and inspected files are checked inline with the upload. If the inspection detects malware the upload halts and the files are not uploaded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-consoles-policies.json",
+          "quotes": [
+            "You can only select the Inspect option if the Internet & SaaS (ZIA) integration was successful.",
+            "If you select the Inspect option, then the files are inspected inline with the uploading process."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "If the files inspected have malware detected, then the uploading process halts and the files are not uploaded."
+          ]
+        }
+      ]
+    },
+    "vnc-file-transfer": {
+      "statement": "For a VNC-enabled console, enabling File Uploads or File Downloads requires the target system to run SSH on port 22 with the same credentials as the VNC login. The connection fails when the end user connects to a target with SFTP disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-consoles-policies.json",
+          "quotes": [
+            "the target system needs to have SSH enabled on port 22 and must use the same credentials as used for logging into VNC.",
+            "that has SFTP disabled and you are attempting to enable File Uploads or File Downloads, the connection fails when the end user attempts to connect."
+          ]
+        }
+      ]
+    },
+    "recording-excludes-transfers": {
+      "statement": "Session recording captures screen output. File transfer and clipboard contents are not recorded, to prevent leaking sensitive information such as passwords.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-consoles-policies.json",
+          "quotes": [
+            "Privileged session recording captures the screen outputs. The File Transfer and Clipboard transfers are not recorded during a privileged session recording to prevent leakage of sensitive information like passwords."
+          ]
+        }
+      ]
+    },
+    "share-modes": {
+      "statement": "Share Sessions Mode set to Control lets other users be invited to a session and be given mouse and keyboard control, and set to Monitor lets permitted users such as administrators join live sessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-consoles-policies.json",
+          "quotes": [
+            "Select Control to allow other users to be invited to a privileged session, and to transfer mouse and keyboard control to them.",
+            "Select Monitor to allow permitted users, such as administrators, to join live privileged sessions."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "A consoles policy allows 5,000 policy rules and 200 privileged consoles per policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Consoles Policy | 5,000 policy rules200 privileged consoles per consoles policy |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "renamed": {
+      "kind": "semantic",
+      "title": "Whether the Privileged Capabilities Policy URL redirects to Configuring Consoles Policies",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating that the former Privileged Capabilities Policy name and URL are retired in favor of Consoles Policy",
+      "detail": "Unverified legacy statement: \"The surface once called the Privileged Capabilities Policy is now called Consoles Policy, and the former URL redirects to the current article.\" It used to be sourced to an authored summary note (privileged-remote-access-captures.md), which is not vendor text; the verbatim capture of Configuring Consoles Policies does not mention the old name or a redirect."
+    }
+  }
+}

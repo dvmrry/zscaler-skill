@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.access-path",
+  "title": "The hops of a ZPA access request and where each can fail",
+  "aliases": [
+    "zpa access path",
+    "zpa request flow",
+    "microtunnel path",
+    "connector eligibility vs selection",
+    "where can zpa fail"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.segment-checks"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A request crosses the client, a Service Edge, the connector and the server, and connector choice is made before any connector-to-server hop."
+    },
+    {
+      "label": "The channel.",
+      "text": "{{mtunnel-path}} {{edges-enforce-policy}} {{ca-distributes}}"
+    },
+    {
+      "label": "Choosing the connector.",
+      "text": "[[zpa.app-connectors.selection:closest-by-location-and-latency]] Whether eligibility filtering comes before latency selection is not sourced [[zpa.app-connectors.selection]]."
+    },
+    {
+      "label": "Reading a record by connector.",
+      "text": "What an empty connector means is in [[zpa.app-connectors.selection]], and reading a closed session by connector assignment is open [[zpa.app-connectors.selection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which hop the evidence points at: client, Service Edge, selection, connector to server.",
+      "uses": [
+        "mtunnel-path"
+      ]
+    },
+    {
+      "do": "Whether the record has a connector before suspecting the connector-to-server hop, remembering a zero connector ID also occurs for APP_NOT_REACHABLE and INVALID_DOMAIN.",
+      "uses": [
+        "zpa.app-connectors.selection:connector-id-zero",
+        "zpa.app-connectors.selection:close-with-connector-failure-table"
+      ]
+    },
+    {
+      "do": "What the metrics log says about alive targets for the connectors that serve the application.",
+      "uses": [
+        "zpa.app-connectors.health:metrics-target-counts",
+        "zpa.app-connectors.health:alive-below-target"
+      ]
+    },
+    {
+      "do": "Which connector the request was routed to and the 15-minute affinity of an active user.",
+      "uses": [
+        "zpa.app-connectors.selection:closest-by-location-and-latency",
+        "zpa.app-connectors.selection:affinity-15-minutes"
+      ]
+    }
+  ],
+  "claims": {
+    "mtunnel-path": {
+      "statement": "A Microtunnel is an end-to-end channel that is created on demand between Zscaler Client Connector and an internal application, through a Public or Private Service Edge and an App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "A Microtunnel (M-Tunnel) is an end-to-end communication channel created between Zscaler Client Connector and an internal application via a Public Service Edge or Private Service Edge and an App Connector upon demand."
+          ]
+        }
+      ]
+    },
+    "edges-enforce-policy": {
+      "statement": "Public Service Edges and Private Service Edges enforce user policies and provide secure transport to App Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Public Service Edges and Private Service Edges enforce user policies and provide secure transport to App Connectors."
+          ]
+        }
+      ]
+    },
+    "ca-distributes": {
+      "statement": "The Central Authority provides a central location for software and database updates and for policy and configuration settings, and policy is distributed across all of its components.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "The Private Access CA monitors the ZTE and provides a central location for software and database updates, as well as policy and configuration settings.",
+            "policy is distributed across all components of the CA."
+          ]
+        }
+      ]
+    }
+  }
+}

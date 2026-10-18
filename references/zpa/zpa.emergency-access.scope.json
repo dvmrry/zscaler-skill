@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "zpa.emergency-access.scope",
+  "title": "What Emergency Access covers: PRA only, approvals, audit and what stays unverified",
+  "aliases": [
+    "emergency access pra only",
+    "emergency access zcc zia",
+    "emergency access audit logs",
+    "emergency access bypass policy",
+    "emergency access privileged approval scope",
+    "emergency access browser access"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.emergency-access.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.emergency-access.identity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Emergency access reaches one kind of access. {{pra-only}} {{scoped-to-approvals}}"
+    },
+    {
+      "label": "How it is bounded.",
+      "text": "{{one-idp}} [[zpa.pra.components:approvals-def]]"
+    },
+    {
+      "label": "Client.",
+      "text": "[[zpa.pra:definition]] {{no-client-connector}} Whether ZIA is in the path or its policies apply to these sessions is open {{gap:zia-path}}."
+    },
+    {
+      "label": "Policy.",
+      "text": "Whether PRA capability, credential and portal policies stay in effect for emergency access users, and whether there is any general access path, is open {{gap:policy-still-applies}}."
+    },
+    {
+      "label": "Audit.",
+      "text": "{{audit-resource-types}} Whether user activations and authentications are logged is open {{gap:authentication-logging}}."
+    },
+    {
+      "text": "Settings and gating: [[zpa.emergency-access.configuration]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That the access requested is Privileged Remote Access, not general ZPA application access.",
+      "uses": [
+        "pra-only"
+      ]
+    },
+    {
+      "do": "The privileged approval that bounds the user's access window.",
+      "uses": [
+        "scoped-to-approvals",
+        "zpa.pra.components:approvals-def"
+      ]
+    },
+    {
+      "do": "Admin Audit Log entries by resource type Emergency Access and Emergency Access User for configuration changes.",
+      "uses": [
+        "audit-resource-types"
+      ]
+    }
+  ],
+  "claims": {
+    "pra-only": {
+      "statement": "Emergency access is only supported for Privileged Remote Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-emergency-access.json",
+          "quotes": [
+            "Emergency access is only supported for Privileged Remote Access (PRA)."
+          ]
+        }
+      ]
+    },
+    "scoped-to-approvals": {
+      "statement": "Emergency access users have permissions limited to privileged approvals in the IdP enabled for emergency access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-emergency-access-users.json",
+          "quotes": [
+            "Create emergency access users with permissions limited to privileged approvals in the specified identity provider (IdP) that is enabled for emergency access."
+          ]
+        }
+      ]
+    },
+    "one-idp": {
+      "statement": "One existing IdP is designated for emergency access, and a privileged approval can select it to apply its date and time rules to the emergency access users, who are managed in an Okta IdP and viewed on the Emergency Access Users page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "You can designate one existing IdP to have emergency access for third-party users (e.g., contractors and vendors) provisioned to that IdP.",
+            "The emergency access users are managed in an Okta IdP but can be viewed on the Emergency Access Users page within the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "no-client-connector": {
+      "statement": "An emergency access user needs no Client Connector, because emergency access is PRA-only and PRA is clientless.",
+      "tier": "B",
+      "derived_from": [
+        "pra-only",
+        "zpa.pra:definition"
+      ],
+      "conditions": "Derived from two articles. Neither says it for emergency access users specifically."
+    },
+    "audit-resource-types": {
+      "statement": "The admin audit log lists Emergency Access and Emergency Access User as resource types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-audit-logs.json",
+          "quotes": [
+            "- Emergency Access - Emergency Access User"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zia-path": {
+      "kind": "semantic",
+      "title": "Whether ZIA is in the path of emergency access sessions",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Does not require the organization's ZIA service to be in path\" and \"ZIA policies (URL filtering, SSL inspection, DLP) are not applied to their sessions\", and that emergency access \"is distinct from the standard ZPA Browser Access pattern\". The captures do not describe ZIA or Browser Access for emergency access users.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "policy-still-applies": {
+      "kind": "semantic",
+      "title": "Whether PRA policies still apply to emergency access users",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Emergency Access is not a bypass of ZPA policy enforcement — it operates through PRA policy (capability policy, credential policy, privileged portal policy), which remain fully in effect. It bypasses only the identity-provisioning requirement\", with \"no general access path\" and users who \"do not go through the organization's primary IdP\". The captures state that access is limited to privileged approvals; they do not say which PRA policies evaluate.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "authentication-logging": {
+      "kind": "semantic",
+      "title": "Whether emergency access activations and sign-ins are logged",
+      "status": "partial",
+      "detail": "Unverified legacy statement (rated Tier D in the old document): \"Whether emergency access activations and authentications appear in ZPA admin audit logs or LSS access logs is not documented.\" Partly answered: the admin audit log has Emergency Access and Emergency Access User resource types. Whether user sign-ins appear in LSS user activity or status logs is still not documented; verify in a lab tenant before relying on log-based alerting.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

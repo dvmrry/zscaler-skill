@@ -132,7 +132,7 @@ Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provide
 - `zpa_application_segment_browser_access` — Browser Access variant
 - `zpa_application_segment_inspection` — AppProtection variant
 - `zpa_application_segment_pra` — Privileged Remote Access variant
-- `zpa_application_segment_multimatch_bulk` — bulk Multimatch INCLUSIVE/EXCLUSIVE updates (see [`../zpa/app-segments.md`](../zpa/app-segments.md))
+- `zpa_application_segment_multimatch_bulk` — bulk Multimatch INCLUSIVE/EXCLUSIVE updates (see [`zpa.app-segments`](kb:zpa.app-segments))
 - `zpa_application_segment_weightedlb_config` — load-balancing config
 
 ### Segment Groups / Server Groups / App Connectors (ZPA)
@@ -268,4 +268,4 @@ Some mutual-exclusions live in resource `Create` / `Update` functions rather tha
 - ZIA API structure (auth, activation, endpoint catalog) — [`zia.api`](kb:zia.api)
 - ZPA API structure — [`../zpa/api.md`](../zpa/api.md)
 - URL filtering behavior — [`zia.url-filtering`](kb:zia.url-filtering)
-- ZPA app segments — [`../zpa/app-segments.md`](../zpa/app-segments.md)
+- ZPA app segments — [`zpa.app-segments`](kb:zpa.app-segments)

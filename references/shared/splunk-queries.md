@@ -171,7 +171,7 @@ index=$INDEX_ZPA Host=$HOSTNAME earliest=-24h
 | where ConnectionStatus!="Active"
 ```
 
-If `$HOSTNAME` doesn't appear at all, combine with local packet capture or client-side logs; see [clarification `zpa-05`](../_meta/clarifications.md#zpa-05-no-match-in-segment-criteria) for the full diagnostic tree.
+If `$HOSTNAME` doesn't appear at all, combine with local packet capture or client-side logs; see [clarification `zpa-05`](kb:zpa.app-segments.matching:port-mismatch-bypass) for the full diagnostic tree.
 
 ### `config-reality-drift`
 

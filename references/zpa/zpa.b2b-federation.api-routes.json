@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "id": "zpa.b2b-federation.api-routes",
+  "title": "B2B Federation API routes",
+  "aliases": [
+    "tenant-federation api",
+    "create federation token api",
+    "verify federation token api",
+    "request approval api",
+    "update provisioning state",
+    "federation-state",
+    "federate application api",
+    "application/host",
+    "GLOBAL_POLICY guest",
+    "expiryTimeInSeconds"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.b2b-federation.trust-workflow"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.sdk-contract"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.microtenants.api-scoping"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The routes are published in the Automate ZPA specification and are not entitlement checks."
+    },
+    {
+      "label": "Base and scope.",
+      "text": "{{federation-base-path}} {{microtenant-id-optional}}"
+    },
+    {
+      "label": "Application routes.",
+      "text": "{{federate-application}} {{list-federated-from-host}}"
+    },
+    {
+      "label": "Trust routes.",
+      "text": "{{create-token}} {{verify-token}} {{request-approval}} {{update-notes}}"
+    },
+    {
+      "label": "State routes.",
+      "text": "{{provisioning-state}} {{federation-state}} {{federation-state-status-meaning}} {{delete-provisioning}}"
+    },
+    {
+      "label": "Read routes.",
+      "text": "{{list-provisionings}} {{list-partners}} {{partner-policy-rules}}"
+    },
+    {
+      "label": "Token lifetime.",
+      "text": "{{token-expiry-range-values}} The description disagrees {{divergence:token-expiry-range}}."
+    },
+    {
+      "label": "Acceptance.",
+      "text": "Whether a tenant accepts these calls is open {{gap:live-acceptance}}. The scope parameter is in [[zpa.microtenants.api-scoping]], and SDK coverage of these routes is in [[zpa.b2b-federation.sdk-contract]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which route performs the step, and whether the operation is on the non-admin federation base.",
+      "uses": [
+        "federation-base-path",
+        "create-token",
+        "verify-token",
+        "request-approval",
+        "provisioning-state",
+        "federation-state"
+      ]
+    },
+    {
+      "do": "The token lifetime a caller sends, because the specification states two different minimums.",
+      "uses": [
+        "create-token",
+        "token-expiry-range"
+      ]
+    },
+    {
+      "do": "Whether the `microtenantId` query parameter is sent and what omitting it does.",
+      "uses": [
+        "microtenant-id-optional",
+        "zpa.microtenants.api-scoping:omitted-scope-defaults-default"
+      ]
+    },
+    {
+      "do": "Whether the call is documented to work on this tenant, which the routes alone do not show.",
+      "uses": [
+        "live-acceptance"
+      ]
+    }
+  ],
+  "claims": {
+    "federation-base-path": {
+      "statement": "The federation operations are published under `/mgmtconfig/v1/customers/{customerId}` (not the `/admin/customers` base used by the Microtenant operations), against the server `https://api.zsapi.net/zpa`, which is the `/zpa` prefix the SDKs write into the same paths.",
+      "tier": "B",
+      "conditions": "The route equivalence between `/zpa/mgmtconfig/v1/customers/...` in the SDKs and the published `/mgmtconfig/v1/customers/...` is inferred from the server URL ending in `/zpa`; no request was sent to either form.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/servers/[description=ZPA Endpoints]",
+          "expect": {
+            "url": "https://api.zsapi.net/zpa"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1federate/put",
+          "expect": {
+            "operationId": "Federate Application"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/federated_application/federated_application.go",
+          "quotes": [
+            "mgmtconfigV1 = \"/zpa/mgmtconfig/v1/customers/\""
+          ]
+        }
+      ]
+    },
+    "microtenant-id-optional": {
+      "statement": "Each federation operation takes an optional integer `microtenantId` query parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1federate/put/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token/post/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1policySet~1rules~1policyType~1GLOBAL_POLICY~1guest~1{guest_id}/get/parameters/[name=microtenantId]",
+          "expect": {
+            "in": "query",
+            "required": false,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "federate-application": {
+      "statement": "`PUT /application/federate` federates an existing application segment from a host partner with one or more guest partners, and its body requires `applicationGid` and `guestGids`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1federate/put",
+          "expect": {
+            "operationId": "Federate Application",
+            "description": "Federates an existing application segment from a host partner with one or more guest partners."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1federate/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "applicationGid",
+              "guestGids"
+            ]
+          }
+        }
+      ]
+    },
+    "list-federated-from-host": {
+      "statement": "`GET /application/host/{host_id}` returns the federated applications for a customer, filtered by host ID, domain names and enabled status, with `search`, `page` and `pagesize` parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1host~1{host_id}/get",
+          "expect": {
+            "operationId": "Get Federated Applications From Host",
+            "description": "Gets the federated applications for the specified customer using filters (i.e., application host ID, domain names, and enabled status)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1host~1{host_id}/get/parameters/[name=host_id]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        }
+      ]
+    },
+    "create-token": {
+      "statement": "`POST /tenant-federation/token` creates a federation token for the customer; its body requires `expiryTimeInSeconds` and takes optional `notes`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token/post",
+          "expect": {
+            "operationId": "Create Federation Token",
+            "description": "Creates a federation token for the specified customer."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "expiryTimeInSeconds"
+            ]
+          }
+        }
+      ]
+    },
+    "verify-token": {
+      "statement": "`POST /tenant-federation/token/verify` verifies a federation token, and its body requires `token`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token~1verify/post",
+          "expect": {
+            "operationId": "Verify Token",
+            "description": "Verifies the federation token for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token~1verify/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "token"
+            ]
+          }
+        }
+      ]
+    },
+    "request-approval": {
+      "statement": "`PUT /tenant-federation/approval` approves a partner federation using a token, and its body requires `token` and takes optional `partnerNotes` of up to 1000 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1approval/put",
+          "expect": {
+            "operationId": "Request Approval",
+            "description": "Approves a partner federation for the specified ID using a token."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1approval/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "required": [
+              "token"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1approval/put/requestBody/content/application~1json/schema/properties/partnerNotes",
+          "expect": {
+            "maxLength": 1000
+          }
+        }
+      ]
+    },
+    "update-notes": {
+      "statement": "`PUT /tenant-federation/{federation_id}/notes` updates the notes for a partner federation; the initiator updates `initiatorNotes` and the partner updates `partnerNotes`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}~1notes/put",
+          "expect": {
+            "operationId": "Update Notes",
+            "description": "Updates the notes for partner federation provisioning. The initiator updates <code>initiatorNotes</code>, and the partner updates <code>partnerNotes</code>."
+          }
+        }
+      ]
+    },
+    "provisioning-state": {
+      "statement": "`PUT /tenant-federation/{federation_id}/provisioning-state/{status}` updates the provisioning status of the partner federation request to APPROVED, DENIED or TERMINATED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}~1provisioning-state~1{status}/put",
+          "expect": {
+            "operationId": "Update Provisioning State",
+            "description": "Updates the provisioning status (APPROVED, DENIED, TERMINATED) of the partner federation request."
+          }
+        }
+      ]
+    },
+    "federation-state": {
+      "statement": "`PUT /tenant-federation/{federation_id}/federation-state/{status}` updates the status of an existing federation to ACTIVE or INACTIVE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}~1federation-state~1{status}/put",
+          "expect": {
+            "operationId": "Update Federation State",
+            "description": "Updates the status (ACTIVE or INACTIVE) of an existing federation for the specified ID."
+          }
+        }
+      ]
+    },
+    "delete-provisioning": {
+      "statement": "`DELETE /tenant-federation/{federation_id}` deletes the partner federation for the specified ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}/delete",
+          "expect": {
+            "operationId": "Delete Provisioning",
+            "description": "Deletes the partner federation for the specified ID."
+          }
+        }
+      ]
+    },
+    "list-provisionings": {
+      "statement": "`GET /tenant-federation` lists provisioning requests with search, sorting and pagination, and each entry's `provisioningStatus` is PENDING_VERIFICATION, PENDING_APPROVAL, APPROVED, DENIED or TERMINATED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation/get",
+          "expect": {
+            "operationId": "Get Provisionings",
+            "description": "Gets the provisioning requests for the specified customer using search, sorting, and pagination."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation/get/responses/200/content/application~1json/schema/properties/list/items/properties/provisioningStatus",
+          "expect": {
+            "enum": [
+              "PENDING_VERIFICATION",
+              "PENDING_APPROVAL",
+              "APPROVED",
+              "DENIED",
+              "TERMINATED"
+            ]
+          }
+        }
+      ]
+    },
+    "list-partners": {
+      "statement": "`GET /tenant-federation/partners` lists the active federation partners for a customer with search, sorting and pagination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1partners/get",
+          "expect": {
+            "operationId": "Get Active Federation Partners",
+            "description": "Gets the active federation partners for the specified customer using search, sorting, and pagination."
+          }
+        }
+      ]
+    },
+    "partner-policy-rules": {
+      "statement": "`GET /policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` returns a paginated list of policy rules a partner customer created on applications federated to it, sanitized to hide sensitive information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1policySet~1rules~1policyType~1GLOBAL_POLICY~1guest~1{guest_id}/get",
+          "expect": {
+            "operationId": "Get Partner Policy Rules On Federated Apps",
+            "description": "Retrieves paginated list of policy rules created by a partner customer on applications that have been federated to them. The response is sanitized to hide sensitive information."
+          }
+        }
+      ]
+    },
+    "token-expiry-range-values": {
+      "statement": "The create-token body declares `expiryTimeInSeconds` with a numeric minimum of 3600 and maximum of 86400.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token/post/requestBody/content/application~1json/schema/properties/expiryTimeInSeconds",
+          "expect": {
+            "minimum": 3600,
+            "maximum": 86400
+          }
+        }
+      ]
+    },
+    "federation-state-status-meaning": {
+      "statement": "The federation-state `status` path parameter is documented as ACTIVE (i.e., Active) or INACTIVE (i.e., Pause), so the console's Pause corresponds to INACTIVE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}~1federation-state~1{status}/put/parameters/[name=status]",
+          "expect": {
+            "description": "The federation status is ACTIVE (i.e., Active) or INACTIVE (i.e., Pause).",
+            "name": "status"
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "token-expiry-range": {
+      "summary": "The create-token field description gives a minimum of 33,600 seconds while the same field's schema minimum is 3600.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token/post/requestBody/content/application~1json/schema/properties/expiryTimeInSeconds",
+            "expect": {
+              "description": "The time to live of the generated token in seconds. The minimum supported value is 33,600, and the maximum supported value is 86,400."
+            }
+          },
+          "says": "The minimum supported value is 33,600 and the maximum is 86,400."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token/post/requestBody/content/application~1json/schema/properties/expiryTimeInSeconds",
+            "expect": {
+              "minimum": 3600,
+              "maximum": 86400
+            }
+          },
+          "says": "The schema minimum is 3600 and the maximum is 86400."
+        }
+      ],
+      "impact": "A caller sending a lifetime between 3600 and 33,599 seconds follows the schema but not the description, and the specification does not show which the API enforces; the console's Token Validity is in hours."
+    }
+  },
+  "gaps": {
+    "live-acceptance": {
+      "kind": "semantic",
+      "title": "Whether the published routes are accepted on a tenant, and the authentication scope they need",
+      "status": "open",
+      "detail": "Unverified legacy statement: The Automate pages are publication-level method, path and body statements and do not establish tenant entitlement, limited-availability gating, authentication scope requirements or live backend acceptance. No registered source shows a call to these routes against a tenant. A call from a tenant with and without the Federation license would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "telling whether a tenant without the Federation license can call the routes, and which API client scope is required"
+    }
+  }
+}

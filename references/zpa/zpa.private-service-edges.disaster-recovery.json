@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.disaster-recovery",
+  "title": "Disaster recovery mode and Private Service Edge groups",
+  "aliases": [
+    "use_in_dr_mode",
+    "exclusive_for_business_continuity",
+    "pse disaster recovery",
+    "dr mode private service edge",
+    "disaster recovery dns txt record",
+    "private access outage pse",
+    "business continuity pse"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.client-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.when-to-deploy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Disaster recovery is for a global Private Access outage and is switched on by DNS records, not by group health."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{dr-purpose}} {{dr-designation}} {{group-dr-field}} A second field exists in the Go type {{gap:exclusive-for-business-continuity}}."
+    },
+    {
+      "label": "Activation.",
+      "text": "{{dr-activation}} {{dr-forwarding}} {{dr-test-mode}} Whether designated groups are held out of normal selection is unverified {{gap:dr-reserve-semantics}}."
+    },
+    {
+      "label": "During the outage.",
+      "text": "{{dr-supported}} {{dr-not-supported}} {{dr-microtenants}}"
+    },
+    {
+      "text": "The Business Continuity construct for Private Service Edges, Private Clouds, is in [[zpa.private-service-edges.private-cloud-controller]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question is about a global Private Access outage: disaster recovery is for that case and is triggered by DNS records, not by Private Service Edge health.",
+      "uses": [
+        "dr-purpose",
+        "dr-activation"
+      ]
+    },
+    {
+      "do": "Whether the group, the App Connector group and the application segments are all designated for disaster recovery.",
+      "uses": [
+        "dr-designation",
+        "group-dr-field"
+      ]
+    },
+    {
+      "do": "Whether a new Private Service Edge needs to be enrolled, which disaster recovery mode does not support.",
+      "uses": [
+        "dr-not-supported"
+      ]
+    },
+    {
+      "do": "Whether the tenant uses Microtenants, whose Private Service Edges then serve only the applications designated for disaster recovery.",
+      "uses": [
+        "dr-microtenants"
+      ]
+    }
+  ],
+  "claims": {
+    "dr-purpose": {
+      "statement": "Disaster recovery provides Business Continuity when a disaster impacts the global Zscaler cloud infrastructure; Private Access supports it separately from Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Enabling disaster recovery ensures Business Continuity in the event of a disaster scenario that impacts the global Zscaler cloud infrastructure.",
+            "The contents in this article are about disaster recovery in Private Access"
+          ]
+        }
+      ]
+    },
+    "dr-designation": {
+      "statement": "To provide application access during a global outage, designated application segments, Private Service Edges and App Connectors must be enabled for disaster recovery, and a disaster recovery domain name must be configured in the Disaster Recovery Settings and the Client Connector profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Designated application segments, Private Service Edges for Private Access, and App Connectors must be enabled for disaster recovery.",
+            "A domain name must be configured in the Disaster Recovery Settings and the Zscaler Client Connector Profiles."
+          ]
+        }
+      ]
+    },
+    "dr-activation": {
+      "statement": "Disaster recovery is activated by uploading DNS TXT records to the Disaster Recovery domain name, which disrupts existing Client Connector connections; DNS A records are how Client Connector discovers the Private Service Edges, and enabled App Connectors and Private Service Edges restart on activation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "DNS TXT records trigger the activation of disaster recovery.",
+            "DNS A records are used by Zscaler Client Connector to discover the Private Service Edges.",
+            "disrupts existing Zscaler Client Connector connections and must be used with caution.",
+            "Both App Connectors and Private Service Edges that are enabled for disaster recovery restart after disaster recovery is activated via DNS."
+          ]
+        }
+      ]
+    },
+    "dr-forwarding": {
+      "statement": "In disaster recovery mode Client Connector forwards the M-Tunnels of the applications designated for disaster recovery to the Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Zscaler Client Connector then forwards the M-Tunnels (Microtunnels) of the applications that are designated for disaster recovery to the Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "dr-supported": {
+      "statement": "Designated application segments are accessible in disaster recovery mode, and existing and disaster-recovery-generated App Connectors, Private Service Edges and Client Connectors with valid, unexpired certificates are supported, as are users enrolled before it was enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Application segments designated for disaster recovery are accessible when Disaster Recovery Mode is activated.",
+            "with valid and unexpired certificates are supported.",
+            "Users that are enrolled in the Private Access cloud prior to enabling disaster recovery are supported."
+          ]
+        }
+      ]
+    },
+    "dr-not-supported": {
+      "statement": "Disaster recovery mode does not support enrollment of new App Connectors, Private Service Edges or Client Connectors, authentication and reauthentication changes (SAML assertion validity is extended by 14 days by default), policies, Log Streaming Service, Browser Access, dashboards and diagnostics, among others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Enrollment of new App Connectors, Private Service Edges, or Zscaler Client Connectors",
+            "The SAML assertion validity is extended by 14 days, by default, from the date the SAML assertion was issued.",
+            "Dashboards and Diagnostics",
+            "Log Streaming Service",
+            "Browser Access"
+          ]
+        }
+      ]
+    },
+    "dr-microtenants": {
+      "statement": "In disaster recovery mode, Private Service Edges and App Connectors mapped within a default or custom Microtenant provide traffic only to applications designated for disaster recovery.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "Private Service Edges and App Connectors mapped within a default or custom Microtenant provide traffic to only applications designated for disaster recovery."
+          ]
+        }
+      ]
+    },
+    "group-dr-field": {
+      "statement": "A Private Service Edge group shows whether it is enabled for disaster recovery, and the Terraform use_in_dr_mode field \"Whether or not the App Connector Group is designated for disaster recovery\" is the group setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Indicates the Private Service Edge group is enabled for disaster recovery."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Whether or not the App Connector Group is designated for disaster recovery."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#useInDrMode"
+      ]
+    },
+    "dr-test-mode": {
+      "statement": "Disaster Recovery Test Mode lets an organization test its business continuity processes; the Admin Console stays accessible, and changes made there do not take effect until test mode is disabled via the DNS records or the activation record expires.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "The option to test disaster recovery is supported via Disaster Recovery Test Mode.",
+            "do not take effect until Disaster Recovery Test Mode is disabled via the DNS records, or the activation record expires."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dr-reserve-semantics": {
+      "kind": "semantic",
+      "title": "Whether a disaster recovery group is excluded from normal selection until primary groups fail",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"PSE Groups with use_in_dr_mode = true are excluded from normal selection. They only become active if the primary groups (and Public SEs) are unavailable.\" The captured page makes activation an administrator action using DNS records during a global outage, not an automatic fallback from primary groups. Whether designated groups are excluded from normal routing before activation is not stated. Resolve with the Configuring Disaster Recovery article.",
+      "blocks": "stating how a DR-designated group behaves day to day",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "exclusive-for-business-continuity": {
+      "kind": "semantic",
+      "title": "Relation of exclusive_for_business_continuity to use_in_dr_mode",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"use_in_dr_mode / exclusive_for_business_continuity\" as one setting. The Go SDK group type carries both fields, and the sources give no semantics for the second. See [[zpa.private-service-edges.private-cloud-controller]] for the separate Business Continuity construct. Resolve with the API reference.",
+      "blocks": "setting either field correctly",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

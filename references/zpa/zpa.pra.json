@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra",
+  "title": "Privileged Remote Access: what it is and where each question goes",
+  "aliases": [
+    "privileged remote access",
+    "pra",
+    "clientless rdp",
+    "clientless ssh",
+    "clientless vnc",
+    "pra vs browser access",
+    "does pra work without zcc",
+    "jump host bastion zpa",
+    "contractor rdp without password"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.credentials"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.approvals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.consoles-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.session-recording"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.access-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.tooling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.ansible-children"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.browser-access.requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssh-control"
+    }
+  ],
+  "prose": [
+    {
+      "text": "PRA is the clientless path for RDP, SSH and VNC; Browser Access is the clientless path for web applications. This subject walks the PRA area and sends each question to the subject that holds it."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{definition}} {{third-party-access}} {{credential-options}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "What are the parts?",
+          "text": "Portals, consoles, approvals, credentials, policies and application segments, and their limits: [[zpa.pra.components]]."
+        },
+        {
+          "label": "How do users get credentials?",
+          "text": "Credential types, pools and the credentials policy: [[zpa.pra.credentials]]."
+        },
+        {
+          "label": "How is access time-limited?",
+          "text": "Requests, approvers and windows: [[zpa.pra.approvals]]."
+        },
+        {
+          "label": "What can users do in a session?",
+          "text": "File transfer, clipboard, recording and session sharing: [[zpa.pra.consoles-policy]]."
+        },
+        {
+          "label": "Where are recordings and who can play them?",
+          "text": "[[zpa.pra.session-recording]]."
+        },
+        {
+          "label": "How is the application segment set up?",
+          "text": "[[zpa.pra.app-segments]], with access policy and step-up in [[zpa.pra.access-policy]]."
+        },
+        {
+          "label": "How do SDKs and Ansible handle PRA objects?",
+          "text": "[[zpa.pra.tooling]] and [[zpa.app-segments.ansible-children]]. Terraform deletion and credential defects are in [[zpa.terraform.delete-paths]], [[zpa.terraform.policy-rule-writes]] and [[shared.terraform.credential-handling]]."
+        }
+      ]
+    },
+    {
+      "label": "Open.",
+      "text": "Whether the features exist outside PRA is open {{gap:absent-from-base-zpa}}. A comparison with standard ZPA access is open {{gap:alternatives-guidance}}, and so is a comparison with dedicated PAM products {{gap:pam-comparison}}."
+    },
+    {
+      "text": "SSH in ZIA is covered in [[zia.ssh-control]]; the web-application path is [[zpa.browser-access.requirements]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the need is a web application (Browser Access) or an RDP, SSH or VNC session (PRA).",
+      "uses": [
+        "definition"
+      ]
+    },
+    {
+      "do": "Whether a comparison question rests on the unverified guidance about standard ZPA access or PAM products.",
+      "uses": [
+        "alternatives-guidance",
+        "pam-comparison",
+        "absent-from-base-zpa"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Privileged Remote Access is a clientless remote desktop gateway that lets end users connect to servers, jump hosts, bastion hosts or desktops using RDP, SSH, VNC and RealVNC from a modern browser, without installing Zscaler Client Connector or any browser plugin.",
+      "tier": "A",
+      "binds": [
+        "zpa/pra-app-segments"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "Privileged Remote Access (PRA) is a clientless remote desktop gateway that enables end users to securely connect to servers, jump hosts and bastion hosts, or desktops",
+            "from the end user's modern browser without installing Zscaler Client Connector or any browser plugins.",
+            "Remote Desktop Protocol (RDP), Secure Shell (SSH), Virtual Network Computing (VNC), and RealVNC"
+          ]
+        }
+      ]
+    },
+    "third-party-access": {
+      "statement": "PRA is meant to give third parties such as vendors, contractors and suppliers, IT administrators and remote employees controlled access to privileged servers and applications, for specific consoles and a specific time frame.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "PRA allows you to provide third parties (vendors, contractors, suppliers), IT administrators, and remote employees controlled access to your privileged servers and applications.",
+            "Admins can set up specific end users for specific privileged consoles with policies for a specific time frame."
+          ]
+        }
+      ]
+    },
+    "credential-options": {
+      "statement": "An admin can supply configured credentials for short-term end users, or prompt end users to enter their own credentials when they use a privileged console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-privileged-remote-access.json",
+          "quotes": [
+            "You can also choose to provide configured credentials for short-term end users, or prompt end users to enter their credentials when using a privileged console."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "absent-from-base-zpa": {
+      "kind": "semantic",
+      "title": "Whether recording, approvals and credential pooling exist outside PRA",
+      "status": "open",
+      "detail": "Open question zpa-57. The help pages describe session recording, privileged approvals and credential pools as PRA constructs, and the PRA segment resource uses its own SECURE_REMOTE_ACCESS application type. No captured source states that these features are unavailable on standard ZPA segments, so the negative is not established. A Zscaler statement, or a lab attempt to attach an approval or recording policy to a non-PRA segment, would resolve it.",
+      "former_ids": [
+        "zpa-57"
+      ],
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "alternatives-guidance": {
+      "kind": "semantic",
+      "title": "Choosing between standard ZPA access, Browser Access and PRA",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Native RDP/SSH with ZCC installed, credentials known, no recording: Standard ZPA access - treat the target as an app segment, user RDPs with their own creds over ZPA.\" and \"Emergency admin break-glass with oversight: PRA.\" The help describes PRA, not a comparison with standard ZPA access. The Browser Access side is claim zpa.browser-access.requirements:non-http-use-pra. A Zscaler design guide or support statement would resolve it.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    },
+    "pam-comparison": {
+      "kind": "semantic",
+      "title": "How PRA relates to dedicated privileged access management products",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"PRA is not a full PAM replacement. It covers session brokering + credential pooling + recording, but lacks the credential-vaulting / rotation / secrets-management breadth of a dedicated PAM (CyberArk, HashiCorp Vault). Tenants with heavy PAM requirements typically pair PRA with an external PAM.\" No captured source describes PRA's limits against PAM products, vaulting or rotation. A Zscaler product statement would resolve it.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

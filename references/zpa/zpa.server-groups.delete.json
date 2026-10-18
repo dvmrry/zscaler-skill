@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "zpa.server-groups.delete",
+  "title": "Deleting a server group through Terraform",
+  "aliases": [
+    "delete server group",
+    "server group destroy",
+    "detachServerGroupFromAllAppSegments",
+    "terraform-provider-zpa 658",
+    "server group destroy updates unrelated segments"
+  ],
+  "binds": [
+    "zpa/server-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.role"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider cleans up references to a server group before it deletes it, and the application segment part of that cleanup changed between versions."
+    },
+    {
+      "label": "Application segments.",
+      "text": "{{segment-cleanup-updated-every-segment-at-v4-4-4}} {{segment-cleanup-updates-only-referencing}}"
+    },
+    {
+      "text": "The rest of the cleanup, including that its failures are logged and ignored, is in [[zpa.terraform.delete-paths]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which provider version applied the destroy, since the application segment cleanup differs between v4.4.4 and the pin.",
+      "uses": [
+        "segment-cleanup-updated-every-segment-at-v4-4-4",
+        "segment-cleanup-updates-only-referencing"
+      ]
+    },
+    {
+      "do": "Whether application segments still reference the deleted group afterwards; the shared cleanup behavior is in the delete-paths subject.",
+      "uses": [
+        "segment-cleanup-updates-only-referencing"
+      ]
+    }
+  ],
+  "claims": {
+    "segment-cleanup-updated-every-segment-at-v4-4-4": {
+      "statement": "At v4.4.4 the provider's cleanup before a server group delete rewrote the server group list of every application segment and updated each one, whether or not it referenced the deleted group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "if appServerGroup.ID == id { continue } ids = append(ids, servergroup.ServerGroup{ID: appServerGroup.ID}) } app.ServerGroups = ids"
+          ],
+          "at": [
+            "v4.4.4"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "url": "https://github.com/zscaler/terraform-provider-zpa/issues/658",
+          "status": "fixed",
+          "note": "The pinned code carries a guard whose comment describes this symptom; the issue thread itself was not read."
+        }
+      ]
+    },
+    "segment-cleanup-updates-only-referencing": {
+      "statement": "At the pinned version the same cleanup updates only application segments that referenced the deleted server group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_server_group.go",
+          "quotes": [
+            "// Only update application segments that actually referenced the server",
+            "if !changed { continue } app.ServerGroups = ids"
+          ]
+        }
+      ]
+    }
+  }
+}

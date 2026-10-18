@@ -112,6 +112,6 @@ The Help capture says the Super admin role can manage Deception features and con
 ## Cross-links
 
 - Deception hub: [`./index.md`](./index.md)
-- ZPA policy precedence: [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
-- ZPA Deception ordering clarification: [`zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction)
+- ZPA policy precedence: [`zpa.policy`](kb:zpa.policy)
+- ZPA Deception ordering clarification: [`zpa-07`](kb:zpa.policy.access-rule-order:deception-rule-ordering-rationale)
 - Claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)

@@ -319,11 +319,11 @@ When a tenant runs both ZIA and ZPA, the PAC must **not** route ZPA application 
 
 **Pattern.** For a tenant running ZPA without SIPA, add a DIRECT bypass for known ZPA app segment FQDNs in the PAC before any ZIA-proxy logic. Maintain that list in lockstep with the ZPA app segment configuration — drift between the PAC's bypass list and the actual ZPA segments leads to either policy escape (ZPA-app traffic accidentally proxied through ZIA) or broken access (a new ZPA segment that the PAC still routes through ZIA).
 
-See [`../zpa/app-segments.md`](../zpa/app-segments.md) for the ZPA segment model and [`./source-ip-anchoring.md`](./source-ip-anchoring.md) for SIPA mechanics.
+See [`zpa.app-segments`](kb:zpa.app-segments) for the ZPA segment model and [`./source-ip-anchoring.md`](./source-ip-anchoring.md) for SIPA mechanics.
 
 ### PAC + ZPA Browser Access
 
-ZPA Browser Access exposes internal apps to users on **public DNS** via either a customer-managed CNAME (e.g., `wiki.example.com`) or a Zscaler-managed CNAME (e.g., `wiki.example.bazscaler.net`). The browser hits a Zscaler ingress that terminates TLS using the Browser Access certificate, then mTLS-tunnels to the App Connector. (Tier A — `references/zpa/browser-access.md`.)
+ZPA Browser Access exposes internal apps to users on **public DNS** via either a customer-managed CNAME (e.g., `wiki.example.com`) or a Zscaler-managed CNAME (e.g., `wiki.example.bazscaler.net`). The browser hits a Zscaler ingress that terminates TLS using the Browser Access certificate, then mTLS-tunnels to the App Connector. (Tier A — `kb:zpa.browser-access`.)
 
 For PAC routing: **Browser Access destinations should be `DIRECT` in the PAC**, not proxied through ZIA. The Browser Access ingress IS the proxy for that traffic — sending it through ZIA would either fail (ZIA doesn't know how to forward to a BA endpoint) or double-inspect with unintended consequences.
 

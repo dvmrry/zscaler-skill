@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.intermittent",
+  "title": "Intermittent ZPA access failures",
+  "aliases": [
+    "zpa intermittent",
+    "zpa flapping connector",
+    "zpa fails sometimes",
+    "zpa failures during upgrade window",
+    "zpa failures retry works"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.selection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Intermittent failures are compared against connector state, update windows, selection and posture timing."
+    },
+    {
+      "label": "Connectors.",
+      "text": "Connection health is in [[zpa.app-connectors.health:connection-health-column]]. Update windows are in [[zpa.app-connectors.upgrades:random-one-at-a-time]] and [[zpa.app-connectors.upgrades:four-hour-window]]. Selection and affinity are in [[zpa.app-connectors.selection:closest-by-location-and-latency]] and [[zpa.app-connectors.selection:affinity-15-minutes]]."
+    },
+    {
+      "label": "The log.",
+      "text": "{{connector-zen-per-session}}"
+    },
+    {
+      "label": "Posture timing.",
+      "text": "The re-evaluation cadence is in [[zpa.troubleshooting.signals:posture-frequency]]; that an expired result blocks a session periodically is not sourced {{gap:posture-intermittency}}."
+    },
+    {
+      "label": "Stickiness.",
+      "text": "Why a failure follows one connector is open [[zpa.app-connectors.selection:round-robin-setting]]. That a single connector going absent explains the correlation is not sourced {{gap:connector-absence-correlation}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Close sessions are interleaved with Open or Active sessions for the same Host in the User Activity stream.",
+      "uses": [
+        "zpa.troubleshooting.log-fields:connection-status-values",
+        "zpa.troubleshooting.log-fields:server-fields"
+      ]
+    },
+    {
+      "do": "Whether a connector's connection health changed during the failure window.",
+      "uses": [
+        "zpa.app-connectors.health:connection-health-column",
+        "connector-absence-correlation"
+      ]
+    },
+    {
+      "do": "Whether the failure window overlaps the group's scheduled update window, in which one component at a time restarts and new access goes to the others.",
+      "uses": [
+        "zpa.app-connectors.upgrades:random-one-at-a-time",
+        "zpa.app-connectors.upgrades:four-hour-window"
+      ]
+    },
+    {
+      "do": "Which connector and Public Service Edge each failing session used, from the Connector and ConnectorZEN fields.",
+      "uses": [
+        "connector-zen-per-session",
+        "zpa.app-connectors.selection:closest-by-location-and-latency"
+      ]
+    },
+    {
+      "do": "Whether the application segment sets the nearest-connector preference and what the false value does.",
+      "uses": [
+        "zpa.app-connectors.selection:segment-prefers-nearest-connector",
+        "zpa.app-connectors.selection:round-robin-setting"
+      ]
+    },
+    {
+      "do": "Whether a device posture condition is in the policy and the cadence at which the client re-evaluates it.",
+      "uses": [
+        "zpa.troubleshooting.signals:posture-frequency",
+        "posture-intermittency"
+      ]
+    }
+  ],
+  "claims": {
+    "connector-zen-per-session": {
+      "statement": "Each User Activity record names the connector and the Public Service Edge that handled the session, so sessions can be grouped by connector and edge.",
+      "tier": "B",
+      "derived_from": [
+        "zpa.troubleshooting.log-fields:connector-fields"
+      ],
+      "conditions": "Derived from the field definitions: Connector, ConnectorZEN and ClientZEN are recorded per record. That variation in them explains an intermittent failure is not sourced."
+    }
+  },
+  "gaps": {
+    "connector-absence-correlation": {
+      "kind": "semantic",
+      "title": "A connector cycling between connected and disconnected",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Check App Connector status in the ZPA console: a connector cycling between connected and disconnected during the failure window is a strong indicator. The `ConnectorZEN` field in LSS shows which Public Service Edge the connector was using at connection time; variance here is expected but a single connector going absent explains correlation. Intermittent failures during an update window that resolve on retry are normal if the group has more than one connector for failover.\" The connection health column, the per-connector update behavior and the ConnectorZEN field definition are sourced separately; no source ties a cycling connector to intermittent user failures or calls variance in the edge expected.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "posture-intermittency": {
+      "kind": "semantic",
+      "title": "Posture re-evaluation as a cause of intermittency",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If intermittency correlates with device posture re-evaluation timing (default 15-minute cadence on ZCC), consider that a posture check result may have expired and a timeout or forwarding policy with a posture condition is periodically blocking the session.\" The cadence is sourced as a configurable frequency with a maximum default of 15 minutes (posture-frequency in zpa.troubleshooting.signals); no source says a result expires between evaluations or blocks a session.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

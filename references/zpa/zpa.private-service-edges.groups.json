@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.groups",
+  "title": "Private Service Edge groups: membership, software updates and version profiles",
+  "aliases": [
+    "pse group",
+    "private service edge group",
+    "pse software update schedule",
+    "upgrade_day",
+    "upgrade_time_in_secs",
+    "version profile private service edge",
+    "new release version profile",
+    "override_version_profile",
+    "pse auto delete",
+    "microtenant private service edge",
+    "zscaler managed pse group read only"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.client-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A group is where a Private Service Edge's location, update window and software release track live."
+    },
+    {
+      "label": "Membership.",
+      "text": "{{group-membership}} {{zscaler-managed-read-only}} Auto Delete removes stale members: {{auto-delete}} {{schedule-values}} The Terraform schedule resource has provider defects: [[zpa.terraform.resource-fidelity:schedule-create-discards-server-id]], [[zpa.terraform.resource-fidelity:schedule-delete-is-noop]]."
+    },
+    {
+      "label": "Updates.",
+      "text": "[[zpa.app-connectors.upgrades:random-one-at-a-time]] [[zpa.app-connectors.upgrades:four-hour-window]] [[zpa.app-connectors.upgrades:retry-next-window]] [[zpa.app-connectors.upgrades:initial-connection-upgrade]] {{upgrade-status-values}} {{upgrade-defaults}} The window's time zone is not stated {{gap:upgrade-time-zone}}."
+    },
+    {
+      "label": "Version profiles.",
+      "text": "{{version-profiles}} {{el8-names}} The meaning of el8 is unverified {{gap:el8-meaning}}. {{persist-local-version-profile}} The Terraform default for override_version_profile disagrees with the provider documentation {{divergence:override-version-profile-default}}. What the field does when false is unverified {{gap:override-profile-inheritance}}."
+    },
+    {
+      "label": "Microtenants.",
+      "text": "[[zpa.microtenants.limits:connector-versions]] {{microtenant-license}}"
+    },
+    {
+      "text": "Selection settings on the group are in [[zpa.private-service-edges.client-selection]]; disaster recovery designation is in [[zpa.private-service-edges.disaster-recovery]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an unchangeable group is Zscaler-managed, which is read only in the console.",
+      "uses": [
+        "zscaler-managed-read-only"
+      ]
+    },
+    {
+      "do": "Which version profile applies to the group and whether the group overrides the customer-level profile; read override_version_profile from the live group, not from the Terraform default.",
+      "uses": [
+        "version-profiles",
+        "persist-local-version-profile",
+        "override-version-profile-default"
+      ]
+    },
+    {
+      "do": "Whether the update window has passed: the update runs in a 4-hour window from the group time, one Private Service Edge at a time, and failures are retried next period.",
+      "uses": [
+        "zpa.app-connectors.upgrades:four-hour-window",
+        "zpa.app-connectors.upgrades:random-one-at-a-time",
+        "zpa.app-connectors.upgrades:retry-next-window"
+      ]
+    },
+    {
+      "do": "Whether a disconnected Private Service Edge was removed by the Auto Delete setting.",
+      "uses": [
+        "auto-delete",
+        "schedule-values"
+      ]
+    },
+    {
+      "do": "Whether Microtenant use requires a newer software version.",
+      "uses": [
+        "zpa.microtenants.limits:connector-versions",
+        "microtenant-license"
+      ]
+    }
+  ],
+  "claims": {
+    "group-membership": {
+      "statement": "Every Private Service Edge belongs to exactly one group; groups organize Private Service Edges by region or functional area, hold the location, the automated update schedule, the version profile and disaster recovery, and a new group can be created when a Private Service Edge is added with a new provisioning key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Group Private Service Edges based on region or functional area (each Private Service Edge must belong to a single group).",
+            "Set the location for the Private Service Edges in the group.",
+            "Configure and enable disaster recovery.",
+            "Set the automated update schedule to an off-hours maintenance window in a region.",
+            "You can create new Private Service Edge groups whenever you add a new Private Service Edge using a new provisioning key."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges#serviceEdgeGroupId"
+      ]
+    },
+    "zscaler-managed-read-only": {
+      "statement": "Private Service Edges and Private Service Edge groups that are managed by Zscaler are read only: they cannot be configured, edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Private Service Edges that are managed by Zscaler are read only and cannot be configured."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Private Service Edge groups that are managed by Zscaler are read only and cannot be edited or deleted."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#zscalerManaged",
+        "zpa/service-edge-groups#readOnly"
+      ]
+    },
+    "upgrade-status-values": {
+      "statement": "A Private Service Edge shows Not Scheduled after creation, Partial Failure if a supporting file fails to update, and Restarting after it downloads a new version and restarts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-connector-software-updates.json",
+          "quotes": [
+            "After an App Connector or Private Service Edge is created, its initial Upgrade Status displays Not Scheduled.",
+            "If a supporting file fails to update, the Private Service Edge's Upgrade Status displays Partial Failure.",
+            "Its Upgrade Status is Restarting."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edges#upgradeStatus"
+      ]
+    },
+    "upgrade-defaults": {
+      "statement": "In Terraform, upgrade_day defaults to SUNDAY and upgrade_time_in_secs defaults to 66600; the time is an integer in seconds, at least 0 and below 86400, in 15-minute intervals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Default value: `SUNDAY` List of valid days (i.e., Sunday, Monday)",
+            "Default value: `66600` Integer in seconds (i..e, 66600). The integer must be greater than or equal to 0 and less than `86400`, in `15` minute intervals"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#upgradeDay",
+        "zpa/service-edge-groups#upgradeTimeInSecs"
+      ]
+    },
+    "version-profiles": {
+      "statement": "A version profile ties a group to a build: Default is the cloud-wide stable build, Previous Default is the prior stable build that gives rollback and is checked weekly for updates, New Release is the latest build and is checked daily, and Custom is a Support-provided build that may not be visible in the console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-version-profile.json",
+          "quotes": [
+            "The cloud-wide stable and default build.",
+            "The cloud-wide previous stable and default build. Provides a rollback ability. If you select Previous Default, the software components under the related group are checked weekly for updates.",
+            "The latest cloud-wide released build. If you select New Release, the software components under the related group are checked daily for updates.",
+            "Custom version profiles might not be visible in the Zscaler Admin Console."
+          ],
+          "after": "The Customer Version Profile drawer appears."
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#versionProfileName",
+        "zpa/version-profiles"
+      ]
+    },
+    "el8-names": {
+      "statement": "The Terraform version_profile_name accepts Default, Previous Default, New Release, Default - el8, New Release - el8 and Previous Default - el8.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "``Default``, ``Previous Default``, ``New Release``, ``Default - el8``, ``New Release - el8``, ``Previous Default - el8``"
+          ]
+        }
+      ]
+    },
+    "persist-local-version-profile": {
+      "statement": "A group's Persist Local Version Profile is either Inherit, applying the customer-level profile, or Override, choosing a profile for that group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-version-profile.json",
+          "quotes": [
+            "Select Inherit to apply the version profile configured at the customer level or select Override to configure a version profile for the selected group."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#overrideVersionProfile"
+      ]
+    },
+    "auto-delete": {
+      "statement": "Auto Delete removes disconnected, and optionally disabled, Private Service Edges after a set number of days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "You can enable Auto Delete to remove disconnected or optionally disabled Private Service Edges after a set number of days."
+          ]
+        }
+      ]
+    },
+    "schedule-values": {
+      "statement": "The Service Edge auto-delete schedule resource documents frequency as days only, frequency_interval as 5, 7, 14, 30, 60 or 90 (minimum 5), and delete_disabled as whether disabled edges are also deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_assistant_schedule.md",
+          "quotes": [
+            "Supported value is: `days`",
+            "Supported values are: `5`, `7`, `14`, `30`, `60` and `90`",
+            "The minimum supported value for frequencyInterval is 5.",
+            "Indicates if the Service Edges are included for deletion if they are in a disconnected state based on frequencyInterval and frequency values."
+          ]
+        }
+      ]
+    },
+    "microtenant-license": {
+      "statement": "A Service Edge group's microtenant_id requires the microtenant license and feature flag on the tenant; the provider also accepts it from the ZPA_MICROTENANT_ID environment variable, which the documentation calls the recommended method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "requires the microtenant license and feature flag enabled for the respective tenant",
+            "which is the recommended method"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#microtenantId"
+      ]
+    }
+  },
+  "divergences": {
+    "override-version-profile-default": {
+      "summary": "Default of override_version_profile on zpa_service_edge_group",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/resources/zpa_service_edge_group.md",
+            "quotes": [
+              "Whether the default version profile of the App Connector Group is applied or overridden. Default: `false`"
+            ]
+          },
+          "says": "The provider documentation gives the default as false."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_service_edge_group.go",
+            "quotes": [
+              "Default:     true,"
+            ],
+            "after": "\"override_version_profile\": {"
+          },
+          "says": "The resource schema sets the default to true."
+        }
+      ],
+      "impact": "A configuration that omits override_version_profile is planned with true; any wrapper or reading that assumes false will misstate which version profile a group follows."
+    }
+  },
+  "gaps": {
+    "upgrade-time-zone": {
+      "kind": "semantic",
+      "title": "Time zone of upgrade_time_in_secs",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"66600 (18:30 UTC)\". The default 66600 is 18:30 as seconds from midnight, but no source gives the time zone the group time is read in. Resolve with the Admin Console group page or a lab test.",
+      "blocks": "choosing an off-hours window for a region",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "el8-meaning": {
+      "kind": "semantic",
+      "title": "What the el8 version profiles are built for",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The el8 variants exist for environments that require OS-level compatibility with RHEL 8 or compatible distributions.\" The provider lists the names only. Resolve with the Admin Console version profile documentation.",
+      "blocks": "choosing between the el8 and default profiles",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "override-profile-inheritance": {
+      "kind": "semantic",
+      "title": "What a group does when override_version_profile is false",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"otherwise the PSE Group inherits the tenant-wide version profile setting.\" The console Inherit option applies the customer-level profile, which is consistent, but no source ties the API field to that choice. Resolve with a lab test.",
+      "blocks": "predicting the version a group follows",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

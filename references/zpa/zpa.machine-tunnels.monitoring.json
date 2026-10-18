@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "zpa.machine-tunnels.monitoring",
+  "title": "Machine tunnel status and removal in Client Connector",
+  "aliases": [
+    "machine tunnel status",
+    "machine tunnel inactive",
+    "machine tunnel unregistered",
+    "remove machine tunnel",
+    "machine tunnel page",
+    "machine tunnel token",
+    "removeMachineTunnel"
+  ],
+  "binds": [
+    "zpa/client-types#zpn_client_type_machine_tunnel"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.machine-tunnels.requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the Machine Tunnel page and removal of machine tunnels. Device records in general: [[doc:references/zcc/devices.md]]."
+    },
+    {
+      "label": "Status.",
+      "text": "{{status-values}} {{inactive-reasons}}"
+    },
+    {
+      "label": "Finding a machine.",
+      "text": "{{search-columns}}"
+    },
+    {
+      "label": "Removing one.",
+      "text": "{{console-removal}} {{remove-api}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which status the tunnel shows and which Inactive reason fits the device.",
+      "uses": [
+        "status-values",
+        "inactive-reasons"
+      ]
+    },
+    {
+      "do": "Which search field finds the machine: hostname, token, fingerprint or version.",
+      "uses": [
+        "search-columns"
+      ]
+    },
+    {
+      "do": "Which call removes a stale machine tunnel.",
+      "uses": [
+        "console-removal",
+        "remove-api"
+      ]
+    }
+  ],
+  "claims": {
+    "status-values": {
+      "statement": "A machine tunnel's status is Active, Inactive, Removed or Unregistered. Active, the default, means connected to Private Access before user login; Removed means the configuration was deleted or deactivated in the Admin Console; Unregistered means it is no longer connected to Zscaler services or policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "Active: The default status. The machine tunnel is connected to Private Access before user login.",
+            "Removed: The machine tunnel configuration was deleted or deactivated from the Zscaler Admin Console.",
+            "Unregistered: The machine tunnel is no longer connected to Zscaler services or policies."
+          ]
+        }
+      ]
+    },
+    "inactive-reasons": {
+      "statement": "Inactive covers: the tunnel was turned off by the admin, the device was off or off the network, the tunnel failed on connection or authentication, or the tunnel was not enabled for the device in Zscaler Service Entitlement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "The machine tunnel was turned off by the admin and cannot establish a connection.",
+            "The device was turned off or disconnected from the network.",
+            "The machine tunnel failed to establish a connection because of connection issues or failed authentication.",
+            "The machine tunnel was not enabled for the device in Zscaler Service Entitlement."
+          ]
+        }
+      ]
+    },
+    "search-columns": {
+      "statement": "The Machine Tunnel page can be filtered by operating system and status and searched by hostname, machine tunnel token, hardware fingerprint or Zscaler Client Connector version. It lists hostname, OS type, device model, Client Connector version and status, shows the token for each machine, and exports the list as CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "Search for a machine tunnel by Hostname, Machine Tunnel Token, Hardware Fingerprint, or Zscaler Client Connector Version.",
+            "Device Model: The model of the machine.",
+            "View the details for a machine tunnel. You can view and copy the token for each machine.",
+            "Export the machine tunnel details as a CSV file for all items listed in the table, as determined by the filters."
+          ]
+        }
+      ]
+    },
+    "console-removal": {
+      "statement": "Machine tunnels are removed from the Admin Console with Delete from the Actions menu or the Delete icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-machine-tunnels.json",
+          "quotes": [
+            "Remove selected machine tunnels from the Zscaler Admin Console by either clicking Delete from the Actions drop-down menu or clicking the Delete icon."
+          ]
+        }
+      ]
+    },
+    "remove-api": {
+      "statement": "Machine tunnel devices are removed through the Client Connector API with `POST /zcc/papi/public/v1/removeMachineTunnel`, whose body takes hostnames or a machine token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post",
+          "expect": {
+            "operationId": "Removes machine tunnel devices"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "machineToken": {
+              "type": "string"
+            },
+            "hostNames": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/remove_devices/zcc_remove_devices.go",
+          "quotes": [
+            "removeMachineTunnelEndpoint = \"/zcc/papi/public/v1/removeMachineTunnel\"",
+            "\"POST\", removeMachineTunnelEndpoint"
+          ]
+        }
+      ],
+      "conditions": "A Client Connector API overview page once listed removal as DELETE /zcc/papi/public/v1/devices/machineTunnel; that page no longer exists on automate.zscaler.com (checked 2026-10-18), so the divergence recording it was removed."
+    }
+  }
+}

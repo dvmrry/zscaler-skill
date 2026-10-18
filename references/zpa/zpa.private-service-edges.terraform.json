@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.terraform",
+  "title": "The zpa_service_edge_group resource for Private Service Edge groups",
+  "aliases": [
+    "zpa_service_edge_group",
+    "service_edges block",
+    "terraform private service edge group",
+    "terraform service edge import",
+    "zpa_service_edge_controller data source",
+    "zpa_private_cloud_group enrollment"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider models a Private Service Edge group as one resource and Private Service Edge instances only as a data source."
+    },
+    {
+      "label": "Arguments.",
+      "text": "{{tf-required-args}} {{zpa-terraform-grace}} Wrapper modules: [[zpa.private-service-edges.reference-modules]]."
+    },
+    {
+      "label": "Membership.",
+      "text": "{{service-edges-block}} {{service-edges-deprecation}}"
+    },
+    {
+      "label": "Import and managed groups.",
+      "text": "{{import-by-id-or-name}} {{managed-flags}} Importing a managed group is unverified {{gap:import-managed-group}}."
+    },
+    {
+      "label": "Related resources.",
+      "text": "{{private-cloud-group-enrollment}} {{controller-data-source}}"
+    },
+    {
+      "text": "Provider defects: [[zpa.terraform.resource-fidelity]], [[zpa.terraform.data-source-fidelity]], and first-block-only association reads in [[zpa.terraform.app-segment-lifecycle:association-block-first-only-places]]. Enrollment fields: [[zpa.private-service-edges.enrollment]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a configuration manages membership: when service_edges is omitted Terraform ignores membership entirely, so drift in members is not reported.",
+      "uses": [
+        "service-edges-block",
+        "service-edges-deprecation"
+      ]
+    },
+    {
+      "do": "Whether the plan sets grace_distance_enabled without the value and unit, which the schema rejects.",
+      "uses": [
+        "zpa-terraform-grace",
+        "tf-required-args"
+      ]
+    },
+    {
+      "do": "Whether a group Terraform wants to change is Zscaler-managed, which is read only.",
+      "uses": [
+        "managed-flags"
+      ]
+    },
+    {
+      "do": "Whether the data source returning an empty Private Service Edge list is the provider defect rather than an empty group.",
+      "uses": [
+        "zpa.terraform.data-source-fidelity:service-edge-group-nested-sets-ignored",
+        "zpa.terraform.data-source-fidelity:service-edge-group-brokers-always-blocks"
+      ]
+    }
+  ],
+  "claims": {
+    "tf-required-args": {
+      "statement": "In the resource schema, name, latitude, longitude and location are required, city_country is optional and country_code is optional and computed, although the provider docs list city_country and country_code under Required. enabled defaults to true, is_public to false, and trusted_networks takes at most one block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"name\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"latitude\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"longitude\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Required: true,"
+          ],
+          "after": "\"location\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Optional: true,"
+          ],
+          "after": "\"city_country\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Computed: true,"
+          ],
+          "after": "\"country_code\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "`country_code` - (String) Provide a 2 letter",
+            "Default value: `true` Supported values: `true`, `false`",
+            "`trusted_networks` - (Block Set) Trusted networks for this Service Edge Group. List of trusted network objects Maximum 1 block allowed."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#name",
+        "zpa/service-edge-groups#countryCode"
+      ],
+      "conditions": "Statement changed from the legacy \"requires name, latitude, longitude, location, city_country and country_code\": the schema marks city_country Optional and country_code Optional+Computed, contradicting the docs' Required list."
+    },
+    "zpa-terraform-grace": {
+      "statement": "grace_distance_value and grace_distance_value_unit are RequiredWith grace_distance_enabled in the schema, so the three are configured together.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "RequiredWith: []string{\"grace_distance_enabled\", \"grace_distance_value_unit\"},",
+            "RequiredWith: []string{\"grace_distance_enabled\", \"grace_distance_value\"},"
+          ]
+        }
+      ]
+    },
+    "service-edges-block": {
+      "statement": "When the service_edges block is omitted Terraform ignores service edge membership completely; when specified it enforces exact membership and reports any discrepancy as drift. Membership is typically managed outside Terraform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Terraform will ignore service edge membership completely (no drift detection)",
+            "Any discrepancy between configuration and actual state will be reported as drift",
+            "Service edge membership is typically managed outside Terraform"
+          ]
+        }
+      ]
+    },
+    "service-edges-deprecation": {
+      "statement": "The service_edges block carries a deprecation notice: it will be deprecated in a future release.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "The `service_edges` block will be deprecated in a future release"
+          ]
+        }
+      ]
+    },
+    "import-by-id-or-name": {
+      "statement": "A Service Edge group can be imported using its ID or its name as the import ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "Service Edge Group can be imported; use `<SERVER EDGE GROUP ID>` or `<SERVER EDGE GROUP NAME>` as the import ID."
+          ]
+        }
+      ]
+    },
+    "managed-flags": {
+      "statement": "The group type carries readOnly and zscalerManaged flags, and Zscaler-managed groups are read only in the console.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "ReadOnly                       bool",
+            "ZscalerManaged                 bool"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Private Service Edge groups that are managed by Zscaler are read only and cannot be edited or deleted."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/service-edge-groups#readOnly",
+        "zpa/service-edge-groups#zscalerManaged"
+      ],
+      "conditions": "Inferred link: the flag names match the console's read-only, Zscaler-managed groups; no source states that the flags drive that behavior."
+    },
+    "private-cloud-group-enrollment": {
+      "statement": "zpa_private_cloud_group follows the same enrollment pattern: enrollment_cert_id is optional with auto-resolution of the \"Connector\" certificate by name when omitted, and user_codes enables OAuth2 enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added OAuth2 user code enrollment support to the `zpa_private_cloud_group` resource via the new `user_codes` attribute, and made `enrollment_cert_id` optional with auto-resolution of the `Connector` enrollment certificate by name when omitted."
+          ]
+        }
+      ]
+    },
+    "controller-data-source": {
+      "statement": "The provider has a zpa_service_edge_controller data source that looks up a service edge controller by name, and a service_edge_group resource; the documentation lists no resource for individual Private Service Edge instances.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_service_edge_controller.md",
+          "quotes": [
+            "Use the **zpa_service_edge_controller** data source to get information about a service edge controller in the Zscaler Private Access cloud."
+          ]
+        }
+      ],
+      "conditions": "Absence: listing docs/resources at the pin shows zpa_service_edge_group and zpa_service_edge_assistant_schedule but no resource for a single Service Edge instance."
+    }
+  },
+  "gaps": {
+    "import-managed-group": {
+      "kind": "semantic",
+      "title": "Importing a Zscaler-managed Private Service Edge group",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Any Terraform import of such a group will result in a plan that cannot apply ... Do not import Zscaler-managed PSE Groups into Terraform state.\" The read-only rule is documented in the console; the import and apply outcome is not. Resolve with a lab test.",
+      "blocks": "advising whether a managed group may be imported",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.actions",
+  "title": "Rule actions on ZPA policy types",
+  "aliases": [
+    "allow access",
+    "block access",
+    "conditional access",
+    "require approval",
+    "allow with privileged approval",
+    "step-up authentication zpa",
+    "BYPASS INTERCEPT INTERCEPT_ACCESSIBLE",
+    "forwarding policy actions",
+    "inspection policy actions",
+    "pop-up message to user"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.evaluation-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The actions a rule can take depend on its policy type, and the access rule's third action has several names."
+    },
+    {
+      "label": "Access rule.",
+      "text": "{{access-actions-ui}} {{conditional-access-step-up}} {{step-up-oidc-only}} {{gap:block-popup-support}}"
+    },
+    {
+      "label": "Names for the third action.",
+      "text": "The help and the wire use different names {{divergence:require-approval-name}}. Whether they are one action is open {{gap:require-approval-equals-conditional-access}}. {{access-action-enum}}"
+    },
+    {
+      "label": "Forwarding rule.",
+      "text": "{{forwarding-actions}} {{forwarding-ui-names}} The mapping between the two is open {{gap:forwarding-ui-vs-api-names}}."
+    },
+    {
+      "label": "Inspection rule.",
+      "text": "{{inspection-actions}}"
+    },
+    {
+      "text": "The evaluation of a bypass against access policy is in [[zpa.policy.evaluation-order:bypass-skips-access]]. Timeout rule actions are in [[zpa.policy.timeout-rules:action-re-auth-only]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Check which name the console shows for the action, since the help uses Require Approval and Conditional Access for the access rule.",
+      "uses": [
+        "require-approval-name",
+        "require-approval-equals-conditional-access"
+      ]
+    },
+    {
+      "do": "For a Conditional Access rule, check the Authentication Service subscription, the step-up level and that the IdP integration is OIDC.",
+      "uses": [
+        "conditional-access-step-up",
+        "step-up-oidc-only"
+      ]
+    },
+    {
+      "do": "For a forwarding rule, check whether the action is BYPASS, which removes the traffic from access policy evaluation.",
+      "uses": [
+        "forwarding-actions",
+        "forwarding-ui-vs-api-names"
+      ]
+    },
+    {
+      "do": "For an inspection rule, check the action is INSPECT or BYPASS_INSPECT.",
+      "uses": [
+        "inspection-actions"
+      ]
+    }
+  ],
+  "claims": {
+    "access-actions-ui": {
+      "statement": "The access policy rule action options are Allow Access, Block Access and Conditional Access, plus an Allow with Privileged Approval checkbox for Privileged Remote Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "Allow Access: Allows access to applications.",
+            "Block Access: Blocks access to applications.",
+            "Conditional Access: Allows access to sensitive resources for step-up authentication",
+            "The Allow with Privileged Approval checkbox is only an option if you have Privileged Remote Access (PRA)"
+          ]
+        }
+      ]
+    },
+    "conditional-access-step-up": {
+      "statement": "Conditional Access applies step-up authentication, is available only with an Authentication Service subscription, and prompts the user to reinforce their authentication if they are not at the defined level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "is only an option if you are subscribed to Authentication Service",
+            "If a user is not at the defined authentication level, they are prompted to reinforce their authentication level."
+          ]
+        }
+      ]
+    },
+    "step-up-oidc-only": {
+      "statement": "Step-up authentication is supported only with OIDC-based external IdP integrations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-step-up-authentication.json",
+          "quotes": [
+            "Step-up authentication is supported only with OIDC-based external IdP integrations."
+          ]
+        }
+      ]
+    },
+    "access-action-enum": {
+      "statement": "The v2 rule request accepts these action values: ALLOW, DENY, LOG, RE_AUTH, NEVER, BYPASS, INTERCEPT, NO_DOWNLOAD, BYPASS_RE_AUTH, INTERCEPT_ACCESSIBLE, ISOLATE, BYPASS_ISOLATE, INSPECT, BYPASS_INSPECT, REQUIRE_APPROVAL, INJECT_CREDENTIALS, CHECK_CAPABILITIES, MONITOR, DO_NOT_MONITOR, REDIRECT_DEFAULT, REDIRECT_PREFERRED, REDIRECT_ALWAYS and CHECK_PRIVILEGED_PORTAL_CAPABILITIES; none is named CONDITIONAL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "DENY",
+              "LOG",
+              "RE_AUTH",
+              "NEVER",
+              "BYPASS",
+              "INTERCEPT",
+              "NO_DOWNLOAD",
+              "BYPASS_RE_AUTH",
+              "INTERCEPT_ACCESSIBLE",
+              "ISOLATE",
+              "BYPASS_ISOLATE",
+              "INSPECT",
+              "BYPASS_INSPECT",
+              "REQUIRE_APPROVAL",
+              "INJECT_CREDENTIALS",
+              "CHECK_CAPABILITIES",
+              "MONITOR",
+              "DO_NOT_MONITOR",
+              "REDIRECT_DEFAULT",
+              "REDIRECT_PREFERRED",
+              "REDIRECT_ALWAYS",
+              "CHECK_PRIVILEGED_PORTAL_CAPABILITIES"
+            ],
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "forwarding-actions": {
+      "statement": "The forwarding actions are BYPASS, where traffic goes directly to the destination and skips ZPA entirely; INTERCEPT, where it is routed through ZPA; and INTERCEPT_ACCESSIBLE, where it is intercepted only if the destination is reachable through ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zpa/create-forwarding-policy-rule/SKILL.md",
+          "quotes": [
+            "Traffic goes directly to the destination, skipping ZPA entirely",
+            "Traffic is routed through ZPA (tunneled via the Zscaler cloud)",
+            "Traffic is intercepted only if the destination is reachable through ZPA"
+          ]
+        }
+      ]
+    },
+    "forwarding-ui-names": {
+      "statement": "The client forwarding policy page names the rule actions Bypass ZPA, Only Forward Allowed Applications and Forward to ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-client-forwarding-policy.json",
+          "quotes": [
+            "Rule Action: Indicates if the rule will Bypass ZPA, Only Forward Allowed Applications, or Forward to ZPA."
+          ]
+        }
+      ]
+    },
+    "inspection-actions": {
+      "statement": "The Terraform inspection rule resource accepts the actions INSPECT and BYPASS_INSPECT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule_v2.go",
+          "quotes": [
+            "ValidateFunc: validation.StringInSlice([]string{ \"INSPECT\", \"BYPASS_INSPECT\", }, false),"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "require-approval-name": {
+      "summary": "The third access rule action is called Require Approval in one article, Conditional Access in another, and REQUIRE_APPROVAL on the wire.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-access-policy-20260909.json",
+            "quotes": [
+              "Rule Action: Indicates if the rule will Allow Access, Block Access, or Require Approval."
+            ]
+          },
+          "says": "The rule list shows Allow Access, Block Access or Require Approval."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-access-policies.json",
+            "quotes": [
+              "Conditional Access: Allows access to sensitive resources for step-up authentication"
+            ]
+          },
+          "says": "The action form offers Conditional Access."
+        },
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zpa/create-access-policy-rule/SKILL.md",
+            "quotes": [
+              "| `REQUIRE_APPROVAL` | Require explicit approval before access |"
+            ]
+          },
+          "says": "The MCP skill's action table uses REQUIRE_APPROVAL."
+        }
+      ],
+      "impact": "Searching a tenant export for Conditional Access finds nothing, because the wire value is REQUIRE_APPROVAL; whether they are the same action is open in the gap require-approval-equals-conditional-access."
+    }
+  },
+  "gaps": {
+    "require-approval-equals-conditional-access": {
+      "kind": "semantic",
+      "title": "Whether Require Approval, Conditional Access and the REQUIRE_APPROVAL wire value are one action",
+      "status": "partial",
+      "former_ids": [
+        "zpa-06"
+      ],
+      "about": [
+        "zpa.policy.actions"
+      ],
+      "detail": "Unverified legacy statement: \"Require Approval = Conditional Access = ZIdentity step-up authentication. Three names for the same behavior.\" The step-up mechanism is documented for Conditional Access (claims conditional-access-step-up and step-up-oidc-only), and the Configuring Access Policies article that offers Conditional Access also says \"you only need to configure policy rules to block access for specific circumstances or to require approval\", which hints at a link; no captured source I found states outright that the access policy page's Require Approval and the API's REQUIRE_APPROVAL are Conditional Access. A help article or a rule created as Conditional Access and read back would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "you only need to configure policy rules to block access for specific circumstances or to require approval"
+          ]
+        }
+      ]
+    },
+    "forwarding-ui-vs-api-names": {
+      "kind": "semantic",
+      "title": "How the client forwarding console actions map to BYPASS, INTERCEPT and INTERCEPT_ACCESSIBLE",
+      "status": "open",
+      "about": [
+        "zpa.policy.actions"
+      ],
+      "detail": "The console names are Bypass ZPA, Only Forward Allowed Applications and Forward to ZPA, and the MCP skill names BYPASS, INTERCEPT and INTERCEPT_ACCESSIBLE. No captured source maps them one to one. Create each console action and read the rule back.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "block-popup-support": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the Pop-Up Message to User option is visible only for Block Access and supported only on Client Connector 4.7 for Windows",
+      "blocks": "the visibility and client-version limits of the Pop-Up Message to User option in the access rule action",
+      "detail": "Unverified legacy statement: \"The Pop-Up Message to User option is visible only when the rule action is Block Access, changes only the pop-up, and is supported only for Zscaler Client Connector version 4.7 for Windows.\" Previously sourced from Configuring_Access_Policies.txt (PDF text). The recapture (configuring-access-policies.json) no longer mentions a Pop-Up Message option.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

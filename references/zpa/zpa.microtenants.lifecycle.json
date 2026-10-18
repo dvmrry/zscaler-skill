@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "id": "zpa.microtenants.lifecycle",
+  "title": "Microtenant lifecycle: create, disable, delete",
+  "aliases": [
+    "disable microtenant",
+    "delete microtenant",
+    "microtenant admin id password",
+    "microtenant privileged approvals",
+    "microtenant emergency access",
+    "enabled false microtenant",
+    "zpa_microtenant destroy"
+  ],
+  "binds": [
+    "zpa/microtenants#enabled",
+    "zpa/microtenants#privilegedApprovalsEnabled"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.user-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.delete-paths"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Microtenant is created enabled or disabled, mapped to users, and deleted with side effects."
+    },
+    {
+      "label": "Creating.",
+      "text": "{{status-default-disabled}} The Python SDK docstring says otherwise {{divergence:enabled-default}}. {{admin-credentials-shown-once}}"
+    },
+    {
+      "label": "Disabling.",
+      "text": "{{disable-effects}}"
+    },
+    {
+      "label": "Privileged Approvals and Emergency Access.",
+      "text": "{{privileged-approvals-purpose}} {{privileged-approvals-pra-only}} {{emergency-pages-hidden}} Whether PRA works without it is open {{gap:pra-requires-privileged-approvals}}."
+    },
+    {
+      "label": "Deleting.",
+      "text": "{{delete-removes-log-receivers}} {{sdk-delete-direct}} {{terraform-destroy-deletes}} What happens to the Microtenant's scoped resources is open {{gap:delete-resource-fate}}. Provider delete behavior for other resources is in [[zpa.terraform.delete-paths]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "What disabling the Microtenant does to sessions and user assignment before recommending it as a temporary measure.",
+      "uses": [
+        "disable-effects",
+        "status-default-disabled",
+        "enabled-default"
+      ]
+    },
+    {
+      "do": "Whether the Admin ID and Password were saved at creation.",
+      "uses": [
+        "admin-credentials-shown-once"
+      ]
+    },
+    {
+      "do": "What exists in the Microtenant before a delete, including log receivers and scoped resources.",
+      "uses": [
+        "delete-removes-log-receivers",
+        "delete-resource-fate",
+        "sdk-delete-direct",
+        "terraform-destroy-deletes"
+      ]
+    },
+    {
+      "do": "Whether Privileged Approvals is enabled when Emergency Access pages are missing.",
+      "uses": [
+        "emergency-pages-hidden",
+        "privileged-approvals-purpose",
+        "privileged-approvals-pra-only",
+        "pra-requires-privileged-approvals"
+      ]
+    }
+  ],
+  "claims": {
+    "status-default-disabled": {
+      "statement": "In the Add Microtenant drawer the Status is disabled by default.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#enabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-microtenants.json",
+          "quotes": [
+            "Status: Enable the Microtenant. By default, this is disabled."
+          ]
+        }
+      ]
+    },
+    "disable-effects": {
+      "statement": "Disabling a Microtenant terminates its active sessions, reassigns users mapped to it to the Default Microtenant, and makes users on Private Service Edges reauthenticate.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#enabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-microtenants.json",
+          "quotes": [
+            "Users mapped to Microtenants that are using Private Service Edges for Private Access (ZPA) reauthenticate when the Microtenant is disabled.",
+            "Users that are mapped to a Microtenant are reassigned to the Default Microtenant when the Microtenant is disabled.",
+            "Active sessions for the Microtenant are terminated when the Microtenant is disabled."
+          ]
+        }
+      ]
+    },
+    "admin-credentials-shown-once": {
+      "statement": "The Admin ID and Password are available only when adding a Microtenant and cannot be accessed in the Zscaler Admin Console after the window is closed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-microtenants.json",
+          "quotes": [
+            "The Admin ID and Password are only available when adding a Microtenant. They are not available to access in the Zscaler Admin Console after you close the window, so store them in a secure location."
+          ]
+        }
+      ]
+    },
+    "privileged-approvals-purpose": {
+      "statement": "Enabling Privileged Approvals allows approval-based access even if no Authentication Domain is selected, it is Disabled by default, and a privileged approval must then be configured for that Microtenant.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#privilegedApprovalsEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "Enable to allow approval-based access even if no Authentication Domain is selected.",
+            "This field is Disabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-microtenants.json",
+          "quotes": [
+            "After you enable Privileged Approvals for a Microtenant, you need to configure a privileged approval for that Microtenant to provide users without Authentication Domain access."
+          ]
+        }
+      ]
+    },
+    "privileged-approvals-pra-only": {
+      "statement": "The Privileged Approvals option is supported only for applications that have Privileged Remote Access enabled.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#privilegedApprovalsEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "The Privileged Approvals option is only supported for applications that have Privileged Remote Access enabled."
+          ]
+        }
+      ]
+    },
+    "emergency-pages-hidden": {
+      "statement": "The Emergency Access and Emergency Access Users pages are not visible for Microtenants with Privileged Approvals disabled.",
+      "tier": "A",
+      "binds": [
+        "zpa/microtenants#privilegedApprovalsEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "The Emergency Access and Emergency Access Users pages are not visible for Microtenants with Privileged Approvals disabled."
+          ]
+        }
+      ]
+    },
+    "delete-removes-log-receivers": {
+      "statement": "Deleting a Microtenant deletes all log receivers that the Microtenant is associated with.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "Deleting a Microtenant deletes all log receivers that the Microtenant is associated with."
+          ]
+        }
+      ]
+    },
+    "sdk-delete-direct": {
+      "statement": "The Python SDK's `delete_microtenant` and the Go SDK's `Delete` each issue a single DELETE to the Microtenant's URL; neither checks for or moves scoped resources first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "after": "def delete_microtenant(self, microtenant_id: str) -> int:",
+          "quotes": [
+            "http_method = \"delete\".upper()",
+            "return (None, response, None)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/microtenants/microtenants.go",
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, microTenantID string)",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", relativeURL, nil, nil, nil)"
+          ]
+        }
+      ]
+    },
+    "terraform-destroy-deletes": {
+      "statement": "Destroying a Terraform `zpa_microtenant` resource calls the SDK's Microtenant delete with the resource ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_microtenant_controller.go",
+          "after": "func resourceMicrotenantDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "microtenants.Delete(ctx, service, d.Id())"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "enabled-default": {
+      "summary": "The console creates a Microtenant disabled by default, while the Python SDK docstring says `enabled` defaults to True.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-microtenants.json",
+            "quotes": [
+              "Status: Enable the Microtenant. By default, this is disabled."
+            ]
+          },
+          "says": "The Status toggle in the Add Microtenant drawer is disabled by default."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/microtenants.py",
+            "after": "Add a new microtenant.",
+            "quotes": [
+              "enabled (bool): Whether the microtenant is enabled. Defaults to True."
+            ]
+          },
+          "says": "add_microtenant documents `enabled` as defaulting to True."
+        }
+      ],
+      "impact": "A caller that omits `enabled` cannot rely on either default: the SDK passes its keyword arguments through as the body, so what the API applies when the field is absent is not shown by either source."
+    }
+  },
+  "gaps": {
+    "delete-resource-fate": {
+      "kind": "semantic",
+      "title": "What happens to a Microtenant's scoped resources when it is deleted",
+      "status": "open",
+      "detail": "Unverified legacy statement: Behavior of scoped resources (App Segments, Server Groups and so on) on deletion is not documented, and resources should be moved or reassigned before deleting a Microtenant to avoid orphaned objects. The captures say deletion removes the associated log receivers and nothing else, and the SDK and provider issue a bare DELETE. A lab delete of a populated Microtenant would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "advising whether resources must be moved before deletion"
+    },
+    "pra-requires-privileged-approvals": {
+      "kind": "semantic",
+      "title": "Whether a Microtenant without Privileged Approvals can support PRA workflows scoped to it",
+      "status": "open",
+      "detail": "Unverified legacy statement: Privileged Approvals is per-Microtenant, and a Microtenant without it enabled cannot support PRA workflows scoped to it, regardless of PRA configuration on App Segments. The captures say only that Privileged Approvals is supported for PRA-enabled applications and that the Emergency Access pages are hidden without it. A lab test of a PRA application segment in a Microtenant with Privileged Approvals disabled would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "answering whether PRA works at all in a Microtenant with Privileged Approvals disabled"
+    }
+  }
+}

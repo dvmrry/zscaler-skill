@@ -7,9 +7,9 @@ last-verified: "2026-05-07"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/zpa/app-connector.md"
-  - "references/zpa/segment-server-groups.md"
-  - "references/zpa/app-segments.md"
+  - "`kb:zpa.app-connectors`"
+  - "`kb:zpa.server-groups`"
+  - "`kb:zpa.app-segments`"
   - "references/zpa/logs/app-connector-metrics.md"
 author-status: draft
 ---
@@ -27,14 +27,14 @@ author-status: draft
 
 Read these *before* interpreting any logs. Establish what *should* happen in the segment → server group → connector chain before reasoning about why it didn't.
 
-- [`references/zpa/app-connector.md § How sessions are assigned to App Connectors`](../../../references/zpa/app-connector.md) — the eligibility gates (CONNECTED status, target reachability via `AliveTargetCount`, group association). An empty `Connector` field in LSS means no connector was eligible — fix is on the eligibility side, not the connector→app hop.
-- [`references/zpa/segment-server-groups.md § Verifying the segment → server group → connector chain (tenant-config recipe)`](../../../references/zpa/segment-server-groups.md) — the per-link verification recipe.
+- [`zpa.app-connectors`](kb:zpa.app-connectors) — the eligibility gates (CONNECTED status, target reachability via `AliveTargetCount`, group association). An empty `Connector` field in LSS means no connector was eligible — fix is on the eligibility side, not the connector→app hop.
+- [`zpa.server-groups`](kb:zpa.server-groups) — the per-link verification recipe.
 
 ## Load docs
 
-- `references/zpa/app-connector.md`
-- `references/zpa/segment-server-groups.md`
-- `references/zpa/app-segments.md`
+- `kb:zpa.app-connectors`
+- `kb:zpa.server-groups`
+- `kb:zpa.app-segments`
 - `references/zpa/logs/app-connector-metrics.md`
 
 ## Inspect tenant config

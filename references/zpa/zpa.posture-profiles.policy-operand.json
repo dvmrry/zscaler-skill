@@ -1,0 +1,362 @@
+{
+  "schema_version": 1,
+  "id": "zpa.posture-profiles.policy-operand",
+  "title": "The POSTURE operand in ZPA policy rules",
+  "aliases": [
+    "POSTURE object_type",
+    "posture lhs rhs",
+    "VERIFIED VERIFICATION FAILED",
+    "posture_udid in policy",
+    "posture rule never matches",
+    "client connector posture profile condition set",
+    "posture timeout rule"
+  ],
+  "binds": [
+    "zpa/posture-profiles#postureUdid"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.posture-profiles.object-model"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.trusted-networks.policy-operand"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "POSTURE criteria point a rule at a profile and at its verification result."
+    },
+    {
+      "label": "Operand.",
+      "text": "{{lhs-is-udid}} {{rhs-verified}} {{console-states}} {{condition-sets}} The general operand forms are in [[zpa.policy.conditions:boolean-rhs-entry-types]]; the AND and OR defaults are in [[zpa.policy.conditions:and-within-some-criteria]]."
+    },
+    {
+      "label": "Provider checks.",
+      "text": "{{v1-lookup}} {{v2-no-lookup}} What ZPA does with a wrong identifier is open {{gap:wrong-lhs-effect}}."
+    },
+    {
+      "label": "Families and scope.",
+      "text": "{{families}} {{isolation-excluded}} The data source documentation disagrees {{divergence:posture-isolation}}. {{microtenant-parent}} Timeout rules that tier by posture are in [[zpa.policy.timeout-rules:posture-tiering-example]]."
+    },
+    {
+      "label": "Clients without posture.",
+      "text": "Web Browser rules cannot use posture criteria, as in [[zpa.browser-access.policy:no-posture-with-web-browser]]; the Browser Access outcome is the open question [[zpa.browser-access.policy:posture-rule-outcome]]."
+    },
+    {
+      "label": "Failed versus absent.",
+      "text": "Whether false covers a device with no result is open {{gap:false-meaning}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which value the lhs holds: the posture_udid, not the id and not the name.",
+      "uses": [
+        "lhs-is-udid",
+        "v1-lookup",
+        "v2-no-lookup",
+        "wrong-lhs-effect"
+      ]
+    },
+    {
+      "do": "Whether rhs true or false is meant: VERIFIED or VERIFICATION FAILED, and whether devices with no result are expected under false.",
+      "uses": [
+        "rhs-verified",
+        "console-states",
+        "false-meaning"
+      ]
+    },
+    {
+      "do": "Whether the rule's client type is Client Connector, since posture criteria work only with it.",
+      "uses": [
+        "zpa.browser-access.policy:no-posture-with-web-browser",
+        "zpa.browser-access.policy:posture-rule-outcome"
+      ]
+    },
+    {
+      "do": "Whether the rule family accepts POSTURE: isolation rules do not.",
+      "uses": [
+        "families",
+        "isolation-excluded"
+      ]
+    },
+    {
+      "do": "Whether the rule is for the machine tunnel, where posture profile criteria need Zscaler Client Connector 3.9 or later.",
+      "uses": [
+        "zpa.machine-tunnels.posture:policy-client-version"
+      ]
+    }
+  ],
+  "claims": {
+    "lhs-is-udid": {
+      "statement": "A POSTURE operand's lhs is the profile's posture_udid, not its resource id: the data source note says to export posture_udid instead of the id, and the access rule documentation says lhs is the posture_udid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_posture_profile.md",
+          "quotes": [
+            "the following parameter must be exported: ``posture_udid`` instead of the ``id`` of the resource."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_posture_profile.md",
+          "quotes": [
+            "Posture Profile (posture_udid) required when ``object_type = \"POSTURE\"``."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/posture-profiles#postureUdid"
+      ]
+    },
+    "rhs-verified": {
+      "statement": "In a POSTURE operand rhs true means VERIFIED and rhs false means VERIFICATION FAILED.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_posture_profile.md",
+          "quotes": [
+            "``true`` = ``VERIFIED``",
+            "``false`` = ``VERIFICATION FAILED``"
+          ]
+        }
+      ]
+    },
+    "console-states": {
+      "statement": "In the console each posture profile in a condition set is set to VERIFIED, meaning Zscaler Client Connector verified the device against the profile's criteria, or VERIFICATION FAILED, meaning it was unable to verify the device against them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "VERIFIED: Zscaler Client Connector verified the user's device against the criteria specified in the posture profile.",
+            "VERIFICATION FAILED: Zscaler Client Connector was unable to verify the user's device against the criteria specified in the posture profile."
+          ]
+        }
+      ]
+    },
+    "condition-sets": {
+      "statement": "A rule can have up to 10 Client Connector Posture Profile condition sets, and each set can hold several posture profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "You can add up to 10 Client Connector Posture Profile condition sets to the rule.",
+            "Each condition set can contain multiple posture profiles to enforce on a user’s device."
+          ]
+        }
+      ]
+    },
+    "v1-lookup": {
+      "statement": "For v1 policy rule resources the provider looks the POSTURE lhs up with GetByPostureUDID, so a value that is not a known posture UDID fails the create or update, and it requires rhs to be \"true\" or \"false\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "_, _, err := postureprofile.GetByPostureUDID(ctx, zClient.Service, operand.LHS)",
+            "if !contains([]string{\"true\", \"false\"}, operand.RHS) {"
+          ]
+        }
+      ]
+    },
+    "v2-no-lookup": {
+      "statement": "For v2 policy rule resources the provider requires a non-empty lhs and an rhs of \"true\" or \"false\" for a POSTURE operand and does not look the lhs up.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "return fmt.Errorf(\"LHS must be a valid Posture UDID and cannot be empty for POSTURE object_type\")",
+            "return fmt.Errorf(\"rhs value must be 'true' or 'false' for POSTURE object_type\")"
+          ]
+        }
+      ],
+      "conditions": "ValidatePolicyRuleConditions is the v2 validator; the v1 resources call ValidateConditions, which does the lookup (same split as zpa.saml-attributes.policy-criteria:v1-validates-lookup)."
+    },
+    "families": {
+      "statement": "The provider's access, forwarding, timeout and inspection rule resources, in their v1 and v2 forms, list POSTURE among their operand object types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "\"POSTURE\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "\"POSTURE\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "quotes": [
+            "\"POSTURE\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule_v2.go",
+          "quotes": [
+            "\"POSTURE\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "quotes": [
+            "\"POSTURE\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "quotes": [
+            "\"POSTURE\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule.go",
+          "quotes": [
+            "\"POSTURE\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule_v2.go",
+          "quotes": [
+            "\"POSTURE\","
+          ]
+        }
+      ]
+    },
+    "isolation-excluded": {
+      "statement": "The provider's isolation rule resources, v1 and v2, do not list POSTURE among their operand object types.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule_v2.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a search: the string \"POSTURE\" does not occur in either isolation resource file."
+    },
+    "microtenant-parent": {
+      "statement": "The Terraform documentation says microtenant_id is not supported in a POSTURE operand because ZPA assumes the posture profile ID that belongs to the parent tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_posture_profile.md",
+          "quotes": [
+            "ZPA automatically assumes the posture profile ID that belongs to the parent tenant."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "false-meaning": {
+      "kind": "semantic",
+      "title": "Whether rhs false matches a device that has never reported a result for the profile",
+      "status": "open",
+      "detail": "The console describes VERIFICATION FAILED as Client Connector being 'unable to verify' the device, which could include a device that has no result, but no source separates 'evaluated and failed' from 'not evaluated'. Unverified legacy statement: \"A device that has never reported a result for a given posture profile is distinct from a device that reported a failure. The behavior ... is not documented.\" Test with a device that has not evaluated the profile.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "using rhs false to cover non-compliant and unknown devices together",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "VERIFICATION FAILED: Zscaler Client Connector was unable to verify the user's device against the criteria specified in the posture profile."
+          ]
+        }
+      ]
+    },
+    "wrong-lhs-effect": {
+      "kind": "semantic",
+      "title": "What a v2 rule does when the POSTURE lhs is not a posture UDID",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Using the wrong identifier silently produces a policy condition that never matches\", and \"The ZPA API validates at rule creation\". The v1 provider rejects an unknown lhs (claim v1-lookup) and the v2 provider checks only that it is non-empty (claim v2-no-lookup); whether ZPA accepts such a condition and what it then does is not shown. Create a v2 rule with the profile id as lhs in a scratch tenant and read it back.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a wrong identifier fails silently"
+    }
+  },
+  "divergences": {
+    "posture-isolation": {
+      "summary": "Whether a posture profile can be referenced in an isolation policy.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_posture_profile.md",
+            "quotes": [
+              "This data source can then be referenced in an Access Policy, Timeout policy, Forwarding Policy, Inspection Policy or Isolation Policy."
+            ]
+          },
+          "says": "The data source can be referenced in an Isolation Policy."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+            "quotes": [
+              "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+            ]
+          },
+          "says": "The isolation rule resource's operand type list has no POSTURE."
+        }
+      ],
+      "impact": "A configuration that follows the data source documentation and puts a POSTURE operand in an isolation rule is rejected by the provider schema."
+    }
+  }
+}

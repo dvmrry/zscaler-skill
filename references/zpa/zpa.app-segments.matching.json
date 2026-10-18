@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.matching",
+  "title": "Which application segment a destination maps to when several overlap",
+  "aliases": [
+    "most specific segment wins",
+    "more granular application segment",
+    "port mismatch bypass",
+    "traffic goes direct instead of through zpa",
+    "wildcard segment not matching",
+    "specific fqdn segment removes host from wildcard",
+    "no match in this application segment"
+  ],
+  "binds": [
+    "zpa/application-segments#domainNames",
+    "zpa/application-segments#tcpPortRanges",
+    "zpa/application-segments#udpPortRanges"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-segments.definition"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.bypass"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.multimatch"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.multimatch"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers how a destination is mapped to one application segment when several overlap."
+    },
+    {
+      "label": "Selection.",
+      "text": "Exact match is the default, and it attempts the more granular segment: [[zpa.policy.multimatch:exact-match-default]]. {{granularity-ranking}} Ties and the part port ranges play are open {{gap:same-specificity-tie}} {{gap:granularity-port-narrowness}}."
+    },
+    {
+      "label": "When the port is not listed.",
+      "text": "{{port-mismatch-bypass}} {{example-no-fallback}} The client drops the access and sends nothing to the cloud: [[zpa.policy.multimatch:port-mismatch-dropped]]. The sources word the outcome two ways {{divergence:bypass-or-drop}}, and what happens to the bypassed traffic is open {{gap:post-bypass-outcome}}."
+    },
+    {
+      "label": "Carve-outs.",
+      "text": "A specific FQDN is removed from the wildcard segment by default: [[zpa.policy.multimatch:carved-out-by-default]]. {{carve-out-ip}} {{wildcard-dead-for-carved-ports}} {{fix-for-carve-out}} What Multimatch changes is in [[zpa.app-segments.multimatch]]."
+    },
+    {
+      "label": "What outranks granularity.",
+      "text": "The Bypass setting is covered in [[zpa.app-segments.bypass]]. Access policy runs on the chosen segment: [[zpa.policy.evaluation-order]]. The access log schema for checking which segment matched is [[doc:references/zpa/logs/access-log-schema.md]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the destination port is listed on the most granular segment that covers the host, since a miss there ends in a client-side bypass and never reaches a wider segment.",
+      "uses": [
+        "port-mismatch-bypass",
+        "example-no-fallback"
+      ]
+    },
+    {
+      "do": "Whether a specific-FQDN or /32 segment exists for the host, because it removes the host from the wildcard or subnet segment for every port it does not list.",
+      "uses": [
+        "zpa.policy.multimatch:carved-out-by-default",
+        "carve-out-ip",
+        "wildcard-dead-for-carved-ports"
+      ]
+    },
+    {
+      "do": "Whether the request appears in Private Access diagnostics at all; a port mismatch never reaches the cloud, so absence there points at segment selection.",
+      "uses": [
+        "zpa.policy.multimatch:port-mismatch-dropped"
+      ]
+    },
+    {
+      "do": "Whether two overlapping segments are equally granular, which no source ranks.",
+      "uses": [
+        "same-specificity-tie",
+        "granularity-port-narrowness"
+      ]
+    }
+  ],
+  "claims": {
+    "granularity-ranking": {
+      "statement": "Granularity is judged on the domain or address: an exact host is more specific than a wildcard that contains it, and for IPs a /32 host is more specific than the /24 that contains it.",
+      "tier": "B",
+      "binds": [
+        "zpa/application-segments#domainNames"
+      ],
+      "conditions": "Chain of evidence: no source defines 'more granular' in words. The ranking is read from the order of the documented Multimatch examples, which list matches 'from most specific to least specific', and from the /32 versus /24 carve-out example. Corrected on recapture (2026-10-18): previously \"Granularity is judged on the domain or address: an exact host is more specific than a wildcard that contains it, and a longer wildcard suffix is more specific than a shorter one (`server1.db.hr.company.com`, then `*.db.hr.company.com`, `*.hr.company.com`, `*.company.com`, `*.com`); for IPs a /32 host is more specific than the /24 that contains it.\". The wildcard-suffix ordering (server1.db.hr.company.com, then *.db.hr.company.com, *.hr.company.com, *.company.com, *.com) was read from the Multimatch example table, which the recapture no longer carries; that clause is removed.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Multiple matches apply to applications from most specific to least specific."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "the destination address maps to the more specific application segment, which is Server1_AS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "because the moment the IP address is created, the 10.0.0.1/32 host is carved out of Subnet_AS 10.0.0.0/24."
+          ]
+        }
+      ]
+    },
+    "port-mismatch-bypass": {
+      "statement": "If there is no match in the more granular application segment for the destination port, Zscaler Client Connector bypasses Private Access and sends the traffic directly.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpPortRanges",
+        "zpa/application-segments#udpPortRanges"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-application-access.json",
+          "quotes": [
+            "If there is no match in this application segment for the destination port, Zscaler Client Connector bypasses Private Access (ZPA) and sends traffic directly."
+          ]
+        }
+      ]
+    },
+    "example-no-fallback": {
+      "statement": "In the documented example, Segment 1 is `*.example.com` on TCP and UDP 1-65535 and Segment 2 is `www.example.com` on TCP 8843; a request to `www.example.com:80` resolves to Segment 2, fails at the closed port, and is not forwarded to Segment 1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-application-access.json",
+          "quotes": [
+            "Ports: TCP 1-65535 UDP 1-65535",
+            "Ports: TCP 8843",
+            "If a user navigates to www.example.com:80, the request resolves to the more specific FQDN in Application Segment 2, but fails at the closed port 80. Zscaler Client Connector does not forward traffic to Application Segment 1"
+          ]
+        }
+      ]
+    },
+    "carve-out-ip": {
+      "statement": "The same carve-out applies to IP addresses: the moment an application segment is created for 10.0.0.1/32, that host is carved out of the segment for 10.0.0.0/24.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "because the moment the IP address is created, the 10.0.0.1/32 host is carved out of Subnet_AS 10.0.0.0/24.",
+            "Even with an IP address, the default behavior of Private Access is to perform an exact match of applications."
+          ]
+        }
+      ]
+    },
+    "wildcard-dead-for-carved-ports": {
+      "statement": "Without Multimatch, a wildcard segment never receives a request for a host that has its own segment on any port that segment does not list; the request is not forwarded to the wildcard segment.",
+      "tier": "B",
+      "conditions": "Chain of evidence: the carve-out removes the host from the wildcard segment, and a port miss in the host's own segment ends in a client-side bypass with no fallback. Statement changed after verification: 'is bypassed at the client' replaced by 'is not forwarded to the wildcard segment', since bypass versus drop is open (divergence bypass-or-drop).",
+      "derived_from": [
+        "zpa.policy.multimatch:carved-out-by-default",
+        "port-mismatch-bypass"
+      ]
+    },
+    "fix-for-carve-out": {
+      "statement": "The documented fixes for a carved-out host are to configure the missing port on the specific segment, or to enable Multimatch, which makes the wildcard segment catch ports the specific segment does not define.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "To fix this, TCP port 3389 must be configured for the Server1_AS application segment, or Multimatch can be enabled.",
+            "Enabling Multimatch changes the behavior of the wildcard application segment, and catches access to ports that have not been defined in the more specific FQDN application segment."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "bypass-or-drop": {
+      "summary": "The same Understanding Application Access passage describes a port mismatch as a client-side bypass to direct traffic and as a drop by Private Access.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-application-access.json",
+            "quotes": [
+              "If there is no match in this application segment for the destination port, Zscaler Client Connector bypasses Private Access (ZPA) and sends traffic directly."
+            ]
+          },
+          "says": "Zscaler Client Connector bypasses Private Access and sends the traffic directly."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-application-access.json",
+            "quotes": [
+              "Zscaler Client Connector does not forward traffic to Application Segment 1, and the client connection request is dropped by Private Access."
+            ]
+          },
+          "says": "The client connection request is dropped by Private Access."
+        }
+      ],
+      "impact": "An answer that says the request reaches the destination directly, or that it fails, goes beyond what the passage establishes; both wordings agree that the request is not forwarded to Private Access."
+    }
+  },
+  "gaps": {
+    "same-specificity-tie": {
+      "kind": "semantic",
+      "former_ids": [
+        "zpa-04"
+      ],
+      "title": "Which segment is used when overlapping segments are equally granular, or share the same FQDN and the same Bypass setting",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "deterministic answers for two segments with identical domain names, or two segments for one FQDN that both set Bypass to Always or both to On Corporate Network",
+      "detail": "No captured source states a tie-break. Unverified legacy statements: save-time validation likely blocks two EXCLUSIVE segments with identical FQDNs (only the mixed Multimatch setting conflict is documented); if both were saved, Zscaler Client Connector picks one deterministically per session and which one is unspecified. Test in a scratch tenant with two segments with identical domain_names and match_style, then inspect the access logs for the matched segment."
+    },
+    "granularity-port-narrowness": {
+      "kind": "semantic",
+      "title": "Whether port-range narrowness plays any part in 'more granular'",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "ranking two segments that cover the same host with different port sets",
+      "detail": "Unverified legacy statement: 'port-range narrowness does not enter the granularity judgment' (stated in the resolved ledger answer for zpa-02). No captured source says it; the documented examples only vary the domain. Test with two segments for one host that differ only in port ranges."
+    },
+    "post-bypass-outcome": {
+      "kind": "semantic",
+      "title": "What happens to traffic after Zscaler Client Connector bypasses Private Access on a port mismatch",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a bypassed request reaches the destination, is blocked elsewhere, or never resolves",
+      "detail": "Unverified legacy statement: what happens to the traffic after depends on the client's forwarding profile and network egress, outside the application segment configuration. No captured source describes the post-bypass path. Test with Zscaler Client Connector on a port-mismatch request and a packet capture on the device."
+    }
+  }
+}

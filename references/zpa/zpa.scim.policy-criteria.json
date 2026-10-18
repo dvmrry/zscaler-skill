@@ -1,0 +1,499 @@
+{
+  "schema_version": 1,
+  "id": "zpa.scim.policy-criteria",
+  "title": "SCIM groups and attributes as ZPA policy criteria",
+  "aliases": [
+    "SCIM_GROUP operand",
+    "scim operand",
+    "enable_scim_based_policy",
+    "scim attributes and groups for policy",
+    "scim rule never matches",
+    "scim criteria multiple idp",
+    "scim microtenant",
+    "scim source ip anchoring"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.scim.attributes-and-groups"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.scim.provisioning-timing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes.policy-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "SCIM criteria reach a rule through two operand types and a per-IdP setting."
+    },
+    {
+      "label": "Operands.",
+      "text": "{{scim-group-operand}} {{scim-attribute-operand}} How the engine compares the value is open {{gap:string-equality}}."
+    },
+    {
+      "label": "Values.",
+      "text": "{{value-must-be-observed}} The documentation and the code disagree on case {{divergence:value-case}}, and the engine's behavior is open {{gap:zpa-66-case-sensitivity}}."
+    },
+    {
+      "label": "The IdP setting.",
+      "text": "{{idp-flags}} {{flag-is-setting}} Whether both flags are needed is open {{gap:both-flags-needed}}. What a disabled setting does to a rule is in [[zpa.policy.criteria:idp-policy-setting-disabled]]. The earlier question on this fallback is closed {{gap:zpa-65-setting-fallback}}. The SAML counterpart is in [[zpa.saml-attributes.policy-criteria]]."
+    },
+    {
+      "label": "IdPs.",
+      "text": "{{groups-per-idp}} Choosing IdPs and joining criteria is covered in [[zpa.saml-attributes.policy-criteria:idp-selection]]."
+    },
+    {
+      "label": "Rule families.",
+      "text": "{{families}} The earlier question on isolation rules is closed {{gap:zpa-68-isolation-scim}}. {{v2-over-1000}}"
+    },
+    {
+      "label": "Scope limits.",
+      "text": "{{microtenant-no-operand-id}} {{microtenant-read-only}} {{sipa}} How anchored traffic gets its country is in [[zpa.policy.criteria:country-last-nat-ip]]."
+    },
+    {
+      "text": "Provider defects that affect rule writes are in [[zpa.terraform.policy-rule-writes]], and ordinary lookups in [[zpa.terraform.data-source-selection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which object type the rule uses and what its lhs and rhs hold: IdP ID and group ID for SCIM_GROUP, attribute header ID and value for SCIM.",
+      "uses": [
+        "scim-group-operand",
+        "scim-attribute-operand"
+      ]
+    },
+    {
+      "do": "Whether the IdP has the SCIM Attributes and Groups for Policy setting on, and what operator the rule uses, since the outcome differs between OR and AND.",
+      "uses": [
+        "flag-is-setting",
+        "zpa.policy.criteria:idp-policy-setting-disabled",
+        "idp-flags",
+        "zpa-65-setting-fallback",
+        "both-flags-needed"
+      ]
+    },
+    {
+      "do": "Which IdP the user authenticated through, because criteria belong to one IdP.",
+      "uses": [
+        "groups-per-idp",
+        "zpa.saml-attributes.policy-criteria:idp-scope",
+        "zpa.saml-attributes.policy-criteria:other-idp-no-match"
+      ]
+    },
+    {
+      "do": "Whether the value in a SCIM operand is one the attribute actually carries, listed by the values call, and whether case could matter.",
+      "uses": [
+        "value-must-be-observed",
+        "value-case",
+        "zpa-66-case-sensitivity"
+      ]
+    },
+    {
+      "do": "Whether the rule family can carry SCIM criteria, and whether a Terraform rule is v1 or v2.",
+      "uses": [
+        "families",
+        "v2-over-1000"
+      ]
+    },
+    {
+      "do": "Whether a Microtenant or Source IP Anchoring is involved, which restrict where SCIM criteria apply.",
+      "uses": [
+        "microtenant-no-operand-id",
+        "microtenant-read-only",
+        "sipa"
+      ]
+    }
+  ],
+  "claims": {
+    "scim-group-operand": {
+      "statement": "A SCIM group criterion is an operand with object_type SCIM_GROUP whose lhs is the IdP's ID (the zpa_idp_controller id) and whose rhs is the SCIM group's ID (the zpa_scim_groups id); the v1 resources set them as lhs and rhs, and the v2 resources as an entry_values pair.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_scim_group.md",
+          "quotes": [
+            "object_type = \"SCIM_GROUP\"",
+            "lhs         = data.zpa_idp_controller.idp_name.id",
+            "rhs         = data.zpa_scim_groups.engineering.id"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "`lhs` - (String) -  ID of the Identity Provider",
+            "`rhs` - (String) - ID of the SCIM Group."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "_, _, err := idpcontroller.Get(ctx, zClient.Service, operand.LHS)",
+            "_, _, err = scimgroup.Get(ctx, zClient.Service, operand.RHS)"
+          ]
+        }
+      ]
+    },
+    "scim-attribute-operand": {
+      "statement": "A SCIM attribute criterion is an operand with object_type SCIM carrying idp_id, an lhs that is the SCIM attribute header's ID and an rhs that is the value to match; v1 resources require idp_id, and the v2 resources take lhs and rhs as an entry_values pair.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_scim_attribute.md",
+          "quotes": [
+            "object_type = \"SCIM\" idp_id      = data.zpa_scim_attribute_header.givenName.idp_id",
+            "lhs         = data.zpa_scim_attribute_header.givenName.id"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "The SCIM Attribute Header ID.",
+            "The SCIM Attribute value to match"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "scim, _, err := scimattributeheader.Get(ctx, zClient.Service, operand.IdpID, operand.LHS)",
+            "when operand object type is %v Idp ID must be set"
+          ]
+        }
+      ]
+    },
+    "value-must-be-observed": {
+      "statement": "For a v1 SCIM operand the provider fetches the attribute's observed values with GetValues and rejects an rhs that matches none of them, comparing with strings.EqualFold, so the check ignores case.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "values, err := scimattributeheader.GetValues(ctx, zClient.Service, scim.IdpID, scim.ID)",
+            "if strings.EqualFold(v, operand.RHS) {",
+            "valid SCIM Attribute Value from the list: %v"
+          ]
+        }
+      ]
+    },
+    "families": {
+      "statement": "The provider's access, forwarding, timeout, inspection and isolation rule resources, each in its v1 and v2 form, accept SAML, SCIM and SCIM_GROUP among their operand object types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule_v2.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule_v2.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule_v2.go",
+          "quotes": [
+            "\"SAML\", \"SCIM\", \"SCIM_GROUP\","
+          ]
+        }
+      ],
+      "conditions": "Read from the object_type validation list in each of the ten resource files; the isolation resources list the three types but not POSTURE."
+    },
+    "idp-flags": {
+      "statement": "The IdP object carries scimEnabled, enableScimBasedPolicy, disableSamlBasedPolicy, scimServiceProviderEndpoint and scimSharedSecretExists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/enableScimBasedPolicy",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/scimEnabled",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/disableSamlBasedPolicy",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/scimServiceProviderEndpoint",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1idp~1{idpId}/get/responses/200/content/*~1*/schema/properties/scimSharedSecretExists",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ]
+    },
+    "flag-is-setting": {
+      "statement": "The IdP object carries `enableScimBasedPolicy`, which matches by name the SCIM Attributes and Groups for Policy setting; no source maps the field to the setting.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "you must enable the SAML Attributes for Policy setting for SAML and the SCIM Attributes and Groups for Policy setting for SCIM when configuring an IdP."
+          ]
+        }
+      ],
+      "conditions": "Statement narrowed after verification: the spec types scimEnabled and enableScimBasedPolicy only as booleans, so the earlier mapping of scimEnabled to SCIM provisioning and the 'both on' reading are moved to gap both-flags-needed. Matched by name only."
+    },
+    "groups-per-idp": {
+      "statement": "SCIM groups are listed per IdP and each group carries the IdP's ID, so groups of the same name under two IdPs are distinct objects.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get",
+          "expect": {
+            "description": "Gets details of all SCIM groups for the specified IdP."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/responses/200/content/*~1*/schema/properties/list/items/properties/idpId",
+          "expect": {
+            "format": "int64",
+            "type": "integer"
+          }
+        }
+      ],
+      "conditions": "The per-IdP listing and the idpId field are shown; two same-named groups under two IdPs are not shown in a source."
+    },
+    "microtenant-no-operand-id": {
+      "statement": "The Terraform documentation says microtenant_id is not supported inside operands when object_type is SCIM_GROUP, because IdP information is controlled at the parent tenant level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_scim_group.md",
+          "quotes": [
+            "The attribute ``microtenant_id`` is NOT supported within the `operands` block when the `object_type` is set to `SCIM_GROUP`. IDP Information is controller at the parent tenant level."
+          ]
+        }
+      ]
+    },
+    "microtenant-read-only": {
+      "statement": "For resources defined in the Default Microtenant, SAML Attributes, SCIM Attributes and SCIM Group are Full for the Default Microtenant and Read only for a Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuration-permissions-microtenants.json",
+          "quotes": [
+            "| SAML Attributes | Full | Read only |",
+            "| SCIM Attributes | Full | Read only |",
+            "| SCIM Group | Full | Read only |"
+          ]
+        }
+      ]
+    },
+    "sipa": {
+      "statement": "When Source IP Anchoring traffic is restricted to certain users in the Admin Console, Zscaler says not to add user-based SAML or SCIM criteria in the access policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.json",
+          "quotes": [
+            "If Source IP Anchoring traffic is restricted to certain users in the Zscaler Admin Console, do not add user-based SAML/SCIM criteria when configuring the access policy in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "v2-over-1000": {
+      "statement": "The v2 access rule resource is recommended when a rule needs more than 1,000 resource criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "This resource is recommended if your configuration requires the association of more than 1000 resource criteria per rule."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "value-case": {
+      "summary": "Whether a SCIM attribute value in a rule must match the observed value exactly or case-insensitively.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_scim_attribute_header.md",
+            "quotes": [
+              "the `rhs` value must exactly match one of the values available in the `values` attribute."
+            ]
+          },
+          "says": "The rhs must exactly match one of the observed values."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/common.go",
+            "quotes": [
+              "if strings.EqualFold(v, operand.RHS) {"
+            ]
+          },
+          "says": "The provider's own check accepts a value that differs from an observed value only in case."
+        }
+      ],
+      "impact": "The provider accepts case variants that the documentation calls non-matching; whether ZPA's policy engine treats them as equal is not shown."
+    }
+  },
+  "gaps": {
+    "zpa-65-setting-fallback": {
+      "kind": "semantic",
+      "title": "What happens to SCIM criteria when the IdP's SCIM-for-policy setting is off",
+      "status": "resolved",
+      "former_ids": [
+        "zpa-65"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The access policy articles state it: with OR the SCIM criteria are skipped and SAML still evaluated, with AND the rule is not evaluated (zpa.policy.criteria:idp-policy-setting-disabled). The earlier wording that the criteria 'are ignored' covered only the OR case."
+    },
+    "zpa-68-isolation-scim": {
+      "kind": "semantic",
+      "title": "Whether isolation rules accept SCIM_GROUP and SCIM operands",
+      "status": "resolved",
+      "former_ids": [
+        "zpa-68"
+      ],
+      "resolves_with": [
+        "code-read"
+      ],
+      "resolution": "Both isolation resources, v1 and v2, list SAML, SCIM and SCIM_GROUP among their object types (claim families); this shows only that the provider accepts them."
+    },
+    "zpa-66-case-sensitivity": {
+      "kind": "semantic",
+      "title": "Whether the policy engine compares SCIM attribute values case-sensitively",
+      "status": "open",
+      "former_ids": [
+        "zpa-66"
+      ],
+      "detail": "The attribute header has a caseSensitive flag, and the provider check ignores case (claim value-must-be-observed); neither shows how the policy engine compares an rhs with a user's value. Create a rule on a value in different case, with caseSensitive true and false, and test a matching user.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a rule on 'engineering' matches a user whose value is 'Engineering'"
+    },
+    "string-equality": {
+      "kind": "semantic",
+      "title": "How the SCIM operand compares its value with the user's attribute",
+      "status": "open",
+      "detail": "Unverified legacy statement: the SCIM operand is \"a string equality check: does this user's SCIM department field equal Engineering?\" and the SCIM_GROUP operand \"is a membership check\". Unverified legacy statement: if the value matches no observed value \"the operand will never evaluate true\". The help articles say criteria apply the rule action to the users with the specified value or group, and not how the comparison is made.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "stating exact comparison semantics for multi-valued attributes"
+    },
+    "both-flags-needed": {
+      "kind": "semantic",
+      "title": "Whether SCIM criteria need both scimEnabled and enableScimBasedPolicy on",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Both must be true for SCIM group criteria to influence access decisions.\" No source maps scimEnabled to SCIM provisioning or says both fields must be on; the help says only that the SCIM Attributes and Groups for Policy setting must be enabled (and SCIM enabled for the SCIM Attributes page to show data). Toggle each field in a scratch tenant and test a SCIM rule.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying which IdP flags a SCIM rule depends on"
+    }
+  }
+}

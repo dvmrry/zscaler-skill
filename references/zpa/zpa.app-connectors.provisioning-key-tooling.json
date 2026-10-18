@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.provisioning-key-tooling",
+  "title": "Provisioning key fields and tool behavior across SDKs, provider and MCP",
+  "aliases": [
+    "provisioning key python sdk fields",
+    "provisioning key go sdk struct",
+    "provisioning key mcp",
+    "provisioning key secret in terraform state",
+    "mcp delete provisioning key already deleted",
+    "max_usage string"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "How the Python SDK, the Go SDK, the Terraform provider and the MCP server model a provisioning key, and where they disagree."
+    },
+    {
+      "label": "Field sets.",
+      "text": "{{python-model-fields}} {{go-struct-extra-fields}} {{python-model-lacks-go-fields}} The two are in {{divergence:python-vs-go-key-fields}}. {{max-usage-types}}"
+    },
+    {
+      "label": "The secret on read.",
+      "text": "{{key-readable-on-get}} {{provider-stores-key-in-state}} Credential handling in Terraform state is covered in [[shared.terraform.credential-handling]]."
+    },
+    {
+      "label": "Association types.",
+      "text": "{{python-key-types}} {{provider-data-source-two-types}} The Go lookup helpers and the provider's five-value schema are in [[zpa.sdk-go.service-defects]]; the `enabled = false` write is in [[shared.sdk-go.zero-value-writes]]."
+    },
+    {
+      "label": "Create and delete.",
+      "text": "{{python-create-body}} {{mcp-requires-cert-for-connector}} Whether the API itself requires the certificate is open {{gap:api-requires-cert-for-connector-key}}. {{mcp-delete-masks-lookup-errors}} {{python-group-delete-no-cascade}} Whether group deletion removes keys is open {{gap:group-delete-removes-keys}}."
+    },
+    {
+      "label": "Listing.",
+      "text": "{{mcp-list-pagination}} {{module-key-association-validation}} An unverified legacy note about group-level fields in the Go SDK is {{gap:sdk-go-group-fields}}."
+    },
+    {
+      "text": "What a key is and how it is consumed is in [[zpa.app-connectors.provisioning-keys]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which SDK or tool produced a key listing, because the Python model and the MCP server drop eleven fields.",
+      "uses": [
+        "python-model-fields",
+        "go-struct-extra-fields",
+        "python-vs-go-key-fields"
+      ]
+    },
+    {
+      "do": "Whether a delete reported as 'already deleted' came from a real absence or from a failed lookup.",
+      "uses": [
+        "mcp-delete-masks-lookup-errors"
+      ]
+    },
+    {
+      "do": "Which association types a key lookup can reach: the data source and the Python SDK see two.",
+      "uses": [
+        "provider-data-source-two-types",
+        "python-key-types"
+      ]
+    },
+    {
+      "do": "Whether read access to keys is treated as enrollment capability, including Terraform state.",
+      "uses": [
+        "key-readable-on-get",
+        "provider-stores-key-in-state"
+      ]
+    }
+  ],
+  "claims": {
+    "python-model-fields": {
+      "statement": "The Python SDK ProvisioningKey model reads thirteen attributes from the response: id, name, creationTime, modifiedTime, modifiedBy, enabled, usageCount, maxUsage, zcomponentId, zcomponentName, provisioningKey, enrollmentCertId and enrollmentCertName.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/provisioning_keys.py",
+          "quotes": [
+            "self.id = config[\"id\"] if \"id\" in config else None",
+            "self.modified_time = config[\"modifiedTime\"] if \"modifiedTime\" in config else None",
+            "self.creation_time = config[\"creationTime\"] if \"creationTime\" in config else None",
+            "self.modified_by = config[\"modifiedBy\"] if \"modifiedBy\" in config else None",
+            "self.name = config[\"name\"] if \"name\" in config else None",
+            "self.usage_count = config[\"usageCount\"] if \"usageCount\" in config else None",
+            "self.max_usage = config[\"maxUsage\"] if \"maxUsage\" in config else None",
+            "self.zcomponent_id = config[\"zcomponentId\"] if \"zcomponentId\" in config else None",
+            "self.enabled = config[\"enabled\"] if \"enabled\" in config else None",
+            "self.zcomponent_name = config[\"zcomponentName\"] if \"zcomponentName\" in config else None",
+            "self.provisioning_key = config[\"provisioningKey\"] if \"provisioningKey\" in config else None",
+            "self.enrollment_cert_id = config[\"enrollmentCertId\"] if \"enrollmentCertId\" in config else None",
+            "self.enrollment_cert_name = config[\"enrollmentCertName\"] if \"enrollmentCertName\" in config else None"
+          ]
+        }
+      ]
+    },
+    "go-struct-extra-fields": {
+      "statement": "The Go SDK ProvisioningKey struct defines eleven further fields: appConnectorGroupId, appConnectorGroupName, expirationInEpochSec, ipAcl, uiConfig, associationType, readOnly, restrictionType, zscalerManaged, microtenantId and microtenantName.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "AppConnectorGroupID string `json:\"appConnectorGroupId,omitempty\"`",
+            "AppConnectorGroupName string `json:\"appConnectorGroupName,omitempty\"`",
+            "ExpirationInEpochSec string `json:\"expirationInEpochSec,omitempty\"`",
+            "IPACL []string `json:\"ipAcl,omitempty\"`",
+            "UIConfig string `json:\"uiConfig,omitempty\"`",
+            "AssociationType string `json:\"associationType\"`",
+            "ReadOnly bool `json:\"readOnly,omitempty\"`",
+            "RestrictionType string `json:\"restrictionType,omitempty\"`",
+            "ZscalerManaged bool `json:\"zscalerManaged,omitempty\"`",
+            "MicroTenantID string `json:\"microtenantId,omitempty\"`",
+            "MicroTenantName string `json:\"microtenantName,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "python-model-lacks-go-fields": {
+      "statement": "The eleven Go-only fields are absent from the Python model, so a key read through the Python SDK cannot report its group, ACL, expiry, read-only or Zscaler-managed state.",
+      "tier": "B",
+      "derived_from": [
+        "python-model-fields",
+        "go-struct-extra-fields"
+      ],
+      "conditions": "Rests on the Python model reading exactly the thirteen listed keys; no other file in the SDK was searched for a second reader."
+    },
+    "key-readable-on-get": {
+      "statement": "Both SDK models carry the provisioningKey value in the key object, so the secret is returned by a read, not only at creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/provisioning_keys.py",
+          "quotes": [
+            "self.provisioning_key = config[\"provisioningKey\"] if \"provisioningKey\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "ProvisioningKey string `json:\"provisioningKey,omitempty\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "provider-stores-key-in-state": {
+      "statement": "The Terraform provider marks provisioning_key Sensitive but documents that the value is stored in the state file and can be retrieved with terraform output or by referencing the attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_provisioning_key.go",
+          "quotes": [
+            "the value is stored in the Terraform state file and can be retrieved using 'terraform output' or by referencing the attribute in other resources."
+          ]
+        }
+      ]
+    },
+    "max-usage-types": {
+      "statement": "maxUsage is a string in the Go struct, untyped in the Python model, and an integer in the MCP create tool's input.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "MaxUsage string `json:\"maxUsage,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/provisioning_keys.py",
+          "quotes": [
+            "self.max_usage = config[\"maxUsage\"] if \"maxUsage\" in config else None"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
+          "quotes": [
+            "max_usage: Annotated[int, Field(ge=1, description=\"Maximum enrollment count for the key.\")]"
+          ]
+        }
+      ]
+    },
+    "python-key-types": {
+      "statement": "The Python SDK accepts only the key types connector and service_edge, mapping them to CONNECTOR_GRP and SERVICE_EDGE_GRP, and raises ValueError for anything else; it has no path for NP_ASSISTANT_GRP, which the Go SDK lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "if key_type == \"connector\":",
+            "raise ValueError(\"Unexpected key type.\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "\"NP_ASSISTANT_GRP\","
+          ]
+        }
+      ]
+    },
+    "provider-data-source-two-types": {
+      "statement": "The provider's zpa_provisioning_key data source accepts only CONNECTOR_GRP and SERVICE_EDGE_GRP for association_type, while the resource accepts five (see the service-defects subject), so discovery through the data source cannot return keys of the other types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_provisioning_key.go",
+          "quotes": [
+            "The supported values are CONNECTOR_GRP and SERVICE_EDGE_GRP.",
+            "\"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\","
+          ]
+        }
+      ],
+      "conditions": "The five-value resource schema is held in zpa.sdk-go.service-defects:provider-provisioning-key-schema-and-importer."
+    },
+    "python-create-body": {
+      "statement": "add_provisioning_key sends a body of name, maxUsage, enrollmentCertId and zcomponentId, taking the last two from the enrollment_cert_id and component_id arguments, and treats enrollment_cert_id as a plain optional argument for both key types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/provisioning.py",
+          "quotes": [
+            "{\"name\": name, \"maxUsage\": max_usage, \"enrollmentCertId\": enrollment_cert_id, \"zcomponentId\": component_id}",
+            "enrollment_cert_id = body.get(\"enrollment_cert_id\")"
+          ],
+          "after": "def add_provisioning_key(self, key_type: str, **kwargs)"
+        }
+      ]
+    },
+    "mcp-requires-cert-for-connector": {
+      "statement": "The MCP create tool raises an error when key_type is connector and enrollment_cert_id is missing; service_edge keys may omit it. The rule is enforced in the tool, not in the SDK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
+          "quotes": [
+            "`enrollment_cert_id` is required when `key_type` is 'connector'.",
+            "raise ValueError(\"enrollment_cert_id is required for 'connector' key_type\")"
+          ]
+        }
+      ],
+      "gaps": [
+        "api-requires-cert-for-connector-key"
+      ]
+    },
+    "mcp-delete-masks-lookup-errors": {
+      "statement": "The MCP delete tool looks the key up first and, if the lookup returns an error or no object, reports success with 'does not exist or was already deleted' without calling delete; any lookup error, including authentication or transport failures, is therefore reported as an already-deleted key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
+          "quotes": [
+            "if err or not existing:",
+            "message=f\"Provisioning key {args.key_id} does not exist or was already deleted.\","
+          ]
+        }
+      ]
+    },
+    "python-group-delete-no-cascade": {
+      "statement": "The Python SDK's delete_connector_group takes only group_id and microtenant_id; it has no cascade or force argument.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "def delete_connector_group(self, group_id: str, microtenant_id: Optional[str] = None)"
+          ]
+        }
+      ],
+      "gaps": [
+        "group-delete-removes-keys"
+      ]
+    },
+    "mcp-list-pagination": {
+      "statement": "The MCP provisioning-key list tool accepts optional page (at least 1) and page_size (1 to 500, API default 20) and forwards them to the SDK as string query parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zpa/provisioning_key.py",
+          "quotes": [
+            "Field(default=None, ge=1, le=500, description=\"Items per page (API default 20, max 500).\")",
+            "qp[\"page_size\"] = str(args.page_size)"
+          ]
+        }
+      ]
+    },
+    "module-key-association-validation": {
+      "statement": "The AWS reference module's provisioning-key variable accepts only CONNECTOR_GRP, while the Azure module accepts CONNECTOR_GRP or SERVICE_EDGE_GRP, so a SERVICE_EDGE_GRP key cannot be created through the AWS module's key sub-module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zpa-provisioning-key/variables.tf",
+          "quotes": [
+            "var.provisioning_key_association_type == \"CONNECTOR_GRP\"\n    )"
+          ]
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zpa-provisioning-key/variables.tf",
+          "quotes": [
+            "var.provisioning_key_association_type == \"SERVICE_EDGE_GRP\""
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "python-vs-go-key-fields": {
+      "summary": "The Python and Go SDKs model different field sets for the same provisioning-key object.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/provisioning_keys.py",
+            "quotes": [
+              "self.enrollment_cert_name = config[\"enrollmentCertName\"] if \"enrollmentCertName\" in config else None"
+            ]
+          },
+          "says": "The Python model reads thirteen attributes and stops at enrollmentCertName."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+            "quotes": [
+              "MicroTenantName string `json:\"microtenantName,omitempty\"`"
+            ]
+          },
+          "says": "The Go struct also defines group id and name, expiry, ipAcl, uiConfig, associationType, readOnly, restrictionType, zscalerManaged and the microtenant fields."
+        }
+      ],
+      "impact": "Anything that audits keys through the Python SDK or the MCP server (which returns the Python model) cannot see the Go-only fields; read them through the Go SDK or the raw API response."
+    }
+  },
+  "gaps": {
+    "api-requires-cert-for-connector-key": {
+      "kind": "semantic",
+      "title": "Whether the ZPA API requires an enrollment certificate for a connector key",
+      "status": "open",
+      "detail": "Tracked as legacy ledger item zpa-31. The requirement is enforced only in the MCP create tool; neither SDK's add or update path enforces it, and no source shows whether the API rejects a connector key created without enrollmentCertId.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "former_ids": [
+        "zpa-31"
+      ]
+    },
+    "group-delete-removes-keys": {
+      "kind": "semantic",
+      "title": "Whether deleting a connector group deletes its provisioning keys",
+      "status": "open",
+      "detail": "Tracked as legacy ledger item zpa-30. The MCP delete tool's docstring gives a deleted component as an example of why a key may already be gone, but the implementation cannot establish the cause and treats any lookup error as absence; the Python group-delete signatures carry no cascade argument. No source states that group deletion deletes its keys.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "former_ids": [
+        "zpa-30"
+      ]
+    },
+    "sdk-go-group-fields": {
+      "kind": "semantic",
+      "title": "Group-level version track and IP anchor fields in the Go SDK",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"-el8 version tracks and ip_anchor_type enum fields surface in the SDK (vendor/zscaler-sdk-go/zscaler/zpa/services/appconnectorgroup/) - relevant when auditing group config.\" A search of that package for el8 and IP anchor names found nothing at the pin.",
+      "resolves_with": [
+        "code-read"
+      ]
+    }
+  }
+}

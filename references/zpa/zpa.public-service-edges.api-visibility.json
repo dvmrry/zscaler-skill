@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "zpa.public-service-edges.api-visibility",
+  "title": "How the Public tier appears in the management API",
+  "aliases": [
+    "serviceEdge api public",
+    "upgradePriority",
+    "upgrade_priority",
+    "public service edge api",
+    "zscaler managed service edge api",
+    "service edge group fields public"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.public-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.terraform"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Public tier is visible to the API only indirectly."
+    },
+    {
+      "label": "Instances.",
+      "text": "{{instance-records-are-private}} The endpoints are in [[zpa.private-service-edges.api-surface]]; the Terraform data source is [[zpa.private-service-edges.terraform:controller-data-source]]."
+    },
+    {
+      "label": "Group fields.",
+      "text": "One group field is undocumented {{gap:upgrade-priority}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the object is an organization instance: /serviceEdge records are described as Private Service Edges, with provisioning key and enrollment certificate members.",
+      "uses": [
+        "instance-records-are-private"
+      ]
+    },
+    {
+      "do": "Whether upgrade_priority is set, whose values and effect are not documented.",
+      "uses": [
+        "upgrade-priority"
+      ]
+    }
+  ],
+  "claims": {
+    "instance-records-are-private": {
+      "statement": "The /serviceEdge API object is documented as a ZPA Private Service Edge and carries provisioning key members, so the API surface for instances is the organization's enrolled Private Service Edges; no operation enrolls or configures a Public Service Edge.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get/responses/200/content/*~1*/schema/properties/list/items/properties/applicationStartTime",
+          "expect": {
+            "description": "The start time of the ZPA Private Service Edge."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1serviceEdge/get/responses/200/content/*~1*/schema/properties/list/items/properties/provisioningKeyName",
+          "expect": {
+            "description": "The name of the ZPA Private Service Edge provisioning key.",
+            "type": "string"
+          }
+        }
+      ],
+      "binds": [
+        "zpa/service-edges#provisioningKeyId",
+        "zpa/service-edges#provisioningKeyName"
+      ],
+      "conditions": "Absence: no operation under the serviceEdge paths of the OpenAPI document creates an instance or targets a Public Service Edge."
+    }
+  },
+  "gaps": {
+    "upgrade-priority": {
+      "kind": "semantic",
+      "title": "Allowed values and effect of upgradePriority on service edge groups",
+      "status": "open",
+      "former_ids": [
+        "zpa-60"
+      ],
+      "detail": "The Python ServiceEdgeGroup model exposes upgrade_priority (wire key upgradePriority), and no registered source defines its allowed values or effect for the ZPA service edge tier. Resolve with the API reference or a lab test.",
+      "blocks": "setting or interpreting upgrade_priority",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

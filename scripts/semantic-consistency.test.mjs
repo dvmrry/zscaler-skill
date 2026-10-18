@@ -122,9 +122,10 @@ test("snapshot and ZPA enum prose reflect the current source-derived guides", ()
   assert.doesNotMatch(read("README.md"), /Snapshot schema docs are deferred/);
   assert.doesNotMatch(read("docs/maintenance.md"), /Snapshot schema docs are deferred/);
 
-  const precedence = read("references/zpa/policy-precedence.md");
-  assert.doesNotMatch(precedence, /19-value/);
-  assert.match(precedence, /including `CHROME_POSTURE_PROFILE`/);
+  // The ZPA criteria list now lives in the knowledge graph (converted from references/zpa/policy-precedence.md).
+  const criteria = read("references/zpa/zpa.policy.criteria.json");
+  assert.doesNotMatch(criteria, /19-value/);
+  assert.match(criteria, /CHROME_POSTURE_PROFILE/);
 });
 
 test("behavioral eval suite pins the five semantic-consistency answer shapes", () => {

@@ -146,7 +146,7 @@ Issue: ZPA segment isn't matching for user X.
 Hypothesis: Default-allow policy is shadowing the segment match.
 (no reference to ZPA's deny-by-default model; analyzing as if ZIA semantics apply)
 Better:
-Before hypothesizing: read references/zpa/policy-precedence.md (or equivalent feature reference).
+Before hypothesizing: read `kb:zpa.policy` (or equivalent feature reference).
 ZPA is deny-by-default — there is no "default-allow shadow." The hypothesis space is: (a) segment doesn't include this user's IdP attributes, (b) connector group isn't reachable from user's location, (c) rule ordering with a higher-priority deny, (d) posture / timeout / SAML attribute drift.
 Product defaults and architectural assumptions (deny-by-default vs. allow-by-default, per-app vs. per-segment, IdP-claim vs. SCIM-claim) shape which hypotheses are even plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 
@@ -196,7 +196,7 @@ Users describe symptoms accurately but mis-attribute causes. "The connector is d
 - When pivoting from one root cause to another
 
 ### What counts as a source
-- **File reference**: `references/zpa/troubleshooting.md` line 87
+- **File reference**: `kb:zpa.troubleshooting` line 87
 - **API query result**: `GET /zpa/mgmtconfig/v1/admin/customers/{customerId}/policySet/rules?policyType=ACCESS_POLICY` → returned 3 rules matching criteria
 - **LSS field**: `LSS /lssConfig/userActivity` with `InternalReason = CONNECTOR_UNHEALTHY` (count: 12 sessions)
 - **Direct query/test**: "Ran `curl -v https://ssh.dev.azure.com:22 --connect-timeout 5` from connector IP, got TCP timeout"
@@ -255,8 +255,8 @@ Different claims require different evidence sources. Use this decision tree to a
 | Policy matches this location? | ZPA API `/policySet/rules` + inspect adminScopes | ZPA portal policy UI | Assuming from success of other locations |
 | Session failed at assignment? | LSS User Activity with SessionID, InternalReason, ConnectorAssignmentReason | ZPA API with session ID filter if available | Generic "connection failed" logs |
 | Destination firewall blocking? | Manual SSH/curl from connector IP to destination | NSS logs (shows dropped packets) | Absence of evidence (may be silently dropped) |
-| Policy syntax/scope error? | references/zpa/policy-precedence.md + ZPA API policy dump | ZPA portal, audit logs | Trial and error |
-| Traffic forwarding path | ZPA API `/application` (segment config) + LSS (what actually happened) | references/zpa/policy-precedence.md | Assumption based on one successful session |
+| Policy syntax/scope error? | `kb:zpa.policy` + ZPA API policy dump | ZPA portal, audit logs | Trial and error |
+| Traffic forwarding path | ZPA API `/application` (segment config) + LSS (what actually happened) | `kb:zpa.policy` | Assumption based on one successful session |
 
 ## Hypothesis prioritization
 
@@ -266,7 +266,7 @@ When multiple root causes are possible, investigate in this order (most likely f
    - Policy scope doesn't include location/user/device
    - Segment doesn't exist or is disabled
    - Connector group is disabled
-   - Check via: ZPA API + references/zpa/policy-precedence.md
+   - Check via: ZPA API + `kb:zpa.policy`
 
 2. **Connector health — single point of failure**
    - Connector offline, unhealthy, or overloaded
@@ -282,7 +282,7 @@ When multiple root causes are possible, investigate in this order (most likely f
    - Policy matched but contradicted by another rule
    - Multimatch behavior or rule order issues
    - Posture or SAML attribute mismatch
-   - Check via: deep policy comparison in ZPA API, cross-reference with references/zpa/policy-precedence.md
+   - Check via: deep policy comparison in ZPA API, cross-reference with `kb:zpa.policy`
 
 **Why this order:** Configuration issues are easiest to spot and fix. Connector issues affect many sessions at once (easier to pattern-match). Destination issues are infrastructure, not Zscaler. Policy edge cases require deep knowledge and lots of data.
 
@@ -407,6 +407,6 @@ Real example: During SIPA troubleshooting, forced citation uncovered a legitimat
 
 ## Cross-links
 
-- SIPA troubleshooting (example case): [`../zpa/troubleshooting.md`](../../references/zpa/troubleshooting.md)
-- Policy evaluation (common troubleshooting target): [`../zpa/policy-precedence.md`](../../references/zpa/policy-precedence.md)
-- LSS and logging (evidence sources): [`../zpa/log-receivers.md`](../../references/zpa/log-receivers.md)
+- SIPA troubleshooting (example case): [`zpa.troubleshooting`](kb:zpa.troubleshooting)
+- Policy evaluation (common troubleshooting target): [`zpa.policy`](kb:zpa.policy)
+- LSS and logging (evidence sources): [`zpa.log-receivers`](kb:zpa.log-receivers)

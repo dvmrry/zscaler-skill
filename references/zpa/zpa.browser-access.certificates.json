@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.certificates",
+  "title": "Certificates for Browser Access applications: wildcards, managed and custom",
+  "aliases": [
+    "browser access wildcard certificate",
+    "wildcard certificate one level",
+    "app1.local.example.com certificate",
+    "browser access zscaler managed certificate",
+    "browser access cname",
+    "browser access web server certificate",
+    "wildcard cert does not cover subdomain"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.hostnames"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.segment-constraints"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Which certificate a Browser Access application presents decides whether a wildcard application can be served. Wildcard certificates have a one-level rule that wildcard applications do not."
+    },
+    {
+      "label": "Wildcard certificates.",
+      "text": "{{wildcard-multiple-fqdns}} {{wildcard-one-level}} {{subdomain-needs-own-wildcard}}"
+    },
+    {
+      "label": "Certificate type.",
+      "text": "{{certificate-type}} {{no-enrollment-certificates}}"
+    },
+    {
+      "label": "CNAME and DNS.",
+      "text": "{{cname-in-dns}} Whether the CNAME reveals the Zscaler relationship is open {{gap:cname-visibility}}."
+    },
+    {
+      "label": "Zscaler-managed certificates.",
+      "text": "{{managed-prerequisites}} {{managed-cors-and-csp}} {{managed-header-rewrites}}"
+    },
+    {
+      "text": "The external versus internal hostname choice is in [[zpa.browser-access.hostnames]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the failing FQDN is more than one label below the wildcard certificate's name, in which case it needs its own *.sub wildcard application and certificate.",
+      "uses": [
+        "wildcard-one-level",
+        "subdomain-needs-own-wildcard"
+      ]
+    },
+    {
+      "do": "Whether the application uses a Zscaler-managed certificate, and if so whether it is a wildcard, an IP address or uses absolute URLs, none of which the managed path supports.",
+      "uses": [
+        "certificate-type",
+        "managed-prerequisites"
+      ]
+    },
+    {
+      "do": "Whether the CNAME copied from the Browser Access page was added to public DNS for a custom certificate.",
+      "uses": [
+        "cname-in-dns"
+      ]
+    }
+  ],
+  "claims": {
+    "wildcard-multiple-fqdns": {
+      "statement": "A wildcard certificate can be used for multiple FQDNs within one application segment or across several application segments, for example the same *.example.com certificate on a segment for app1.example.com and another for app2.example.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-wildcard-certificates-browser-access-applications.json",
+          "quotes": [
+            "You can use a wildcard certificate for multiple fully qualified domain names (FQDNs) within a single application segment or within multiple application segments.",
+            "For both application segments, you use the same wildcard certificate: *.example.com."
+          ]
+        }
+      ]
+    },
+    "wildcard-one-level": {
+      "statement": "A wildcard application such as *.example.com matches app1.example.com, app2.example.com and app1.local.example.com, but a *.example.com wildcard certificate matches only one level. It does not match app1.local.example.com, and Private Access does not consider it valid for that name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-wildcard-certificates-browser-access-applications.json",
+          "quotes": [
+            "while the wildcard application includes subdomains, the wildcard certificate only matches against one level.",
+            "A *.example.com wildcard application matches against app1.example.com, app2.example.com, and app1.local.example.com.",
+            "In this example, Private Access does not consider the wildcard certificate to be valid for app1.local.example.com."
+          ]
+        }
+      ]
+    },
+    "subdomain-needs-own-wildcard": {
+      "statement": "To enable Browser Access for a particular subdomain such as local.example.com, define a separate wildcard application (*.local.example.com) in an application segment that includes the equivalent wildcard certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-wildcard-certificates-browser-access-applications.json",
+          "quotes": [
+            "you must define a separate wildcard application (i.e., *.local.example.com) within an application segment that includes the equivalent wildcard certificate."
+          ]
+        }
+      ]
+    },
+    "certificate-type": {
+      "statement": "For each Browser Access application the admin chooses either a Custom certificate, where a web server certificate is selected, or a Zscaler-managed certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Select the certificate type."
+          ]
+        }
+      ]
+    },
+    "no-enrollment-certificates": {
+      "statement": "Enrollment (CA) certificates cannot be used for Browser Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-web-server-certificates.json",
+          "quotes": [
+            "You cannot use enrollment (CA) certificates for Browser Access."
+          ]
+        }
+      ]
+    },
+    "cname-in-dns": {
+      "statement": "After saving a segment with a Browser Access application, the admin copies its CNAME from the Browser Access page. With a custom certificate the CNAME goes into public DNS and the application FQDN must resolve to it, while with a Zscaler-managed certificate Zscaler manages the public DNS entries and verifies the FQDN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "You need this CNAME record for your public DNS.",
+            "If you select a custom certificate, add the CNAME information you just copied to your public DNS, and verify that the FQDN for the Browser Access-enabled application resolves to the record.",
+            "If you selected a Zscaler-managed certificate, Zscaler manages the public DNS entries and verifies the FQDN."
+          ]
+        }
+      ]
+    },
+    "managed-prerequisites": {
+      "statement": "A Zscaler-managed certificate has prerequisites: the internal FQDN must be owned by the tenant and resolvable by the App Connectors, the web server must use relative URLs and be single-tenant with a single hostname, and wildcard cookies, wildcard Browser Access applications, IP-address applications and domains not registered to the account are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "prerequisites-browser-access-applications-managed-zscaler.json",
+          "quotes": [
+            "The domain must be owned by the tenant.",
+            "Internal web servers must serve pages with objects linked as relative URLs",
+            "Internal web servers must be a single tenant with a single hostname only.",
+            "Wildcard cookies are not supported.",
+            "Wildcard Browser Access applications aren't supported (e.g., *.example1.com).",
+            "Applications with IP addresses aren't supported.",
+            "Domains that aren't registered by your account aren't supported (e.g., testing.com)."
+          ]
+        }
+      ]
+    },
+    "managed-cors-and-csp": {
+      "statement": "With a Zscaler-managed certificate, an internal application cannot send CORS requests to another internal Browser Access application, and an application that uses a Content-Security-Policy header must accept the external FQDN in the host and origin headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "prerequisites-browser-access-applications-managed-zscaler.json",
+          "quotes": [
+            "Internal applications sending CORS requests to other internal applications managed by Browser Access aren't supported",
+            "If an application uses the HTTP header Content-Security-Policy, then the application has to accept an external FQDN in the host/origin header."
+          ]
+        }
+      ]
+    },
+    "managed-header-rewrites": {
+      "statement": "For Zscaler-managed Browser Access applications Zscaler rewrites headers: the Host header is set to host:port, the domain attribute is removed from Set-Cookie so only strict cookies are allowed, and the Origin header is set to scheme://host:port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "prerequisites-browser-access-applications-managed-zscaler.json",
+          "quotes": [
+            "Host header: Modified with port configured <host>:<port>.",
+            "Set-Cookie header: The domain attribute is removed to only allow strict cookies.",
+            "Origin header: Modified to add <scheme>://<host>:<port>."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cname-visibility": {
+      "kind": "semantic",
+      "title": "Hiding the Zscaler relationship behind a customer-managed CNAME",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The Browser Access CNAME is a real DNS record resolvable by anyone. Security comes from IdP auth at the ingress, not from CNAME obscurity. Tenants with perimeter-secrecy requirements use customer-managed CNAMEs (wiki.example.com -> CNAME -> Zscaler ingress) to hide the Zscaler relationship.\" The help says the CNAME belongs in public DNS but says nothing about what it reveals or about customer-managed CNAME as a concealment option.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    }
+  }
+}

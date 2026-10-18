@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.no-access",
+  "title": "A user cannot reach a private application at all",
+  "aliases": [
+    "cant reach app",
+    "user cannot access private application",
+    "zpa no access",
+    "zpa request never reaches",
+    "zpa connection closed policy",
+    "zpa no log record for user"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.segment-checks"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.policy-checks"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.access-path"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.matching"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.bypass"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The first question is whether the request ever entered ZPA, and the second is what the record says."
+    },
+    {
+      "label": "Before ZPA.",
+      "text": "{{zcc-intercepts-defined-apps}} {{other-traffic-elsewhere}} {{unmatched-not-forwarded}} The client state is not sourced {{gap:zcc-active-state}}."
+    },
+    {
+      "label": "Segment match.",
+      "text": "Which segment wins, port misses and carve-outs are in [[zpa.app-segments.matching]], and Bypass in [[zpa.app-segments.bypass]]. A port miss is described both as a bypass and as a drop [[zpa.app-segments.matching]]."
+    },
+    {
+      "label": "No record.",
+      "text": "A request dropped at the client is [[zpa.policy.multimatch]]; that the absence of a record always means this is not sourced {{gap:no-record-means-client-side}}."
+    },
+    {
+      "label": "A record that closed.",
+      "text": "The fields are in [[zpa.troubleshooting.log-fields]]; reading Close together with the Policy field is not sourced {{gap:reading-close-and-policy}}."
+    },
+    {
+      "label": "Policy.",
+      "text": "Order, first match and the default are in [[zpa.policy.evaluation-order]]. A forwarding bypass that leaves no record, and an empty Policy field on a blocked session, are not sourced {{gap:bypass-leaves-no-record}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the destination host and port are covered by an application segment at all, since traffic outside any segment is not forwarded to Private Access.",
+      "uses": [
+        "zcc-intercepts-defined-apps",
+        "unmatched-not-forwarded",
+        "other-traffic-elsewhere"
+      ]
+    },
+    {
+      "do": "Which segment is the most granular match and whether the destination port is in it, or whether the request was bypassed or dropped at the client.",
+      "uses": [
+        "zpa.policy.multimatch:exact-match-default",
+        "zpa.app-segments.matching:port-mismatch-bypass",
+        "zpa.policy.multimatch:port-mismatch-dropped",
+        "zpa.app-segments.matching:bypass-or-drop"
+      ]
+    },
+    {
+      "do": "Whether a more specific segment for the host carved it out of the wildcard segment, and whether the missing port or Multimatch fixes it.",
+      "uses": [
+        "zpa.policy.multimatch:carved-out-by-default",
+        "zpa.app-segments.matching:fix-for-carve-out"
+      ]
+    },
+    {
+      "do": "Whether any segment for the same FQDN has Bypass set to Always, which then takes precedence.",
+      "uses": [
+        "zpa.app-segments.bypass:same-fqdn-always",
+        "bypass-leaves-no-record"
+      ]
+    },
+    {
+      "do": "Whether a client forwarding rule bypasses the traffic before access policy is evaluated.",
+      "uses": [
+        "zpa.policy.evaluation-order:client-forwarding-before-access",
+        "zpa.policy.evaluation-order:bypass-skips-access"
+      ]
+    },
+    {
+      "do": "Whether a User Activity record exists, then its Policy, ConnectionStatus and Connector fields, noting that the absence of a record is not shown to mean a client-side drop.",
+      "uses": [
+        "zpa.troubleshooting.log-fields:policy-field",
+        "zpa.troubleshooting.log-fields:connection-status-values",
+        "zpa.troubleshooting.log-fields:connector-fields",
+        "no-record-means-client-side",
+        "reading-close-and-policy"
+      ]
+    },
+    {
+      "do": "Which access rule matched first, and that no matching rule means the request is blocked.",
+      "uses": [
+        "zpa.policy.evaluation-order:first-match-most-specific-segment",
+        "zpa.policy.evaluation-order:default-access-block"
+      ]
+    },
+    {
+      "do": "Whether the connector ID is zero or empty and which session status code accompanies it.",
+      "uses": [
+        "zpa.app-connectors.selection:connector-id-zero"
+      ]
+    }
+  ],
+  "claims": {
+    "zcc-intercepts-defined-apps": {
+      "statement": "Zscaler Client Connector recognizes the internal applications defined in Private Access, intercepts the user requests for them and forwards those requests to the Zero Trust Exchange.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "it intercepts the user requests for those applications, and then forwards those requests to the ZTE."
+          ]
+        }
+      ]
+    },
+    "other-traffic-elsewhere": {
+      "statement": "Zscaler Client Connector forwards traffic for internal applications to Private Access and other traffic goes to Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Zscaler Client Connector identifies internal applications to forward traffic to Private Access, and other traffic goes to Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "unmatched-not-forwarded": {
+      "statement": "A destination that no application segment covers is not forwarded to Private Access.",
+      "tier": "B",
+      "derived_from": [
+        "zcc-intercepts-defined-apps",
+        "other-traffic-elsewhere"
+      ],
+      "conditions": "Inference: the client intercepts requests for applications defined in Private Access and sends other traffic elsewhere, so a destination outside every segment is not an application defined in Private Access. The sources do not use the phrase 'not in any segment'."
+    }
+  },
+  "gaps": {
+    "zcc-active-state": {
+      "kind": "semantic",
+      "title": "Client enrollment and tunnel state",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Confirm ZCC is enrolled and the Z-Tunnel is established. ZCC must show the Private Access state as active, not disconnected or in bypass.\" No captured source describes a Private Access state indicator in the client.",
+      "resolves_with": [
+        "operator-experience"
+      ]
+    },
+    "no-record-means-client-side": {
+      "kind": "semantic",
+      "title": "No log record means a client-side drop",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If there is no LSS record, the request never reached the ZPA Service Edge. If no LSS record exists at all, the request was dropped client-side before reaching the ZPA Service Edge.\" The policy-multimatch subject sources that a request dropped at the client is not sent to Private Access; no source says the converse, that every missing record is a client-side drop (a stream gap or a receiver filter would also leave none).",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "reading-close-and-policy": {
+      "kind": "semantic",
+      "title": "Reading a Close record with a Policy value or an empty one",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A `Close` or absent record combined with a policy block name is the typical signal. A named block rule in `Policy` -> access policy denied the request. Empty `Policy` field or a reason pointing to connector or server -> the policy allowed but the path from the App Connector to the application server failed. The LSS User Activity log shows `ConnectionStatus = Close` with an `InternalReason` indicating a connector-to-server setup failure, and `ConnectionSetupTime` will be disproportionately high.\" The Policy field is the access policy rule name (policy-field) and the Close value is not defined (status-meanings); neither reading is stated by a source.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "bypass-leaves-no-record": {
+      "kind": "semantic",
+      "title": "Bypass leaves no record; an empty Policy field on a blocked session",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If any segment covering the FQDN has `bypass_type = Always`, ZCC sends traffic directly and ZPA records nothing. If `Policy` is empty and the session was blocked, one of two things happened: (a) the forwarding policy bypassed ZPA before access policy evaluated, or (b) the segment was not in any policy rule's scope.\" That a forwarding or segment bypass sends traffic direct is sourced in the policy and segment subjects; that ZPA records nothing for it, and that these are the only two explanations of a blocked session with an empty Policy field, are not.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

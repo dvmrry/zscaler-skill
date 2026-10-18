@@ -114,7 +114,7 @@ Internet-bound traffic matching a rule with `Forwarding Method = ZIA` goes throu
 Application traffic matching a rule with `Forwarding Method = ZPA` tunnels through ZPA to reach an internal application. Requires:
 
 - Cloud Connector is ZPA-enrolled (per [`./overview.md § ZPA enrollment`](./overview.md)).
-- A ZPA Application Segment exists for the destination — see [`../zpa/app-segments.md`](../zpa/app-segments.md).
+- A ZPA Application Segment exists for the destination — see [`zpa.app-segments`](kb:zpa.app-segments).
 - ZPA Access Policy permits the Cloud Connector's identity / tags.
 
 **Failure mode**: ZPA rule matches but traffic fails. Usual causes: (a) no matching ZPA segment on the destination, (b) ZPA Access Policy denies, (c) App Connector side down. Diagnose ZPA-side first before suspecting Cloud Connector.
@@ -234,5 +234,5 @@ Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `ven
 - Overview (HA, Cloud Connector Groups) — [`./overview.md`](./overview.md)
 - API / Terraform surface — [`./api.md`](./api.md)
 - ZIA URL Filter (adjacent first-match-wins rule pattern) — [`zia.url-filtering`](kb:zia.url-filtering)
-- ZPA Application Segments (destination model for ZPA-forwarded traffic) — [`../zpa/app-segments.md`](../zpa/app-segments.md)
+- ZPA Application Segments (destination model for ZPA-forwarded traffic) — [`zpa.app-segments`](kb:zpa.app-segments)
 - ZCC forwarding profile (endpoint-side parallel) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)

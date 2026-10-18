@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.authentication",
+  "title": "Authentication failures and step-up prompt loops in ZPA",
+  "aliases": [
+    "zpa auth loop",
+    "zpa reauthentication fails",
+    "zpa step-up prompt appears unexpectedly",
+    "verify now prompt",
+    "zpa scim group blocked",
+    "idp domain in app segment"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.scim-sync"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.definition"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.actions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Authentication symptoms come from the IdP session, step-up rules, SCIM timing or an IdP domain inside an application segment."
+    },
+    {
+      "label": "Step-up.",
+      "text": "{{verify-now-prompt}} Conditional Access and its subscription are in [[zpa.policy.actions:conditional-access-step-up]] and OIDC support in [[zpa.policy.actions:step-up-oidc-only]]."
+    },
+    {
+      "label": "SCIM.",
+      "text": "The timing rules are in [[zpa.policy.scim-sync:scim-wait-48-hours]], and what a mid-sync user gets is open [[zpa.policy.scim-sync:mid-sync-result]]."
+    },
+    {
+      "label": "IdP inside a segment.",
+      "text": "The IdP domain rule is in [[zpa.app-segments.definition:idp-overlap]]."
+    },
+    {
+      "label": "Session refresh.",
+      "text": "What the client does when the assertion or IdP session is stale is not sourced {{gap:stale-assertion}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an access rule with the Conditional Access action matched the user, and whether the user should be subject to it.",
+      "uses": [
+        "verify-now-prompt",
+        "zpa.policy.actions:conditional-access-step-up"
+      ]
+    },
+    {
+      "do": "Whether the IdP integration is OIDC when step-up is expected, and whether the tenant has the subscription.",
+      "uses": [
+        "zpa.policy.actions:step-up-oidc-only",
+        "zpa.policy.actions:conditional-access-step-up"
+      ]
+    },
+    {
+      "do": "Whether the user was added to the IdP group recently, and whether the initial SCIM cycle and the recommended wait are complete.",
+      "uses": [
+        "zpa.policy.scim-sync:scim-initial-cycle-first",
+        "zpa.policy.scim-sync:scim-wait-48-hours",
+        "zpa.policy.scim-sync:mid-sync-result"
+      ]
+    },
+    {
+      "do": "Whether the IdP domain overlaps a domain in an application segment, and whether the IdP application's Authentication Timeout is Never.",
+      "uses": [
+        "zpa.app-segments.definition:idp-overlap"
+      ]
+    },
+    {
+      "do": "What the client does when the assertion is stale, which is not sourced.",
+      "uses": [
+        "stale-assertion"
+      ]
+    }
+  ],
+  "claims": {
+    "verify-now-prompt": {
+      "statement": "When an application requires additional authentication, Zscaler Client Connector shows a pop-up notification prompting the user to verify access with a Verify Now button; for Private Access this needs Client Connector 4.6 or later on Windows or 4.7 or later on macOS (and Client Connector 4.2 on Android and Android on ChromeOS, also for Internet & SaaS), and the requirement is set up in the Admin Console and available only with a subscription to Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "verifying-access-to-applications.json",
+          "quotes": [
+            "Zscaler Client Connector displays a pop-up notification prompting you to verify your access.",
+            "This feature is available for Private Access only with Zscaler Client Connector version 4.6 and later for Windows",
+            "version 4.7 and later for macOS",
+            "are available only if you are subscribed to Authentication Service.",
+            "Click Verify Now.",
+            "Zscaler Client Connector version 4.2 for both Android and Android on ChromeOS"
+          ]
+        }
+      ],
+      "conditions": "Statement extended per verifier: the capture also lists Client Connector 4.2 for Android and Android on ChromeOS for Private Access and Internet & SaaS."
+    }
+  },
+  "gaps": {
+    "stale-assertion": {
+      "kind": "semantic",
+      "title": "Stale SAML assertion or expired IdP session",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Confirm the user's IdP SAML assertion is reaching ZPA correctly. ZCC prompts the user through the configured IdP as part of enrollment. If the SAML assertion is stale or the IdP session expired, ZCC re-authenticates.\" No captured source describes what the client does with a stale assertion or an expired IdP session.",
+      "resolves_with": [
+        "operator-experience",
+        "lab-test"
+      ]
+    }
+  }
+}

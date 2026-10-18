@@ -274,7 +274,7 @@ Start
 ├─ Did you OMIT a key entirely or PASS it as None?
 │  └─ For ZPA Application Segments: clientless_app_ids = None triggers BROWSER_ACCESS lookup
 │     (key-presence vs truthiness). Omit the key if not setting clientless apps.
-│     See references/zpa/app-segments.md § Edge cases.
+│     See `kb:zpa.app-segments`
 │
 ├─ Read returns a value but write rejects the same value?
 │  └─ Check api.md § Read/write shape asymmetries for that product.

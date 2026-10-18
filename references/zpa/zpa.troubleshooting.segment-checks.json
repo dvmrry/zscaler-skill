@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.segment-checks",
+  "title": "Checking segments, segment groups and connector groups for a failing application",
+  "aliases": [
+    "zpa segment verification",
+    "segment not in segment group",
+    "wildcard segment shadowing",
+    "carved out specific segment",
+    "zpa connector group reachability",
+    "incomplete configuration icon"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-segments.matching"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zpa.segment-groups.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.no-access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The segment layer is checked from the destination inward: the segment, its group, its server groups and the connectors behind them."
+    },
+    {
+      "label": "Segment.",
+      "text": "The match rules are in [[zpa.app-segments.matching:granularity-ranking]], Bypass in [[zpa.app-segments.bypass:same-fqdn-always]], Multimatch in [[zpa.app-segments.multimatch]]."
+    },
+    {
+      "label": "Segment group.",
+      "text": "Membership is in [[zpa.segment-groups.membership]] and policy use in [[zpa.segment-groups.policy-use:criterion-checks-segment-or-group]]. {{incomplete-icon}} A segment created without a group is open [[zpa.segment-groups.membership:omitted-segment-group-id]]."
+    },
+    {
+      "label": "Server group and connector group.",
+      "text": "The chain is in [[zpa.app-connectors.connector-groups:segment-server-group-chain]]. That a group with no key or server group serves nothing and is not flagged is not sourced {{gap:group-without-key-or-server-group}}."
+    },
+    {
+      "label": "Connectors.",
+      "text": "Health is in [[zpa.app-connectors.health:connection-health-column]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The exact FQDN and port the user requested against the segments that contain the FQDN, and which one is the most granular.",
+      "uses": [
+        "zpa.policy.multimatch:exact-match-default",
+        "zpa.app-segments.matching:granularity-ranking"
+      ]
+    },
+    {
+      "do": "Whether the destination port is in the winning segment, since a port miss is bypassed or dropped at the client.",
+      "uses": [
+        "zpa.app-segments.matching:port-mismatch-bypass",
+        "zpa.policy.multimatch:port-mismatch-dropped"
+      ]
+    },
+    {
+      "do": "Whether a specific-FQDN segment was added for a host the wildcard segment used to cover, which removes the host from the wildcard segment for the ports the specific segment does not list.",
+      "uses": [
+        "zpa.policy.multimatch:carved-out-by-default",
+        "zpa.app-segments.matching:wildcard-dead-for-carved-ports",
+        "zpa.app-segments.matching:fix-for-carve-out"
+      ]
+    },
+    {
+      "do": "Whether any segment for the same FQDN has Bypass set to Always.",
+      "uses": [
+        "zpa.app-segments.bypass:same-fqdn-always"
+      ]
+    },
+    {
+      "do": "That the segment is in a segment group, that it is in only one, and that the group is complete.",
+      "uses": [
+        "zpa.segment-groups.membership:required-for-every-segment",
+        "zpa.segment-groups.membership:one-group-per-segment",
+        "incomplete-icon"
+      ]
+    },
+    {
+      "do": "That the rule meant to allow the user names the segment or the segment group that holds it.",
+      "uses": [
+        "zpa.segment-groups.policy-use:criterion-checks-segment-or-group",
+        "zpa.segment-groups.policy-use:operand-holds-id"
+      ]
+    },
+    {
+      "do": "Which connector groups serve the segment through its server groups, and whether at least one connector in each is connected.",
+      "uses": [
+        "zpa.app-connectors.connector-groups:segment-server-group-chain",
+        "zpa.app-connectors.health:connection-health-column",
+        "group-without-key-or-server-group"
+      ]
+    },
+    {
+      "do": "Whether a connector that can reach the cloud reports the targets of the application as alive.",
+      "uses": [
+        "zpa.app-connectors.health:metrics-target-counts",
+        "zpa.app-connectors.health:alive-below-target"
+      ]
+    }
+  ],
+  "claims": {
+    "incomplete-icon": {
+      "statement": "On the segment group page, if required fields are missing an Incomplete Configuration icon appears next to the indicated item.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-segment-groups.json",
+          "quotes": [
+            "If there are required fields missing, the Incomplete Configuration icon () appears next to the indicated item."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "group-without-key-or-server-group": {
+      "kind": "semantic",
+      "title": "A connector group with no server group or provisioning key",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Confirm the App Connector group is associated with at least one server group and one provisioning key. A group with neither cannot serve traffic - the console does not flag this partial configuration as invalid.\" The segment to server group to connector group chain is sourced (segment-server-group-chain); no source says a group lacking either association cannot serve traffic or that the console does not flag it.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    }
+  }
+}

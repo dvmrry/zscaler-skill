@@ -1,0 +1,528 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.connector-groups",
+  "title": "App Connector groups",
+  "aliases": [
+    "app connector group",
+    "connector group settings",
+    "connector group dns resolution",
+    "enrollment_cert_id app connector group",
+    "user_codes verification",
+    "server group to connector group",
+    "connector group version profile"
+  ],
+  "binds": [
+    "zpa/app-connector-groups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-connectors.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.resource-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The App Connector group is the unit that holds connectors together: it carries the enrollment association, the update schedule, DNS option and location."
+    },
+    {
+      "label": "Membership.",
+      "text": "{{every-connector-one-group}} {{groups-for-ha}} {{segment-server-group-chain}} What happens with a missing association is unsourced {{gap:unassociated-group-behavior}}. {{managed-read-only}}"
+    },
+    {
+      "label": "Group settings.",
+      "text": "{{group-settings}} {{dns-resolution-option}} {{ipv6-needs-end-to-end}} {{version-profile-defaults}} {{module-group-schedule-dns-defaults}} {{module-group-version-profile}} {{module-city-country}}"
+    },
+    {
+      "label": "Enrollment certificate and user codes.",
+      "text": "{{provider-resolves-cert}} {{ansible-resolves-cert}} The Python SDK documents this behavior but does not do it {{divergence:python-cert-docstring-vs-code}}, and the effect of omitting the certificate on a direct create is open {{gap:sdk-create-without-cert}}. {{provider-verifies-user-codes}} The same verification step for other group types is in [[zpa.terraform.resource-fidelity]]."
+    },
+    {
+      "label": "Tooling fields.",
+      "text": "{{python-model-group-fields}} An unverified claim about members blocks drifting in Terraform is {{gap:group-connector-blocks-drift}}, and a July 2026 console change is {{gap:edit-from-served-from-view}}."
+    },
+    {
+      "text": "Provider lookup and delete behavior for groups is in [[zpa.terraform.data-source-selection]] and [[zpa.terraform.delete-paths]]. Update scheduling is in [[zpa.app-connectors.upgrades]]; the enrollment methods are in [[zpa.app-connectors.enrollment]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which server group connects the segment to this group and whether the group has an enrollment key or token, since a group serves traffic only with both.",
+      "uses": [
+        "every-connector-one-group",
+        "segment-server-group-chain",
+        "unassociated-group-behavior"
+      ]
+    },
+    {
+      "do": "Whether the group's DNS resolution option matches the interfaces the connectors and the application servers support.",
+      "uses": [
+        "dns-resolution-option",
+        "ipv6-needs-end-to-end"
+      ]
+    },
+    {
+      "do": "Whether enrollment_cert_id came from the caller or from the provider or Ansible lookup, before reading a plan diff on it.",
+      "uses": [
+        "provider-resolves-cert",
+        "ansible-resolves-cert",
+        "python-cert-docstring-vs-code"
+      ]
+    },
+    {
+      "do": "Whether a user_codes verification error left a group written but unverified.",
+      "uses": [
+        "provider-verifies-user-codes"
+      ]
+    }
+  ],
+  "claims": {
+    "every-connector-one-group": {
+      "statement": "Every App Connector belongs to exactly one App Connector group, and a group should always be associated with at least one OAuth 2.0 enrollment token or provisioning key and one server group to serve any application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-connector-groups.json",
+          "quotes": [
+            "Every App Connector belongs to a specific App Connector group, and every App Connector group should always be associated with at least one OAuth 2.0 enrollment token or provisioning key and one Server group to serve any application.",
+            "each App Connector must belong to a single group."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups",
+        "zpa/app-connectors"
+      ],
+      "gaps": [
+        "unassociated-group-behavior"
+      ]
+    },
+    "groups-for-ha": {
+      "statement": "Zscaler recommends deploying App Connectors in groups for high availability and horizontal scaling, per region or functional area, and an existing group can take a new connector without creating a new group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-connector-groups.json",
+          "quotes": [
+            "Zscaler recommends deploying App Connectors in groups for high availability and horizontal scaling.",
+            "Group App Connectors per region or functional area; each App Connector must belong to a single group.",
+            "You do not need to create a new App Connector group every time you add an App Connector."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups"
+      ]
+    },
+    "segment-server-group-chain": {
+      "statement": "Application segments reference server groups, and server groups reference App Connector groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "ServerGroups []servergroup.ServerGroup `json:\"serverGroups\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/server-groups#appConnectorGroups",
+        "zpa/app-connector-groups#serverGroups"
+      ],
+      "conditions": "Shows the SDK object shapes; the help does not describe the chain in the captured group articles. The earlier phrase 'connectors serve a segment through that chain, not directly' was dropped because it was inferred from field shapes, not stated."
+    },
+    "group-settings": {
+      "statement": "A group sets the automated update schedule for an off-hours window, the preferred local version profile, and the location used in application path selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-connector-groups.json",
+          "quotes": [
+            "Configure the automated update schedule to an off-hours maintenance window in a region.",
+            "Configure the preferred local version profile for associated App Connectors and the App Connector’s location used in application path selection."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#upgradeDay",
+        "zpa/app-connector-groups#upgradeTimeInSecs",
+        "zpa/app-connector-groups#location"
+      ]
+    },
+    "dns-resolution-option": {
+      "statement": "The group's DNS Resolution Option selects IPv4, IPv6 or both for application DNS resolution checks; the default is IPv4 and IPv6, and Terraform's dns_query_type defaults to IPV4_IPV6 with the values IPV4_IPV6, IPV4 and IPV6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-connector-groups.json",
+          "quotes": [
+            "IPv4 and IPv6: Select if both interfaces can perform resolution checks for applications.",
+            "This setting is selected by default."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "Default: \"IPV4_IPV6\",",
+            "\"IPV4\", \"IPV6\","
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#dnsQueryType"
+      ]
+    },
+    "ipv6-needs-end-to-end": {
+      "statement": "IPv6 should be selected only with end-to-end IPv6 support, and the connectors' interfaces must match the option for the resolution checks to work.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-connector-groups.json",
+          "quotes": [
+            "Select the IPv6 option only if you have end-to-end IPv6 support.",
+            "The App Connector must have the corresponding interface or interfaces enabled for the DNS resolution checks to work"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#dnsQueryType"
+      ]
+    },
+    "version-profile-defaults": {
+      "statement": "A new group's Version Profile defaults to Default, the cloud-wide stable and default build, and Persist Local Version Profile defaults to disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-connector-groups.json",
+          "quotes": [
+            "By default, Default is selected, which uses the cloud-wide stable and default build.",
+            "Persist Local Version Profile: Enable if the App Connector group should persist the local version profile. By default, Disabled is selected."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#versionProfileName"
+      ]
+    },
+    "managed-read-only": {
+      "statement": "A group configured with Zscaler Deception, or managed by Zscaler, has its edit and delete options unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-connector-groups.json",
+          "quotes": [
+            "If an App Connector group is configured using Zscaler Deception or is managed by Zscaler, then the edit and delete options are unavailable."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#zscalerManaged"
+      ]
+    },
+    "provider-resolves-cert": {
+      "statement": "The Terraform provider fills enrollment_cert_id by looking up the enrollment certificate named Connector on both create and update, unless a nonempty value is already set; the update path does so because the API requires enrollmentCertId on update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "if v, ok := d.GetOk(\"enrollment_cert_id\"); ok && v.(string) != \"\" {",
+            "cert, _, err := enrollmentcert.GetByName(ctx, service, certName)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "if err := resolveEnrollmentCertID(ctx, d, service, \"Connector\"); err != nil {"
+          ],
+          "after": "func resourceAppConnectorGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "The API requires enrollmentCertId on update as well, so this must run on every"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#enrollmentCertId"
+      ]
+    },
+    "provider-verifies-user-codes": {
+      "statement": "The provider verifies user_codes after create when any are set and after update only when user_codes changed; a verification failure returns an error even though the group was already written.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_group.go",
+          "quotes": [
+            "// Group was created but verification failed",
+            "// Verify user codes if they changed",
+            "if d.HasChange(\"user_codes\") {"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups"
+      ]
+    },
+    "ansible-resolves-cert": {
+      "statement": "The ZPA Ansible App Connector Group module resolves the enrollment certificate named Connector when enrollment_cert_id is omitted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/modules/zpa_app_connector_groups.py",
+          "quotes": [
+            "If omitted, the module automatically resolves the certificate named C(Connector)."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#enrollmentCertId"
+      ]
+    },
+    "python-model-group-fields": {
+      "statement": "The Python App Connector Group model carries enrollment certificate, version-profile override, site and private cloud identifiers alongside the base group fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "quotes": [
+            "self.override_version_profile = config[\"overrideVersionProfile\"] if \"overrideVersionProfile\" in config else None",
+            "self.enrollment_cert_id = config[\"enrollmentCertId\"] if \"enrollmentCertId\" in config else None",
+            "self.private_cloud_id = config[\"privateCloudId\"] if \"privateCloudId\" in config else None",
+            "self.site_id = config[\"siteId\"] if \"siteId\" in config else None"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups#enrollmentCertId",
+        "zpa/app-connector-groups#siteId"
+      ]
+    },
+    "module-group-schedule-dns-defaults": {
+      "statement": "Both reference modules default the group's upgrade day to SUNDAY, upgrade time to 66600 seconds (i.e. 18:30 as seconds after midnight; the module names no time zone) and dns_query_type to IPV4_IPV6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = \"SUNDAY\""
+          ],
+          "after": "variable \"app_connector_group_upgrade_day\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = \"66600\""
+          ],
+          "after": "variable \"app_connector_group_upgrade_time_in_secs\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = \"IPV4_IPV6\""
+          ],
+          "after": "variable \"app_connector_group_dns_query_type\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = \"SUNDAY\""
+          ],
+          "after": "variable \"app_connector_group_upgrade_day\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = \"66600\""
+          ],
+          "after": "variable \"app_connector_group_upgrade_time_in_secs\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = \"IPV4_IPV6\""
+          ],
+          "after": "variable \"app_connector_group_dns_query_type\" {"
+        }
+      ],
+      "conditions": "Statement changed from the first draft: the '(18:30 UTC)' wording was dropped because neither module names a time zone, and both modules' variable files are now quoted. 18:30 is the arithmetic of 66600 seconds."
+    },
+    "module-group-version-profile": {
+      "statement": "Both modules default override_version_profile to false. The Azure module defaults version_profile_id to 0; the AWS module sends 0 when override is false and, when override is true with no explicit ID, resolves the tenant's Default customer version profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = false"
+          ],
+          "after": "variable \"app_connector_group_override_version_profile\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = false"
+          ],
+          "after": "variable \"app_connector_group_override_version_profile\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = \"0\""
+          ],
+          "after": "variable \"app_connector_group_version_profile_id\" {"
+        },
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/main.tf",
+          "quotes": [
+            "var.app_connector_group_override_version_profile == false ? \"0\" :",
+            "name = \"Default\""
+          ]
+        }
+      ]
+    },
+    "module-city-country": {
+      "statement": "city_country is an optional input in both modules (empty by default); the AWS module has no ignore_changes on the group, while the Azure module sets ignore_changes = [city_country] because the API derives the value from latitude and longitude.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default = \"\""
+          ],
+          "after": "variable \"app_connector_group_city_country\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/main.tf",
+          "quotes": [
+            "ignore_changes = [city_country]"
+          ]
+        }
+      ],
+      "conditions": "The AWS absence rests on the group module's main.tf containing no ignore_changes; a text search of the AWS repository found ignore_changes only in the ASG module and two example main.tf files, not in the group module."
+    }
+  },
+  "divergences": {
+    "python-cert-docstring-vs-code": {
+      "summary": "The Python SDK's group create docstring says the provider resolves the enrollment certificate when omitted, but the SDK code does no lookup.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_connector_groups.py",
+            "quotes": [
+              "If not set, the provider will automatically look up the \"Connector\" enrollment certificate by name and populate this attribute for you."
+            ],
+            "after": "def add_connector_group(self, **kwargs)"
+          },
+          "says": "The docstring tells the caller the certificate is looked up and populated when enrollment_cert_id is not set."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_connector_groups.py",
+            "quotes": [
+              "body = kwargs"
+            ]
+          },
+          "says": "add_connector_group sends the caller's keyword arguments as the request body, with no certificate lookup."
+        }
+      ],
+      "impact": "The auto-resolution is Terraform-provider and Ansible behavior; a direct Python SDK create should pass enrollment_cert_id explicitly."
+    }
+  },
+  "gaps": {
+    "unassociated-group-behavior": {
+      "kind": "semantic",
+      "title": "What happens to a group with no server group",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"App Connector Group must associate with both a Server Group AND a provisioning key to serve any traffic. A group with no Server Group association silently fails to route traffic - the admin console doesn't flag the partial config as invalid.\" The help says a group should always have both associations; it does not say what the console or the data path does when one is missing.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "sdk-create-without-cert": {
+      "kind": "semantic",
+      "title": "Whether a direct SDK group create succeeds without an enrollment certificate ID",
+      "status": "open",
+      "detail": "The Python docstring and the code disagree (python-cert-docstring-vs-code); the provider's update comment says the API requires enrollmentCertId on update, but no source shows what a create without it returns.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "group-connector-blocks-drift": {
+      "kind": "semantic",
+      "title": "Group resources omitting a members block",
+      "status": "open",
+      "detail": "Unverified legacy statement about service_edge_group from issue #550 (Service Edge Group service_edges block drift) ends: \"The same pattern likely applies to App Connector Groups when an app_connector_groups block is omitted but the group has registered connectors - though this is not documented in the issue thread.\" The issue is not a registered source and nothing was read for an App Connector Group members block.",
+      "resolves_with": [
+        "code-read",
+        "lab-test"
+      ]
+    },
+    "edit-from-served-from-view": {
+      "kind": "semantic",
+      "title": "Editing groups from the application-serving view",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Group editing from application-serving context became available on July 16, 2026: App Connector groups can be edited from the 'Where are my apps being served from?' view to resolve unknown hosting or location details.\" The captured July release summary holds only an introduction.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

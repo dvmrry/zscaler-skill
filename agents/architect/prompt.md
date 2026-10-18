@@ -138,7 +138,7 @@ Each finding becomes a `Proposed` recommendation. Confidence is calibrated per [
 If you don't have direct API / SDK access and the user hasn't pasted a dump:
 
 - **Reason from typical Zscaler architectural patterns** — the structural issues above are visible from a verbal description (e.g., "we have one App Connector Group serving us-east-1" → SPOF flag is justified)
-- **Cite ZPA / ZIA best practices and references as evidence** — e.g., `references/zpa/app-connector.md`, `references/zpa/app-segments.md`
+- **Cite ZPA / ZIA best practices and references as evidence** — e.g., `kb:zpa.app-connectors`, `kb:zpa.app-segments`
 - **Flag explicitly that recommendations are pattern-based**, not specific-config-based. Default confidence `Medium`; `Low` for speculative pattern reasoning with no tenant context
 - **Ask the user to confirm specifics** when a recommendation hinges on them — e.g., "this depends on whether ACG-east currently has 1 or 2 connectors; can you confirm?"
 

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.policy-checks",
+  "title": "Checking policy match, forwarding, posture and timeout for a blocked user",
+  "aliases": [
+    "zpa policy verification",
+    "zpa posture failing silently",
+    "posture_udid vs id",
+    "forwarding bypass block never fires",
+    "zpa broad allow above narrow block",
+    "zpa timeout session shorter"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.policy.evaluation-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.access-rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.rule-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.no-access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Policy is checked in evaluation order: forwarding, then access, with posture and timeout rules deciding re-authentication."
+    },
+    {
+      "label": "Evaluation.",
+      "text": "The order and defaults are in [[zpa.policy.evaluation-order]], rule order in [[zpa.policy.access-rule-order]], and the operand forms in [[zpa.policy.conditions]]."
+    },
+    {
+      "label": "Posture.",
+      "text": "The cadence is in [[zpa.troubleshooting.signals]] and the failure notification in [[zpa.policy.rule-fields]]. Whether a wrong identifier makes a condition never match, and whether never-evaluated differs from failed, are not sourced {{gap:posture-udid-vs-id}} {{gap:posture-never-vs-failed}}."
+    },
+    {
+      "label": "Timeouts.",
+      "text": "The default timeout rule is in [[zpa.policy.evaluation-order]], and the help and MCP skill disagree on the defaults [[zpa.policy.timeout-rules]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a forwarding rule with a bypass action applies to the traffic, which means the access rules are never evaluated for it.",
+      "uses": [
+        "zpa.policy.evaluation-order:client-forwarding-before-access",
+        "zpa.policy.evaluation-order:bypass-skips-access"
+      ]
+    },
+    {
+      "do": "Which rule matched first and whether a broad allow sits above a narrow block.",
+      "uses": [
+        "zpa.policy.evaluation-order:first-match-most-specific-segment",
+        "zpa.policy.access-rule-order:allow-first-shadows-block"
+      ]
+    },
+    {
+      "do": "That the rule meant to allow the user names the segment or its group and that every criterion (identity, platform, posture) is satisfied.",
+      "uses": [
+        "zpa.policy.conditions:boolean-rhs-entry-types",
+        "zpa.segment-groups.policy-use:criterion-checks-segment-or-group"
+      ]
+    },
+    {
+      "do": "Whether any rule or timeout rule for the user has a POSTURE condition, which identifier its lhs uses, and whether the device has evaluated the profile.",
+      "uses": [
+        "zpa.policy.conditions:boolean-rhs-entry-types",
+        "posture-udid-vs-id",
+        "posture-never-vs-failed",
+        "zpa.troubleshooting.signals:posture-frequency"
+      ]
+    },
+    {
+      "do": "Whether the rule's device posture failure notification is enabled, since the message shows only when it is.",
+      "uses": [
+        "zpa.policy.rule-fields:device-posture-notification"
+      ]
+    },
+    {
+      "do": "Which timeout rule applies and its authentication and idle values, noting that the help and the MCP skill give different defaults.",
+      "uses": [
+        "zpa.policy.evaluation-order:default-timeout-rule",
+        "zpa.policy.timeout-rules:timeout-defaults",
+        "zpa.policy.timeout-rules:evaluated-on-access"
+      ]
+    },
+    {
+      "do": "Whether SCIM criteria are used and the SCIM sync is complete for the user.",
+      "uses": [
+        "zpa.policy.scim-sync:scim-user-presence-decides",
+        "zpa.policy.scim-sync:mid-sync-result"
+      ]
+    },
+    {
+      "do": "No matching rule means the request is blocked, so a blocked session can come from a rule not covering the segment.",
+      "uses": [
+        "zpa.policy.evaluation-order:default-access-block"
+      ]
+    }
+  ],
+  "gaps": {
+    "posture-udid-vs-id": {
+      "kind": "semantic",
+      "title": "Posture profile identifier in a condition",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Confirm the posture profile `posture_udid` referenced in the policy operand matches the intended profile. Using the profile `id` instead of `posture_udid` as the `lhs` produces a condition that silently never matches.\" The policy conditions subject sources that a POSTURE operand carries the posture profile's posture_udid in lhs; no source says what happens when the profile id is used instead.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "posture-never-vs-failed": {
+      "kind": "semantic",
+      "title": "A posture profile that has never been evaluated versus one that failed",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A profile that has never been reported is not the same as a failed profile - a device that never ran the check produces no `POSTURE` result. Combine a `POSTURE` condition with a `CLIENT_TYPE` condition to ensure the rule only applies to devices expected to run the check.\" The legacy open question adds that the distinction is not documented in SDK source or help articles and that `rhs = \"false\"` is documented to match a device that failed the check but the handling of a profile not evaluated is unconfirmed. No captured source states either.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

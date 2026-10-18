@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.hostnames",
+  "title": "External versus internal hostname for a Browser Access application",
+  "aliases": [
+    "browser access web server certificate error",
+    "browser access different external internal hostname",
+    "cert error browser access internal app",
+    "browser access internal hostname public dns",
+    "backend ssl cannot be verified"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.backend-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.certificates"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Whether the external and internal hostnames match decides what end users see and what public DNS exposes."
+    },
+    {
+      "label": "Different hostnames.",
+      "text": "{{different-hostnames}} What remedies exist is open {{gap:backend-cert-remedies}}."
+    },
+    {
+      "label": "Same hostname.",
+      "text": "{{same-hostname}}"
+    },
+    {
+      "text": "The setting that tolerates an unverifiable backend certificate is in [[zpa.browser-access.backend-options]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application's external and internal hostnames differ, which alone explains a web server certificate error.",
+      "uses": [
+        "different-hostnames",
+        "same-hostname"
+      ]
+    },
+    {
+      "do": "Whether exposing the internal hostname in public DNS is acceptable before moving to the same hostname.",
+      "uses": [
+        "same-hostname"
+      ]
+    },
+    {
+      "do": "Whether a proposed remedy is stated by a source or is the unverified backend-certificate option.",
+      "uses": [
+        "backend-cert-remedies"
+      ]
+    }
+  ],
+  "claims": {
+    "different-hostnames": {
+      "statement": "When a Browser Access application uses different external and internal hostnames, the internal hostname is not exposed and has no record in public DNS. Backend SSL cannot be verified, so end users see a web server certificate error because the application's hostname does not match the certificate's hostname.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Internal hostnames are not exposed, so there is no record of internal hostnames on the public DNS.",
+            "Backend SSL cannot be verified, so a web server certificate error is displayed to your end users because the hostname of the application doesn't match the hostname of the certificate."
+          ]
+        }
+      ]
+    },
+    "same-hostname": {
+      "statement": "When the external and internal hostnames are the same, the internal hostname is exposed on public DNS. Backend SSL can be verified, so end users do not get a web server certificate error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-browser-access.json",
+          "quotes": [
+            "Internal hostnames are exposed on the public DNS.",
+            "Backend SSL can be verified, so your end users will not receive a web server certificate error."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "backend-cert-remedies": {
+      "kind": "semantic",
+      "title": "Remedies for the certificate error with different hostnames",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Resolution options: (a) accept and document; (b) switch to same hostname; (c) install a cert on the backend whose CN matches the external name.\" Option (c) is not stated by any captured source; (a) and (b) follow from the two scenarios in claims different-hostnames and same-hostname. The use-untrusted-certificates setting is in zpa.browser-access.backend-options. A lab test of option (c) would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

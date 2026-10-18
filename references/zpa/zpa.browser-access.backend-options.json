@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "zpa.browser-access.backend-options",
+  "title": "Use Untrusted Certificates and unauthenticated OPTIONS for Browser Access",
+  "aliases": [
+    "trust_untrusted_cert",
+    "allow_options",
+    "trustUntrustedCert",
+    "allowOptions",
+    "use untrusted certificates",
+    "allow unauthenticated options request",
+    "browser access cors preflight",
+    "browser access untrusted backend certificate"
+  ],
+  "binds": [
+    "zpa/browser-access"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.hostnames"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Two per-application settings decide whether Browser Access tolerates an unverifiable backend certificate and whether it forwards a CORS preflight."
+    },
+    {
+      "label": "Untrusted certificates.",
+      "text": "{{use-untrusted-certificates}}"
+    },
+    {
+      "label": "Preflight requests.",
+      "text": "{{allow-unauthenticated-options}} {{cors-between-ba-domains}}"
+    },
+    {
+      "label": "API flags.",
+      "text": "{{api-field-names}} Whether those flags are exactly these settings is open {{gap:field-setting-mapping}}."
+    },
+    {
+      "text": "The certificate error these settings relate to is in [[zpa.browser-access.hostnames]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application is HTTPS and the Use Untrusted Certificates setting is selected, since requests through an untrusted certificate fail without it.",
+      "uses": [
+        "use-untrusted-certificates"
+      ]
+    },
+    {
+      "do": "Whether a failing preflight carries the three required headers, and whether Allow Unauthenticated OPTIONS Request is on.",
+      "uses": [
+        "allow-unauthenticated-options"
+      ]
+    },
+    {
+      "do": "Whether an API or Terraform value of the two flags is read as the UI setting, which is inferred by name only.",
+      "uses": [
+        "api-field-names",
+        "field-setting-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "use-untrusted-certificates": {
+      "statement": "For an HTTPS Browser Access application the Use Untrusted Certificates setting is selected by default. If it is not selected, requests that reach the application through an untrusted web server certificate are not successful.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If you selected HTTPS previously, Use Untrusted Certificates is selected by default.",
+            "If this setting is not selected, requests to access the application using untrusted web server certificates are not successful."
+          ]
+        }
+      ]
+    },
+    "allow-unauthenticated-options": {
+      "statement": "Allow Unauthenticated OPTIONS Request lets Private Access forward an unauthenticated HTTP preflight OPTIONS request from the browser to the application. Private Access forwards only valid OPTIONS requests that include the Access-Control-Request-Headers, Access-Control-Request-Method and Origin headers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Allow Unauthenticated OPTIONS Request to allow Private Access to forward an unauthenticated HTTP preflight OPTIONS request from the browser to the application.",
+            "Private Access only accepts valid OPTIONS requests that include the headers Access-Control-Request-Headers, Access-Control-Request-Method, and Origin in the HTTP request."
+          ]
+        }
+      ]
+    },
+    "cors-between-ba-domains": {
+      "statement": "Private Access accepts CORS requests issued from one valid Browser Access domain to another. The application server must use with-credentials mode so the browser passes cookies, and must allow requests whose Origin header is null or a valid Browser Access application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Private Access accepts CORS requests if the requests are issued by one valid Browser Access domain to another Browser Access domain.",
+            "The application server must also allow requests where the Origin header is set to null or to a valid Browser Access application."
+          ]
+        }
+      ]
+    },
+    "api-field-names": {
+      "statement": "The clientless application object in the Python SDK carries trustUntrustedCert and allowOptions flags, which correspond by name to the Use Untrusted Certificates and Allow Unauthenticated OPTIONS Request settings.",
+      "tier": "B",
+      "binds": [
+        "zpa/browser-access#clientlessApps"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "self.trust_untrusted_cert = config[\"trustUntrustedCert\"] if \"trustUntrustedCert\" in config else None",
+            "self.allow_options = config[\"allowOptions\"] if \"allowOptions\" in config else None"
+          ],
+          "after": "A class for Clientless Application Segment Entity objects."
+        }
+      ],
+      "conditions": "The SDK model is a passthrough and the help page names the settings by label. The match between the API flags and the UI settings is by name only; see the field-setting-mapping gap.",
+      "gaps": [
+        "field-setting-mapping"
+      ]
+    }
+  },
+  "gaps": {
+    "field-setting-mapping": {
+      "kind": "semantic",
+      "title": "API flags trustUntrustedCert and allowOptions versus the UI settings",
+      "status": "partial",
+      "detail": "Open question zpa-36 asked what trust_untrusted_cert and allow_options do at runtime. The help now states what the two UI settings do (claims use-untrusted-certificates and allow-unauthenticated-options), which settles the behavior if the flags are those settings. No source ties the API flags to the labels, and none says whether trustUntrustedCert suppresses the certificate error end to end or only on the backend leg. An API-reference description of the two flags, or a lab test that sets each and observes the result, would resolve it.",
+      "former_ids": [
+        "zpa-36"
+      ],
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

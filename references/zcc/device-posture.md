@@ -165,4 +165,4 @@ CrowdStrike ZTA Score posture types read the score from the Falcon agent. If the
 - Cross-product posture concept, platform matrix, machine-tunnel integration, policy construction — [`../shared/device-posture.md`](../shared/device-posture.md)
 - How posture result flows into forwarding decisions — it doesn't directly; forwarding is governed by [`./forwarding-profile.md`](./forwarding-profile.md)
 - Trusted Networks (parallel on-device signal, separate from posture) — [`./trusted-networks.md`](./trusted-networks.md)
-- ZPA Access Policy posture criteria and Reauth Timeout — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA Access Policy posture criteria and Reauth Timeout — [`zpa.policy`](kb:zpa.policy)

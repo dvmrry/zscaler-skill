@@ -11,7 +11,7 @@
 // Code is read at the submodule pin (HEAD); the spec is a committed capture, identified by its hash.
 // The output changes only when a pin or the captured spec changes.
 //
-// Usage: node scripts/gen-surfaces.mjs [zia] [--check]
+// Usage: node scripts/gen-surfaces.mjs [zia|zpa] [--check]
 //   --check  exit 1 if the committed file differs from what the pins generate.
 
 import { createHash } from "node:crypto";
@@ -33,6 +33,18 @@ const PRODUCTS = {
     providerDir: "zia",
     goServices: "zscaler/zia/services",
     pyModules: "zscaler/zia",
+  },
+  // ZPA paths are assembled from pieces: a service prefix, the customer ID, then an endpoint
+  // (`mgmtConfig + GetCustomerID() + appSegmentEndpoint` in Go, `{self._zpa_base_endpoint}/application`
+  // in Python); `assembled` rebuilds the full path before matching it to the spec.
+  zpa: {
+    spec: "automate-zscaler/openapi/zpa.openapi.json",
+    base: "/zpa",
+    provider: "terraform-provider-zpa",
+    providerDir: "zpa",
+    goServices: "zscaler/zpa/services",
+    pyModules: "zscaler/zpa",
+    assembled: true,
   },
 };
 const P = PRODUCTS[product];
@@ -66,6 +78,26 @@ function apiPaths(endpoint) {
   return [...apiByShape.entries()].filter(([s]) => s === rel || s.startsWith(rel + "/")).flatMap(([, ps]) => ps).sort();
 }
 
+/**
+ * Full paths a ZPA Go service file calls: each `PREFIX + <customer ID> + ENDPOINT (+ "/literal")`
+ * concatenation, with the string constants substituted and the customer ID written as `{}`.
+ */
+function assembledGo(src) {
+  const consts = Object.fromEntries([...src.matchAll(/^\s*(\w+)\s*=\s*"(\/[^"]*)"/gm)].map((m) => [m[1], m[2]]));
+  const out = new Set();
+  const expr = /(\w+)\s*\+\s*[\w.]*GetCustomerID\(\)(?:\s*\+\s*(\w+))?(?:\s*\+\s*"(\/[^"]*)")?/g;
+  for (const m of src.matchAll(expr)) {
+    if (!consts[m[1]]) continue;
+    const prefix = consts[m[1]].replace(/\/$/, "");
+    out.add(`${prefix}/{}${m[2] && consts[m[2]] ? consts[m[2]] : ""}${m[3] || ""}`);
+  }
+  // A path with no customer ID (`mgmtConfigV2 + lssEndpoint`).
+  for (const m of src.matchAll(/(\w+)\s*\+\s*(\w+)(?!\s*\()/g)) {
+    if (consts[m[1]]?.startsWith(P.base) && consts[m[2]] && !consts[m[2]].startsWith(P.base)) out.add(consts[m[1]] + consts[m[2]]);
+  }
+  return [...out];
+}
+
 // ---------------------------------------------------------------- Go SDK
 const sdkGo = {};
 for (const file of list("zscaler-sdk-go", P.goServices)) {
@@ -74,7 +106,8 @@ for (const file of list("zscaler-sdk-go", P.goServices)) {
   const src = show("zscaler-sdk-go", file);
   if (!sdkGo[pkg]) sdkGo[pkg] = { endpoints: new Set(), functions: new Set() };
   const entry = sdkGo[pkg];
-  for (const m of src.matchAll(/"(\/(?:zia\/api\/v1)?\/?[A-Za-z][\w./{}%-]*)"/g)) {
+  if (P.assembled) for (const e of assembledGo(src)) entry.endpoints.add(e);
+  else for (const m of src.matchAll(/"(\/(?:zia\/api\/v1)?\/?[A-Za-z][\w./{}%-]*)"/g)) {
     if (m[1].startsWith(P.base) || /^\/[a-z][A-Za-z]+(\/|$)/.test(m[1])) entry.endpoints.add(m[1]);
   }
   for (const m of src.matchAll(/^func ([A-Z]\w*)\(/gm)) entry.functions.add(m[1]);
@@ -92,7 +125,10 @@ for (const file of list("zscaler-sdk-python", P.pyModules)) {
   const src = show("zscaler-sdk-python", file);
   const cls = src.match(/^class (\w+API)\b/m);
   if (!cls) continue;
-  const endpoints = [...new Set([...src.matchAll(/\{self\._\w*base_endpoint\}\s*(\/[A-Za-z][^\s"'`)]*)/g)].map((m) => m[1]))].sort();
+  // ZPA modules template their base (`self._zpa_base_endpoint = f"/zpa/.../customers/{customer_id}"`).
+  const bases = Object.fromEntries([...src.matchAll(/self\.(_\w*base_endpoint\w*)\s*=\s*f?"([^"]+)"/g)].map((m) => [m[1], m[2]]));
+  const endpoints = [...new Set([...src.matchAll(/\{self\.(_\w*base_endpoint\w*)\}\s*(\/[A-Za-z][^\s"'`)]*)/g)].map((m) =>
+    P.assembled && bases[m[1]] ? bases[m[1]] + m[2] : m[2]))].sort();
   const methods = [...new Set([...src.matchAll(/^    def ([a-z]\w*)\(/gm)].map((m) => m[1]))].sort();
   sdkPython[path.posix.basename(file, ".py")] = { class: cls[1], methods, endpoints, api: [...new Set(endpoints.flatMap(apiPaths))].sort() };
 }

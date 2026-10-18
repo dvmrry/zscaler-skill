@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.data-path",
+  "title": "Tunnels, certificates and firewall requirements on the Private Service Edge path",
+  "aliases": [
+    "z-tunnel",
+    "m-tunnel",
+    "microtunnel",
+    "ssl inspection breaks zpa",
+    "pinned certificates",
+    "pse firewall rules",
+    "pse cannot connect to zpa cloud",
+    "pb2br",
+    "pse not connected to private access cloud"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.private-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.public-service-edges.what-it-is"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The path between a user and a private application is a pair of Z-Tunnels joined by an M-Tunnel at the Service Edge."
+    },
+    {
+      "label": "Tunnels.",
+      "text": "{{ztunnel-mutual-tls}} {{ztunnel-endpoints}} Which hop Client Connector terminates on is not settled {{gap:ztunnel-zcc-to-pse}}. {{mtunnel-stitching}} [[zpa.app-connectors.selection:closest-by-location-and-latency]]"
+    },
+    {
+      "label": "Certificates.",
+      "text": "{{pki-roles}} {{identity-key-only}} {{no-mitm-pinning}} Whether the Private Service Edge ever terminates application content is not stated {{gap:not-a-proxy}}."
+    },
+    {
+      "label": "Interception and firewalls.",
+      "text": "{{ssl-interception-unsupported}} {{firewall-requirements}} {{app-connector-outbound-only}} {{tcp-443-inbound}} {{dnat-publish-ip}} {{outbound-tunnel-443}} {{restricted-outbound}} {{tls-bypass-list}} UDP is not stated {{gap:dtls-udp}}."
+    },
+    {
+      "label": "Diagnostics.",
+      "text": "{{upstream-connectivity-test}} {{connected-app-connectors-command}}"
+    },
+    {
+      "text": "Behavior when an App Connector cannot reach the Private Service Edge is in [[zpa.private-service-edges.what-it-is:relay-via-public]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an SSL interception device sits between the Private Service Edge and the Private Access cloud; the error shows a self-signed certificate in the chain.",
+      "uses": [
+        "ssl-interception-unsupported",
+        "no-mitm-pinning"
+      ]
+    },
+    {
+      "do": "Whether name resolution of pb2br returns two addresses from the host that runs the Private Service Edge, then whether a TLS connection to it returns a Zscaler certificate subject.",
+      "uses": [
+        "upstream-connectivity-test"
+      ]
+    },
+    {
+      "do": "Which App Connectors a Private Service Edge is currently connected to, from the local status endpoint.",
+      "uses": [
+        "connected-app-connectors-command"
+      ]
+    },
+    {
+      "do": "Whether the firewall allows outbound to the Public Service Edge IPs and inbound from App Connectors and Zscaler Client Connector.",
+      "uses": [
+        "firewall-requirements",
+        "app-connector-outbound-only",
+        "tcp-443-inbound",
+        "outbound-tunnel-443",
+        "dtls-udp"
+      ]
+    }
+  ],
+  "claims": {
+    "ztunnel-mutual-tls": {
+      "statement": "All communication between Private Access components travels within a mutually pinned, client and server certificate-verified TLS connection, and a microtunneling protocol runs inside that Zscaler Tunnel (Z-Tunnel).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "All communication between Private Access components travel within a mutually pinned, client and server certificate-verified TLS connection.",
+            "Within this TLS-encrypted Zscaler Tunnel (Z-Tunnel), a microtunneling protocol exists."
+          ]
+        }
+      ]
+    },
+    "ztunnel-endpoints": {
+      "statement": "The Z-Tunnel is defined as a mutually authenticated point-to-point connection between Zscaler Client Connector and a Zscaler-managed Public Service Edge, or between an App Connector and an organization-managed Private Service Edge. It carries no direct IP data and can carry multiple Microtunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "between Zscaler Client Connector and a Public Service Edge managed by Zscaler, or it's between an App Connector and a Private Service Edge managed by an organization.",
+            "A Z-Tunnel does not contain any direct IP data.",
+            "the Z-Tunnel can carry within it multiple communication channels called Microtunnels."
+          ]
+        }
+      ]
+    },
+    "pki-roles": {
+      "statement": "Zscaler Client Connector and App Connectors authenticate with the organization's public key infrastructure (PKI); Public Service Edges and Private Service Edges authenticate with Zscaler's PKI. The Z-Tunnel is further authenticated using SAML 2.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Zscaler Client Connector and App Connectors are authenticated with the organization's public key infrastructure (PKI).",
+            "Public Service Edges and Private Service Edges are authenticated with Zscaler's PKI.",
+            "the Z-Tunnel is further authenticated using SAML 2.0."
+          ]
+        }
+      ]
+    },
+    "identity-key-only": {
+      "statement": "Public and Private Service Edges use only public keys to authenticate remote systems and clients; no private key is stored or used except the Service Edge's own identity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "use only public keys for authenticating all remote systems and clients connecting with it.",
+            "No private keys are stored or used, with the exception of the Public Service Edge's or Private Service Edge's identity."
+          ]
+        }
+      ]
+    },
+    "no-mitm-pinning": {
+      "statement": "Because client and server use pinned certificates, it is cryptographically impossible for Private Access to experience a Man-in-the-Middle (MITM) attack: client certificates are verified against the organization's CA and server certificates against Zscaler's CA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "it is cryptographically impossible for Private Access to experience a Man-in-the-Middle (MITM) attack.",
+            "The client certificates are verified against an organization's Certificate Authority (CA) and the server certificates are verified against Zscaler's CA"
+          ]
+        }
+      ]
+    },
+    "ssl-interception-unsupported": {
+      "statement": "Private Access does not support SSL interception: a device that intercepts SSL between the Private Service Edge and the Zscaler cloud makes the connection fail. The Private Access domains or IP addresses must be allowlisted on the interception device so that the Private Service Edge and Zscaler URLs are bypassed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-private-service-edges.json",
+          "quotes": [
+            "Private Access does not support SSL interceptions.",
+            "so a device performing SSL interception causes the connection to fail between the Private Service Edge and the Zscaler cloud.",
+            "This ensures Private Service Edges and the Zscaler URLs (e.g., *.zpath.net, *.zscaler.com) are bypassed from a SSL inspection."
+          ]
+        }
+      ]
+    },
+    "mtunnel-stitching": {
+      "statement": "An M-Tunnel originates in Zscaler Client Connector, extends to the Private or Public Service Edge using a tag Client Connector created, extends to the App Connector using a different tag the connector chose, and the App Connector connects it to the application server. At no point is actual IP identification data passed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "The M-Tunnel extends to the Public Service Edge or Private Service Edge using a tag created by Zscaler Client Connector.",
+            "The M-Tunnel then extends to the appropriate App Connector using a different tag chosen by that connector.",
+            "At no point in the communication is actual IP identification data passed."
+          ]
+        }
+      ]
+    },
+    "app-connector-outbound-only": {
+      "statement": "App Connectors never communicate with each other and accept no inbound connections; they need only an outbound connection to reach Public or Private Service Edges, and they stay authenticated to the nearest Public or Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "App Connectors never communicate with each other and do not accept inbound connections.",
+            "They only require an outbound connection to the internet to reach Public Service Edges or Private Service Edges",
+            "allows it to maintain its authentication with the nearest Public Service Edge or Private Service Edge"
+          ]
+        }
+      ]
+    },
+    "firewall-requirements": {
+      "statement": "A Private Service Edge deployed behind a firewall needs the firewall to allow outbound connections to the Public Service Edge IP addresses and inbound connections from App Connectors and Zscaler Client Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-disaster-recovery.json",
+          "quotes": [
+            "your firewalls must be configured to let the Private Service Edge establish outbound connections to the IP addresses of the Public Service Edge, and establish inbound connections from App Connectors and Zscaler Client Connectors."
+          ]
+        }
+      ]
+    },
+    "tcp-443-inbound": {
+      "statement": "Each Private Service Edge must accept incoming connections from internal sources, remote users or both, as the use case needs, on TCP port 443, and behind a firewall it needs a unique private IP reachable on the internal network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "on TCP port 443. For example, if you enable Private Access for remote and office users",
+            "They must have a unique private IP address that can be reached over the internal network."
+          ]
+        }
+      ]
+    },
+    "dnat-publish-ip": {
+      "statement": "When a Private Service Edge sits behind a firewall that performs destination NAT, the public IP the firewall advertises must be configured as a publish IP of that Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "It is necessary to configure the public IP address advertised by the firewall as a publish IP of the respective Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "outbound-tunnel-443": {
+      "statement": "After enrollment a Private Service Edge opens an outbound TLS tunnel over TCP port 443 to the Private Access cloud, carrying keepalives to the Public Service Edge, policy configuration download and software upgrades.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "an outbound TLS tunnel over TCP port 443 is established to the Private Access cloud infrastructure.",
+            "Periodic keepalives to the Public Service Edge",
+            "Policy configuration download"
+          ]
+        }
+      ]
+    },
+    "restricted-outbound": {
+      "statement": "A Private Service Edge can be deployed where outbound internet traffic is restricted, provided it can reach all Zscaler data centers containing Public Service Edges; a partial firewall configuration causes end-user connectivity problems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "It is possible to deploy a Private Service Edge in such an environment as long as the Private Service Edge is able to reach all Zscaler data centers containing Public Service Edges.",
+            "A partial firewall configuration will result in connectivity problems for end users."
+          ]
+        }
+      ]
+    },
+    "tls-bypass-list": {
+      "statement": "All inline or man-in-the-middle TLS interception must be disabled, and *.prod.zpath.net must be in the SSL bypass list for traffic from the Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-service-edge-deployment-prerequisites.json",
+          "quotes": [
+            "all forms of inline or man-in-the-middle TLS interception or inspection must be disabled.",
+            "ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "upstream-connectivity-test": {
+      "statement": "Connectivity from a Private Service Edge to its upstream Public Service Edge is tested by querying pb2br.prod.zpath.net from the Private Service Edge host, which returns two IPs when healthy, and by opening a TLS connection with openssl, which returns a certificate subject from the Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-private-service-edges.json",
+          "quotes": [
+            "Test connectivity to the upstream Public Service Edge by querying the DNS address pb2br.prod.zpath.net from the server that is running the Private Service Edge software.",
+            "Successful connectivity results in two IPs.",
+            "A successful TLS connection results in a certificate subject string returned from the Public Service Edge."
+          ],
+          "after": "Unable to Connect to the Private Access Cloud"
+        }
+      ]
+    },
+    "connected-app-connectors-command": {
+      "statement": "Running curl localhost:8500/fohh/servers?small on the Private Service Edge confirms which App Connectors it is connected to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-private-service-edges.json",
+          "quotes": [
+            "Use the following command to confirm which App Connectors your Private Service Edges are connected to:",
+            "curl localhost:8500/fohh/servers?small"
+          ],
+          "after": "Private Service Edges Connectivity to App Connectors"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ztunnel-zcc-to-pse": {
+      "kind": "semantic",
+      "title": "Whether Zscaler Client Connector forms its Z-Tunnel to the Private Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A Z-Tunnel exists between ZCC and the PSE, and a second Z-Tunnel exists between the App Connector and the PSE.\" The architecture page's Z-Tunnel definition names Client Connector to a Public Service Edge, or App Connector to a Private Service Edge (claim ztunnel-endpoints), while its M-Tunnel text and the browser access text put Client Connector connections on a \"Public Service Edge or Private Service Edge\". Resolve with a Private Service Edge deployment guide or a packet capture.",
+      "blocks": "stating which hop terminates the client tunnel for an on-premises user",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "dtls-udp": {
+      "kind": "semantic",
+      "title": "UDP or DTLS transport to a Private Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"plus optionally UDP for DTLS.\" The prerequisites page states only TCP port 443; no registered source mentions UDP or DTLS for the Private Service Edge. Resolve with the Deployment Prerequisites or a lab test.",
+      "blocks": "writing UDP firewall rules",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "not-a-proxy": {
+      "kind": "semantic",
+      "title": "Whether the Private Service Edge terminates application-layer content",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The PSE never terminates or inspects application-layer content; it is a session coordinator, not a proxy or inspection engine.\" The sources state only that a Private Access Service Edge does not inspect the data (zpa.private-service-edges.what-it-is:no-inspection). Resolve with the Private Access architecture documentation.",
+      "blocks": "claims about TLS termination at the Private Service Edge",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

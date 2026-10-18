@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "id": "zpa.b2b-federation.sdk-contract",
+  "title": "B2B Federation SDK coverage and contract differences",
+  "aliases": [
+    "python sdk tenant_federation_provisioning",
+    "python sdk application_federation",
+    "python b2b_policy",
+    "go sdk federated_application",
+    "go b2b_policy_controller",
+    "customer_domain_controller",
+    "iamidpmapping",
+    "browser_access_groups",
+    "policy group sdk",
+    "federation sdk gap"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.b2b-federation.api-routes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.federate-applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Neither SDK covers every published federation route, and where they overlap they disagree."
+    },
+    {
+      "label": "Coverage.",
+      "text": "{{python-covers-partial}} {{go-covers-two-routes}} {{no-federation-terraform}} The Python provisioning routes differ from the changelog and specification {{divergence:python-provisioning-routes}}."
+    },
+    {
+      "label": "Guest policy.",
+      "text": "{{go-guest-policy-get}} {{python-guest-policy-get}} The Go changelog says PUT {{divergence:guest-policy-method}}, and the bases differ {{divergence:guest-policy-base}}."
+    },
+    {
+      "label": "Federated applications.",
+      "text": "The Go and Python paths differ from each other and the specification {{divergence:federated-application-paths}}. The segment-side `guestDetails` field and its Python decode defect are in [[zpa.b2b-federation.federate-applications]]."
+    },
+    {
+      "label": "Adjacent packages.",
+      "text": "The same Go change adds packages whose contract is unresolved across the SDKs: domains {{divergence:customer-domain-write}}, identity mapping {{divergence:iamidpmapping-shape}} and policy groups {{divergence:policy-group-routes}}. Browser Access groups are Go-only {{gap:browser-access-groups-go-only}}. General Go SDK defects are in [[zpa.sdk-go.service-defects]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which SDK implements the operation, since neither covers all published federation routes.",
+      "uses": [
+        "python-covers-partial",
+        "go-covers-two-routes",
+        "no-federation-terraform"
+      ]
+    },
+    {
+      "do": "Which method the guest-policy call uses, and which base path.",
+      "uses": [
+        "guest-policy-method",
+        "guest-policy-base",
+        "go-guest-policy-get",
+        "python-guest-policy-get"
+      ]
+    },
+    {
+      "do": "Which path the federated application list and update call, and whether the host ID is in the path.",
+      "uses": [
+        "federated-application-paths"
+      ]
+    },
+    {
+      "do": "Whether the Python provisioning methods match the routes the specification and changelog describe.",
+      "uses": [
+        "python-provisioning-routes"
+      ]
+    },
+    {
+      "do": "Whether the adjacent Go packages (customer domains, identity mapping, policy groups) match Python and the changelog before relying on either.",
+      "uses": [
+        "customer-domain-write",
+        "iamidpmapping-shape",
+        "policy-group-routes",
+        "browser-access-groups-go-only"
+      ]
+    }
+  ],
+  "claims": {
+    "python-covers-partial": {
+      "statement": "The Python SDK has `application_federation` (list applications for a host, update an application), `tenant_federation_provisioning` (list provisionings, list partners, add, update, delete) and `b2b_policy` (get global policy rules), and no methods for token create, token verify, approval, federation state, notes or provisioning state.",
+      "tier": "B",
+      "conditions": "Absence search of the pinned Python tree (`grep -rn 'tenant-federation' zscaler`): the only matches are tenant_federation_provisioning.py, legacy.py and zpa_service.py, and the methods in that module are the five listed; no search covered the docs.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_federation.py",
+          "quotes": [
+            "def list_applications_host(self, query_params=None)",
+            "def update_application(self, application_id: str, **kwargs)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/tenant_federation_provisioning.py",
+          "quotes": [
+            "def list_tenant_federations(self, query_params=None)",
+            "def list_tenant_federations_partners(self, query_params=None)",
+            "def add_tenant_federation(self, **kwargs)",
+            "def update_tenant_federation(self, tenant_federation_id: str, **kwargs)",
+            "def delete_tenant_federation(self, tenant_federation_id: str)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/b2b_policy.py",
+          "quotes": [
+            "def get_global_policy_rules(self, guest_id: str, query_params=None)"
+          ]
+        }
+      ]
+    },
+    "go-covers-two-routes": {
+      "statement": "The Go SDK has `federated_application` (list by host and federate) and `b2b_policy_controller` (guest policy rules), and no package for the `tenant-federation` routes.",
+      "tier": "B",
+      "conditions": "Absence search of the pinned Go tree: `grep -rln tenant-federation vendor/zscaler-sdk-go` returns nothing.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/federated_application/federated_application.go",
+          "quotes": [
+            "func GetAllHost(ctx context.Context, service *zscaler.Service, hostID string)",
+            "func UpdateFederate(ctx context.Context, service *zscaler.Service, body *FederateRequest)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go",
+          "quotes": [
+            "func GetAll(ctx context.Context, service *zscaler.Service, guestID string)"
+          ]
+        }
+      ]
+    },
+    "no-federation-terraform": {
+      "statement": "The pinned ZPA Terraform provider has no federation or B2B resource or data source.",
+      "tier": "B",
+      "conditions": "Absence search: `grep -rli 'tenant-federation\\|b2b' vendor/terraform-provider-zpa/zpa` returns nothing at the pin; federation names other than 'b2b' and 'tenant-federation' were not searched.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "ResourcesMap: map[string]*schema.Resource{"
+          ]
+        }
+      ]
+    },
+    "go-guest-policy-get": {
+      "statement": "The Go B2B policy controller calls the guest-policy path with GET through the paged helper under the admin-customer base, and its comment says the endpoint does not support the microtenant filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go",
+          "quotes": [
+            "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "The endpoint does not support the microtenant filter",
+            "common.GetAllPagesGenericWithCustomFilters[PolicyRule](ctx, service.Client, relativeURL, common.Filter{})"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "Build pagination struct with search filter (already converted to filter format)",
+          "quotes": [
+            "resp, err := client.NewRequestDo(ctx, \"GET\", relativeURL, pagination, nil, &paged)"
+          ]
+        }
+      ]
+    },
+    "python-guest-policy-get": {
+      "statement": "The Python `b2b_policy` wrapper calls the guest-policy path with GET under the non-admin customer base and returns the raw response, not typed rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/b2b_policy.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/b2b_policy.py",
+          "after": "def get_global_policy_rules(self, guest_id: str, query_params=None)",
+          "quotes": [
+            "http_method = \"get\".upper()",
+            "Returns the rules/policyType/GLOBAL_POLICY/guest for policy_set (raw response, no model)."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "guest-policy-method": {
+      "summary": "The Go changelog lists the guest-policy operation as PUT, while both SDKs and the specification use GET.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "Added `PUT /policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}` - Get policy rules created by partner on federated applications"
+            ]
+          },
+          "says": "The operation is PUT."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1policySet~1rules~1policyType~1GLOBAL_POLICY~1guest~1{guest_id}/get",
+            "expect": {
+              "operationId": "Get Partner Policy Rules On Federated Apps"
+            }
+          },
+          "says": "The specification documents the operation as GET."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/b2b_policy.py",
+            "after": "def get_global_policy_rules(self, guest_id: str, query_params=None)",
+            "quotes": [
+              "http_method = \"get\".upper()"
+            ]
+          },
+          "says": "Python calls GET."
+        }
+      ],
+      "impact": "A caller built from the Go changelog would send PUT to a read route; the code and specification agree on GET."
+    },
+    "guest-policy-base": {
+      "summary": "The Go B2B policy controller uses the admin-customer base and says the endpoint does not support the microtenant filter, while the specification and Python use the non-admin base and the specification declares an optional `microtenantId`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go",
+            "quotes": [
+              "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+              "The endpoint does not support the microtenant filter"
+            ]
+          },
+          "says": "Admin-customer base; no microtenant filter."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1policySet~1rules~1policyType~1GLOBAL_POLICY~1guest~1{guest_id}/get/parameters/[name=microtenantId]",
+            "expect": {
+              "in": "query",
+              "required": false
+            }
+          },
+          "says": "The non-admin path takes an optional microtenantId query parameter."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/b2b_policy.py",
+            "quotes": [
+              "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/customers/{customer_id}\""
+            ]
+          },
+          "says": "Python uses the non-admin customer base."
+        }
+      ],
+      "impact": "The same operation is addressed on two bases; the sources do not show whether the admin form is accepted or whether microtenant scoping works."
+    },
+    "federated-application-paths": {
+      "summary": "The Go federated-application package calls `/application/host/{hostID}` and `/application/federate`, while the Python wrapper lists `/application/host` without the ID and updates `/application/{application_id}`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/federated_application/federated_application.go",
+            "quotes": [
+              "federatedApplicationHostEndpoint = \"/application/host\"",
+              "federatedApplicationFederateEndpoint = \"/application/federate\""
+            ]
+          },
+          "says": "Go lists `/application/host/{hostID}` and federates with `PUT /application/federate`."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1host~1{host_id}/get",
+            "expect": {
+              "operationId": "Get Federated Applications From Host"
+            }
+          },
+          "says": "The specification documents `GET /application/host/{host_id}`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/application_federation.py",
+            "quotes": [
+              "/application/host",
+              "/application/{application_id}"
+            ]
+          },
+          "says": "Python lists `/application/host` with no host ID and updates `PUT /application/{application_id}`."
+        }
+      ],
+      "impact": "Python's update route does not match the documented federate route, so a Python update_application call may not federate; whether the Python paths are accepted is unknown."
+    },
+    "python-provisioning-routes": {
+      "summary": "The Python changelog lists the token, verify, approval, state and notes routes, while the module implements POST `/tenant-federation` and PUT `/tenant-federation/{id}`, which the specification does not list.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "Added `POST /tenant-federation/token` Create federation token for a customer by microtenant.",
+              "Added `PUT /tenant-federation/approval` Request approval for tenant federation using token."
+            ]
+          },
+          "says": "The release added the token and approval routes."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/tenant_federation_provisioning.py",
+            "quotes": [
+              "def add_tenant_federation(self, **kwargs)",
+              "def update_tenant_federation(self, tenant_federation_id: str, **kwargs)"
+            ]
+          },
+          "says": "The module has add (POST `/tenant-federation`) and update (PUT `/tenant-federation/{id}`) methods and no token or approval methods."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation/get",
+            "expect": {
+              "operationId": "Get Provisionings"
+            }
+          },
+          "says": "The specification lists GET on `/tenant-federation`, with POST only on the `/token` and `/token/verify` sub-routes."
+        }
+      ],
+      "impact": "A caller that trusts the changelog finds no method for the advertised routes, and a caller that uses add_tenant_federation sends a POST the specification does not document."
+    },
+    "customer-domain-write": {
+      "summary": "The Go customer-domain package has only GET, while the Go changelog and the Python module add a POST to the same path.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "CHANGELOG.md",
+            "after": "# 3.8.47 (August 17, 2026)",
+            "quotes": [
+              "Added `POST /v2/associationtype/{type}/domains` Add or update domains for a customer."
+            ]
+          },
+          "says": "The changelog advertises POST."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go",
+            "quotes": [
+              "func GetCustomerDomainController(ctx context.Context, service *zscaler.Service, associationType string)"
+            ]
+          },
+          "says": "Go implements only the GET reader."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/customer_domain.py",
+            "quotes": [
+              "def add_update_domain(self, type: str, domain_list: list, microtenant_id: str = None)"
+            ]
+          },
+          "says": "Python implements the POST as add_update_domain."
+        }
+      ],
+      "impact": "Whether the POST is a supported write is not shown: the specification has no associationtype route."
+    },
+    "iamidpmapping-shape": {
+      "summary": "The Go identity-mapping reader decodes one object and omits `syncVersion`, while the Python reader treats the response as a list and its model has `syncVersion`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/one_identity_controller/one_identity_controller.go",
+            "quotes": [
+              "func Get(ctx context.Context, service *zscaler.Service) (*OneIdentityController, *http.Response, error)"
+            ]
+          },
+          "says": "Go returns one OneIdentityController object."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/one_identity.py",
+            "quotes": [
+              "def list_iamidpmappings(self, query_params=None) -> APIResult[List[OneIdentity]]"
+            ]
+          },
+          "says": "Python lists OneIdentity entries."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/models/one_identity.py",
+            "quotes": [
+              "self.sync_version = config[\"syncVersion\"] if \"syncVersion\" in config else None"
+            ]
+          },
+          "says": "The Python model has syncVersion."
+        }
+      ],
+      "impact": "The route is not in the specification; one of the two decodes the response wrongly or the response differs by tenant."
+    },
+    "policy-group-routes": {
+      "summary": "The Go policy-group package creates and reorders at `/rule` paths and the changelog describes `GET .../group` as Add and reorder as POST, while Python creates with POST `.../group` and reorders with PUT `.../group/{id}/reorder`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/policy_group/policy_group.go",
+            "quotes": [
+              "path := fmt.Sprintf(mgmtConfigV1+service.Client.GetCustomerID()+\"/policyGroupSet/%s/rule\", group.PolicyGroupSetGid)",
+              "\"/policyGroupSet/%s/rule/%s/reorder/%d\", groupSetID, groupID, order)"
+            ]
+          },
+          "says": "Go CreateRule posts to `/policyGroupSet/{set}/rule` and ReorderGroup puts to `/policyGroupSet/{set}/rule/{group}/reorder/{n}`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/policy_group.py",
+            "quotes": [
+              "/policyGroupSet/{group_set_id}/group/{group_id}/reorder/{new_order}"
+            ]
+          },
+          "says": "Python reorders at `/policyGroupSet/{set}/group/{group}/reorder/{n}`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "`GET /policyGroupSet/{groupSetId}/group` Add a new Policy Group to a Policy Group Set."
+            ]
+          },
+          "says": "The Go changelog lists GET on `.../group` as the add route."
+        }
+      ],
+      "impact": "The group-create and reorder routes have three descriptions and the specification has no policyGroupSet route, so none can be confirmed."
+    }
+  },
+  "gaps": {
+    "browser-access-groups-go-only": {
+      "kind": "semantic",
+      "title": "Whether browser_access_groups is intentionally Go-only",
+      "status": "open",
+      "detail": "The Go SDK adds a `browser_access_groups` package with read-only `GetAll` and `Get` on `/browserAccessGroups`; no corresponding Python ZPA module was found and the Go changelog list for that release is silent on it. The sources cannot establish tenant availability or entitlement. An SDK maintainer answer or a tenant call would settle it.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "blocks": "relying on Browser Access groups from the Python SDK"
+    }
+  }
+}

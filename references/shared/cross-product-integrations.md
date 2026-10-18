@@ -11,8 +11,8 @@ sources:
   - "kb:zia.cloud-app-control"
   - "kb:zia.url-filtering"
   - "kb:zia.atp"
-  - "references/zpa/app-segments.md"
-  - "references/zpa/policy-precedence.md"
+  - "`kb:zpa.app-segments`"
+  - "`kb:zpa.policy`"
   - "references/zcc/forwarding-profile.md"
   - "references/zcc/web-policy.md"
   - "references/zcc/entitlements.md"
@@ -79,13 +79,13 @@ Highlights relevant for cross-product routing:
 - **Licensing note**: SIPA subscription is separate; a ZPA license is NOT required. Operators can deploy App Connectors purely as SIPA egress points.
 - **Two variants**: standard SIPA and SIPA Direct (DR-mode fallback). Direct mode requires pre-planned Access Policy rules that allow ZCC clients.
 - **Mutual-exclusion** with Browser Access, Double Encryption, and Multimatch on the same App Segment.
-- **Country-code policy misfires** — ZPA country criterion uses last-NATed layer-3 IP, which for SIPA traffic is the ZIA PSE's IP, not the user's. Country-scoped ZPA rules misfire for SIPA users. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md).
+- **Country-code policy misfires** — ZPA country criterion uses last-NATed layer-3 IP, which for SIPA traffic is the ZIA PSE's IP, not the user's. Country-scoped ZPA rules misfire for SIPA users. See [`zpa.policy`](kb:zpa.policy).
 
 ### ZPA → ZIA
 
 Fields on ZPA objects that invoke ZIA processing.
 
-**ZPA Application Segments can request ZIA inline inspection.** The `inspect_traffic_with_zia` boolean on an Application Segment (`zscaler/zpa/models/application_segment.py`) hands private-app traffic off to ZIA's Service Edge for inspection before returning it to the ZPA data plane. See [`../zpa/app-segments.md`](../zpa/app-segments.md).
+**ZPA Application Segments can request ZIA inline inspection.** The `inspect_traffic_with_zia` boolean on an Application Segment (`zscaler/zpa/models/application_segment.py`) hands private-app traffic off to ZIA's Service Edge for inspection before returning it to the ZPA data plane. See [`zpa.app-segments`](kb:zpa.app-segments).
 
 **Multimatch is incompatible with this toggle.** A segment with `inspect_traffic_with_zia = true` cannot use `match_style = INCLUSIVE` (Multimatch). See *Configuring Defined Application Segments* p.16 — the mutual-exclusion list also covers Browser Access, AppProtection, Privileged Remote Access, Double Encryption, and Source IP Anchor.
 
@@ -97,7 +97,7 @@ ZPA Access Policy rules can gate on ZIA-computed user-risk signals.
 
 **`RISK_FACTOR_TYPE` condition in ZPA Access Policy** pulls the user's risk score from ZIA's Security Dashboard (see `kb:zia.atp` for what contributes — Page Risk score, ATP detections, Suspicious Content Protection). Lets a ZPA rule say "block this user from reaching the app if their ZIA user risk is elevated."
 
-**Prerequisite**: the tenant must use both products, and the user must have enough ZIA activity for a risk score to exist. Users with no ZIA history get a default-low score — the rule never fires for them. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md).
+**Prerequisite**: the tenant must use both products, and the user must have enough ZIA activity for a risk score to exist. Users with no ZIA history get a default-low score — the rule never fires for them. See [`zpa.policy`](kb:zpa.policy).
 
 **Failure mode**: admin adds a RISK_FACTOR_TYPE condition expecting it to block a specific high-risk user; that user happens to have zero ZIA activity; rule doesn't fire. Check the user's actual ZIA score before diagnosing the ZPA rule.
 
@@ -300,7 +300,7 @@ ZDX's analytics layer is Microsoft-hosted (Azure Data Explorer / ADX) — an ext
 
 **ZIA URL Filter `Isolate` action routes to ZBI.** A URL Filter rule with action `Isolate` matching a user's request produces a 302 redirect to the configured isolation profile URL, which hands off to an ephemeral cloud browser container. See [`../zbi/overview.md`](../zbi/overview.md).
 
-**ZPA Isolation Policy routes to ZBI for private apps.** ZPA's Isolation Policy family (alongside Access, Timeout, Forwarding, Inspection) decides which private-app requests go through an isolated browser. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md) for family evaluation order and [`../zbi/policy-integration.md`](../zbi/policy-integration.md) for ZPA Isolation rule shape.
+**ZPA Isolation Policy routes to ZBI for private apps.** ZPA's Isolation Policy family (alongside Access, Timeout, Forwarding, Inspection) decides which private-app requests go through an isolated browser. See [`zpa.policy`](kb:zpa.policy) for family evaluation order and [`../zbi/policy-integration.md`](../zbi/policy-integration.md) for ZPA Isolation rule shape.
 
 **Smart Browser Isolation auto-creates an SSL Inspection rule.** When enabled, Smart Isolation silently adds a decrypt rule for suspicious websites. Operators auditing SSL Inspection rule count see a rule they didn't manually create. See [`../zbi/policy-integration.md § Smart Browser Isolation`](../zbi/policy-integration.md).
 
@@ -323,15 +323,15 @@ Routing hints for question patterns that often hit these hooks. Use this section
 
 | Question | Likely cross-product hook | Check first |
 |---|---|---|
-| "ZIA SSL rule isn't matching traffic to our ZPA app" | ZIA SSL `zpa_app_segments` — Source IP Anchor not enabled on the segment | [`zia.ssl-inspection`](kb:zia.ssl-inspection), then `../zpa/app-segments.md` |
-| "Multimatch won't save on this segment" | `inspect_traffic_with_zia` on the segment is true (or one of the other Multimatch-incompatible features) | [`../zpa/app-segments.md § Edge cases`](../zpa/app-segments.md) |
+| "ZIA SSL rule isn't matching traffic to our ZPA app" | ZIA SSL `zpa_app_segments` — Source IP Anchor not enabled on the segment | [`zia.ssl-inspection`](kb:zia.ssl-inspection), then `kb:zpa.app-segments` |
+| "Multimatch won't save on this segment" | `inspect_traffic_with_zia` on the segment is true (or one of the other Multimatch-incompatible features) | [`zpa.app-segments`](kb:zpa.app-segments) |
 | "Our ZPA TRUSTED_NETWORK rule never matches" | `sendTrustedNetworkResultToZpa` flag off on forwarding profile | [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md) |
 | "User can't reach any ZPA app" | ZPA entitlement via ZCC (`zpa_enable_for_all` / `group_list`) | [`../zcc/entitlements.md`](../zcc/entitlements.md) before ZPA policy |
 | "CAC can't tell apart these two Google apps" | SSL Inspection bypass prevents app identification | [`zia.cloud-app-control`](kb:zia.cloud-app-control) |
 | "DLP/Sandbox/Malware aren't catching this" | SSL Inspection bypass for the URL's category | [`zia.ssl-inspection`](kb:zia.ssl-inspection) |
 | "macOS users see cert errors but Windows doesn't" | `install_ssl_certs` per-platform on Web Policy | [`../zcc/web-policy.md`](../zcc/web-policy.md) |
 | "URL was accessible last week, blocked now, no rule change" | ATP AI/ML recategorized to Botnet or Phishing | [`zia.atp`](kb:zia.atp) |
-| "Conditional / Require Approval rule doesn't fire for GRE users" | Step-up auth needs ZCC forwarding, not GRE | [`zia.url-filtering`](kb:zia.url-filtering) and `../zpa/policy-precedence.md` |
+| "Conditional / Require Approval rule doesn't fire for GRE users" | Step-up auth needs ZCC forwarding, not GRE | [`zia.url-filtering`](kb:zia.url-filtering) and `kb:zpa.policy` |
 | "Activated my ZIA rule, still not working" | Activation gate — `GET /status` — or quota/validation activation failure | [`./activation.md`](./activation.md) |
 | "Changes propagated for ZPA but not ZIA" | Product-specific activation model — not a bug | [`./activation.md`](./activation.md) |
 | "During an outage, ZPA traffic broke but ZIA didn't" | BC Cloud is ZIA-only; ZPA has its own availability model | [`./cloud-architecture.md § Business Continuity Cloud`](./cloud-architecture.md) |
@@ -349,7 +349,7 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "AWS/Azure/GCP workload traffic isn't going through Zscaler" | Cloud Connector rule match (Direct-exemption rule above intended ZIA rule?) or gateway health | [`../cloud-connector/forwarding.md`](../cloud-connector/forwarding.md), [`../cloud-connector/overview.md § Primary/secondary/tertiary`](../cloud-connector/overview.md) |
 | "Workload can't reach AWS IMDS / cloud metadata" | Missing Direct-method rule for 169.254.169.254 | [`../cloud-connector/forwarding.md § Common patterns`](../cloud-connector/forwarding.md) |
 | "Cloud Connector deployed but traffic not reaching — workloads failing" | Fail-close-by-default: if gateways unreachable, workloads lose internet. Check gateway health + fail-close/fail-open setting | [`../cloud-connector/overview.md § Fail-close vs fail-open`](../cloud-connector/overview.md) |
-| "Workload-to-internal-app fails via Cloud Connector + ZPA" | Multi-product chain: CC rule → ZPA Access Policy → App Connector health | [`../cloud-connector/overview.md`](../cloud-connector/overview.md), [`../zpa/app-segments.md`](../zpa/app-segments.md) |
+| "Workload-to-internal-app fails via Cloud Connector + ZPA" | Multi-product chain: CC rule → ZPA Access Policy → App Connector health | [`../cloud-connector/overview.md`](../cloud-connector/overview.md), [`zpa.app-segments`](kb:zpa.app-segments) |
 | "DLP event didn't create a ticket / notify user" | Multi-link chain: SSL decrypt → ZIA DLP rule → ZIA→ZWA integration → ZWA workflow mapping. Check in that order. | [`../zwa/overview.md § Dependencies`](../zwa/overview.md) |
 | "DLP didn't catch this big file" / "DLP missed content in a 500MB document" | 400MB file-size cap + 100MB extracted-text inspection window + 5-level compression limit | [`zia.dlp`](kb:zia.dlp) |
 | "How do I write a DLP rule that matches my custom dictionary?" | Rules reference engines, not dictionaries — wrap the dictionary in an engine first | [`zia.dlp`](kb:zia.dlp) |
@@ -375,8 +375,8 @@ Three themes show up across the hooks:
 - ZIA URL filtering — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA CAC — [`zia.cloud-app-control`](kb:zia.cloud-app-control)
 - ZIA Malware Protection / ATP — [`zia.atp`](kb:zia.atp)
-- ZPA app segments — [`../zpa/app-segments.md`](../zpa/app-segments.md)
-- ZPA policy precedence — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA app segments — [`zpa.app-segments`](kb:zpa.app-segments)
+- ZPA policy precedence — [`zpa.policy`](kb:zpa.policy)
 - ZCC forwarding profile — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
 - ZCC trusted networks — [`../zcc/trusted-networks.md`](../zcc/trusted-networks.md)
 - ZCC Web Policy / App Profile — [`../zcc/web-policy.md`](../zcc/web-policy.md)

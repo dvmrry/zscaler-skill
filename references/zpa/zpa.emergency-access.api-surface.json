@@ -1,0 +1,411 @@
+{
+  "schema_version": 1,
+  "id": "zpa.emergency-access.api-surface",
+  "title": "Emergency Access through the API, the Python SDK and Terraform",
+  "aliases": [
+    "emergency_access python sdk",
+    "emergencyAccess users api",
+    "emergency access page_id pageId",
+    "zpa_emergency_access_user terraform",
+    "activate_now add_user",
+    "emergency access delete user",
+    "emergency access user deactivate terraform destroy"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.emergency-access.users"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The calls behind [[zpa.emergency-access.users]]. {{service-class}}"
+    },
+    {
+      "label": "Operations.",
+      "text": "{{endpoints}} {{no-delete}}"
+    },
+    {
+      "label": "Fields.",
+      "text": "{{user-fields}}"
+    },
+    {
+      "label": "Create and activate.",
+      "text": "{{activate-now}} {{send-email}} {{add-user-drops-microtenant}}"
+    },
+    {
+      "label": "Paging.",
+      "text": "{{page-id-pagination}} The vendor and the SDK docstring disagree on what pageId is {{divergence:page-id-meaning}}. {{only-page-id-service}}"
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{terraform-destroy-deactivates}} {{terraform-email-forcenew}} {{terraform-no-microtenant-attribute}} Other provider and Go SDK defects are in [[zpa.terraform.delete-paths]] and [[zpa.sdk-go.service-defects]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The operation: list and get are GET, add is POST, update, activate and deactivate are PUT, and there is no delete.",
+      "uses": [
+        "endpoints",
+        "no-delete"
+      ]
+    },
+    {
+      "do": "Whether the list call pages with the cursor that came back, rather than a page number.",
+      "uses": [
+        "page-id-pagination",
+        "page-id-meaning"
+      ]
+    },
+    {
+      "do": "That a Terraform destroy of the user resource deactivates the user and leaves the account in the IdP.",
+      "uses": [
+        "terraform-destroy-deactivates"
+      ]
+    },
+    {
+      "do": "Whether add_user was called with activate_now left at its default of true, which activates the user on creation.",
+      "uses": [
+        "activate-now"
+      ]
+    }
+  ],
+  "claims": {
+    "service-class": {
+      "statement": "In the Python SDK, client.zpa.emergency_access returns an EmergencyAccessAPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zpa_service.py",
+          "quotes": [
+            "def emergency_access(self) -> EmergencyAccessAPI:"
+          ]
+        }
+      ]
+    },
+    "endpoints": {
+      "statement": "The API lists users with GET emergencyAccess/users (plural), and reads, adds, updates, activates and deactivates a user with the singular emergencyAccess/user paths.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1users/get",
+          "expect": {
+            "operationId": "Get All Emergency Access Group Users"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user/post",
+          "expect": {
+            "operationId": "Add Emergency Access User"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user~1{userId}/get",
+          "expect": {
+            "operationId": "Get Emergency Access User"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user~1{userId}/put",
+          "expect": {
+            "operationId": "Update Emergency Access User"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user~1{userId}~1activate/put",
+          "expect": {
+            "operationId": "Activate Emergency Access User"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user~1{userId}~1deactivate/put",
+          "expect": {
+            "operationId": "Deactivate Emergency Access User"
+          }
+        }
+      ]
+    },
+    "no-delete": {
+      "statement": "The API and SDKs have no delete operation for emergency access users: deactivation is the removal path.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/emergencyaccess/emergencyaccess.go",
+          "quotes": [
+            "func Deactivate(ctx context.Context, service *zscaler.Service, userID string) (*http.Response, error) {"
+          ]
+        }
+      ],
+      "conditions": "Absence claim. The OpenAPI path items for emergencyAccess list only get, post and put; emergency_access.py in the Python SDK defines list_users, get_user, add_user, update_user, activate_user and deactivate_user and no delete; the Go emergencyaccess package defines Get, GetByEmailID, Create, Update, Activate, Deactivate and GetAll."
+    },
+    "user-fields": {
+      "statement": "The user object has the fields userId, firstName, lastName, emailId, userStatus, activatedOn, lastLoginTime, allowedActivate, allowedDeactivate and updateEnabled, and emailId, firstName and lastName are required on add.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "title": "EmergencyAccessUserDTO",
+            "required": [
+              "emailId",
+              "firstName",
+              "lastName"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/emergency_access.py",
+          "quotes": [
+            "self.user_id = config[\"userId\"] if config and \"userId\" in config else None",
+            "self.update_enabled = config[\"updateEnabled\"] if config and \"updateEnabled\" in config else None"
+          ]
+        }
+      ]
+    },
+    "activate-now": {
+      "statement": "The add call takes activateNow, default true, and the Python add_user sends it from activate_now, which defaults to True.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user/post/parameters/[name=activateNow]",
+          "expect": {
+            "name": "activateNow",
+            "in": "query",
+            "schema": {
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "def add_user(self, activate_now=True, **kwargs) -> APIResult[dict]:",
+            "query_params = {\"activateNow\": \"true\" if activate_now else \"false\"}"
+          ]
+        }
+      ]
+    },
+    "send-email": {
+      "statement": "The activate call takes sendEmail, default false, and the Python activate_user sends it only when send_email is true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1user~1{userId}~1activate/put/parameters/[name=sendEmail]",
+          "expect": {
+            "name": "sendEmail",
+            "in": "query",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "query_params = {\"sendEmail\": \"true\"} if send_email else {}"
+          ]
+        }
+      ]
+    },
+    "page-id-pagination": {
+      "statement": "The list call pages with pageId and pageSize; the Python SDK has a special case that converts the parameters of the emergencyAccess/users request to camel case, and the Go SDK builds the URL with pageId.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1users/get/parameters/[name=pageId]",
+          "expect": {
+            "name": "pageId",
+            "in": "query"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if \"/emergencyAccess/users\" in endpoint:"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/emergencyaccess/emergencyaccess.go",
+          "quotes": [
+            "fullURL = fmt.Sprintf(\"%s?pageSize=%d&pageId=%s\", baseRelativeURL, pageSize, pageId)"
+          ]
+        }
+      ]
+    },
+    "only-page-id-service": {
+      "statement": "The Python ZPA services document the pagination key as page everywhere except emergency_access.py, which documents page_id.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "``[query_params.page_id]`` {str}: Specifies the page number."
+          ]
+        }
+      ],
+      "conditions": "Search, not a parse. Searched zscaler/zpa/*.py for page_id (only emergency_access.py, in its docstring and example) and for the query_params.page docstring (66 matches in the other services)."
+    },
+    "terraform-destroy-deactivates": {
+      "statement": "The zpa_emergency_access_user resource's delete handler calls the deactivate operation rather than a delete, so a Terraform destroy deactivates the user and drops it from state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "quotes": [
+            "DeleteContext: resourceEmergencyAccessDeactivated,",
+            "if _, err := emergencyaccess.Deactivate(ctx, service, d.Id()); err != nil {"
+          ]
+        }
+      ]
+    },
+    "terraform-email-forcenew": {
+      "statement": "In the Terraform resource, changing email_id forces a new user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "quotes": [
+            "ForceNew: true,"
+          ],
+          "after": "\"email_id\": {"
+        }
+      ]
+    },
+    "add-user-drops-microtenant": {
+      "statement": "In the Python SDK, add_user builds query_params with microtenantId and then reassigns query_params to a dict holding only activateNow, so the microtenant ID is never sent on create; list_users, get_user, update_user, activate_user and deactivate_user do pass it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "query_params = {\"microtenantId\": microtenant_id} if microtenant_id else {}",
+            "query_params = {\"activateNow\": \"true\" if activate_now else \"false\"}"
+          ],
+          "after": "def add_user(self, activate_now=True, **kwargs) -> APIResult[dict]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "query_params[\"activateNow\"] = \"true\" if activate_now else \"false\""
+          ],
+          "after": "def update_user(self, user_id: str, activate_now=True, **kwargs) -> APIResult[dict]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/emergency_access.py",
+          "quotes": [
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ],
+          "after": "def deactivate_user(self, user_id: str, **kwargs) -> APIResult[dict]:"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "terraform-no-microtenant-attribute": {
+      "statement": "The zpa_emergency_access_user resource schema defines only user_id, email_id, first_name and last_name, while its create, read, update and delete functions read microtenant_id from the resource data, so a configuration cannot set it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "quotes": [
+            "\"user_id\": {",
+            "\"email_id\": {",
+            "\"first_name\": {",
+            "\"last_name\": {"
+          ],
+          "after": "Schema: map[string]*schema.Schema{"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_emergency_access.go",
+          "quotes": [
+            "microTenantID := GetString(d.Get(\"microtenant_id\"))"
+          ],
+          "after": "func resourceEmergencyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "page-id-meaning": {
+      "summary": "The API describes pageId as a cursor, while the Python docstring calls page_id the page number.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1emergencyAccess~1users/get/parameters/[name=pageId]",
+            "expect": {
+              "name": "pageId",
+              "description": "The cursor that points to the end of the page of data that has been returned."
+            }
+          },
+          "says": "pageId is the cursor that points to the end of the page of data that has been returned."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/emergency_access.py",
+            "quotes": [
+              "``[query_params.page_id]`` {str}: Specifies the page number."
+            ]
+          },
+          "says": "page_id specifies the page number, and the docstring example passes page_id 1."
+        }
+      ],
+      "impact": "A caller who passes a page number may not get the page they expect; the Go SDK feeds back the NextPage value from each response as pageId."
+    }
+  }
+}

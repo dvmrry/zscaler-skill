@@ -119,7 +119,7 @@ From *About Policies* p.2 (the authoritative "Policy Evaluation Order" section):
 
 Two-stage model:
 
-1. **Segment selection** — runs in Zscaler Client Connector. Most-specific FQDN/IP wins. If the destination port is not in the selected segment's port ranges, traffic drops client-side without reaching ZPA. See [`../zpa/app-segments.md`](../zpa/app-segments.md).
+1. **Segment selection** — runs in Zscaler Client Connector. Most-specific FQDN/IP wins. If the destination port is not in the selected segment's port ranges, traffic drops client-side without reaching ZPA. See [`zpa.app-segments`](kb:zpa.app-segments).
 2. **Policy evaluation** — runs in the ZPA cloud. Rules that reference the selected segment (directly or via a segment group containing it) evaluate top-down, first-match.
 
 ### ZPA policy types
@@ -152,7 +152,7 @@ To reference NameID-bound value in policy criteria, configure an IdP-side user a
 
 Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/about-policies.json`.
 
-From *Using Application Segment Multimatch* p.4 (cited in `../zpa/app-segments.md`):
+From *Using Application Segment Multimatch* p.4 (cited in `kb:zpa.app-segments`):
 
 > After a specific FQDN (Fully Qualified Domain Name) has been configured in an application segment, it is removed from the wildcard application segment by default.
 
@@ -199,5 +199,5 @@ Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`;
 - ZIA URL filtering precedence — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA Cloud App Control interaction — [`zia.cloud-app-control`](kb:zia.cloud-app-control)
 - ZIA SSL inspection ordering — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
-- ZPA application segment matching — [`../zpa/app-segments.md`](../zpa/app-segments.md)
-- ZPA access policy precedence — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA application segment matching — [`zpa.app-segments`](kb:zpa.app-segments)
+- ZPA access policy precedence — [`zpa.policy`](kb:zpa.policy)

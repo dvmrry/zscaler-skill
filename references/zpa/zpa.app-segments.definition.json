@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.definition",
+  "title": "What an application segment can contain: entries, wildcards and ports",
+  "aliases": [
+    "domain_names",
+    "wildcard only application",
+    "hyphenated ip range application segment",
+    "browser access port range",
+    "idp application segment",
+    "application segment local domain"
+  ],
+  "binds": [
+    "zpa/application-segments#domainNames",
+    "zpa/application-segments#tcpPortRanges",
+    "zpa/application-segments#udpPortRanges"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.api-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.segment-groups.membership"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers what an application segment may contain and the port rules for Browser Access."
+    },
+    {
+      "label": "Entries.",
+      "text": "{{entry-forms}} {{wildcard-only}}"
+    },
+    {
+      "label": "Browser Access.",
+      "text": "{{ba-fqdn-only}} {{ba-ports}} Segment-level settings that interact with Browser Access are in [[zpa.app-segments.settings]]."
+    },
+    {
+      "label": "Identity providers.",
+      "text": "{{idp-overlap}}"
+    },
+    {
+      "label": "Group membership.",
+      "text": "Every segment must be placed in a segment group: [[zpa.segment-groups.membership]]. How entries and ports decide which segment matches is in [[zpa.app-segments.matching]], and the field names are in [[zpa.app-segments.api-fields]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a wildcard-only entry shares a segment with other entries, and whether Zscaler approved it.",
+      "uses": [
+        "wildcard-only"
+      ]
+    },
+    {
+      "do": "Whether a Browser Access application has its port inside a TCP range, and that no UDP range was used.",
+      "uses": [
+        "ba-ports",
+        "ba-fqdn-only"
+      ]
+    },
+    {
+      "do": "Whether the IdP is defined in a segment, and if so its Authentication Timeout and any overlap with application discovery.",
+      "uses": [
+        "idp-overlap"
+      ]
+    }
+  ],
+  "claims": {
+    "entry-forms": {
+      "statement": "An application entry is an FQDN, an IP address, a local domain or a wildcard domain such as `*.safemarch.com`; hyphenated IP address ranges cannot be defined.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#domainNames"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Enter a fully qualified domain name (FQDN), IP address, local domain, or a wildcard domain (e.g., *.safemarch.com) associated with the application.",
+            "You can't define an application with hyphenated IP address ranges"
+          ]
+        }
+      ]
+    },
+    "wildcard-only": {
+      "statement": "A wildcard-only entry (`*`) should be the only application in its segment, needs Zscaler approval, and is not available for application discovery.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#domainNames"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "You can also define the application with a wildcard only (i.e., *), but this should be the only application in the application segment. You can't define an application this way unless approved by Zscaler."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-application-access.json",
+          "quotes": [
+            "Defining an application with a wildcard only requires approval from Zscaler, and it is not available for application discovery."
+          ]
+        }
+      ]
+    },
+    "ba-fqdn-only": {
+      "statement": "Applications defined for Browser Access can only be FQDNs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "When defining applications for Browser Access, you can only configure FQDNs."
+          ]
+        }
+      ]
+    },
+    "ba-ports": {
+      "statement": "For a Browser Access application the TCP port range must include the specified port, and UDP port ranges cannot be used.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpPortRanges"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If you selected Browser Access for any application, the port range must include the port specified.",
+            "If you selected Browser Access for any application, you must use TCP port ranges."
+          ]
+        }
+      ]
+    },
+    "idp-overlap": {
+      "statement": "If the IdP is defined as an application within a segment, its Authentication Timeout must be Never, and an IdP domain that overlaps a domain configured for application discovery must be bypassed in Private Access to avoid user reauthentication failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If your IdP is defined as an application within an application segment, the Authentication Timeout for the IdP application must be set to Never.",
+            "If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in Private Access (ZPA) to avoid user reauthentication failure."
+          ]
+        }
+      ]
+    }
+  }
+}

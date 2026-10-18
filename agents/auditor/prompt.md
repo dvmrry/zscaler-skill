@@ -227,7 +227,7 @@ Severity: `Medium` when required-and-missing; do not open a finding when recipro
 
 Terms used in the body but never defined or linked:
 - Acronyms used without expansion on first use (`LSS`, `NSS`, `TA`, `CASB`)
-- Product/feature names without a link to the canonical reference (e.g., "ZPA App Connector" without `[link](../../references/zpa/app-connector.md)` on first reference)
+- Product/feature names without a link to the canonical reference (e.g., "ZPA App Connector" without `[link](kb:zpa.app-connectors)` on first reference)
 - Field names referenced without linking to the schema doc
 
 Severity: `Medium` for first-reference dangling; `Low` for repeat usage in the same file.

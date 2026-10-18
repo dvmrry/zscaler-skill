@@ -308,4 +308,4 @@ Query params for `list_by_company`: `page` (int), `page_size` (int), `search` (s
 - Forwarding Profiles portal configuration (network type taxonomy) — [`./forwarding-profiles.md`](./forwarding-profiles.md)
 - Z-Tunnel 2.0 deployment (trusted network role in Z-Tunnel 2.0 rollout) — [`./z-tunnel.md`](./z-tunnel.md)
 - ZCC API surface summary — [`./api.md`](./api.md)
-- ZPA's `TRUSTED_NETWORK` access-policy condition (fed from here via `sendTrustedNetworkResultToZpa`) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA's `TRUSTED_NETWORK` access-policy condition (fed from here via `sendTrustedNetworkResultToZpa`) — [`zpa.policy`](kb:zpa.policy)

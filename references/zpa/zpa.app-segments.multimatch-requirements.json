@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.multimatch-requirements",
+  "title": "Multimatch prerequisites, restrictions and App Connector selection",
+  "aliases": [
+    "multimatch prerequisites",
+    "multimatch not supported source ip anchoring",
+    "multimatch validation window",
+    "multimatch unsupported features",
+    "multimatch server group selection",
+    "multimatch client connector version"
+  ],
+  "binds": [
+    "zpa/application-segments#matchStyle"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-segments.multimatch"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.server-groups.multiple-on-segment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers what must be true before Multimatch is enabled and how to find what blocks it."
+    },
+    {
+      "label": "Availability.",
+      "text": "The feature is in limited availability: [[zpa.policy.multimatch:limited-availability]]. {{prereq-versions}}"
+    },
+    {
+      "label": "Restrictions.",
+      "text": "{{sipa-health-reporting}} {{double-encryption-sipa-disable}} The full list is open {{gap:multimatch-feature-matrix}}."
+    },
+    {
+      "label": "Validation.",
+      "text": "The window lists impacted segments and conflicts: [[zpa.appprotection.segment-opt-in:multimatch-validation]]. {{validation-window}} {{unsupported-references-call}}"
+    },
+    {
+      "label": "App Connector selection.",
+      "text": "With Multimatch off, App Connector selection is primarily based on the segment's server group configuration: [[zpa.server-groups.role:selection-follows-segment-server-group]]. With it on, the specific FQDN segment's server group is used and segments for one FQDN must share one: [[zpa.server-groups.multiple-on-segment:multimatch-specific-fqdn-server-group]], [[zpa.server-groups.multiple-on-segment:multimatch-same-fqdn-same-server-group]]."
+    },
+    {
+      "text": "How Multimatch changes which segments match: [[zpa.app-segments.multimatch]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether App Connectors, Private Service Edges and the Zscaler Client Connector builds in use meet the Multimatch minimums.",
+      "uses": [
+        "zpa.policy.multimatch:limited-availability",
+        "prereq-versions"
+      ]
+    },
+    {
+      "do": "Whether any segment for the domain uses Source IP Anchoring or Double Encryption, and whether Health Reporting is Continuous, before enabling Multimatch.",
+      "uses": [
+        "sipa-health-reporting",
+        "double-encryption-sipa-disable"
+      ]
+    },
+    {
+      "do": "Whether segments for one FQDN with different ports use different server groups, which makes connector selection unpredictable under Multimatch.",
+      "uses": [
+        "zpa.server-groups.multiple-on-segment:multimatch-same-fqdn-same-server-group",
+        "zpa.server-groups.multiple-on-segment:multimatch-specific-fqdn-server-group"
+      ]
+    },
+    {
+      "do": "Which features block Multimatch for a given domain, by asking the unsupported-references call rather than relying on a fixed list.",
+      "uses": [
+        "unsupported-references-call",
+        "multimatch-feature-matrix"
+      ]
+    }
+  ],
+  "claims": {
+    "prereq-versions": {
+      "statement": "Multimatch needs App Connectors or Private Service Edges at version 24.298.1 or later and Zscaler Client Connector at Windows 4.7.0.88 or 4.6.0.282 or later, macOS 4.5.2.98, iOS 4.4.1, Android 3.10 or Linux 4.2 or later; iOS also needs the 'Use Tunnel SDK Version 4.3 or above' setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "App Connectors or Private Service Edges for Private Access are upgraded to version 24.298.1 or later.",
+            "4.7.0.88 or later",
+            "4.6.0.282 or later",
+            "macOS versions: 4.5.2.98 or later",
+            "iOS version 4.4.1 or later",
+            "you must enable the Use Tunnel SDK Version 4.3 or above setting in the Zscaler Admin Console.",
+            "Android version: 3.10 or later",
+            "Linux version: 4.2 or later"
+          ]
+        }
+      ]
+    },
+    "sipa-health-reporting": {
+      "statement": "Multimatch is not supported for applications that have Source IP Anchoring enabled, and with Multimatch enabled the Health Reporting of an application segment can only be On Access or None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Multimatch is not supported for applications that have Source IP Anchoring enabled. If Multimatch is enabled, Health Reporting on an app segment can only be set to On Access or None."
+          ]
+        }
+      ]
+    },
+    "double-encryption-sipa-disable": {
+      "statement": "Multimatch must be disabled if the configuration contains applications using Double Encryption and Source IP Anchor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Multimatch must be disabled if the configuration contains applications using Double Encryption and Source IP Anchor."
+          ]
+        }
+      ],
+      "conditions": "An earlier version of the same article (a PDF export, superseded by the 2026-10-18 capture) said Multimatch must be disabled for applications using Browser Access, AppProtection or Privileged Remote Access; the current article names only Double Encryption and Source IP Anchor."
+    },
+    "validation-window": {
+      "statement": "The remedies offered for a Multimatch Validation warning are to edit an application segment and disable unsupported features, review conflicting features in a local Microtenant, contact the default administrator when the default application segment is included, or cancel and disable Multimatch when a segment belongs to another local tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Edit an application segment and disable unsupported features.",
+            "Review conflicting features in a local Microtenant and select the checkboxes that appear.",
+            "Contact the default administrator when Multimatch includes the default application segment.",
+            "Cancel and disable Multimatch if an application segment belongs to another local tenant."
+          ]
+        }
+      ]
+    },
+    "unsupported-references-call": {
+      "statement": "The Python SDK can ask the API which features block Multimatch for given domains: `get_multimatch_unsupported_references` posts the domain names to `/application/multimatchUnsupportedReferences` and returns objects with `unsupportedFeatures`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "def get_multimatch_unsupported_references(self, domains, **kwargs)",
+            "/application/multimatchUnsupportedReferences"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "self.unsupported_features = ZscalerCollection.form_list("
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "multimatch-feature-matrix": {
+      "kind": "semantic",
+      "title": "The complete list of features that block Multimatch for a segment",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "saying whether Multimatch can be enabled for a Browser Access, AppProtection, PRA or ZIA-inspection segment without a tenant check",
+      "detail": "The current captures list Source IP Anchoring and Double Encryption only, an earlier capture lists more, and neither is a feature matrix. Unverified legacy statement: the current Multimatch article records a separate release-summary entry for support for Internet & SaaS Inspection with Multimatch; the current capture contains no such entry. Ask the unsupported-references call for the domain, or read the Multimatch Validation window."
+    }
+  }
+}

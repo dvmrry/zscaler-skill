@@ -144,7 +144,7 @@ Turbo Mode is configured per isolation profile, not globally. Same user on diffe
 Zero Trust Browser does not appear in the captured sources as a standalone policy family. Routing to isolation composes with existing ZIA and ZPA policies:
 
 - **ZIA URL Filter `Isolate` action** — how ZIA decides to route to ZBI. See [`zia.url-filtering`](kb:zia.url-filtering).
-- **ZPA Isolation Policy** — how ZPA decides to route private-app access to ZBI. See [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md).
+- **ZPA Isolation Policy** — how ZPA decides to route private-app access to ZBI. See [`zpa.policy`](kb:zpa.policy).
 - **Isolation profile** — tenant-configured object that specifies *how* the isolated session behaves (Turbo Mode, copy/paste allow, file-transfer allow, print, read-only, region, etc.). Different profiles can apply to different URL Filter rules or different ZPA Isolation rules. See [`./policy-integration.md`](./policy-integration.md).
 
 ## Use cases
@@ -222,5 +222,5 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-h
 - Policy integration (isolation profiles, ZIA / ZPA rule configuration) — [`./policy-integration.md`](./policy-integration.md)
 - Claims ledger for this refresh — [`./_claims-ledger.md`](./_claims-ledger.md)
 - ZIA URL Filter (`Isolate` action) — [`zia.url-filtering`](kb:zia.url-filtering)
-- ZPA Isolation Policy (in the policy family evaluation order) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA Isolation Policy (in the policy family evaluation order) — [`zpa.policy`](kb:zpa.policy)
 - SSL Inspection (prerequisite for isolating HTTPS) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)

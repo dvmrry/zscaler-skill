@@ -159,7 +159,7 @@ Private Access traffic from workloads flows:
 Workload → Cloud Connector → ZPA Service Edge → App Connector → destination internal app
 ```
 
-App Connectors (ZPA's sibling outbound-only component — see [`../zpa/app-segments.md`](../zpa/app-segments.md)) sit at the application side; Cloud Connectors sit at the workload side. They never talk directly.
+App Connectors (ZPA's sibling outbound-only component — see [`zpa.app-segments`](kb:zpa.app-segments)) sit at the application side; Cloud Connectors sit at the workload side. They never talk directly.
 
 ## Data plane vs control plane — why it matters
 
@@ -216,6 +216,6 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.js
 - Traffic forwarding — [`./forwarding.md`](./forwarding.md)
 - Zero Trust Gateway managed-service boundary and availability guardrails — this overview; detailed GCP creation and operation — [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md)
 - API / SDK / TF surface — [`./api.md`](./api.md)
-- ZPA App Connector (the other outbound-only Zscaler VM) — [`../zpa/app-segments.md`](../zpa/app-segments.md) (app connectors referenced in segment config)
+- ZPA App Connector (the other outbound-only Zscaler VM) — [`zpa.app-segments`](kb:zpa.app-segments) (app connectors referenced in segment config)
 - ZCC forwarding profile (the endpoint-side equivalent) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
 - Shared cloud architecture — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)

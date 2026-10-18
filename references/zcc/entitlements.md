@@ -279,6 +279,6 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; 
 
 - Web Privacy (`collect_zdx_location` dual-source) — [`./web-privacy.md`](./web-privacy.md)
 - Azure VM / Machine Tunnel deployment — [`./azure-vm-deployment.md`](./azure-vm-deployment.md)
-- ZPA Access Policy (where entitled users still need rules to match) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
+- ZPA Access Policy (where entitled users still need rules to match) — [`zpa.policy`](kb:zpa.policy)
 - Forwarding Profile (where ZPA tunnel action is configured per network type) — [`./forwarding-profile.md`](./forwarding-profile.md)
 - ZCC API surface — [`./api.md`](./api.md)

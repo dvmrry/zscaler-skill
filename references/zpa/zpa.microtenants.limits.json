@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "zpa.microtenants.limits",
+  "title": "Microtenant limits and unsupported features",
+  "aliases": [
+    "microtenant limit",
+    "how many microtenants",
+    "microtenant prerequisites",
+    "features not supported in microtenant",
+    "microtenant disaster recovery",
+    "microtenant 24.63.1"
+  ],
+  "binds": [
+    "zpa/microtenants"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.isolation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The feature has a count limit, a version floor and a list of features it does not carry."
+    },
+    {
+      "label": "Limit.",
+      "text": "{{microtenant-limit}}"
+    },
+    {
+      "label": "Prerequisite.",
+      "text": "{{connector-versions}}"
+    },
+    {
+      "label": "Not supported.",
+      "text": "{{dr-unsupported}} {{default-only-features}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the feature the answer relies on is one of those supported only in the Default Microtenant.",
+      "uses": [
+        "default-only-features"
+      ]
+    },
+    {
+      "do": "Whether the deployment uses disaster recovery, which the Microtenants feature does not support.",
+      "uses": [
+        "dr-unsupported"
+      ]
+    },
+    {
+      "do": "The App Connector and Private Service Edge versions against the prerequisite.",
+      "uses": [
+        "connector-versions"
+      ]
+    },
+    {
+      "do": "The Microtenant count against the documented limit.",
+      "uses": [
+        "microtenant-limit"
+      ]
+    }
+  ],
+  "claims": {
+    "microtenant-limit": {
+      "statement": "The ranges and limitations article allows 100 Microtenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Microtenants | 100 Microtenants"
+          ]
+        }
+      ]
+    },
+    "connector-versions": {
+      "statement": "To configure a Microtenant, App Connectors and Private Service Edges for Private Access must be running version 24.63.1 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "To configure a Microtenant, App Connectors and Private Service Edges for Private Access must be running version 24.63.1 or later."
+          ]
+        }
+      ]
+    },
+    "dr-unsupported": {
+      "statement": "The Microtenants feature is not supported when disaster recovery is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "The Microtenants feature is not supported when disaster recovery is enabled."
+          ]
+        }
+      ]
+    },
+    "default-only-features": {
+      "statement": "These features are supported only for a Default Microtenant and not for a standard Microtenant: AI-Powered Recommendations for Application Segments, Application Segments Usage, AppProtection for Private Application Traffic, Authentication Service, Browser Access with CORS, Client Hostname Validation, Disaster Recovery, Extranet Application Support, Inspect Traffic with ZIA, Log Streaming Service, Source IP-Anchor enabled applications, VPN (for Legacy Apps), Zscaler Branch Connector and Zscaler Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "after": "Features Supported Only for a Default Microtenant but Not Supported for a Standard Microtenant",
+          "quotes": [
+            "AI-Powered Recommendations for Application Segments",
+            "Application Segments Usage",
+            "AppProtection for Private Application Traffic",
+            "Authentication Service",
+            "Browser Access with CORS",
+            "Client Hostname Validation",
+            "Disaster Recovery",
+            "Extranet Application Support",
+            "Inspect Traffic with ZIA",
+            "Log Streaming Service",
+            "Source IP-Anchor enabled applications",
+            "VPN (for Legacy Apps)",
+            "Zscaler Branch Connector",
+            "Zscaler Cloud Connector"
+          ]
+        }
+      ]
+    }
+  }
+}

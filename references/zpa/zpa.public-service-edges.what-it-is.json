@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "zpa.public-service-edges.what-it-is",
+  "title": "What a ZPA Public Service Edge is",
+  "aliases": [
+    "zpa public service edge",
+    "control service edge",
+    "zscaler public service edge for private access",
+    "public service edge scale",
+    "virtual service edge zpa",
+    "public service edge safe mode"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.public-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.what-it-is"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge.what-it-is"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Public Service Edge is the Zscaler-operated broker tier of Private Access, and it is not the ZIA product of the same name."
+    },
+    {
+      "label": "What it is.",
+      "text": "{{public-definition}} {{operator-role}} {{scale}} {{control-service-edge}}"
+    },
+    {
+      "label": "Function.",
+      "text": "A Public Service Edge brokers like a Private Service Edge: [[zpa.private-service-edges.what-it-is:broker-function]]. It does not inspect traffic: [[zpa.private-service-edges.what-it-is:no-inspection]]. Authentication of the edges and clients: [[zpa.private-service-edges.data-path:pki-roles]]. Active-active deployment: [[zpa.private-service-edges.deployment:active-active]]."
+    },
+    {
+      "label": "Logs.",
+      "text": "{{log-routing}}"
+    },
+    {
+      "label": "Not in ZPA.",
+      "text": "{{no-vse-in-zpa}}"
+    },
+    {
+      "label": "What is not captured.",
+      "text": "The failure behavior and Safe-mode are open {{gap:safe-mode}}, and so are caching and reconnect {{gap:ca-reconnect-semantics}}, client selection {{gap:public-selection}}, and a dedicated Public-tier article {{gap:no-public-help-page}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the question is about Private Access rather than Internet & SaaS, since the ZIA Public Service Edge and the ZIA Virtual Service Edge are other products.",
+      "uses": [
+        "no-vse-in-zpa",
+        "zpa.private-service-edges.what-it-is:separate-from-zia"
+      ]
+    },
+    {
+      "do": "Whether the question assumes an operator can deploy, configure or update a Public Service Edge; Zscaler maintains them.",
+      "uses": [
+        "public-definition",
+        "operator-role"
+      ]
+    },
+    {
+      "do": "Whether a scale or fail-safe behavior is asked about: the capture states the scale only, and fail-open or fail-closed behavior is not captured.",
+      "uses": [
+        "scale",
+        "ca-reconnect-semantics",
+        "safe-mode"
+      ]
+    }
+  ],
+  "claims": {
+    "public-definition": {
+      "statement": "Public Service Edges for Private Access are deployed in Zscaler data centers around the world; Zscaler maintains them and they are the cloud-based portion of the Private Access data forwarding path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-service-edges.json",
+          "quotes": [
+            "are deployed in Zscaler data centers around the world"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Maintained by Zscaler and deployed globally, Public Service Edges are the cloud-based portion of the Private Access data forwarding path"
+          ]
+        }
+      ]
+    },
+    "operator-role": {
+      "statement": "Zscaler maintains Public Service Edges; the organization manages Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "Private Service Edges act in the same capacity, but they are managed by an organization."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-service-edges.json",
+          "quotes": [
+            "Zscaler monitors and maintains its Service Edges to ensure continuous availability."
+          ]
+        }
+      ],
+      "conditions": "Statement changed from \"the organization does not deploy, configure or update a Public Service Edge\": nothing says the organization cannot do so. The two quoted sources state who maintains each tier."
+    },
+    "scale": {
+      "statement": "Public Service Edges for Private Access can handle hundreds of thousands of concurrent users with millions of concurrent sessions, and enforce access and reauthentication policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-service-edges.json",
+          "quotes": [
+            "can handle hundreds of thousands of concurrent users with millions of concurrent sessions.",
+            "Public Service Edges enforce access and reauthentication policies based on your organization"
+          ]
+        }
+      ]
+    },
+    "control-service-edge": {
+      "statement": "For any Microtunnel, the Control Service Edge is the Public Service Edge that handles cloud-level system messages to establish the M-Tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-service-edges.json",
+          "quotes": [
+            "the Control Service Edge is the Public Service Edge that handles cloud-level system messages to establish the M-Tunnel."
+          ]
+        }
+      ]
+    },
+    "log-routing": {
+      "statement": "Log data for Public Service Edges is exported to log routers, which direct it to the Log Streaming Service hosted in the geographic region for each organization; the Log Streaming Service analyzes events reported primarily by Public or Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-service-edges.json",
+          "quotes": [
+            "For Public Service Edges for Private Access, log routers direct the information to the Log Streaming Service (LSS) hosted in the appropriate geographical region for each organization."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-private-access-architecture.json",
+          "quotes": [
+            "by analyzing events reported, primarily by the Public Service Edges or Private Service Edges."
+          ]
+        }
+      ]
+    },
+    "no-vse-in-zpa": {
+      "statement": "Virtual Service Edge is an Internet & SaaS (ZIA) product; it does not appear in the ZPA parts of the Python SDK, the Go SDK or the Terraform provider, and ZPA's customer-deployed edge is the Private Service Edge.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-virtual-service-edges-internet-saas.json",
+          "quotes": [
+            "Watch a video about Virtual Service Edges for Internet & SaaS (ZIA)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edges.json",
+          "quotes": [
+            "Private Service Edges for Private Access (ZPA) are single-tenant instance brokers"
+          ]
+        }
+      ],
+      "conditions": "Absence: git grep -i \"virtual service edge\" at the pin of vendor/zscaler-sdk-python (zscaler/zpa), vendor/zscaler-sdk-go (zscaler/zpa) and vendor/terraform-provider-zpa returns nothing; the help capture for the Virtual Service Edge is an Internet & SaaS article."
+    }
+  },
+  "gaps": {
+    "safe-mode": {
+      "kind": "semantic",
+      "title": "Scale, Safe-mode and default URL-block behavior of the ZPA broker tier",
+      "status": "partial",
+      "former_ids": [
+        "zpa-58"
+      ],
+      "detail": "The scale statement is now supported by the ZPA page. Unverified legacy statement: per-second CA heartbeat, Safe-mode and default URL-block policy \"came from the ZIA page ... Whether any of those behaviors apply to the ZPA broker tier is unconfirmed.\" No ZPA page states them. Resolve with a ZPA-specific Public Service Edge article.",
+      "blocks": "describing failure behavior of the Public tier",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "ca-reconnect-semantics": {
+      "kind": "semantic",
+      "title": "Policy caching and Central Authority reconnect behavior of the Public tier",
+      "status": "open",
+      "former_ids": [
+        "zpa-59"
+      ],
+      "detail": "The Private Service Edge page says a Service Edge registers with the Private Access Cloud, downloads policy and caches path selection ({{broker-function}} in the Private subject), but no page gives cache invalidation, heartbeat cadence or fail-open or fail-closed behavior for the Public tier. Resolve with a ZPA-specific article.",
+      "blocks": "stating Public tier behavior when the control plane is unreachable",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "public-selection": {
+      "kind": "semantic",
+      "title": "How a client is assigned a Public Service Edge",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Selection: Automatic, by proximity / CA routing\" for the Public tier. The captures give App Connectors the nearest Public or Private Service Edge but do not describe client-to-Public-Service-Edge selection. See [[zpa.private-service-edges.client-selection]] for the Private-side levers. Resolve with the Private Access architecture documentation.",
+      "blocks": "explaining why a client landed on a given Public Service Edge",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "no-public-help-page": {
+      "kind": "semantic",
+      "title": "Dedicated ZPA Public Service Edge help page",
+      "status": "open",
+      "detail": "The pages help.zscaler.com/zpa/about-public-service-edges is not served by the capture tool; the Public tier description rests on the understanding-service-edges and architecture pages. Resolve if that article is published.",
+      "blocks": "citing a Public-tier-specific article",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

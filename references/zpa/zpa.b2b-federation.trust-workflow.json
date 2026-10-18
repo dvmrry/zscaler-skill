@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "zpa.b2b-federation.trust-workflow",
+  "title": "B2B Federation trust workflow and statuses",
+  "aliases": [
+    "generate access token federation",
+    "verify access token",
+    "send approval request",
+    "pending requests",
+    "federated partners page",
+    "federation token single use",
+    "pause terminate federation",
+    "token verified pending approval",
+    "federation token validity"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.b2b-federation.prerequisites"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.api-routes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.federate-applications"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Trust is built in three steps and then lives as a status on two pages."
+    },
+    {
+      "label": "Steps.",
+      "text": "{{both-admins-available}} {{three-steps}}"
+    },
+    {
+      "label": "Token.",
+      "text": "{{token-visible-once}} {{token-single-use}}"
+    },
+    {
+      "label": "Approval.",
+      "text": "{{verify-then-send}} {{pending-roles}} {{pending-needs-both}} {{partners-swap-roles}}"
+    },
+    {
+      "label": "Statuses.",
+      "text": "{{pending-statuses}} {{federated-statuses}} How these map to the API values is open {{gap:ui-api-status-mapping}}. The routes behind these steps are in [[zpa.b2b-federation.api-routes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which of the three steps the partners are at, and whether both admins were available within the Token Validity period.",
+      "uses": [
+        "both-admins-available",
+        "three-steps",
+        "token-visible-once"
+      ]
+    },
+    {
+      "do": "Whether the token was already used or expired, and whether a separate token was generated for each partner.",
+      "uses": [
+        "token-single-use"
+      ]
+    },
+    {
+      "do": "The status shown on the Pending Requests or Federated Partners page against the documented values.",
+      "uses": [
+        "pending-statuses",
+        "federated-statuses",
+        "ui-api-status-mapping",
+        "zpa.b2b-federation.api-routes:federation-state-status-meaning"
+      ]
+    },
+    {
+      "do": "Whether both partners approved after the token was verified.",
+      "uses": [
+        "verify-then-send",
+        "pending-needs-both",
+        "pending-roles"
+      ]
+    }
+  ],
+  "claims": {
+    "both-admins-available": {
+      "statement": "Both the host partner admin and guest partner admin must be available to complete the process within the designated Token Validity (In Hours) time range, and either business partner can initiate B2B Federation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-business-federation.json",
+          "quotes": [
+            "Prior to configuring B2B Federation, ensure that both the host partner admin and guest partner admin are available to complete the process within the designated Token Validity (In Hours) time range.",
+            "Any business partner (guest or host) can initiate B2B Federation."
+          ]
+        }
+      ]
+    },
+    "three-steps": {
+      "statement": "The console process has three steps: generate an access token and share it with the partner, verify the token and send an approval request to the partner, then approve the federation request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-business-federation.json",
+          "quotes": [
+            "1. Generate an access token and share it with the partner.",
+            "2. Verify the token, then send an approval request to the B2B partner.",
+            "3. Approve the federation request."
+          ]
+        }
+      ]
+    },
+    "token-visible-once": {
+      "statement": "The access token is valid for the time specified in the Token Validity (In Hours) field and is only visible once.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-business-federation.json",
+          "quotes": [
+            "The access token is valid for the time specified in the Token Validity (In Hours) field and is only visible once."
+          ]
+        }
+      ]
+    },
+    "token-single-use": {
+      "statement": "An access token can only be used once, is invalid if used or expired, and a separate token is required for each partner.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-business-federation.json",
+          "quotes": [
+            "An access token can only be used once, and is invalid if used or expired. Separate tokens are required for each partner."
+          ]
+        }
+      ]
+    },
+    "verify-then-send": {
+      "statement": "After the token is validated, Send Approval Request sends a request to the B2B partner admin and the pending request appears on the Pending Requests page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-business-federation.json",
+          "quotes": [
+            "After the token has been validated, click Send Approval Request. A request will be sent to the B2B partner admin, and the pending request appears on the Pending Requests page."
+          ]
+        }
+      ]
+    },
+    "pending-needs-both": {
+      "statement": "After an access token is verified, the host and guest partner must approve or deny the pending request on the Pending Requests page, and approved requests appear on the Federated Partners page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-pending-requests-partners.json",
+          "quotes": [
+            "After an access token is verified as part of the B2B Federation process, the host and guest partner must approve or deny the pending request on the Pending Requests page. After pending requests are approved, they appear on the Federated Partners page."
+          ]
+        }
+      ]
+    },
+    "pending-roles": {
+      "statement": "On a pending request the guest partner admin submits the tenant name and token details and the host partner admin reviews, validates, and approves or denies it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-pending-requests-partners.json",
+          "quotes": [
+            "The guest partner admin submits a request with relevant details (such as tenant name and token).",
+            "The host partner admin reviews, validates, and either approves or denies the federation request."
+          ]
+        }
+      ]
+    },
+    "pending-statuses": {
+      "statement": "The Pending Requests page shows the statuses Token Verified, Pending Approval and Pending Verification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-pending-requests-partners.json",
+          "quotes": [
+            "The status of the pending request (i.e., Token Verified, Pending Approval, Pending Verification)."
+          ]
+        }
+      ]
+    },
+    "federated-statuses": {
+      "statement": "A federated partner is a guest or host partner admin approved by two business partners, and the Federated Partners page shows its status as Active, Pause or Terminate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-federated-partners.json",
+          "quotes": [
+            "Federated partners are guest and host partner admins that have received approval by two business partners for Business-to-Business (B2B) Federation.",
+            "The status of the federated partner (i.e., Active, Pause, or Terminate)."
+          ]
+        }
+      ]
+    },
+    "partners-swap-roles": {
+      "statement": "After the process is completed, both partners can take the role of host partner or guest partner, depending on who owns the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-business-business-federation.json",
+          "quotes": [
+            "After the B2B Federation process is completed, both partners can take the role of host partner or guest partner, depending on who owns the application."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ui-api-status-mapping": {
+      "kind": "semantic",
+      "title": "How Token Verified and Terminate map to the API's states",
+      "status": "open",
+      "detail": "The console shows Token Verified, Pending Approval, Pending Verification, Active, Pause and Terminate, while the API reference lists provisioning statuses PENDING_VERIFICATION, PENDING_APPROVAL, APPROVED, DENIED and TERMINATED and federation statuses INACTIVE and ACTIVE. The federation-state parameter names Pause as INACTIVE (zpa.b2b-federation.api-routes:federation-state-status-meaning). Token Verified has no API counterpart, and Terminate is not matched to a named value (provisioning state TERMINATED is the nearest). A read of a pending request in both surfaces would settle the mapping.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "translating a console status into the API value to read or set"
+    }
+  }
+}

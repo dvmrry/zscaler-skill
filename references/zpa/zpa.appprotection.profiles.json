@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.profiles",
+  "title": "AppProtection profiles: control selection, paranoia level, actions and the default profile",
+  "aliases": [
+    "appprotection profile",
+    "paranoia level",
+    "recommended owasp top 10 profile",
+    "default appprotection profile read-only",
+    "override controls allow block redirect",
+    "cannot edit default profile appprotection",
+    "appprotection execution order"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.appprotection.controls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.api-surface"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.entitlement"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A profile is the unit a policy rule applies. {{profile-purpose}} {{control-mix}}"
+    },
+    {
+      "label": "Default profile.",
+      "text": "{{default-profile-ships}} {{default-profile-name}} {{default-profile-readonly}} {{default-profile-contents}} {{copy-profile}} What paranoia level the default profile is set to is open {{gap:default-profile-paranoia}}, as is whether a policy rule can use it directly {{gap:default-profile-direct-use}}."
+    },
+    {
+      "label": "Always-on controls.",
+      "text": "{{internal-error-block}}"
+    },
+    {
+      "label": "Paranoia level.",
+      "text": "{{paranoia-applies-to}} {{paranoia-range}} {{paranoia-false-positives}} {{custom-paranoia-1}} The profile API schema also carries a paranoia level on custom control items {{gap:custom-paranoia-schema}}. The log fields that record it are in [[zpa.appprotection.logging]]."
+    },
+    {
+      "label": "Execution order.",
+      "text": "{{execution-order}}"
+    },
+    {
+      "label": "Actions and overrides.",
+      "text": "{{override-modes}} {{action-choices}} {{override-all-for-auto-updates}}"
+    },
+    {
+      "label": "Versions and updates.",
+      "text": "{{owasp-version-per-profile}} {{threatlabz-subscription}}"
+    },
+    {
+      "text": "Controls themselves: [[zpa.appprotection.controls]]. Using a profile in a rule: [[zpa.appprotection.policy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which profile the rule uses, and whether it is the read-only default, a copy or a custom profile.",
+      "uses": [
+        "default-profile-name",
+        "default-profile-readonly",
+        "copy-profile"
+      ]
+    },
+    {
+      "do": "The profile's paranoia level and which control kinds it applies to.",
+      "uses": [
+        "paranoia-range",
+        "paranoia-applies-to",
+        "custom-paranoia-1"
+      ]
+    },
+    {
+      "do": "Which override mode is set, and the action each control ends up with.",
+      "uses": [
+        "override-modes",
+        "action-choices",
+        "override-all-for-auto-updates"
+      ]
+    },
+    {
+      "do": "Whether a blocked request matches an always-on Internal Error control that cannot be overridden.",
+      "uses": [
+        "internal-error-block"
+      ]
+    }
+  ],
+  "claims": {
+    "profile-purpose": {
+      "statement": "A profile determines how traffic is inspected and managed: it selects controls and the action taken for them, and is then added to an AppProtection policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "AppProtection profiles allow you to determine how traffic is inspected and managed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "After creating an AppProtection profile, you can add it to an AppProtection policy for the Private Access service to use."
+          ]
+        }
+      ]
+    },
+    "control-mix": {
+      "statement": "A profile can select OWASP predefined controls, custom controls, ThreatLabZ controls, WebSocket controls, API controls and Active Directory controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "choose from the OWASP Predefined Controls (use the latest version), Custom Controls, ThreatLabZ Controls, WebSocket Controls, API Controls, and Active Directory Controls you have defined."
+          ]
+        }
+      ]
+    },
+    "internal-error-block": {
+      "statement": "Every profile automatically has some OWASP predefined controls from the Internal Error category enabled, with the action Block, and that action cannot be overridden.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "All AppProtection profiles automatically have some OWASP predefined controls from the Internal Error category enabled. They have a default action of Block, and you cannot override the action."
+          ]
+        }
+      ]
+    },
+    "paranoia-applies-to": {
+      "statement": "A profile uses a paranoia level for API controls, ThreatLabZ predefined controls, OWASP predefined controls and WebSocket predefined controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "Each AppProtection profile uses a paranoia level if using API controls, ThreatLabZ predefined controls, Open Web Application Security Project (OWASP) predefined controls, or WebSocket predefined controls."
+          ]
+        }
+      ]
+    },
+    "paranoia-range": {
+      "statement": "The Predefined Paranoia Level is chosen from 1 to 4, with 1 described as the highest level of concern and 4 as the least.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "select a paranoia level from 1 to 4, with 1 being the highest level of concern and 4 being the least level of concern."
+          ]
+        }
+      ]
+    },
+    "paranoia-false-positives": {
+      "statement": "Higher paranoia levels check with a wide net of matches and raise the chance of false positives; lower levels use a precise set of matches and give fewer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "Higher paranoia levels execute checks using a wide net of matches that increases the potential for false positives. Lower paranoia levels execute checks using a precise set of matches resulting in fewer chances of false positives."
+          ]
+        }
+      ]
+    },
+    "custom-paranoia-1": {
+      "statement": "Custom controls, HTTP or WebSocket, have a paranoia level of 1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "Custom controls (either HTTP or WebSocket) have a paranoia level of 1."
+          ]
+        }
+      ]
+    },
+    "execution-order": {
+      "statement": "When a profile mixes custom and predefined controls, Private Access runs API controls first, then ThreatLabZ, then custom, then the other predefined controls (OWASP, Active Directory and WebSocket).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "Private Access runs API controls first, then ThreatLabZ controls, then custom controls, then other predefined controls (OWASP, Active Directory, and WebSocket)."
+          ]
+        }
+      ]
+    },
+    "override-modes": {
+      "statement": "A profile has three override modes, Override None, Override All Controls and Override Specific Controls; Override None is the default, and Specific can set a different action on each selected control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "This can be as exact as setting a different action for inspecting transaction traffic on each previously selected ThreatLabZ control, OWASP predefined control, WebSocket control, custom control, and API control.",
+            "Override None - No override action occurs for any of the controls. This is the default option.",
+            "Override Specific Controls - Select the override action for the specific API controls"
+          ]
+        }
+      ]
+    },
+    "action-choices": {
+      "statement": "The override actions are Allow, which lets the user proceed to the current URL, Block, which returns a 403 response code, and Redirect, which sends the user to a URL entered in the profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "**Allow**: The user is allowed to proceed with the current URL.",
+            "**Block**: The user receives a 403 response code.",
+            "**Redirect**: The user receives a different URL. Enter an alternative URL that the user is redirected to."
+          ],
+          "after": "Choose one of the standard override options for all of the API controls, ThreatLabZ Controls, OWASP predefined controls, WebSocket controls, and/or all custom controls:"
+        }
+      ]
+    },
+    "override-all-for-auto-updates": {
+      "statement": "A profile subscribed to automatic updates for ThreatLabZ controls can only use Override All Controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "If you subscribe to automatic updates for ThreatLabZ controls, you can only use the **Override All Controls** option."
+          ]
+        }
+      ]
+    },
+    "threatlabz-subscription": {
+      "statement": "Selecting ThreatLabZ controls offers an Automatically include new control on publish checkbox, and the profile table shows Subscribed to ThreatLabZ as Yes or No.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "you can select the **Automatically include new control on publish** checkbox"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "**Subscribed to ThreatLabZ**: If the AppProtection profile is subscribed to automatically add new ThreatLabZ predefined controls, **Yes** is displayed."
+          ]
+        }
+      ]
+    },
+    "owasp-version-per-profile": {
+      "statement": "The profile table shows the OWASP_CRS version selected for each profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "**OWASP_CRS Version**: The OWASP predefined control version selected for the AppProtection profile."
+          ]
+        }
+      ]
+    },
+    "default-profile-ships": {
+      "statement": "A default AppProtection profile is included with the setup of a Private Access account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "A default AppProtection profile is included with the setup of your Private Access (ZPA) account."
+          ]
+        }
+      ]
+    },
+    "default-profile-name": {
+      "statement": "The default profile is named Recommended OWASP Top 10 Profile in the AppProtection profile table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "It is named Recommended OWASP Top 10 Profile in the AppProtection profile table."
+          ]
+        }
+      ],
+      "conditions": "The legacy reference doc named it \"OWASP Top-10 for Visibility\". No captured source shows that name; treat it as an older name (likely a UI rename), not as proven wrong. The capture's name is used."
+    },
+    "default-profile-readonly": {
+      "statement": "The default profile cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "The default profile can't be edited or deleted."
+          ]
+        }
+      ]
+    },
+    "default-profile-contents": {
+      "statement": "Using the default template selects the recommended OWASP predefined and ThreatLabZ controls automatically, and some controls are excluded from it for higher efficacy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "When the default template is used, recommended controls for OWASP predefined controls and ThreatLabZ controls are automatically selected.",
+            "Some controls are excluded from the default AppProtection profile for higher efficacy."
+          ]
+        }
+      ]
+    },
+    "copy-profile": {
+      "statement": "The default profile is meant as a template for custom profiles, and any existing profile can be copied to create a new one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "Use the default profile as a template for custom AppProtection profiles.",
+            "Copy an existing AppProtection profile, and use it to create a new AppProtection profile."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "default-profile-paranoia": {
+      "kind": "data",
+      "title": "Paranoia level of the default Recommended OWASP Top 10 Profile",
+      "status": "open",
+      "detail": "Unverified legacy statement: the default profile has \"Paranoia Level 1 (conservative)\", \"permanently set to 1\", so tuning higher means cloning it. The profile pages say the default cannot be edited or deleted and do not state its paranoia level. A tenant read of the profile would resolve it.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "default-profile-direct-use": {
+      "kind": "semantic",
+      "title": "Whether a policy rule can use the default profile directly",
+      "status": "open",
+      "detail": "Unverified legacy statement: the default profile is \"Usable directly in policy rules; recommended starting point\". The help says to use it as a template for custom profiles and that a created profile can be added to a policy; it does not say the default itself is selectable in a rule.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "custom-paranoia-schema": {
+      "kind": "semantic",
+      "title": "Custom controls carry a paranoia level in the profile API schema",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Paranoia Level only applies to predefined controls. Custom HTTP / WebSocket controls don't use Paranoia Level — they're just on/off with a chosen action.\" The configuring page says custom controls have a paranoia level of 1, and the profile API schema has a paranoiaLevel member on customControls items. How a level of 1 on a custom control affects matching is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

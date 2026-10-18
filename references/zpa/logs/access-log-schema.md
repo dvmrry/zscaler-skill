@@ -212,8 +212,8 @@ Not vendored: Audit Logs, App Connector Status, Browser Access, Microsegmentatio
 ## Cross-links
 
 - SPL patterns (including the `segment-match-observed` pattern scoped to `Application` + `Connector` + `Policy`) — [`../../shared/splunk-queries.md`](../../shared/splunk-queries.md)
-- ZPA application segment matching (for interpreting the `Application` + `AppGroup` fields) — [`../app-segments.md`](../app-segments.md)
-- ZPA access policy precedence (for interpreting the `Policy` field) — [`../policy-precedence.md`](../policy-precedence.md)
+- ZPA application segment matching (for interpreting the `Application` + `AppGroup` fields) — [`zpa.app-segments`](kb:zpa.app-segments)
+- ZPA access policy precedence (for interpreting the `Policy` field) — [`zpa.policy`](kb:zpa.policy)
 
 ## Open questions
 

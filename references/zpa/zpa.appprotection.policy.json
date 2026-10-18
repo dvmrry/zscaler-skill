@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.policy",
+  "title": "AppProtection policy rules: actions, criteria and operators",
+  "aliases": [
+    "appprotection policy rule",
+    "inspect or bypass inspection",
+    "appprotection criteria",
+    "copy criteria from access policy",
+    "appprotection rule order",
+    "zpa inspection policy rule",
+    "appprotection policy limits"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.appprotection.profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.segment-opt-in"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.entitlement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A rule decides which traffic is inspected, and by which profile. {{rules-purpose}} {{rule-actions}}"
+    },
+    {
+      "label": "Order.",
+      "text": "{{rule-order-listed}} {{first-match}}"
+    },
+    {
+      "label": "Reusing access criteria.",
+      "text": "{{reuse-access-criteria}} Whether access policy and AppProtection policy are evaluated independently on one connection is open {{gap:independent-of-access-policy}}."
+    },
+    {
+      "label": "Criteria.",
+      "text": "{{criteria-all-match}} {{criteria-types}} {{condition-set-limits}}"
+    },
+    {
+      "label": "Operators.",
+      "text": "[[zpa.policy.conditions:or-within-most-criteria]] [[zpa.policy.conditions:and-within-some-criteria]]"
+    },
+    {
+      "label": "Combinations that are not allowed.",
+      "text": "{{client-type-exclusions}} {{cc-group-vs-saml}} [[zpa.machine-groups.policy-use:console-pairs-client-type]]"
+    },
+    {
+      "label": "Values.",
+      "text": "{{client-types}} {{platform-values}} {{auth-service-attributes}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{limits}}"
+    },
+    {
+      "text": "Profiles a rule can select: [[zpa.appprotection.profiles]]. The segment-side switch that makes traffic eligible: [[zpa.appprotection.segment-opt-in]]. Rule-order behavior of the Terraform provider is in [[zpa.terraform.rule-order]] and its write behavior in [[zpa.terraform.policy-rule-writes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The rule action, and the profile when the action is Inspect.",
+      "uses": [
+        "rule-actions"
+      ]
+    },
+    {
+      "do": "Whether the rule order in the console puts the rule ahead of the one expected to match.",
+      "uses": [
+        "rule-order-listed",
+        "first-match"
+      ]
+    },
+    {
+      "do": "Each criterion type on the rule and the operator between its values, since criteria must all match.",
+      "uses": [
+        "criteria-all-match",
+        "zpa.policy.conditions:or-within-most-criteria",
+        "zpa.policy.conditions:and-within-some-criteria"
+      ]
+    },
+    {
+      "do": "Exclusions: Web Browser and Internet & SaaS Service Edge client types with posture or trusted networks, Cloud Connector groups with SAML or SCIM, machine groups without Machine Tunnel.",
+      "uses": [
+        "client-type-exclusions",
+        "cc-group-vs-saml",
+        "zpa.machine-groups.policy-use:console-pairs-client-type"
+      ]
+    },
+    {
+      "do": "The rule count against the limits.",
+      "uses": [
+        "limits"
+      ]
+    }
+  ],
+  "claims": {
+    "rules-purpose": {
+      "statement": "AppProtection policy rules set up AppProtection controls for Private Access web applications, and apply a previously created profile with its actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-policy.json",
+          "quotes": [
+            "AppProtection policy rules allow you to set up AppProtection controls for Private Access (ZPA) web applications.",
+            "Apply a previously created AppProtection profile to a policy with the default actions (Allow, Block, or Redirect) set for each related AppProtection control."
+          ]
+        }
+      ]
+    },
+    "rule-actions": {
+      "statement": "A rule's action is Inspect or Bypass Inspection, and a profile is chosen for the rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-policy.json",
+          "quotes": [
+            "**Rule Action:** Indicates if the rule is to **Inspect** or **Bypass Inspection**."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "**AppProtection Profile**: Choose an AppProtection profile that is a security profile with a set of common or control specific actions."
+          ]
+        }
+      ]
+    },
+    "rule-order-listed": {
+      "statement": "Private Access applies AppProtection policy rules in the order they are listed, and the order number is changed by entering a new value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-policy.json",
+          "quotes": [
+            "**Rule Order:** The policy evaluation order number for the rule. Private Access applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering in a new value."
+          ]
+        }
+      ]
+    },
+    "first-match": {
+      "statement": "Private Access policy rules, a set that includes AppProtection policy, are evaluated top-down and the first matching rule is enforced.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-policies.json",
+          "quotes": [
+            "As soon as it finds a policy that matches the criteria that was specified in a rule, it enforces that policy rule and disregards all other rules that follow",
+            "AppProtection Policy: AppProtection policy rules allow you to create rules that define when application requests need to go through an AppProtection control."
+          ]
+        }
+      ],
+      "conditions": "The AppProtection pages say only that rules apply in listed order. First-match is stated by the general policy article, which lists AppProtection Policy among the policy types; it is applied here by that listing."
+    },
+    "reuse-access-criteria": {
+      "statement": "AppProtection policy works similarly to access policy, and a rule can copy its criteria from an existing access policy rule and then adjust them, which lets the two policies be matched up.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-policy.json",
+          "quotes": [
+            "AppProtection policies work similarly to access policies. You can reuse an existing access policy's criteria to create an AppProtection policy. This allows you to match up your AppProtection policies to your access policies."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "You can modify the criteria if you want to adjust it for this AppProtection policy rule."
+          ]
+        }
+      ]
+    },
+    "criteria-types": {
+      "statement": "The criteria types are Applications (segments and segment groups), Client Connector Posture Profiles, Client Connector Trusted Networks, Client Types, Cloud Connector Groups, External IAM IdP, Federated Applications, Machine Groups, Platforms, and SAML and SCIM Attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "Choose the application segments and segment groups to which this rule applies:",
+            "Choose the condition sets to which the rule applies.",
+            "Choose the trusted networks to which the rule applies",
+            "Choose the client types to which the rule applies",
+            "Choose the Cloud Connector groups to which the policy applies",
+            "To use External IAM IdP, select the IdP from the drop-down menu.",
+            "Select a partner and applications federated to the partner to which the policy applies:",
+            "Choose the Machine groups to which this rule applies",
+            "Choose the platforms to which the rule applies and click **Save**.",
+            "SAML and SCIM Attributes or Session and User Attributes"
+          ]
+        }
+      ]
+    },
+    "condition-set-limits": {
+      "statement": "A rule can have up to 10 condition sets, and up to 10 Client Connector Posture Profile condition sets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "You can add up to 10 condition sets.",
+            "You can add up to 10 **Client Connector Posture Profile** condition sets to the rule."
+          ]
+        }
+      ]
+    },
+    "client-types": {
+      "statement": "The valid client types are Client Connector, Cloud Browser, Cloud Connector, Machine Tunnel, Web Browser, and Internet & SaaS (ZIA) Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "The valid client types are:",
+            "**Cloud Browser**: To learn more, see What Is Zero Trust Browser?",
+            "**Machine Tunnel**: To learn more, see About Machine Tunnels.",
+            "**Web Browser**: To learn more, see About Browser Access.",
+            "**Internet & SaaS (ZIA) Service Edge**: To learn more, see Understanding Source IP Anchoring."
+          ]
+        }
+      ]
+    },
+    "client-type-exclusions": {
+      "statement": "A rule with the Web Browser or Internet & SaaS Service Edge client type cannot also use posture profile or trusted network criteria, which only work with Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "Rules using the **Web Browser** or **Internet & SaaS Service Edge** client types can not also use posture profiles or trusted networks criteria."
+          ]
+        }
+      ]
+    },
+    "cc-group-vs-saml": {
+      "statement": "The Cloud Connector Group criteria cannot be combined with SAML and SCIM Attributes criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "The Cloud Connector Group criteria type cannot be configured with the SAML and SCIM Attributes criteria type."
+          ]
+        }
+      ]
+    },
+    "platform-values": {
+      "statement": "The platform values are Windows, macOS, Linux, iOS and Android.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "The valid platform types are: - Windows - macOS - Linux - iOS - Android"
+          ]
+        }
+      ]
+    },
+    "auth-service-attributes": {
+      "statement": "With a subscription to Authentication Service for users, SAML and SCIM Attributes is replaced by Session and User Attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "If you are subscribed to Authentication Service for users, the **SAML and SCIM Attributes** criteria is replaced with **Session and User Attributes**."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "The limit for AppProtection policy is 500 policy rules, with 1,000 application segments per policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| AppProtection Policy | 500 policy rules1,000 application segments per policy rule |"
+          ]
+        }
+      ]
+    },
+    "criteria-all-match": {
+      "statement": "A user's application request must match all the conditions within an AppProtection policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-policy.json",
+          "quotes": [
+            "A user's application request must match all the conditions within a policy rule."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "independent-of-access-policy": {
+      "kind": "semantic",
+      "title": "How AppProtection policy evaluation relates to access policy on one connection",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Access Policy decides can this user reach this app; AppProtection decides is their traffic to that app malicious. Both fire on the same connection.\" The captured pages say AppProtection policy works similarly to access policy and can reuse its criteria, and do not describe the evaluation relationship. A lab test of a blocked access rule with a matching Inspect rule would show it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

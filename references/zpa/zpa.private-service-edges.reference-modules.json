@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.reference-modules",
+  "title": "Reference Terraform modules for Private Service Edges on AWS and Azure",
+  "aliases": [
+    "terraform aws private service edge module",
+    "terraform azure private service edge module",
+    "pse asg",
+    "pse vmss",
+    "pse onboarding_method",
+    "psevm_instance_type",
+    "module defaults private service edge"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The reference modules deploy Private Service Edge VMs and wrap the group resource."
+    },
+    {
+      "label": "Instances.",
+      "text": "{{aws-instance-type}} {{azure-instance-size}} {{aws-asg-defaults}} {{azure-vmss-defaults}}"
+    },
+    {
+      "label": "Onboarding.",
+      "text": "{{aws-oauth-default}} {{azure-oauth-default}} The enrollment mechanics are in [[zpa.private-service-edges.enrollment]]."
+    },
+    {
+      "label": "Group wrapper.",
+      "text": "{{wrapper-defaults}} Grace distance and DR mode are not exposed {{gap:wrapper-omits-grace-dr}}."
+    },
+    {
+      "label": "Not quoted.",
+      "text": "The AWS network and IAM resources are unverified {{gap:aws-security-iam}}, as is the example catalog {{gap:example-catalog}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which instance type or size the module deploys, since the AWS and Azure defaults differ.",
+      "uses": [
+        "aws-instance-type",
+        "azure-instance-size"
+      ]
+    },
+    {
+      "do": "Which onboarding method the module used; both default to OAuth2 user codes.",
+      "uses": [
+        "aws-oauth-default",
+        "azure-oauth-default"
+      ]
+    },
+    {
+      "do": "Whether the group wrapper sets grace distance or DR mode, which it does not expose.",
+      "uses": [
+        "wrapper-defaults",
+        "wrapper-omits-grace-dr"
+      ]
+    }
+  ],
+  "claims": {
+    "aws-instance-type": {
+      "statement": "The AWS Private Service Edge VM module defaults to m5.large and validates the type against t3.xlarge, m5.large, m5.xlarge, m5.2xlarge and m5.4xlarge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-service-edge",
+          "path": "modules/terraform-zspse-psevm-aws/variables.tf",
+          "quotes": [
+            "default     = \"m5.large\"",
+            "var.psevm_instance_type == \"t3.xlarge\" ||"
+          ]
+        }
+      ]
+    },
+    "aws-asg-defaults": {
+      "statement": "The AWS Auto Scaling Group module defaults to a minimum of 2, a maximum of 4 and a 50 percent average-CPU target.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-service-edge",
+          "path": "modules/terraform-zspse-asg-aws/variables.tf",
+          "quotes": [
+            "description = \"Mininum number of Service Edges to maintain in Autoscaling group\"\n  default     = 2",
+            "description = \"Maxinum number of Service Edges to maintain in Autoscaling group\"\n  default     = 4",
+            "default     = 50"
+          ]
+        }
+      ]
+    },
+    "azure-instance-size": {
+      "statement": "The Azure Private Service Edge VM module defaults to Standard_D4s_v3 and validates the size against Standard_D2s_v3, Standard_D4s_v3 and Standard_F4s_v2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-zpa-service-edge",
+          "path": "modules/terraform-zpse-vm-azure/variables.tf",
+          "quotes": [
+            "default     = \"Standard_D4s_v3\"",
+            "var.psevm_instance_type == \"Standard_F4s_v2\""
+          ]
+        }
+      ]
+    },
+    "azure-vmss-defaults": {
+      "statement": "The Azure VMSS example defaults to a minimum of 2 and a maximum of 10 Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-zpa-service-edge",
+          "path": "examples/pse_vmss/variables.tf",
+          "quotes": [
+            "description = \"Minimum number of Private Service Edges in the scale set.\"\n  default     = 2",
+            "description = \"Maximum number of Private Service Edges in the scale set.\"\n  default     = 10"
+          ]
+        }
+      ]
+    },
+    "aws-oauth-default": {
+      "statement": "The AWS modules default to OAuth2 user-code onboarding, relaying each VM's code through AWS SSM Parameter Store, and require the ZPA Terraform provider 4.4.0 or later for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-service-edge",
+          "path": "README.md",
+          "quotes": [
+            "**Default (recommended)**",
+            "publishes the code to **AWS SSM Parameter Store**.",
+            "This module requires the ZPA Terraform provider `>= 4.4.0` for OAuth2 user-code onboarding."
+          ]
+        }
+      ]
+    },
+    "azure-oauth-default": {
+      "statement": "The Azure VMSS example defaults onboarding_method to \"oauth\", relaying user codes through Azure Key Vault, and \"provisioning_key\" selects the legacy flow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-zpa-service-edge",
+          "path": "examples/pse_vmss/variables.tf",
+          "quotes": [
+            "default     = \"oauth\"",
+            "\\\"provisioning_key\\\" uses the legacy provisioning key flow."
+          ]
+        }
+      ]
+    },
+    "wrapper-defaults": {
+      "statement": "The AWS group wrapper defaults pse_group_enabled to true, pse_is_public to false, pse_group_upgrade_time_in_secs to \"66600\" and pse_group_override_version_profile to false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-zpa-service-edge",
+          "path": "modules/terraform-zpa-service-edge-group/variables.tf",
+          "quotes": [
+            "description = \"Whether this Private Service Edge Group is enabled or not\"\n  default     = true",
+            "Whether the default version profile of the Private Service Edge Group is applied or overridden. Default: false",
+            "default     = \"66600\""
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "wrapper-omits-grace-dr": {
+      "kind": "semantic",
+      "title": "Wrapper coverage of grace distance and DR mode",
+      "status": "open",
+      "detail": "A search of the group wrapper files of both modules for grace_distance and use_in_dr finds no match, so the wrappers do not expose those provider arguments. The absence rests on that search only; confirm against the current module release. Unverified legacy statement: operators needing them must extend the module or use the raw resource.",
+      "blocks": "advising module users on grace distance or DR mode",
+      "resolves_with": [
+        "code-read"
+      ]
+    },
+    "aws-security-iam": {
+      "kind": "semantic",
+      "title": "AWS module security groups and IAM policy",
+      "status": "open",
+      "detail": "Unverified legacy statement: the security group module opens TCP/22, TCP/443 and UDP/443 from the VPC CIDR (or 0.0.0.0/0 when public), and the IAM module attaches an inline SSM policy granting PutParameter, AddTagsToResource, GetParameter and DeleteParameter on parameter/zpa/oauth-tokens/*. The module files were not quoted in this conversion. Resolve by reading modules/terraform-zspse-sg-aws and terraform-zspse-iam-aws.",
+      "blocks": "firewall and permission guidance from the module",
+      "resolves_with": [
+        "code-read"
+      ]
+    },
+    "example-catalog": {
+      "kind": "semantic",
+      "title": "Example configurations shipped with the modules",
+      "status": "open",
+      "detail": "Unverified legacy statement: AWS examples base, base_pse, base_pse_asg, pse, pse_asg and Azure examples base, base_pse, pse, base_pse_vmss, pse_vmss, with greenfield or brownfield scope. Resolve by reading each examples/README.md.",
+      "blocks": "choosing an example",
+      "resolves_with": [
+        "code-read"
+      ]
+    }
+  }
+}

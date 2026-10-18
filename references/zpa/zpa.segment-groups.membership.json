@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "id": "zpa.segment-groups.membership",
+  "title": "Which application segments belong to a segment group",
+  "aliases": [
+    "segment_group_id",
+    "application segment without a segment group",
+    "move segment between groups",
+    "empty segment group",
+    "delete segment group with members",
+    "one segment group per application segment"
+  ],
+  "binds": [
+    "zpa/segment-groups#applications",
+    "zpa/application-segments#segmentGroupId",
+    "zpa/segment-groups#addedApps",
+    "zpa/segment-groups#deletedApps"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.segment-groups.policy-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.delete-paths"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.definition"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers how application segments belong to segment groups and what changes when a group is deleted."
+    },
+    {
+      "label": "Why groups exist.",
+      "text": "{{required-for-every-segment}} {{group-purpose}}"
+    },
+    {
+      "label": "One group per segment.",
+      "text": "{{one-group-per-segment}} {{reference-fields}} {{v2-delta-fields}} How the service reflects a change on both sides is open {{gap:membership-write-semantics}}."
+    },
+    {
+      "label": "Creating segments and empty groups.",
+      "text": "{{segment-group-id-requirements}} What the service does with the omission is open {{gap:omitted-segment-group-id}}. {{tf-create-needs-name-only}} {{empty-group-rule-noop}}"
+    },
+    {
+      "label": "Deleting a group.",
+      "text": "{{tf-delete-detaches-sdk-does-not}} {{sdk-delete-leaves-operands}} What a rule does with a stale operand is open {{gap:stale-operand-behavior}}, and so is what happens to former members {{gap:delete-group-with-members}}. The provider's cleanup order and failure handling are in [[zpa.terraform.delete-paths]] and [[zpa.terraform.policy-rule-writes:cleanup-rewrites-rule-from-converter]]."
+    },
+    {
+      "text": "Rule semantics for groups: [[zpa.segment-groups.policy-use]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application segment has a segmentGroupId and the group holds it, since a rule can only reach a segment through its group.",
+      "uses": [
+        "required-for-every-segment",
+        "reference-fields",
+        "zpa.segment-groups.policy-use:criterion-checks-segment-or-group"
+      ]
+    },
+    {
+      "do": "Whether another group already holds the segment, since a segment cannot be in two groups.",
+      "uses": [
+        "one-group-per-segment"
+      ]
+    },
+    {
+      "do": "Whether a group deleted outside Terraform still has APP_GROUP operands in policy rules.",
+      "uses": [
+        "tf-delete-detaches-sdk-does-not",
+        "sdk-delete-leaves-operands",
+        "stale-operand-behavior"
+      ]
+    },
+    {
+      "do": "Whether a rule's only application criterion is an empty group.",
+      "uses": [
+        "empty-group-rule-noop"
+      ]
+    }
+  ],
+  "claims": {
+    "required-for-every-segment": {
+      "statement": "Every application segment you configure must be placed in a segment group, which is what allows access policies to be configured on segment groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-segment-groups.json",
+          "quotes": [
+            "You must place each application segment you configure into a segment group. This allows you to configure user access policies based on segment groups."
+          ]
+        }
+      ]
+    },
+    "one-group-per-segment": {
+      "statement": "An application segment cannot be assigned to more than one segment group: an application placed in one group cannot be added to another.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-segment-groups.json",
+          "quotes": [
+            "However, you cannot assign an application segment to multiple segment groups. For example, if you place Salesforce in the Sales Applications group, you cannot add Salesforce to another group."
+          ]
+        }
+      ]
+    },
+    "group-purpose": {
+      "statement": "Segment groups logically group application segments for easier management and give access policy configuration a layer of abstraction, and a group can be added or modified while configuring an application segment or manually at any time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-segment-groups.json",
+          "quotes": [
+            "Logically group application segments together for easier management.",
+            "Provide a layer of abstraction to simplify access policy configuration.",
+            "You can add or modify a segment group while configuring an application segment, or you can do so manually at any time."
+          ]
+        }
+      ]
+    },
+    "reference-fields": {
+      "statement": "The membership is recorded on both objects: an application segment holds `segmentGroupId` and a segment group holds an `applications` list.",
+      "tier": "A",
+      "binds": [
+        "zpa/segment-groups#applications",
+        "zpa/application-segments#segmentGroupId"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "SegmentGroupID string `json:\"segmentGroupId\"`"
+          ],
+          "after": "type ApplicationSegmentResource struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "Applications []Application `json:\"applications\"`"
+          ]
+        }
+      ]
+    },
+    "v2-delta-fields": {
+      "statement": "The v2 segment group update body carries `addedApps` and `deletedApps` lists of IDs.",
+      "tier": "A",
+      "binds": [
+        "zpa/segment-groups#addedApps",
+        "zpa/segment-groups#deletedApps"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/addedApps",
+          "expect": {
+            "items": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/deletedApps",
+          "expect": {
+            "items": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "segment-group-id-requirements": {
+      "statement": "The Python `add_segment` documents `segment_group_id` as required, while the Terraform `zpa_application_segment` schema declares it optional and computed.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#segmentGroupId"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "quotes": [
+            "segment_group_id (str): **Required**. Unique identifier for the segment group."
+          ],
+          "after": "def add_segment(self, **kwargs)"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "Computed: true,"
+          ],
+          "after": "\"segment_group_id\": {"
+        }
+      ]
+    },
+    "tf-delete-detaches-sdk-does-not": {
+      "statement": "The Terraform segment group resource detaches the group from policy rules before it deletes the group, while the Go and Python SDK delete functions issue only the DELETE request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "http_method = \"delete\".upper()"
+          ],
+          "after": "def delete_group(self, group_id: str, microtenant_id: str = None)"
+        }
+      ]
+    },
+    "sdk-delete-leaves-operands": {
+      "statement": "A segment group deleted through the SDK or the API directly can leave `APP_GROUP` operands for its ID in policy rules, because the cleanup that removes them exists only in the Terraform delete path.",
+      "tier": "B",
+      "conditions": "Chain of evidence: the cleanup is in the provider, not the SDK delete. Assumes the service does not remove the operands itself, which no source states (see stale-operand-behavior).",
+      "derived_from": [
+        "tf-delete-detaches-sdk-does-not"
+      ],
+      "gaps": [
+        "stale-operand-behavior"
+      ]
+    },
+    "empty-group-rule-noop": {
+      "statement": "A rule whose only application criterion is a segment group with no application segments has nothing to match through that criterion.",
+      "tier": "B",
+      "conditions": "Chain of evidence: the criterion is evaluated by checking whether the requested segment or its segment group is present; a group with no members is the group of no segment. The evaluation of an empty group is not stated by any source.",
+      "derived_from": [
+        "zpa.policy.conditions:segment-or-group-or"
+      ]
+    },
+    "tf-create-needs-name-only": {
+      "statement": "The Terraform `zpa_segment_group` resource needs only a `name`, so a group with no application segments is a valid configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_segment_group.md",
+          "quotes": [
+            "`name` - (String) Name of the segment group."
+          ],
+          "after": "### Required"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "membership-write-semantics": {
+      "kind": "semantic",
+      "title": "How a membership change on one side is reflected on the other",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether reassigning segment_group_id on a segment updates both groups' applications lists",
+      "detail": "Unverified legacy statements: adding a segment to a group updates both the segment's segment_group_id and the group's applications list; reassigning segment_group_id removes the entry from the old group and adds it to the new one. The sources show both fields and the v2 addedApps and deletedApps lists but not the service's write behavior. Reassign one segment and read both groups."
+    },
+    "delete-group-with-members": {
+      "kind": "semantic",
+      "title": "What happens to application segments when their segment group is deleted",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether the segments are rejected, orphaned or reassigned",
+      "detail": "Unverified legacy statement: segments formerly in a deleted group are not deleted but are orphaned, their segment_group_id pointing to a nonexistent object. No captured source describes the service's behavior. Delete a group that has members in a scratch tenant and read one former member."
+    },
+    "stale-operand-behavior": {
+      "kind": "semantic",
+      "former_ids": [
+        "sg-02"
+      ],
+      "title": "What a policy rule does when an APP_GROUP operand names a deleted segment group",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether such a rule errors on read, never matches, or has the operand dropped",
+      "detail": "Whether the API returns an error on read, evaluates the rule as no match, or silently drops the operand is not stated. Unverified legacy statement: the rule may fail to match, or the platform may ignore the dangling reference at evaluation time. Create a rule, delete the group through the API, then read and exercise the rule."
+    },
+    "omitted-segment-group-id": {
+      "kind": "semantic",
+      "title": "What the service does with a segment created without a segment group",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a Terraform segment without segment_group_id is created and silently unreachable",
+      "detail": "Unverified legacy statement: Terraform does not error when segment_group_id is omitted, the API accepts the segment, and no APP_GROUP rule can target it, so users cannot reach the application. The sources show the Terraform schema accepting the omission and the help requiring a group, not the service outcome."
+    }
+  }
+}

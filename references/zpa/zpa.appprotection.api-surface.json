@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.api-surface",
+  "title": "AppProtection through the API and the Python SDK: versions, Active Directory controls, attach and detach",
+  "aliases": [
+    "app_protection python sdk",
+    "predefined_controls_version OWASP_CRS 3.3.0",
+    "list_predef_controls version required",
+    "list_predef_control_adp",
+    "ADP_PREDEFINED",
+    "associateAllPredefinedControls",
+    "inspectionControls api"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.appprotection.naming"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.controls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.active-directory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.segment-opt-in"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The profile and control calls are the programmable form of [[zpa.appprotection.profiles]] and [[zpa.appprotection.controls]]. Names in the SDK and API follow [[zpa.appprotection.naming]]."
+    },
+    {
+      "label": "Versions.",
+      "text": "{{sdk-default-version}} {{supported-versions}} The console default differs {{divergence:sdk-default-vs-console}}."
+    },
+    {
+      "label": "Active Directory controls.",
+      "text": "{{adp-endpoint}} {{adp-control-type}}"
+    },
+    {
+      "label": "Attach and detach.",
+      "text": "{{attach-detach}}"
+    },
+    {
+      "label": "Valid values.",
+      "text": "{{enum-endpoints}} {{action-enum}}"
+    },
+    {
+      "label": "Go.",
+      "text": "{{go-segment-package}} Go SDK and Terraform defects are in [[zpa.sdk-go.service-defects]] and [[zpa.terraform.app-segment-lifecycle]]. The per-segment switch through the SDK is in [[zpa.appprotection.segment-opt-in]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The predefined_controls_version the profile call sends, since the Python SDK default is not the console default.",
+      "uses": [
+        "sdk-default-version",
+        "supported-versions"
+      ]
+    },
+    {
+      "do": "Whether the Active Directory controls are reached through the adp endpoint and the ADP_PREDEFINED control type.",
+      "uses": [
+        "adp-endpoint",
+        "adp-control-type"
+      ]
+    },
+    {
+      "do": "Which attach or detach endpoint matches the intended direction.",
+      "uses": [
+        "attach-detach"
+      ]
+    }
+  ],
+  "claims": {
+    "sdk-default-version": {
+      "statement": "In the Python SDK, add_profile and update_profile default predefined_controls_version to OWASP_CRS/3.3.0, and profile_control_attach defaults its version to OWASP_CRS/3.3.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "version = kwargs.pop(\"predefined_controls_version\", \"OWASP_CRS/3.3.0\")"
+          ],
+          "after": "def add_profile(self, **kwargs) -> APIResult[dict]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "version = kwargs.pop(\"predefined_controls_version\", \"OWASP_CRS/3.3.0\")"
+          ],
+          "after": "def update_profile(self, profile_id: str, **kwargs) -> APIResult[dict]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "payload = {\"version\": kwargs.pop(\"profile_version\", \"OWASP_CRS/3.3.0\")}"
+          ]
+        }
+      ]
+    },
+    "supported-versions": {
+      "statement": "list_predef_controls requires a version in query_params and accepts OWASP_CRS/4.8.0, OWASP_CRS/3.3.5 and OWASP_CRS/3.3.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "SUPPORTED = {\"OWASP_CRS/4.8.0\", \"OWASP_CRS/3.3.5\", \"OWASP_CRS/3.3.0\"}",
+            "'version' is required in query_params"
+          ]
+        }
+      ]
+    },
+    "adp-endpoint": {
+      "statement": "list_predef_control_adp calls inspectionControls/predefined/adp, which the API names Get Predefined Ad Controls and describes as returning the predefined ADP inspection controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "/inspectionControls/predefined/adp"
+          ],
+          "after": "def list_predef_control_adp(self, query_params: Optional[dict] = None) -> APIResult[PredefinedInspectionControlResource]:"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionControls~1predefined~1adp/get",
+          "expect": {
+            "operationId": "Get Predefined Ad Controls",
+            "description": "Gets all predefined ADP inspection controls for the specified customer."
+          }
+        }
+      ]
+    },
+    "adp-control-type": {
+      "statement": "The control types in an AppProtection profile include ADP_PREDEFINED alongside API_PREDEFINED, PREDEFINED, THREATLABZ, CUSTOM and the two WebSocket types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile/post/requestBody/content/application~1json/schema/properties/controlsInfo/items/properties/controlType",
+          "expect": {
+            "enum": [
+              "WEBSOCKET_PREDEFINED",
+              "WEBSOCKET_CUSTOM",
+              "THREATLABZ",
+              "CUSTOM",
+              "PREDEFINED",
+              "API_PREDEFINED",
+              "ADP_PREDEFINED"
+            ]
+          }
+        }
+      ]
+    },
+    "attach-detach": {
+      "statement": "Attaching all predefined controls to a profile is a PUT to associateAllPredefinedControls and detaching is a PUT to deAssociateAllPredefinedControls, and the Python profile_control_attach chooses between them by its action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile~1{inspectionProfileId}~1associateAllPredefinedControls/put",
+          "expect": {
+            "operationId": "Associate All Predefined Controls"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionProfile~1{inspectionProfileId}~1deAssociateAllPredefinedControls/put",
+          "expect": {
+            "operationId": "De Associate All Predefined Controls"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_protection.py",
+          "quotes": [
+            "/inspectionProfile/{profile_id}/associateAllPredefinedControls",
+            "/inspectionProfile/{profile_id}/deAssociateAllPredefinedControls"
+          ]
+        }
+      ]
+    },
+    "enum-endpoints": {
+      "statement": "The API serves the valid control action types, severity types and control types from actionTypes, severityTypes and controlTypes endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionControls~1actionTypes/get",
+          "expect": {
+            "operationId": "Get Inspection Control Action Types"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionControls~1severityTypes/get",
+          "expect": {
+            "operationId": "Get Inspection Control Severity Types"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionControls~1controlTypes/get",
+          "expect": {
+            "operationId": "Get Inspection Control Types"
+          }
+        }
+      ]
+    },
+    "action-enum": {
+      "statement": "The API action enum for controls is PASS, BLOCK, REDIRECT and ALLOW.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1inspectionControls~1predefined~1adp/get/responses/200/content/application~1json/schema/items/properties/predefinedInspectionControls/items/properties/action",
+          "expect": {
+            "enum": [
+              "PASS",
+              "BLOCK",
+              "REDIRECT",
+              "ALLOW"
+            ]
+          }
+        }
+      ]
+    },
+    "go-segment-package": {
+      "statement": "The Go SDK has an applicationsegmentinspection package for inspection application segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "package applicationsegmentinspection"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sdk-default-vs-console": {
+      "summary": "The Python SDK defaults a new profile to OWASP_CRS/3.3.0 while the console shows OWASP_CRS/4.8.0 by default.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/app_protection.py",
+            "quotes": [
+              "version = kwargs.pop(\"predefined_controls_version\", \"OWASP_CRS/3.3.0\")"
+            ],
+            "after": "def add_profile(self, **kwargs) -> APIResult[dict]:"
+          },
+          "says": "add_profile uses OWASP_CRS/3.3.0 unless predefined_controls_version is passed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-appprotection-controls.json",
+            "quotes": [
+              "By default, the version is set to **OWASP_CRS/4.8.0**."
+            ]
+          },
+          "says": "The OWASP predefined controls page is on OWASP_CRS/4.8.0 by default."
+        }
+      ],
+      "impact": "A profile created through the Python SDK without an explicit version selects the 3.3.0 predefined controls, so it can differ from one created in the console. Pass predefined_controls_version explicitly."
+    }
+  }
+}

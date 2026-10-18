@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "id": "zpa.saml-attributes.policy-criteria",
+  "title": "How SAML attributes act as policy criteria",
+  "aliases": [
+    "saml criteria in access policy",
+    "any saml attribute",
+    "saml attributes for policy",
+    "saml rule never matches",
+    "multiple idp policy",
+    "saml log streaming criteria"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.saml-attributes.registration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.conditions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.policy-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "SAML attributes act in policy as criteria on a rule."
+    },
+    {
+      "label": "Choosing criteria.",
+      "text": "{{idp-selection}} {{attribute-value-entry}} Leaving the attribute unselected is covered in [[zpa.policy.conditions:blank-criteria-mean-any]], and the exclusion with Cloud Connector Groups in [[zpa.policy.criteria:cloud-connector-groups-exclude-saml]]."
+    },
+    {
+      "label": "Combining.",
+      "text": "Default operators are in [[zpa.policy.conditions:or-within-most-criteria]]. {{idp-scope}} {{other-idp-no-match}} {{multi-idp-and-advice}}"
+    },
+    {
+      "label": "IdP setting.",
+      "text": "{{idp-setting-required}} What a disabled setting does to a rule is in [[zpa.policy.criteria:idp-policy-setting-disabled]]. The same setting exists for SCIM in [[zpa.scim.policy-criteria]]."
+    },
+    {
+      "label": "Other uses and renames.",
+      "text": "{{streaming-criteria}} {{auth-service-replaces-criteria}}"
+    },
+    {
+      "label": "In Terraform.",
+      "text": "{{operand-form}} {{v1-validates-lookup}} {{mixed-block-gui}} Sharing a block with SCIM groups is in [[zpa.policy.conditions:saml-scim-group-share-block]], and rule-writing defects of the provider are in [[zpa.terraform.policy-rule-writes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which IdP the user authenticated with, and whether the rule's SAML criteria were chosen under that IdP.",
+      "uses": [
+        "idp-scope",
+        "other-idp-no-match",
+        "idp-selection"
+      ]
+    },
+    {
+      "do": "Whether the IdP's SAML Attributes for Policy setting is enabled, and what operator the rule uses, since a disabled setting skips the criteria under OR and stops the rule being evaluated under AND.",
+      "uses": [
+        "idp-setting-required",
+        "zpa.policy.criteria:idp-policy-setting-disabled"
+      ]
+    },
+    {
+      "do": "Whether the rule joins criteria or IdPs with AND where OR was intended, since OR is the default.",
+      "uses": [
+        "zpa.policy.conditions:or-within-most-criteria",
+        "multi-idp-and-advice"
+      ]
+    },
+    {
+      "do": "Whether the tenant has Authentication Service, which changes the criteria names the rule shows.",
+      "uses": [
+        "auth-service-replaces-criteria"
+      ]
+    },
+    {
+      "do": "For a Terraform-managed rule, which resource generation wrote it and whether the lhs is the attribute ID rather than the attribute name.",
+      "uses": [
+        "operand-form",
+        "v1-validates-lookup"
+      ]
+    },
+    {
+      "do": "Whether a rule mixing SAML with other object types was re-saved in the console.",
+      "uses": [
+        "mixed-block-gui",
+        "zpa.policy.conditions:saml-scim-group-share-block"
+      ]
+    }
+  ],
+  "claims": {
+    "idp-selection": {
+      "statement": "A rule's SAML and SCIM criteria are chosen per IdP: the admin selects the IdP configuration, which must be configured for User SSO, selects more than one IdP when needed, and then picks the criteria, which appear under SAML and SCIM Attributes and the IdP name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "The IdP must be configured for User SSO.",
+            "If you need to include multiple IdPs in the policy rule, click Select IdP again.",
+            "These criteria appear under SAML and SCIM Attributes > <IdP Name>, where <IdP Name> is the name of the IdP configuration you selected in step a."
+          ]
+        }
+      ]
+    },
+    "attribute-value-entry": {
+      "statement": "After a specific SAML attribute is chosen for a rule, the SAML attribute value, meaning the users to whom the rule applies, is entered in a text field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "After you make a selection, enter the SAML attribute value (i.e., the users to whom the rule applies) in the text field that appears."
+          ]
+        }
+      ]
+    },
+    "idp-scope": {
+      "statement": "In a rule that selects several IdPs, each IdP carries its own criteria, and a user authenticating from one IdP is matched by that IdP's criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "In this case, the policy rule applies to a user authenticating from the first IdP if they have the specified First Name OR Last Name or it applies to any user authenticating from the second IdP."
+          ]
+        }
+      ]
+    },
+    "other-idp-no-match": {
+      "statement": "A user who authenticates through one IdP is not matched by attribute criteria chosen only under a different IdP, even when an attribute there has the same name.",
+      "tier": "B",
+      "derived_from": [
+        "idp-scope"
+      ],
+      "conditions": "Follows from criteria being chosen per IdP and applying to users authenticating from that IdP. The identical-name case is not shown in a source."
+    },
+    "multi-idp-and-advice": {
+      "statement": "Zscaler recommends not using the AND operator between policy rules when the SSO configuration includes SAML or SCIM attributes from multiple IdPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "If your IdP configuration for SSO includes SAML attributes or SCIM attributes from multiple IdPs, Zscaler recommends that you do not use the AND Boolean operator between policy rules."
+          ]
+        }
+      ]
+    },
+    "idp-setting-required": {
+      "statement": "For Private Access to process SAML and SCIM criteria in a rule, the SAML Attributes for Policy setting must be enabled for SAML and the SCIM Attributes and Groups for Policy setting for SCIM on the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "In order for Private Access to process SAML and SCIM criteria in a rule, you must enable the SAML Attributes for Policy setting for SAML and the SCIM Attributes and Groups for Policy setting for SCIM when configuring an IdP."
+          ]
+        }
+      ]
+    },
+    "auth-service-replaces-criteria": {
+      "statement": "With a subscription to Authentication Service and the feature enabled, the SAML and SCIM Attributes criteria is replaced by Session and User Attributes, and the SAML Attributes option by Session Attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "If you are subscribed to Authentication Service and have this feature enabled for your tenant, the SAML and SCIM Attributes criteria is replaced with Session and User Attributes.",
+            "the SAML Attributes option is replaced with Session Attributes."
+          ]
+        }
+      ]
+    },
+    "streaming-criteria": {
+      "statement": "SAML attributes can also be used to define a streaming policy when configuring a log receiver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "Define a streaming policy when configuring a log receiver."
+          ]
+        }
+      ]
+    },
+    "operand-form": {
+      "statement": "In the Terraform provider a SAML criterion is an operand with object_type SAML whose lhs is the SAML attribute's ID (the zpa_saml_attribute data source's id) and whose rhs is the value to match; the v1 resources also carry idp_id, and the v2 resources take the pair in entry_values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_saml.md",
+          "quotes": [
+            "object_type = \"SAML\"",
+            "lhs = data.zpa_saml_attribute.email_user_sso.id",
+            "idp_id = data.zpa_idp_controller.idp_name.id"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "The ID of the SAML Attribute value.",
+            "The SAML attribute string i.e Group name, Department Name, Email address etc."
+          ]
+        }
+      ]
+    },
+    "v1-validates-lookup": {
+      "statement": "When a v1 policy resource is created or updated, the provider looks the SAML operand's lhs up with samlattribute.Get and fails on an unknown ID or an empty rhs; the v2 resources only check that lhs and rhs are not empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "_, _, err := samlattribute.Get(ctx, zClient.Service, operand.LHS)",
+            "return lhsWarn(operand.ObjectType, \"valid SAML Attribute ID\", operand.LHS, err)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessCreate(ctx"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "if err := ValidatePolicyRuleConditions(d); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessV2Create(ctx"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "return fmt.Errorf(\"LHS must be a valid SAML attribute ID and cannot be empty for SAML object_type\")"
+          ]
+        }
+      ],
+      "conditions": "v1 call sites: every ValidateConditions caller is a v1 resource's create or update function; the v2 resources call ValidatePolicyRuleConditions instead, which does no lookup. The first quote pair is the v1 validator (lookup, then lhsWarn on error); the 'cannot be empty' quote is the v2 validator ValidatePolicyRuleConditions."
+    },
+    "mixed-block-gui": {
+      "statement": "A rule that combines different object types in one conditions block with OR is valid through Terraform and the API, but the Admin Console criteria builder cannot always represent it, and re-saving it there may silently drop the operands it cannot render.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "Rules that combine *different* object types within one block",
+            "the GUI may silently drop the operands it cannot render"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "id": "zpa.machine-groups.policy-use",
+  "title": "Using a machine group in a ZPA policy rule",
+  "aliases": [
+    "MACHINE_GRP operand",
+    "machine group policy condition",
+    "machine group and client type",
+    "machine tunnel policy scope",
+    "which rules accept machine groups"
+  ],
+  "binds": [
+    "zpa/machine-groups",
+    "zpa/client-types"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.machine-groups.definition"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-tunnels.client-type-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers machine group conditions in policy rules."
+    },
+    {
+      "label": "The pairing.",
+      "text": "{{console-pairs-client-type}} {{provider-checks-group-only}} What an API-created rule without the pair matches is open {{gap:api-without-client-type}}. How this fits federated policies is open {{gap:federated-client-type-reconciliation}}. The client types themselves: [[zpa.machine-tunnels.client-type-policy]]."
+    },
+    {
+      "label": "Operand shape.",
+      "text": "{{operand-v1}} {{operand-v2}}"
+    },
+    {
+      "label": "Rule types.",
+      "text": "{{rule-resources}} How the provider writes these rules and what it loses: [[zpa.terraform.policy-rule-writes]]. What happens to a group condition on other platforms is open {{gap:machine-grp-platforms}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule also selects the Machine Tunnel client type, since the console requires the pair.",
+      "uses": [
+        "console-pairs-client-type",
+        "provider-checks-group-only"
+      ]
+    },
+    {
+      "do": "Which operand shape the rule resource generation expects: lhs and rhs in v1, values in v2.",
+      "uses": [
+        "operand-v1",
+        "operand-v2"
+      ]
+    },
+    {
+      "do": "Whether the rule type can carry a machine group condition at all.",
+      "uses": [
+        "rule-resources"
+      ]
+    },
+    {
+      "do": "What a machine group condition with no Machine Tunnel client type matches, which needs a lab test.",
+      "uses": [
+        "api-without-client-type"
+      ]
+    },
+    {
+      "do": "Whether the rule is a federated access policy, where the client type is limited to Client Connector.",
+      "uses": [
+        "federated-client-type-reconciliation"
+      ]
+    }
+  ],
+  "claims": {
+    "operand-v1": {
+      "statement": "In v1 policy rule resources a machine group condition is an operand with `object_type = \"MACHINE_GRP\"`, `lhs = \"id\"` and `rhs` set to the machine group ID.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups#id"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group) | ``\"id\"`` | ``machine_group_id`` |"
+          ]
+        }
+      ]
+    },
+    "operand-v2": {
+      "statement": "In v2 policy rule resources a machine group condition is an operand with `object_type = \"MACHINE_GRP\"` and the machine group IDs in `values`; there is no `lhs` or `rhs`.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups#id"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)   | `NA` | `NA` | ``machine_group_id`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "a Machine Group ID must be provided when object_type = MACHINE_GRP"
+          ]
+        }
+      ]
+    },
+    "rule-resources": {
+      "statement": "The provider documents `MACHINE_GRP` as an operand for the access, forwarding, inspection and isolation policy rules in both their v1 and v2 forms, and for the browser protection rule.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule_v2.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule_v2.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_browser_protection_rule.md",
+          "quotes": [
+            "[MACHINE_GRP](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_machine_group)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule_v2.md",
+          "quotes": [
+            "`EDGE_CONNECTOR_GROUP`, `MACHINE_GRP`, `LOCATION`"
+          ]
+        }
+      ]
+    },
+    "console-pairs-client-type": {
+      "statement": "In the console, when a machine group is selected in an access policy or AppProtection policy rule, the Machine Tunnel client type is also required.",
+      "tier": "A",
+      "binds": [
+        "zpa/machine-groups",
+        "zpa/client-types"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "If a Machine group is selected, Machine Tunnel as a client type is also required."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-policies.json",
+          "quotes": [
+            "If a Machine group is selected, Machine Tunnel as a client type is required as well."
+          ]
+        }
+      ]
+    },
+    "provider-checks-group-only": {
+      "statement": "The Terraform provider checks a v1 `MACHINE_GRP` operand by looking up the group by ID, and a v2 operand only for at least one value; neither check looks for a `CLIENT_TYPE` operand in the same rule.",
+      "tier": "B",
+      "binds": [
+        "zpa/machine-groups"
+      ],
+      "conditions": "Rests on absence: validateOperand validates each operand on its own, and ValidatePolicyRuleConditions' MACHINE_GRP case tests only that values is non-empty; neither inspects sibling operands.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "_, _, err := machinegroup.Get(ctx, zClient.Service.WithMicroTenant(microtenantID), id)",
+            "a Machine Group ID must be provided when object_type = MACHINE_GRP"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-without-client-type": {
+      "kind": "semantic",
+      "title": "What the API does with a machine group condition that has no Machine Tunnel client type",
+      "status": "open",
+      "former_ids": [
+        "zpa-13"
+      ],
+      "about": [
+        "zpa/machine-groups"
+      ],
+      "detail": "The console requires the pairing, and the provider does not check it. No source states whether the API rejects a rule that has MACHINE_GRP without the machine tunnel client type, or what such a rule matches. Unverified legacy statement: \"A policy rule that includes MACHINE_GRP but does not include CLIENT_TYPE applies to both machine tunnel sessions and user sessions on matching devices.\" Create such a rule through the API in a scratch tenant, then test a user session and a machine tunnel session from a device in the group.",
+      "blocks": "saying what an API-created machine group rule without the client type matches",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "machine-grp-platforms": {
+      "kind": "semantic",
+      "title": "Whether a machine group condition has any effect on platforms without machine tunnels",
+      "status": "open",
+      "about": [
+        "zpa/machine-groups"
+      ],
+      "detail": "Unverified legacy statement: \"A MACHINE_GRP criterion on a policy rule has no effect for Linux, iOS, or Android device sessions.\" The help states machine tunnels are not supported on iOS, Linux, Android and Android on ChromeOS, but no source says what a MACHINE_GRP condition does for those platforms. Test with a rule that combines a group with a user client type from a Linux or mobile client.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "federated-client-type-reconciliation": {
+      "kind": "semantic",
+      "title": "Machine group conditions in federated policies that allow only the Client Connector client type",
+      "status": "open",
+      "detail": "The console requires the Machine Tunnel client type whenever a machine group is selected, while the federated access policy criteria list for the guest partner includes Machine Groups with Client Type limited to Client Connector (see zpa.b2b-federation.access-policy:guest-criteria-limited). No source reconciles the two. Test a federated rule with a machine group in a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a machine group condition can be used in a federated policy"
+    }
+  }
+}

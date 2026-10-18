@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "zpa.microtenants.api-scoping",
+  "title": "How an API call selects a Microtenant",
+  "aliases": [
+    "microtenantId query parameter",
+    "microtenant_id",
+    "ZPA_MICROTENANT_ID",
+    "microtenant scope api",
+    "add_microtenant microtenantId",
+    "update_microtenant",
+    "microtenants/search",
+    "microtenant default 0"
+  ],
+  "binds": [
+    "zpa/microtenants",
+    "zpa/application-segments#microtenantId",
+    "zpa/application-segments#microtenantName"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.share-and-move"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.b2b-federation.api-routes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Scope travels as a query parameter, and several layers can supply it."
+    },
+    {
+      "label": "Values.",
+      "text": "{{scope-param-values}} {{omitted-scope-defaults-default}}"
+    },
+    {
+      "label": "Python.",
+      "text": "{{python-scope-precedence}} {{python-legacy-env-fallback}} {{python-update-param-source}} {{add-method-builds-no-scope}}"
+    },
+    {
+      "label": "Search and models.",
+      "text": "{{search-filter-shape}} [[zpa.app-segments.api-fields:governance-fields]] What those fields signal is in [[zpa.microtenants.share-and-move]], and a missing `microtenantId` on a response is open {{gap:unset-microtenant-id-meaning}}."
+    },
+    {
+      "label": "Resolver defects.",
+      "text": "The data-source and name-resolver behavior that picks the wrong Microtenant is held in [[zpa.terraform.data-source-selection:reads-run-unscoped-wrong-microtenant]], [[zpa.terraform.data-source-selection:inject-precedence-env-over-config]] and [[zpa.terraform.data-source-selection:sdk-microtenant-name-success-returns-nothing]], not restated here."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which scope the request targets: the specification's 0 for the Default Microtenant, null for customer data, and the default for creates and updates that omit the parameter.",
+      "uses": [
+        "scope-param-values",
+        "omitted-scope-defaults-default"
+      ]
+    },
+    {
+      "do": "Where the Python SDK takes the scope from, in order, and whether the legacy client environment variable is set.",
+      "uses": [
+        "python-scope-precedence",
+        "python-legacy-env-fallback"
+      ]
+    },
+    {
+      "do": "Whether an update_microtenant call passes `microtenant_id` as a keyword argument, since the positional ID does not become the query parameter.",
+      "uses": [
+        "python-update-param-source"
+      ]
+    },
+    {
+      "do": "Whether the create call should be scoped, noting the method builds no scope of its own.",
+      "uses": [
+        "add-method-builds-no-scope"
+      ]
+    },
+    {
+      "do": "Which Terraform and Go SDK lookups can run unscoped or in the wrong Microtenant.",
+      "uses": [
+        "zpa.terraform.data-source-selection:reads-run-unscoped-wrong-microtenant",
+        "zpa.terraform.data-source-selection:inject-precedence-env-over-config"
+      ]
+    },
+    {
+      "do": "Whether a response without a `microtenantId` can be read as belonging to the Default Microtenant.",
+      "uses": [
+        "unset-microtenant-id-meaning"
+      ]
+    }
+  ],
+  "claims": {
+    "scope-param-values": {
+      "statement": "The ZPA API reference describes the `microtenantId` query parameter as the Microtenant's unique identifier, where 0 is passed for the Default Microtenant and null for the customer data Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}~1move/post/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the microtenant of ZPA tenant. For Default microtenant 0 should be passed and for Customer data microtenant should be null.",
+            "in": "query",
+            "required": false
+          }
+        }
+      ]
+    },
+    "omitted-scope-defaults-default": {
+      "statement": "The ZPA API reference for the B2B federation operations says that if you are within a Microtenant you must pass `microtenantId` to retrieve that Microtenant's data, and that a create or update that omits it takes effect in the Default Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1federate/put/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        }
+      ]
+    },
+    "python-scope-precedence": {
+      "statement": "For a ZPA request the Python request executor takes the `microtenantId` from the request body, else from the query parameters, else from the client's configured `microtenantId`, and sends it as the `microtenantId` query parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "microtenant_id = self._get_microtenant_id(body, params)",
+            "params[\"microtenantId\"] = microtenant_id",
+            "if body and isinstance(body, dict) and \"microtenantId\" in body and body[\"microtenantId\"]:",
+            "if params and \"microtenantId\" in params and params[\"microtenantId\"]:",
+            "return self.microtenant_id"
+          ]
+        }
+      ]
+    },
+    "python-legacy-env-fallback": {
+      "statement": "The Python legacy ZPA client uses the `ZPA_MICROTENANT_ID` environment variable when no Microtenant ID is passed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/legacy.py",
+          "quotes": [
+            "self.microtenant_id = microtenant_id or os.getenv(\"ZPA_MICROTENANT_ID\")"
+          ]
+        }
+      ]
+    },
+    "python-update-param-source": {
+      "statement": "`update_microtenant` reads the `microtenantId` query parameter from a `microtenant_id` keyword argument in the body, not from its positional `microtenant_id`, and sends no query parameter when the keyword is absent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "after": "def update_microtenant(self, microtenant_id: str, **kwargs)",
+          "quotes": [
+            "microtenant_id = body.get(\"microtenant_id\", None)",
+            "params = {\"microtenantId\": microtenant_id} if microtenant_id else {}"
+          ]
+        }
+      ]
+    },
+    "add-method-builds-no-scope": {
+      "statement": "`add_microtenant` sends its keyword arguments as the request body and builds no `microtenantId` query parameter itself, and the OpenAPI create operation declares only the customer ID parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "after": "def add_microtenant(self, **kwargs)",
+          "quotes": [
+            "# Construct the body from kwargs (as a dictionary)",
+            "body = kwargs"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants/post/parameters/[name=customerId]",
+          "expect": {
+            "in": "path",
+            "required": true
+          }
+        }
+      ]
+    },
+    "search-filter-shape": {
+      "statement": "`POST /microtenants/search` takes a body of `filterBy` (name, operator and values per condition), `pageBy` and `sortBy` (`sortName`, `sortOrder`), and the Python SDK's `get_microtenant_search` passes a `filter_and_sort_dto` through.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1microtenants~1search/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "title": "FilterAndSortDto"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "after": "def get_microtenant_search(self, **kwargs)",
+          "quotes": [
+            "filter_and_sort_dto"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "unset-microtenant-id-meaning": {
+      "kind": "semantic",
+      "title": "Whether an absent microtenantId in a response means the Default Microtenant",
+      "status": "open",
+      "detail": "Unverified legacy statement: When reading API responses, `microtenantId` being absent or `null` means the resource belongs to the Default Tenant. The API reference describes request values (0 for Default, null for customer data) and does not describe the response field. A read of a Default and a Microtenant resource side by side would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "reading a missing microtenantId on a returned resource"
+    }
+  }
+}

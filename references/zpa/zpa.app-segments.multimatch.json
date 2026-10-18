@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.multimatch",
+  "title": "Multimatch: one request matching several application segments",
+  "aliases": [
+    "multimatch",
+    "match_style inclusive",
+    "inclusive exclusive application segment",
+    "wildcard segment catches undefined ports",
+    "exact match vs multimatch",
+    "app segment multimatch bulk"
+  ],
+  "binds": [
+    "zpa/application-segments#matchStyle"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.app-segments.matching"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.multimatch-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.multimatch"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Multimatch changes whether a destination can match more than one application segment."
+    },
+    {
+      "label": "Default and switch.",
+      "text": "The definition, the exact-match default and the wildcard catching undefined ports are in [[zpa.policy.multimatch:multimatch-definition]], [[zpa.policy.multimatch:exact-match-default]] and [[zpa.policy.multimatch:multimatch-catches-undefined-ports]]. The request field values are in [[zpa.policy.multimatch:match-style-values]], and [[zpa.policy.multimatch:match-style-domain-constraint]]."
+    },
+    {
+      "label": "Consistency.",
+      "text": "{{config-conflict}} Prerequisites and restrictions are in [[zpa.app-segments.multimatch-requirements]]."
+    },
+    {
+      "label": "Which segments match.",
+      "text": "Matches run from most specific to least and stop at the first segment without Multimatch: [[zpa.policy.multimatch:match-order]]. {{gap:multimatch-chain-example}}"
+    },
+    {
+      "label": "Policy across the matches.",
+      "text": "Rules of every matched segment are searched: [[zpa.policy.multimatch:rules-of-all-matched-segments]]. The block-rule example is open [[zpa.policy.multimatch:block-rule-with-multimatch]]. Rule evaluation order itself is in [[zpa.policy.evaluation-order]]."
+    },
+    {
+      "label": "Without Multimatch.",
+      "text": "Exact match, carve-outs and port misses are in [[zpa.app-segments.matching]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether every segment that covers the domain has the same matchStyle, since a mix is a conflict the update rejects.",
+      "uses": [
+        "config-conflict",
+        "zpa.policy.multimatch:match-style-domain-constraint"
+      ]
+    },
+    {
+      "do": "Where the chain of segments for the requested host stops, at the first segment that does not support Multimatch.",
+      "uses": [
+        "zpa.policy.multimatch:match-order",
+        "multimatch-chain-example"
+      ]
+    },
+    {
+      "do": "Which rules in the access policy cover each matched segment, since the policy search runs across all of them in rule order.",
+      "uses": [
+        "zpa.policy.multimatch:rules-of-all-matched-segments",
+        "zpa.policy.multimatch:block-rule-with-multimatch"
+      ]
+    }
+  ],
+  "claims": {
+    "config-conflict": {
+      "statement": "When Multimatch is enabled or disabled on a segment, Private Access checks every other segment with overlapping domains, and a domain found in segments with different Multimatch settings is a conflict that stops the segment from being updated.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#matchStyle"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Private Access checks all other application segments that contains any overlapping domains to determine whether the change is allowed.",
+            "If a domain is found in multiple application segments with different Multimatch settings, there is a conflict and the application segment cannot be updated."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "multimatch-chain-example": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Which application segments a server1.db.hr.company.com request matches under Multimatch (documented example)",
+      "blocks": "the example of which Multimatch-enabled segments match a nested-wildcard request and which do not",
+      "detail": "Unverified legacy statement: \"In the documented example, a request for `server1.db.hr.company.com` matches `*.db.hr.company.com` and `*.hr.company.com`, which have Multimatch enabled, and does not match `*.ui.hr.company.com` or `*.company.com`, which have it disabled.\" Previously sourced from Using_Application_Segment_Multimatch.txt (the example table). The recapture (zpa-using-app-segment-multimatch.json) keeps the \"Matched vs. Not Matched\" heading and its Example 1 to Example 4 headings, but not their tables.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

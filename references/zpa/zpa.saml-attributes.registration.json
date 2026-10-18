@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "zpa.saml-attributes.registration",
+  "title": "Registering SAML attributes in Private Access",
+  "aliases": [
+    "saml attribute import",
+    "add saml attribute",
+    "saml attribute limit",
+    "session attributes",
+    "saml attribute name vs saml name",
+    "saml assertion not visible"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes.policy-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.saml-attributes.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers registering SAML attributes in Private Access. {{configure-first}}"
+    },
+    {
+      "label": "Where attributes come from.",
+      "text": "{{arbitrary-attributes}} {{assertion-each-access}} {{no-hosted-user-db}}"
+    },
+    {
+      "label": "Adding attributes.",
+      "text": "{{two-methods}} {{table-fields}} Whether the registered name must match the assertion exactly, including case, is open {{gap:name-match-exactness}}."
+    },
+    {
+      "label": "Limit.",
+      "text": "{{limit}} The earlier open question on the limit is closed {{gap:zpa-61-limit}}."
+    },
+    {
+      "label": "Authentication Service.",
+      "text": "{{auth-service-replaces-page}} What happens to existing SAML criteria on that move is open {{gap:migration-continuity}}."
+    },
+    {
+      "text": "How registered attributes are used in a rule is in [[zpa.saml-attributes.policy-criteria]]; the API view is in [[zpa.saml-attributes.api-surface]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant is subscribed to Authentication Service for users, which hides the add, edit and delete controls and the IdP filter and renames the column.",
+      "uses": [
+        "auth-service-replaces-page"
+      ]
+    },
+    {
+      "do": "Which IdP configuration the attribute is registered under, and what its Name and SAML Attribute entries say.",
+      "uses": [
+        "table-fields"
+      ]
+    },
+    {
+      "do": "Whether the number of registered attributes is near the listed limit.",
+      "uses": [
+        "limit"
+      ]
+    },
+    {
+      "do": "Whether the value a user's assertion carries can be seen from the console; it cannot, so the evidence lies elsewhere.",
+      "uses": [
+        "no-hosted-user-db"
+      ]
+    },
+    {
+      "do": "Whether a mismatch of spelling or case between the registered attribute and the assertion is being assumed.",
+      "uses": [
+        "name-match-exactness"
+      ]
+    }
+  ],
+  "claims": {
+    "configure-first": {
+      "statement": "SAML attributes must be configured in the Admin Console before they can be used as policy rule criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "You must configure SAML attributes to use them when defining policy rule criteria."
+          ]
+        }
+      ]
+    },
+    "two-methods": {
+      "statement": "SAML attributes are added either by importing a complete list generated from the IdP, or by adding them manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "You can import your SAML attributes. This option requires that you generate a complete list of SAML attributes from your IdP, and then import that list into the Zscaler Admin Console.",
+            "You can manually add your SAML attributes."
+          ]
+        }
+      ]
+    },
+    "arbitrary-attributes": {
+      "statement": "In Private Access the IdP can provide various authorization attributes to Zscaler Client Connector in the SAML assertion, whereas in Internet & SaaS the assertion is restricted to user identity, group and department attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "In Private Access, various authorization attributes can be provided by the IdP to the Zscaler Client Connector in the SAML assertion, unlike Internet & SaaS, where SAML assertions are restricted to user identity, group, and department attributes."
+          ]
+        }
+      ]
+    },
+    "assertion-each-access": {
+      "statement": "The SAML assertion is used with every application access attempt to ensure that only authenticated users gain access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "The SAML assertion is used with every application access attempt to ensure that only authenticated users gain access."
+          ]
+        }
+      ]
+    },
+    "no-hosted-user-db": {
+      "statement": "Private Access has no hosted user database for provisioning, so user attributes inside SAML assertions cannot be viewed in the Admin Console: the assertions are encrypted and stored locally by Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "Private Access does not use a hosted user database for provisioning, so user attributes within SAML assertions cannot be viewed within the Zscaler Admin Console.",
+            "SAML assertions which contain these user attributes are encrypted and stored locally by Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "table-fields": {
+      "statement": "Each registered attribute has a Name, which is only a reference and might differ from the SAML Attribute entry; a SAML Attribute, which is the attribute as specified in the IdP; and an IdP Name, the IdP configuration in the Admin Console where it was imported or added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "This name is only for reference and might not be identical to the corresponding entry in the SAML Attribute column.",
+            "The SAML attribute as it is specified in the IdP.",
+            "This is the IdP where the attribute was imported or added from."
+          ]
+        }
+      ]
+    },
+    "limit": {
+      "statement": "The Private Access ranges and limitations list 100 SAML attributes under Authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| SAML Attributes | 100 attributes |"
+          ]
+        }
+      ],
+      "conditions": "The row sits under the Authentication heading inside the 'Private Access (ZPA) Ranges and Limitations' part of the unified ranges page; the ZIA part of that page has no SAML attribute row. The ZSDK ranges page repeats the same figure."
+    },
+    "auth-service-replaces-page": {
+      "statement": "With a subscription to Authentication Service for users, the SAML Attributes page is replaced by the Session Attributes page: the SAML Attribute column becomes Session Attribute, and the Add SAML Attribute button, the Edit and Delete buttons, and the filter by IdP are hidden.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-saml-attributes.json",
+          "quotes": [
+            "The SAML Attributes page is replaced by the Session Attributes page if you are subscribed to Authentication Service for users.",
+            "The ability to filter the list to show attributes for a specific IdP is hidden if you are subscribed to Authentication Service for users.",
+            "The Add SAML Attribute button is hidden if you are subscribed to Authentication Service for users.",
+            "The Edit button is hidden if you are subscribed to Authentication Service for users.",
+            "The Delete button is hidden if you are subscribed to Authentication Service for users.",
+            "then the SAML Attribute column is replaced with the Session Attribute column."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zpa-61-limit": {
+      "kind": "semantic",
+      "title": "Authoritative ZPA SAML attribute limit",
+      "status": "resolved",
+      "former_ids": [
+        "zpa-61"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The Private Access ranges and limitations page lists 100 SAML attributes (claim limit)."
+    },
+    "name-match-exactness": {
+      "kind": "semantic",
+      "title": "Whether the registered SAML Attribute must match the assertion exactly, and whether case matters",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"This must match the IdP's assertion exactly for policy evaluation to work\" and \"check ... case-sensitive in most assertions\". The captured page says only that the SAML Attribute is the attribute as specified in the IdP. A lab test would register an attribute whose case differs from the assertion and observe whether a rule on it matches.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that a case or spelling mismatch is why a SAML criterion never matches"
+    },
+    "migration-continuity": {
+      "kind": "semantic",
+      "title": "What happens to SAML criteria in existing rules when a tenant moves to Authentication Service for users",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"When migrating ... the SAML Attribute objects are converted to Session Attributes. Existing policy rules that reference SAML attributes should continue to work post-migration\". The captures say the page and the rule criteria are replaced, not what happens to existing rules. Resolve from the Authentication Service migration documentation or a lab tenant.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "promising that rules survive the move"
+    }
+  }
+}

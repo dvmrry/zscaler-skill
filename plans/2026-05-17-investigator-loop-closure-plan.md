@@ -442,7 +442,7 @@ _data/cases/<slug>/workflow/01-loaded-set.json
       "status": "found",
       "locations": [
         {
-          "path": "references/zpa/app-segments.md",
+          "path": "`kb:zpa.app-segments`",
           "selector": "section: Application segment matching"
         }
       ]
@@ -532,7 +532,7 @@ _data/cases/<slug>/workflow/03-journal-state.json
     {
       "id": "E1",
       "type": "reference",
-      "path": "references/zpa/app-segments.md",
+      "path": "`kb:zpa.app-segments`",
       "selector": "section: Segment matching",
       "basis": "reference-grounded"
     }

@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": "zpa.trusted-networks.service-edge-groups",
+  "title": "Trusted networks on ZPA Private Service Edge groups",
+  "aliases": [
+    "private service edge group trusted networks",
+    "publicly accessible private service edge",
+    "is_public service edge group",
+    "prefer on-prem private service edge",
+    "service edge group trusted_networks block"
+  ],
+  "binds": [
+    "zpa/service-edge-groups#trustedNetworks",
+    "zpa/service-edge-groups#isPublic"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.trusted-networks.object"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers trusted networks on Private Service Edge groups."
+    },
+    {
+      "label": "What the mapping does.",
+      "text": "{{prioritize-matching}} [[zpa.private-service-edges.client-selection:trusted-networks-zcc-only]]"
+    },
+    {
+      "label": "Public access.",
+      "text": "[[zpa.private-service-edges.client-selection:publicly-accessible]] {{is-public-field}} {{is-public-wire}} Off-network routing with the setting off is open {{gap:off-network-fallback}}."
+    },
+    {
+      "label": "In Terraform.",
+      "text": "{{tf-sends-object-id}} Only the first `trusted_networks` block is read: [[zpa.terraform.app-segment-lifecycle:association-block-first-only-places]]. The data source discards errors on this list: [[zpa.terraform.data-source-fidelity:service-edge-group-nested-sets-ignored]]. The ZPA-side identifiers: [[zpa.trusted-networks.object]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the client is Zscaler Client Connector; Cloud and Branch Connectors cannot use trusted network mapping.",
+      "uses": [
+        "zpa.private-service-edges.client-selection:trusted-networks-zcc-only"
+      ]
+    },
+    {
+      "do": "Which identifier the service edge group block expects: the trusted network `id`.",
+      "uses": [
+        "tf-sends-object-id"
+      ]
+    },
+    {
+      "do": "Whether the group is publicly accessible, and the wire form of the setting.",
+      "uses": [
+        "zpa.private-service-edges.client-selection:publicly-accessible",
+        "is-public-field",
+        "is-public-wire"
+      ]
+    },
+    {
+      "do": "Where off-network users go when the group is not publicly accessible, which no source settles.",
+      "uses": [
+        "off-network-fallback"
+      ]
+    }
+  ],
+  "claims": {
+    "prioritize-matching": {
+      "statement": "Trusted networks mapped to a Private Service Edge group are used to prioritize Private Service Edges that match a given trusted network when users connect from those networks.",
+      "tier": "A",
+      "binds": [
+        "zpa/service-edge-groups#trustedNetworks"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-service-edge-groups.json",
+          "quotes": [
+            "Trusted Networks: Your organization's trusted networks that are mapped to the Private Service Edge group. This is used to prioritize Private Service Edges matching the given trusted network when users connect from those trusted networks."
+          ]
+        }
+      ]
+    },
+    "is-public-field": {
+      "statement": "The console's Publicly Accessible setting is the `isPublic` field of the service edge group, `is_public` in Terraform.",
+      "tier": "B",
+      "binds": [
+        "zpa/service-edge-groups#isPublic"
+      ],
+      "conditions": "Inference: the help names the console setting and the code names the field; no source links the two by name.",
+      "derived_from": [
+        "zpa.private-service-edges.client-selection:publicly-accessible"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "Description: \"Enable or disable public access for the Service Edge Group.\""
+          ]
+        }
+      ]
+    },
+    "is-public-wire": {
+      "statement": "The Go SDK carries `isPublic` as a string. The Terraform provider writes it as `\"TRUE\"` or `\"FALSE\"` and parses it back with ParseBool, ignoring a parse error.",
+      "tier": "A",
+      "binds": [
+        "zpa/service-edge-groups#isPublic"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgegroup/zpa_service_edge_group.go",
+          "quotes": [
+            "IsPublic                       string                                        `json:\"isPublic,omitempty\"`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "IsPublic:                       strings.ToUpper(strconv.FormatBool(d.Get(\"is_public\").(bool))),",
+            "isPublic, _ := strconv.ParseBool(resp.IsPublic)"
+          ]
+        }
+      ]
+    },
+    "tf-sends-object-id": {
+      "statement": "The Terraform `trusted_networks` block on a service edge group takes trusted network `id` values, and the provider sends each as the SDK trusted network's `ID`; this is the object `id`, not the `network_id` that policy conditions use.",
+      "tier": "A",
+      "binds": [
+        "zpa/service-edge-groups#trustedNetworks",
+        "zpa/trusted-networks#id"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_service_edge_group.md",
+          "quotes": [
+            "trusted_networks {\n    id = [data.zpa_trusted_network.example.id]"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_group.go",
+          "quotes": [
+            "networks = append(networks, trustednetwork.TrustedNetwork{\n\t\t\tID: id.(string),"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "off-network-fallback": {
+      "kind": "semantic",
+      "title": "Where off-network users connect when a mapped Private Service Edge group is not publicly accessible",
+      "status": "open",
+      "former_ids": [
+        "zpa-81"
+      ],
+      "about": [
+        "zpa/service-edge-groups#isPublic"
+      ],
+      "detail": "Unverified legacy statement: \"If is_public = false, only users whose ZCC signals an associated Trusted Network will connect through this PSE Group; remote users will connect to Public Service Edges instead.\" The help says Publicly Accessible makes the group available to users outside the mapped networks and says trusted networks are used to prioritize matching edges. It does not say what an off-network user does when the setting is off. Observe the edge an off-network user connects to with the setting off.",
+      "blocks": "predicting off-network routing",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "id": "zpa.b2b-federation.federate-applications",
+  "title": "Federating application segments to a partner",
+  "aliases": [
+    "federate application segment",
+    "cannot federate application",
+    "guestDetails",
+    "deselect partner loses access",
+    "federated application restrictions",
+    "hbrEnabled",
+    "stickyEntity",
+    "stickyGroup",
+    "federationId partnerInfo"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.b2b-federation.trust-workflow"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.access-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.b2b-federation.api-routes"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.microtenants.share-and-move"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Only some application segments can be federated, and the guest sees them through a pair of fields."
+    },
+    {
+      "label": "Federating.",
+      "text": "{{federate-flow}} {{guests-must-be-active-partners}} {{deselect-loses-access}}"
+    },
+    {
+      "label": "Restrictions.",
+      "text": "{{no-ip-applications}} {{must-be-disabled}}"
+    },
+    {
+      "label": "Segment fields.",
+      "text": "{{guest-details-shape}} {{python-guestdetails-decode-defect}} The meaning of the field and its three companions is open, see [[zpa.app-segments.api-fields:hbr-sticky-guest-semantics]]. The wider segment sharing model between Microtenants is a different feature: [[zpa.microtenants.share-and-move]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application segment uses IP addresses or has any of the six blocking settings enabled.",
+      "uses": [
+        "no-ip-applications",
+        "must-be-disabled"
+      ]
+    },
+    {
+      "do": "Whether a partner was deselected and saved, since guest end users then lose access immediately.",
+      "uses": [
+        "deselect-loses-access"
+      ]
+    },
+    {
+      "do": "Whether guestDetails read through the Python SDK raises on a segment that is federated to a partner.",
+      "uses": [
+        "python-guestdetails-decode-defect",
+        "guest-details-shape"
+      ]
+    },
+    {
+      "do": "What hbrEnabled, stickyEntity, stickyGroup and guestDetails mean, which no source defines.",
+      "uses": [
+        "zpa.app-segments.api-fields:hbr-sticky-guest-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "federate-flow": {
+      "statement": "On the Defined Application Segments page the host selects a segment's Federate Application icon, selects one or more partners to share with, and saves.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-federating-defined-application-segments.json",
+          "quotes": [
+            "Locate the application segment you want to federate in the table, and then click the Federate Application icon ().",
+            "Partners: Select one or more partners to share applications with."
+          ]
+        }
+      ]
+    },
+    "deselect-loses-access": {
+      "statement": "After a partner is deselected and the change saved, the end users on the guest partner side immediately lose access to all applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-federating-defined-application-segments.json",
+          "quotes": [
+            "After deselecting the partner and saving, the end users from the guest partner side will immediately lose access to all applications."
+          ]
+        }
+      ]
+    },
+    "no-ip-applications": {
+      "statement": "Applications using IP addresses cannot be federated because of potential IP address overlap and routing conflicts in the guest partner's network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-federating-defined-application-segments.json",
+          "quotes": [
+            "Applications using IP addresses (e.g., 192.168.1.10) cannot be federated due to potential IP address overlap and routing conflicts in the guest partner's network."
+          ]
+        }
+      ]
+    },
+    "must-be-disabled": {
+      "statement": "To federate an application segment, Source IP Anchor, Double Encryption, Bypass, Bypass during Reauthentication, ZIA Inspection and AppProtection must be disabled on it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-federating-defined-application-segments.json",
+          "after": "the following application segment configurations must be disabled to federate an application segment:",
+          "quotes": [
+            "Source IP Anchor",
+            "Double Encryption",
+            "Bypass during Reauthentication",
+            "ZIA Inspection",
+            "AppProtection"
+          ]
+        }
+      ]
+    },
+    "guests-must-be-active-partners": {
+      "statement": "The federate operation's `guestGids` must be the partners that the host has an active federation with.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1federate/put/requestBody/content/application~1json/schema/properties/guestGids",
+          "expect": {
+            "description": "The list of guest partner GIDs to share the application with. This array must be the partners that the host has an active federation with."
+          }
+        }
+      ]
+    },
+    "guest-details-shape": {
+      "statement": "In the Go SDK the base, Browser Access, Inspection and PRA application segment models carry `guestDetails`, where each guest record has a `federationId` and a `partnerInfo` with approval status, federation status, partner GID, name and scope name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "quotes": [
+            "FederationID string `json:\"federationId,omitempty\"`",
+            "PartnerInfo PartnerInfo `json:\"partnerInfo,omitempty\"`",
+            "ApprovalStatus string `json:\"approvalStatus,omitempty\"`",
+            "FederationStatus string `json:\"federationStatus,omitempty\"`",
+            "PartnerGid string `json:\"partnerGid,omitempty\"`",
+            "PartnerName string `json:\"partnerName,omitempty\"`",
+            "PartnerScopeName string `json:\"partnerScopeName,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "GuestDetails []common.GuestDetails `json:\"guestDetails,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "quotes": [
+            "GuestDetails []common.GuestDetails `json:\"guestDetails,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "quotes": [
+            "GuestDetails []common.GuestDetails `json:\"guestDetails,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "GuestDetails []common.GuestDetails `json:\"guestDetails,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "python-guestdetails-decode-defect": {
+      "statement": "The Python SDK's `GuestDetails` model builds a non-null `partnerInfo` with `common.PartnerInfo`, which the shared models module does not define, so decoding a segment with non-null `partnerInfo` raises an AttributeError; the model defines a local `PartnerInfo` class that it does not use.",
+      "tier": "B",
+      "conditions": "Absence search at the pinned commit: `grep -n 'class PartnerInfo' zscaler/zpa/models/common.py` returns nothing, and the only PartnerInfo classes are in models/application_segment.py and models/tenant_federation_provisioning.py. The raise was inferred from the missing attribute and not run.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "after": "class GuestDetails(ZscalerObject):",
+          "quotes": [
+            "self.partner_info = common.PartnerInfo(config[\"partnerInfo\"])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/application_segment.py",
+          "quotes": [
+            "class PartnerInfo(ZscalerObject):"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Python SDK 1.10.0 guestDetails partnerInfo decode."
+        }
+      ]
+    }
+  }
+}

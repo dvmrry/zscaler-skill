@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.segment-opt-in",
+  "title": "Enabling AppProtection on an application segment",
+  "aliases": [
+    "auto appprotection",
+    "inspect appprotection application",
+    "appprotection application segment",
+    "appprotection multimatch",
+    "appprotection tls 1.2 cipher",
+    "appprotection browser access",
+    "use untrusted certificates appprotection",
+    "protected applications"
+  ],
+  "binds": [
+    "zpa/inspection-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.appprotection.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.active-directory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "AppProtection inspects an application only when the application is set up for it on a segment. {{what-it-is}}"
+    },
+    {
+      "label": "The switch.",
+      "text": "{{auto-appprotection}} {{per-application-checkbox}}"
+    },
+    {
+      "label": "Exclusions.",
+      "text": "{{ad-exclusive}} {{extranet}} The current Multimatch blockers are in [[zpa.app-segments.multimatch-requirements]]. {{multimatch-validation}}"
+    },
+    {
+      "label": "Application settings.",
+      "text": "{{cert-and-protocol}} {{protocols}} {{untrusted-cert}} {{browser-access-combo}}"
+    },
+    {
+      "label": "Clients.",
+      "text": "{{access-methods}} What happens to a client that does not negotiate that cipher is open {{gap:non-negotiating-clients}}, as is whether the constraint still holds on current connector builds {{gap:cipher-currency}}."
+    },
+    {
+      "label": "Other features.",
+      "text": "Whether Private Remote Access and Source IP Anchoring work on a segment with AppProtection is open {{gap:pra-sipa-compatibility}}. Where inspection runs is open {{gap:placement}}."
+    },
+    {
+      "label": "Programmatic.",
+      "text": "{{sdk-inspect-type}} Terraform and Go SDK behavior for inspection application segments is in [[zpa.terraform.app-segment-lifecycle]]."
+    },
+    {
+      "text": "The Active Directory counterpart of this switch: [[zpa.appprotection.active-directory]]. The rule that selects the profile: [[zpa.appprotection.policy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application inside the segment has Inspect AppProtection Application set, rather than only the segment.",
+      "uses": [
+        "per-application-checkbox",
+        "auto-appprotection"
+      ]
+    },
+    {
+      "do": "Whether Active Directory Inspection is on the same segment, which excludes AppProtection.",
+      "uses": [
+        "ad-exclusive"
+      ]
+    },
+    {
+      "do": "Whether the segment is for extranet resources, where AppProtection is not supported.",
+      "uses": [
+        "extranet"
+      ]
+    },
+    {
+      "do": "Whether Multimatch is enabled on a segment that uses AppProtection, using the Multimatch Validation window.",
+      "uses": [
+        "multimatch-validation",
+        "zpa.app-segments.multimatch-requirements"
+      ]
+    },
+    {
+      "do": "That clients are on a browser or Client Connector that supports TLS 1.2 with the stated cipher suite.",
+      "uses": [
+        "access-methods"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "When creating an application segment, the web applications that require AppProtection can be identified, with controls from an AppProtection profile applied before Private Access provides access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-applications.json",
+          "quotes": [
+            "When creating an application segment, you can identify the web applications that require AppProtection before users can access those applications."
+          ]
+        }
+      ]
+    },
+    "auto-appprotection": {
+      "statement": "The segment's Auto AppProtection setting lets the segment's traffic be inspected by AppProtection; enabling it requires an Enrollment (CA) Certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Enable to allow this application segment's traffic to be inspected by AppProtection. If enabled, you will need to generate an Enrollment (CA) Certificate."
+          ]
+        }
+      ]
+    },
+    "per-application-checkbox": {
+      "statement": "AppProtection is enabled per application with the Inspect AppProtection Application checkbox, which is selected by default when AppProtection is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Select the **Inspect AppProtection Application** checkbox to enable AppProtection for an application",
+            "If you enable **AppProtection**, then **Inspect AppProtection Application** is selected by default."
+          ]
+        }
+      ]
+    },
+    "ad-exclusive": {
+      "statement": "Active Directory Inspection and AppProtection cannot be enabled together on a segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If **Active Directory Inspection** is enabled, then **Auto AppProtection** cannot be enabled. If **AppProtection** is enabled, **Active Directory Inspection** cannot be enabled."
+          ]
+        }
+      ]
+    },
+    "extranet": {
+      "statement": "AppProtection is not supported for extranet resources, so the setting is Disabled on such a segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If you are creating this segment for extranet resources, select **Disabled** since AppProtection is not supported."
+          ]
+        }
+      ]
+    },
+    "cert-and-protocol": {
+      "statement": "An AppProtection application takes a web server certificate and a protocol of Dynamic, HTTPS or HTTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Select a web server certificate from the drop-down menu.",
+            "(**Dynamic**, **HTTPS**, or **HTTP**)"
+          ],
+          "after": "If you enable **AppProtection**, then **Inspect AppProtection Application** is selected by default."
+        }
+      ]
+    },
+    "untrusted-cert": {
+      "statement": "Enabling AppProtection selects Use Untrusted Certificates by default, because it must be selected to verify the CA certificate of AppProtection-enabled applications; with it cleared, the App Connector verifies the server certificate and a self-signed one fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "If you enable **AppProtection**, then the **Use Untrusted Certificates** option is selected by default. This is because it needs to be selected to verify the CA certificate related to the AppProtection-enabled applications.",
+            "If you deselect the **Use Untrusted Certificates** checkbox, the App Connector verifies the certificate of the server."
+          ]
+        }
+      ]
+    },
+    "browser-access-combo": {
+      "statement": "Selecting both Browser Access and AppProtection requires HTTP or HTTPS, and automatically selects Use Untrusted Certificates, which must stay selected for Browser Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "To select both **Browser Access** and the **AppProtection**, **HTTP** or **HTTPS** needs to be selected.",
+            "If **Browser Access** and **AppProtection** are selected, the **Use Untrusted Certificates** checkbox is automatically selected."
+          ]
+        }
+      ]
+    },
+    "access-methods": {
+      "statement": "With AppProtection enabled on an application, Client Connector access is applied automatically, and users reach it from a web browser that supports TLS 1.2 with cipher suite ECDHE-RSA-AES128-GCM-SHA256, or from Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-applications.json",
+          "quotes": [
+            "enable AppProtection for the application, Zscaler Client Connector access is automatically applied.",
+            "any web browser that supports TLS 1.2 (with cipher suite ECDHE-RSA-AES128-GCM-SHA256) or via Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "protocols": {
+      "statement": "Private Access supports the HTTP and HTTPS protocols for AppProtection applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-applications.json",
+          "quotes": [
+            "Private Access supports HTTP and HTTPS protocols."
+          ]
+        }
+      ]
+    },
+    "multimatch-validation": {
+      "statement": "When Multimatch is enabled, a Multimatch Validation window lists impacted application segments and conflicting features, with a warning for a conflict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "When Multimatch is enabled, a Multimatch Validation window appears for you to review any impacted application segments and conflicting features. If there is a conflicting feature, a warning appears."
+          ]
+        }
+      ]
+    },
+    "sdk-inspect-type": {
+      "statement": "In the Python SDK, client.zpa.app_segments_inspection returns an AppSegmentsInspectionAPI, whose add_segment_inspection sets app_types to INSPECT on each apps_config block that has none.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zpa_service.py",
+          "quotes": [
+            "def app_segments_inspection(self) -> AppSegmentsInspectionAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_segments_inspection.py",
+          "quotes": [
+            "app_config[\"app_types\"] = [\"INSPECT\"]"
+          ],
+          "after": "def add_segment_inspection(self, **kwargs) -> APIResult[dict]:"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "non-negotiating-clients": {
+      "kind": "semantic",
+      "title": "What happens to a client that does not negotiate the stated TLS 1.2 cipher",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Browsers / clients that don't negotiate this cipher fail. Modern browsers handle it fine.\" The help names the TLS 1.2 cipher suite users need and does not describe the failure behavior.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "cipher-currency": {
+      "kind": "data",
+      "title": "Whether the cipher constraint is current",
+      "status": "open",
+      "detail": "Unverified legacy statement: the TLS 1.2 cipher constraint is \"sourced from help captures only; not confirmed against SDK/API or a current product note, and may have widened with newer connector builds.\" No API or SDK field carries it.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "pra-sipa-compatibility": {
+      "kind": "semantic",
+      "title": "Compatibility of AppProtection with Privileged Remote Access and Source IP Anchoring",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"PRA traffic is RDP/SSH/VNC and not subject to HTTP/AD-protocol inspection. PRA's session-recording is the analogous oversight layer\" and \"SIPA: Compatible (presumably — not mentioned as mutually exclusive in captures)\". The AppProtection pages do not mention either feature. The Multimatch Validation window lists conflicting features for a segment.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "placement": {
+      "kind": "semantic",
+      "title": "Where AppProtection inspection runs in the data path",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Inspection runs inline inside the ZTE — no separate appliance, no traffic deflection\", and the architecture diagram of user, App Connector, Zero Trust Exchange, AppProtection and LSS. The reference architecture article states only that AppProtection does inline inspection of application flows in real time.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

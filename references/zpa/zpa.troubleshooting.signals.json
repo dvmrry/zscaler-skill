@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.signals",
+  "title": "Where ZPA access evidence lives: console, client, connector, log streaming",
+  "aliases": [
+    "zpa signal sources",
+    "zpa troubleshooting logs",
+    "z-tunnel 1.0 vs 2.0 ports",
+    "posture evaluation frequency",
+    "zpa connector logs",
+    "remote troubleshooting journalctl"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.log-receivers.delivery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Evidence comes from the Admin Console, the client, the connector hosts and streamed logs, and each has its own limits."
+    },
+    {
+      "label": "Console and retention.",
+      "text": "The retention of the logs the console shows is in [[zpa.log-receivers.delivery]]. Connector state and update status are in [[zpa.app-connectors.health]] and [[zpa.app-connectors.upgrades]]."
+    },
+    {
+      "label": "Client.",
+      "text": "{{ztunnel-versions}} {{posture-frequency}} The default cadence is also in [[zpa.posture-profiles.evaluation:cadence]]. The state indicator and local error codes of the client are not sourced {{gap:client-local-signals}}."
+    },
+    {
+      "label": "Connector hosts.",
+      "text": "{{health-monitoring-tcp-failures}} An enrollment failure from a copied key is described in [[zpa.app-connectors.provisioning-keys]]. What the connector logs for reachability and certificate failures is not sourced {{gap:connector-log-signals}} {{gap:remote-collection}}."
+    },
+    {
+      "label": "Streamed logs.",
+      "text": "The fields are in [[zpa.troubleshooting.log-fields]], and the connector-side loss behavior in [[zpa.app-connectors.health]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "How old the event is against the retention of the console and of any stream before looking for it.",
+      "uses": [
+        "zpa.log-receivers.delivery:cloud-retention"
+      ]
+    },
+    {
+      "do": "Which tunnel type the client uses, since only Z-Tunnel 2.0 carries all ports and protocols.",
+      "uses": [
+        "ztunnel-versions"
+      ]
+    },
+    {
+      "do": "How often the client evaluates posture for the profile in the policy, and that some checks evaluate immediately.",
+      "uses": [
+        "posture-frequency",
+        "zpa.posture-profiles.evaluation:cadence"
+      ]
+    },
+    {
+      "do": "Whether a connector shows Disconnected while its VM runs, and what the connector reports locally.",
+      "uses": [
+        "zpa.app-connectors.health:logged-but-disconnected",
+        "zpa.app-connectors.health:cloud-connectivity-checks",
+        "connector-log-signals"
+      ]
+    },
+    {
+      "do": "That TCP failures and resets toward the application server are expected from health monitoring before treating them as the fault.",
+      "uses": [
+        "health-monitoring-tcp-failures"
+      ]
+    },
+    {
+      "do": "Whether a connector shows a copied-key enrollment failure in its console.",
+      "uses": [
+        "zpa.app-connectors.provisioning-keys:incorrect-copy-error"
+      ]
+    },
+    {
+      "do": "Whether streamed logs cover the period, noting the loss behavior.",
+      "uses": [
+        "zpa.app-connectors.health:lss-retransmit-limits"
+      ]
+    }
+  ],
+  "claims": {
+    "health-monitoring-tcp-failures": {
+      "statement": "The help calls many TCP failures from an App Connector to the application server normal, mostly the result of the connector's health monitoring of the server, and says a capture facing the server shows many TCP handshakes and RST packets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "troubleshooting-app-connectors.json",
+          "quotes": [
+            "These TCP failures are normal and are mostly due to the App Connector doing health monitoring of the application server.",
+            "You can see a lot of TCP 3-way handshakes and/or RST packets if you get a pcap from the App Connector facing the application server."
+          ]
+        }
+      ]
+    },
+    "ztunnel-versions": {
+      "statement": "Z-Tunnel 2.0 uses DTLS or TLS to send packets to the Zscaler service and can send all ports and protocols, while Z-Tunnel 1.0 forwards via CONNECT requests and sends all proxy-aware traffic or port 80/443 traffic, depending on the forwarding profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-z-tunnel-1.0-z-tunnel-2.0.json",
+          "quotes": [
+            "Z-Tunnel 2.0 has a tunneling architecture that uses DTLS or TLS to send packets to the Zscaler service.",
+            "Because of this, Z-Tunnel 2.0 is capable of sending all ports and protocols.",
+            "Z-Tunnel 1.0 sends all proxy-aware traffic or port 80/443 traffic to the Zscaler service, depending on the forwarding profile configuration."
+          ]
+        }
+      ]
+    },
+    "posture-frequency": {
+      "statement": "Zscaler Client Connector evaluates device posture for each posture type at a configured frequency, in one-minute intervals, with a maximum default of 15 minutes and a minimum of 2 minutes (Windows 4.4 and later, macOS 4.5 and later), and for some checks it evaluates immediately when the posture changes, whatever the frequency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "select how often Zscaler Client Connector evaluates device posture by selecting a value, in one-minute intervals, from the drop-down menu.",
+            "The maximum default value is 15 minutes. The minimum value is 2 minutes.",
+            "evaluates device posture immediately when the posture changes on a device, regardless of what is configured in the Frequency (In Minutes) field"
+          ]
+        }
+      ],
+      "conditions": "The help gives the frequency as a per-posture-type setting with a maximum default of 15 minutes; the cadence subject cites the device posture article's every-15-minutes wording."
+    }
+  },
+  "gaps": {
+    "client-local-signals": {
+      "kind": "semantic",
+      "title": "Client tunnel state and local error codes",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Z-Tunnel state: ZCC must be in an active tunnel state for Private Access traffic interception. A user-accessible tunnel state indicator is available in the ZCC application. Error codes from ZCC: ZCC exposes local error codes on connection failure. These are ZCC-level diagnostics and are outside the ZPA admin console view.\" No captured source describes a tunnel state indicator for Private Access or says that error codes are produced on a connection failure; the legacy pointer to the Client Connector error-code article is a navigation aid and is not carried over.",
+      "resolves_with": [
+        "operator-experience",
+        "source-read"
+      ]
+    },
+    "connector-log-signals": {
+      "kind": "semantic",
+      "title": "What the connector logs for reachability and certificate failures",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Application reachability: the connector performs DNS and TCP reachability checks for applications at access time (or continuously if `health_reporting = CONTINUOUS`). Connection failures to the application server surface in connector logs as TCP or TLS errors against the application's IP/port. Certificate errors: if the application server's certificate chain fails validation by the connector (relevant for double-encrypted segments), the connector logs a TLS handshake failure.\" The connector health subject holds the sourced connectivity checks and messages, and the help says TCP failures toward the server are normal health monitoring (health-monitoring-tcp-failures); no source states these log contents or that the connector logs reachability failures by application.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "remote-collection": {
+      "kind": "semantic",
+      "title": "Remote log and interface collection",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Remote troubleshooting supports `journalctl` collection of either service logs or full-system logs from App Connectors, Private Service Edges, Private Cloud Controllers, and Network Connectors. For App Connectors, the **Get Network Interfaces** command collects the network-interface inventory used by the connector.\" The release-summary capture that held this text was replaced by a canonical recapture that no longer contains it, The connector and Private Service Edge troubleshooting articles mention remote troubleshooting session commands that a paused component may reject, but neither mentions journalctl collection of service or full-system logs or a Get Network Interfaces command.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.entitlement",
+  "title": "Which AppProtection capabilities depend on the subscription",
+  "aliases": [
+    "appprotection license",
+    "browser protection subscription",
+    "is appprotection included with zpa",
+    "appprotection sku"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Some of the console is shown only for some subscriptions. {{browser-protection-option}} {{browser-protection-page}}"
+    },
+    {
+      "label": "What is not documented.",
+      "text": "What Browser Protection adds beyond baseline AppProtection, and the tier names that gate it, are open {{gap:tier-entitlement}}. That the default profile ships with every account is in [[zpa.appprotection.profiles]]; whether the rest of AppProtection needs a separate SKU is open {{gap:baseline-bundling}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Browser Protection option appears on the AppProtection Policy page of the tenant.",
+      "uses": [
+        "browser-protection-option"
+      ]
+    }
+  ],
+  "claims": {
+    "browser-protection-option": {
+      "statement": "Depending on the AppProtection subscription, the AppProtection Policy page shows a Browser Protection security policy option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-policy.json",
+          "quotes": [
+            "Depending on your AppProtection subscription, you see the following Security policy option: Browser Protection."
+          ]
+        }
+      ]
+    },
+    "browser-protection-page": {
+      "statement": "The AppProtection profiles page links to a Browser Protection page for Browser Protection profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-profiles.json",
+          "quotes": [
+            "Go to the Browser Protection page to view and manage your Browser Protection profiles."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "tier-entitlement": {
+      "kind": "data",
+      "title": "What Browser Protection unlocks and which tiers carry it",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Browser Protection — tier-gated, separate subscription consideration\" and \"Possibly other tier-gated capabilities not captured (ThreatLabZ controls, advanced Active Directory protection, custom-rule limits, etc.)\". The help says only that the option appears depending on the subscription. Tier names (Business, Transformation, Workplace+) are not in the captures. The account team confirms entitlement for a tenant.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "baseline-bundling": {
+      "kind": "semantic",
+      "title": "Whether baseline AppProtection is bundled with ZPA",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"AppProtection appears bundled with ZPA ... the help docs don't gate basic AppProtection behind a separate SKU.\" The help says a default profile is included with account setup; it does not state a licensing position.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

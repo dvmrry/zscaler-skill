@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.controls",
+  "title": "AppProtection controls: kinds, OWASP groups and versions",
+  "aliases": [
+    "appprotection controls",
+    "owasp predefined controls",
+    "threatlabz controls",
+    "owasp_crs version migrate",
+    "websocket controls appprotection",
+    "api controls appprotection",
+    "custom controls appprotection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.active-directory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.api-surface"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Controls are the detection rules that a profile selects. {{control-groups}} {{api-and-ad-pages}}"
+    },
+    {
+      "label": "OWASP.",
+      "text": "{{owasp-categories}} {{control-fields}}"
+    },
+    {
+      "label": "Versions.",
+      "text": "{{owasp-version-default}} {{unsupported-migrate}} Whether outdated controls are ever migrated without that action is open {{gap:no-auto-upgrade}}. How many controls the OWASP groups hold is open {{gap:owasp-control-count}}."
+    },
+    {
+      "label": "ThreatLabZ.",
+      "text": "{{threatlabz-cves}}"
+    },
+    {
+      "label": "API.",
+      "text": "{{api-controls}}"
+    },
+    {
+      "label": "WebSocket.",
+      "text": "{{websocket-predefined}}"
+    },
+    {
+      "label": "Custom.",
+      "text": "{{custom-controls}} {{custom-in-use-undeletable}}"
+    },
+    {
+      "text": "How controls are chosen, given a paranoia level and an action: [[zpa.appprotection.profiles]]. The Active Directory controls: [[zpa.appprotection.active-directory]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which kind of control the finding or rule belongs to, and whether it is predefined or custom.",
+      "uses": [
+        "control-groups",
+        "api-and-ad-pages"
+      ]
+    },
+    {
+      "do": "Which OWASP_CRS version the profile and the controls table are on, and whether outdated controls remain.",
+      "uses": [
+        "owasp-version-default",
+        "unsupported-migrate",
+        "no-auto-upgrade"
+      ]
+    },
+    {
+      "do": "Whether a custom control is still used by a profile before deleting it.",
+      "uses": [
+        "custom-in-use-undeletable"
+      ]
+    }
+  ],
+  "claims": {
+    "control-groups": {
+      "statement": "AppProtection controls are grouped as predefined controls from ThreatLabZ, OWASP and WebSocket, or as custom WebSocket or HTTP controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-controls.json",
+          "quotes": [
+            "AppProtection controls are grouped by predefined controls that come from ThreatLabZ, Open Web Application Security Project (OWASP), and WebSocket, or custom WebSocket or HTTP controls."
+          ]
+        }
+      ]
+    },
+    "api-and-ad-pages": {
+      "statement": "The console also has separate API Controls and Active Directory Controls pages, and profiles can use both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-controls.json",
+          "quotes": [
+            "Go to the API Controls page to view and manage the available API controls.",
+            "Go to the Active Directory Controls page to view and manage the available Active Directory controls."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-appprotection-profiles.json",
+          "quotes": [
+            "WebSocket Controls, API Controls, and Active Directory Controls you have defined."
+          ]
+        }
+      ]
+    },
+    "owasp-categories": {
+      "statement": "The OWASP predefined controls are organized into thirteen categories: Preprocessors, Environment and Port Scanners, Protocol Issues, Request Smuggling or Response Split or Header Injection, Local File Inclusion, Remote File Inclusion, Remote Code Execution, PHP Injection, Cross-Site Scripting (XSS), SQL Injection, Session Fixation, Deserialization, and Issues Anomalies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-controls.json",
+          "quotes": [
+            "The predefined controls are organized into the following categories:",
+            "- Preprocessors - Environment and Port Scanners - Protocol Issues - Request Smuggling or Response Split or Header Injection - Local File Inclusion - Remote File Inclusion",
+            "- Remote Code Execution - PHP Injection - Cross-Site Scripting (XSS) - SQL Injection - Session Fixation - Deserialization - Issues Anomalies"
+          ]
+        }
+      ]
+    },
+    "control-fields": {
+      "statement": "Each OWASP predefined control shows a control number, name, description, paranoia level, severity of Low, Medium, High or Critical, and a control action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-controls.json",
+          "quotes": [
+            "The severity levels are **Low**, **Medium**, **High**, and **Critical**.",
+            "**Control Action**: What action occurs when the OWASP predefined control is in use.",
+            "**Control Number**: A number identifying the OWASP predefined control.",
+            "**Paranoia Level**: The associated level, which corresponds to the levels available in an AppProtection profile."
+          ]
+        }
+      ]
+    },
+    "owasp-version-default": {
+      "statement": "The OWASP predefined controls table is on version OWASP_CRS/4.8.0 by default, and some predefined controls are unavailable in older versions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-controls.json",
+          "quotes": [
+            "By default, the version is set to **OWASP_CRS/4.8.0**. Some predefined controls are unavailable in older versions."
+          ]
+        }
+      ]
+    },
+    "unsupported-migrate": {
+      "statement": "The Unsupported filter lists the outdated versions, and its Migrate action migrates all of them to the latest version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-appprotection-controls.json",
+          "quotes": [
+            "You can select the **Unsupported** filter to list all of the outdated versions. With this filter, you can select **Migrate** to migrate all of the outdated versions to the latest version."
+          ]
+        }
+      ]
+    },
+    "threatlabz-cves": {
+      "statement": "ThreatLabZ predefined controls are up-to-date controls written and maintained by the Zscaler Security team for emerging attack vectors and vulnerabilities, and are created to address confirmed CVEs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-threatlabz-controls.json",
+          "quotes": [
+            "The ThreatLabZ predefined controls in the Zscaler Admin Console are created by the Zscaler Security team to address confirmed Common Vulnerabilites and Exposures (CVEs).",
+            "providing up-to-date controls written and maintained by the Zscaler Security team who addresses emerging attack vectors and vulnerabilities."
+          ]
+        }
+      ],
+      "conditions": "Statement widened to include the same page's up-to-date/emerging-vectors sentence; the CVE sentence is unchanged."
+    },
+    "api-controls": {
+      "statement": "API controls inspect API traffic by flagging transactions that include security violations such as social security numbers and credit card numbers, in the categories Security Misconfiguration, Server Side Request Forgery and Info Disclosure Controls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-api-protection-controls.json",
+          "quotes": [
+            "API controls provide inspection of API traffic by flagging transactions that include security violations such as social security numbers and credit card numbers.",
+            "- Security Misconfiguration - Server Side Request Forgery - Info Disclosure Controls"
+          ]
+        }
+      ]
+    },
+    "websocket-predefined": {
+      "statement": "WebSocket predefined controls are populated automatically in the portal and are organized into WebSocket Handshake Headers Check, WebSocket Framing Errors, Frame Type Verification, Client Mask Bit Verification and Server Unmask Bit Verification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-websocket-controls.json",
+          "quotes": [
+            "WebSocket predefined controls are automatically populated in the portal.",
+            "- WebSocket Handshake Headers Check - WebSocket Framing Errors - Frame Type Verification - Client Mask Bit Verification - Server Unmask Bit Verification"
+          ]
+        }
+      ]
+    },
+    "custom-controls": {
+      "statement": "Custom controls define specific request and response elements and the action to handle them, and several can be used in one profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-custom-controls.json",
+          "quotes": [
+            "Custom controls give you the flexibility to set and define the specific request and response elements (e.g., request header, response body, etc.) and the preferred action used to handle them. You can create multiple custom controls and use them within the same AppProtection profile."
+          ]
+        }
+      ]
+    },
+    "custom-in-use-undeletable": {
+      "statement": "A custom control, or a WebSocket control, that is in use by an AppProtection profile cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-custom-controls.json",
+          "quotes": [
+            "When a custom control is in use by an AppProtection profile, it cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-websocket-controls.json",
+          "quotes": [
+            "When a WebSocket control is in use by an AppProtection profile, it cannot be deleted."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "no-auto-upgrade": {
+      "kind": "semantic",
+      "title": "Whether outdated OWASP controls are ever upgraded without the Migrate action",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Older OWASP CRS controls don't auto-upgrade — operators must select and run the `Migrate` action. Tenants on long-running deployments may be using outdated rule sets without realizing.\" The help page describes the Unsupported filter and Migrate, and says nothing about automatic upgrade. Resolving it needs a tenant on an older version, or Zscaler Support.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "owasp-control-count": {
+      "kind": "data",
+      "title": "How many controls the OWASP groups hold",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Each group contains many specific Control Numbers (the OWASP CRS ships hundreds total).\" No captured source gives a count. The predefined controls list endpoint returns them per version.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

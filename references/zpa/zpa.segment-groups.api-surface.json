@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "id": "zpa.segment-groups.api-surface",
+  "title": "The segment group API, model fields and Terraform resource",
+  "aliases": [
+    "segmentGroup endpoint",
+    "update_group_v2",
+    "UpdateV2 segment group",
+    "policyMigrated",
+    "tcpKeepAliveEnabled",
+    "zpa_segment_group resource",
+    "terraform import zpa_segment_group",
+    "segment group data source"
+  ],
+  "binds": [
+    "zpa/segment-groups",
+    "zpa/segment-groups#policyMigrated",
+    "zpa/segment-groups#tcpKeepAliveEnabled",
+    "zpa/segment-groups#configSpace"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.data-source-fidelity"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the segment group endpoints, model fields and the Terraform resource and data source."
+    },
+    {
+      "label": "Endpoints.",
+      "text": "{{endpoints}} {{v2-body-differs}} {{sdks-expose-both-updates}} {{tf-update-uses-v2}} Their behavioral difference is open {{gap:v2-update-differences}}."
+    },
+    {
+      "label": "Model fields.",
+      "text": "{{go-model-flags}} {{config-space-values}} What configSpace means is open {{gap:config-space-meaning}}. What the keepalive field does is open {{gap:tcp-keep-alive-enabled-effect}}, and its type differs between the spec and the Go model {{divergence:tcp-keep-alive-enabled-type-differs}}. What skipDetailedAppInfo does is open {{gap:skip-detailed-app-info-effect}}."
+    },
+    {
+      "label": "Terraform.",
+      "text": "{{tf-resource-schema}} {{tf-import}} {{tf-data-source-outputs}} Provider defects around these objects are in [[zpa.sdk-go.service-defects]] and [[zpa.terraform.data-source-selection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which update version the tool in use calls, since the v1 and v2 bodies differ.",
+      "uses": [
+        "endpoints",
+        "v2-body-differs",
+        "tf-update-uses-v2"
+      ]
+    },
+    {
+      "do": "Whether enabled and policyMigrated are written explicitly, since the Go model never omits them.",
+      "uses": [
+        "go-model-flags"
+      ]
+    },
+    {
+      "do": "Whether Terraform state for applications reflects the group's real membership, which the resource reads back but writes as IDs only.",
+      "uses": [
+        "tf-resource-schema",
+        "zpa.sdk-go.service-defects:provider-segment-group-resource-writes-application-ids-only"
+      ]
+    }
+  ],
+  "claims": {
+    "endpoints": {
+      "statement": "The segment group API lists and creates at `/mgmtconfig/v1/admin/customers/{customerId}/segmentGroup`, gets, updates and deletes at `.../segmentGroup/{segmentGroupId}`, and has a separate v2 update at `/mgmtconfig/v2/.../segmentGroup/{segmentGroupId}`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup/post",
+          "expect": {
+            "description": "Adds a new Segment Group for the specified customer."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put",
+          "expect": {
+            "description": "Updates the Segment Group for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/delete",
+          "expect": {
+            "description": "Deletes the Segment Group for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put",
+          "expect": {
+            "description": "Update a Segment Group."
+          }
+        }
+      ]
+    },
+    "v2-body-differs": {
+      "statement": "The v1 segment group body has `policyMigrated`, `applicationNames` and `sharedMicrotenantIds`, while the v2 update body has `addedApps` and `deletedApps` instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/policyMigrated",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/sharedMicrotenantIds",
+          "expect": {
+            "items": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/deletedApps",
+          "expect": {
+            "items": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "sdks-expose-both-updates": {
+      "statement": "The Go SDK exposes `Update` (v1 path) and `UpdateV2` (v2 path), and the Python SDK exposes `update_group` and `update_group_v2` against the v1 and v2 base endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "func UpdateV2(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup)",
+            "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV2+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/segment_groups.py",
+          "quotes": [
+            "def update_group_v2(self, group_id: str, **kwargs)",
+            "self._zpa_base_endpoint_v2 = f\"/zpa/mgmtconfig/v2/admin/customers/{customer_id}\""
+          ]
+        }
+      ]
+    },
+    "tf-update-uses-v2": {
+      "statement": "The Terraform `zpa_segment_group` resource updates through `segmentgroup.UpdateV2`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "segmentgroup.UpdateV2(ctx, service, id, &req)"
+          ]
+        }
+      ]
+    },
+    "go-model-flags": {
+      "statement": "The Go segment group model tags `enabled` and `policyMigrated` without omitempty, so false is always sent.",
+      "tier": "A",
+      "binds": [
+        "zpa/segment-groups#enabled",
+        "zpa/segment-groups#policyMigrated"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "quotes": [
+            "Enabled bool `json:\"enabled\"`",
+            "PolicyMigrated bool `json:\"policyMigrated\"`"
+          ],
+          "after": "type SegmentGroup struct {"
+        }
+      ]
+    },
+    "config-space-values": {
+      "statement": "The API field `configSpace` on a segment group takes `DEFAULT` or `SIEM`.",
+      "tier": "A",
+      "binds": [
+        "zpa/segment-groups#configSpace"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/configSpace",
+          "expect": {
+            "enum": [
+              "DEFAULT",
+              "SIEM"
+            ],
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "tf-resource-schema": {
+      "statement": "The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false, and only each application's ID is sent on write.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "quotes": [
+            "Enabled: d.Get(\"enabled\").(bool),",
+            "segmentGroupApplications[i] = segmentgroup.Application{",
+            "ID: segmentGroupItem[\"id\"].(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_segment_group.md",
+          "quotes": [
+            "* `description` (String) Description of the segment group.",
+            "* `enabled` (Optional) Whether this segment group is enabled or not.",
+            "* `microtenant_id` (String) The ID of the microtenant the resource is to be associated with."
+          ]
+        }
+      ]
+    },
+    "tf-import": {
+      "statement": "A segment group can be imported into Terraform by ID or by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_segment_group.md",
+          "quotes": [
+            "**segment_group** can be imported by using `<SEGMENT GROUP ID>` or `<SEGMENT GROUP NAME>` as the import ID."
+          ]
+        }
+      ]
+    },
+    "tf-data-source-outputs": {
+      "statement": "The Terraform data source looks a group up by name and exports `config_space`, `policy_migrated`, `tcp_keep_alive_enabled`, the microtenant fields and a computed `applications` block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/data-sources/zpa_segment_group.md",
+          "quotes": [
+            "`name` - (Required) The name of the segment group to be exported.",
+            "* `policy_migrated` - (bool)",
+            "* `tcp_keep_alive_enabled` - (string)",
+            "* `applications` - (Computed)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "tcp-keep-alive-enabled-type-differs": {
+      "summary": "The API spec types a segment group's `tcpKeepAliveEnabled` as an integer while the Go model and the Terraform data source type it as a string.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1segmentGroup~1{segmentGroupId}/put/requestBody/content/application~1json/schema/properties/tcpKeepAliveEnabled",
+            "expect": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "says": "The API spec types tcpKeepAliveEnabled as a 32-bit integer."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+            "quotes": [
+              "TcpKeepAliveEnabled string `json:\"tcpKeepAliveEnabled,omitempty\"`"
+            ]
+          },
+          "says": "The Go model types tcpKeepAliveEnabled as a string."
+        }
+      ],
+      "impact": "A body written from the spec may send an integer where the SDK sends a string; the literal the service accepts is not shown by these sources."
+    }
+  },
+  "gaps": {
+    "v2-update-differences": {
+      "kind": "semantic",
+      "former_ids": [
+        "zpa-69"
+      ],
+      "title": "What the v2 segment group update changes behaviorally, and whether it is the preferred form",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "choosing between update and update_v2",
+      "detail": "Both SDK update bodies are built the same way and the spec shows different body fields, but the behavioral difference in field handling, application association writes and validation is not stated. Unverified legacy statement: the v2 update endpoint is the current-preferred form. Compare v1 and v2 update results for one group."
+    },
+    "tcp-keep-alive-enabled-effect": {
+      "kind": "semantic",
+      "former_ids": [
+        "sg-03",
+        "zpa-71"
+      ],
+      "title": "What tcpKeepAliveEnabled on a segment group changes and how it relates to the segment-level setting",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying whether the group setting overrides segment keepalive",
+      "detail": "No captured source describes the group-level TCP keepalive effect for brokered sessions, nor whether it overrides or is overridden by the application segment's TCP Keepalive setting. Unverified legacy statement: presence or absence of the field controls TCP keepalive behavior."
+    },
+    "config-space-meaning": {
+      "kind": "semantic",
+      "former_ids": [
+        "zpa-72"
+      ],
+      "title": "When a segment group's configSpace is anything other than DEFAULT",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "setting or interpreting configSpace",
+      "detail": "The spec enumerates DEFAULT and SIEM. Unverified legacy statement: configSpace is typically DEFAULT and is not user-settable in standard configurations; the legacy reference also treats microtenantName as read-only and populated by the API when microtenantId is set. Read groups from a tenant with SIEM configuration."
+    },
+    "skip-detailed-app-info-effect": {
+      "kind": "semantic",
+      "former_ids": [
+        "zpa-70"
+      ],
+      "title": "Whether skipDetailedAppInfo is a request-side toggle or a stored attribute of a segment group",
+      "status": "open",
+      "about": [
+        "zpa.segment-groups.api-surface"
+      ],
+      "detail": "Unverified legacy statement: the Python segment group model carries skip_detailed_app_info (wire key skipDetailedAppInfo) and round-trips it through request_format(), but the service layer does no special handling, so whether it suppresses the detailed application inflation in a response or is a stored attribute cannot be told from the SDK source. Needs an API reference or a lab test.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

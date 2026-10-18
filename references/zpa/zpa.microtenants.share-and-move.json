@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "id": "zpa.microtenants.share-and-move",
+  "title": "Sharing and moving between Microtenants",
+  "aliases": [
+    "share application segment to microtenant",
+    "move application segment to microtenant",
+    "app_segment_move",
+    "app_segment_share",
+    "credential_move",
+    "shareToMicrotenants",
+    "sharedMicrotenantDetails",
+    "AppSegmentMicrotenantMove",
+    "AppSegmentMicrotenantShare",
+    "microtenant readOnly segment"
+  ],
+  "binds": [
+    "zpa/application-segments#shareToMicrotenants",
+    "zpa/application-segments#sharedMicrotenantDetails",
+    "zpa/application-segments#sharedMicrotenantDetails.sharedFromMicrotenant",
+    "zpa/application-segments#sharedMicrotenantDetails.sharedToMicrotenants",
+    "zpa/application-segments#readOnly"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.api-scoping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.admin-permissions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.terraform.app-segment-lifecycle"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.sdk-go.service-defects"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Sharing keeps the segment in its owner and lets another Microtenant use it, and moving changes the owner."
+    },
+    {
+      "label": "Share.",
+      "text": "{{share-explicit}} {{shared-details-fields}} Whether a shared-in segment is editable is open {{gap:readonly-semantics}}."
+    },
+    {
+      "label": "Move.",
+      "text": "{{unshared-can-move}} {{move-prerequisites}} {{move-targets}} The Python docstring gives the opposite direction {{divergence:move-direction}}. {{move-unsupported-cases}}"
+    },
+    {
+      "label": "Python.",
+      "text": "{{python-move}} {{python-share}} [[zpa.pra.tooling:credential-move]]"
+    },
+    {
+      "label": "Go.",
+      "text": "{{go-move-and-share}} {{go-share-body-omitempty}} Whether Go can remove a share is open {{gap:go-unshare-empty-list}}. The move body differs from the specification {{divergence:move-body-shape}}."
+    },
+    {
+      "label": "Terraform.",
+      "text": "Sharing from Terraform is a second write after the segment: [[zpa.terraform.app-segment-lifecycle:main-share-separate-write]], with a spurious `sharedMicrotenantDetails` object in [[zpa.terraform.app-segment-lifecycle:phantom-shared-microtenant-object]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the segment is shared or must be moved, and whether it is currently shared to another Microtenant before it is moved.",
+      "uses": [
+        "share-explicit",
+        "unshared-can-move",
+        "move-prerequisites"
+      ]
+    },
+    {
+      "do": "The direction of the move: from a custom Microtenant the console offers only Default, while the Python docstring says Default to a child only.",
+      "uses": [
+        "move-targets",
+        "move-direction"
+      ]
+    },
+    {
+      "do": "Whether a policy, privileged approval or privileged console references the segment, since those block or require deletion before a move.",
+      "uses": [
+        "move-prerequisites",
+        "move-unsupported-cases"
+      ]
+    },
+    {
+      "do": "Which SDK builds the request, and whether the move body carries applicationId and microtenantId.",
+      "uses": [
+        "python-move",
+        "go-move-and-share",
+        "move-body-shape"
+      ]
+    },
+    {
+      "do": "Whether the Go SDK can send an empty share list to remove a share.",
+      "uses": [
+        "python-share",
+        "go-unshare-empty-list"
+      ]
+    },
+    {
+      "do": "Whether a segment seen as shared in is editable in the receiving Microtenant.",
+      "uses": [
+        "shared-details-fields",
+        "readonly-semantics"
+      ]
+    }
+  ],
+  "claims": {
+    "share-explicit": {
+      "statement": "Applications can be shared explicitly between Microtenants; the Share icon appears only inside a Microtenant, and the Default tenant is not a share target.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#shareToMicrotenants"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "sharing-defined-application-segments.json",
+          "quotes": [
+            "Applications can be shared explicitly between Microtenants. The Share icon only appears if you are in a Microtenant.",
+            "The Default tenant is not an option, as the Share option is also not shown in the Default tenant."
+          ]
+        }
+      ]
+    },
+    "unshared-can-move": {
+      "statement": "An application that is not shared with any other Microtenant can be moved to the Default Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-microtenants.json",
+          "quotes": [
+            "If an application is not shared with any other Microtenant, it can be moved to the Default Microtenant."
+          ]
+        }
+      ]
+    },
+    "move-prerequisites": {
+      "statement": "Before moving a defined application segment, the target segment group and server group must be configured and the associated policy must be deleted; before moving a privileged credential, the associated privileged credential policy must be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "moving-resources-microtenant.json",
+          "quotes": [
+            "The target segment group and server group associated to the application segment must be configured.",
+            "The associated policy must be deleted.",
+            "Prior to moving a privileged credential, the associated privileged credential policy must be deleted."
+          ]
+        }
+      ]
+    },
+    "move-targets": {
+      "statement": "From inside a Microtenant, the only Microtenant option to move an application segment to is Default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "moving-resources-microtenant.json",
+          "quotes": [
+            "If you are using a Microtenant, the only Microtenant option to move your application segment to is Default."
+          ]
+        }
+      ]
+    },
+    "move-unsupported-cases": {
+      "statement": "Browser Access on a segment does not persist when it is moved from the Default Microtenant, so the web server certificate must be selected again; moving a segment referenced in a privileged approval is not supported; moving a segment whose Privileged Remote Access application is used in a privileged console is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "moving-resources-microtenant.json",
+          "quotes": [
+            "Browser Access on an application segment does not persist if the application segment is moved from the Default Microtenant to another Microtenant. You must select the web server certificate after the application segment is moved.",
+            "Moving an application segment that is referenced in a privileged approval is not supported.",
+            "Moving an application segment is not supported if the Privileged Remote Access-enabled application associated with the application segment is used in the privileged console."
+          ]
+        }
+      ]
+    },
+    "shared-details-fields": {
+      "statement": "An application segment carries `sharedMicrotenantDetails` with `sharedFromMicrotenant` (id and name of the source) and `sharedToMicrotenants` (the Microtenants it was shared to).",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#sharedMicrotenantDetails",
+        "zpa/application-segments#sharedMicrotenantDetails.sharedFromMicrotenant",
+        "zpa/application-segments#sharedMicrotenantDetails.sharedToMicrotenants"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "after": "type SharedMicrotenantDetails struct {",
+          "quotes": [
+            "SharedFromMicrotenant SharedFromMicrotenant `json:\"sharedFromMicrotenant,omitempty\"`",
+            "SharedToMicrotenants []SharedToMicrotenant `json:\"sharedToMicrotenants,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}/get/responses/200/content/*~1*/schema/properties/sharedMicrotenantDetails",
+          "expect": {
+            "title": "SharedMicrotenantDetails"
+          }
+        }
+      ]
+    },
+    "python-move": {
+      "statement": "The Python SDK's `app_segment_move` posts to `/application/{id}/move` with `targetSegmentGroupId`, `targetMicrotenantId` and `targetServerGroupId` in the body and the source scope as the `microtenantId` query parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "after": "def app_segment_move(self, application_id: str, **kwargs)",
+          "quotes": [
+            "/application/{application_id}/move",
+            "\"targetSegmentGroupId\": kwargs.pop(\"target_segment_group_id\", None),",
+            "\"targetMicrotenantId\": kwargs.pop(\"target_microtenant_id\", None),",
+            "\"targetServerGroupId\": kwargs.pop(\"target_server_group_id\", None),"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}~1move/post/requestBody/content/application~1json/schema",
+          "expect": {
+            "title": "AppMoveDTO"
+          }
+        }
+      ]
+    },
+    "python-share": {
+      "statement": "The Python SDK's `app_segment_share` puts `shareToMicrotenants` to `/application/{id}/share`, and its docstring says to send the attribute as an empty list to remove the share.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "after": "def app_segment_share(self, application_id: str, **kwargs)",
+          "quotes": [
+            "To remove the share send the attribute as an empty list.",
+            "\"shareToMicrotenants\": kwargs.pop(\"share_to_microtenants\", None),",
+            "/application/{application_id}/share"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}~1share/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "title": "ApplicationShareResource"
+          }
+        }
+      ]
+    },
+    "go-move-and-share": {
+      "statement": "The Go SDK exposes `AppSegmentMicrotenantMove` (POST `/application/{id}/move`) and `AppSegmentMicrotenantShare` (PUT `/application/{id}/share`), each taking the scope from the request struct or else the service's Microtenant and sending it as the `microtenantId` query filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment_move/applicationsegment_move.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, filter, move, nil)",
+            "filter.MicroTenantID = &microTenantID"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment_share/applicationsegment_share.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, filter, appSegmentRequest, nil)",
+            "filter.MicroTenantID = &microTenantID"
+          ]
+        }
+      ]
+    },
+    "go-share-body-omitempty": {
+      "statement": "The Go share request declares `ShareToMicrotenants` with `omitempty`, and the segment structs declare the same field without it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment_share/applicationsegment_share.go",
+          "quotes": [
+            "ShareToMicrotenants []string `json:\"shareToMicrotenants,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "ShareToMicrotenants []string `json:\"shareToMicrotenants\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "move-direction": {
+      "summary": "The console lets a Microtenant user move a segment only to Default, while the Python SDK docstring says a move can only go from Default to a child Microtenant.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "moving-resources-microtenant.json",
+            "quotes": [
+              "If you are using a Microtenant, the only Microtenant option to move your application segment to is Default."
+            ]
+          },
+          "says": "From inside a Microtenant the only move target is Default."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zpa/application_segment.py",
+            "quotes": [
+              "Note: Application segments can only be moved from a Default Microtenant microtenant_id as 0 to a child tenant"
+            ]
+          },
+          "says": "Moves go only from the Default Microtenant (microtenant_id 0) to a child Microtenant."
+        }
+      ],
+      "impact": "A script that moves a segment from one custom Microtenant back to Default, or one that assumes only Default to child works, follows the wrong source; neither source says which direction the API rejects."
+    },
+    "move-body-shape": {
+      "summary": "The Go move request struct carries five fields including `applicationId` and `microtenantId`, while the OpenAPI move body defines three target fields.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zpa/services/applicationsegment_move/applicationsegment_move.go",
+            "quotes": [
+              "ApplicationID string `json:\"applicationId,omitempty\"`",
+              "MicroTenantID string `json:\"microtenantId,omitempty\"`"
+            ]
+          },
+          "says": "The Go body can carry applicationId and microtenantId besides the three target IDs."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1{applicationId}~1move/post/requestBody/content/application~1json/schema/properties",
+            "expect": {
+              "targetMicrotenantId": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "targetSegmentGroupId": {
+                "format": "int64",
+                "type": "integer"
+              },
+              "targetServerGroupId": {
+                "format": "int64",
+                "type": "integer"
+              }
+            }
+          },
+          "says": "The documented body has only targetMicrotenantId, targetSegmentGroupId and targetServerGroupId; the application ID is in the path and the scope is a query parameter."
+        }
+      ],
+      "impact": "Both fields are omitted when empty, so the extra fields change the wire body only if a caller sets them; the specification does not say whether the API ignores or rejects them."
+    }
+  },
+  "gaps": {
+    "readonly-semantics": {
+      "kind": "semantic",
+      "title": "What readOnly, restrictionType and zscalerManaged mean on a shared-in segment",
+      "status": "open",
+      "detail": "Unverified legacy statement: A segment shared into a Microtenant appears as readOnly in the receiving Microtenant and cannot be edited there; `restrictionType` is a further Microtenant-scope restriction indicator; `zscalerManaged` means Zscaler owns the resource and edit and delete are unavailable. The SDK models carry the three fields but no registered source defines them, and the OpenAPI response schema omits them. A lab share of a segment, read from the receiving Microtenant, would settle it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling whether a shared-in segment can be edited and whether the three fields signal Microtenant membership or write protection",
+      "about": [
+        "zpa/application-segments#readOnly",
+        "zpa/application-segments#restrictionType",
+        "zpa/application-segments#zscalerManaged"
+      ]
+    },
+    "go-unshare-empty-list": {
+      "kind": "semantic",
+      "title": "Whether the Go SDK can remove a share by sending an empty list",
+      "status": "open",
+      "detail": "The Python docstring removes a share by sending an empty `shareToMicrotenants` list, and the Go request declares the field with `omitempty`, which Go's JSON encoder drops for an empty slice. Whether the Go client sends the field, and whether the API treats an absent field as un-share, was not tested. Reading the Go client's marshalling and a lab call would settle it.",
+      "resolves_with": [
+        "code-read",
+        "lab-test"
+      ],
+      "blocks": "advising how to remove a share from Go or Terraform"
+    }
+  }
+}

@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.bypass",
+  "title": "The application segment Bypass setting and how it ranks",
+  "aliases": [
+    "bypass always",
+    "bypass on corporate network",
+    "use client forwarding policy",
+    "bypass_type",
+    "bypass during reauthentication",
+    "bypass_on_reauth",
+    "ON_NET"
+  ],
+  "binds": [
+    "zpa/application-segments#bypassType",
+    "zpa/application-segments#bypassOnReauth"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.matching"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.sdk-behavior"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Bypass setting lets users reach an application without Private Access, and ranks against client forwarding policy and against other segments."
+    },
+    {
+      "label": "Options.",
+      "text": "{{bypass-options}} {{cfp-implicit-forward}} Which console option each API value stands for is open {{gap:label-to-api-mapping}}. {{bypass-api-values}}"
+    },
+    {
+      "label": "Precedence.",
+      "text": "{{bypass-beats-cfp}} {{bypass-domain-level}} {{same-fqdn-always}} Whether Always also outranks a more granular segment with a different FQDN is open {{gap:always-across-different-fqdns}}. How granularity is decided otherwise: [[zpa.app-segments.matching]]."
+    },
+    {
+      "label": "Reauthentication.",
+      "text": "{{reauth-bypass}} How the SDKs serialize the field: [[zpa.app-segments.sdk-behavior]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether any segment covering the same FQDN has Bypass set to Always, since that segment takes precedence over the others.",
+      "uses": [
+        "same-fqdn-always",
+        "always-across-different-fqdns"
+      ]
+    },
+    {
+      "do": "Whether the forwarding profile sends the user to Private Access at all, since the Bypass setting is only consulted after that.",
+      "uses": [
+        "bypass-domain-level",
+        "bypass-beats-cfp"
+      ]
+    },
+    {
+      "do": "Which of the API values ALWAYS, NEVER and ON_NET the tenant holds, read from the segment's bypassType.",
+      "uses": [
+        "bypass-api-values",
+        "label-to-api-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "bypass-options": {
+      "statement": "The Bypass setting offers Use Client Forwarding Policy (the default), Always, and On Corporate Network, which lets users bypass Private Access from a trusted network defined in the Zscaler Client Connector forwarding profile.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#bypassType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-bypass-settings.json",
+          "quotes": [
+            "Use Client Forwarding Policy: This option is selected by default.",
+            "Always: If selected, users can always bypass Private Access when accessing an application.",
+            "On Corporate Network: If selected, users can bypass Private Access when accessing an application from a trusted network. Private Access checks if the user is on a trusted network defined in the Zscaler Client Connector forwarding profile."
+          ]
+        }
+      ]
+    },
+    "cfp-implicit-forward": {
+      "statement": "With Use Client Forwarding Policy, if none of the client forwarding policy rules apply, or none are defined, access to the application is implicitly Forward to ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-bypass-settings.json",
+          "quotes": [
+            "If none of the policy rules apply, then access to the application is implicitly set to Forward to ZPA.",
+            "This is also the case if you do not define any client forwarding policy rules at all within the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "bypass-beats-cfp": {
+      "statement": "The Bypass setting within an application segment always takes precedence over any newly added client forwarding policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "The Bypass setting within an application segment always takes precedence over any newly added client forwarding policy rule."
+          ]
+        }
+      ]
+    },
+    "same-fqdn-always": {
+      "statement": "If the same FQDN is defined in multiple application segments and one of them has Bypass set to Always, that application segment takes precedence.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#bypassType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "if the same FQDN is defined in multiple application segments, and one of them has the Bypass setting set to Always, then that application segment takes precedence."
+          ]
+        }
+      ]
+    },
+    "bypass-domain-level": {
+      "statement": "The Bypass setting is applied at the domain level, and Private Access checks it only after the forwarding profile has specified that the user must use Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-bypass-settings.json",
+          "quotes": [
+            "The Bypass setting is applied at the domain level.",
+            "If the forwarding profile specifies that the user must use Private Access, then Private Access checks the application's Bypass setting"
+          ]
+        }
+      ]
+    },
+    "bypass-api-values": {
+      "statement": "The API and the Terraform schema accept three `bypassType` values: `ALWAYS`, `NEVER` and `ON_NET`.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#bypassType"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/bypassType",
+          "expect": {
+            "enum": [
+              "ALWAYS",
+              "NEVER",
+              "ON_NET"
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "Description: \"Indicates whether users can bypass ZPA to access applications.\",",
+            "\"ON_NET\","
+          ]
+        }
+      ]
+    },
+    "reauth-bypass": {
+      "statement": "Bypass during Reauthentication, when Enabled, makes application access during reauthentication bypass Private Access, needs Zscaler Client Connector 4.3 or later for Windows, macOS and iOS, and is the API field `bypassOnReauth`.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#bypassOnReauth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "Bypass during Reauthentication: Choose whether application access during reauthentication bypasses Private Access (Enabled) or not (Disabled).",
+            "This feature requires Zscaler Client Connector version 4.3 or later for Windows, macOS, and iOS."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application/post/requestBody/content/application~1json/schema/properties/bypassOnReauth",
+          "expect": {
+            "type": "boolean"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "label-to-api-mapping": {
+      "kind": "semantic",
+      "title": "How the console Bypass options map to the API values ALWAYS, NEVER and ON_NET",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "reading a segment's bypassType as a console setting",
+      "detail": "Unverified legacy statement: ON_NET means 'bypass only for on-network users'. No captured source maps the three console options to the three API values; the Terraform examples use NEVER without saying which console option it is. Compare a segment's bypassType with the Bypass option shown in the console for one segment of each kind."
+    },
+    "always-across-different-fqdns": {
+      "kind": "semantic",
+      "title": "Whether Bypass Always outranks a more granular segment that has a different FQDN",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "deciding between a wildcard segment set to Always and a specific-FQDN segment under it",
+      "detail": "Unverified legacy statement: if any covering segment has bypass_type Always, that segment wins regardless of specificity, including a wildcard segment over a specific-FQDN segment. The help states the precedence only when the same FQDN is defined in several segments. Test with `*.example.com` set to Always and `host.example.com` set to NEVER."
+    }
+  }
+}
