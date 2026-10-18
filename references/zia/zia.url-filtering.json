@@ -8,15 +8,72 @@
     "url filter rule",
     "zia url policy"
   ],
-  "binds": ["zia/url-filtering-rules"],
+  "binds": [
+    "zia/url-filtering-rules"
+  ],
   "related": [
-    { "rel": "depends-on", "to": "zia.url-categories.membership" },
-    { "rel": "see-also", "to": "zia.url-filtering.rule-order" },
-    { "rel": "see-also", "to": "zia.url-filtering.criteria" },
-    { "rel": "see-also", "to": "zia.url-filtering.actions" },
-    { "rel": "see-also", "to": "zia.url-filtering.advanced-settings" },
-    { "rel": "see-also", "to": "zia.url-filtering.list-pagination" },
-    { "rel": "interacts-with", "to": "zia.cloud-app-control.precedence" },
-    { "rel": "interacts-with", "to": "zia.ssl-inspection.pipeline" }
+    {
+      "rel": "depends-on",
+      "to": "zia.url-categories.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.list-pagination"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Is this URL blocked, and by which rule?\" needs four questions answered in order. Skipping one is how precedence answers go wrong."
+    },
+    {
+      "steps": [
+        {
+          "label": "Does URL Filtering run at all?",
+          "text": "A Cloud App Control allow skips it unless cascading is on, and Bypass Other Policies skips it entirely: [[zia.cloud-app-control.precedence]], [[zia.ssl-inspection.pipeline]]."
+        },
+        {
+          "label": "Which category is the URL in?",
+          "text": "Resolved before rules, by most-specific entry across custom categories and by Retain Parent for predefined ones: [[zia.url-categories.membership]], with entry syntax in [[zia.url-categories.entry-matching]]."
+        },
+        {
+          "label": "Which rules' criteria match?",
+          "text": "The criteria expression, including the AND between two URL Categories fields and what is visible before decryption: [[zia.url-filtering.criteria]]."
+        },
+        {
+          "label": "Which matching rule is first?",
+          "text": "First match by ascending order, with disabled rules holding their slot: [[zia.url-filtering.rule-order]]."
+        }
+      ]
+    },
+    {
+      "text": "The answer is then that rule's action and its prerequisites: [[zia.url-filtering.actions]]. Tenant-wide settings can change the outcome without any rule changing: [[zia.url-filtering.advanced-settings]]."
+    },
+    {
+      "text": "Before reasoning over a tenant's rules, make sure the list is complete: [[zia.url-filtering.list-pagination]]."
+    }
   ]
 }

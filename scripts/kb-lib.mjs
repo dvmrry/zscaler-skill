@@ -352,62 +352,91 @@ export function sha256File(file) {
 
 const CLAIM_MARKER = /\{\{([a-z0-9]+(?:-[a-z0-9]+)*)(\|ref)?\}\}/g;
 const ITEM_MARKER = /\{\{(gap|divergence):([a-z0-9]+(?:-[a-z0-9]+)*)\}\}/g;
-const LINK_MARKER = /\[\[([^\]\s]+)\]\]/g;
-// A Markdown link to a repo doc that is not yet converted (or to a kb: ID) also anchors a sentence;
-// `kb.mjs migrate-links` retargets it when that doc converts.
-const HAS_MARKER = /\{\{(?:(?:gap|divergence):)?[a-z0-9]+(?:-[a-z0-9]+)*(?:\|ref)?\}\}|\[\[[^\]\s]+\]\]|\]\((?:kb:[^)\s]+|[^)\s:]+\.md(?:#[\w-]+)?)\)/;
+const LINK_MARKER = /\[\[(?!doc:)([^\]\s]+)\]\]/g;
+// A doc that is not converted yet: `kb.mjs migrate-links` retargets the marker to its subject when it converts.
+const DOC_MARKER = /\[\[doc:([^\]\s#]+)(?:#[\w-]+)?\]\]/g;
+const HAS_MARKER = /\{\{(?:(?:gap|divergence):)?[a-z0-9]+(?:-[a-z0-9]+)*(?:\|ref)?\}\}|\[\[[^\]\s]+\]\]/;
 const ANY_MARKER = new RegExp(HAS_MARKER.source, "g");
-// A run-in label such as "**Maximum is a standing cap.**" introduces the sentences after it.
-const LABEL = /^\*\*[^*]+\*\*$/;
-const WHAT_TO_CHECK = /^(\*\*)?what to check\b/i;
+// Prose text is data, not Markdown: links are markers, labels and lists are block fields.
+const MARKDOWN = [
+  [/\]\([^)]*\)/, "a Markdown link; use [[kb-id]] or [[doc:path]]"],
+  [/\*\*/, "Markdown emphasis; a run-in label is the block's `label`"],
+  [/^\s*(?:#|[-*] |\d+\. |\|)/m, "Markdown block syntax; use a heading, steps, items or table block"],
+];
+const MARKDOWN_BLOCK = MARKDOWN[2][0];
+const WHAT_TO_CHECK = /^what to check\b/i;
 // The lead (first paragraph) may frame the subject in this many sentences without a marker.
 export const LEAD_SENTENCES = 2;
 
-/**
- * Split a paragraph into sentences; each list item is one or more sentences of its own. An inlined
- * claim renders as a whole sentence, so a claim marker ends one too.
- */
-function sentencesOf(paragraph) {
-  return paragraph
-    .split(/\n(?=\s*(?:[-*]|\d+\.) )/)
-    .flatMap((item) => item.replace(/^\s*(?:[-*]|\d+\.) /, "").split(/(?<=[.!?]|\}\})\s+(?=[A-Z*`"\[({])/))
+/** Split text into sentences. An inlined claim renders as a whole sentence, so a claim marker ends one too. */
+function sentencesOf(text) {
+  return text
+    .split(/(?<=[.!?]|\}\})\s+(?=[A-Z`"\[({])/)
     .map((t) => t.trim())
     .filter(Boolean);
 }
 
-/** A sentence stands on its own: it carries no marker and is more than a label or punctuation. */
+/** A sentence stands on its own: it carries no marker and is more than punctuation. */
 function isUnanchored(sentence) {
   if (HAS_MARKER.test(sentence)) return false;
-  const bare = sentence.replace(ANY_MARKER, "").trim();
-  return /[A-Za-z]{3}/.test(bare) && !LABEL.test(bare);
+  return /[A-Za-z]{3}/.test(sentence.replace(ANY_MARKER, ""));
 }
 
 /**
- * Parse a subject's prose: marker uses, links, and the sentences that rest on nothing. Every
- * sentence carries a claim, gap, divergence or link marker, except headings, run-in labels and
- * up to LEAD_SENTENCES framing sentences in the first paragraph; guidance belongs in `checks`.
+ * The text units of a prose block list, in reading order: { where, text, sentences }. A paragraph,
+ * step or item is split into sentences; a table row is one unit (anchored if any cell is).
  */
-export function parseProse(text) {
+export function proseUnits(blocks = []) {
+  const units = [];
+  blocks.forEach((b, i) => {
+    const at = `prose[${i}]`;
+    if (b.text !== undefined) units.push({ where: at, block: i, label: b.label, text: b.text, sentences: sentencesOf(b.text) });
+    for (const key of ["steps", "items"]) {
+      (b[key] || []).forEach((e, j) => units.push({ where: `${at}.${key}[${j}]`, block: i, label: e.label, text: e.text, sentences: sentencesOf(e.text) }));
+    }
+    if (b.table) {
+      b.table.rows.forEach((row, j) => {
+        const text = row.join(" | ");
+        units.push({ where: `${at}.table.rows[${j}]`, block: i, text, sentences: [text] });
+      });
+    }
+  });
+  return units;
+}
+
+/**
+ * Parse a subject's prose blocks: marker uses, links, and the sentences that rest on nothing. Every
+ * sentence carries a claim, gap, divergence or link marker, except headings, labels and up to
+ * LEAD_SENTENCES framing sentences in the first paragraph; guidance belongs in `checks`.
+ */
+export function parseProse(blocks = []) {
   const inlined = new Map();
   const refs = new Set();
   const links = new Set();
+  const docs = new Set();
   const items = { gap: new Set(), divergence: new Set() };
-  for (const m of text.matchAll(CLAIM_MARKER)) {
-    if (m[2]) refs.add(m[1]);
-    else inlined.set(m[1], (inlined.get(m[1]) || 0) + 1);
-  }
-  for (const m of text.matchAll(ITEM_MARKER)) items[m[1]].add(m[2]);
-  for (const m of text.matchAll(LINK_MARKER)) links.add(m[1]);
-  for (const m of text.matchAll(/\]\(kb:([^)\s#]+)\)/g)) links.add(m[1]);
-  const paragraphs = text.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p && !p.startsWith("#"));
   const unanchored = [];
+  const markdown = [];
   let whatToCheck = 0;
-  paragraphs.forEach((p, i) => {
-    if (WHAT_TO_CHECK.test(p)) whatToCheck++;
-    const loose = sentencesOf(p).filter(isUnanchored);
-    unanchored.push(...(i === 0 ? loose.slice(LEAD_SENTENCES) : loose));
-  });
-  return { inlined, refs, links, items, paragraphs: paragraphs.length, unanchored, whatToCheck };
+  const units = proseUnits(blocks);
+  const lead = blocks.findIndex((b) => b.text !== undefined);
+  for (const u of units) {
+    const all = [u.label || "", u.text].join(" ");
+    for (const m of all.matchAll(CLAIM_MARKER)) {
+      if (m[2]) refs.add(m[1]);
+      else inlined.set(m[1], (inlined.get(m[1]) || 0) + 1);
+    }
+    for (const m of all.matchAll(ITEM_MARKER)) items[m[1]].add(m[2]);
+    for (const m of all.matchAll(LINK_MARKER)) links.add(m[1]);
+    for (const m of all.matchAll(DOC_MARKER)) docs.add(m[1]);
+    // A label may itself be numbered ("1. Does the traffic get decrypted?"); only text is checked for block syntax.
+    for (const [re, why] of MARKDOWN) if (re.test(u.text) || (re !== MARKDOWN_BLOCK && re.test(u.label || ""))) markdown.push({ where: u.where, why });
+    if (WHAT_TO_CHECK.test(u.label || u.text)) whatToCheck++;
+    const loose = u.sentences.filter(isUnanchored).map((text) => ({ where: u.where, text }));
+    unanchored.push(...(u.block === lead && u.where === `prose[${lead}]` ? loose.slice(LEAD_SENTENCES) : loose));
+  }
+  for (const b of blocks) if (b.heading && /[*#`[]/.test(b.heading)) markdown.push({ where: "heading", why: "markup in a heading" });
+  return { inlined, refs, links, docs, items, units: units.length, unanchored, whatToCheck, markdown };
 }
 
 // ---------------------------------------------------------------- validation
@@ -549,40 +578,45 @@ export function* allEvidence(g) {
 }
 
 function checkProse(g, node, err, warnings) {
-  const md = path.join(g.root, node.file.replace(/\.json$/, ".md"));
+  const f = node.file;
+  // Prose lives in the subject JSON; a sibling Markdown file is a leftover or a mistake.
+  if (fs.existsSync(path.join(g.root, f.replace(/\.json$/, ".md")))) {
+    err(f.replace(/\.json$/, ".md"), "subject prose lives in the subject JSON (`prose`); delete this file");
+  }
   const claims = Object.keys(node.data.claims || {});
-  if (!fs.existsSync(md)) {
-    if (claims.length) warnings.push({ file: node.file, message: `${node.id}: no prose file; all claims render as "Further facts"` });
+  if (!node.data.prose) {
+    if (claims.length) warnings.push({ file: f, message: `${node.id}: no prose; all claims render as "Further facts"` });
     return;
   }
-  const text = fs.readFileSync(md, "utf8");
-  const mdRel = node.file.replace(/\.json$/, ".md");
-  if (text.startsWith("---")) err(mdRel, "prose has no frontmatter; metadata lives in the subject JSON");
-  const p = parseProse(text);
+  const p = parseProse(node.data.prose);
+  for (const { where, why } of p.markdown) err(f, `${where}: ${why}`);
   for (const [local, n] of p.inlined) {
-    if (!claims.includes(local)) err(mdRel, `{{${local}}} is not a claim of ${node.id}`);
-    if (n > 1) err(mdRel, `{{${local}}} is inlined ${n} times; inline once and use {{${local}|ref}} afterwards`);
+    if (!claims.includes(local)) err(f, `{{${local}}} is not a claim of ${node.id}`);
+    if (n > 1) err(f, `{{${local}}} is inlined ${n} times; inline once and use {{${local}|ref}} afterwards`);
   }
   // Every claim is inlined once: the prose is where an agent reads it in order.
-  for (const local of claims) if (!p.inlined.has(local)) err(mdRel, `claim ${local} is never inlined; place {{${local}}} where it belongs`);
+  for (const local of claims) if (!p.inlined.has(local)) err(f, `claim ${local} is never inlined; place {{${local}}} where it belongs`);
   for (const local of p.refs) {
-    if (!claims.includes(local)) err(mdRel, `{{${local}|ref}} is not a claim of ${node.id}`);
-    else if (!p.inlined.has(local)) err(mdRel, `{{${local}|ref}} refers back to a claim that is never inlined`);
+    if (!claims.includes(local)) err(f, `{{${local}|ref}} is not a claim of ${node.id}`);
+    else if (!p.inlined.has(local)) err(f, `{{${local}|ref}} refers back to a claim that is never inlined`);
   }
   for (const id of p.links) {
-    if (!g.nodes.has(id)) err(mdRel, `[[${id}]] does not resolve`);
+    if (!g.nodes.has(id)) err(f, `[[${id}]] does not resolve`);
+  }
+  for (const doc of p.docs) {
+    if (!fs.existsSync(path.join(g.root, doc))) err(f, `[[doc:${doc}]] does not exist; run \`kb.mjs migrate-links\` or link its subject`);
   }
   for (const kind of ["gap", "divergence"]) {
     const own = Object.keys(node.data[`${kind}s`] || {});
-    for (const local of p.items[kind]) if (!own.includes(local)) err(mdRel, `{{${kind}:${local}}} is not a ${kind} of ${node.id}`);
+    for (const local of p.items[kind]) if (!own.includes(local)) err(f, `{{${kind}:${local}}} is not a ${kind} of ${node.id}`);
   }
-  if (p.whatToCheck) err(mdRel, "a What-to-check paragraph belongs in the subject's `checks`, not the prose");
-  for (const sentence of p.unanchored) {
-    err(mdRel, `sentence rests on no claim, gap, divergence or link; anchor it, move guidance to \`checks\`, or cut it: "${sentence.slice(0, 100)}"`);
+  if (p.whatToCheck) err(f, "a What-to-check paragraph belongs in the subject's `checks`, not the prose");
+  for (const { where, text } of p.unanchored) {
+    err(f, `${where}: sentence rests on no claim, gap, divergence or link; anchor it, move guidance to \`checks\`, or cut it: "${text.slice(0, 100)}"`);
   }
   for (const [i, c] of (node.data.checks || []).entries()) {
     for (const u of c.uses) {
-      if (!resolvesFrom(g, node, u)) err(node.file, `checks[${i}] uses ${u}, which is not a claim, gap or divergence of ${node.id} nor a kb ID`);
+      if (!resolvesFrom(g, node, u)) err(f, `checks[${i}] uses ${u}, which is not a claim, gap or divergence of ${node.id} nor a kb ID`);
     }
   }
 }

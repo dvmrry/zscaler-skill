@@ -6,7 +6,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { anchorEvidence, buildGraph, idKind, loadPublic, parseProse, validateGraph } from "./kb-lib.mjs";
-import { loadOverlay, resolve, validateOverlay } from "./kb-resolve.mjs";
+import { loadOverlay, renderSubject, resolve, validateOverlay } from "./kb-resolve.mjs";
 import { loadSchemas, validate } from "./kb-schema.mjs";
 import { snakeToCamel } from "./kb-types.mjs";
 
@@ -109,35 +109,54 @@ test("anchoring ignores PDF private-use glyphs and zero-width characters", () =>
   assert.deepEqual(r.errors, []);
 });
 
+const para = (text, label) => (label ? { label, text } : { text });
+
 test("prose may inline a claim once, refer back with |ref, and link only to real IDs", () => {
-  assert.deepEqual([...parseProse("{{a}} and {{a|ref}}. [[zia.x]]").inlined], [["a", 1]]);
+  assert.deepEqual([...parseProse([para("{{a}} and {{a|ref}}. [[zia.x]]")]).inlined], [["a", 1]]);
   const root = tmpRepo({
     "vendor/fake/doc.txt": "evaluation stops at the first match.",
-    "references/zia/zia.example.json": subject(),
-    "references/zia/zia.example.md": "{{first-match}} again {{first-match}}. {{other|ref}} [[zia.missing]]",
+    "references/zia/zia.example.json": subject({ prose: [para("{{first-match}} again {{first-match}}. {{other|ref}} [[zia.missing]] [[doc:references/zia/gone.md]]")] }),
   });
   const errs = messages(root);
   assert.ok(errs.some((m) => /inlined 2 times/.test(m)));
   assert.ok(errs.some((m) => /\{\{other\|ref\}\} is not a claim/.test(m)));
   assert.ok(errs.some((m) => /\[\[zia\.missing\]\] does not resolve/.test(m)));
+  assert.ok(errs.some((m) => /\[\[doc:references\/zia\/gone\.md\]\] does not exist/.test(m)));
   const silent = tmpRepo({
     "vendor/fake/doc.txt": "evaluation stops at the first match.",
-    "references/zia/zia.example.json": subject(),
-    "references/zia/zia.example.md": "Rules are evaluated in order.",
+    "references/zia/zia.example.json": subject({ prose: [para("Rules are evaluated in order.")] }),
   });
   assert.ok(messages(silent).some((m) => /claim first-match is never inlined/.test(m)));
 });
 
+test("prose lives in the subject JSON as blocks, with no Markdown in it", () => {
+  const root = tmpRepo({
+    "vendor/fake/doc.txt": "evaluation stops at the first match.",
+    "references/zia/zia.example.json": subject({
+      prose: [para("{{first-match}} See [the doc](../x.md)."), para("**Bold.** [[zia.example]]"), para("- a list [[zia.example]]"), para("[[zia.example]]", "1. A numbered label is fine")],
+    }),
+    "references/zia/zia.example.md": "{{first-match}}",
+  });
+  const errs = messages(root);
+  assert.ok(errs.some((m) => /subject prose lives in the subject JSON/.test(m)));
+  assert.ok(errs.some((m) => /prose\[0\]: a Markdown link/.test(m)));
+  assert.ok(errs.some((m) => /prose\[1\]: Markdown emphasis/.test(m)));
+  assert.ok(errs.some((m) => /prose\[2\]: Markdown block syntax/.test(m)));
+  assert.ok(!errs.some((m) => /prose\[3\]/.test(m)));
+});
+
 test("every prose sentence rests on a marker, except a short lead, labels and headings", () => {
-  const lead = "Framing one. Framing two.";
-  assert.deepEqual(parseProse(`${lead}\n\n**Label.** {{a}} {{gap:g}} [[zia.x]]`).unanchored, []);
-  assert.deepEqual(parseProse(`${lead} Framing three.`).unanchored, ["Framing three."]);
-  // A link to a doc that is not converted yet anchors too; migrate-links retargets it later.
-  assert.deepEqual(parseProse(`${lead}\n\nSubclouds are covered in [subclouds](../shared/subclouds.md).`).unanchored, []);
+  const lead = para("Framing one. Framing two.");
+  const loose = (blocks) => parseProse(blocks).unanchored.map((u) => u.text);
+  assert.deepEqual(loose([lead, { heading: "A heading" }, para("{{a}} {{gap:g}} [[zia.x]]", "Label.")]), []);
+  assert.deepEqual(loose([para("Framing one. Framing two. Framing three.")]), ["Framing three."]);
+  // A doc that is not converted yet anchors too; migrate-links retargets it later.
+  assert.deepEqual(loose([lead, para("Subclouds are covered in [[doc:references/shared/subclouds.md]].")]), []);
   // A claim renders as a whole sentence, so text after its marker is a sentence of its own.
-  assert.deepEqual(parseProse(`${lead}\n\n{{a}} Then a loose remark.`).unanchored, ["Then a loose remark."]);
-  assert.deepEqual(parseProse(`${lead}\n\n- {{a}}\n- A loose item.`).unanchored, ["A loose item."]);
-  assert.equal(parseProse(`${lead}\n\nWhat to check: the rule order.`).whatToCheck, 1);
+  assert.deepEqual(loose([lead, para("{{a}} Then a loose remark.")]), ["Then a loose remark."]);
+  assert.deepEqual(loose([lead, { items: [para("{{a}}"), para("A loose item.")] }]), ["A loose item."]);
+  assert.deepEqual(loose([lead, { table: { columns: ["A", "B"], rows: [["x", "{{a}}"], ["y", "z loose"]] } }]), ["y | z loose"]);
+  assert.equal(parseProse([lead, para("the rule order.", "What to check:")]).whatToCheck, 1);
 });
 
 test("checks and item markers name real claims, gaps or divergences", () => {
@@ -146,8 +165,8 @@ test("checks and item markers name real claims, gaps or divergences", () => {
     "references/zia/zia.example.json": subject({
       gaps: { order: { kind: "semantic", title: "Order", status: "open", detail: "d", resolves_with: ["lab-test"] } },
       checks: [{ do: "Check the order.", uses: ["first-match", "order", "zia.example"] }, { do: "Check more.", uses: ["nothing"] }],
+      prose: [{ text: "{{first-match}} {{gap:order}} {{divergence:none}}" }],
     }),
-    "references/zia/zia.example.md": "{{first-match}} {{gap:order}} {{divergence:none}}",
   });
   const errs = messages(root);
   assert.ok(errs.some((m) => /checks\[1\] uses nothing/.test(m)));
@@ -222,6 +241,15 @@ test("a subject's file name and directory must match its ID", () => {
 test("the committed graph validates (structure and references)", () => {
   const { errors } = validateGraph(graphOf(ROOT), { citations: false });
   assert.deepEqual(errors, []);
+});
+
+test("every subject renders, including derived claims that carry no evidence of their own", () => {
+  const g = graphOf(ROOT);
+  const derivedOnly = [...g.nodes].filter(
+    ([, n]) => n.kind === "subject" && Object.values(n.data.claims || {}).some((c) => !c.evidence && c.derived_from),
+  );
+  assert.ok(derivedOnly.length > 0);
+  for (const [id] of derivedOnly.slice(0, 20)) assert.doesNotThrow(() => renderSubject(g, id), id);
 });
 
 test("the synthetic overlay validates, and the relation table is enforced", () => {

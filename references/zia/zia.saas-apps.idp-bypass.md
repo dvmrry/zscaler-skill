@@ -1,7 +1,0 @@
-For identity and MFA endpoints (see [[zia.saas-apps]] for the other causes) the question is whether the traffic must be decrypted (a control needs to read or edit it) or must not be (the client refuses the certificate).
-
-**Must be inspected.** Microsoft login hosts need decryption for tenant restriction, and the SSL rule that selects them has to win the order: [[zia.saas-apps.tenant-restriction-order]]; the hosts and headers are in [[zia.tenant-profiles.wire-mechanic]]. Webex Login Services follows the same prerequisite in [[zia.tenant-profiles.ssl-prerequisite]].
-
-**Must not be inspected.** A client that pins its own CA bundle cannot be inspected: [[zia.ssl-inspection.uninspectable]]. Which Duo hostnames to bypass is open {{gap:duo-endpoints}}. How narrowly to write any such bypass is in [[zia.ssl-inspection.exemptions]]. The predefined Click-to-Run exemption uses the stronger Bypass Other Policies setting ([[zia.ssl-inspection.exemptions]], `predefined-exemptions-differ`); whether it is the only predefined rule that does is gap `only-bypass-other-policies-rule`.
-
-**Authentication exemptions are a different list.** {{auth-exemption-not-ssl-bypass}} Enabling the Microsoft-Recommended One Click option adds one for Microsoft: {{one-click-auth-exemption}} The product-wide 25,000-entry pool the exemption URLs draw on is described in [[zia.authentication.exemptions]]; it is shared with custom URL categories and other lists, so it is not an independent 25,000-entry list as the old catalog implied. Typical entries are open {{gap:auth-exempt-login-hosts}}.

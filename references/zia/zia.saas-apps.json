@@ -12,13 +12,73 @@
     "why is this app failing through zscaler"
   ],
   "related": [
-    { "rel": "see-also", "to": "zia.saas-apps.tenant-restriction-order" },
-    { "rel": "see-also", "to": "zia.saas-apps.idp-bypass" },
-    { "rel": "see-also", "to": "zia.saas-apps.conditional-access" },
-    { "rel": "see-also", "to": "zia.saas-apps.quic-conferencing" },
-    { "rel": "see-also", "to": "zia.saas-apps.shared-cdn-bypass" },
-    { "rel": "interacts-with", "to": "zia.ssl-inspection.uninspectable" },
-    { "rel": "interacts-with", "to": "zia.ssl-inspection.exemptions" },
-    { "rel": "interacts-with", "to": "zia.tenant-profiles" }
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.tenant-restriction-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.idp-bypass"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.conditional-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.quic-conferencing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.shared-cdn-bypass"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.exemptions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.tenant-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "\"Why does this SaaS app fail, or ignore a control, behind ZIA?\" reduces to one of six causes. Name the cause first; the app is the example, not the answer (the SSL side of each is in [[zia.ssl-inspection]])."
+    },
+    {
+      "steps": [
+        {
+          "label": "The app refuses Zscaler's certificate.",
+          "text": "It cannot be inspected whatever the rule says; the options are replace, narrowly bypass, or deny: [[zia.ssl-inspection.uninspectable]], with the exemption hygiene in [[zia.ssl-inspection.exemptions]]. Developer tools and Firefox with their own trust stores are in [[zia.ssl-inspection.certificates]]."
+        },
+        {
+          "label": "A login or MFA endpoint is being inspected when it should not be, or bypassed when it must not be:",
+          "text": "[[zia.saas-apps.idp-bypass]]."
+        },
+        {
+          "label": "A bypass rule sits ahead of the inspection rule a control depends on.",
+          "text": "The classic case is a personal Microsoft account still working after tenant restriction was configured: [[zia.saas-apps.tenant-restriction-order]], with the profile mechanics in [[zia.tenant-profiles]]."
+        },
+        {
+          "label": "The identity provider checks the source IP",
+          "text": "(Conditional Access named locations): [[zia.saas-apps.conditional-access]]."
+        },
+        {
+          "label": "The traffic is QUIC (UDP) and skips the proxy path:",
+          "text": "[[zia.saas-apps.quic-conferencing]]."
+        },
+        {
+          "label": "Someone wildcarded a shared storage domain to make an app work:",
+          "text": "[[zia.saas-apps.shared-cdn-bypass]]."
+        }
+      ]
+    },
+    {
+      "text": "Per-app hostname lists drift quickly and are not authored here; classify the app into one of these causes and apply that cause's remedy to the narrowest hostname or Cloud Application that fits ([[zia.ssl-inspection.exemptions]])."
+    }
   ]
 }

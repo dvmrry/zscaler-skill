@@ -10,16 +10,74 @@
     "file blocked by sandbox",
     "file stuck in quarantine"
   ],
-  "binds": ["zia/sandbox-rules", "zia/sandbox-settings"],
+  "binds": [
+    "zia/sandbox-rules",
+    "zia/sandbox-settings"
+  ],
   "related": [
-    { "rel": "depends-on", "to": "zia.ssl-inspection.pipeline" },
-    { "rel": "see-also", "to": "zia.sandbox.coverage" },
-    { "rel": "see-also", "to": "zia.sandbox.verdicts" },
-    { "rel": "see-also", "to": "zia.sandbox.report" },
-    { "rel": "see-also", "to": "zia.sandbox.quarantine" },
-    { "rel": "see-also", "to": "zia.sandbox.rules" },
-    { "rel": "see-also", "to": "zia.sandbox.submission" },
-    { "rel": "see-also", "to": "zia.sandbox.md5-blocklist" },
-    { "rel": "interacts-with", "to": "zia.url-filtering" }
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.verdicts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.quarantine"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.submission"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.md5-blocklist"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Sandbox questions arrive as \"why was this file blocked\", \"why was it not analyzed\", or \"why is it stuck\". Ask them in this order; skipping a step is how a Sandbox answer ends up blaming the wrong engine."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which engine blocked it?",
+          "text": "The Blocked Policy Type in the transaction log decides whether this is a Sandbox question at all: [[zia.sandbox.verdicts]]. Malware Protection and ATP are covered in [[zia.malware-protection]] and [[zia.atp]]."
+        },
+        {
+          "label": "Was the file ever eligible for analysis?",
+          "text": "Subscription tier, file type and size, static pre-checks, and whether the traffic was decrypted: [[zia.sandbox.coverage]], with the decryption side in [[zia.ssl-inspection.pipeline]]."
+        },
+        {
+          "label": "What does the report say, and how far can it be trusted?",
+          "text": "[[zia.sandbox.report]]."
+        },
+        {
+          "label": "Is the file held, or does the user keep re-downloading?",
+          "text": "One-time links, per-request hashes, and Public Service Edge lag: [[zia.sandbox.quarantine]]."
+        }
+      ]
+    },
+    {
+      "text": "The rules that decide what happens to first-seen files are in [[zia.sandbox.rules]]; the out-of-band submission calls are in [[zia.sandbox.submission]]; the tenant's custom hash list is in [[zia.sandbox.md5-blocklist]]. URL Filtering can block before Sandbox is reached: [[zia.url-filtering]]. Provider and SDK defects on Sandbox resources are in [[zia.terraform.error-handling]] and [[zia.terraform.data-source-fidelity]]."
+    }
   ]
 }

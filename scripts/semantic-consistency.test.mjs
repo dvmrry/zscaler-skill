@@ -86,7 +86,7 @@ test("malware and ATP docs preserve the settings-versus-transaction boundary", (
     "SKILL.md",
     "README.md",
     "docs/maintenance.md",
-    "references/zia/zia.sandbox.verdicts.md",
+    "references/zia/zia.sandbox.verdicts.json",
   ].map(read);
 
   for (const surface of activeSurfaces) {

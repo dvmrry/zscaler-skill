@@ -1,9 +1,0 @@
-{{endpoints}} {{vzen-is-vse}} The "vZEN" in field and endpoint names is the Virtual Service Edge; ZPA's Service Edge Group API is a different product.
-
-**Cluster.** {{cluster-model}} The product behavior behind these fields is in [[zia.virtual-service-edge.clusters]].
-
-**Node.** {{node-model}} The Terraform documentation both limits the load balancer IP to cluster mode and shows it on a standalone node {{divergence:tf-lb-ip-doc-example-standalone}}. Platform rules behind the deployment mode are in [[zia.virtual-service-edge.platforms]]; the SKU wording is not reconciled with the single-size VM description ([[zia.virtual-service-edge.sizing:sku-type-vs-single-size]]).
-
-**Deleting a cluster** is not a single request: the SDK first detaches all nodes with an update, and the detach may not reach the wire, as [[zia.terraform.multi-step-writes]] documents.
-
-**Hardware equivalent.** Whether the hardware Private Service Edge can be provisioned by API is not established: [[zia.private-service-edge.what-it-is:hardware-pse-api]].

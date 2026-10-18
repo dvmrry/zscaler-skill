@@ -173,7 +173,8 @@ export const MOVES = {
       ["namespaces", "zia.dlp.rule-wire-shape"],
       ["edge-cases", "zia.dlp.inspection-limits"],
     ],
-  },  "references/zia/authentication.md": {
+  },
+  "references/zia/authentication.md": {
     default: "zia.authentication",
     anchors: [
       ["step-up-authentication-and-zidentity", "zia.authentication.step-up"],
@@ -873,6 +874,28 @@ export function migrateLinks(root, g, args) {
       links += n;
       console.log(`${dry ? "would rewrite" : "rewrote"} ${n} link(s) in ${file}`);
       if (!dry) fs.writeFileSync(full, out);
+    }
+  }
+  // Subject prose names a not-yet-converted doc as [[doc:path#anchor]]; retarget it once the doc moves.
+  for (const node of g.nodes.values()) {
+    if (node.kind !== "subject" || !node.data.prose) continue;
+    let n = 0;
+    const retarget = (text) =>
+      text.replace(/\[\[doc:([^\]\s#]+)(?:#([\w-]+))?\]\]/g, (m, doc, anchor = "") => {
+        const id = targetFor(root, g, "SKILL.md", `${doc}${anchor ? `#${anchor}` : ""}`);
+        if (!id) return m;
+        n++;
+        return `[[${id}]]`;
+      });
+    for (const b of node.data.prose) {
+      for (const e of [b, ...(b.steps || []), ...(b.items || [])]) if (e.text !== undefined) e.text = retarget(e.text);
+      if (b.table) b.table.rows = b.table.rows.map((r) => r.map(retarget));
+    }
+    if (n) {
+      files++;
+      links += n;
+      console.log(`${dry ? "would rewrite" : "rewrote"} ${n} link(s) in ${node.file}`);
+      if (!dry) fs.writeFileSync(path.join(root, node.file), `${JSON.stringify(node.data, null, 2)}\n`);
     }
   }
   console.log(`${links} links in ${files} files`);

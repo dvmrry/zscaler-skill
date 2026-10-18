@@ -29,6 +29,34 @@
       "to": "zia.ssl-inspection.rules"
     }
   ],
+  "prose": [
+    {
+      "text": "Reading or writing SSL rules programmatically starts with the shape of `action`, because one string in the console is a nested object on the wire. {{action-nested-required}} {{console-to-api-mapping}}"
+    },
+    {
+      "label": "What goes in each block.",
+      "text": "{{decrypt-fields}} {{dnd-fields}} Which block you send must match `type`: a sub-action block under the wrong `type` is rejected by the Go SDK before any request (see the validator in [[zia.sdk-go.service-defects]]), and \"why isn't my TLS floor enforced?\" starts with checking `type`, then that the matching block is the one set."
+    },
+    {
+      "label": "Tokens.",
+      "text": "{{server-certificates-tokens}} {{tls-version-tokens}}"
+    },
+    {
+      "label": "Validator rules not recorded elsewhere.",
+      "text": "The required-field and bypass-exclusion rules are in [[zia.sdk-go.service-defects]]; the Terraform plan-time checks are there too. {{go-validator-block-and-cert-rules}} {{python-no-client-validation}}"
+    },
+    {
+      "label": "Casing.",
+      "text": "{{python-kwargs-casing}} {{eun-casing}}"
+    },
+    {
+      "label": "Reading through MCP.",
+      "text": "{{mcp-full-records}} {{mcp-no-output-schema}} {{mcp-list-query}}"
+    },
+    {
+      "text": "The meaning of each setting is in [[zia.ssl-inspection.actions]]. Predefined and default rule flags, and what to strip on a PUT, are in [[zia.ssl-inspection.rules]]."
+    }
+  ],
   "claims": {
     "action-nested-required": {
       "statement": "In the API response schema an SSL rule's `action` is a required nested object, not a string: `type` is `DECRYPT`, `DO_NOT_DECRYPT` or `BLOCK`, and the object carries `decryptSubActions`, `doNotDecryptSubActions`, `overrideDefaultCertificate`, `showEUN`, `showEUNATP` and `sslInterceptionCert`.",

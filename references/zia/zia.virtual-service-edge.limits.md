@@ -1,3 +1,0 @@
-{{no-sipa}} So a tenant whose use case is Source IP Anchoring cannot get it from a Virtual Service Edge, and how Source IP Anchoring works and what it needs is [[zia.forwarding-control.sipa]]. The legacy advice that the hardware Private Service Edge supports it instead is not backed by any captured page ([[zia.virtual-service-edge.limits:pse-sipa-support]]).
-
-Other limits are tied to the platform and are covered where they arise: native clustering unambiguously only on ESXi (Hyper-V is an open divergence, [[zia.virtual-service-edge.platforms]]), the SSL card only on ESXi and the memory floor ([[zia.virtual-service-edge.sizing]]), and no standalone in production ([[zia.virtual-service-edge.clusters]]).

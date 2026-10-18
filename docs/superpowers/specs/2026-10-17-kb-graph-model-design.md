@@ -205,9 +205,22 @@ ID**, not arrays, so JSON Patch paths stay stable for CI-authored patches.
 
 ### Prose
 
-`references/zia/url-filtering.rule-order.md` sits beside its subject file. It holds the
-explanation: why the behavior happens, where intuition goes wrong, how it interacts with its
-neighbours. It has no frontmatter. Markers:
+The subject's `prose` field holds the explanation: why the behavior happens, where intuition goes
+wrong, how it interacts with its neighbours. (Until 2026-10-18 it was a sibling `.md` file; the KB is
+now JSON only, and any Markdown or HTML view is rendered from it on demand, never stored. Whether and
+how to publish rendered pages is still open.)
+
+`prose` is an ordered list of blocks, each exactly one of:
+
+| Block | Shape |
+|---|---|
+| paragraph | `{ "text": "...", "label"?: "Run-in label." }` |
+| heading | `{ "heading": "..." }` |
+| ordered steps / unordered items | `{ "steps": [entry, ...] }` / `{ "items": [entry, ...] }`, each entry `{ "text", "label"? }`, with an optional block `label` introducing the list |
+| table | `{ "table": { "columns": [...], "rows": [[...], ...] } }` |
+
+Text is data, not Markdown: the validator rejects Markdown links, `**` emphasis and block syntax in
+it. Backticks mark literal identifiers. Markers:
 
 | Marker | Renders as | Rule |
 |---|---|---|
@@ -216,13 +229,14 @@ neighbours. It has no frontmatter. Markers:
 | `[[zia.url-filtering.category-matching]]` | a link to the subject | — |
 | `[[zia.url-filtering.rule-order:first-match]]` | a link to another subject's claim | — |
 | `{{gap:order-tiebreak}}` / `{{divergence:limit}}` | a pointer to the subject's own gap or divergence | Placed inside the sentence it supports, before the full stop. |
+| `[[doc:references/zpa/app-connector.md#anchor]]` | the doc path | A doc not converted yet. Must exist; `kb.mjs migrate-links` retargets it to the subject once the doc converts. |
 
 The validator enforces:
 
 - every claim in the subject is inlined exactly once (the prose is where an agent reads claims in order);
 - every marker resolves;
-- **every sentence rests on a marker** (2026-10-18). The exceptions are headings, bold run-in labels
-  (`**Maximum is a standing cap.**`) and up to two framing sentences in the first paragraph. A
+- **every sentence rests on a marker** (2026-10-18). The exceptions are headings, labels and up to
+  two framing sentences in the first paragraph; a table row counts as anchored if any cell is. A
   sentence that restates a claim is deleted, one that states a fact no claim holds is cut (or becomes
   a claim with evidence), and guidance moves to `checks`. An inlined claim renders as a whole
   sentence, so text after a claim marker counts as a new sentence.
@@ -460,8 +474,7 @@ This replaces the manual reverify cycle.
 ```
 <overlay>/
   overlay.json                 config: IaC repo location, live tool
-  knowledge/<scope>/*.json     company records
-  knowledge/<scope>/*.md       prose for those records
+  knowledge/<scope>/*.json     company records (JSON only)
 ```
 
 ```json
@@ -588,8 +601,7 @@ references/
     types/<product>.json          generated
     schema/*.schema.json          record and bundle contracts
   <scope>/
-    <subject-id>.json             subject + claims, cases, divergences, gaps
-    <subject-id>.md               prose
+    <subject-id>.json             subject + prose, checks, claims, cases, divergences, gaps
 scripts/kb.mjs                    validate | render | resolve | reanchor | import-types
 ```
 
@@ -638,7 +650,9 @@ The 75 reasoning docs will not convert in one change, so the mixed period is exp
   scores both forms, and `kb.mjs validate` checks the IDs.
 - **The existing checkers keep running on legacy docs** until the last doc converts.
   - They skip KB prose through one shared rule: a `.md` with a sibling `.json` (`isKbProse` in
-    `kb-lib.mjs`, `is_kb_prose` in `kb_prose.py`).
+    `kb-lib.mjs`, `is_kb_prose` in `kb_prose.py`). Since prose moved into the JSON no such file
+    should exist; `kb.mjs validate` rejects one, so the rule only keeps a stray file from being
+    checked twice.
   - `check-citations` treats `kb:` like a URL scheme.
   - The source-pin check treats a link-only edit (the diff disappears once links are blanked) as
     unchanged. Retargeting a link does not demand re-verifying a doc's sources, but a real prose edit

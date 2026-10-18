@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "subject.schema.json",
   "title": "Subject file: a subject and all of its items",
-  "description": "One file per subject at references/<scope>/<subject-id>.json; its prose is the sibling <subject-id>.md. Items are objects keyed by local ID so JSON Patch paths stay stable.",
+  "description": "One file per subject at references/<scope>/<subject-id>.json, prose included. Items are objects keyed by local ID so JSON Patch paths stay stable.",
   "type": "object",
   "required": ["schema_version", "id", "title"],
   "properties": {
@@ -26,6 +26,12 @@
         "additionalProperties": false
       }
     },
+    "prose": {
+      "description": "The subject's reading order: ordered blocks whose text carries only kb markers ({{claim}}, {{claim|ref}}, {{gap:id}}, {{divergence:id}}, [[kb-id]], [[doc:repo-path#anchor]] for a doc not yet converted) and backticked literals. No Markdown: a run-in label is `label`, a list is `steps` or `items`.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/prose-block" }
+    },
     "checks": {
       "description": "What to check when an answer rests on this subject: ordered steps, each naming the claims, gaps or divergences it relies on (local IDs, or qualified kb IDs). Rendered as the subject's What-to-check list; the prose carries no What-to-check paragraph.",
       "type": "array",
@@ -47,6 +53,38 @@
   },
   "additionalProperties": false,
   "$defs": {
+    "prose-text": { "type": "string", "minLength": 1 },
+    "prose-entry": {
+      "type": "object",
+      "required": ["text"],
+      "properties": { "label": { "$ref": "#/$defs/prose-text" }, "text": { "$ref": "#/$defs/prose-text" } },
+      "additionalProperties": false
+    },
+    "prose-block": {
+      "description": "One of: a paragraph (text, with an optional run-in label), a heading, ordered steps or unordered items (each with an optional label introducing the list), or a table whose cells carry the markers.",
+      "oneOf": [
+        { "$ref": "#/$defs/prose-entry" },
+        { "type": "object", "required": ["heading"], "properties": { "heading": { "$ref": "#/$defs/prose-text" } }, "additionalProperties": false },
+        { "type": "object", "required": ["steps"], "properties": { "label": { "$ref": "#/$defs/prose-text" }, "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/prose-entry" } } }, "additionalProperties": false },
+        { "type": "object", "required": ["items"], "properties": { "label": { "$ref": "#/$defs/prose-text" }, "items": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/prose-entry" } } }, "additionalProperties": false },
+        {
+          "type": "object",
+          "required": ["table"],
+          "properties": {
+            "table": {
+              "type": "object",
+              "required": ["columns", "rows"],
+              "properties": {
+                "columns": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+                "rows": { "type": "array", "minItems": 1, "items": { "type": "array", "items": { "type": "string" } } }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
     "keyed": {
       "type": "object",
       "propertyNames": { "$ref": "common.schema.json#/$defs/segment" }

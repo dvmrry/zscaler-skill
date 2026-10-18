@@ -11,7 +11,21 @@
     "exact bucket hostname exemption"
   ],
   "related": [
-    { "rel": "depends-on", "to": "zia.ssl-inspection.exemptions" }
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.exemptions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The temptation when an app breaks on pinning or inspection is to bypass the CDN or storage domain it uses. For shared storage and CDN domains the rule is in [[zia.ssl-inspection.exemptions]]: do not exempt `.s3.amazonaws.com`, `.blob.core.windows.net`, `.cloudfront.net` or similar, because any subscriber can have a subdomain there."
+    },
+    {
+      "text": "If one bucket, container or distribution really must be exempt: {{exact-subdomain-only}} {{parent-exemption-is-exfil-path}}"
+    },
+    {
+      "text": "Whether `googleusercontent.com` belongs on the list is open {{gap:googleusercontent-wildcard}}. What stops working for traffic that is exempted is in [[zia.ssl-inspection.bypass-impact]]; where a Cloud Application exists, prefer it to a hand-maintained domain list."
+    }
   ],
   "claims": {
     "exact-subdomain-only": {
@@ -39,8 +53,12 @@
       "title": "Whether a wildcard on googleusercontent.com carries the same risk",
       "status": "open",
       "detail": "Unverified legacy statement: `*.googleusercontent.com` is named with `*.s3.amazonaws.com`, `*.blob.core.windows.net` and `*.cloudfront.net` as a wildcard bypass to avoid. The guide names only the AWS, Azure and CloudFront domains; the Google case is tracked as zia.ssl-inspection.exemptions:googleusercontent-exemption.",
-      "resolves_with": ["source-read"],
-      "about": ["zia.ssl-inspection.exemptions:googleusercontent-exemption"]
+      "resolves_with": [
+        "source-read"
+      ],
+      "about": [
+        "zia.ssl-inspection.exemptions:googleusercontent-exemption"
+      ]
     }
   }
 }

@@ -1,3 +1,0 @@
-1. **SSH payload inspection.** {{no-ssh-inspection-article}} Why ZIA does not decrypt SSH is open {{gap:ssh-decryption-reason}}. File Type Control acts on files in HTTP, HTTPS and FTP flows ([[zia.file-type-control.criteria]]), not on SSH sessions.
-2. **Gating.** {{atp-ssh-tunneling}} A Firewall Filtering rule can match SSH as a network service ([[zia.firewall.network-services]], [[zia.firewall.criteria]]). How the service detects SSH and handles a CONNECT to port 22 is open {{gap:firewall-ssh-gating}}.
-3. **Oversight.** {{pra-ssh-consoles}} {{pra-session-recording}} For the product overview see the [Privileged Remote Access reference](../zpa/privileged-remote-access.md).

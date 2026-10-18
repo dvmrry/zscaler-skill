@@ -321,11 +321,28 @@ function typeBundle(g, typeId, focusField, ov, ctx) {
 
 // ---------------------------------------------------------------- render
 
+/** Prose blocks as reading text (markers still in place). This is output only; the JSON is the source. */
+export function proseText(blocks = []) {
+  const entry = (e) => (e.label ? `**${e.label}** ${e.text}` : e.text);
+  return blocks
+    .map((b) => {
+      if (b.heading) return `## ${b.heading}`;
+      const intro = b.label ? `**${b.label}**\n` : "";
+      if (b.steps) return intro + b.steps.map((e, i) => `${i + 1}. ${entry(e)}`).join("\n");
+      if (b.items) return intro + b.items.map((e) => `- ${entry(e)}`).join("\n");
+      if (b.table) {
+        const row = (cells) => `| ${cells.join(" | ")} |`;
+        return [row(b.table.columns), row(b.table.columns.map(() => "---")), ...b.table.rows.map(row)].join("\n");
+      }
+      return entry(b);
+    })
+    .join("\n\n");
+}
+
 /** Render a subject's prose with claims inlined. With footnotes, citations are appended. */
 export function renderProse(g, subjectId, { footnotes = true } = {}) {
   const node = g.nodes.get(subjectId);
-  const md = path.join(g.root, node.file.replace(/\.json$/, ".md"));
-  const text = fs.existsSync(md) ? fs.readFileSync(md, "utf8").trim() : "";
+  const text = proseText(node.data.prose);
   const order = [];
   const num = (local) => {
     if (!order.includes(local)) order.push(local);
@@ -345,6 +362,7 @@ export function renderProse(g, subjectId, { footnotes = true } = {}) {
     if (!footnotes) return `[${kind}:${local}]`;
     return kind === "gap" ? `(open gap \`${local}\`)` : `(divergence \`${local}\`)`;
   });
+  out = out.replace(/\[\[doc:([^\]\s]+)\]\]/g, (_, doc) => `\`${doc}\``);
   out = out.replace(/\[\[([^\]\s]+)\]\]/g, (_, id) => (g.nodes.has(id) ? `[${titleOf(g, id)}](kb:${id})` : `[[${id}]]`));
   return { text: out, order };
 }
@@ -396,7 +414,9 @@ export function renderSubject(g, subjectId) {
     parts.push("## Sources", "");
     order.forEach((c, i) => {
       const claim = s.claims[c];
-      parts.push(`[^${i + 1}]: Tier ${claim.tier}. ${claim.evidence.map((ev) => citeLine(g, ev, cache)).join("; ")}`);
+      const cites = (claim.evidence || []).map((ev) => citeLine(g, ev, cache));
+      if (claim.derived_from?.length) cites.push(`derived from ${claim.derived_from.map((d) => `\`${d}\``).join(", ")}`);
+      parts.push(`[^${i + 1}]: Tier ${claim.tier}. ${cites.join("; ")}`);
     });
     parts.push("");
   }
