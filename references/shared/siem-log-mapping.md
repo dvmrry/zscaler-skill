@@ -265,7 +265,7 @@ Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-cl
 
 ## ZDX — pull-API only
 
-Source: `vendor/zscaler-help/understanding-zdx-api.json`; `vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md`.
+Source: `vendor/zscaler-help/understanding-zdx-api.json`; `vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json`.
 
 ### ZDX metrics / scores
 

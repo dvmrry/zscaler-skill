@@ -1,0 +1,1114 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Getting Started",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/getting-started/getting-started",
+    "revision": "ca2fd3e7.fbadb37d.js"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "OneAPI provides unified programmatic access to different Zscaler services with consistency in API design and experience across all products, reliability, and high performance. OneAPI allows for a centralized management of key components and features of APIs, including but not limited to API authentication, tenant access policies and management, rate limiting, caching, API lifecycle management, etc., thereby providing a consistent and uniform cross-product API experience and offering enhanced support for automation and integration with external services."
+    },
+    {
+      "text": "Zscaler can make periodic updates to the request and response parameters used by OneAPI endpoints. So, before using the APIs, Zscaler recommends reviewing this Getting Started for information regarding prerequisites, authentication, and how to make API calls."
+    },
+    {
+      "text": "If you encounter any issues with using the API endpoints, contact Zscaler Support."
+    },
+    {
+      "text": "The journey is broken into four clear stages:"
+    },
+    {
+      "item": "Getting Access - Set up Authentication Service, link your service tenants, and create API Clients with the right roles and resources.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Authenticating - Prove your client's identity using OAuth 2.0. Start with a client secret in the lab, then move to stronger JWT- or certificate-based methods for production.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Automate - Use your bearer token to make authenticated API requests against Zscaler endpoints. Learn how to locate your base URL, structure calls, and follow best practices.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "Each step builds on the last, ensuring you have the right foundation before moving forward. By the end, you'll be equipped not only to make your first call but to confidently embed Zscaler automation into your workflows."
+    },
+    {
+      "text": "For detailed information on all available API calls, endpoints, and parameters, see the API Reference Guide. For a summary of the rate limits used by the endpoints, response codes, and error messages, see Understanding Rate Limiting and Understanding Response Codes & Error Messages. To try out requests and responses for API calls using the Postman application, see Configuring the Postman REST API Client."
+    },
+    {
+      "heading": "Getting Access",
+      "level": 1
+    },
+    {
+      "text": "Before you can build against OneAPI, you need to set up the foundation: access, resources, and clients. This process ensures your organization is provisioned, that API roles are defined, and that client credentials are created in Authentication Service."
+    },
+    {
+      "text": "OneAPI uses the OAuth 2.0 authorization framework to provide secure access to Zscaler Internet Access (ZIA), Zscaler Private Access (ZPA), Zscaler Digital Experience (ZDX), Client Connector, Cloud & Branch Connector, Business Insights, External Attack Surface Management (EASM), Cellular, Event Monitoring & Notification, and AI Security APIs. OAuth 2.0 allows third-party applications to obtain controlled access to protected resources using access tokens. OneAPI uses the Client Credentials OAuth flow, in which client applications can exchange their credentials with the authorization server for an access token and obtain access to the API resources, without any user authentication involved in the process."
+    },
+    {
+      "text": "Zscaler's unified identity platform, Authentication Service, serves as the authorization server for OneAPI and supports the following functionality necessary for the API authentication flow:"
+    },
+    {
+      "item": "API Resource Management - The Zscaler API server acts as the resource server and the access tokens are issued for this resource server.",
+      "depth": 0
+    },
+    {
+      "item": "API Client Management - The API client applications are registered in the Authentication Service, along with their authentication information and necessary scope to access the API resources. You can also define the access token lifetime and manage role and permissions association for the API clients. To learn more, see Adding an API Client and Viewing API Resources.",
+      "depth": 0
+    },
+    {
+      "text": "If you are accessing Authentication Service via the Zscaler Console, see Adding an API Client and Viewing API Resources."
+    },
+    {
+      "item": "Token Endpoint - The token endpoint exposed by Authentication Service is used by client applications to obtain an access token for the resource server.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Organizations must meet the following prerequisites before using OneAPI:"
+    },
+    {
+      "item": "Make sure that your organization has a subscription to Authentication Service. To obtain access to these services, contact your Zscaler Account team.",
+      "depth": 0
+    },
+    {
+      "item": "Register the client applications in the Authentication Service with the necessary scope and configure them appropriately. To learn more, see Adding an API Client.",
+      "depth": 0
+    },
+    {
+      "heading": "Understanding API Resources and Roles",
+      "level": 2
+    },
+    {
+      "text": "Zscaler API resources are groupings of endpoints that represent a combination of a Zscaler service (e.g. ZIA, ZPA, ZDX, etc.) and an associated RBAC Role (e.g., SuperAdmin, ReadOnly). Access to these resources is governed by Role-Based Access Control (RBAC):"
+    },
+    {
+      "item": "Each role within a Zscaler Admin Portal (or Zscaler Console) maps to a resource in Authentication Service. For example, ZDX has the following roles:",
+      "depth": 0
+    },
+    {
+      "item": "ZDX Super Admin: full access (i.e., create, update, delete).",
+      "depth": 1
+    },
+    {
+      "item": "ZDX Read-only Admin: view-only access.",
+      "depth": 1
+    },
+    {
+      "item": "ZDX Service Desk Tier 1: restricted view access with obfuscated user information with a limited time window.",
+      "depth": 1
+    },
+    {
+      "item": "API Clients can be assigned one resource per product, which defines what that client can do (i.e., read, write, or restricted access). However, API clients can be assigned multiple resources which belong to different products.",
+      "depth": 0
+    },
+    {
+      "text": "To learn more, see Understanding OneAPI Authentication and Viewing API Resources."
+    },
+    {
+      "heading": "Authenticating",
+      "level": 1
+    },
+    {
+      "text": "With your API client created and provisioned in Authentication Service, the next step is to authenticate. Authentication verifies your client's identity and issues an access token that will be used in every subsequent API call."
+    },
+    {
+      "text": "OneAPI supports the OAuth 2.0 Client Credentials flow, with multiple methods for client validation. You can start simple in a lab, then move to stronger methods for production."
+    },
+    {
+      "text": "The following client authentication mechanisms are supported by Authentication Service for accessing OneAPI resources:"
+    },
+    {
+      "item": "Client Secret - A client secret generated in Authentication Service is used for authentication. This authentication method requires manual key rotation in Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "Private Key JWT - A JSON Web Token (JWT) assertion generated by the client and signed by the client's private key is used for authentication. The client assertion is verified by the authorization server (i.e., Authentication Service) using the client's public key. To learn more, refer to RFC 7523. Authentication Service validates the client assertion in one of the following ways, depending on your configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Client JWKS URL: The client assertion signature is validated using the public keys fetched from a URL hosted by the client. This URL publishes the public keys in the JSON Web Key (JWK) format. This method allows the client to rotate the public keys without requiring any manual updates in Authentication Service, as Authentication Service automatically retrieves the keys from the URL.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Certificates/Public Keys: The client assertion signature is validated using the public keys or X.509 certificates directly uploaded to the Authentication Service. In this method, key rotation requires manual updates in Authentication Service.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "text": "When an API client sends an authentication request, Authentication Service verifies the client secret or assertion depending on the authentication mechanism used and issues the authorization grant (i.e., access token) upon successful verification. This access token is then used by the client to request access to the API resources."
+    },
+    {
+      "heading": "Choosing an Authentication Method",
+      "level": 2
+    },
+    {
+      "heading": "Understanding Authentication for OneAPI",
+      "level": 3
+    },
+    {
+      "item": "You must use your tenant's vanity domain in this URL (e.g., acme.zslogin.net). Your API Client sends an authentication request to the Authentication Service token endpoint:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "code": "https://<vanity-domain>.zslogin.net/oauth2/v1/token"
+    },
+    {
+      "item": "Authentication Service validates the request against the configured client method (e.g., client secret, JWKS URL, or certificate/public key).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If successful, Authentication Service returns an access token (i.e., bearer token) and its expiration time.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "For subsequent calls the client includes the bearer token in the Authorization header of all API calls:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "code": "Authorization: Bearer <access_token>"
+    },
+    {
+      "heading": "Option 1: Using a Client Secret",
+      "level": 3
+    },
+    {
+      "text": "Using a client secret is best for testing and lab environments or proof of concept projects."
+    },
+    {
+      "heading": "Client Secret Setup Overview",
+      "level": 4
+    },
+    {
+      "item": "Generate a secret in the Authentication Service when creating the client.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Send the client ID and secret in the request payload. For example:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "code": "POST /oauth2/v1/token HTTP/1.1\nHost: <vanity-domain>.zslogin.net\nContent-Type: application/x-www-form-urlencoded\n\n{\n  \"grant_type\": \"client_credentials\",\n  \"client_id\": \"<Client ID>\",\n  \"client_secret\": \"<Client Secret>\",\n  \"audience\": \"https://api.zscaler.com\"\n}"
+    },
+    {
+      "heading": "Option 2: Using a JWKS URL",
+      "level": 3
+    },
+    {
+      "text": "Using a JWKS URL is best for production automation where security and scalability are critical, as it has the following advantages:"
+    },
+    {
+      "item": "Seamless key rotation without downtime.",
+      "depth": 0
+    },
+    {
+      "item": "Strong asymmetric cryptography.",
+      "depth": 0
+    },
+    {
+      "heading": "JWKS URL Setup Overview",
+      "level": 4
+    },
+    {
+      "item": "Generate a private/public key pair.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Host the public key at a JWKS URL accessible to Authentication Service.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Configure the JWKS URL when creating your API Client.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "The client signs JWTs with the private key and sends them as assertions. Authentication Service fetches the public key from the JWKS URL to validate the JWT ."
+    },
+    {
+      "heading": "Option 3: Using Certificates and Public Keys",
+      "level": 3
+    },
+    {
+      "text": "Using certificates and public keys are best for environments with strict compliance or regulatory requirements, as it has the following advantages:"
+    },
+    {
+      "item": "Tightly controlled key management.",
+      "depth": 0
+    },
+    {
+      "item": "Restricts automation to specific machines with the correct certificate.",
+      "depth": 0
+    },
+    {
+      "heading": "Certificate and Public Key Setup Overview",
+      "level": 4
+    },
+    {
+      "text": "Upload the client's public key (.pem) or X.509 certificate directly into Authentication Service. The client signs JWTs with its private key and Authentication Service validates against the uploaded public key."
+    },
+    {
+      "text": "Let's look at the following examples of how you can achieve this."
+    },
+    {
+      "text": "Example: Signing Pseudocode",
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "text": "Here's what signing a JWT typically looks like, independent of language:"
+    },
+    {
+      "code": "header    = base64url_encode({ \"alg\": \"RS256\", \"typ\": \"JWT\" })\npayload   = base64url_encode({\n              \"iss\": client_id,\n              \"sub\": client_id,\n              \"aud\": \"https://api.zscaler.com\",\n              \"exp\": now() + 600  // expires in 10 minutes\n            })\nunsigned  = header + \".\" + payload\nsignature = sign_with_private_key(unsigned, algorithm=\"RS256\")\njwt       = unsigned + \".\" + base64url_encode(signature)"
+    },
+    {
+      "text": "The resulting JWT is sent as the client_assertion in your token request. Authentication Service validates it using the public key from your JWKS URL or uploaded certificate."
+    },
+    {
+      "text": "Example: Token Request with JWT Assertion",
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "text": "Here's what the token request with the JWT assertion typically looks like:"
+    },
+    {
+      "code": "POST /oauth2/v1/token HTTP/1.1\nHost: <vanity-domain>.zslogin.net\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials\n&client_id=<Client ID>\n&client_assertion=<jwt>\n&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer\n&audience=https://api.zscaler.com"
+    },
+    {
+      "text": "If authentication is successful, Authentication Service will return a token response:"
+    },
+    {
+      "code": "{\n  \"access_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6Ikp...\",\n  \"token_type\": \"Bearer\",\n  \"expires_in\": 3600\n}"
+    },
+    {
+      "text": "The access_token is used in your API calls. The expires_in is the authentication token expiration time as configured for API clients within Authentication Service."
+    },
+    {
+      "heading": "Configuring an Authentication Method",
+      "level": 2
+    },
+    {
+      "text": "After you have chosen an authentication method, you can take the proper steps to authenticate the client and retrieve an access token."
+    },
+    {
+      "text": "Before accessing OneAPI resources, the client application must obtain an authorization token (i.e., bearer token) by exchanging its credentials with the authorization server (i.e., Authentication Service). You must pass the access token onto subsequent calls to OneAPI for authentication."
+    },
+    {
+      "text": "To retrieve the access token, you must configure the client application to send a POST request along with the required parameters to Authentication Service's token endpoint: https://<vanity-domain>.zslogin.net/oauth2/v1/token, where <vanity-domain> refers to the domain assigned to your organization. You must use your tenant's vanity domain in this URL (e.g., acme.zslogin.net). The request parameters and payload might vary depending on whether the client uses a secret or an assertion (via Private Key JWT authentication) for authentication, explained as follows:"
+    },
+    {
+      "heading": "Creating an Authentication Request Using Client Secret",
+      "level": 3
+    },
+    {
+      "text": "In this method of authentication, you must send the client credentials through Basic authentication in the format clientID:ClientSecret or through request payload as client_id and client_secret parameters. For more information, refer to OAuth 2.0 RFC 6749, section 2.3. The client credentials sent in the request are verified by Authentication Service using the client registration details configured in Authentication Service."
+    },
+    {
+      "text": "The authorization request must include an audience parameter that is configured with the value https://api.zscaler.com."
+    },
+    {
+      "text": "The following is an example request with the client credentials presented using Basic authentication. In this example, you must replace the placeholder for the vanity domain with the domain name used by your organization and you must replace the placeholder for credentials with the Base64-encoded value of the clientID:clientSecret string."
+    },
+    {
+      "code": "POST /oauth2/v1/token HTTP/1.1\nHost: <Vanity Domain>.zslogin.net\nAuthorization: Basic <Credentials>\nContent-Type: application/x-www-form-urlencoded\n{\n\"grant_type\": \"client_credentials\",\n\"audience\": \"https://api.zscaler.com\"\n}"
+    },
+    {
+      "text": "The following is an example request with the client ID and client secret information sent in the request payload. In this example, the client ID and client secret are highlighted to indicate where you must enter the corresponding values. Also, you must replace the placeholder with the vanity domain the domain name used by your organization."
+    },
+    {
+      "code": "POST /oauth2/v1/token HTTP/1.1\nHost: <Vanity Domain>.zslogin.net\nContent-Type: application/x-www-form-urlencoded\n{\n\"grant_type\": \"client_credentials\",\n\"client_id\": \"<Client ID>\",\n\"client_secret\": \"<Client Secret>\",\n\"audience\": \"https://api.zscaler.com\",\n}"
+    },
+    {
+      "text": "If the request is successful, a 200 OK response is returned to the client with the access token and its expiration time in a JSON structure, as follows:"
+    },
+    {
+      "code": "{\n\"access_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6Ikp...vnI4T_H2rfze0c1Fk\",\n\"token_type\": \"Bearer\",\n\"expires_in\": 3600\n}"
+    },
+    {
+      "text": "The client secret is only accessible in Authentication Service when the secret is created for the first time. Make sure to copy and securely store your client secret when it appears upon creation. The authentication token expiration time is configured for API clients in Authentication Service."
+    },
+    {
+      "text": "If an unsuccessful POST request is made to the token endpoint, the response code returns a 400 error code."
+    },
+    {
+      "heading": "Creating an Authentication Request Using a Client Assertion",
+      "level": 3
+    },
+    {
+      "text": "In the Private Key JWT method of authentication, an API client creates and digitally signs a JWT using its private key and sends the JWT as the client assertion in the authentication request. The client assertion is extracted from the request and verified by the authorization server (i.e., Authentication Service) using the client's public key. To learn more, refer to RFC 7521 and RFC 7523."
+    },
+    {
+      "text": "The client makes a POST request to the token endpoint with the client_assertion parameter, which presents the JWT that contains information for client authentication. The assertion is expected to contain the regular JWT claims and there are no additional explicit requirements. The request must also contain other necessary parameters, explained as follows."
+    },
+    {
+      "heading": "To create a public-private key pair:",
+      "level": 4
+    },
+    {
+      "text": "You need to create an asymmetric key pair of public and private keys and sign the JWT with your private key to use for client authentication. The public key or an X.509 certificate containing the public key is shared with Authentication Service to verify the digital signature of the client's JWT assertion. The X.509 certificate is a digital document binding a public key to the identity of a user, service, or device. Alternatively, you can host the public key in a JWKS URL and share the URL with Authentication Service."
+    },
+    {
+      "item": "Create a public-private key pair using standard tooling, and optionally obtain an X.509 certificate for your public key issued by a Certificate Authority (CA). For testing purposes, you can also create and use a self-signed certificate.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The following example demonstrates how to create an RSA key pair of size 2,048 bits using OpenSSL. You can adjust the bit size based on your security requirements (e.g., 3,072 or 4,096 bits for stronger security).",
+      "depth": 0
+    },
+    {
+      "item": "The RSA private key is created in PEM format and this is followed by extracting a public key from the private key.",
+      "depth": 0
+    },
+    {
+      "item": "In this example, a public key certificate in PEM format is created.",
+      "depth": 0
+    },
+    {
+      "code": "openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048\nGenerating RSA private key, 2048 bit long modulus\n.............................+++++\n.................+++++\n//Private key is created in .pem format//\nls -la\nprivate_key.pem"
+    },
+    {
+      "code": "    openssl rsa -pubout -in private_key.pem -out public_key.pem\n    writing RSA key\n    //Public key is generated in .pem format//\n    ls -la\n    private_key.pem public_key.pem"
+    },
+    {
+      "item": "Additionally, you can host your public key at a publicly accessible endpoint (e.g., Amazon S3 bucket) to allow Authentication Service to fetch the public key from this endpoint directly. This endpoint becomes your JWKS URL.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "To build a client assertion:",
+      "level": 4
+    },
+    {
+      "text": "After you have the client assertion JWT ready, you can send a POST request to the token endpoint, as shown in the following example. The client ID and client assertion are highlighted to indicate where you must enter the corresponding values:"
+    },
+    {
+      "text": "The authorization request must include an audience parameter that is configured with the value https://api.zscaler.com."
+    },
+    {
+      "code": "    POST /oauth2/v1/token HTTP/1.1\n    Host: <Vanity Domain>.zslogin.net\n    Content-Type: application/x-www-form-urlencoded\n    {\n    \"grant_type\"=\"client_credentials\"\n    \"client_id\"=\"`<Client ID>`\"\n    \"client_assertion\"=\"<Client Assertion JWT>\"\n    \"client_assertion_type\"=\"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\"\n    \"audience\"=\"https://api.zscaler.com\"\n    }"
+    },
+    {
+      "text": "If the request is successful, a 200 OK response is returned to the client with the access token and its expiration time in a JSON structure, as follows:"
+    },
+    {
+      "code": "    {\n    \"access_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6Ikp...vnI4T_H2rfze0c1Fk\",\n    \"token_type\": \"Bearer\",\n    \"expires_in\": 3600\n    }"
+    },
+    {
+      "text": "The client assertion is extracted from the request and is cryptographically verified by Authentication Service using the certificate or public key fetched from the JWKS endpoint or uploaded to Authentication Service, depending on your configuration. The issuance and token expiration are also validated."
+    },
+    {
+      "text": "If an unsuccessful POST request is made to the token endpoint, a 400 error code is returned in the response."
+    },
+    {
+      "heading": "Next Steps After Authentication",
+      "level": 2
+    },
+    {
+      "text": "After the Authenticating stage you should be able to:"
+    },
+    {
+      "item": "Send an authentication request to Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "Receive an access token and understand its expiration.",
+      "depth": 0
+    },
+    {
+      "item": "Know which authentication method (e.g., client secret, JWKS URL, or certificate/public key) your client uses.",
+      "depth": 0
+    },
+    {
+      "text": "Now you're ready for the next stage, Automate, and making your first API calls with OneAPI."
+    },
+    {
+      "heading": "Automate",
+      "level": 1
+    },
+    {
+      "text": "After the authentication step is complete, you're ready to make your first OneAPI call. Integration is about connecting your application, scripts, or tools to Zscaler APIs in a way that's reliable and consistent."
+    },
+    {
+      "heading": "Locating Your Base URL",
+      "level": 2
+    },
+    {
+      "text": "The OneAPI host for commercial customers is api.zsapi.net. For federal agencies, the hosts are listed follows:"
+    },
+    {
+      "table": [
+        [
+          "FedRAMP Level",
+          "Host"
+        ],
+        [
+          "Moderate",
+          "api.zscaler.us"
+        ],
+        [
+          "High",
+          "api.zscaler.net"
+        ]
+      ]
+    },
+    {
+      "text": "Also, each API has a unique Base Path resulting in different base URLs, listed as follows:"
+    },
+    {
+      "text": "Additionally each API has a unique Base Path, resulting in different base URLs, listed as follows:"
+    },
+    {
+      "table": [
+        [
+          "API",
+          "Base Path",
+          "Example Base URL"
+        ],
+        [
+          "ZIA API",
+          "/zia/api/v1",
+          "https://api.zsapi.net/zia/api/v1"
+        ],
+        [
+          "ZPA API",
+          "Supported Base Paths: /zpa/mgmtconfig/v1 /zpa/mgmtconfig/v2 /zpa/userconfig/v1",
+          "Supported Base URLs: https://api.zsapi.net/zpa/mgmtconfig/v1 https://api.zsapi.net/zpa/mgmtconfig/v2 https://api.zsapi.net/zpa/userconfig/v1"
+        ],
+        [
+          "ZDX API",
+          "/zdx/v1",
+          "https://api.zsapi.net/zdx/v1"
+        ],
+        [
+          "Authentication Service API",
+          "/ziam/admin/api/v1",
+          "https://api.zsapi.net/ziam/admin/api/v1"
+        ],
+        [
+          "Client Connector API",
+          "/zcc/papi/public/v1",
+          "https://api.zsapi.net/zcc/papi/public/v1"
+        ],
+        [
+          "Cloud & Branch Connector API",
+          "/ztw/api/v1",
+          "https://api.zsapi.net/ztw/api/v1"
+        ],
+        [
+          "Business Insights API",
+          "/bi/api/v1",
+          "https://api.zsapi.net/bi/api/v1"
+        ],
+        [
+          "EASM API",
+          "/easm/easm-ui/v1",
+          "https://api.zsapi.net/easm/easm-ui/v1"
+        ],
+        [
+          "Cellular API",
+          "/zcell/config/api/v1",
+          "https://api.zsapi.net/zcell/config/api/v1"
+        ],
+        [
+          "Event Monitoring & Notification API",
+          "/event-monitoring",
+          "https://api.zsapi.net/event-monitoring"
+        ],
+        [
+          "Unified Role-Based Access Control (RBAC) API",
+          "/urbac/urbac",
+          "https://api.zsapi.net/urbac/urbac"
+        ],
+        [
+          "AI Security API",
+          "AI Infrastructure: /aisecurity/aispm/v1 AI Red Teaming: /aisecurity/airt/api/v2",
+          "AI Infrastructure: https://api.zsapi.net/aisecurity/aispm/v1 AI Red Teaming: https://api.zsapi.net/aisecurity/airt/api/v2"
+        ],
+        [
+          "AI Guard API",
+          "/aiguard/v1",
+          "https://api.zsapi.net/aiguard/v1"
+        ]
+      ]
+    },
+    {
+      "text": "The base URI for the ZPA API is /mgmtconfig/v1 and /mgmtconfig/v2. For endpoints to retrieve SCIM attribute details and SCIM group details, /userconfig/v1 is used as the base URI."
+    },
+    {
+      "text": "All endpoints are relative to the base URL. For example, to call a ZIA API endpoint such as /users, you must send the API request to the following URL: https://api.zsapi.net/zia/api/v1/users. Similarly, API requests to ZPA, Client Connector, and Cloud & Branch Connector endpoints must use the respective base URLs with the endpoints appended at the end."
+    },
+    {
+      "text": "Zscaler also supports a beta endpoint for OneAPI that uses api.beta.zsapi.net as the host. The basePath remains the same for each API, as listed in the preceding table. For example, to call the /users endpoint via beta, you must send the API request to the following URL: https://api.beta.zsapi.net/zia/api/v1/users."
+    },
+    {
+      "heading": "Making an API Call",
+      "level": 2
+    },
+    {
+      "text": "When making API calls, the client must pass the authorization token (i.e., bearer token) in each request for authentication. The client must present the access token in the request Authorization header using the Bearer authentication scheme."
+    },
+    {
+      "text": "When an API request is received, the Zscaler service validates the access token and accepts the request if authorization is successful. The Zscaler service extracts the JWT from the request's authorization header, validates the JWT signature using the client's public key or X.509 certificate, and then verifies the JWT claims. After successful validation, the client is allowed to access the requested API resources."
+    },
+    {
+      "text": "To send ad hoc requests, Zscaler recommends using the Postman application. To learn more, see Tools."
+    },
+    {
+      "heading": "Example AI Guard API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following example, you can retrieve information about a configured large language model (LLM) application by sending a GET request to the /llm-applications/:id endpoint and specifying the application ID. Ensure that you include the authorization token obtained from Authentication Service in your request."
+    },
+    {
+      "code": "import requests\n\nurl = \"https://api.zsapi.net/aiguard/v1/llm-applications/:id\"\n\npayload = {}\nheaders = {\n  'Authorization': 'Bearer <Access Token>',\n  'Accept': 'application/json'\n}\n\nresponse = requests.request(\"GET\", url, headers=headers, data=payload)\nprint(response.text)"
+    },
+    {
+      "text": "A successful request returns a 200 OK response with the LLM application details in the response body."
+    },
+    {
+      "code": "{\n  \"id\": 137,\n  \"name\": \"Eclipse-Bot\",\n  \"ownerEmail\": \"admin@example.com\",\n  \"applicationSettings\": {\n    \"includeEventContents\": false,\n    \"encryptEventContents\": false\n  },\n  \"description\": \"Chatbot designed for internal teams\",\n  \"createTimeMillis\": 1782921482235,\n  \"updateTimeMillis\": 1782921482235\n}"
+    },
+    {
+      "heading": "Example AI Security API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following example, you can retrieve the list of discovered Model Context Protocol (MCP) servers by sending a GET request to the /assets/mcpservers endpoint. Ensure that you include the authorization token obtained from Authentication Service in your request."
+    },
+    {
+      "code": "import requests\n\nurl = \"https://api.zsapi.net/aisecurity/aispm/v1/assets/mcpservers\"\n\npayload = {}\nheaders = {\n  'Authorization': 'Bearer <Access Token>',\n  'Accept': 'application/json'\n}\n\nresponse = requests.request(\"GET\", url, headers=headers, data=payload)\nprint(response.text)"
+    },
+    {
+      "text": "A successful request returns the list of MCP servers in the response with details."
+    },
+    {
+      "code": "{\n    \"data\": [\n        {\n            \"id\": \"<unique-identifier>\",\n            \"name\": \"<mcp-server-name>\",\n            \"environment\": \"AWS\",\n            \"region\": \"us-west-2\",\n            \"source_id\": \"arn:aws:ec2:<region>:<account-id>:<volume>/<volume-id>\",\n            \"associated_source_type\": \"AWS::EC2::Instance\",\n            \"type\": \"local\",\n            \"sanction_status\": \"sanction\",\n            \"risk_level\": \"high\",\n            \"risk_score\": 55,\n            \"risk_indicators\": [\n                \"File deletion operations\",\n                \"Directory traversal\",\n                \"External network access\",\n                \"Processes PII\"\n            ],\n            \"last_updated_at\": \"2026-05-07T14:17:21.768547Z\"\n        },\n        {\n            \"id\": \"<unique-identifier>\",\n            \"name\": \"<mcp-server-name>\",\n            \"environment\": \"AWS\",\n            \"region\": \"us-west-2\",\n            \"source_id\": \"arn:aws:ec2:<region>:<accountID>:<volume>/<volumeID>\",\n            \"associated_source_type\": \"AWS::EC2::Instance\",\n            \"type\": \"remote\",\n            \"sanction_status\": \"Sanctioned\",\n            \"risk_level\": \"medium\",\n            \"risk_score\": 40,\n            \"risk_indicators\": [\n                \"Execution capabilities\",\n                \"External network access\"\n            ],\n            \"last_updated_at\": \"2026-05-28T02:39:44.353786Z\"\n        },\n        {\n            \"id\": \"<unique-identifier>\",\n            \"name\": \"<mcp-server-name>\",\n            \"environment\": \"AZURE\",\n            \"region\": \"centralus\",\n            \"source_id\": \"subscriptions/<subscription-id>/resourcegroups/<resource-group>/providers/microsoft.containerregistry/registries/<resgistry-name>/repositories/<respository-name>/manifests/sha256:<manifest-digest>\",\n            \"associated_source_type\": \"microsoft.containerregistry/registries/repositories\",\n            \"type\": \"local\",\n            \"sanction_status\": \"Pending\",\n            \"risk_level\": \"low\",\n            \"risk_score\": 10,\n            \"risk_indicators\": [\n                \"Processes PII\"\n            ],\n            \"last_updated_at\": \"2026-06-30T05:53:50.881042Z\"\n        }\n    ],\n    \"next_cursor\": \"\",\n    \"total_count\": 3,\n    \"page_size\": 25\n}"
+    },
+    {
+      "heading": "Example Authentication Service API Request",
+      "level": 2
+    },
+    {
+      "text": "In the following example, you can get a list of users from Authentication Service by sending a GET request to /users. Use the following Python script to get a list of users. Send the GET request to the endpoint. Include the bearer token obtained from Authentication Service."
+    },
+    {
+      "code": "import http.client\nconn = http.client.HTTPConnection(\"https://api.zsapi.net/ziam/admin/api/v1\")\npayload = ''\nheaders = {\n   'Authorization': 'Bearer <Access Token>'\n}\nconn.request(\n   \"GET\",\n   \"/users?limit=100&offset=0&loginname=bbb@bbc.com\",\n   payload,\n   headers\n)\nres = conn.getresponse()\ndata = res.read()\nprint(data.decode(\"utf-8\"))"
+    },
+    {
+      "text": "A successful response to this GET request returns the following response containing a list of users with the details:"
+    },
+    {
+      "code": "{\n   \"pageOffset\": 0,\n   \"pageSize\": 100,\n   \"records\": [\n       {\n           \"loginName\": \"bbb@bbc.com\",\n           \"displayName\": \"ad\",\n           \"primaryEmail\": \"bbb@bbc.com\",\n           \"department\": {},\n           \"status\": true,\n           \"customAttrsInfo\": {},\n           \"id\": \"ihv1284ang34c\",\n           \"source\": \"UI\",\n           \"idp\": {\n               \"id\": \"h1v0q1nac03tk\",\n               \"name\": \"okta\"\n           }\n       }\n   ],\n   \"results_total\": 1\n}"
+    },
+    {
+      "heading": "Example Business Insights API request",
+      "level": 2
+    },
+    {
+      "text": "In the following example, you can get a list of Business Insights reports by sending a GET request to /report/all. Use the following Python script to get a list of reports. Send the GET request to the endpoint. Include the bearer token obtained from Authentication Service, as denoted by the <Bearer Token> placeholder."
+    },
+    {
+      "code": "import http.client\nconn = http.client.HTTPSConnection(\"api.zsapi.net\")\npayload = ''\nheaders = {\n 'Authorization': 'Bearer <Bearer Token>'\n}\nconn.request(\"GET\", \"/bi/api/v1/report/all?reportType=DATA_EXPLORER&subType=SaveAndSchedule&startTime=1753560715&endTime=1765405024\", payload, headers)\nres = conn.getresponse()\ndata = res.read()\nprint(data.decode(\"utf-8\"))"
+    },
+    {
+      "text": "A successful response to this GET request returns a list of available reports with the details:"
+    },
+    {
+      "code": "{\n    \"reportType\": \"DATA_EXPLORER\",\n    \"startTime\": \"2025-07-26\",\n    \"endTime\": \"2025-12-29\",\n    \"cloud\": \"zsprotect.net\",\n    \"orgId\": \"8xx9\",\n    \"reports\": [\n        {\n            \"fileName\": \"82449_ZOOM-DEMO-SANTest_100111_Zoom SanTest Demo1 Report_20250628_20250731_CUSTOM_APP_OVERVIEW_ONDEMAND_2025-07-31.csv\",\n            \"reportName\": \"Zoom SanTest Demo1 Report\",\n            \"reportDate\": \"2025-07-31\",\n            \"subType\": \"SAVE_AND_SCHEDULE\",\n            \"size\": 9424,\n            \"appName\": \"ZOOM-DEMO-SANTest\",\n            \"reportId\": \"100111\",\n            \"appId\": \"82449\"\n        },\n        {\n            \"fileName\": \"NewReport28_office_daily_bytes_export_DAILY_2025-08-28.csv\",\n            \"reportName\": \"NewReport28_office\",\n            \"reportDate\": \"2025-08-28\",\n            \"subType\": \"SAVE_AND_SCHEDULE\",\n            \"size\": 6780\n        }"
+    },
+    {
+      "heading": "Example Cellular API Request",
+      "level": 2
+    },
+    {
+      "text": "API requests to Cellular endpoints require a customer_id parameter, which represents the customer's Celullar tenant ID. Before you make a call, ensure that you have obtained the customer_id value:"
+    },
+    {
+      "heading": "Obtaining the Cellular Customer ID",
+      "level": 3
+    },
+    {
+      "item": "In the Zscaler Admin Console, go to Administration > Account Management > Linked Services.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          50
+        ],
+        [
+          53,
+          71
+        ],
+        [
+          74,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Cellular service in the table and copy the tenant ID value. This ID is required in your request to the Cellular API.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Making a Cellular API Request",
+      "level": 3
+    },
+    {
+      "text": "Using the following Python script example, you can retrieve the list of Zscaler SIMs provisioned for your organization by sending a request to the GET /api/v1/customers/{id}/sims endpoint. Ensure that you include the authorization token obtained from Authentication Service and the customer ID in your request."
+    },
+    {
+      "code": "import requests\n\ncustomer_id = \"[your-customer-id]\"\nurl = f\"https://api.zsapi.net/zcell/config/api/v1/customers/{customer_id}/sims\"\nheaders = {\n    \"Authorization\": \"Bearer [Access Token]\"\n}\nresponse = requests.get(url, headers=headers)\nprint(response.json())"
+    },
+    {
+      "text": "A successful response returns a paginated list of Zscaler SIMs provisioned for the organization:"
+    },
+    {
+      "code": "{\n  \"totalElements\": 2,\n  \"totalPages\": 1,\n  \"size\": 10,\n  \"content\": [\n    { \"iccid\": \"8901234567890123456\", \"status\": \"ACTIVE\" },\n    { \"iccid\": \"8901234567890123457\", \"status\": \"INACTIVE\" }\n  ]\n}"
+    },
+    {
+      "heading": "Example Client Connector API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following example, you can get a one-time password for a specific device from Client Connector by sending a GET request to /getOtp, including the udid parameter for the device."
+    },
+    {
+      "text": "The udid parameter represents the Unique Device Identifier generated for the device enrolled in Client Connector. You can obtain this value programmatically using the Client Connector API."
+    },
+    {
+      "text": "Use the following Python script to get a one-time password. In your script, enter the UDID for the device and include the bearer token obtained from Authentication Service."
+    },
+    {
+      "code": "import requests\nurl = \"https://api.zsapi.net/zcc/papi/public/v1/getOtp\"\nparams = {\n  \"udid\": \"{udid}\"\n}\nheaders = {\n  \"Authorization\": \"Bearer <Access Token>\"\n}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+    },
+    {
+      "text": "A successful request returns a response similar to the following:"
+    },
+    {
+      "code": "{\n \"otp\" : \"kg08abdcp1\"\n}"
+    },
+    {
+      "heading": "Example Cloud & Branch Connector API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following example, you can make an API call to the /ecgroup endpoint to get the list of Cloud & Branch Connector groups available. You must pass the bearer token obtained from Authentication Service in the request's Authorization header."
+    },
+    {
+      "code": "import requests\nurl = \"https://api.zsapi.net/ztw/api/v1/ecgroup\"\nheaders = {\n  \"Authorization\": \"Bearer <Access Token>\"\n}\nresponse = requests.get(url, headers=headers)\nprint(response.json())"
+    },
+    {
+      "text": "A successful response to this GET request returns the following response containing a list of the Cloud & Branch Connector groups available:"
+    },
+    {
+      "code": "[\n    {\n        \"id\": 63260789,\n        \"name\": \"zs-cc-vpc-02de960b4c73a7275-us-west-2a\",\n        \"desc\": \"Auto created from ami-0c0f8d637a04769ea_i-04f78174f6daf4792\",\n        \"deployType\": \"CLOUD\",\n        \"status\": [\n            \"CLOUD\"\n        ],\n        \"platform\": \"AWS\",\n        \"awsAvailabilityZone\": \"US_WEST_2A\",\n        \"location\": {\n            \"id\": 63260784,\n            \"name\": \"us-west-2-vpc-02de960b4c73a7275\"\n        },\n        \"maxEcCount\": 0,\n        \"provTemplate\": {\n            \"id\": 316001,\n            \"name\": \"aws-zwlc-id\"\n        },\n        \"tunnelMode\": \"UNENCRYPTED\",\n        \"ecVMs\": [\n            {\n                \"id\": 63260794,\n                \"name\": \"zs-cc-vpc-02de960b4c73a7275-us-west-2a-VM-B5bV5\",\n                \"status\": [\n                    \"REGISTERED\",\n                    \"PKG_REPO_REGISTERED\"\n                ],\n                \"operationalStatus\": \"INACTIVE\",\n                \"provTemplate\": {\n                    \"id\": 316001,\n                    \"name\": \"aws-zwlc-id\"\n                },\n                \"formFactor\": \"SMALL\",\n                \"managementNw\": {\n                    \"id\": 350251,\n                    \"ipStart\": \"10.1.200.178\",\n                    \"ipEnd\": \"0.0.0.0\",\n                    \"netmask\": \"255.255.255.0\",\n                    \"defaultGateway\": \"10.1.200.1\",\n                    \"nwType\": \"AUTOMATIC\",\n                    \"dns\": {\n                        \"id\": 350249,\n                        \"ips\": [\n                            \"10.1.0.2\"\n                        ],\n                        \"dnsType\": \"AUTOMATIC\"\n                    }\n                },\n                \"ecInstances\": [\n                    {\n                        \"id\": 63260797,\n                        \"name\": \"zs-cc-vpc-02de960b4c73a7275-us-west-2a-VM-B5bV5_INSTANCE_1_MnEgQ\",\n                        \"flags\": \"REGISTERED\",\n                        \"ecInstanceType\": \"SME\",\n                        \"registerTime\": 0,\n                        \"natIp\": \"52.38.213.147\",\n                        \"serviceNw\": {\n                            \"id\": 350258,\n                            \"ipStart\": \"10.1.200.33\",\n                            \"ipEnd\": \"0.0.0.0\",\n                            \"netmask\": \"255.255.255.0\",\n                            \"defaultGateway\": \"10.1.200.1\",\n                            \"nwType\": \"AUTOMATIC\",\n                            \"dns\": {\n                                \"id\": 350257,\n                                \"ips\": [\n                                    \"10.1.0.2\"\n                                ],\n                                \"dnsType\": \"AUTOMATIC\"\n                            }\n                        },\n                        \"virtualNw\": {\n                            \"id\": 350256,\n                            \"ipStart\": \"0.0.0.0\",\n                            \"ipEnd\": \"0.0.0.0\",\n                            \"netmask\": \"0.0.0.0\",\n                            \"defaultGateway\": \"0.0.0.0\",\n                            \"nwType\": \"AUTOMATIC\",\n                            \"dns\": {\n                                \"id\": 350254,\n                                \"ips\": [\n                                    \"0.0.0.0\"\n                                ],\n                                \"dnsType\": \"AUTOMATIC\"\n                            }\n                        }\n                    }\n                ],\n                \"cityGeoId\": 5714964,\n                \"natIp\": \"52.38.213.147\",\n                \"ziaGateway\": \"165.225.50.12\",\n                \"zpaBroker\": \"136.226.57.254\",\n                \"buildVersion\": \"346637\",\n                \"lastUpgradeTime\": 1678010276,\n                \"upgradeStatus\": 0,\n                \"upgradeStartTime\": 0,\n                \"upgradeEndTime\": 7200,\n                \"upgradeDayOfWeek\": 1,\n                \"haStatus\": \"DISABLED\"\n            }\n        ]\n    },\n    {\n        \"id\": 63260807,\n        \"name\": \"zs-cc-vpc-07c37249a25154547-us-east-2a\",\n        \"desc\": \"Auto created from ami-06a12e35f23ca5f7a_i-0bf0bbc515f4c7f64\",\n        \"deployType\": \"CLOUD\",\n        \"status\": [\n            \"CLOUD\"\n        ],\n        \"platform\": \"AWS\",\n        \"awsAvailabilityZone\": \"US_EAST_2A\",\n        \"location\": {\n            \"id\": 63260805,\n            \"name\": \"us-east-2-vpc-07c37249a25154547\"\n        },\n        \"maxEcCount\": 0,\n        \"provTemplate\": {\n            \"id\": 316001,\n            \"name\": \"aws-zwlc-id\"\n        },\n        \"tunnelMode\": \"UNENCRYPTED\",\n        \"ecVMs\": [\n            {\n                \"id\": 63260809,\n                \"name\": \"zs-cc-vpc-07c37249a25154547-us-east-2a-VM-0TbUx\",\n                \"status\": [\n                    \"REGISTERED\",\n                    \"PKG_REPO_REGISTERED\"\n                ],\n                \"operationalStatus\": \"INACTIVE\",\n                \"provTemplate\": {\n                    \"id\": 316001,\n                    \"name\": \"aws-zwlc-id\"\n                },\n                \"formFactor\": \"SMALL\",\n                \"managementNw\": {\n                    \"id\": 350260,\n                    \"ipStart\": \"10.1.200.201\",\n                    \"ipEnd\": \"0.0.0.0\",\n                    \"netmask\": \"255.255.255.0\",\n                    \"defaultGateway\": \"10.1.200.1\",\n                    \"nwType\": \"AUTOMATIC\",\n                    \"dns\": {\n                        \"id\": 350259,\n                        \"ips\": [\n                            \"10.1.0.2\"\n                        ],\n                        \"dnsType\": \"AUTOMATIC\"\n                    }\n                },\n                \"ecInstances\": [\n                    {\n                        \"id\": 63260813,\n                        \"name\": \"zs-cc-vpc-07c37249a25154547-us-east-2a-VM-0TbUx_INSTANCE_1_4emcc\",\n                        \"flags\": \"REGISTERED\",\n                        \"ecInstanceType\": \"SME\",\n                        \"registerTime\": 0,\n                        \"natIp\": \"3.20.194.248\",\n                        \"serviceNw\": {\n                            \"id\": 350268,\n                            \"ipStart\": \"10.1.200.105\",\n                            \"ipEnd\": \"0.0.0.0\",\n                            \"netmask\": \"255.255.255.0\",\n                            \"defaultGateway\": \"10.1.200.1\",\n                            \"nwType\": \"AUTOMATIC\",\n                            \"dns\": {\n                                \"id\": 350266,\n                                \"ips\": [\n                                    \"10.1.0.2\"\n                                ],\n                                \"dnsType\": \"AUTOMATIC\"\n                            }\n                        },\n                        \"virtualNw\": {\n                            \"id\": 350264,\n                            \"ipStart\": \"0.0.0.0\",\n                            \"ipEnd\": \"0.0.0.0\",\n                            \"netmask\": \"0.0.0.0\",\n                            \"defaultGateway\": \"0.0.0.0\",\n                            \"nwType\": \"AUTOMATIC\",\n                            \"dns\": {\n                                \"id\": 350263,\n                                \"ips\": [\n                                    \"0.0.0.0\"\n                                ],\n                                \"dnsType\": \"AUTOMATIC\"\n                            }\n                        }\n                    }\n                ],\n                \"cityGeoId\": 4509177,\n                \"natIp\": \"3.20.194.248\",\n                \"ziaGateway\": \"165.225.8.22\",\n                \"zpaBroker\": \"165.225.100.203\",\n                \"buildVersion\": \"346637\",\n                \"lastUpgradeTime\": 1677999488,\n                \"upgradeStatus\": 0,\n                \"upgradeStartTime\": 0,\n                \"upgradeEndTime\": 7200,\n                \"upgradeDayOfWeek\": 1,\n                \"haStatus\": \"DISABLED\"\n            }\n        ]\n    }\n]"
+    },
+    {
+      "heading": "Example EASM API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following Python script example, you can get a list of your EASM organizations by sending a request to the GET /organizations endpoint. In your script, ensure that you include the authorization token obtained from Authentication Service."
+    },
+    {
+      "code": "import requests\nurl = \"https://api.zsapi.net/easm-ui/v1/organizations\"\npayload = {}\nheaders = {\n \"Authorization\": \"Bearer <Access Token>\"\n}\nresponse = requests.request(\"GET\", url, headers=headers, data=payload)\nprint(response.text)"
+    },
+    {
+      "text": "A successful response to this request returns the list of your configured EASM organizations, similar to the following example:"
+    },
+    {
+      "code": "{\n   \"organizations\": [\n       {\n           \"id\": \"b3346038-l734-11ef-a005-2ac9f11bfebc\",\n           \"name\": \"E2E_Org\"\n       },\n       {\n           \"id\": \"549df00b-lf65-11ef-4324-3a17ad058d22\",\n           \"name\": \"Safemarch\"\n       },\n       {\n           \"id\": \"Default\",\n           \"name\": \"Default\"\n       }\n    ]\n}"
+    },
+    {
+      "heading": "Example Event Monitoring & Notification API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following example, you can create a new subscription for an event by sending a POST request to the /subscriptions endpoint. Ensure that you include the authorization token obtained from Authentication Service in your request and the required headers (x-em-cloud and x-em-tenant)."
+    },
+    {
+      "code": "curl -X POST https://api.zsapi.net/event-monitoring/subscriptions \\\n\t -H \"Authorization: Bearer <Token>\" \\\n\t -H \"Content-Type: application/json\" \\\n\t -H \"x-em-cloud: prod.zpath.net\" \\\n\t -H \"x-em-tenant: 145254691217866752\" \\\n\t -d '{\n\t   \"name\": \"ZPA Connector Status Down\",\n\t   \"description\": \"Notify when a ZPA Connector goes down\",\n\t   \"scope\": {\n\t     \"source_key\": \"zpa\",\n\t     \"source_type_key\": \"app_connector\",\n\t     \"source_event_key\": \"status\"\n\t   },\n\t   \"channels\": [\n\t     {\n\t       \"type\": \"webhook\",\n\t       \"webhook_url\": \"https://hooks.example.com/em-alerts\"\n\t     }\n\t   ],\n\t   \"enabled\": true\n\t }'"
+    },
+    {
+      "text": "A successful request returns the configured subscription in the response with details."
+    },
+    {
+      "code": "{\n  \"id\": \"8b84903e-c3fa-41d8-97e5-510549375898\",\n  \"name\": \"ZPA Connector Status Down\",\n  \"description\": \"Get notified when a ZPA connector goes down\",\n  \"zpa_tenant_id\": \"prod.zpath.net-145254691217866752\",\n  \"scope\": {\n    \"source_key\": \"zpa\",\n    \"source_type_key\": \"app_connector\",\n    \"source_event_key\": \"status\"\n  },\n  \"channels\": [\n    {\n\t\"type\": \"webhook\",\n\t\"webhook_url\": \"https://hooks.example.com/em-alerts\"\n}\n  ],\n  \"enabled\": true,\n  \"_links\": {\n    \"self\": \"/subscriptions/8b84903e-c3fa-41d8-97e5-510549375898\",\n    \"collection\": \"/subscriptions\",\n    \"source\": \"/catalog/sources/zpa\"\n  }\n}"
+    },
+    {
+      "heading": "Example Unified RBAC API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following example, you can retrieve the roles configured using Unified RBAC by sending a GET request to /roles/:roleId. You must pass the bearer token obtained from Authentication Service in the request's Authorization header and insert the role ID."
+    },
+    {
+      "code": "import requests\nurl = \"https://api.zsapi.net/urbac/urbac/v1/roles/:roleId\"\npayload = {}\nheaders = {\n  'Accept': 'application/json'\n}\nresponse = requests.request(\"GET\", url, headers=headers, data=payload)\nprint(response.text)"
+    },
+    {
+      "text": "A successful response to this request returns the role details."
+    },
+    {
+      "code": "{\n    \"schema\": \"com.zscaler.zaps.gpm.Role\",\n    \"schemaVersion\": \"v1\",\n    \"version\": 1,\n    \"id\": \"zaps:aws:zsn:gi76n66uhg36o:role:6\",\n    \"name\": \"TestRole4\",\n    \"description\": \"Unified Role with actions from ZIA, ZCC and ZDX along with scope\",\n    \"tenantID\": \"gi76n66uhg36o\",\n    \"actions\": [\n        \"urbac:ListRoles\",\n        \"urbac:ManageRoles\",\n        \"zia:ListFirewallDNATRules\",\n        \"zia:ManageFirewallDNATRules\",\n        \"zia:ListForwardingRules\",\n        \"zia:ManageForwardingRules\"\n    ],\n    \"restrictions\": [\n        {\n            \"type\": \"RESOURCE_ATTRIBUTE\",\n            \"resourceDef\": \"zia:DnatRule\",\n            \"attrDef\": \"zia:departments\",\n            \"restrictToValues\": {\n                \"type\": \"STRING\",\n                \"values\": [\n                    \"65908\"\n                ]\n            }\n        },\n        {\n            \"id\": null,\n            \"type\": \"RESOURCE_ATTRIBUTE\",\n            \"resourceDef\": \"zia:ForwardingRule\",\n            \"attrDef\": \"zia:ForwardingRule:departments\",\n            \"restrictToValues\": {\n                \"type\": \"STRING\",\n                \"values\": [\n                    \"65908\"\n                ]\n            },\n            \"restrictToPattern\": null\n        }\n    ],\n    \"dataPolicies\": [\n        {\n            \"type\": \"TIME_DURATION\", \n            \"resourceDef\": null,\n            \"value\": 4,\n            \"unit\": \"HOURS\"\n        },\n        {\n            \"type\": \"OBFUSCATION\", \n            \"resourceDef\": \"zia:ReportDataResponse\",\n            \"attributeDefs\": [\n                \"zia:userName\"\n            ]\n        }\n    ],\n    \"lastModified\": 1787847554811,\n    \"superAdmin\": false,\n    \"custom\": true\n}"
+    },
+    {
+      "heading": "Example ZDX API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following Python script example, you can start a deep tracing session on a specific device in ZDX by sending a POST request to the endpoint /devices/{deviceid}/deeptraces and including the deviceid as the parameter for the device. Starting a deep tracing session allows you to gather comprehensive diagnostics details about a specific device that is having trouble connecting to the network. You must pass the bearer token obtained from Authentication Service in the request's Authorization header."
+    },
+    {
+      "code": "url = \"https://api.zsapi.net/zdx/v1/devices/{device_id}/deeptraces\"\npayload = {\n  \"session_name\": \"{sessionName}\",\n  \"session_length_minutes\": 5,\n  \"probe_device\": True\n}\nheaders = {\n  \"Authorization\": \"Bearer <Access Token>\"\n}\nresponse = requests.post(url, headers=headers, json=payload)\nprint(response.json())"
+    },
+    {
+      "text": "A successful request returns a response similar to the following:"
+    },
+    {
+      "code": "{\n  \"trace_id\": 0,\n  \"status\": \"not_started\",\n  \"expected_time\": 0\n}"
+    },
+    {
+      "heading": "Example ZIA API Request",
+      "level": 2
+    },
+    {
+      "text": "Using the following example, you can look up categories for a specified list of URLs in ZIA by sending a POST request to /urlLookup. You must pass the bearer token obtained from Authentication Service in the request's Authorization header."
+    },
+    {
+      "code": "url = \"https://api.zsapi.net/zia/api/v1/urlLookup\"\npayload = [ \"viruses.org\", \"facebook.com\", \"bbc.com\" ]\nheaders = {\n  \"Authorization\": \"Bearer <Access Token>\"\n}\nresponse = requests.post(url, headers=headers, json=payload)\nprint(response.json())"
+    },
+    {
+      "text": "A successful response to this request returns the list of URLs with their category information:"
+    },
+    {
+      "code": "[ {\n\"url\": \"viruses.org\",\n\"urlClassifications\": [\n\"MISCELLANEOUS_OR_UNKNOWN\"\n],\n\"urlClassificationsWithSecurityAlert\": []\n},\n{\n\"url\": \"facebook.com\",\n\"urlClassifications\": [\n\"SOCIAL_NETWORKING\"\n],\n\"urlClassificationsWithSecurityAlert\": []\n},\n{\n\"url\": \"bbc.com\",\n\"urlClassifications\": [\n\"NEWS_AND_MEDIA\"\n],\n\"urlClassificationsWithSecurityAlert\": []\n} ]"
+    },
+    {
+      "text": "Zscaler recommends sending URLs for lookup in batches. Each request can have up to 100 URLs maximum, and each URL cannot exceed 1,024 characters."
+    },
+    {
+      "text": "If the API call fails due to an upgrade or scheduled maintenance of the API service, a 403 error code is returned, as shown in the following sample response. The API service supports only read operations via GET requests during this period."
+    },
+    {
+      "code": "HTTP/1.1 403\nx-zscaler-mode: read-only\n{\n\"code\": \"STATE_READONLY\",\n\"message\": \"The API service is undergoing a scheduled upgrade and is in read-only mode.\"\n}"
+    },
+    {
+      "text": "When making API calls to ZIA, consider the following best practices:"
+    },
+    {
+      "item": "Ensure that the lifetime of an access token is set to a desirable value for the API clients in Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "When updating a resource, always send a GET request before the PUT request. This retrieves the current values for the resource before you update the entire resource with new values.",
+      "depth": 0
+    },
+    {
+      "heading": "Example ZPA API Request",
+      "level": 2
+    },
+    {
+      "text": "API requests to ZPA endpoints require a customerId parameter, which represents the customer's ZPA tenant ID. Before you make a call, ensure that you have obtained the customerId value in one of the following ways:"
+    },
+    {
+      "heading": "Obtaining the ZPA customer ID from Authentication Service",
+      "level": 3
+    },
+    {
+      "item": "From the Authentication Service Admin Portal [Legacy UI], go to Integration > API Resources.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          64,
+          75
+        ],
+        [
+          78,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Click the View icon for Zscaler APIs. The API Resource window appears.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          42,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "In the API Resource window, see the Zscaler services that are linked to your tenant and the available scopes.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click ZPA OneAPI to expand the resource. Your customer ID is displayed as part of the scope and you can copy this value.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, you can view the customer ID by going to Integration > API Clients > Add/Edit API Client > Resources.",
+      "depth": 0,
+      "strong": [
+        [
+          56,
+          67
+        ],
+        [
+          70,
+          81
+        ],
+        [
+          84,
+          103
+        ],
+        [
+          106,
+          115
+        ]
+      ]
+    },
+    {
+      "heading": "Obtaining the ZPA customer ID from ZPA",
+      "level": 3
+    },
+    {
+      "item": "From the ZPA Admin Portal [Legacy UI], go to Configuration & Control > Public API > API Keys. The API Keys page appears.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          45,
+          68
+        ],
+        [
+          71,
+          81
+        ],
+        [
+          84,
+          92
+        ],
+        [
+          98,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "On the API Keys page, click Copy Customer ID.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          44
+        ]
+      ]
+    },
+    {
+      "text": "If you are accessing Authentication Service or ZPA (i.e., Private Applications) via the Experience Center UI, you can access the same information by going to:"
+    },
+    {
+      "item": "Administration > API Configuration > OneAPI > API Resources for Authentication Service. To learn more, see Viewing API Resources. Or,",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          17,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Administration > API Configuration > Legacy API > Private Access API for ZPA. To learn more, see About API Key Management.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          17,
+          34
+        ],
+        [
+          37,
+          47
+        ],
+        [
+          50,
+          68
+        ]
+      ]
+    },
+    {
+      "heading": "Making a ZPA API Call",
+      "level": 3
+    },
+    {
+      "text": "After you have obtained your customerId, you can get the list of all application segments in ZPA by sending a GET request to /mgmtconfig/v1/admin/customers/{customerId}/application and including the customerId parameter."
+    },
+    {
+      "text": "Use the following Python script to get a list of all application segments. The customerId parameter is highlighted to indicate where you must enter the ZPA tenant ID and a placeholder text is used where you must enter the bearer token obtained from Authentication Service."
+    },
+    {
+      "code": "import requests\nurl = \"https://api.zsapi.net/zpa/mgmtconfig/v1/admin/customers/{customerId}/application\"\nparams = {\n  \"page\": 1,\n  \"pagesize\": 100\n}\nheaders = {\n  \"Authorization\": \"Bearer <Access Token>\"\n}\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())"
+    },
+    {
+      "text": "A successful response to this request returns the list of application segments with their details:"
+    },
+    {
+      "code": "{\n\"totalPages\":\"1\",\n\"list\":[\n{\n\"creationTime\":\"1617135729\",\n\"modifiedBy\":\"7207654021241\",\n\"id\":\"7207654021241\",\n\"domainNames\":[\n\"example.com\"\n],\n\"name\":\"example\",\n\"serverGroups\":[\n{\n\"id\":\"7207654021241\",\n\"creationTime\":\"1617134731\",\n\"modifiedBy\":\"7207654021241\",\n\"name\":\"SIPA\",\n\"enabled\":true,\n\"configSpace\":\"DEFAULT\",\n\"dynamicDiscovery\":true\n}\n],\n\"enabled\":true,\n\"passiveHealthEnabled\":true,\n\"tcpPortRanges\":[\n\"443\",\n\"443\"\n],\n\"doubleEncrypt\":false,\n\"configSpace\":\"DEFAULT\",\n\"bypassType\":\"NEVER\",\n\"healthCheckType\":\"DEFAULT\",\n\"isCnameEnabled\":true,\n\"ipAnchored\":true,\n\"healthReporting\":\"ON_ACCESS\",\n\"segmentGroupId\":\"7207654021241\",\n\"segmentGroupName\":\"SIPA\"\n},\n{\n\"modifiedTime\":\"1617135436\",\n\"creationTime\":\"1613673797\",\n\"modifiedBy\":\"7207654021241\",\n\"id\":\"7207654021241\",\n\"domainNames\":[\n\"www.example.com\"\n],\n\"name\":\"example\",\n\"serverGroups\":[\n{\n\"id\":\"7207654021241\",\n\"creationTime\":\"1613673769\",\n\"modifiedBy\":\"7207654021241\",\n\"name\":\"ZPA\",\n\"enabled\":true,\n\"configSpace\":\"DEFAULT\",\n\"dynamicDiscovery\":true\n}\n],\n\"enabled\":true,\n\"passiveHealthEnabled\":true,\n\"tcpPortRanges\":[\n\"80\",\n\"80\"\n],\n\"doubleEncrypt\":false,\n\"configSpace\":\"DEFAULT\",\n\"bypassType\":\"NEVER\",\n\"healthCheckType\":\"DEFAULT\",\n\"isCnameEnabled\":true,\n\"ipAnchored\":false,\n\"healthReporting\":\"ON_ACCESS\",\n\"segmentGroupId\":\"7207654021241\",\n\"segmentGroupName\":\"ZPA\"\n},\n{\n\"creationTime\":\"1617134731\",\n\"modifiedBy\":\"7207654021241\",\n\"id\":\"7207654021241\",\n\"domainNames\":[\n\"docs.example.com\"\n],\n\"name\":\"docs.example.com\",\n\"serverGroups\":[\n{\n\"id\":\"7207654021241\",\n\"creationTime\":\"1617134731\",\n\"modifiedBy\":\"7207654021241\",\n\"name\":\"SIPA\",\n\"enabled\":true,\n\"configSpace\":\"DEFAULT\",\n\"dynamicDiscovery\":true\n}\n],\n\"enabled\":true,\n\"passiveHealthEnabled\":true,\n\"tcpPortRanges\":[\n\"54\",\n\"65535\"\n],\n\"doubleEncrypt\":false,\n\"configSpace\":\"DEFAULT\",\n\"bypassType\":\"NEVER\",\n\"healthCheckType\":\"DEFAULT\",\n\"isCnameEnabled\":true,\n\"ipAnchored\":true,\n\"healthReporting\":\"ON_ACCESS\",\n\"segmentGroupId\":\"7207654021241\",\n\"segmentGroupName\":\"SIPA\"\n},\n{\n\"creationTime\":\"1613762719\",\n\"modifiedBy\":\"7207654021241\",\n\"id\":\"7207654021241\",\n\"domainNames\":[\n\"www.example.com\"\n],\n\"name\":\"example\",\n\"serverGroups\":[\n{\n\"id\":\"7207654021241\",\n\"creationTime\":\"1613673769\",\n\"modifiedBy\":\"7207654021241\",\n\"name\":\"ZPA\",\n\"enabled\":true,\n\"configSpace\":\"DEFAULT\",\n\"dynamicDiscovery\":true\n}\n],\n\"enabled\":true,\n\"passiveHealthEnabled\":true,\n\"tcpPortRanges\":[\n\"443\",\n\"443\"\n],\n\"doubleEncrypt\":false,\n\"configSpace\":\"DEFAULT\",\n\"bypassType\":\"NEVER\",\n\"healthCheckType\":\"DEFAULT\",\n\"isCnameEnabled\":true,\n\"ipAnchored\":false,\n\"healthReporting\":\"ON_ACCESS\",\n\"segmentGroupId\":\"7207654021241\",\n\"segmentGroupName\":\"ZPA\"\n},\n{\n\"creationTime\":\"1616516461\",\n\"modifiedBy\":\"7207654021241\",\n\"id\":\"7207654021241\",\n\"domainNames\":[\n\"*.example.com\"\n],\n\"name\":\"test-wildcard\",\n\"description\":\"&amp;#x2a;&amp;#x2e;example&amp;#x2e;com\",\n\"serverGroups\":[\n{\n\"id\":\"7207654021241\",\n\"creationTime\":\"1613673769\",\n\"modifiedBy\":\"7207654021241\",\n\"name\":\"ZPA\",\n\"enabled\":true,\n\"configSpace\":\"DEFAULT\",\n\"dynamicDiscovery\":true\n}\n],\n\"enabled\":true,\n\"passiveHealthEnabled\":true,\n\"tcpPortRanges\":[\n\"443\",\n\"443\",\n\"80\",\n\"80\"\n],\n\"doubleEncrypt\":false,\n\"configSpace\":\"DEFAULT\",\n\"bypassType\":\"NEVER\",\n\"healthCheckType\":\"DEFAULT\",\n\"isCnameEnabled\":true,\n\"ipAnchored\":false,\n\"healthReporting\":\"ON_ACCESS\",\n\"segmentGroupId\":\"7207654021241\",\n\"segmentGroupName\":\"ZPA\"\n}\n]\n}"
+    },
+    {
+      "text": "The following conditions apply when passing microtenantId, the unique identifier of the Microtenant, in a request:"
+    },
+    {
+      "item": "If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained programmatically using the ZPA API. Access to certain operations are limited when you are within a Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "Pass microtenantId as null to retrieve data from all customers associated with the tenant.",
+      "depth": 0
+    },
+    {
+      "heading": "API Best Practices",
+      "level": 2
+    },
+    {
+      "item": "Adjust the token lifetime: Adjust the access token lifetime in Authentication Service in order to balance convenience and security.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Always fetch before update: When updating a resource, always send a GET request before a PUT/POST request. This retrieves the current values for the resource before you update the entire resource with new values. After the update, the next GET request for that resource returns the new values. By using this practice, you avoid overwriting changes accidentally or potentially missing updates between GET and PUT/POST calls.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Always use UTF-8 encoding: When making API calls, use UTF-8 encoding for all endpoints (e.g., use the encodeUriComponent() function in JavaScript to encode to UTF-8).",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Activation might be required: For ZIA and Cloud & Branch Connector APIs, configuration changes must be explicitly activated with a POST to /status/activate or /ecAdminActivateStatus/activate, respectively. However, you cannot revert a change and you cannot cancel any queued activations. If you are making multiple configuration changes, Zscaler recommends grouping the changes and activating once.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Avoid race conditions: To avoid race conditions, do not manually change configuration settings via the Zscaler Admin Portal (or Zscaler Console) UIs while your scripts are running, as they might conflict. The Zscaler service might lock a configuration while a user is editing.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "text": "When multiple admins are editing concurrently, only one admin's change succeeds, while the remaining users might receive a 409 error (EDIT_LOCK_NOT_AVAILABLE). If you encounter a race condition and a 409 error code is returned, Zscaler recommends adding a wait cycle of a few seconds and retrying to recover."
+    },
+    {
+      "text": "You can also prevent call caching when using the Client Connector API by adding a dummy argument with a randomly generated number to all URL request strings, for example, GET /getOtp?_=123456?."
+    },
+    {
+      "text": "For detailed information on all available API calls, endpoints, and parameters, see the API Reference Guide. For a summary of the rate limits used by the endpoints, response codes, and error messages, see Understanding Rate Limiting and Understanding Response Codes & Error Messages. To try out requests and responses for API calls using the Postman application, see Configuring the Postman REST API Client."
+    },
+    {
+      "text": "If you encounter any issues with Automation Hub or the Zscaler APIs, contact Zscaler Support."
+    }
+  ]
+}

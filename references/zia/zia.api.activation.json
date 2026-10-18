@@ -87,35 +87,50 @@
       ]
     },
     "oneapi-sample-activate": {
-      "statement": "The OneAPI sample endpoints document POST /zia/api/v1/status/activate as the call that activates saved changes, required after any ZIA configuration change.",
+      "statement": "The OneAPI contract documents POST /status/activate as the call that activates saved configuration changes, and the OneAPI Getting Started guide says ZIA configuration changes must be explicitly activated with it.",
       "tier": "A",
       "evidence": [
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1status~1activate/post",
+          "expect": {
+            "description": "<p>Activates the saved configuration changes. To learn more, see <a href=\"https://help.zscaler.com/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n"
+          }
+        },
+        {
           "source": "zscaler-help",
-          "path": "automate-zscaler/api-reference-zia-sample-endpoints.md",
+          "path": "automate-zscaler/getting-started.json",
           "quotes": [
-            "Activates the saved configuration changes. Required after any ZIA configuration change."
+            "configuration changes must be explicitly activated with a POST to /status/activate or /ecAdminActivateStatus/activate, respectively."
           ]
         }
-      ]
+      ],
+      "conditions": "Re-sourced on recapture (2026-10-18): the OneAPI sample-endpoints page it cited no longer exists; previously \"The OneAPI sample endpoints document POST /zia/api/v1/status/activate as the call that activates saved changes, required after any ZIA configuration change.\""
     },
     "status-values": {
       "statement": "The activation call returns a status of ACTIVE, PENDING or INPROGRESS.",
       "tier": "A",
       "evidence": [
         {
-          "source": "zscaler-help",
-          "path": "automate-zscaler/api-reference-zia-sample-endpoints.md",
-          "quotes": [
-            "// Possible: ACTIVE, PENDING, INPROGRESS"
-          ]
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1status~1activate/post/responses/200/content/application~1json/schema/properties/status",
+          "expect": {
+            "enum": [
+              "ACTIVE",
+              "PENDING",
+              "INPROGRESS"
+            ]
+          }
         }
-      ]
+      ],
+      "conditions": "Re-sourced on recapture (2026-10-18) from the removed sample-endpoints page to the OneAPI contract's response schema."
     }
   },
   "divergences": {
     "activate-path-differs": {
-      "summary": "The legacy URL Categories guide says to activate by POSTing to /status, while the SDK and the OneAPI sample use POST /status/activate.",
+      "summary": "The legacy URL Categories guide says to activate by POSTing to /status, while the SDK and the OneAPI contract use POST /status/activate.",
       "positions": [
         {
           "says": "Activation is a POST request to /status.",
@@ -140,13 +155,14 @@
           }
         },
         {
-          "says": "The OneAPI sample activates with POST /zia/api/v1/status/activate.",
+          "says": "The OneAPI contract activates with POST /status/activate.",
           "evidence": {
-            "source": "zscaler-help",
-            "path": "automate-zscaler/api-reference-zia-sample-endpoints.md",
-            "quotes": [
-              "**POST** `https://api.zsapi.net/zia/api/v1/status/activate`"
-            ]
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1status~1activate/post",
+            "expect": {
+              "description": "<p>Activates the saved configuration changes. To learn more, see <a href=\"https://help.zscaler.com/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n"
+            }
           }
         }
       ],

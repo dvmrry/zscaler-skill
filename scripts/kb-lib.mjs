@@ -213,7 +213,7 @@ function anchorTextOf(text, ev) {
   if (text === null || ev.pointer !== undefined || !text.startsWith("{")) return text;
   let doc;
   try { doc = JSON.parse(text); } catch { return text; }
-  return doc?.kind === "help-article" ? captureText(doc.blocks) : text;
+  return doc?.kind === "help-article" || doc?.kind === "automate-doc" ? captureText(doc.blocks) : text;
 }
 
 /** A help capture's anchoring text; must equal `text_of` in scripts/help_capture.py (a test pins the two). */
@@ -223,6 +223,7 @@ export function captureText(blocks) {
   for (const b of blocks) {
     if (b.heading !== undefined) lines.push(`${"#".repeat(b.level)} ${b.heading}`);
     else if (b.item !== undefined) lines.push(`${"  ".repeat(b.depth)}${b.number !== undefined ? `${b.number}.` : "-"} ${b.item}`);
+    else if (b.code !== undefined) lines.push(b.code);
     else if (b.table) lines.push(row(b.table[0]), `|${"---|".repeat(b.table[0].length)}`, ...b.table.slice(1).map(row));
     else lines.push(b.text);
   }
@@ -653,7 +654,7 @@ function checkProse(g, node, err, warnings) {
 }
 
 const HELP_ROOT = "vendor/zscaler-help";
-export const HELP_KINDS = new Set(["help-article", "help-api-spec", "help-index"]);
+export const HELP_KINDS = new Set(["help-article", "help-api-spec", "help-index", "automate-doc"]);
 
 /** A help capture written by scripts/help_capture.py, or null for any other file. */
 export function helpCapture(full) {
@@ -699,7 +700,9 @@ function checkCaptureInventory(g, err, warnings, cited) {
   for (const name of Object.keys(listed)) if (!seen.has(name)) err(reg, `${name} is listed but does not exist`);
   for (const [name, r] of Object.entries(g.staticCaptures.retired || {})) {
     if (seen.has(name)) err(reg, `${name} is listed as retired but still exists`);
-    if (!seen.has(r.replaced_by)) err(reg, `${name} is retired for ${r.replaced_by}, which does not exist`);
+    // A replacement is a capture here, or another vendored file named by its repo path (an OpenAPI contract).
+    const exists = r.replaced_by.startsWith("vendor/") ? fs.existsSync(path.join(g.root, r.replaced_by)) : seen.has(r.replaced_by);
+    if (!exists) err(reg, `${name} is retired for ${r.replaced_by}, which does not exist`);
   }
   for (const file of cited) {
     const entry = listed[file.slice(HELP_ROOT.length + 1)];

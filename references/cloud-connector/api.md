@@ -137,7 +137,7 @@ From *Configuring a Cloud Provisioning Template*:
 
 ## Activation
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/ztw/activation.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/resource_ztc_activation_status.go`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/ztw/activation.py`; `vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go`; `vendor/terraform-provider-ztc/ztc/resource_ztc_activation_status.go`.
 
 Cloud Connector has an **activation gate** parallel to ZIA's (see [`../shared/activation.md`](../shared/activation.md) for the cross-product treatment). Config changes are pending until activated.
 

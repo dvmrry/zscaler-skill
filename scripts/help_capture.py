@@ -7,6 +7,7 @@ fetcher: the same page always yields the same file. An article becomes `blocks` 
 paragraph, list item with depth and, in an ordered list, its number, table rows) of plain text, with
 bold kept as character ranges; quotes match `text_of(blocks)`, one fixed serialization. Links keep their
 text and images are dropped. An API reference page keeps its Swagger document, cited by JSON pointer.
+automate.zscaler.com guide pages go through the same commands (scripts/automate_pages.py reads them).
 
 Pages are fetched from the help site's own content endpoint (`/zapi/fetch-data`) over plain HTTP: no
 browser, no credentials, so it runs anywhere, CI included. Articles and API pages carry the site's node
@@ -263,7 +264,8 @@ def text_of(blocks: list[dict]) -> str:
 
     A heading is `#` x level, a list item is indented two spaces per depth and starts `- ` (or `3. `
     for the third item of an ordered list), a table is
-    one `| a | b |` row per line with a `|---|` rule after its first row; bold is not marked. The
+    one `| a | b |` row per line with a `|---|` rule after its first row, and a code block is its text as
+    is; bold is not marked. The
     validator rebuilds the same text in JavaScript (`captureText` in kb-lib.mjs); a test pins the two.
     """
     lines: list[str] = []
@@ -273,6 +275,8 @@ def text_of(blocks: list[dict]) -> str:
         elif "item" in b:
             marker = f'{b["number"]}. ' if "number" in b else "- "
             lines.append("  " * b["depth"] + marker + b["item"])
+        elif "code" in b:
+            lines.append(b["code"])
         elif "table" in b:
             row = lambda cells: "| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |"  # noqa: E731
             lines.append(row(b["table"][0]))
@@ -324,6 +328,10 @@ def page(url: str) -> dict:
     index (categories and their articles). Raises Unavailable for a page under maintenance (403) and
     SystemExit for anything else that is not there.
     """
+    if urllib.parse.urlparse(url).netloc == "automate.zscaler.com":
+        from automate_pages import page as automate_page
+
+        return automate_page(url)
     data = _payload(url)
     info, body = data.get("info") or {}, data.get("body") or {}
     current = f"https://help.zscaler.com{info['url']}" if info.get("url") else url
@@ -370,6 +378,11 @@ def build(pg: dict, date: str | None = None) -> dict:
     if pg["kind"] == "help-article":
         title, blocks = render(pg["html"])
         return document(title, pg["url"], blocks, pg["nid"], pg["rev"], date)
+    if pg["kind"] == "automate-doc":
+        # The revision is the page chunk's content-hashed file name: it changes exactly when the page does.
+        return {"schema_version": 1, "kind": "automate-doc", "title": pg["title"],
+                "source": {"url": pg["url"], "revision": pg["rev"]},
+                "captured_at": date or datetime.date.today().isoformat(), "blocks": pg["blocks"]}
     head = {"schema_version": 1, "kind": pg["kind"], "title": pg["title"]}
     when = {"captured_at": date or datetime.date.today().isoformat()}
     if pg["kind"] == "help-api-spec":
@@ -381,13 +394,13 @@ def build(pg: dict, date: str | None = None) -> dict:
 
 def content(doc: dict) -> str:
     """What a capture says, for comparing two captures of the same page and for diffs."""
-    if doc["kind"] == "help-article":
+    if doc["kind"] in ("help-article", "automate-doc"):
         return text_of(doc["blocks"])
     body = doc["spec"] if doc["kind"] == "help-api-spec" else {"categories": doc["categories"], "articles": doc["articles"]}
     return json.dumps(body, indent=1, sort_keys=True, ensure_ascii=False) + "\n"
 
 
-KINDS = ("help-article", "help-api-spec", "help-index")
+KINDS = ("help-article", "help-api-spec", "help-index", "automate-doc")
 
 
 def write(path: Path, doc: dict) -> None:
@@ -522,9 +535,9 @@ def recapture(names: list[str]) -> int:
     failed = 0
     for name in names:
         path = HELP / name
-        m = re.search(r"https://help\.zscaler\.com/[^\s)*\"'<>]+", path.read_text()[:800])
+        m = re.search(r"https://(?:help|automate)\.zscaler\.com/[^\s)*\"'<>]+", path.read_text()[:800])
         if not m:
-            print(f"skip  {name}: no help.zscaler.com source in its header"); failed += 1; continue
+            print(f"skip  {name}: no help.zscaler.com or automate.zscaler.com source in its header"); failed += 1; continue
         try:
             pg = page(m.group(0))
         except SystemExit as e:

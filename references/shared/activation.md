@@ -17,9 +17,9 @@ source-tier: doc
 sources:
   - "vendor/zscaler-help/configuring-url-categories-using-api.json"
   - "vendor/zscaler-help/legacy-activation.json"
-  - "vendor/zscaler-help/automate-zscaler/api-reference-zia-sample-endpoints.md"
-  - "vendor/zscaler-help/automate-zscaler/getting-started.md"
-  - "vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json"
+  - "vendor/zscaler-help/automate-zscaler/getting-started.json"
+  - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
   - "vendor/zscaler-sdk-python/zscaler/ztw/activation.py"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/activation/activation.go"
@@ -46,7 +46,7 @@ This asymmetry is the #1 source of "why doesn't my rule change work?" confusion 
 
 ## Per-product summary
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-help/automate-zscaler/api-reference-zia-sample-endpoints.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
 
 | Product | Activation? | Status endpoint | Activate endpoint | Notes |
 |---|---|---|---|---|
@@ -60,7 +60,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscal
 
 ## ZIA mechanism
 
-Source: `vendor/zscaler-help/configuring-url-categories-using-api.json`; `vendor/zscaler-help/legacy-activation.json`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
+Source: `vendor/zscaler-help/configuring-url-categories-using-api.json`; `vendor/zscaler-help/legacy-activation.json`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
 
 Every ZIA write (URL category, URL filtering rule, SSL inspection rule, CAC rule, advanced settings, etc.) bumps the configuration into **pending** state. The pending config is not applied to live traffic until activation runs.
 
@@ -121,7 +121,7 @@ The captured Automate contract describes the second operation only as “Force a
 
 ## `409 EDIT_LOCK_NOT_AVAILABLE` — concurrent writes
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
 
 A common failure mode on both ZIA and CBC: writing config while another admin or script holds the edit lock returns:
 
@@ -140,7 +140,7 @@ Causes:
 
 ## Read-only mode (scheduled maintenance)
 
-Source: `vendor/zscaler-help/automate-zscaler/guides-response-codes.md`; `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md`.
+Source: `vendor/zscaler-help/automate-zscaler/response-codes.json`; `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-help/automate-zscaler/getting-started.json`.
 
 During Zscaler-side maintenance, ZIA returns 403 with a discriminator:
 
@@ -155,7 +155,7 @@ Both `x-zscaler-mode: read-only` and `STATE_READONLY` are reliable discriminator
 
 ## Troubleshooting pattern
 
-Source: `vendor/zscaler-help/legacy-activation.json`; `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/activation.py`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md`.
+Source: `vendor/zscaler-help/legacy-activation.json`; `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/activation.py`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md`.
 
 When a tenant reports "I changed the rule and it's not taking effect," make activation status an early check for ZIA and CBC. Before blaming rule order, policy evaluation, or SSL bypass:
 
@@ -193,7 +193,7 @@ The generated tool catalog carries one more migration artifact: its contributor 
 
 ## Failure modes
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/legacy-activation.json`; `vendor/zscaler-help/ranges-limitations-zia.json`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-help/legacy-activation.json`; `vendor/zscaler-help/ranges-limitations-zia.json`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
 
 - **Silent staleness.** Pending changes show up in the admin console (sometimes with a banner) but the active policy is still the pre-change version. Support cases often start here.
 - **Partial activation.** Multiple admins making concurrent changes can interleave pending state. Activating applies *all* pending changes in one atomic push — there's no selective activation of a subset.
@@ -201,7 +201,7 @@ Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscal
 
 ## ZPA / ZDX / ZIdentity / ZCC / BI contrast
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
 
 These products do not use the ZIA/CBC activation pattern. ZPA's Terraform provider does not ship a `zpa_activation_status` resource. ZIdentity and ZCC changes apply on write, while BI is reporting-oriented. ZDX is read-heavy rather than strictly read-only: MCP v0.15.0 includes four gated diagnostic-session writes (`zdx_start_deeptrace`, `zdx_delete_deeptrace`, `zdx_start_analysis`, and `zdx_delete_analysis`) with no separate activation call (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:319-355`).
 

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "ZIA API Rate Limits",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/rate-limiting/zia",
+    "revision": "bbc270b1.236ee736.js"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "In Zscaler Internet Access (ZIA) API, every endpoint and action has two different types of rate limit:"
+    },
+    {
+      "item": "A lower bound limit that protects against high bursts of requests over a short period of time.",
+      "depth": 0
+    },
+    {
+      "item": "An upper bound limit that protects against a high volume of requests over a long period of time.",
+      "depth": 0
+    },
+    {
+      "text": "Every endpoint is assigned a weight and every weight has a default rate limit. The following table provides the typical assignment for each weight. However some endpoints have exceptions, and additionally, specific operations can have a different weight from these typical values. To learn more about the rate limits of individual ZIA API endpoints, see the API Rate Limit Summary."
+    },
+    {
+      "table": [
+        [
+          "Weight",
+          "Typical Assignment",
+          "Requests/second",
+          "Requests/minute",
+          "Requests/hour"
+        ],
+        [
+          "Heavy",
+          "DELETE",
+          "-",
+          "1",
+          "4"
+        ],
+        [
+          "Medium",
+          "POST, PUT",
+          "1",
+          "-",
+          "400"
+        ],
+        [
+          "Light",
+          "GET",
+          "2",
+          "-",
+          "1,000"
+        ]
+      ]
+    },
+    {
+      "text": "As a best practice, after each call to an endpoint, make sure your script includes a wait (or sleep) period. For example, if you are programming in Python, you can use the time.sleep() function. When the defined rate limit is exceeded, an HTTP 429 response code is returned."
+    },
+    {
+      "text": "ZIA sends Rate Limit headers in API responses to provide information about the current status of rate limits, allowing users to plan ahead for their API integration and prevent reaching the rate limit. The Rate Limit headers are:"
+    },
+    {
+      "item": "x-ratelimit-limit: The rate limit ceiling that is applicable for the current API request.",
+      "depth": 0
+    },
+    {
+      "item": "x-ratelimit-remaining: The number of API requests remaining for the current rate limit window.",
+      "depth": 0
+    },
+    {
+      "item": "x-ratelimit-reset: The time (in seconds) remaining in the current window after which the rate limit resets.",
+      "depth": 0
+    }
+  ]
+}

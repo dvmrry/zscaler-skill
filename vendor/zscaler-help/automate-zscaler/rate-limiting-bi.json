@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Business Insights API Rate Limits",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/rate-limiting/bi",
+    "revision": "028d7284.153241dd.js"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The Business Insights API endpoints are subjected to different rate limits based on the endpoint tier:"
+    },
+    {
+      "heading": "Rate Limit Tiers",
+      "level": 2
+    },
+    {
+      "table": [
+        [
+          "Tier",
+          "Requests/Second",
+          "Requests/Hour",
+          "Applies To"
+        ],
+        [
+          "Heavy",
+          "1",
+          "400",
+          "Custom Applications: Create, Get, Update, Delete; Report Configurations: Create, Get, Update, Delete"
+        ],
+        [
+          "Light",
+          "2",
+          "1,000",
+          "Reports: List All Reports, Download a Report"
+        ]
+      ]
+    },
+    {
+      "heading": "Rate Limit Error Response",
+      "level": 2
+    },
+    {
+      "text": "When a rate limit is exceeded, the API returns a 429 status code with the following response:"
+    },
+    {
+      "code": "{\n  \"errorCode\": \"RATE_LIMIT_EXCEEDED\",\n  \"errorDetails\": \"Rate limit exceeded. Maximum 2 requests per second and 1000 requests per hour is allowed.\",\n  \"timestamp\": 1772573283919\n}"
+    },
+    {
+      "text": "All rate limits start as soon as the first call is executed. Calls can occur more than once per second, but no more than the limits for the API type."
+    },
+    {
+      "text": "Clients who are subject to rate limiting need to back off exponentially to proceed further."
+    },
+    {
+      "heading": "Best Practices",
+      "level": 2
+    },
+    {
+      "item": "Implement Exponential Backoff: When receiving a 429 response, wait for the suggested retry period and use exponential backoff for subsequent retries.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Monitor Usage: Track your API usage to stay within the limits. The Light tier allows burst requests up to 2 per second, while the Heavy tier is more restrictive at 1 per second.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Batch Operations: For Custom Applications and Report Configurations, plan your operations efficiently to minimize API calls.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Cache Results: Cache report listings and configuration data when possible to reduce redundant API calls.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    }
+  ]
+}

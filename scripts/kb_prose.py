@@ -13,7 +13,7 @@ from pathlib import Path
 
 _LINK = re.compile(r"\[[^\]]*\]\([^)\s]*\)")
 # A reference to another doc or graph node, outside link syntax: a repo .md path or a kb: ID.
-_REF = re.compile(r"`?(?:kb:[\w.:/#-]+|(?:\.\./|\./)*[\w./-]+\.md(?:#[\w-]+)?|(?:\.\./|\./)*[\w./-]*zscaler-help/[\w.&-]+\.(?:json|md|txt|pdf|csv))`?")
+_REF = re.compile(r"`?(?:kb:[\w.:/#-]+|(?:\.\./|\./)*[\w./-]+\.md(?:#[\w-]+)?|(?:\.\./|\./)*[\w./-]*zscaler-(?:help|api-specs)/[\w./&-]+\.(?:json|md|txt|pdf|csv))`?")
 
 
 def is_kb_prose(path: Path | str) -> bool:

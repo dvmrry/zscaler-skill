@@ -1598,7 +1598,7 @@ The ZInsights GraphQL endpoint is captured as `https://api.zsapi.net/zins/graphq
 
 *Origin: `references/shared/analytics-graphql.md` § Open questions*
 
-The captured guide documents GraphQL introspection support for the Beta cloud environment only (`vendor/zscaler-help/automate-zscaler/guides-analytics-api.md:31`). Production introspection is not confirmed by this source set; clients should assume it is unavailable unless vendor documentation or a live production test confirms an exception.
+The captured guide documents GraphQL introspection support for the Beta cloud environment only (`vendor/zscaler-help/automate-zscaler/working-with-zscaler-analytics.json:31`). Production introspection is not confirmed by this source set; clients should assume it is unavailable unless vendor documentation or a live production test confirms an exception.
 
 **Status**: open — 2026-06-16
 **Resolves with**: vendor documentation for production introspection behavior or a live production introspection response capture

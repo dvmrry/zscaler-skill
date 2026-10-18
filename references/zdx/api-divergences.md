@@ -36,13 +36,13 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_events.go"
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/device_quality_metrics.go"
   - "vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go"
-  - "vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json"
 author-status: draft
 ---
 
 # ZDX API source divergences
 
-ZDX is described by three independent views, each maintained on its own cadence: the **Python SDK** (`vendor/zscaler-sdk-python/zscaler/zdx/`), the **Go SDK** (`vendor/zscaler-sdk-go/zscaler/zdx/`), and the **help-site API reference** (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md`). Where they agree, confidence is high. Where they diverge, an engineer needs to know which one to trust before writing code — and the answer changes by transport, header, field, and endpoint.
+ZDX is described by three independent views, each maintained on its own cadence: the **Python SDK** (`vendor/zscaler-sdk-python/zscaler/zdx/`), the **Go SDK** (`vendor/zscaler-sdk-go/zscaler/zdx/`), and the **help-site API reference** (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json`). Where they agree, confidence is high. Where they diverge, an engineer needs to know which one to trust before writing code — and the answer changes by transport, header, field, and endpoint.
 
 This doc consolidates the cross-source disagreements that were previously scattered across [`api.md`](./api.md), [`devices.md`](./devices.md), [`diagnostics-and-alerts.md`](./diagnostics-and-alerts.md), [`reports.md`](./reports.md), [`score.md`](./score.md), and [`sdk.md`](./sdk.md). The transport / header / limiter cluster (the highest-value disagreements, because the two SDKs and the help site genuinely contradict each other on host, auth path, and rate-limit semantics) is written out in full below. The per-resource Python-vs-Go field divergences are summarized here with source citations; where a sibling doc already carries the operational walk-through, this doc links to it rather than duplicating.
 
@@ -70,7 +70,7 @@ This is the cluster where the three sources most directly contradict one another
 
 - **Python SDK (legacy):** builds the base host as `https://api.{cloud}.net` with `cloud` defaulting to `zdxcloud`, then posts the token request to `{self.url}/v1/oauth/token` — i.e. `https://api.zdxcloud.net/v1/oauth/token`. (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:55`, `:57`, `:173`)
 - **Go SDK:** default `rawBaseURL = "https://api.zdxcloud.net"` (or `https://api.%s.net` for a user-specified cloud), and the token URL is `cfg.BaseURL.String() + "/v1/oauth/token"` — i.e. `https://api.zdxcloud.net/v1/oauth/token`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:150-152`, `vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:267`)
-- **Help-site reference:** documents the token endpoint as the OneAPI gateway `POST https://api.zsapi.net/zdx/v1/oauth/token`, with the data base URL `https://api.zsapi.net/zdx/v1`. (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:10`, `:16`)
+- **Help-site reference:** documents the token endpoint as the OneAPI gateway `POST https://api.zsapi.net/zdx/v1/oauth/token`, with the data base URL `https://api.zsapi.net/zdx/v1`. (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json:10`, `:16`)
 
 **Significance / which to trust:** Both hosts are documented — the direct cloud host (`api.zdxcloud.net`) is what both vendored SDKs use today; the OneAPI gateway host (`api.zsapi.net`) is the front-door form the help site documents and is also the host the [`../shared/oneapi.md`](../shared/oneapi.md) ZDX-legacy row records. Whether a given tenant's credentials work against one host, the other, or both is unverified from source alone (see open question 1 below). A hand-built client must pick a host and stay on it — the auth path prefix differs by host (next entry).
 
@@ -81,7 +81,7 @@ This is the cluster where the three sources most directly contradict one another
 **What each source says:**
 
 - **Go SDK (direct host):** the token path has **no** `/zdx` segment — `/v1/oauth/token` (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:267`). The data endpoint constants, by contrast, all carry the `/zdx` prefix: `appsEndpoint = "/zdx/v1/apps"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go:12`), `devicesEndpoint = "/zdx/v1/devices"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go:12`), `softwareEndpoint = "/zdx/v1/inventory/software"` (`vendor/zscaler-sdk-go/zscaler/zdx/services/inventory/inventory.go:12`).
-- **Help-site reference (OneAPI host):** auth is at `https://api.zsapi.net/zdx/v1/oauth/token` — the auth path **does** carry `/zdx/v1`. (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:16`)
+- **Help-site reference (OneAPI host):** auth is at `https://api.zsapi.net/zdx/v1/oauth/token` — the auth path **does** carry `/zdx/v1`. (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json:16`)
 
 **Significance / which to trust:** On the direct cloud host the SDKs use, authenticate at `/v1/oauth/*` (no `/zdx`) but call data at `/zdx/v1/*`. On the OneAPI gateway host the help site documents, both auth and data live under `/zdx/v1/*`. The prefix is not optional and not uniform across the host you choose — copy it from the host-matched source, not from the other host's examples.
 
@@ -93,7 +93,7 @@ This is the cluster where the three sources most directly contradict one another
 
 - **Python SDK:** reads `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second` from the response to drive proactive backoff. (`vendor/zscaler-sdk-python/zscaler/zdx/legacy.py:97-98`)
 - **Go SDK:** reads the same two headers, `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_client.go:192-193`)
-- **Help-site reference:** documents the rate-limit response headers as `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`. (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:103`)
+- **Help-site reference:** documents the rate-limit response headers as `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`. (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json:103`)
 
 **Significance / which to trust:** A hand-built client that reads `RateLimit-Remaining` (the help name) against the direct cloud host the SDKs target may find it absent and silently lose its backoff signal — both SDKs read the `X-Ratelimit-*-Second` family. Conversely, code calling the OneAPI gateway should expect the `RateLimit-*` family. The header family is **inferred** to be host-coupled, same as the path prefix (unverified — see open question 2 below; this is read off two sources hitting two hosts, not a single confirmed live response). [`api.md § Rate limits`](./api.md) and [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md) document the `RateLimit-*` (gateway) form; this entry records the `X-Ratelimit-*-Second` form the SDKs actually parse.
 
@@ -104,7 +104,7 @@ This is the cluster where the three sources most directly contradict one another
 **What each source says:**
 
 - **Go SDK:** initializes a single global rate limiter at a fixed **100 requests / 60 seconds** with a **5-second** additional delay, regardless of tenant: `globalLimiter := rl.NewGlobalRateLimiter(100, 60)` and `AdditionalDelay: 5 * time.Second`. (`vendor/zscaler-sdk-go/zscaler/zdx/v2_config.go:314`, `:322`)
-- **Server model (help-site / shared doc):** ZDX rate limits are **tiered by license count** — per-second/minute/hour/day caps that scale across four tiers (e.g. 30/min at tier 1 up to 180/min at tier 4). (`vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md:98-101`; tabulated in [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md))
+- **Server model (help-site / shared doc):** ZDX rate limits are **tiered by license count** — per-second/minute/hour/day caps that scale across four tiers (e.g. 30/min at tier 1 up to 180/min at tier 4). (`vendor/zscaler-api-specs/automate-zscaler/openapi/zdx.openapi.json:98-101`; tabulated in [`../shared/oneapi.md § ZDX — tier-based by license count`](../shared/oneapi.md))
 
 **Significance / which to trust:** The Go SDK's client-side throttle is a conservative fixed ceiling, not a reflection of the tenant's actual server-side allowance. A large-license tenant (higher tier) is more permissively limited server-side than the Go client self-throttles to; a low-tier tenant could in principle exceed its per-minute server cap if the hardcoded 100/60s is more generous than its tier — the limiter is a static guard, not a tier-aware one. Trust the server tier table for the real budget; treat the Go limiter as a floor.
 

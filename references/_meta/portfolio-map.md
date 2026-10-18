@@ -11,7 +11,7 @@ confidence: medium
 source-tier: mixed
 sources:
   - "https://www.zscaler.com/products-and-solutions"
-  - "vendor/zscaler-help/automate-zscaler/getting-started.md (documented OneAPI baseline)"
+  - "vendor/zscaler-help/automate-zscaler/getting-started.json (documented OneAPI baseline)"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zscaler-help/zero-trust-exchange-zte-marketing.md"
   - "vendor/zscaler-help/data-fabric-for-security-marketing.md"
@@ -56,7 +56,7 @@ author-status: draft
 
 Single-page index of **every product Zscaler markets**, with depth-of-coverage in this skill marked per entry. Goal: the skill should be **articulate about everything Zscaler ships**, even where deep-dive content doesn't exist. Customers, prospects, and team members ask about the breadth; this map ensures we don't draw blanks.
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
 
 Five coverage tiers. API/IaC surface is the primary axis; content depth is the secondary axis:
 
@@ -87,7 +87,7 @@ Source: `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zsca
 
 Each has SDK / TF / OneAPI exposure AND a dedicated `references/<product>/` directory with multiple reasoning docs. Where the skill earns its depth claim.
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`.
 
 | Product | What it does | Deep-dive entry | API exposure |
 |---|---|---|---|
@@ -118,7 +118,7 @@ The skill uses SDK namespace names (ZIA, ZPA, etc.) as canonical reference paths
 
 Have an SDK / TF surface — programmable, or read-only/query-only — but reference coverage is thin compared to Tier 1 (may not match a single Tier 1 sub-component's depth). Answer with full confidence on what's documented; explicitly note the coverage gap when relevant. Promotion to T1 is appropriate when reference coverage broadens to multi-component depth.
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`.
 
 | Product | What it does | Deep-dive entry | API exposure |
 |---|---|---|---|
@@ -196,7 +196,7 @@ CASB sits outside the tier system because Zscaler markets CASB capabilities as p
 - **Inline CASB** is delivered through ZIA — Cloud App Control (CAC), Tenant Profiles, SaaS application visibility, in-line DLP for cloud apps. Configuration lives in the ZIA admin surfaces; SDK / TF coverage falls under ZIA.
 - **Out-of-band CASB** (also called API CASB / SaaS Security Posture) is delivered through DSPM / SaaS Security Report — discovery, classification, posture management against stored data and SaaS configuration.
 
-Source: `vendor/zscaler-help/dspm-marketing.md`; `vendor/zscaler-help/about-saas-security-report.json`; `vendor/zscaler-help/automate-zscaler/getting-started.md`.
+Source: `vendor/zscaler-help/dspm-marketing.md`; `vendor/zscaler-help/about-saas-security-report.json`; `vendor/zscaler-help/automate-zscaler/getting-started.json`.
 
 Customers will use the term "CASB" expecting one product; the skill should recognize it and disambiguate to whichever surface they actually need (inline-policy → ZIA; data-at-rest / posture → DSPM; shadow-IT discovery → SaaS Security Report / ZINS). No dedicated `casb` namespace in any SDK — this is intentional; Zscaler's CASB story is the federation of those product surfaces.
 
@@ -258,7 +258,7 @@ Add entries here only when a product genuinely doesn't merit awareness today but
 
 When a question lands:
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`.
 
 1. **If Tier 1** (core product, SDK / TF / API + multi-component reference coverage), route to its `references/<product>/` deep-dive and answer at full operational depth.
 2. **If Tier 2** (programmable but shallow), answer with full confidence on what's documented; explicitly flag the coverage gap when the question goes deeper than the reference content.
@@ -272,7 +272,7 @@ Never pretend deep-dive coverage exists where it doesn't. Confidence drop is hon
 
 ## Coverage statistics (as of 2026-08-12)
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-help/zero-trust-exchange-zte-marketing.md`; `vendor/zscaler-help/security-operations-suite-marketing.md`.
 
 - **Tier 1 — Core products:** 6 (ZIA, ZPA [incl AppProtection], ZCC, ZDX, ZIdentity, Cloud Connector)
 - **Tier 2 — Programmable but shallow:** 7 (ZBI, ZWA, AI Guard, ZMS, EASM, Zscaler Cellular / ZCell, Business Insights)

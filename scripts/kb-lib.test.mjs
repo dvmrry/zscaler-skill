@@ -186,14 +186,15 @@ test("capture quotes ignore the vendor's emphasis; other sources keep **", () =>
   assert.equal(anchorEvidence(graphOf(code), { source: "fake-help", path: "doc.txt", quotes }).errors.length, 2);
 });
 
-test("every help capture's anchoring text is the same in JavaScript and in help_capture.py", () => {
+test("every capture's anchoring text is the same in JavaScript and in help_capture.py", () => {
   const dir = path.join(ROOT, "vendor/zscaler-help");
   const py = [
     "import hashlib, json, sys",
     `sys.path.insert(0, ${JSON.stringify(path.join(ROOT, "scripts"))})`,
     "from help_capture import read, text_of",
     "from pathlib import Path",
-    `out = {p.name: hashlib.sha256(text_of(d["blocks"]).encode()).hexdigest() for p in sorted(Path(${JSON.stringify(dir)}).glob("*.json")) if (d := read(p)) and d["kind"] == "help-article"}`,
+    `root = Path(${JSON.stringify(dir)})`,
+    `out = {str(p.relative_to(root)): hashlib.sha256(text_of(d["blocks"]).encode()).hexdigest() for p in sorted(root.rglob("*.json")) if (d := read(p)) and d["kind"] in ("help-article", "automate-doc")}`,
     "print(json.dumps(out))",
   ].join("\n");
   const expected = JSON.parse(execFileSync("python3", ["-c", py], { encoding: "utf8", maxBuffer: 16 << 20 }));

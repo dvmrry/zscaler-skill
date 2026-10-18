@@ -1,0 +1,534 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Working with the Analytics API",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/zscaler-analytics/working-with-zscaler-analytics",
+    "revision": "2f220fc8.fbffccdf.js"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Analytics API implements GraphQL-based architecture and can be accessed via the OneAPI gateway. It integrates with Authentication Service, Zscaler's unified identity platform, for authorization and role-based access control. As with any GraphQL API, Analytics API has a single endpoint that allows clients to make API queries across multiple data domains, related to Zscaler reporting and analytics."
+    },
+    {
+      "text": "This API uses the OAuth 2.0 authorization framework supported in OneAPI and uses the Client Credentials OAuth flow. In this flow, the API client sends a request to the authorization server, i.e., Authentication Service, which provides an access token to the client upon successful authentication. The client uses this access token to make authenticated requests to the protected API. To learn more, see Getting Started."
+    },
+    {
+      "text": "This article takes you through the configuration steps you need to complete to begin using the Analytics API and making API queries. Before using this API, Zscaler recommends reviewing the Analytics API Reference for information regarding the schema's general structure and supported data domains."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you begin, ensure that you have registered the API client with Authentication Service and selected an appropriate role for the client. Authentication Service provides a default Zscaler Insights Reader role."
+    },
+    {
+      "text": "You can use API client applications that support GraphQL client interface, such as Postman or Insomnia, to explore and try out API requests. The configuration steps in this article use Postman to demonstrate the setup procedures and API queries. Zscaler recommends referring to the Postman documentation for detailed information on using the GraphQL interface."
+    },
+    {
+      "heading": "Accessing and Using the Analytics API",
+      "level": 1
+    },
+    {
+      "text": "To access and use the Analytics API:"
+    },
+    {
+      "item": "Locate your GraphQL endpoint.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use one of the following GraphQL endpoint URLs, depending on your cloud environment:",
+      "depth": 0
+    },
+    {
+      "item": "Production: https://api.zsapi.net/zins/graphql",
+      "depth": 1
+    },
+    {
+      "item": "Beta: https://api.beta.zsapi.net/zins/graphql",
+      "depth": 1
+    },
+    {
+      "item": "The audience parameter is required in the request. Set up authentication.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To access the Analytics API, the client application must obtain an authorization token (i.e., bearer token) by sending a request to Authentication Service's token endpoint. The client must then send this access token in each request to the API for authentication and to obtain access to the requested data.",
+      "depth": 0
+    },
+    {
+      "item": "To configure authentication for the Analytics API using Postman:",
+      "depth": 0
+    },
+    {
+      "item": "a. In Postman, select New > GraphQL to open a request in a new tab.",
+      "depth": 0,
+      "strong": [
+        [
+          22,
+          25
+        ],
+        [
+          28,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "b. Enter the appropriate Analytics GraphQL endpoint in the URL field.",
+      "depth": 0
+    },
+    {
+      "item": "c. Click the Authorization tab.",
+      "depth": 0,
+      "strong": [
+        [
+          13,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "d. Select OAuth 2.0 from the Auth Type drop-down menu.",
+      "depth": 0,
+      "strong": [
+        [
+          10,
+          19
+        ],
+        [
+          29,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "e. Under Add authorization data to, select Request Headers from the drop-down menu.",
+      "depth": 0,
+      "strong": [
+        [
+          9,
+          34
+        ],
+        [
+          43,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "f. Under Configure New Token, enter the API token details obtained from Authentication Service:",
+      "depth": 0,
+      "strong": [
+        [
+          9,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "To learn more about authentication, see Getting Started. To learn more about API client registration with Authentication Service, see Adding an API Client.",
+      "depth": 0
+    },
+    {
+      "item": "g. Expand the Advanced section and add the audience parameter for Token Request by entering the following values:",
+      "depth": 0,
+      "strong": [
+        [
+          14,
+          22
+        ],
+        [
+          66,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "h. Click Get New Access Token to verify that the setup was successful.",
+      "depth": 0,
+      "strong": [
+        [
+          9,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "If an access token is retrieved successfully, it signifies that authentication with Authentication Service has been set up correctly.",
+      "depth": 0
+    },
+    {
+      "item": "i. Select Proceed and then select Use token.",
+      "depth": 0,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          34,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Token Name: Enter a name for the token.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Grant Type: Select Client Credentials from the drop-down menu.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Access Token URL: Enter the Authentication Service access token URL, <Authentication Service Tenant Domain>/oauth2/v1/token>. For example, https://acme.zsloginbeta.net/oauth2/v1/token.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Client ID: Enter the API client ID obtained from the client registration details in Authentication Service.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Enter the client secret obtained during client registration in Authentication Service.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Client Authentication: Select Send client credentials in body from the drop-down menu.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Key: Select audience from the parameters listed when you click in the text box.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Value: Enter https://api.zscaler.com.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Send In: Select Request Body from the drop-down menu.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          28
+        ]
+      ]
+    },
+    {
+      "text": "This access token must be sent in subsequent requests to the Analytics API for authentication."
+    },
+    {
+      "item": "Introspection is available only in the Beta cloud environment. Use GraphQL schema introspection.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Analytics API supports introspection, which is a GraphQL capability that enables clients to explore the API schema, including the available queries, types, and fields easily, and helps power development tools.",
+      "depth": 0
+    },
+    {
+      "item": "In Postman, the GraphQL client automatically fetches the GraphQL API schema (if supported by the API) and uses introspection to display the available data fields in an interactive schema explorer on the Query tab. You can construct and edit queries by selecting the required data fields from the schema explorer or by entering code in the editor. Additionally, Postman allows you to manually add a schema for introspection using an API from your workspace or import it from a local file or a URL.",
+      "depth": 0
+    },
+    {
+      "item": "To set up introspection in Postman:",
+      "depth": 0
+    },
+    {
+      "item": "a. Ensure that you have entered the GraphQL API endpoint in the URL field and set up authentication successfully.",
+      "depth": 0
+    },
+    {
+      "item": "When you enter the endpoint, Postman automatically fetches the GraphQL API schema and displays the available data fields in the schema explorer on the Query tab.",
+      "depth": 0,
+      "strong": [
+        [
+          151,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "b. To fetch the latest GraphQL schema (or if the schema does not appear automatically), go to the Schema tab.",
+      "depth": 0,
+      "strong": [
+        [
+          98,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "c. Click the Refresh icon next to Using GraphQL introspection. This initiates Postman to fetch the GraphQL API schema using the endpoint provided.",
+      "depth": 0,
+      "strong": [
+        [
+          13,
+          20
+        ],
+        [
+          34,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "If a schema is successfully fetched, a checkmark is displayed at the beginning of Using GraphQL introspection. Otherwise, there might be an issue with the API client setup, and you need to review the authentication to ensure it is set up correctly.",
+      "depth": 0,
+      "strong": [
+        [
+          82,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "d. Go to the Query tab and verify that the schema appears in the schema explorer.",
+      "depth": 0,
+      "strong": [
+        [
+          13,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "e. You can explore the schema and build a GraphQL query visually by selecting the checkboxes and providing appropriate values in the text fields, as well as select fields to be present in the response. As you select these fields, the query appears dynamically on the right panel in the query editor.",
+      "depth": 0
+    },
+    {
+      "heading": "Sample Query Built Using Introspection",
+      "level": 2
+    },
+    {
+      "text": "The following example demonstrates how you can build a query to fetch the top locations based on security incidents from the Cybersecurity Analytics domain by selecting the appropriate data fields:"
+    },
+    {
+      "item": "Select CYBER_SECURITY.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Select cyber_security_location and select the following associated options: a. Select categorize_by and select LOCATION_ID from the drop-down menu. b. Select start_time and enter the value in milliseconds in the text field. c. Select end_time and enter the value in milliseconds in the text field. d. GraphQL allows selecting the exact fields that should be part of the response. You can do this by selecting entries and choosing the list of fields that should appear in the response:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          86,
+          99
+        ],
+        [
+          111,
+          122
+        ],
+        [
+          158,
+          168
+        ],
+        [
+          234,
+          242
+        ],
+        [
+          409,
+          416
+        ]
+      ]
+    },
+    {
+      "item": "Select limit, and enter the number of entries to be present in the response.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Select id, name, and total.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          9
+        ],
+        [
+          11,
+          15
+        ],
+        [
+          21,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "You can select other options, such as order_by, order, and filter_by, depending on the use cases. As you select these fields, the query appears dynamically on the right panel in the query editor. After selecting the necessary fields and constructing the query, you can send the API request by clicking Query that appears next to the URL field.",
+      "depth": 1,
+      "strong": [
+        [
+          38,
+          46
+        ],
+        [
+          48,
+          53
+        ],
+        [
+          59,
+          68
+        ],
+        [
+          302,
+          307
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you have included a valid access token in your API request. To learn how to generate an access token, see Set up authentication above. Make API requests.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "To build a GraphQL query and make an API request from Postman.",
+      "depth": 0
+    },
+    {
+      "item": "a. Go to the Query tab.",
+      "depth": 0,
+      "strong": [
+        [
+          13,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "b. Enter the query in the query editor.",
+      "depth": 0
+    },
+    {
+      "item": "c. Send the API request by clicking Query that appears next to the URL field. For requests with multiple queries, you can select specific queries and run them individually. You can also execute queries across multiple data domains.",
+      "depth": 0,
+      "strong": [
+        [
+          36,
+          41
+        ]
+      ]
+    },
+    {
+      "heading": "Multi-domain Query Example",
+      "level": 2
+    },
+    {
+      "text": "The following request has multiple queries spanning across data domains, such as WEB_TRAFFIC, SAAS_SECURITY, IOT, and ZERO_TRUST_FIREWALL, in a single request, demonstrating GraphQL's precise and flexible data retrieval capabilities by traversing domains. In Postman, under the Query tab, you can enter the following snippet into the query editor on the right panel, then click Query next to the URL field to view the response."
+    },
+    {
+      "code": "        query partnerPortalQuery(\n           $start_time: Long!\n           $end_time: Long!\n           $unit: WebTrafficUnits!\n        ) {\n           WEB_TRAFFIC {\n               protocols(end_time: $end_time, start_time: $start_time, traffic_unit: $unit) {\n                   entries {\n                       name\n                       total\n                   }\n               }\n               threat_super_categories(\n                   end_time: $end_time\n                   start_time: $start_time\n                   traffic_unit: $unit\n               ) {\n                   entries {\n                       name\n                       total\n                   }\n               }\n               threat_class(end_time: $end_time, start_time: $start_time, traffic_unit: $unit) {\n                   entries(filter_by: { name: { in: [\"BEHAVIORAL_ANALYSIS\", \"ADVANCED\"] } }) {\n                       name\n                       total\n                   }\n               }\n               user(\n                   end_time: $end_time\n                   start_time: $start_time\n                   threatClassFilter: VIRUS_SPYWARE\n                   traffic_unit: TRANSACTIONS\n               ) {\n                   entries {\n                       name\n                       total\n                   }\n               }\n           }\n           SAAS_SECURITY {\n               casb_app(start_time: $start_time, end_time: $end_time) {\n                   obfuscated\n                   entries {\n                       name\n                       total\n                   }\n               }\n           }\n           IOT {\n               device_stats {\n                   devices_count\n                   user_devices_count\n                   iot_devices_count\n                   server_devices_count\n                   un_classified_devices_count\n               }\n           }\n           ZERO_TRUST_FIREWALL {\n               location_firewall(start_time: $start_time, end_time: $end_time) {\n                   obfuscated\n                   entries(limit: 5) {\n                       id\n                       name\n                       total\n                   }\n               }\n               action(start_time: $start_time, end_time: $end_time) {\n                   obfuscated\n                   entries {\n                       name\n                       total\n                   }\n               }\n               overall_traffic(start_time: $start_time, end_time: $end_time) {\n                   obfuscated\n                   entries {\n                       name\n                       total\n                   }\n               }\n               network_service(start_time: $start_time, end_time: $end_time) {\n                   obfuscated\n                   entries {\n                       name\n                       total\n                   }\n               }\n           }\n        }"
+    },
+    {
+      "text": "You can use the same start_time and end_time values across all queries by leveraging variables in Postman. The following example provides a code snippet to use for variables. Enter this code snippet with appropriate start and end time values in the Variables section, and then send the query."
+    },
+    {
+      "code": "        {\n           \"start_time\": 1743552000000,\n           \"end_time\": 1744761600000,\n           \"unit\": \"TRANSACTIONS\"\n        }"
+    },
+    {
+      "text": "The API response appears in the Response section on the Query tab.",
+      "strong": [
+        [
+          56,
+          61
+        ]
+      ]
+    },
+    {
+      "text": "If you are using the Beta cloud environment, you can make use of introspection and build your query using the schema explorer. To learn more, see Use GraphQL schema introspection."
+    }
+  ]
+}

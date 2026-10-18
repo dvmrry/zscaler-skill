@@ -74,7 +74,7 @@ def main() -> int:
                 doc = json.loads(text)
             except ValueError:
                 doc = {}
-            if not isinstance(doc, dict) or doc.get("kind") not in ("help-article", "help-api-spec", "help-index"):
+            if not isinstance(doc, dict) or doc.get("kind") not in ("help-article", "help-api-spec", "help-index", "automate-doc"):
                 continue
             m = re.match(r"(\d{4}-\d{2}-\d{2})", doc.get("captured_at", ""))
         rel = str(path.relative_to(REPO_ROOT))

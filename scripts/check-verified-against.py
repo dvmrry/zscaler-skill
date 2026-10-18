@@ -460,7 +460,9 @@ def _retired_by_replacement(root: Path) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     if registry.exists():
         for old, entry in (json.loads(registry.read_text()).get("retired") or {}).items():
-            out.setdefault(entry["replaced_by"], []).append(old)
+            new = entry["replaced_by"]
+            # A replacement is a capture under vendor/zscaler-help, or another vendored file by repo path.
+            out.setdefault(new if new.startswith("vendor/") else f"vendor/zscaler-help/{new}", []).append(old)
     return out
 
 
@@ -473,11 +475,11 @@ def predecessors(vendor_path: str, root: Path | None = None) -> list[str]:
     duplicate) are listed under `retired` in references/_meta/static-captures.json; a pin at which one of
     them existed records what the doc was verified against until the doc converts to the graph.
     """
-    if not (vendor_path.startswith("vendor/zscaler-help/") and vendor_path.endswith(".json")):
+    if not (vendor_path.startswith("vendor/") and vendor_path.endswith(".json")):
         return []
-    name = vendor_path[len("vendor/zscaler-help/"):]
-    olds = [name[: -len(".json")] + ".md", *(_retired_by_replacement(root).get(name, []) if root else [])]
-    return [f"vendor/zscaler-help/{o}" for o in olds]
+    olds = [vendor_path[: -len(".json")] + ".md"] if vendor_path.startswith("vendor/zscaler-help/") else []
+    olds += [f"vendor/zscaler-help/{o}" for o in (_retired_by_replacement(root).get(vendor_path, []) if root else [])]
+    return olds
 
 
 def migrated_help_capture(vendor_path: str) -> str | None:

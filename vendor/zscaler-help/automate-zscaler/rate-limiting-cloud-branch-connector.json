@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "kind": "automate-doc",
+  "title": "Cloud & Branch Connector API Rate Limits",
+  "source": {
+    "url": "https://automate.zscaler.com/docs/api-reference-and-guides/guides/rate-limiting/cloud-branch-connector",
+    "revision": "9eaceeb3.dae4a793.js"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "In Cloud & Branch Connector API, every endpoint and operation has two rate limit types:"
+    },
+    {
+      "item": "A lower bound limit that protects against a high volume of requests over a short period of time.",
+      "depth": 0
+    },
+    {
+      "item": "An upper bound limit that protects against a high volume of requests over a long period of time.",
+      "depth": 0
+    },
+    {
+      "text": "Every endpoint has a weight, and every weight has a default rate limit. The following table provides the typical assignment for each weight. However, specific operations can have a different weight from these typical values."
+    },
+    {
+      "table": [
+        [
+          "Weight",
+          "Typical Assignment",
+          "Requests/second",
+          "Requests/minute",
+          "Requests/hour"
+        ],
+        [
+          "Heavy",
+          "DELETE",
+          "-",
+          "1",
+          "40"
+        ],
+        [
+          "Medium",
+          "POST, PUT",
+          "1",
+          "-",
+          "400"
+        ],
+        [
+          "Light",
+          "GET",
+          "2",
+          "-",
+          "1,000"
+        ]
+      ]
+    },
+    {
+      "text": "As a best practice, after each call to an endpoint, make sure your script includes a wait (or sleep) period. For example, in Python, use the time.sleep() function. When the rate limit is exceeded, a 429 HTTP error message is returned with a Retry-After response in the Body. For example:"
+    },
+    {
+      "code": "{\n   \"message\": \"Rate Limit (1/SECOND) exceeded\",\n   \"Retry-After\": \"0 seconds\"\n}"
+    }
+  ]
+}

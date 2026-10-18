@@ -12,7 +12,7 @@ sources:
   - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json"
   - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json"
   - "vendor/zscaler-help/configuring-device-posture-profiles.json"
-  - "vendor/zscaler-help/automate-zscaler/api-reference-zcc-overview.md"
+  - "vendor/zscaler-api-specs/automate-zscaler/openapi/zcc.openapi.json"
   - "vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md"
   - "vendor/terraform-provider-zpa/zpa/validator.go"
   - "vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py"

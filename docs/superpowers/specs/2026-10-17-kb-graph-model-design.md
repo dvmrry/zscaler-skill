@@ -489,9 +489,12 @@ This replaces the manual reverify cycle.
     lists each under `retired` with its replacement. `scripts/check-verified-against.py` treats a legacy
     doc's source pin at which `X.md` existed, or a retired predecessor existed, as naming what the doc
     was verified against; the doc is verified in full when it converts to the graph.
-  - **Known limit:** automate.zscaler.com guide pages (rate limiting, getting started, ...) are browser
-    text captures with no deterministic fetcher yet (`text-capture`); the Automate API contract itself is
-    captured by `scripts/automate-capture`.
+  - **automate.zscaler.com guide pages** (`automate-doc`) are captured by `scripts/automate_pages.py`
+    through the same commands. The site is client-rendered, so the tool resolves a URL through the site's
+    own route tables to the webpack chunk that holds the page, and reads the compiled MDX as data (a small
+    parser for its literal-and-call shape; nothing downloaded is executed) into the same blocks as a help
+    article, plus `code` blocks. The chunk's content-hashed file name is the revision. The per-operation
+    API reference is captured as the OpenAPI contract by `scripts/automate-capture`.
 - **JSON pointers are keyed.** A step into an array by index is rejected because it shifts when the
   source is regenerated. `[member=value]` selects the one element whose member matches. API facts
   cite the OpenAPI document, not the flattened field list. Every pointer carries `expect`.
