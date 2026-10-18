@@ -248,7 +248,7 @@ The ZIA SSL Inspection rule's `zpa_app_segments` criterion **only lists ZPA segm
 
 This cross-product filter is a deliberate design choice — SSL inspection scoped to ZPA segments only makes sense when the segment is serving SIPA traffic (which ZIA can see), not pure-ZPA traffic (which doesn't flow through ZIA's SSL pipeline). Non-obvious to operators who don't realize SIPA is a prerequisite.
 
-See [`../zia/ssl-inspection.md § Rule criteria`](../zia/ssl-inspection.md) for the ZIA-side description.
+See [`zia.ssl-inspection`](kb:zia.ssl-inspection) for the ZIA-side description.
 
 ### DNS resolution correctness
 
@@ -331,7 +331,7 @@ For dedicated proxy ports (a related fixed-site / remote-user forwarding option 
 
 - ZPA application segments (where the `Source IP Anchor` flag lives) — [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - ZPA policy precedence (country-code footgun, client-type criteria) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
-- ZIA SSL Inspection (the `zpa_app_segments` criterion filters to SIPA-enabled segments) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- ZIA SSL Inspection (the `zpa_app_segments` criterion filters to SIPA-enabled segments) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Cross-product integrations (silent-miss catalog) — [`./cross-product-integrations.md`](./cross-product-integrations.md)
 - ZPA App Connector (the VM that terminates SIPA traffic) — `references/zpa/app-segments.md` references App Connector Group conceptually
 - Cloud Architecture (shared platform context) — [`./cloud-architecture.md`](./cloud-architecture.md)

@@ -44,11 +44,11 @@ Pinned apps reject Zscaler's intercept cert. Two flavors:
 2. If yes → bypass via custom URL category (NOT a wildcard CDN bypass — see § 5).
 3. Replacement-app option: replace with a non-pinned alternative if one exists.
 
-For full mechanics + how to scope the bypass narrowly, see [`./ssl-inspection.md § What can't be inspected`](./ssl-inspection.md).
+For full mechanics + how to scope the bypass narrowly, see [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 
 ## 2. Custom truststores — developer toolchains and Firefox
 
-OS-level CA install isn't enough for applications that bring their own trust bundle. The full per-toolchain catalog (Python/npm/git/Java/Docker/Firefox/ChromeOS) lives in [`./ssl-inspection.md § Trust store deployment`](./ssl-inspection.md). Operator-relevant takeaway: **engineering teams will hit this consistently** when ZCC + SSL inspection lands. Pre-stage the per-tool config (env vars, keystore imports, `~/.npmrc` settings) as part of the rollout.
+OS-level CA install isn't enough for applications that bring their own trust bundle. The full per-toolchain catalog (Python/npm/git/Java/Docker/Firefox/ChromeOS) lives in [`zia.ssl-inspection`](kb:zia.ssl-inspection). Operator-relevant takeaway: **engineering teams will hit this consistently** when ZCC + SSL inspection lands. Pre-stage the per-tool config (env vars, keystore imports, `~/.npmrc` settings) as part of the rollout.
 
 ## 3. Auth-bypass requirements — IdP and MFA endpoints
 
@@ -60,7 +60,7 @@ Some auth flows require post-decrypt access for tenant-restriction or MFA valida
 
 **Bypass SSL inspection** (cert pinning / CA bundle pinning / auth-flow breakage):
 - **Duo endpoints** — `*.duosecurity.com`, `*.duo.com` plus `*.azureauth.duosecurity.com` for the Entra External MFA flow. CA-bundle pinning means inspection breaks the TLS channel before any auth happens. (`duo.com/docs/duo-desktop`.)
-- **Microsoft 365 Click-to-Run** — Zscaler's own predefined SSL rule uses `Do Not Inspect + Bypass Other Policies`. The only predefined rule using that more-dangerous variant. (*Leading Practices Guide*, p.10; [`./ssl-inspection.md`](./ssl-inspection.md).)
+- **Microsoft 365 Click-to-Run** — Zscaler's own predefined SSL rule uses `Do Not Inspect + Bypass Other Policies`. The only predefined rule using that more-dangerous variant. (*Leading Practices Guide*, p.10; [`zia.ssl-inspection`](kb:zia.ssl-inspection).)
 
 **Rule-order trap** — if an SSL bypass rule for an IdP fires before the rule that needs to inspect that IdP for tenant restriction, tenant restriction silently stops working. Header-injection requires post-decrypt access; bypass = no inspection = no header. Always order the **specific tenant-restriction rule above** the broad bypass. See [`./tenant-profiles.md`](./tenant-profiles.md).
 
@@ -81,7 +81,7 @@ See [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) for t
 
 ## 5. CDN wildcard bypass — anti-pattern
 
-Any operator instinct to write `*.s3.amazonaws.com`, `*.blob.core.windows.net`, `*.cloudfront.net`, or `*.googleusercontent.com` as a bypass rule is wrong. The shared-tenant nature of these CDNs means the bypass becomes an allowlisted exfiltration channel for any subdomain holder. Detail and Zscaler's explicit guidance: [`./ssl-inspection.md § Bypass rule hygiene — anti-patterns`](./ssl-inspection.md).
+Any operator instinct to write `*.s3.amazonaws.com`, `*.blob.core.windows.net`, `*.cloudfront.net`, or `*.googleusercontent.com` as a bypass rule is wrong. The shared-tenant nature of these CDNs means the bypass becomes an allowlisted exfiltration channel for any subdomain holder. Detail and Zscaler's explicit guidance: [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 
 Specific S3 buckets / Blob containers / CloudFront distributions can be bypassed by exact subdomain (`mybucket.s3.amazonaws.com`); never the parent.
 
@@ -124,9 +124,9 @@ When a question lands about one of these, the right move is to point at the unde
 
 ## Cross-links
 
-- SSL trust mechanics + bypass-rule hygiene: [`./ssl-inspection.md`](./ssl-inspection.md)
+- SSL trust mechanics + bypass-rule hygiene: [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Tenant Profile mechanics (CAC tenant restriction): [`./tenant-profiles.md`](./tenant-profiles.md)
 - Authentication Policy + auth exemption list: [`./authentication.md`](./authentication.md)
 - Source IP Anchoring (SIPA) for Conditional Access: [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md)
 - Z-Tunnel mode + QUIC interaction: [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
-- Cloud App Control mechanics: [`./cloud-app-control.md`](./cloud-app-control.md)
+- Cloud App Control mechanics: [`zia.cloud-app-control`](kb:zia.cloud-app-control)

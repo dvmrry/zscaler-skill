@@ -57,9 +57,9 @@ Findings generate log entries in the SaaS Security Insights log stream and can t
 | Remediation | API-based: quarantine files, change share permissions, apply labels, notify | Block/Allow/Caution the transaction; redirect to EUN |
 | Policy surface | `casbDlpRules`, `casbMalwareRules` per rule type / app category | Cloud App Control policy rules per cloud app category |
 | Log stream | SaaS Security Insights Logs (Analytics > SaaS Security Insights > Logs) | Web Logs (NSS Feed, Web Insights) |
-| Operator reference | `references/zia/api-casb.md` (this document) | `references/zia/cloud-app-control.md` |
+| Operator reference | `references/zia/api-casb.md` (this document) | `kb:zia.cloud-app-control` |
 
-See also `references/zia/dlp.md` for DLP dictionary and engine mechanics. API CASB DLP rules reference the same DLP engine pool as inline DLP web rules, but the rule objects, endpoints, and log schema are entirely separate.
+See also `kb:zia.dlp` for DLP dictionary and engine mechanics. API CASB DLP rules reference the same DLP engine pool as inline DLP web rules, but the rule objects, endpoints, and log schema are entirely separate.
 
 ### Supported application categories
 
@@ -568,7 +568,7 @@ DLP rules and Malware Detection rules are independent namespaces. An `OFLCASB_DL
 
 ### No SSL Inspection dependency
 
-Unlike inline DLP (see `references/zia/dlp.md` and `references/zia/ssl-inspection.md`), API CASB does not require SSL Inspection. The SaaS API calls from Zscaler to the SaaS platform are direct API calls authenticated by the tenant credential — no user traffic is intercepted. This means API CASB works for SaaS applications that are SSL-pinned or whose traffic is excluded from ZIA inspection.
+Unlike inline DLP (see `kb:zia.dlp` and `kb:zia.ssl-inspection`), API CASB does not require SSL Inspection. The SaaS API calls from Zscaler to the SaaS platform are direct API calls authenticated by the tenant credential — no user traffic is intercepted. This means API CASB works for SaaS applications that are SSL-pinned or whose traffic is excluded from ZIA inspection.
 
 ### Tenant profiles vs. CASB tenants
 

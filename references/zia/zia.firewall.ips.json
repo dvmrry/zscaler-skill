@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.ips",
+  "title": "IPS Control",
+  "aliases": [
+    "ips",
+    "ips control",
+    "intrusion prevention",
+    "default ips rule",
+    "custom ips signature",
+    "snort",
+    "firewallIpsRules",
+    "ipsSignatureRules",
+    "atp vs ips"
+  ],
+  "binds": [
+    "zia/ips-policies",
+    "zia/ips-signature-rules",
+    "zia/ips-policies#defaultRule"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall.licensing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.traffic-path"
+    }
+  ],
+  "claims": {
+    "signature-detection": {
+      "statement": "IPS Control uses signature-based detection over all ports and protocols, with signatures built and updated by Zscaler's security research team plus signatures from industry-leading vendors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "uses signature-based detection",
+            "as well as signatures from industry-leading vendors."
+          ]
+        }
+      ]
+    },
+    "protocol-coverage": {
+      "statement": "IPS Control covers web and non-web traffic: HTTP, HTTPS, FTP, DNS, TCP, UDP and IP-based ports and protocols.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "IPS Control enables you to defend your organization against threats from both web and non-web traffic. This includes protection for HTTP, HTTPS, FTP, DNS, TCP, UDP, and IP-based ports and protocols."
+          ]
+        }
+      ]
+    },
+    "default-blocks-all": {
+      "statement": "Zscaler provides a default IPS rule that blocks all traffic. Rules of higher precedence allow specific traffic past it, for example the IT Security group's traffic matching threats.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies#defaultRule",
+        "zia/ips-policies#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "default IPS rule that blocks all traffic",
+            "(e.g., IT Security group traffic matching threats)"
+          ]
+        }
+      ]
+    },
+    "atp-first": {
+      "statement": "If a tenant has both IPS Control and Advanced Threat Protection, the rules created for ATP are evaluated first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "rules created for Advanced Threat Protection are evaluated first"
+          ]
+        }
+      ]
+    },
+    "per-location": {
+      "statement": "IPS Control policies are enabled per location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "You can enable IPS Control policies for specific locations by configuring the appropriate option for the location."
+          ]
+        }
+      ]
+    },
+    "custom-signatures": {
+      "statement": "Customers can create custom IPS signatures in Snort-like syntax, and the signatures take effect through threat categories referenced by the IPS Control policy.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules",
+        "zia/ips-policies#threatCategories"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "industry-standard Snort-like syntax",
+            "These signatures should be part of the IPS Control policy using threat categories to be enforced on traffic."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ips_signature_rules.md",
+          "quotes": [
+            "picked up by IPS Control rules that reference the same category."
+          ]
+        }
+      ]
+    },
+    "two-resources": {
+      "statement": "Custom signature definitions and IPS policy rules are separate API resources: definitions at `/ipsSignatureRules` and rules at `/firewallIpsRules`. A rule carries the action and criteria; a definition carries its text, category and enabled state.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules",
+        "zia/ips-policies"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "ipsSignaturesEndpoint         = \"/zia/api/v1/ipsSignatureRules\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_policies/ips_policies.go",
+          "quotes": [
+            "firewallIpsRulesEndpoint = \"/zia/api/v1/firewallIpsRules\""
+          ]
+        }
+      ]
+    },
+    "signature-needs-sid": {
+      "statement": "The MCP tool describes a custom signature body as Snort/Suricata syntax that must include a unique `sid:` and `rev:`.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ips_signature_rules.py",
+          "quotes": [
+            "Snort/Suricata signature body; must include a unique sid: and rev:."
+          ]
+        }
+      ]
+    },
+    "create-validates-update-does-not": {
+      "statement": "The Python SDK validates `rule_text` against the dynamic-validation endpoint before creating a signature, but does not do so on update, because the check would flag the rule's own `sid` as a duplicate. The Terraform provider validates on every create and update.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ips_signature_rules.py",
+          "quotes": [
+            "is validated against the ZIA dynamic-validation",
+            "this method does **not** call"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ips_signature_rules.md",
+          "quotes": [
+            "The provider validates `rule_text` against the Zscaler validation endpoint on every create and update."
+          ]
+        }
+      ]
+    },
+    "mcp-signature-tools": {
+      "statement": "The MCP tools create a custom IPS signature from `name`, `rule_text` and an optional `description`. Update is a PUT-replace: when the caller omits `name` or `rule_text`, the tool fetches the existing signature and backfills both before sending.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ips_signature_rules.py",
+          "quotes": [
+            "PUT-replace; backfills name/rule_text",
+            "payload.setdefault(\"name\", ed.get(\"name\"))",
+            "payload.setdefault(\"rule_text\", ed.get(\"rule_text\") or ed.get(\"ruleText\"))"
+          ]
+        }
+      ]
+    },
+    "recommended-policy-view": {
+      "statement": "The IPS Control page lets an admin view the recommended IPS Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "Click Recommended Policy to view the policy Zscaler recommends."
+          ]
+        }
+      ]
+    },
+    "logging": {
+      "statement": "Threats detected in network traffic are shown under Firewall Insights > Logs, and threats detected in web-only traffic also appear on the Security Dashboard. The firewall log records the IPS rule name and whether a custom signature applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "Threats detected in your network traffic are displayed under",
+            "Threats detected in web-only traffic also appear on the"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The name of the IPS policy that was applied to the Firewall session",
+            "Indicates if a custom IPS signature rule was applied."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "atp-preempt-in-ips-logs": {
+      "kind": "data",
+      "title": "Whether an ATP block pre-empting IPS appears in the IPS logs",
+      "status": "open",
+      "detail": "The old reference said an ATP block that pre-empts an IPS rule never shows in IPS logs and named a log field as the discriminator. No captured source states either. Only the evaluation order is documented.",
+      "about": [
+        "zia/ips-policies"
+      ],
+      "blocks": "debugging a block that matches no IPS rule",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "continuous-signature-updates": {
+      "kind": "semantic",
+      "title": "How often Zscaler updates IPS signatures and whether operators must act",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Updated continuously by Zscaler; no operator action needed.' The help capture says Zscaler builds and updates the signatures but gives no cadence or statement about operator action. Resolves with a vendor answer.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "snort-subset": {
+      "kind": "semantic",
+      "title": "How much of Snort and Suricata syntax the custom signature parser accepts",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Zscaler's parser is a Snort-subset' and arbitrary public Snort rules should be tested first. The help capture says 'Snort-like' and Terraform says Suricata/Snort. Nothing states whether arbitrary public rules are accepted; the SDK validation endpoint is the only arbiter.",
+      "blocks": "advising on importing public rule sets",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -37,7 +37,7 @@ Bandwidth Control is the ZIA module that governs **how tenant internet bandwidth
 
 Distinct from — and not to be confused with:
 
-- **Firewall Filtering** — allow/block traffic flows ([`./firewall.md`](./firewall.md)).
+- **Firewall Filtering** — allow/block traffic flows ([`zia.firewall`](kb:zia.firewall)).
 - **Location-level `Enforce Bandwidth Control` toggle** ([`./locations.md`](./locations.md)) — this is the on/off gate; Bandwidth Control rules only fire for locations where the toggle is on.
 
 ## The two-object model
@@ -251,7 +251,7 @@ The type, enumeration, and enforcement questions remain tracked as `zia-56` in [
 ## Cross-links
 
 - Location-level enforcement toggle + sublocation burst behavior: [`./locations.md`](./locations.md).
-- Firewall-then-web-module pipeline: [`./firewall.md`](./firewall.md), [`zia.url-filtering`](kb:zia.url-filtering).
+- Firewall-then-web-module pipeline: [`zia.firewall`](kb:zia.firewall), [`zia.url-filtering`](kb:zia.url-filtering).
 - Activation lifecycle: [`../shared/activation.md`](../shared/activation.md).
-- Cloud App categorization (which apps are in which predefined classes): [`./cloud-app-control.md`](./cloud-app-control.md).
+- Cloud App categorization (which apps are in which predefined classes): [`zia.cloud-app-control`](kb:zia.cloud-app-control).
 - URL Categories backing bandwidth-class matching: [`zia.url-filtering`](kb:zia.url-filtering).

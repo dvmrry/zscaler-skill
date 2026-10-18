@@ -119,7 +119,7 @@ The SDK model states it outright: the `Password` field comment reads "…this fi
 
 ### Protects — ZIA sandbox submission token (no read surface)
 
-There is no GET endpoint that returns the sandbox submission token. It is a client-held credential sourced from config or the `ZSCALER_SANDBOX_TOKEN` env var (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:97`; `GetSandboxToken` at `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:888-897`) and injected send-only as an `api_token` query param on the POST submission (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go:49-51`; endpoints `/zscsb/submit` and `/zscsb/discan` at `:17-18`). No capture surfaces a `sandboxSubmissionToken`/`sbApiToken` read field. The token flows one way, client → request. See [`../zia/sandbox.md`](../zia/sandbox.md) and the legacy auth matrix in [`legacy-api.md`](legacy-api.md).
+There is no GET endpoint that returns the sandbox submission token. It is a client-held credential sourced from config or the `ZSCALER_SANDBOX_TOKEN` env var (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:97`; `GetSandboxToken` at `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:888-897`) and injected send-only as an `api_token` query param on the POST submission (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go:49-51`; endpoints `/zscsb/submit` and `/zscsb/discan` at `:17-18`). No capture surfaces a `sandboxSubmissionToken`/`sbApiToken` read field. The token flows one way, client → request. See [`zia.sandbox`](kb:zia.sandbox) and the legacy auth matrix in [`legacy-api.md`](legacy-api.md).
 
 ### Protects — ZIA Cloud Service API key (portal-managed, no value GET)
 
@@ -191,4 +191,4 @@ Operationally: prefer separate credentials for "read config for audit" versus "m
 - ZTW provisioning surface + credential rotation: [`../cloud-connector/api.md`](../cloud-connector/api.md), [`../cloud-connector/upgrade-and-credential-rotation.md`](../cloud-connector/upgrade-and-credential-rotation.md)
 - ZCC device-secrets service (`getOtp` cache footgun): [`../zcc/api.md`](../zcc/api.md)
 - ZIA IPSec PSK / traffic forwarding: [`../zia/traffic-forwarding-methods.md`](../zia/traffic-forwarding-methods.md), [`ipsec-tunnels.md`](ipsec-tunnels.md)
-- ZIA sandbox submission token: [`../zia/sandbox.md`](../zia/sandbox.md)
+- ZIA sandbox submission token: [`zia.sandbox`](kb:zia.sandbox)

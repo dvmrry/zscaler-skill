@@ -1,24 +1,16 @@
 # Users and User Groups
 
 **Source:** https://help.zscaler.com/secure-ai-users/users-and-user-groups
-**Captured:** 2026-08-12 via Zscaler Help `/zapi/fetch-data` JSON (`body.content`) extraction.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1541911, revision 3226256
 
 ---
 
-User- or user-group-scoped AI Guard policies require synchronization with ZIA
-so that AI Guard can import users, groups, and domains for policy evaluation.
-The ZIA tenant must already be linked to the AI Guard tenant.
-
-## Synchronization controls
-
-On the AI Guard **Tenant Settings** page:
-
-- **Enable ZIA User and Group Sync** imports ZIA users and groups. When data is
-  available, the ZIA cloud name and organization ID appear below the control.
-- **Enable ZIA Domain Sync** imports domains used for policy evaluation.
-- **Advanced Actions > Start Sync** triggers an immediate synchronization
-  outside the scheduled batch window.
-
-After synchronization, the **AI Users** page exposes the imported **Users** and
-**User Groups** on separate tabs. Policy Control is the documented surface for
-applying policies to specific users or groups.
+If you want to create AI Guard policies that are configured on a user or user group basis, you will need to enable synchronization with ZIA to import users, groups, and domains for policy evaluation.
+Your ZIA tenant should already be linked with your AI Guard tenant. You should see your ZIA tenant information under the Tenant Settings page:
+- Under ZIA Information, click the Enable ZIA User and Group Sync toggle to sync users and groups from ZIA to AI Guard. The cloud name and organization ID will be displayed below once sync is enabled and information is available.
+- See image.
+- Click the Enable ZIA Domain Sync toggle to sync domains from ZIA to AI Guard. This ensures all relevant domains are synchronized for policy evaluation.
+To enable an immediate ZIA data sync outside the scheduled batch window, under Advanced Actions, click Start Sync.
+After the sync is complete, go to the AI Users page. You will see your Users and User Groups in their associated tabs. To learn how to set a policy to apply to specific users or user groups, see Managing AI Guard Policy Control.
+See image.

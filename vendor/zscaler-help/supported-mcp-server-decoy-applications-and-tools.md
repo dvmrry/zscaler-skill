@@ -1,42 +1,78 @@
 # Supported MCP Server Decoy Applications and Tools
 
 **Source:** https://help.zscaler.com/deception/supported-mcp-server-decoy-applications-and-tools
-**Captured:** 2026-08-04 via the Zscaler Help Portal rendered-data endpoint.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1542583, revision 3221532
 
 ---
 
-This is a scoped summary of the current rendered Help article. It preserves
-the exact application and tool identifiers while shortening the prose
-descriptions of what each decoy tool returns.
-
-The Deception MCP server decoy integrates an AI application or large language
-model (LLM) chatbot with decoy applications and tools. The client invokes the
-tools and receives fabricated data. Zscaler Support is the documented path for
-requesting an additional application or tool.
-
-The current article lists 38 tools across 10 application families.
-
-| Application family | Tool identifiers | Documented operation |
+The Model Context Protocol (MCP) server decoy integrates an AI application or a Large Language Model (LLM) chatbot with decoy applications and tools. The AI application or LLM uses these decoy tools to generate fake responses. The following tables show the supported MCP applications and tools:
+- Bitbucket
+| Tool Name | Function |
+|---|---|
+| bitbucket_search_repositories | Searches Bitbucket workspaces for repositories by name, description, or metadata. Returns repository information, URLs, owner details, and project associations. |
+| bitbucket_search_code | Searches code content within Bitbucket repositories across all or specific workspaces. Returns matching snippets with file paths, line numbers, and highlighted matches. |
+| bitbucket_search_artifacts | Searches and retrieves build or pipeline artifacts from Bitbucket Pipelines. Returns artifact metadata including content previews, pipeline information, and download links. |
+- Database
+| Database | Tool Name | Function |
 |---|---|---|
-| Bitbucket | `bitbucket_search_repositories`, `bitbucket_search_code`, `bitbucket_search_artifacts` | Search repository metadata, code, and pipeline artifacts. |
-| Database — Cassandra | `list_keyspaces`, `execute_select_query`, `server_info` | List keyspaces, return select-query rows, and return cluster/server details. |
-| Database — Elasticsearch | `list_indices`, `search_logs`, `cluster_info` | List indices, search log indices, and return cluster details. |
-| Database — PostgreSQL | `list_databases`, `execute_select_query`, `server_info` | List databases, return select-query rows, and return server/version details. |
-| Confluence | `confluence_get_page`, `confluence_search` | Retrieve pages and search with CQL. |
-| GitHub | `search_repositories`, `search_code`, `list_commits`, `get_pull_request_comments` | Search repositories and code, list commits, and return pull-request comments. |
-| GitLab | `search_repositories`, `search_code`, `list_commits`, `get_pull_request_comments` | Search projects and code, list commits, and return merge-request comments. |
-| Google | `google_search_drive_files`, `google_sheets_read`, `google_docs_read`, `google_chat_search_message`, `google_sildes_get_presentation` | Search Drive and Chat, read Sheets and Docs, and retrieve Slides presentations. |
-| Jenkins | `jenkins_searchbuildlog`, `jenkins_getjobscm` | Search build logs and retrieve job source-control configuration. |
-| Jira | `jira_search_issues`, `jira_get_issue` | Search issues with JQL and retrieve an issue. |
-| Slack | `get_user_info`, `conversations_search_messages`, `channels_list` | Return user information, search conversations, and list channels. |
-| Salesforce | `salesforce_query_soql`, `salesforce_list_reports`, `salesforce_get_report`, `salesforce_get_account` | Query standard objects, list and retrieve reports, and retrieve account details. |
-
-The identifier `google_sildes_get_presentation` is preserved exactly as
-published, including the spelling of `sildes`.
-
-## Source boundary
-
-These are attacker-facing decoy tools exposed by a Deception network-decoy
-service that speaks MCP. The article does not document an administrative MCP
-server for configuring or managing the Deception product, and the tool list
-must not be treated as such a management surface.
+| Cassandra | list_keyspaces | Retrieves keyspace names (strings), which include additional driver-specific metadata (e.g., durable_writes, replication, etc.). |
+| execute_select_query | Returns query results as a list of row objects (mapping column names to values), along with optional metadata (columns and paging information). |  |
+| server_info | Returns cluster or server details such as cluster name, release version, data centers, and node/host information. |  |
+| Elasticsearch | list_indices | Returns a list of indices, such as name, health/status, document count, and store size. Some implementations might return only the index names. |
+| search_logs | Searches log indices. Returns log hits (e.g., timestamp, message, host, service, and level), total hit count, and any aggregations. |  |
+| cluster_info | Returns cluster details, such as cluster name, status/health, number of nodes, version, and node roles. |  |
+| PostgreSQL | list_databases | Retrieves a list of database names (strings), including owner and size details, if specified. |
+| execute_select_query | Returns rows as a list of objects/records with column-value mappings and optional column metadata. |  |
+| server_info | Returns server and version information, such as server version, current database, and settings snapshot with optional connection parameters. |  |
+- Confluence
+| Tool Name | Function |
+|---|---|
+| confluence_get_page | Searches a Confluence page by its title or name. Returns the complete page with body content, labels, and metadata. |
+| confluence_search | Searches Confluence using CQL (Confluence Query Language). Returns matching pages with titles, excerpts, and metadata. |
+- GitHub
+| Tool Name | Function |
+|---|---|
+| search_repositories | Returns a list of repository objects, such as ID, name, full name, description, topics, visibility, stars, URLs, total count, and pagination information. |
+| search_code | Returns code search results with repository reference, file path, score, and text matches/snippets. |
+| list_commits | Returns a list of commit objects, such as SHA, author/committer, message, date, and parent SHA for the specified repository/branch. |
+| get_pull_request_comments | Returns a list of pull request comments with commenter details, body, timestamps, file/path and line references, and review thread information. |
+- GitLab
+| Tool Name | Function |
+|---|---|
+| search_repositories | Returns a list of repository/project objects, such as ID, name, path, description, visibility, web URL, and pagination information. |
+| search_code | Returns code search results with repository/project reference, file path, matched snippet/context, and pagination information. |
+| list_commits | Returns a list of commit objects, such as ID/SHA, author, message, date, and parent SHA for the specified repository/branch. |
+| get_pull_request_comments | Returns a list of comments/notes on a merge request, including author details, body, timestamps, and thread metadata. |
+- Google
+| Tool Name | Function |
+|---|---|
+| google_search_drive_files | Performs a full-text search across Google Drive, including file names, documents, and metadata. |
+| google_sheets_read | Searches and reads Google Sheets spreadsheets by file name. Returns metadata and cell values. |
+| google_docs_read | Searches and reads Google Docs documents by file name. Returns metadata and body content. |
+| google_chat_search_message | Searches Google Chat spaces and direct messages. Returns matching messages with sender's information and thread context. |
+| google_sildes_get_presentation | Searches and retrieves Google Slides presentations by name. Returns presentation metadata, slides, and page elements. |
+- Jenkins
+| Tool Name | Function |
+|---|---|
+| jenkins_searchbuildlog | Searches Jenkins build logs for specified patterns (string or regex). Returns matching lines with context, build metadata, and line numbers. |
+| jenkins_getjobscm | Retrieves the SCM (Source Code Management) configuration of a Jenkins job. Returns repository URLs, credentials references, branch configurations, and polling settings. |
+- Jira
+| Tool Name | Function |
+|---|---|
+| jira_search_issues | Returns a list of issues matching the Jira Query Language (JQL), including fields per issue (key, ID, summary, status, assignee, etc.), total count, and pagination information. |
+| jira_get_issue | Returns an issue object with full details (key, ID, fields, and transitions/links). |
+- Slack
+| Tool Name | Function |
+|---|---|
+| get_user_info | Retrieves information about a specific user with Slack ID or Slack username. Returns a JSON file with user information, including the Slack profile picture. |
+| conversations_search_messages | Searches Slack conversations across different channels for a specified string. Returns matching messages. |
+| channels_list | Lists all Slack channels by channel type. |
+- Salesforce
+| Tool Name | Function |
+|---|---|
+| salesforce_query_soql | Queries standard Salesforce objects (Account, Contact, Lead, Opportunity, Case, Contract) using SOQL (Salesforce Object Query Language). Returns matching records. |
+| salesforce_list_reports | Lists random analytics reports from the organization's Salesforce report library. Returns report metadata including name, folder, format, and last run date. |
+| salesforce_get_report | Retrieves the full data for a specific Salesforce report by name. Returns report metadata and CSV-exportable data. |
+| salesforce_get_account | Retrieves comprehensive Salesforce account details by company name, including account info, contacts, opportunities, contracts, support cases, and account team members. |
+To add a new application or tool, contact Zscaler Support.

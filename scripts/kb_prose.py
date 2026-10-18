@@ -12,6 +12,8 @@ import re
 from pathlib import Path
 
 _LINK = re.compile(r"\[[^\]]*\]\([^)\s]*\)")
+# A reference to another doc or graph node, outside link syntax: a repo .md path or a kb: ID.
+_REF = re.compile(r"`?(?:kb:[\w.:-]+|(?:\.\./|\./)*[\w./-]+\.md(?:#[\w-]+)?)`?")
 
 
 def is_kb_prose(path: Path | str) -> bool:
@@ -20,5 +22,9 @@ def is_kb_prose(path: Path | str) -> bool:
 
 
 def links_blanked(text: str) -> str:
-    """Text with every Markdown link (label and target) blanked; equal before/after means a link-only edit."""
-    return _LINK.sub("[]()", text)
+    """Text with every link and doc reference blanked; equal before/after means a reference-only edit.
+
+    Markdown links (label and target), bare `.md` paths and `kb:` IDs all count as references, so
+    retargeting a mention of a converted doc to its graph ID does not demand re-verifying sources.
+    """
+    return _REF.sub("<ref>", _LINK.sub("[]()", text))

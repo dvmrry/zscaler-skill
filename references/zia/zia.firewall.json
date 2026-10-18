@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall",
+  "title": "ZIA Firewall Control",
+  "aliases": [
+    "firewall control",
+    "firewall policy",
+    "firewall filtering",
+    "firewall vs url filtering",
+    "why was my traffic blocked and it is not a url filter rule",
+    "ftp control"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules",
+    "zia/nat-control-rules",
+    "zia/ips-policies",
+    "zia/firewall-dns-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.traffic-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.licensing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.nat"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.destination-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-services"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence"
+    }
+  ],
+  "claims": {
+    "four-policies": {
+      "statement": "Configuring Firewall policies requires the Firewall Filtering, NAT Control and DNS Control policies, as applicable, and each has its own rules. IPS Control is a separate policy on its own page; it is enabled for locations through the firewall settings and is available only with Advanced Firewall. FTP Control settings inside Firewall are documented separately.",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"Firewall configuration is four policies, Firewall Filtering, NAT Control, DNS Control and IPS Control, and each has its own rules. FTP Control settings inside Firewall are documented separately.\"",
+      "binds": [
+        "zia/firewall-filtering-rules",
+        "zia/nat-control-rules",
+        "zia/ips-policies",
+        "zia/firewall-dns-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.md",
+          "quotes": [
+            "Configuring Firewall policies requires configuring the following policies as applicable",
+            "For FTP Control settings within Firewall, see Understanding FTP Control.",
+            "- Define the rules for each policy:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "You can enable IPS Control policies for specific locations by configuring the appropriate option for the location.",
+            "IPS Control is available only with Advanced Firewall."
+          ]
+        }
+      ]
+    },
+    "per-location": {
+      "statement": "Firewall Control is enabled per location, so a location without it enabled gets no firewall policy enforcement.",
+      "tier": "B",
+      "conditions": "The second half follows from the policy-enforcement guide listing location enablement as a condition for the firewall module to enforce on web traffic.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.md",
+          "quotes": [
+            "Enable the firewall per location."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "The organization has enabled a firewall policy for the location."
+          ]
+        }
+      ]
+    },
+    "default-ports": {
+      "statement": "Zscaler listens on default ports for six kinds of traffic: 80 HTTP, 443 HTTPS, 53 DNS, 21 FTP, 554 RTSP and 1723 PPTP. An organization that uses other ports for these types of traffic must configure the service to use custom ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.md",
+          "quotes": [
+            "Port 554 for RTSP traffic",
+            "Port 1723 for PPTP traffic",
+            "configure the service to use custom ports for these services"
+          ]
+        }
+      ]
+    },
+    "ftp-default": {
+      "statement": "Without FTP Control the service does not allow uploads or downloads from FTP sites that use FTP over HTTP; only native FTP traffic is allowed. FTP Control provides access control for both native FTP and FTP over HTTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "By default, the Zscaler service doesn't allow users from a location to upload or download files from FTP sites that use FTP over HTTP",
+            "Only native FTP traffic is allowed."
+          ]
+        }
+      ]
+    },
+    "ftp-passive-only": {
+      "statement": "The service supports passive FTP only. If the destination server does not support passive FTP, the service shows an alert message in the user's browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "The service supports only passive FTP.",
+            "If the destination server does not support passive FTP, the service generates an alert message to this effect in the end user's browser."
+          ]
+        }
+      ]
+    },
+    "ftp-url-filtering-precedence": {
+      "statement": "URL Filtering rules take precedence over the FTP Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "URL Filtering policy rules take precedence over the FTP Control policy."
+          ]
+        }
+      ]
+    },
+    "ftp-sits-in-firewall": {
+      "statement": "FTP Control settings are configured within Firewall, and URL Filtering rules take precedence over the FTP Control policy.",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"FTP Control is part of the firewall module and, for non-web FTP traffic, evaluates before web-module policies.\" The recaptured FTP Control page states URL Filtering precedence and does not state an evaluation order against web-module policies.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.md",
+          "quotes": [
+            "For FTP Control settings within Firewall, see Understanding FTP Control."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "URL Filtering policy rules take precedence over the FTP Control policy."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "separate-lists-block-from-any": {
+      "kind": "semantic",
+      "title": "Whether the firewall policies are evaluated separately and a block from any drops the flow",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Each sub-policy has its own rule list, evaluated separately. A single flow traverses all four - a block from any of them drops the flow.' The captures confirm each policy has its own rules and that a firewall violation blocks the transaction, but none says a flow traverses all four or in what manner they combine. Resolves with a lab test or a vendor answer.",
+      "blocks": "explaining how a NAT, DNS and IPS rule combine on one flow",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "ftp-actions-scoping": {
+      "kind": "semantic",
+      "title": "FTP Control actions and scoping",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Actions: allow / block / alert. Per-user / per-location scoping as with Firewall Filtering. Relevant in tenants that haven't deprecated FTP yet; many modern tenants block all FTP at Firewall Filtering level.' The FTP Control capture describes the policy as allowing access to specific FTP sites and as applying to traffic from known locations, but lists no action set or user scoping. Resolves with the FTP Control rule page capture or a lab test.",
+      "blocks": "advising on FTP Control rule design",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.md",
+          "quotes": [
+            "You can configure the FTP Control policy to allow access to specific FTP sites.",
+            "The FTP Control policy applies to traffic from the known locations of an organization."
+          ]
+        }
+      ]
+    },
+    "custom-port-handling": {
+      "kind": "semantic",
+      "title": "Treatment of web protocols on non-default ports",
+      "status": "open",
+      "detail": "The captures say custom ports must be configured for the default-port traffic types. They do not say what happens to, for example, HTTP on port 8080 when no custom port is configured. The old reference claimed it is treated as generic TCP and never reaches the web module; no source says that. The policy-enforcement guide describes web traffic as HTTP or HTTPS on 80/443 (or other HTTP or HTTPS ports) and sends everything else directly to the firewall module.",
+      "blocks": "knowing whether an unconfigured non-default web port is inspected by the web module",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "going to ports other than 80/443 (or other HTTP or HTTPS ports)"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -277,7 +277,7 @@ For Surrogate IP mechanics and the related five-minute lockout behavior, see [`.
 
 ## Cross-links
 
-- Traffic pipeline position (Firewall → Web module → Forwarding Control): [`./firewall.md`](./firewall.md), [`zia.url-filtering`](kb:zia.url-filtering).
+- Traffic pipeline position (Firewall → Web module → Forwarding Control): [`zia.firewall`](kb:zia.firewall), [`zia.url-filtering`](kb:zia.url-filtering).
 - Z-Tunnel 1.0/PAC forwarding gate for road warriors: [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md).
 - ZPA App Segments (ZPA-side counterpart to `zpa_app_segments` references): [`../zpa/app-segments.md`](../zpa/app-segments.md).
 - ZPA App Connectors (the physical egress point for SIPA): [`../zpa/app-connector.md`](../zpa/app-connector.md).

@@ -282,4 +282,4 @@ See [`_meta/clarifications.md`](../_meta/clarifications.md) `zcc-39` through `zc
 - Forwarding profile — Z-Tunnel vs PAC action type, `system_proxy` field, `systemProxyData` — [`./forwarding-profile.md`](./forwarding-profile.md)
 - Z-Tunnel 1.0 vs 2.0 — bypass architecture, packet-filter capture scope — [`./z-tunnel.md`](./z-tunnel.md)
 - Web Policy / App Profile — `pac_url`, `install_ssl_certs`, per-platform sub-policies — [`./web-policy.md`](./web-policy.md)
-- ZIA SSL inspection — root CA requirements, HTTP/2 inspection — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- ZIA SSL inspection — root CA requirements, HTTP/2 inspection — [`zia.ssl-inspection`](kb:zia.ssl-inspection)

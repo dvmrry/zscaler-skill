@@ -7,9 +7,9 @@ last-verified: "2026-04-24"
 confidence: high
 source-tier: mixed
 sources:
-  - "references/zia/ssl-inspection.md"
-  - "references/zia/cloud-app-control.md"
-  - "references/zia/url-filtering.md"
+  - "kb:zia.ssl-inspection"
+  - "kb:zia.cloud-app-control"
+  - "kb:zia.url-filtering"
   - "references/zia/malware-and-atp.md"
   - "references/zpa/app-segments.md"
   - "references/zpa/policy-precedence.md"
@@ -65,7 +65,7 @@ Fields on ZIA objects that reference ZPA state.
 - **Only ZPA segments with `Source IP Anchor` enabled appear** in the criterion's selector. A tenant that expects all segments to be available will miss non-anchor-enabled segments silently. This is because SSL-inspecting traffic bound for a ZPA segment only makes sense when that segment is serving SIPA-routed traffic (which ZIA can see); pure-ZPA traffic doesn't flow through ZIA's SSL pipeline. See [`./source-ip-anchoring.md`](./source-ip-anchoring.md).
 - **Cap: 255 segments** per SSL rule.
 - Absent from URL Filtering and Cloud App Control rules — **SSL Inspection is the only ZIA policy type with this cross-product selector.**
-- See [`../zia/ssl-inspection.md § Rule criteria`](../zia/ssl-inspection.md).
+- See [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 
 **Failure mode**: operator configures a ZPA segment, adds it to a ZIA SSL rule's `zpa_app_segments`, sees the segment isn't listed, and assumes the rule doesn't work. Actual cause: Source IP Anchor isn't enabled on the segment.
 
@@ -179,7 +179,7 @@ Both actions delegate auth-challenge presentation to ZIdentity. A tenant without
 
 ### ZIA DLP → ZWA (incident lifecycle)
 
-**ZWA is downstream of ZIA DLP.** ZIA detects policy violations during traffic inspection; Workflow Automation ingests each detection as an **incident** and handles triage + remediation (notify user, escalate, create ticket, close). Full DLP mechanics in [`../zia/dlp.md`](../zia/dlp.md) — dictionaries, engines, policy rules, file-size inspection limits (400MB file / 100MB extracted text / 5-level archive recursion), and the Cloud-to-Cloud Incident Forwarding path that feeds ZWA.
+**ZWA is downstream of ZIA DLP.** ZIA detects policy violations during traffic inspection; Workflow Automation ingests each detection as an **incident** and handles triage + remediation (notify user, escalate, create ticket, close). Full DLP mechanics in [`zia.dlp`](kb:zia.dlp) — dictionaries, engines, policy rules, file-size inspection limits (400MB file / 100MB extracted text / 5-level archive recursion), and the Cloud-to-Cloud Incident Forwarding path that feeds ZWA.
 
 **Multi-product dependency chain:**
 
@@ -197,7 +197,7 @@ Workflow fires (Auto Notify / Auto Escalate / Auto Create Ticket / Auto Close)
 
 **Break any link → no incident in ZWA:**
 
-- **No SSL decrypt** → ZIA DLP can't see content → no detection → no incident. Most common failure mode. See [`../zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../zia/ssl-inspection.md).
+- **No SSL decrypt** → ZIA DLP can't see content → no detection → no incident. Most common failure mode. See [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 - **ZIA DLP policy not configured** → no detection → no incident.
 - **ZIA→ZWA integration disabled** → ZIA detects but doesn't forward to ZWA.
 - **Workflow mapping doesn't match incident attributes** → incident lands in ZWA but no workflow triggers (admin must triage manually).
@@ -225,7 +225,7 @@ See [`../cloud-connector/overview.md § Cloud Connector vs App Connector`](../cl
 
 ### SSL Inspection → everything content-based
 
-**SSL decrypt is a prerequisite for all content-layer inspection.** Cross-policy gate per [`../zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../zia/ssl-inspection.md):
+**SSL decrypt is a prerequisite for all content-layer inspection.** Cross-policy gate per [`zia.ssl-inspection`](kb:zia.ssl-inspection):
 
 | Feature | Breaks under SSL bypass? |
 |---|---|
@@ -323,12 +323,12 @@ Routing hints for question patterns that often hit these hooks. Use this section
 
 | Question | Likely cross-product hook | Check first |
 |---|---|---|
-| "ZIA SSL rule isn't matching traffic to our ZPA app" | ZIA SSL `zpa_app_segments` — Source IP Anchor not enabled on the segment | [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md), then `../zpa/app-segments.md` |
+| "ZIA SSL rule isn't matching traffic to our ZPA app" | ZIA SSL `zpa_app_segments` — Source IP Anchor not enabled on the segment | [`zia.ssl-inspection`](kb:zia.ssl-inspection), then `../zpa/app-segments.md` |
 | "Multimatch won't save on this segment" | `inspect_traffic_with_zia` on the segment is true (or one of the other Multimatch-incompatible features) | [`../zpa/app-segments.md § Edge cases`](../zpa/app-segments.md) |
 | "Our ZPA TRUSTED_NETWORK rule never matches" | `sendTrustedNetworkResultToZpa` flag off on forwarding profile | [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md) |
 | "User can't reach any ZPA app" | ZPA entitlement via ZCC (`zpa_enable_for_all` / `group_list`) | [`../zcc/entitlements.md`](../zcc/entitlements.md) before ZPA policy |
-| "CAC can't tell apart these two Google apps" | SSL Inspection bypass prevents app identification | [`../zia/cloud-app-control.md § Interaction with SSL inspection`](../zia/cloud-app-control.md) |
-| "DLP/Sandbox/Malware aren't catching this" | SSL Inspection bypass for the URL's category | [`../zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../zia/ssl-inspection.md) |
+| "CAC can't tell apart these two Google apps" | SSL Inspection bypass prevents app identification | [`zia.cloud-app-control`](kb:zia.cloud-app-control) |
+| "DLP/Sandbox/Malware aren't catching this" | SSL Inspection bypass for the URL's category | [`zia.ssl-inspection`](kb:zia.ssl-inspection) |
 | "macOS users see cert errors but Windows doesn't" | `install_ssl_certs` per-platform on Web Policy | [`../zcc/web-policy.md`](../zcc/web-policy.md) |
 | "URL was accessible last week, blocked now, no rule change" | ATP AI/ML recategorized to Botnet or Phishing | [`../zia/malware-and-atp.md § AI/ML-driven recategorization`](../zia/malware-and-atp.md) |
 | "Conditional / Require Approval rule doesn't fire for GRE users" | Step-up auth needs ZCC forwarding, not GRE | [`zia.url-filtering`](kb:zia.url-filtering) and `../zpa/policy-precedence.md` |
@@ -338,7 +338,7 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "ZDX has no data for this user" | ZCC entitlement not granted — user can't report telemetry | [`../zcc/entitlements.md`](../zcc/entitlements.md), then [`../zdx/overview.md`](../zdx/overview.md) |
 | "ZDX probe works but real traffic fails" | SSL Inspection skipped on synthetic probes only | [`../zdx/probes.md § Web probes`](../zdx/probes.md) |
 | "ZDX data residency question" | Analytics backend is Microsoft Azure Data Explorer | [`../zdx/overview.md`](../zdx/overview.md) |
-| "Isolate URL Filter rule matches but user doesn't get isolated" | SSL Inspection not decrypting that URL | [`../zbi/policy-integration.md`](../zbi/policy-integration.md), then [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md) |
+| "Isolate URL Filter rule matches but user doesn't get isolated" | SSL Inspection not decrypting that URL | [`../zbi/policy-integration.md`](../zbi/policy-integration.md), then [`zia.ssl-inspection`](kb:zia.ssl-inspection) |
 | "Smart Isolation doesn't fire on suspicious sites" | Malware Protection inspection toggles off | [`../zbi/policy-integration.md § Smart Browser Isolation`](../zbi/policy-integration.md) |
 | "Can't change copy/paste or file-transfer setting on isolation profile" | Miscellaneous & Unknown subscription tier locks those fields | [`../zbi/policy-integration.md § Miscellaneous & Unknown`](../zbi/policy-integration.md) |
 | "Isolated session times out fast / unexpectedly" | ZPA Isolation uses min of all ZPA timeouts, or 10-min idle container timeout | [`../zbi/overview.md`](../zbi/overview.md) |
@@ -351,8 +351,8 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "Cloud Connector deployed but traffic not reaching — workloads failing" | Fail-close-by-default: if gateways unreachable, workloads lose internet. Check gateway health + fail-close/fail-open setting | [`../cloud-connector/overview.md § Fail-close vs fail-open`](../cloud-connector/overview.md) |
 | "Workload-to-internal-app fails via Cloud Connector + ZPA" | Multi-product chain: CC rule → ZPA Access Policy → App Connector health | [`../cloud-connector/overview.md`](../cloud-connector/overview.md), [`../zpa/app-segments.md`](../zpa/app-segments.md) |
 | "DLP event didn't create a ticket / notify user" | Multi-link chain: SSL decrypt → ZIA DLP rule → ZIA→ZWA integration → ZWA workflow mapping. Check in that order. | [`../zwa/overview.md § Dependencies`](../zwa/overview.md) |
-| "DLP didn't catch this big file" / "DLP missed content in a 500MB document" | 400MB file-size cap + 100MB extracted-text inspection window + 5-level compression limit | [`../zia/dlp.md § Content inspection limits`](../zia/dlp.md) |
-| "How do I write a DLP rule that matches my custom dictionary?" | Rules reference engines, not dictionaries — wrap the dictionary in an engine first | [`../zia/dlp.md § Three-layer object model`](../zia/dlp.md) |
+| "DLP didn't catch this big file" / "DLP missed content in a 500MB document" | 400MB file-size cap + 100MB extracted-text inspection window + 5-level compression limit | [`zia.dlp`](kb:zia.dlp) |
+| "How do I write a DLP rule that matches my custom dictionary?" | Rules reference engines, not dictionaries — wrap the dictionary in an engine first | [`zia.dlp`](kb:zia.dlp) |
 | "Why is a DLP incident visible in the ZWA portal but no workflow fired?" | Workflow mapping missing or doesn't match the incident's attributes | [`../zwa/overview.md § Workflow mappings`](../zwa/overview.md) |
 
 ## The recurring patterns
@@ -371,9 +371,9 @@ Three themes show up across the hooks:
 - Terminology (renames and aliases) — [`./terminology.md`](./terminology.md)
 - Policy evaluation meta-model — [`./policy-evaluation.md`](./policy-evaluation.md)
 - Activation mechanics — [`./activation.md`](./activation.md)
-- ZIA SSL inspection — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- ZIA SSL inspection — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - ZIA URL filtering — [`zia.url-filtering`](kb:zia.url-filtering)
-- ZIA CAC — [`../zia/cloud-app-control.md`](../zia/cloud-app-control.md)
+- ZIA CAC — [`zia.cloud-app-control`](kb:zia.cloud-app-control)
 - ZIA Malware Protection / ATP — [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)
 - ZPA app segments — [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - ZPA policy precedence — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)

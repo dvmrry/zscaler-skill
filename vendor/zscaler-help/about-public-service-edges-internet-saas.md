@@ -1,51 +1,20 @@
-# About Public Service Edges for Internet & SaaS
+# Understanding Public Service Edges for Internet & SaaS
 
-**Source:** https://help.zscaler.com/zia/about-public-service-edges-internet-saas
-**Captured:** 2026-04-23 via Playwright MCP.
+**Source:** https://help.zscaler.com/zia/understanding-public-service-edges-internet-saas
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1401041, revision 3243667
 
 ---
 
-Internet & SaaS (ZIA) Help — Traffic Forwarding — Service Edges — Public Service Edge — About Public Service Edges for Internet & SaaS
-
-Public Service Edges are full-featured secure internet gateways — inline inspection + policy enforcement. Each has two main modules: a **web module** and a **firewall module**. For full pipeline detail see *Understanding Policy Enforcement* (already vendored).
-
-## Key Facts
-
-- Deployed in Zscaler data centers worldwide; handle **hundreds of thousands of concurrent users with millions of concurrent sessions** each.
-- Every inspection engine runs **within the Public Service Edge**, **except sandboxing** (which is offloaded to Sandbox servers — see *understanding-zscaler-cloud-architecture.md*).
-- **Active-active** deployment for availability and redundancy.
-- **No other component processes customer traffic.** Packet data held in memory only for inspection, then forwarded or dropped per policy.
-- **No disk storage.** Log data is compressed + tokenized + exported over secure TLS to Log Routers, which direct logs to the geographically-appropriate Nanolog cluster.
-
-## Public Service Edges and the Central Authority
-
-Public Service Edges maintain a **persistent connection to the CA** to download all policy configurations.
-
-**Per-user flow:**
-1. New user connects to a Public Service Edge.
-2. Public Service Edge sends a policy request to the CA.
-3. CA calculates the policies applicable to that user.
-4. CA sends the policy to the Public Service Edge as a **highly compressed bitmap**.
-5. Policy is **cached** until a policy change is made in the Admin Console.
-
-**Policy change propagation:**
-- On any policy change, **all of the organization's cached policies are purged** cloud-wide.
-- Zscaler cloud "heartbeats" every second — all nodes are informed of policy changes.
-- Any Public Service Edge then pulls the updated policy on the next request from that organization.
-- Effect: users using a new Public Service Edge after a policy change use the new policy on next connect.
-
-## Safe Mode (CA Unreachable)
-
-If a Public Service Edge can't reach or download configuration from the CA, it **immediately switches to Safe mode**:
-
-- Enforces all **cached** policies.
-- Logs user access for user and location configurations (cached info is still available).
-- Attempts to reconnect to CA every second; exits Safe mode on success.
-- **Full security inspection still runs.**
-- If a user/location policy isn't in the cache: a **default URL policy applies that blocks access to all URLs in the Legal Liability URL Category** (see *About URL Categories*).
-- **No authentication is requested in Safe mode.**
-
-## Related Concepts
-
-- **Global (or Ghost) Public Service Edges** — dummy addresses known by every Public Service Edge, used in no-default-route environments. See *About Global Public Service Edges for Internet & SaaS*.
-- For on-prem alternatives, see *Understanding Private Service Edge for Internet & SaaS* and *About Virtual Service Edges for Internet & SaaS*.
+A key component of the Zscaler cloud, Public Service Edges for Internet & SaaS (ZIA) are full-featured secure internet gateways that provide integrated internet security. They inspect all web traffic bidirectionally for malware and enforce security, compliance, and firewall policies. Each Public Service Edge has two main modules for inspecting traffic and applying policies: a web module and a firewall module. To learn more about how Public Service Edges apply policy, see Understanding Policy Enforcement.
+Public Service Edges are deployed in Zscaler data centers around the world and can handle hundreds of thousands of concurrent users with millions of concurrent sessions. Because of this, regardless of where your users are, they can access the internet from any device and the Public Service Edges protect their traffic and apply your corporate policies. Except for sandboxing, all inspection engines run within the Public Service Edge.
+Public Service Edges have significant fault tolerance capabilities. They are deployed in active-active mode to ensure availability and redundancy, and Zscaler monitors and maintains its Public Service Edges to ensure continuous availability.
+Customer traffic is not passed to any other component within the Zscaler infrastructure, and Public Service Edges never store any data to disk. Packet data is held in memory for inspection and then, based on policy, is either forwarded or dropped. Log data generated for every transaction is compressed, tokenized, and exported over secure TLS connections to Log Routers that direct the logs to the Nanolog cluster, hosted in the appropriate geographical region, for each organization. Further, Public Service Edges are all located in Zscaler data centers, which provide the highest level of data privacy and network security.
+Zscaler typically recommends that organizations forward traffic to the Public Service Edges in the Zscaler cloud. However, there are occasionally times when a Public Service Edge is not the right choice. To learn more about alternatives, see Understanding Private Service Edge for Internet & SaaS and About Virtual Service Edges for Internet & SaaS.
+Zscaler has also configured several Global (or Ghost) Public Service Edges across its clouds. These are dummy addresses known by every Public Service Edge that can be used in no default route environments. To learn more, see About Global Public Service Edges for Internet & SaaS.
+# Public Service Edges and the Central Authority
+The Zscaler Central Authority (CA) hosts all customer policy and configuration settings. It monitors the cloud and provides a central location for software and database updates, and threat intelligence. To learn more about its function in the Zscaler architecture, see Understanding Zscaler Cloud Architecture for Internet & SaaS.
+Given the multi-tenant Zscaler architecture, the CA is redundant and backed up in multiple different Zscaler data centers. Public Service Edges establish a persistent connection to the CA in order to download all policy configurations. When a new user connects to a Public Service Edge, a policy request is sent to the CA through this connection. The CA then calculates the policies that apply to that user and sends the policy to the Public Service Edge as a highly compressed bitmap.
+After it's downloaded, your policy is cached until a policy change is made in the Zscaler Admin Console. When this happens, all of your organization's cached policies are purged and the Public Service Edge requests the new policy when the user next makes a request. Because the Zscaler cloud “heartbeats” every second, all nodes are informed when there is a policy change. Any Public Service Edge can then pull the change in policy when it sees a new request from your organization. For your users, this means that no matter where they are, they use the new policy when they next connect to the Public Service Edge.
+If there is a network failure or any other event that prevents the Public Service Edge from reaching or downloading the configuration from the CA, the Public Service Edge immediately switches to Safe mode. In Safe mode, Public Service Edges enforce all cached policies and log user access for user and location configurations (this information is already available in the cache). The node attempts to re-establish a connection to the CA every second. As soon as a healthy connection is restored, the node moves out of Safe mode.
+While running in Safe mode, full security inspection is enforced. When a request is made for which the Zscaler service cannot download the user or location policy, a default URL policy is applied. This default policy blocks access to all URLs in the Legal Liability URL Category. To learn more about what's included in the Legal Liability category, see About URL Categories. No authentication is requested when running in this mode.

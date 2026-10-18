@@ -86,18 +86,19 @@ test("malware and ATP docs preserve the settings-versus-transaction boundary", (
     "SKILL.md",
     "README.md",
     "docs/maintenance.md",
-    "references/zia/sandbox.md",
+    "references/zia/zia.sandbox.verdicts.md",
   ].map(read);
 
   for (const surface of activeSurfaces) {
     assert.doesNotMatch(surface, /Malware Protection and ATP (?:blocks )?have no API coverage/i);
   }
 
-  const sandbox = read("references/zia/sandbox.md");
-  assert.match(sandbox, /client\.zia\.atp_policy/);
-  assert.match(sandbox, /client\.zia\.malware_protection_policy/);
-  assert.match(sandbox, /No transaction-verdict endpoint/);
-  assert.match(sandbox, /Web Insights/);
+  // The boundary now lives in the knowledge graph (converted from references/zia/sandbox.md).
+  const verdicts = read("references/zia/zia.sandbox.verdicts.json");
+  assert.match(verdicts, /atp_policy/);
+  assert.match(verdicts, /malware_protection_policy/);
+  assert.match(verdicts, /transaction/);
+  assert.match(verdicts, /Web Insights/);
 });
 
 test("Cloud Connector guide exposes exactly the four captured DNS-rule actions", () => {

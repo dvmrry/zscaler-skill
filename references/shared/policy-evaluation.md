@@ -97,7 +97,7 @@ Direct quote (*Understanding Policy Enforcement* p.13):
 
 > During a CONNECT request or an incoming SSL connection (SNI), only the destination domain is available and not the full URL. So, the Public Service Edge applies only the following set of policies, which are based only on the requested domain and not the full URL or HTTP header. These policies are only a subset of the policies enforced on the HTTP traffic: Known Malicious URLs, Cloud App Control, URL Filtering, Bandwidth Control.
 
-**CAC-before-URL-Filtering precedence applies at both passes.** The subset list enumerates CAC before URL Filtering. Combined with the CAC-wins-on-allow rule from *Configuring the URL Filtering Policy* p.1, a CAC allow for a domain (evaluated on SNI) skips URL Filtering at the SNI pass as well as at the full-URL pass — unless cascading is enabled. See `../zia/cloud-app-control.md` for the allow/block asymmetry under cascading.
+**CAC-before-URL-Filtering precedence applies at both passes.** The subset list enumerates CAC before URL Filtering. Combined with the CAC-wins-on-allow rule from *Configuring the URL Filtering Policy* p.1, a CAC allow for a domain (evaluated on SNI) skips URL Filtering at the SNI pass as well as at the full-URL pass — unless cascading is enabled. See `kb:zia.cloud-app-control` for the allow/block asymmetry under cascading.
 
 ### CAC-vs-URL-filter cascading
 
@@ -197,7 +197,7 @@ Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `ven
 - Cloud architecture (CA, Service Edges, BC Cloud, tunnel model) — [`./cloud-architecture.md`](./cloud-architecture.md)
 - Activation gate (ZIA-only) — [`./activation.md`](./activation.md)
 - ZIA URL filtering precedence — [`zia.url-filtering`](kb:zia.url-filtering)
-- ZIA Cloud App Control interaction — [`../zia/cloud-app-control.md`](../zia/cloud-app-control.md)
-- ZIA SSL inspection ordering — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- ZIA Cloud App Control interaction — [`zia.cloud-app-control`](kb:zia.cloud-app-control)
+- ZIA SSL inspection ordering — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - ZPA application segment matching — [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - ZPA access policy precedence — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)

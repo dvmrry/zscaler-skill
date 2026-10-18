@@ -1,47 +1,215 @@
 # Deploying Zscaler Cloud Connector on the Google Cloud Platform
 
 **Source:** https://help.zscaler.com/cloud-branch-connector/deploying-zscaler-cloud-connector-google-cloud-platform
-**Captured:** 2026-08-04 via Zscaler Help `/zapi/fetch-data` JSON (`body.content`) extraction.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1461611, revision 3239242
 
 ---
 
-The documented GCP deployment method is Terraform. The article says to deploy
-an autoscaling template only as an autoscaling deployment and a non-autoscaling
-template only as a non-autoscaling deployment.
-
-## Required service-account boundaries
-
-The deployment prerequisites distinguish three service-account roles:
-
-1. An admin service account runs Terraform during deployment.
-2. A service account is assigned for use by each Cloud Connector VM.
-3. Autoscaling deployments use a service account for the Cloud Run functions.
-
-The deployment account is granted the compute, network, security, service
-account, secret, and project-IAM roles listed by the article. Autoscaling adds
-Cloud Functions, Cloud Scheduler, and Storage administration. The VM account
-is used to access credentials from GCP Secret Manager or HashiCorp Vault and,
-for autoscaling, receives Monitoring Metric Writer. The Cloud Run function
-account receives Compute Instance Admin, Monitoring Viewer, Logs Writer, and
-Cloud Run Invoker, plus the selected secret-access method.
-
-The article allows Terraform to create the VM and Cloud Run function service
-accounts or allows the administrator to create them before deployment.
-
-## Deployment and traffic routing
-
-The workflow downloads the GCP Terraform repository, enters its `examples`
-directory, and runs:
-
-```shell
-./zsec up
-```
-
-After deployment, workload traffic must be routed to Cloud Connector. The
-documented route is a static IPv4 route whose destination is `0.0.0.0/0` and
-whose next hop is an internal TCP/UDP load-balancer forwarding rule. The
-workload network tag and the workload VPC are selected as part of that routing
-workflow.
-
-Once deployment is verified, the portal can apply Traffic Forwarding, Log and
-Control Forwarding, and DNS Control policies.
+This deployment guide provides information on prerequisites, how to deploy Zscaler Cloud Connector as a virtual machine (VM) on the Google Cloud Platform (GCP), and post-deployment configurations. This procedure describes the steps for deploying Zscaler Cloud Connector using Terraform. To learn more about the resources created when deploying Zscaler Cloud Connector, see Deployment Templates for Zscaler Cloud Connector.
+When deploying a Cloud Connector, only deploy an autoscaling group (ASG) with an ASG template or a non-ASG with a non-ASG template.
+# Prerequisites
+Before you run the Terraform deployment scripts, enable the following Google Cloud APIs:
+- Compute Engine API
+- Cloud DNS API
+- Cloud Resource Manager API
+- Identity and Access Management (IAM) API
+- Secret Manager API
+- Autoscaling deployments only:
+  - Cloud Functions API
+  - Cloud Scheduler API
+  - Cloud Monitoring API
+  - Cloud Logging API
+  - Cloud Build API
+Make sure the following prerequisites are met.
+If you already created a dedicated admin role and role-based administrator for Cloud Connector deployment, you can skip steps 1 and 2.
+- 1. Configure a new admin role.
+- Zscaler recommends that you create a dedicated admin role for Cloud Connector deployment.
+- If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Cloud & Branch Connector are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.
+- To configure a new admin role:
+  - Log in to the Zscaler Admin Console as a super admin.
+  - Go to Administration > Role Management> Branch and Cloud Connector.
+  - Click Add Admin Role.
+  - In the Add Admin Role window:
+    - Name: Enter a unique name for the admin role (e.g., CloudConnector-Deployment-Role).
+    - Permissions: Ensure that the admin has full access to Location Management and Cloud Connector Provisioning. Set all other permissions to None.
+- See image.
+  - Click Save and activate the change.
+- 2. Configure a new role-based administrator.
+  - In Zscaler Cloud Connector
+  - After you configure the admin role, create a new role-based administrator dedicated to Cloud Connector deployment.
+  - In Authentication Service
+  - For a Cloud Connector tenant linked to a Authentication Service service, after configuring the admin role in the Zscaler Admin Console, create administrators from the Zscaler Admin Console. You must create and manage the Cloud Connector admin account within the Zscaler Admin Console for these tenants.
+- 3. Retrieve the API key.
+- To retrieve the API key:
+  - Log in to the Zscaler Admin Console.
+  - Go to Administration > API > Cloud & Branch Connector API.
+  - From the API Key Management page, copy the API key and store it in a secure location. Cloud Connector uses the API key to authenticate and register the GCP with Zscaler.
+- See image.
+- 4. (Optional) Add a location template.
+- You do not need to configure location templates because locations are created automatically when you deploy Cloud Connector to a cloud provider such as GCP. Optionally, you can configure your own location template:
+  - Log in to the Zscaler Admin Console.
+  - Go to Infrastructure > Location Management > Location Templates.
+  - Click Add Location Template.
+    - In the Name field, enter a name for the location template.
+    - In the Template Prefix field, enter a prefix for the location template. All locations created using this location template contain this prefix.
+    - In the Gateway Options section:
+      - Enable XFF Forwarding: Enable this setting if you want the Zscaler service to use the X-Forwarded-For (XFF) headers that your on-premises proxy server inserts in outbound HTTP requests.
+      - Enforce Authentication: Enable this setting to require users from this location to authenticate to the service.
+      - Enable Caution: Enable this setting to display an end user notification for unauthenticated traffic. If you do not enable this setting, the action is treated as an allow policy.
+      - Enable AUP: Enable this setting to display an Acceptable Use Policy (AUP) for unauthenticated traffic and require users to accept it. If you enable this setting, the Custom AUP Frequency (Days) field appears. Enter in days how frequently the AUP is displayed to users.
+      - Enforce Firewall Control: Enable this setting to enable the service's firewall controls. If you enable this setting, the Enable IPS Control setting appears. Select this setting to enable Intrusion Prevention System (IPS) controls for the location template. To enable IPS controls, you must be subscribed to the advanced firewall SKU.
+      - Enforce Bandwidth Control: Enable this setting to enter the maximum bandwidth limits for Download (Mbps) and Upload (Mbps).
+- See image.
+  - Click Save and activate the change.
+- 5. Configure a cloud provisioning template.
+- Configure a cloud provisioning template and copy the cloud provisioning URL. To configure a cloud provisioning template:
+  - Log in to the Zscaler Admin Console.
+  - Go to Zero Trust Cloud > Cloud Connector > Provisioning Templates.
+  - Click Add Cloud Connector Provisioning Template.
+  - On the Cloud Provisioning Template page:
+    - Name: Enter a name for the cloud provisioning template.
+    - Description: Enter a description of the cloud provisioning template.
+    - Cloud Provider: Select GCP.
+    - Location Creation: This field is set to Automatic.
+    - Location Template: From the drop-down menu, select the Default Location Template or another template.
+    - Cloud Connector Group Creation: This field is set to Automatic.
+    - VM Size: Small is set by default.
+  - Click Save.
+  - From the Cloud Provisioning Template page, click the arrow in the Template Name column and copy the cloud provisioning URL. Store the cloud provisioning URL in a secure location.
+- See image.
+- 6. Review the firewall requirements.
+- The Cloud Connector instance requires only outbound connections to the Zscaler cloud. It does not require any inbound connections to your network from the Zscaler cloud. To view the outbound access requirements for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector.
+- You can find the <Zscaler cloud Name> in the URL you use to log in to the Zscaler Admin Console. For example, if you log in to connector.zscaler.net, then go to https://config.zscaler.com/zscaler.net/cloud-branch-connector. To learn more, see Understanding Zscaler Cloud Names.
+- 7. Create an admin service account used to run Terraform during deployment.
+- To create the service account:
+  - Log in to the Google Cloud console.
+  - From the left-side navigation, select IAM & Admin > Service Accounts.
+  - Click Create Service Account.
+  - On the Service account details page:
+    - Service account name: Enter a unique display name for the service account.
+    - Service account ID: Enter the service account ID.
+  - Service account description: (Optional) Enter a description of the service account's purpose.
+- See image.
+  - Click Create and Continue.
+  - On the Grant this service account access to project page, from the Select a role drop-down menu, select Compute Instance Admin (v1).
+  - Click Add Another Role and add the following roles: Compute Network Admin, Compute Security Admin, Service Account Admin, Service Account User, Secret Manager Admin, Project IAM Admin, and optionally, DNS Administrator.
+  - (Autoscaling deployments only): Click Add Another Role and add the following rules: Cloud Functions Admin, Cloud Scheduler Admin, and Storage Admin.
+  - Click Done to create the service account.
+  - Select the created service account, then click Keys.
+  - From the Keys page, click Add Key > Create new key.
+  - Select JSON as the Key Type, then click Create. The private key automatically downloads to your computer.
+  - Copy the JSON file to a secure location. Later, you use this file to reference the path to authenticate with Terraform.
+- 8. Store your secret credentials.
+- Use one of the following methods to manage and retrieve your secret credentials.
+  - GCP Secret Manager
+  - Hashicorp Vault
+- To create and store your secret credentials in Secret Manager from the GCP console:
+  - Log in to the Google Cloud console.
+  - From the left-side navigation, select Security > Secret Manager.
+  - Click Create Secret.
+  - On the Secret details page, enter a unique name for your secret.
+  - Under Secret value, enter your secret values using the format shown below:
+    - username: Enter username for the name of your secret key. For the corresponding value, enter your dedicated Cloud Connector deployment username.
+    - password: Enter password for the name of your secret key. For the corresponding value, enter your dedicated Cloud Connector deployment password.
+    - api_key: Enter api_key for the name of your secret key. For the corresponding value, enter the value you copied from the API Key Management page on the Zscaler Admin Console.
+    - Ensure that you manually enter the following JSON example so that it is formatted correctly before deployment. JSON does not allow tab spacing, so use regular spacing where appropriate:
+    - { "username": "cc-deploy-user@company.com", "password": "cc-deploy-user-password", "api_key": "ZscalerCompanyAPIKey" }
+- See image.
+  - Under Encryption key, select Google-managed encryption key.
+  - Click Create secret.
+  - Copy the secret manager path to a secure location.
+- For information about creating and storing your secrets in Hashicorp Vault, see Storing Your Secret Credentials in Hashicorp Vault for Google Cloud Platform-Based Cloud Connectors.
+- 9. Create a service account for each VM to use after deployment.
+- Each Cloud Connector VM needs a service account assigned to it. You can let Terraform create the service account during deployment, or manually create the service account before deployment. To manually create the service account, perform the following procedure:
+  - Log in to the Google Cloud console.
+  - From the left-side navigation, select IAM & Admin > Service Accounts.
+  - Click Create Service Account.
+  - In the Service account details section:
+    - Service account name: Enter a unique display name for the service account. GCP generates a Service account ID based on this name.
+    - Service account ID: If necessary, change the ID.
+    - You cannot change the ID after the service account is created.
+    - Service account description: (Optional) Enter a description of the service account's purpose.
+    - See image.
+  - Click Create and Continue.
+  - On the Grant this service account access to project page, do one of the following, depending on the method you use to store and manage your secret credentials:
+    - GCP Secret Manager: From Role drop-down menu, select Secret Manager Secret Accessor.
+    - HashiCorp Vault:
+      - From Role drop-down menu, select Service Account Token Creator.
+      - Assign the following permissions to the role: compute.instanceGroups.list, compute.instances.get, iam.serviceAccounts.get, iam.serviceAccountKeys.get, iam.serviceAccounts.signJwt.
+  - (Autoscaling only): Click Add Another Role and select Monitoring Metric Writer.
+  - Click Done to create the service account.
+- 10. (Autoscaling only) Create a service account for the Cloud Run Functions.
+- Each Cloud Run Function needs a service account assigned to it. You can let Terraform create the service account during deployment, or manually create the service account before deployment. To manually create the service account, perform the following procedure:
+  - Log in to the Google Cloud console.
+  - From the left-side navigation, select IAM & Admin > Service Accounts.
+  - Click Create Service Account.
+  - In the Service account details section:
+    - Service account name: Enter a unique display name for the service account. GCP generates a Service account ID based on this name.
+    - Service account ID: If necessary, change the ID.
+    - You cannot change the ID after the service account is created.
+    - Service account description: (Optional) Enter a description of the service account's purpose.
+    - See image.
+  - Click Create and Continue.
+  - On the Grant this service account access to project page, you can either:
+    - From the Select a role drop-down menu, select the existing Compute Instance Admin (v1) role.
+    - Create and add a new custom role to your service account. Add the following permissions to your new role:
+    - permissions = [ "compute.instances.list", "compute.instances.get", "compute.instances.getSerialPortOutput", "compute.instances.stop", "compute.instances.start", "compute.instances.delete", "compute.instances.setMetadata", "compute.instances.setLabels", "compute.instanceGroupManagers.get", "compute.instanceGroupManagers.list", "compute.instanceGroupManagers.delete", "compute.instanceGroupManagers.update", "compute.instanceTemplates.get", "compute.zones.list", "resourcemanager.projects.get", ] }
+    - By default, Terraform modules create a custom IAM role with the listed permissions.
+  - Click Add Another Role and add the following roles: Monitoring Viewer, Logs Writer, Cloud Run Invoker.
+  - Click Add Another Role and do one of the following, depending on the method you use to store and manage your secret credentials:
+    - GCP Secret Manager: Select Secret Manager Secret Accessor.
+    - HashiCorp Vault:
+      - Select Service Account Token Creator.
+      - Assign the following permissions to the role you just added: compute.instanceGroups.list, compute.instances.get, iam.serviceAccounts.get, iam.serviceAccountKeys.get, iam.serviceAccounts.signJwt.
+  - Click Done to create the service account.
+# Deploying the Cloud Connector
+After you have met all the prerequisites, deploy the Cloud Connector using Terraform and then modify your route table and associated subnet to send workload traffic to the Cloud Connector.
+- 1. Deploy the Cloud Connector using Terraform.
+  - Go to the GCP on GitHub repository.
+  - On GitHub, click Code > Download ZIP to download the Terraform ZIP file.
+  - Log in to the Google Cloud console.
+  - In the upper-right corner, click the Activate Cloud Shell icon
+  - In the upper-right corner of the Cloud Shell Terminal, click the three dots and click Upload to upload the ZIP file downloaded from GitHub.
+  - Click Upload again to upload the JSON file you secured when you created the admin service account.
+  - Unzip the Terraform ZIP file by running the following command:
+- unzip terraform-gcp-cloud-connector-modules-main.zip
+  - Identify the full path of the Terraform folder and JSON file.
+  - Navigate to the examples directory by entering cd terraform-gcp-cloud-connector-modules-main/examples.
+  - Enter ./zsec up to initiate the deployment wizard. The deployment wizard automatically downloads, installs, and initializes the Terraform JSON file.
+- 2. Route workload traffic to the Cloud Connector.
+- After you complete deployment, modify your route table and the associated subnet to ensure that traffic is sent from the private workload subnet to Cloud Connector. By default, traffic is going out of the workload subnet.
+- To send traffic to your deployed Cloud Connector:
+  - Log in to the Google Cloud console.
+  - From the left-side navigation, select Compute Engine > VM Instances.
+  - Select your newly created Cloud Connector workload instance, then click Edit.
+  - Copy the name of the Cloud Connector workload instance (e.g., zscc-workload-host-0yv34zh8).
+  - Paste the Cloud Connector workload instance under Network Tags.
+  - Click Save.
+  - From the left-side navigation, select VPC Network > Routes.
+  - On the Routes page, navigate to Route Management.
+  - Click Create Route.
+  - On the Create a Route page:
+    - Name: Enter a name for your route table.
+    - Network: Select the VPC where the workload is located (e.g., zscc-service-vpc-0yv34zh8).
+    - Route type: From the drop-down menu, select Static route.
+    - IP version: From the drop-down menu, select IPv4.
+    - Destination IPv4 range: Enter 0.0.0.0/0.
+    - Priority: Set the priority as an integer from 0 to 65535.
+    - Next hop: From the drop-down menu, select Specify a forwarding rule of internal TCP/UDP load balancer.
+    - Forwarding rule project: From the drop-down menu, select the project in which the forwarding rule is located.
+    - Forwarding rule name: From the drop-down menu, select the rule to forward traffic to the Cloud Connector.
+- See image.
+  - Click Equivalent Command Line to open the gcloud command line.
+  - Click Run in Cloud Shell.
+  - Attach the network tag to the string of the Cloud Shell.
+  - Press Enter to run the command in Cloud Shell. For example:
+- Created [https://www.googleapis.com/compute/beta/projects/cc-poc-host-project-01/global/routes/route-from-workload-to-ilb-to-zscaler-cloud-connector]. NAME: route-from-workload-to-ilb-to-zscaler-cloud-connector NETWORK: zscc-service-vpc-0yv34zh8 DEST_RANGE: 0.0.0.0/0 NEXT_HOP: 10.1.1.2 PRIORITY: 1000
+  - Go to VPC Network > Routes > Route Management to view your newly created route table.
+# Managing the Cloud Connector
+You can manage the Cloud Connector from the Zscaler Admin Console. A deployed Cloud Connector is displayed on the dashboard. The Cloud & Branch Connector Monitoring page provides information on the name, group, location, geolocation (shown below), and status of the Cloud Connector VM instances deployed in your cloud account.
+See image.
+After verifying deployment, you can configure the following policies:
+- Traffic Forwarding
+- Log and Control Forwarding
+- DNS Control

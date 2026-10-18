@@ -1,99 +1,516 @@
 # Understanding ZIA APIs
 
 **Source:** https://help.zscaler.com/legacy-apis/understanding-zia-api
-**Captured:** 2026-04-26 via Playwright MCP (innerText extraction of article).
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1400486, revision 3228586
 
 ---
 
-Zscaler Internet Access (ZIA) provides three APIs: the cloud service API, Sandbox Submission API, and 3rd-Party App Governance API. To learn more about authentication, making API calls, and activating configuration changes, see Getting Started (`/zia/api-getting-started`). For detailed information on all available API calls, endpoints, and parameters, see the Reference Guide (`/zia/about-api`). For a table summarizing all available API calls, endpoints, and rate limits, see the API Rate Limit Summary (`/zia/api-rate-limit-summary`). To try out requests and responses for API calls using the Postman app, see Configuring the Postman REST API Client (`/zia/configuring-postman-rest-api-client`).
-
-## Cloud Service API
-
+Zscaler Internet Access (ZIA) provides three APIs: the cloud service API, Sandbox Submission API, and 3rd-Party App Governance API. To learn more about authentication, making API calls, and activating configuration changes, see Getting Started. For detailed information on all available API calls, endpoints, and parameters, see the Reference Guide. For a table summarizing all available API calls, endpoints, and rate limits, see the API Rate Limit Summary. To try out requests and responses for API calls using the Postman app, see Configuring the Postman REST API Client.
+# Cloud Service API
 Availability of the cloud service API is limited. To enable this API for your organization, contact Zscaler Support.
-
 The cloud service API gives you programmatic access to the following ZIA features:
-
 - Activation
+- To make the configuration changes take effect, you must activate the changes. Activation API resources allow you to activate your configuration changes by pushing them to the Zscaler Central Authority (CA). You can also update the End User Subscription Agreement (EUSA) status and retrieve the EUSA acceptance status using these API resources.
+- To learn more, see:
+  - Reference Guide > Activation
+  - Getting Started
+  - Saving and Activating Changes in the ZIA Admin Portal
+  - End User Subscription Agreement
+- Adaptive Access Profiles
+- Adaptive Access profile API resources allow you to retrieve a list of all Adaptive Access profiles applied in the access policy criteria and retrieve detailed information about these profiles.
+- To learn more, see:
+  - Reference Guide > Adaptive Access Profiles
+  - Access to this resource requires an admin or API role with full permission.
+  - About Adaptive Access Profiles
+  - Understanding Adaptive Access Engine
 - Admin Audit Logs
+- You can download and export CSV-formatted admin audit log reports that include all policy changes and API calls. Audit log reports are stored for the last 6 months, and you can download reports for up to 31 days or a maximum of 1,000 records at a time.
+- To learn more, see:
+  - Reference Guide > Admin Audit Logs
+  - Access to these resources requires an admin or API role with full Audit Logs permission under Administration Controls.
+  - Admin Audit Logs Use Cases
+  - About Audit Logs
 - Admin & Role Management
+- Admin & Role Management API resources allow you to retrieve admin role information, which dictates the level of access that admins have in the ZIA Admin Portal. These resources also allow you to add, update, or delete admins within your organization. You can also retrieve information about the current administrator or auditor user accessing the API, and update and retrieve the password expiration information.
+- To learn more, see:
+  - Reference Guide > Admin & Role Management
+  - Access to these resources requires an admin or API role with full Administrator Management and Role Management permissions under Administration Controls.
+  - About Role Management
+  - About Administrators
 - Advanced Settings
+- These API resources allow you to update the advanced cloud configuration settings in the ZIA Admin Portal and retrieve information about the settings.
+- To learn more, see:
+  - Reference Guide > Advanced Settings
+  - Access to these resources requires an admin or API role with full Advanced Settings permission under Administration Controls.
+  - Configuring Advanced Settings
 - Advanced Threat Protection Policy
+- These API resources allow you to update the Advanced Threat Protection policy and retrieve information about the policy configurations.
+- To learn more, see:
+  - Reference Guide > Advanced Threat Protection Policy
+  - Access to these resources requires an admin or API role with full Advanced Threat Protection permission under Policy & Components > Security.
+  - Configuring the Advanced Threat Protection Policy
 - Alerts
+- These API resources allow you to create, update, and retrieve alert subscriptions.
+- To learn more, see:
+  - Reference Guide > Alerts
+  - Access to these resources requires an admin or API role with full permission under Administration > Alerts.
+  - About Alert Subscriptions
 - API Authentication
+- Authentication API resources allow you to authenticate and create an API session, check for an existing API session, and delete an API session.
+- To learn more, see:
+  - Reference Guide > API Authentication
+  - Getting Started
 - Authentication Settings
+- Authentication Settings API resources allow you to retrieve or update your organization's default authentication settings information.
+- To learn more, see:
+  - Reference Guide > Authentication Settings
+  - Access to these resources requires an admin or API role with full Authentication Settings permission under Administration Controls.
+  - About Authentication Default Settings
+- Azure Integrations
+- These API resources allow you to retrieve the progress summary of the VPN connection refresh process and start a new asynchronous process to refresh the VPN connection status, retrieve the tunnel configuration status, start the tunnel configuration process, remove the tunnel configuration, and retrieve the status of the tunnel configuration removal process for a specified Azure hub. You can also retrieve the Azure hub sync process details and start a process to sync the hubs using these API resources.
+- To learn more, see:
+  - Reference Guide > Azure Integration
+  - Access to this resource requires an admin or API role with full permission.
+  - Integrating with Microsoft Azure Virtual WAN
 - Bandwidth Control & Classes
-- Browser Control Policy
+- Bandwidth Control & Classes API resources allow you to create, update, delete, and retrieve Bandwidth Control policy rules and their criteria. These API resources also allow you to create, update, delete, and retrieve bandwidth classes. Bandwidth classes identify the URL categories and cloud applications to which the service allocates bandwidth. You must configure the bandwidth classes before you can reference them in the Bandwidth Control policy rules.
+- To learn more, see:
+  - Reference Guide > Bandwidth Control & Classes
+  - Access to these resources requires an admin or API role with full permission under Policy > Bandwidth Control.
+  - About Bandwidth Classes
+  - About Bandwidth Control
 - Browser Isolation
+- You can retrieve information about Isolation profiles.
+- To learn more, see:
+  - Reference Guide > Browser Isolation
+  - Access to these resources requires an admin or API role with Browser Isolation permission under Policy & Components > Shared Policy Components.
+  - What Is Isolation?
+  - Creating Isolation Profiles for ZIA
 - Cloud Applications
+- Cloud Applications API resources allow you to retrieve a list of cloud applications associated with Advanced Settings, Bandwidth Classes, DLP rules, Cloud App Control rules, File Type Control rules, and SSL Inspection rules. You can also create, update, delete, and retrieve cloud application risk profiles using the Cloud Applications API resources.
+- To learn more, see:
+  - Reference Guide > Cloud Applications
+  - Access to these resources requires an admin or API role with the associated policy permissions.
+  - About Cloud Applications
+  - About Cloud Application Risk Profile
 - Cloud App Control Policy
+- You can retrieve information about Cloud App Control policy rules.
+- To learn more, see:
+  - Reference Guide > Cloud App Control Policy
+  - Access to these resources requires an admin or API role with full access to URL & Cloud App Control permission under Policy & Components > Access Control. The tenant profiles API resources require full access under Administration > Tenant Profiles.
+  - About Cloud App Control
+  - About Tenant Profiles
 - Cloud Nanolog Streaming Service (NSS)
-- Data Loss Prevention (DLP)
+- Cloud Nanolog Streaming Service (NSS) API resources allow you to add, update, validate, and delete cloud NSS feeds, NSS Collector servers, retrieve information about the feeds, collector servers, test connectivity, and get feed output format. Additionally, you can create, update, and delete NSS servers, retrieve a list of registered NSS servers, and download the NSS virtual appliance information based on the specified NSS server ID using these API resources.
+- To learn more, see:
+  - Reference Guide > Cloud Nanolog Streaming Service (NSS)
+  - Access to these resources requires an admin or API role with full Nanolog Streaming Service permission under Cloud Configuration & Integration > Cloud Configuration.
+  - Adding Cloud NSS Feeds
+  - About NSS Servers
+  - About NSS Collector Servers
+- Devices
+- These API resources allow you to retrieve information about all the devices in your organization that is registered with Zscaler.
+- To learn more, see:
+  - Reference Guide > Devices
+  - Access to this resource requires an admin or API role with full permission.
+  - About Devices
 - Device Groups
+- Device Groups API resources allow you to retrieve device group information. ZIA maintains a list of all the devices in your organization that have Zscaler Client Connector deployed on them. These devices are categorized under predefined groups based on their OS type.
+- To learn more, see:
+  - Reference Guide > Device Groups
+  - Access to these resources requires an admin or API role with Device Management permission under Policy & Components > Shared Policy Components.
+  - About Device Groups
+- Data Loss Prevention (DLP)
+- Data Loss Prevention (DLP) API resources allow you to retrieve information for DLP dictionaries, engines, incident receivers, Internet Content Adaptation Protocol (ICAP) servers, Cloud-to-Cloud Incident Receivers, etc. In addition, you can create and update DLP predefined dictionaries, Exact Data Match (EDM) and Indexed Document Match (IDM) dictionaries, notifications, and policy rules. You can also create and delete custom DLP engines, update predefined and custom DLP engines, and validate DLP engine expressions formed by combining DLP dictionaries using logical operators.
+- To learn more, see:
+  - Reference Guide > Data Loss Prevention (DLP)
+  - Access to these resources requires an admin or API role with full Data Loss Prevention permission and the necessary individual policy components under Policy & Components > Data Protection.
+  - About Data Loss Prevention (DLP)
+  - About DLP Dictionaries
+  - About DLP Notification Templates
+  - About Exact Data Match
+  - About Indexed Document Match
+  - About DLP Engines
+  - Understanding DLP Engines
+  - About Cloud-to-Cloud Incident Forwarding
 - DNS Control Policy
+- DNS Control Policy API resources allow you to create, read, update, and delete DNS filtering rules and their criteria.
+- To learn more, see:
+  - Reference Guide > DNS Control Policy
+  - Access to these resources requires an admin or API role with full DNS Control permission under Policy & Components > Access Control.
+  - Configuring the DNS Control Policy
 - End User Notifications
+- End User Notification (EUN) API resources allow you to retrieve information about browser-based notifications, Zscaler Client Connector-based EUNs, and user confirmation notifications, including configuration details and EUN enablement statuses for different policy types. In addition, you can update browser-based EUNs using the API.
+- To learn more, see:
+  - Reference Guide > End User Notifications
+  - Access to these resources requires an admin or API role with the respective policy permission for which the EUN is configured.
+  - Understanding Browser-Based End User Notifications
+  - About Zscaler Client Connector-Based End User Notifications
+- Endpoint Data Loss Prevention (DLP)
+- These resources allow you to create, update, and delete Endpoint DLP policy rules and exception rules and retrieve information about these policy rules. In addition, you can create and manage Endpoint DLP resources and resource tag groups for Endpoint DLP channels, such as Printing, Network Share, and Removable Storage channels. You can also create endpoint applications and application tag groups to use for the Application File Access and Clipboard channels of Endpoint DLP and other supported policies (e.g., Firewall Filtering, DNS Control, and SSL/TLS Inspection).
+- To learn more, see:
+  - Reference Guide > Endpoint Data Loss Prevention (DLP)
+  - Access to these resources requires an admin or API role with full permission for Endpoint DLP under Policy & Components > Data Protection > Policy Control.
+  - About Endpoint Data Loss Prevention
+  - Configuring Endpoint DLP Policy Rules
+  - About DLP & Endpoint Resources
+  - Adding DLP and Endpoint Resources
 - Event Logs
+- You can generate and download CSV-formatted event log reports that include provisioning and user and group management activities performed by System for Cross-domain Identity Management (SCIM) clients. The SCIM client's activities are recorded only if the SCIM-based provisioning is enabled for users on the Zscaler service.
+- To learn more, see:
+  - Reference Guide > Event Logs
+  - Access to these resources requires an admin or API role with full Audit Logs permission under Administration Controls.
+  - About Event Logs
+  - About SCIM
 - File Type Control Policy
+- File Type Control Policy API resources allow you to create, update, retrieve, and delete File Type Control policy rules and their criteria. In addition, you can create, update, and delete custom file types, retrieve information about custom file types and the count of custom file types, and retrieve information about all file types that can be used as rule conditions in File Type Control and DLP policies.
+- To learn more, see:
+  - Reference Guide > File Type Control Policy
+  - Access to these resources requires an admin or API role with full File Type Control permission under Policy & Components > Access Control.
+  - Configuring the File Type Control Policy
+  - About File Type Control
+  - Configuring Custom File Types
 - Firewall Policies
+- Firewall Policies API resources allow you to create, read, update, and delete Firewall Filtering policy rules and their criteria.
+- To learn more, see:
+  - Reference Guide > Firewall Policies
+  - Access to these resources requires an admin or API role with full Firewall Control permission under Policy & Components > Access Control. Policy resources, such as network services and network applications, can be managed with any Firewall policy permission. However, some policy objects, such as IP & FQDN groups and time intervals have separate permissions alongside the respective policy permissions.
+  - Configuring Firewall Policies
 - Forwarding Control Policy
+- Forwarding Control Policy API resources allow you to create, modify, retrieve, and delete forwarding rules. Additionally, these resources allow you to create, modify, retrieve, and delete Zscaler Private Access (ZPA) gateways that are used in forwarding rules for ZPA. You can also retrieve information about all proxy gateways using the Forwarding Control Policy API resources.
+- To learn more, see:
+  - Reference Guide > Forwarding Control Policy
+  - Access to these resources requires an admin or API role with full Forwarding Control permission and the necessary permissions for traffic forwarding components under Traffic Forwarding.
+  - About Forwarding Control
+  - Configuring Forwarding Policy
+  - About Zscaler Private Access (ZPA) Gateway
+  - Configuring ZPA Gateway
+  - About Gateways for Proxies
+  - Configuring Gateways for Proxies
 - FTP Control Policy
+- FTP Control Policy API resources allow you to update the FTP Control settings and retrieve the FTP Control status and the list of URL categories for which FTP is allowed.
+- To learn more, see:
+  - Reference Guide > FTP Control Policy
+  - Access to these resources requires an admin or API role with full FTP Control permission under Policy > Access Control.
+  - Understanding FTP Control
+- HTTP Header Control
+- Header Control API resources allow you to create, update, delete, and retrieve HTTP header profiles and HTTP header insertion profiles.
+- To learn more, see:
+  - Reference Guide > HTTP Header Control
+  - Access to this resource requires an admin or API role with full permission.
+  - About HTTP Header Profile
+  - About HTTP Header Insertion Profile
 - Intermediate CA Certificates
+- The Zscaler service performs SSL inspection by acting as a full SSL proxy or a trusted man-in-the-middle (MITM) proxy. To perform SSL inspection, Zscaler needs to generate domain certificates (end-entity certificates) dynamically using a Certificate Authority (CA) issued by either Zscaler or your organization. Using Intermediate CA Certificates API resources, you can:
+  - Create a custom intermediate CA certificate.
+  - Generate a key pair.
+  - Generate and download a Certificate Signing Request (CSR).
+  - Upload a signed intermediate CA certificate and certificate chain.
+  - Finalize a certificate.
+  - Mark a certificate as default.
+  - Download an intermediate CA certificate.
+  - Delete an intermediate CA certificate.
+  - Retrieve a list of intermediate CA certificates for SSL inspection
+- To learn more, see:
+  - Reference Guide > Intermediate CA Certificates
+  - Access to these resources requires an admin or API role with full Intermediate CA Certificates permission under Policy & Components > Decryption.
+  - Intermediate CA Certificates Use Cases
+  - SSL Inspection
 - IoT Report
+- The IoT report API allows you to retrieve a list of devices (unmanaged user devices, servers, and IoT devices) that are identified by the Zscaler AI/ML engine from unauthenticated web traffic. You can also obtain the key contexts about the discovered devices, such as locations, ML auto-labels, classifications, etc. To learn more, see Reference Guide > IoT Report.
+- Access to these resources requires an admin role with the IoT Discovery permission under Reporting Data.
 - IPS Control Policy
+- IPS Control Policy API resources allow you to create, update, and delete custom IPS signature rules, and retrieve a list of custom IPS signature rules configured for an organization. These API resources also allow you to read, update, and delete DNS filtering rules and their criteria.
+- To learn more, see:
+  - Reference Guide > IPS Control Policy
+  - Access to these resources requires an admin or API role with full IPS Control permission under Policy & Components > Security.
+  - Configuring the IPS Control Policy
 - Location Management and Traffic Forwarding
+- Location Management API resources allow you to retrieve all attributes of a Zscaler service-defined location or sublocation as a request, add or update locations with VPN credentials or static IP addresses, add or update sublocations, and delete locations and sublocations. You can also retrieve an up-to-date list of countries that are used in location configuration.
+- To learn more, see:
+  - Reference Guide > Location Management
+  - Access to these resources requires an admin or API role with full Locations and VPN Credentials Management permissions under Traffic Forwarding.
+  - Location Management Use Cases
+  - About Locations
+  - Understanding Sublocations
+  - About VPN Credentials
+## Getting and Updating VPN Credentials for Specific Locations
+- The Zscaler service also inspects internal traffic within an organization's corporate network using ZIA Public Service Edges or secure web gateways. Traffic forwarding is enabled through IPSec VPN tunneling, and requires that the proper user credentials are configured. Using Location Management endpoints, you can get and update VPN credentials for specific locations.
+- To retrieve VPN credential information for locations, use the /vpnCredentials endpoint. To retrieve and update individual VPN credentials for a VPN ID, use the /vpnCredentials/{vpnId} endpoint.
+- User passwords can be randomly regenerated at regular intervals (e.g., every 30 days).
+- To learn more, see:
+  - Reference Guide > Traffic Forwarding
+  - Access to these resources requires an admin or API role with full VPN Credentials Management permissions under Traffic Forwarding.
+  - VPN Credentials Use Cases
+  - About VPN Credentials
+  - Configuring an IPSec VPN Tunnel
+## Managing IPSec VPN Tunnels for SD-WAN Partner Integrations
+- The API resources used to support this functionality are for SD-WAN partner use only.
+- A Software-Defined Wide Area Networking (SD-WAN) partner API key enables technology partner access to the Location Management resources and a VPN Credentials resource within the cloud service API. For details and SD-WAN deployment configuration guides for each partner, refer to the SD-WAN partner site or contact Zscaler Business Development.
+- To learn more, see:
+  - Reference Guide > Location Management
+  - Reference Guide > Traffic Forwarding for information on the POST /vpnCredentials resource
+  - To make calls to Locations and VPN Credentials resources, the authenticated SD-WAN partner API client must have SD-WAN Partner Access for their SD-WAN partner API role as well as a partner API key. To learn more, see SD-WAN API Integration for IPSec VPN Tunnel Provisioning and Getting Started.
+  - SD-WAN API Integration for IPSec VPN Tunnel Provisioning
+  - About Locations
+  - About VPN Credentials
+  - Configuring an IPSec VPN Tunnel
+## Getting GRE Tunnel, Static IP Address, Virtual IP Address, and Region Information
+- ZIA enables you to self-provision your static IP addresses or GRE tunnels to connect to the Zscaler service. Virtual IP addresses (VIPs) are used to establish IPSec VPN tunnels. The Traffic Forwarding API resources allow you to retrieve self-service GRE tunnel, static IP provisioning, data center VIP, and region-specific information.
+- To learn more, see:
+  - Reference Guide > Traffic Forwarding
+  - Access to these resources requires an admin or API role with full GRE Tunnels and Static IPs permissions and the necessary permissions for other individual components under Traffic Forwarding.
+  - About Generic Routing Encapsulation
+  - About Static IP
+  - SD-WAN API Integration for IPSec VPN Tunnel Provisioning
+## Configuring and Managing Extranet Resources
+- You can configure and manage extranets that enable an organization to connect its internal network with another organization's network (e.g., partners, third-party vendors, etc.) that does not use a Zscaler service through Extranet Application Support. Extranet Application Support enables Zscaler-managed organization users to securely access extranet resources through an IPSec VPN tunnel established between a Zscaler data center and the external organization's data center, without requiring additional hardware or software installations. Using these resources, you can add, modify, and delete extranets and retrieve the list of extranets configured for your organization.
+- To learn more, see:
+  - Reference Guide > Traffic Forwarding
+  - Access to these resources requires an admin or API role with full Locations and VPN Credentials Management permissions under Traffic Forwarding.
+  - Understanding Extranet Application Support
+  - About Extranet
+  - Configuring an Extranet
+## Managing Data Center Exclusion
+- Data Center (DC) Exclusion API resources allow you to disable the tunnels terminating at a virtual IP (VIP) address of a Zscaler DC, triggering a failover from primary to secondary tunnels in the event of service disruptions, Zscaler Trust Portal incidents, disasters, etc. This capability is supported by excluding DCs from service based on the traffic forwarding method. You can retrieve the list of Zscaler DCs that can be excluded from service to your organization and the list of DCs that are currently excluded from service based on your configured exclusions. Additionally, you can add, edit, and delete exclusions.
+- Currently, only the IPSec VPN tunnel forwarding method is supported for DC exclusion.
+- To learn more, see:
+  - Reference Guide > Traffic Forwarding
+  - Access to these resources requires an admin or API role with full Subclouds & DC Exclusion permissions under Traffic Forwarding.
+  - About Data Center Exclusion Based on Traffic Forwarding Method
+  - Excluding a Data Center Based on Traffic Forwarding Method
 - Malware Protection Policy
+- These API resources allow you to update the Malware Protection policy and retrieve information about the policy configurations.
+- To learn more, see:
+  - Reference Guide > Malware Protection Policy
+  - Access to these resources requires an admin or API role with full Malware Protection permission under Policy & Components > Security.
+  - Configuring the Malware Protection Policy
 - Mobile Malware Protection Policy
+- Mobile Malware Control Policy API resources allow you to update and retrieve Mobile Malware Protection policy rules and their criteria.
+- To learn more, see:
+  - Reference Guide > Mobile Malware Protection Policy
+  - Access to these resources requires an admin or API role with full Mobile Malware Protection permission under Policy > Mobile.
+  - Understanding Mobile Malware Protection
 - NAT Control Policy
+- NAT Control Policy API resources allow you to create, update, delete, and retrieve DNAT Control policy rules and their criteria.
+- To learn more, see:
+  - Reference Guide > NAT Control Policy
+  - Access to these resources requires an admin or API role with full NAT Control permission under Policy > Firewall Control.
+  - About NAT Control
 - Organization Details
+- Organization Details API resources allow you to retrieve your organization's information, including headquarter location, geolocation, address, and contact details. It also allows you to retrieve your subscriptions to the Zscaler service.
+- To learn more, see:
+  - Reference Guide > Organization Details
+  - About the Company Profile
+  - Viewing Subscriptions
+- Outbound Email DLP Policy
+- These API resources allow you to create, update, and delete Outbound Email DLP policy rule configurations and retrieve information about the policy rules.
+- To learn more, see:
+  - Reference Guide > Outbound Email Policy
+  - Access to these resources requires an admin or API role with full permission for Data Loss Prevention under Policy & Components > Data Protection > Policy Control.
+  - What is Zscaler Outbound Email DLP?
+  - Configuring Outbound Email Policy Rules
 - PAC Files
+- PAC Files API resources allow you to add and manage proxy auto-configuration (PAC) files in the ZIA Admin Portal. PAC files are one of the traffic forwarding methods supported by Zscaler and they allow you to forward your users' web traffic to the Zscaler service. All major browsers support PAC files and browsers simply require the address of the PAC file (i.e., PAC file URL) so they can fetch the file from the specified address, execute the file contents, and forward the web traffic to Zscaler's proxy server specified in the file. PAC files can be hosted on a workstation, an internal web server, or a server outside the corporate network. The Zscaler service hosts a default PAC file that uses geolocation technology to forward traffic to the nearest ZIA Public Service Edge. You can also upload custom PAC files to the Zscaler service.
+- Using these API resources, you can retrieve the list of hosted PAC files, add custom PAC files, validate the PAC file content and check for errors, branch an existing PAC file to create a new version, retrieve all or specific versions of a PAC file, and delete a PAC file.
+- To learn more, see:
+  - Reference Guide > PAC Files
+  - Access to these resources requires an admin or API role with full Hosted PAC Files permission under Traffic Forwarding.
+  - About Hosted PAC Files
+  - Using Custom PAC Files to Forward Traffic to ZIA
+  - Writing a PAC File
+- Partner Integrations
+- Partner Integrations API resources allow you to retrieve a list of partners and services integrated with the Zscaler service, a list of configured CrowdStrike endpoints or device IDs, and detailed endpoint or device data based on the specified IDs. You can also configure the integration of Microsoft Defender for Endpoint APIs with Zscaler and retrieve the MD5 hash of the file required to view the Sandbox Detail Report using these API resources.
+- To learn more, see:
+  - Reference Guide > Partner Integrations
+  - Access to this resource requires an admin or API role with full permission.
+  - Understanding Partner Integrations
+  - Viewing the CrowdStrike Endpoint Hits Report
+  - Integrating with CrowdStrike
+  - Integrating with Microsoft Defender for Endpoint
+  - Viewing Sandbox Reports and Data
 - Policy Export
+- Policy Export API resources allow you to export the rules configured for various policy types to JSON files. To learn more, see Reference Guide > Policy Export.
+- Access to these resources requires an admin or API role with permission for the policies that need to be exported. Only policies to which the user or the API client has access are exported and other policies are excluded from the response.
 - Remote Assistance Support
+- These API resources allow you to update Remote Assistance preferences and retrieve information about the preferences.
+- To learn more, see:
+  - Reference Guide > Remote Assistance Support
+  - Access to these resources requires an admin or API role with full Remote Assistance Management permission under Administration Controls.
+  - Enabling Remote Assistance
+- Root Certificates
+- These API resources allow you to create, update, delete, and retrieve information about root certificates for third-party proxy-chaining services or isolation profiles.
+- To learn more, see:
+  - Reference Guide > Root Certificates
+  - Access to this resource requires an admin or API role with full permission.
+  - About Root Certificates
 - Rule Labels
+- Rule Labels API resources allow you to create labels and associate them with URL Filtering policy rules. You can also retrieve a list of rule labels based on the specified rule type using the Rule Labels API resources.
+- To learn more, see:
+  - Reference Guide > Rule Labels
+  - Access to these resources requires an admin or API role with the associated policy permissions.
+  - About Rule Labels
+  - About URL Filtering
 - SaaS Security API
+- SaaS Security API resources allow you to create, update, and delete the SaaS Security Data at Rest Scanning Data Loss Prevention (DLP) and Malware Detection rules. You can also retrieve all the SaaS Security Data at Rest Scanning DLP and Malware Detection rules using the SaaS Security API resources.
+- To learn more, see:
+  - Reference Guide > SaaS Security API
+  - Access to these resources requires an admin or API role with full permission under Policy > SaaS Security.
+  - About Data at Rest Scanning DLP
+  - About Data at Rest Scanning Malware Detection
 - Sandbox Policy & Settings
+- Sandbox Policy & Settings API resources allow you to create, read, update, and delete Sandbox policy rules via the /sandboxRules endpoints. In addition, these resources allow each organization to create and manage a custom blocklist of MD5 file hashes for files that go through behavioral analysis by Sandbox. To retrieve or replace the custom blocklist, use the /behavioralAnalysisAdvancedSettings endpoint. To retrieve quota availability information for the MD5 file hashes, use the /behavioralAnalysisAdvancedSettings/fileHashCount endpoint.
+- You can add up to 10K MD5 file hashes to your custom blocklist.
+- To learn more, see:
+  - Reference Guide > Sandbox Policy & Settings
+  - Access to these resources requires an admin or API role with full Sandbox permission under Policy & Components > Security.
+  - About Sandbox
+  - Configuring the Sandbox Policy
+  - Add Custom File Hashes
 - Sandbox Report
+- Sandbox Report API resources allow you to get a full or summary Sandbox Detail Report for any file that was sent for analysis from any organization on the Zscaler cloud.
+- To learn more, see:
+  - Reference Guide > Sandbox Report
+  - Access to these resources requires an admin or API role with full Sandbox permission under Policy & Components > Security.
+  - Sandbox Report Use Cases
+  - About Sandbox
+  - Viewing Sandbox Reports and Data
+- Secure Browsing
+- These API resources allow you to update the Browser Control settings and retrieve the Browser Control status and list of configured browsers. Additionally, you can update the Smart Browser Isolation policy settings and retrieve a list of supported browsers and their versions using these API resources.
+- To learn more, see:
+  - Reference Guide > Secure Browsing
+  - Access to these resources requires an admin or API role with full permission under Policy > Secure Browsing.
+  - Configuring the Browser Control Policy
+  - Configuring Smart Browser Isolation Policy
 - Security Policy Settings
+- A denylist is a list of malicious URLs to and from which Zscaler blocks all internet traffic. Zscaler provides a continuously updated global denylist, and each organization can manage a custom denylist. To retrieve or replace a denylist, use the /security/advanced endpoint. To add or remove individual URLs in a denylist, use the security/advanced/blacklistUrls endpoint.
+- An allowlist is a list of URLs that Zscaler exempts from security scanning. Zscaler does not provide a global allowlist, but each organization can manage a custom allowlist. A local allowlist can contain up to 255 URLs. To retrieve or replace an allowlist, use the /security endpoint. However, you cannot add or remove individual URLs to an allowlist using the API.
+- For your organization's custom denylist and allowlist, you can add up to 25K custom URLs and IPs across all categories (custom and predefined).
+- To learn more, see:
+  - Reference Guide > Security Policy Settings
+  - Access to these resources requires an admin or API role with full Advanced Threat Protection permission under Policy & Components > Security.
+  - Security Policy Settings Use Cases
+  - About Policy Enforcement
+  - Adding URLs to the Denylist
+  - Adding URLs to the Allowlist
+- Security & UEBA Alerts
+- Security & UEBA Alerts API resources allow you to create, update, delete, and retrieve alert definitions, security alert rules, and User and Entity Behavior Analytics (UEBA) alert rules available for an organization. You can also retrieve a list of all configured webhooks for an organization using the Security & UEBA Alerts API resources.
+- To learn more, see:
+  - Reference Guide > Security & UEBA Alerts
+  - Access to this resource requires an admin or API role with full permission.
+  - Configuring an Alert Rule
+  - About Security & UEBA Alerts
+  - About Webhooks
 - Service Edges
+- ZIA Virtual Service Edge API resources allow you to create, update, and delete Virtual Service Edge clusters and retrieve a list of Virtual Service Edge clusters.
+- To learn more, see:
+  - Reference Guide > Service Edges
+  - Access to these resources requires an admin or API role with respective permission under Administration > Cloud Configuration.
+  - About Virtual Service Edge Clusters
 - Shadow IT Report
+- You can export the Shadow IT Report for the cloud applications that Zscaler recognizes based on their usage in your organization. These reports include various security parameters of the cloud applications, information about users who have interacted with the applications, the list of locations from where the applications are accessed, and application usage details, as applicable.
+- To learn more, see:
+  - Reference Guide > Shadow IT Report
+  - Access to these resources requires an admin or API role with the Web Data permission under Reporting Data.
+  - About Shadow IT Report
+  - About Application Information
+- SMPC Instance
+- SMPC Instance API resources allow you to update the data center and the Secure Message Processing Center (SMPC) instance details based on a specific data center ID and retrieve the status of all SMPC instances grouped by a data center.
+- To learn more, see:
+  - Reference Guide > SMPC Instance
+  - Access to this resource requires an admin or API role with full permission.
 - SSL Inspection Policy
+- SSL Inspection Policy API resources allow you to create, update, retrieve, and delete SSL Inspection policy rules and their criteria.
+- To learn more, see:
+  - Reference Guide > SSL Inspection Policy
+  - Access to these resources requires an admin or API role with full SSL/TLS Inspection policy permission under Policy & Components > Decryption.
+  - Configuring SSL Inspection Policy
+  - About SSL Inspection Policy
 - System Audit Report
+- System Audit Report API resources allow you to retrieve various configuration audit reports, such as System Audit Report, PAC File Audit Report, and IP Visibility Audit Report.
+- To learn more, see:
+  - Reference Guide > System Audit Report
+  - Access to these resources requires an admin or API role with full permission under Analytics > System Audit Report.
+  - About the System Audit Report
 - Time Intervals
+- Time Intervals API resources allow you to create, update, and delete time intervals and retrieve a list of all configured time intervals.
+- To learn more, see:
+  - Reference Guide > Time Intervals
+  - Access to these resources requires an admin or API role with the respective policy permission for which the Time Interval is configured.
+  - About Time Intervals
 - Traffic Capture Policy
+- Traffic Capture Policy API resources allow you to create, update, and delete Traffic Capture policy rules as well as retrieve information for all or specific rules. In addition, they allow you to retrieve the rule count, rule order information, and rule label associations.
+- To learn more, see:
+  - Reference Guide > Traffic Capture Policy
+  - Access to this resource requires an admin or API role with full Traffic Capture permission under Traffic Forwarding > Traffic Forwarding Components > Traffic Capture.
+  - About Traffic Capture Policy
+  - Configuring the Traffic Capture Policy
 - URL Categories
+- Predefined and custom URL categories provide a way to classify URLs for your organization. Using URL Categories API resources, you can:
+  - Add or remove a URL for a predefined URL category.
+  - Get information about predefined and custom categories.
+  - Look up the categorization of specified URLs.
+  - Add, update, and delete custom categories.
+  - Update custom categories with IP addresses and URLs.
+  - Find matching entries for URLs in existing custom URL categories and add related entries to a single category.
+- To learn more, see:
+  - Reference Guide > URL Categories
+  - Access to these resources requires an admin or API role with full permission for the respective URL Categories components under Policy & Components.
+  - URL Categories Use Cases
+  - About URL Categories
 - URL Filtering Policy
+- URL Filtering Policy API resources allow you to retrieve information about and manage rules that limit your exposure to liability by managing access to web content based on a site's URL categorization. You can also retrieve the count of URL filtering rules based on specified search criteria using the URL Filtering Policy API resources.
+- To learn more, see:
+  - Reference Guide > URL Filtering Policy
+  - Access to these resources requires an admin or API role with full URL & Cloud App Control policy permission under Policy & Components > Access Control.
+  - About URL Filtering
+  - Fetching URL Filtering Rules Using Pagination and Search Filters
 - URL & Cloud App Control Policy Settings
+- These API resources allow you to update the advanced settings available for URL Filtering and Cloud App Control policies and retrieve information about the advanced settings.
+- To learn more, see:
+  - Reference Guide > URL & Cloud App Control Policy Settings
+  - Access to these resources requires an admin or API role with either full URL & Cloud App Control permission under Policy & Components > Access Control or full Advanced Settings permission under Administration Controls.
+  - Configuring Advanced Policy Settings
 - User Authentication Settings
+- User Authentication Settings API resources allow you to exempt URLs from cookie authentication.
+- To learn more, see:
+  - Reference Guide > User Authentication Settings
+  - Access to these resources requires an admin or API role with full Advanced Settings permission under Administration Controls.
+  - About Zscaler Cookies
 - User Management
+- Using User Management API resources, you can retrieve user, group, and department information as well as add, update, and delete users.
+- To learn more, see:
+  - Reference Guide > User Management
+  - Access to these resources requires an admin or API role with full User Management permission under Administration Controls.
+  - User Management Use Cases
+  - About Authentication Profile
+  - Authenticating and Managing Users
+- Votiro CDR
+- Votiro CDR API resources allow you to update, retrieve, and delete Votiro CDR authentication credentials. You can also retrieve Votiro CDR policies configured for a tenant using these API resources.
+- To learn more, see:
+  - Reference Guide > Votiro CDR
+  - Access to this resource requires an admin or API role with full permission.
+  - Zscaler and Votiro Deployment Guide
+  - Understanding Votiro Integration for Zero Trust Browser
+  - Creating Isolation Profiles for ZIA
 - Workload Groups
-
-## Sandbox Submission API
-
+- Workload Groups API resources allow you to add, update, delete, and retrieve workload groups configured in the ZIA Admin Portal. The workload groups can be configured as criteria in security policies such as Data Loss Prevention, URL Filtering, SSL Inspection, and Firewall Filtering rules.
+- To learn more, see:
+  - Reference Guide > Workload Groups
+  - Access to these resources requires an admin or API role with the associated policy permissions.
+  - About Workload Groups
+  - Configuring Workload Groups
+# Sandbox Submission API
 To obtain access to the Sandbox Submission API, contact your Zscaler Account team.
-
-The Sandbox Submission API gives you programmatic access to Zscaler Sandbox, which allows you to submit files to perform behavioral analysis. By default, files are directly submitted to the Sandbox to obtain a verdict. If a verdict already exists for the file, you can optionally force the Sandbox to reanalyze the file. You can submit up to 100 raw and archive files (e.g., ZIP) per day for Sandbox analysis.
-
-The Sandbox Submission API also allows you to perform out-of-band file inspection to generate real-time verdicts. Zscaler leverages capabilities such as Malware Prevention, Advanced Threat Prevention, Sandbox cloud effect, AI/ML-driven file analysis, and integrated third-party threat intelligence feeds to inspect files and classify them as benign or malicious instantaneously. You can submit raw and archive files (e.g., ZIP), and each file is limited to a maximum size of 400 MB.
-
+The Sandbox Submission API gives you programmatic access to Zscaler Sandbox, which allows you to submit files to perform behavioral analysis. By default, files are directly submitted to the Sandbox to obtain a verdict. If a verdict already exists for the file, you can optionally force the Sandbox to reanalyze the file. You can submit up to 100 raw and archive files (e.g., ZIP) per day for Sandbox analysis. To learn more about the file types supported, see About Sandbox.
+The Sandbox Submission API also allows you to perform out-of-band file inspection to generate real-time verdicts. Zscaler leverages capabilities such as Malware Prevention, Advanced Threat Prevention, Sandbox cloud effect, AI/ML-driven file analysis, and integrated third-party threat intelligence feeds to inspect files and classify them as benign or malicious instantaneously. You can submit raw and archive files (e.g., ZIP), and each file is limited to a maximum size of 400 MB. All file types that are supported by the Malware Protection policy and Advanced Threat Protection policy are supported.
 Dynamic file analysis is not included in out-of-band file inspection.
-
-- Reference Guide > Sandbox Submission (`/zia/cloud-sandbox-submission`)
-- Configuring the Sandbox Policy (`/zia/configuring-sandbox-policy`)
-- Configuring the Default Sandbox Rule (`/zia/configuring-default-sandbox-rule`)
-
-## 3rd-Party App Governance API
-
-To access the 3rd-Party App Governance API, you must have a 3rd-Party App Governance trial or license. To obtain a trial or license, contact your Zscaler Account team.
-
-The 3rd-Party App Governance API gives you programmatic access to Zscaler 3rd-Party App Governance, which allows you to search the 3rd-Party App Governance Catalog for an application by name, app ID, or a valid URL (i.e., consent or marketplace link). If the application is not found in the catalog, it is automatically submitted to the 3rd-Party App Governance Sandbox for analysis.
-
-The 3rd-Party App Governance API also allows you to retrieve the list of custom views (`/zia/custom-views/`) that you have configured in the 3rd-Party App Governance Admin Portal and includes all configurations that define the custom view.
-
-See Reference Guide > 3rd-Party App Governance (`/zia/apptotal-api`).
-
-## Navigation note
-
-The `legacy-apis` namespace on help.zscaler.com contains only ZIA API documentation. The sidebar shows:
-- Legacy Zscaler APIs Help (`/legacy-apis`)
-- ZIA API (`/legacy-apis/zia-api`)
-- Understanding ZIA APIs (`/legacy-apis/understanding-zia-api`)
-
-The "Getting Started," "Reference Guide," and "Rate Limit Summary" links within this section point to `/zia/` paths (separate namespace), not `/legacy-apis/` paths.
+- Reference Guide > Sandbox Submission
+- Configuring the Sandbox Policy
+- Configuring the Default Sandbox Rule
+# 3rd-Party App Governance API
+To access the 3rd-Party App Governance API, you must have an 3rd-Party App Governance trial or license. To obtain a trial or license, contact your Zscaler Account team.
+The 3rd-Party App Governance API gives you programmatic access to Zscaler 3rd-Party App Governance, which allows you to search the 3rd-Party App Governance Catalog for an application by name, app ID, or a valid URL (i.e., consent or marketplace link). If the application is not found in the catalog, it is automatically submitted to the 3rd-Party App Governance Sandbox for analysis. After analysis is complete, you can perform a subsequent search for the application and retrieve its information.
+The 3rd-Party App Governance API also allows you to retrieve the list of custom views that you have configured in the 3rd-Party App Governance Admin Portal and includes all configurations that define the custom view. You can then retrieve all applications that are related to a specified custom view.
+To learn more, see Reference Guide > 3rd-Party App Governance.

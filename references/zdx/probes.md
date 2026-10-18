@@ -161,4 +161,4 @@ Source: `vendor/zscaler-help/about-probes.md`; `vendor/zscaler-help/understandin
 
 - ZDX Score (how probe metrics aggregate into the headline number) — [`./overview.md § ZDX Score`](./overview.md)
 - Diagnostics Sessions (minute-resolution probing for a specific device) — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md)
-- SSL Inspection (ZDX probes bypass it) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- SSL Inspection (ZDX probes bypass it) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)

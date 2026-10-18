@@ -53,9 +53,12 @@ async function main(argv) {
   if (cmd === "validate") {
     const { errors, warnings, stats } = validateGraph(g, { citations: !args.includes("--no-citations") });
     // Legacy Markdown links into the graph (written by migrate-links) must resolve.
-    const { kbLinks } = await import("./kb-migrate.mjs");
+    const { kbLinks, staleMentions } = await import("./kb-migrate.mjs");
     for (const { file, id } of kbLinks(ROOT)) {
       if (!g.nodes.has(id)) errors.push({ file, message: `kb:${id} does not resolve` });
+    }
+    for (const { file, moved, id } of staleMentions(ROOT)) {
+      errors.push({ file, message: `mentions ${moved}, which was converted; use kb:${id}` });
     }
     const evalsFile = "references/_meta/evals/evals.json";
     for (const e of JSON.parse(fs.readFileSync(path.join(ROOT, evalsFile), "utf8")).evals) {

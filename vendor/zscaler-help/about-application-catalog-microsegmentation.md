@@ -1,46 +1,28 @@
 # About the Application Catalog for Microsegmentation
 
 **Source:** https://help.zscaler.com/zpa/about-application-catalog-microsegmentation
-**Captured:** 2026-08-04 via the Zscaler Help Portal rendered-data endpoint.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1533998, revision 3243029
 
 ---
 
-This is a scoped summary of the current rendered Help article. It records the
-portal surface needed by the reference corpus rather than copying the article's
-images and navigation.
-
-The Application Catalog gives administrators visibility into applications used
-to generate machine-learning (ML) tags that can be applied to resource groups.
-It lists applications and application categories used for ML resource-tag
-recommendations and supports comparison across the collected application data.
-
-## Portal surface
-
-The page is under **Policies > Access Control > Segmentation > Application
-Catalog**. Administrators can refresh the page, show or hide columns and
-filters, and paginate the result table.
-
-Filters are available for:
-
-- Application Name
-- Application Category
-- Process
-- Protocol
-- Port
-
-Each result can expose:
-
-- **Application Name**
-- **Application Category**
-- **Process Name**
-- **Protocol**, including protocol types such as UDP and TCP
-- **Port Start**
-- **Port End**
-
-## Source boundary
-
-This article documents the Zscaler Admin Console. It does not enumerate a
-GraphQL query, REST endpoint, SDK filter type, or other programmatic contract.
-The presence of process, protocol, and port filters in the portal must not be
-used by itself to claim that the same filters exist in the Microsegmentation
-API or an SDK.
+The Application Catalog gives admins insight into the applications used to generate the machine-learning (ML) tags that you can apply to resource groups.
+The Application Catalog page provides the following benefits and enables you to:
+- Review the list of applications and application categories used by ML to recommend resource tags.
+- Compare similar application information.
+- Discover insights about collective application data.
+# About the Application Catalog Page
+On the Application Catalog page (Zero Trust Cloud > Microsegmentation > Application Catalog), you can do the following:
+- Refresh the Application Catalog page to reflect the most current information.
+- Show or hide available columns.
+- Show or hide available filters.
+- Filter the information by Application Name, Application Category, Process, Protocol, and Port. After configuring your preferred filters, click the button to apply the filters (e.g., Apply 1 filter, Apply 2 filters) and view the results.
+- See image.
+- View a list of all applications found. For each application, you can see:
+  - Application Name: The name of the application.
+  - Application Category: The type of application.
+  - Process Name: The name of the process file.
+  - Protocol: The protocol type (UDP, TCP, etc.).
+  - Port Start: The port starting number.
+  - Port End: The port ending number.
+- Display more rows or a different page of the table.

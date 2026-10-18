@@ -47,7 +47,11 @@
           "minItems": 1,
           "items": { "type": "string", "minLength": 8, "maxLength": 320 }
         },
-        "pointer": { "type": "string", "pattern": "^(/[^/]*)*$" },
+        "pointer": { "description": "A keyed JSON Pointer into a JSON source. Array-index steps are rejected: they shift when the source is regenerated. Select an array element by a member with `[member=value]` (exactly one element must match), and cite a keyed document where one exists (for API facts, the OpenAPI document, not a flattened field list).", "type": "string", "pattern": "^(/[^/]*)*$" },
+        "expect": {
+          "description": "With `pointer`: members of the object at the pointer that the claim rests on, each compared by value. Required with `pointer`, since a path alone does not show what it says.",
+          "type": "object", "minProperties": 1
+        },
         "at": {
           "description": "Submodule sources only: the git refs (tags or commits) at which the quotes must be found, e.g. the audited tag and \"HEAD\" (the pinned commit). Without it, quotes anchor at the pin. A bump that removes the code fails the HEAD anchor: a candidate fix.",
           "type": "array", "minItems": 1, "uniqueItems": true,
@@ -62,7 +66,7 @@
       "additionalProperties": false,
       "oneOf": [
         { "required": ["quotes"] },
-        { "required": ["pointer"] }
+        { "required": ["pointer", "expect"] }
       ]
     }
   }

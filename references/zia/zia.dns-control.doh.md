@@ -1,0 +1,5 @@
+Whether DNS Control sees a DoH query is the question here. {{doh-covered}} That is the documented capability. The older reference added a condition, that decryption of the DoH provider is required, and a list of what an operator can and cannot do around it; no captured page states either, so both are held as the open gap `doh-needs-decryption`. Until that is tested, do not tell an operator that DoH is or is not inspected: say what the documentation states and that the decryption dependency is unverified. SSL inspection coverage of a destination is decided as described in [[zia.ssl-inspection.pipeline]].
+
+In rule data and console, DoH shows up as a protocol value. {{doh-protocol-value}} {{doh-protocol-choice}} The console action "Redirect Request Using DoH" converts requests to DoH; its API enum value is not shown by any source (see [[zia.dns-control.actions]]). Do not read it as "applies to DoH traffic".
+
+To check a DoH concern: list the tenant's DNS rules with a `protocols` value of `DOHTTPS_RULE`, then check whether the DoH provider's domain is inside an SSL inspection rule.

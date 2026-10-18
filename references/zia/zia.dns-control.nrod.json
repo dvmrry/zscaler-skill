@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.nrod",
+  "title": "Newly registered domains and classification delay in DNS Control",
+  "aliases": [
+    "nrod",
+    "newly registered and observed domains",
+    "newly registered domain dns",
+    "nrod latency",
+    "new domain not blocked"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#resCategories"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Zscaler categorizes domains newly registered within the last 30 days, or observed for the first time, as Newly Registered and Observed Domains (NROD) until a proper classification is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "The Zscaler service categorizes domains that are newly registered within the last 30 days or observed for the first time as Newly Registered and Observed Domains (NROD) until a proper classification is available."
+          ]
+        }
+      ]
+    },
+    "latency": {
+      "statement": "The NROD database updates periodically, so a domain takes about 2 to 36 hours to be classified as NROD (depending on whether it is newly registered, observed or newly revived), and the first-ever DNS request for such a domain may have no URL classification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "a latency of about 2 to 36 hours is expected for domains to be classified as NROD depending on whether the domain is newly registered, observed, or newly revived.",
+            "the URL classification might not be available for the first-ever DNS request for such domains due to propagation delays."
+          ]
+        }
+      ]
+    },
+    "revived": {
+      "statement": "Newly Revived Domains are sites reactivated after a brief period of inactivity of about 10 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "About_URL_Categories.txt",
+          "quotes": [
+            "reactivated after a brief period of inactivity for about 10 days."
+          ]
+        }
+      ]
+    },
+    "suspicious-lookup-prereq": {
+      "statement": "Enable Suspicious New Domains Lookup (Advanced Policy Settings) is a prerequisite for using the Newly Registered and Observed Domains and Newly Revived Domains categories in a policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_Advanced_Policy_Settings.txt",
+          "quotes": [
+            "feature is a prerequisite for using the Newly Registered and Observed Domains and Newly Revived Domains URL categories in a policy rule."
+          ]
+        }
+      ]
+    },
+    "dns-criterion": {
+      "statement": "DNS Control rules select NROD through Request Categories and Response Categories; the predefined High-Risk DNS Categories rule uses Newly Registered and Observed Domains, Newly Revived Domains and Other Security in both, and Zscaler especially recommends blocking the NROD category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "modifying-default-dns-control-rule.md",
+          "quotes": [
+            "Request Categories: Newly Registered and Observed Domains, Newly Revived Domains, and Other Security are selected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-dns-control-rules.md",
+          "quotes": [
+            "Blocking the Newly Registered and Observed Domains (NRODs) category is especially recommended."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#resCategories"
+      ]
+    },
+    "nrod-attack-chains": {
+      "statement": "Zscaler says NRODs are often part of attack chains, such as termination points for DNS exfiltration through tunneling or hosts for drive-by malware before the domain is classified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-dns-control-rules.md",
+          "quotes": [
+            "NRODs are often part of attack chains"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "nrod-latency-url-filtering": {
+      "kind": "semantic",
+      "title": "Whether the NROD classification latency applies equally to URL Filtering",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "promising how fast a new domain is blockable in web policy",
+      "detail": "Unverified legacy statement: \"The same NROD latency applies to URL Filtering.\" The latency statement is on the DNS Control page and is about the NROD database; no captured URL Filtering page states a latency. Register a test domain and time when each module classifies it."
+    }
+  }
+}

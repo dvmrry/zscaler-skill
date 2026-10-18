@@ -1,22 +1,9 @@
-# Cloud & Branch Connector Release Upgrade Summary (2025) — Scoped Capture
+# Release Upgrade Summary (2025)
 
 **Source:** https://help.zscaler.com/cloud-branch-connector/release-upgrade-summary-2025?applicable_category=connector.zscaler.net&deployment_date=2025-12-15&id=1532586
-**Captured:** 2026-08-04 from the official Zscaler Help release entry.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1515711, revision 3159861
 
 ---
 
-This capture retains the December 15, 2025 entry relevant to Zero Trust
-Gateway region availability.
-
-## December 15 — Supported Regions for Zscaler Zero Trust Gateways
-
-The release entry says Zscaler Zero Trust Gateways added these regions:
-
-- `sa-east-1`
-- `ca-central-1`
-- `eu-central-2`
-- `eu-west-3`
-
-The entry links operators to the Zero Trust Gateway detail and creation pages.
-It does not state whether a region can later be removed from the current
-availability matrix.
+This article provides a summary of all new features and enhancements for Zscaler Cloud & Branch Connector. To see scheduled maintenance updates for your cloud, visit the Trust Portal.

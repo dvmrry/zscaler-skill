@@ -93,7 +93,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 2. Add it to your doc's **Open questions** section with a one-line summary.
 3. Add the full entry here with a new stable ID, following the entry template above.
 4. Link both ways:
-   - Your doc: `See [clarification zia-07](clarifications.md#zia-07-cloud-application-risk-profile-composition).`
+   - Your doc: `See [clarification zia-05](clarifications.md#zia-05-admin-rank-order-collision).`
    - This file: `*Origin: references/<product>/<topic>.md § Open questions*` (placeholder path — substitute the real one)
 5. **When resolving**: fold the answer into the relevant reference doc body
    (that's where it is useful), update that doc's `last-verified` date, then
@@ -105,7 +105,7 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-08-14:
-21 entries are resolved or clarified, 32 are partially resolved, and 404 are open.
+19 entries are resolved or clarified, 31 are partially resolved, and 396 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
@@ -114,7 +114,7 @@ public-doc reading.
 
 Entries migrated to the knowledge graph are no longer listed here; they are gaps
 with their old ID kept in `former_ids` (resolve with `node scripts/kb.mjs resolve <old-id>`):
-`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk).
+`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk); `zia-07` → [`zia.cloud-app-control.risk-profiles:composition`](kb:zia.cloud-app-control.risk-profiles:composition); `zia-09` → [`zia.cloud-app-control.rule-criteria:app-identity`](kb:zia.cloud-app-control.rule-criteria:app-identity); `zia-13` → [`zia.ssl-inspection.pipeline:first-pass-on-domain`](kb:zia.ssl-inspection.pipeline:first-pass-on-domain); `zia-47` → [`zia.dns-control.actions:block-response-code-values`](kb:zia.dns-control.actions:block-response-code-values); `zia-48` → [`zia.dns-control.actions:redirect-ip-binding`](kb:zia.dns-control.actions:redirect-ip-binding); `zia-58` → [`zia.dlp.rule-wire-shape:without-content-inspection-keying`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying); `zia-59` → [`zia.dns-control.actions:redir-req-gateway`](kb:zia.dns-control.actions:redir-req-gateway); `zia-60` → [`zia.firewall.network-services:type-meanings`](kb:zia.firewall.network-services:type-meanings); `zia-63` → [`zia.sandbox.md5-blocklist:quota-cap`](kb:zia.sandbox.md5-blocklist:quota-cap); `zia-66` → [`zia.ssl-inspection.rules:cap-raisable`](kb:zia.ssl-inspection.rules:cap-raisable); `zia-71` → [`zia.dns-control.api-rules:web-eun-false`](kb:zia.dns-control.api-rules:web-eun-false).
 
 The 2026-06-18 Automate-contract / rosetta closure pass narrowed several
 previously open source-surface questions without settling their runtime
@@ -196,8 +196,6 @@ families.
 | ID | Title |
 |---|---|
 | [`zia-05`](#zia-05-admin-rank-order-collision) | Admin rank structurally enforces precedence regardless of order-value collisions |
-| [`zia-07`](#zia-07-cloud-application-risk-profile-composition) | Cloud Application Risk Profile composition — full attribute list documented |
-| [`zia-13`](#zia-13-explicit-pipeline-order-sourcing) | Pipeline order — firewall → web module two-pass |
 | [`zpa-02`](#zpa-02-zpa-more-granular-definition) | "More granular" = most-specific FQDN wins |
 | [`zpa-03`](#zpa-03-multimatch-mixed-style-evaluation) | Multimatch mixed style — rejected at config time |
 | [`zpa-05`](#zpa-05-no-match-in-segment-criteria) | "No match in segment" = port mismatch specifically |
@@ -222,7 +220,6 @@ families.
 | ID | Title | What's still open |
 |---|---|---|
 | [`zia-08`](#zia-08-cac-tenant-restrictions-mechanics) | CAC tenant restrictions mechanics | Supported apps + SSL-Inspection-required mechanic doc'd; per-app token-field inspection details in per-app config articles not yet vendored |
-| [`zia-09`](#zia-09-cac-app-identity-when-url-maps-to-multiple-apps) | CAC app-identity when URL maps to multiple apps | URL-Lookup API is the mapping surface; internal URL-to-app resolution logic still undocumented |
 | [`log-01`](#log-01-nss-feed-format-versions) | NSS feed format versions | Exact field-presence differences between CSV/JSON/TSV output templates |
 | [`log-02`](#log-02-cloud-nss-vs-legacy-nss-divergence) | Cloud NSS vs legacy NSS divergence | Both source from the same Nanolog — field content parity expected; branching most likely needed for format (Cloud NSS recommends JSON) and per-instance feed-count limits, not field presence |
 | [`log-04`](#log-04-mpatp-blocked-policy-type-log-field) | MP/ATP blocked-policy-type log field | Full `ruletype` and `reason` enums still require tenant evidence |
@@ -256,7 +253,7 @@ families.
 
 ### Open
 
-- **zia**: `zia-16`–`zia-48`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-58`–`zia-67`, `zia-69`–`zia-72`
+- **zia**: `zia-16`–`zia-46`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-61`–`zia-62`, `zia-64`–`zia-65`, `zia-67`, `zia-69`–`zia-70`, `zia-72`
 - **log**: `log-03`, `log-05`–`log-22`
 - **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-83`
 - **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-39`
@@ -288,8 +285,8 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 
 | ID | Title | Resolves with |
 |---|---|---|
-| [`zia-47`](#zia-47-dns-control-block_response_code-accepted-values) | DNS Control `block_response_code` accepted-value set | lab test / tenant read |
-| [`zia-48`](#zia-48-dns-control-redirect_ip-action-binding) | DNS Control `redirect_ip` action-binding (all `REDIR_*` vs `REDIR_RES` only) | lab test |
+| [`zia-47`](kb:zia.dns-control.actions:block-response-code-values) | DNS Control `block_response_code` accepted-value set | lab test / tenant read |
+| [`zia-48`](kb:zia.dns-control.actions:redirect-ip-binding) | DNS Control `redirect_ip` action-binding (all `REDIR_*` vs `REDIR_RES` only) | lab test |
 | [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity (which actions a given app accepts) | code read completed; live completeness test remains |
 | [`zpa-20`](#zpa-20-zpn_status_pending-as-a-real-runtime-status) | Whether `ZPN_STATUS_PENDING` is a real App Connector runtime status | tenant read / lab test |
 | [`zcc-76`](#zcc-76-otp-expiry-ttl-server-behavior) | Whether ZCC one-time passwords expire server-side (TTL) | lab test / zscaler doc not yet read |
@@ -321,20 +318,20 @@ The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions s
 | [`zia-55`](#zia-55-admin-audit-report-pagination-and-targetorgid-semantics) | Admin audit report pagination and `targetOrgId` MSP semantics | lab test / tenant read |
 | [`zia-56`](#zia-56-bandwidth-class-type-enum-vs-ui-predefined-classes-and-cap-enforcement) | Bandwidth class `type` enum vs UI predefined classes, and cap enforcement | zscaler doc not yet read / lab test |
 | [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | lab test / zscaler doc not yet read |
-| [`zia-58`](#zia-58-dlp-web-rule-actionseverity-enums-parentsub-rule-composition-externaldlp-behavior) | DLP web rule action/severity enums, parent/sub-rule composition, EXTERNALDLP behavior | lab test / zscaler doc not yet read |
-| [`zia-59`](#zia-59-plain-redir_req-dns_gateway-requirement-and-edns_ecs_objectzpa-pairing) | Plain `REDIR_REQ` `dns_gateway` requirement and `edns_ecs_object`/ZPA pairing | lab test |
-| [`zia-60`](#zia-60-network-service-type-behavior-countrycategory-enums-and-caps) | Network Service `type` behavior, country/category enums, and caps | lab test / zscaler doc not yet read |
+| [`zia-58`](kb:zia.dlp.rule-wire-shape:without-content-inspection-keying) | DLP web rule action/severity enums, parent/sub-rule composition, EXTERNALDLP behavior | lab test / zscaler doc not yet read |
+| [`zia-59`](kb:zia.dns-control.actions:redir-req-gateway) | Plain `REDIR_REQ` `dns_gateway` requirement and `edns_ecs_object`/ZPA pairing | lab test |
+| [`zia-60`](kb:zia.firewall.network-services:type-meanings) | Network Service `type` behavior, country/category enums, and caps | lab test / zscaler doc not yet read |
 | [`zia-61`](#zia-61-atpmalware-tenant-defaults-singleton-interdependence-capture-vs-denylist) | ATP/Malware tenant defaults, singleton interdependence, capture-vs-denylist | lab test / zscaler doc not yet read |
 | [`zia-62`](#zia-62-pse-shared-nat-rejection-zia-only-health-monitoring-hardware-pse-api) | PSE shared-NAT rejection, ZIA-only health monitoring, hardware-PSE API | zscaler doc not yet read / support ticket / code read |
-| [`zia-63`](#zia-63-sandbox-md5-blocklist-quota-help-portal-enum-and-the-mpatp-diagnosis-api-gap) | Sandbox MD5 blocklist quota, help-portal enum, and the MP/ATP diagnosis API gap | lab test / zscaler doc not yet read |
+| [`zia-63`](kb:zia.sandbox.md5-blocklist:quota-cap) | Sandbox MD5 blocklist quota, help-portal enum, and the MP/ATP diagnosis API gap | lab test / zscaler doc not yet read |
 | [`zia-64`](#zia-64-scim-department-matching-attribute-length-activefalse-session-kill-and-caps) | SCIM department matching, attribute length, `active=false` session-kill, and caps | lab test / zscaler doc not yet read |
 | [`zia-65`](#zia-65-ucaas-one-click-toggle-field-location) | UCaaS One-Click toggle field location | tenant read / zscaler doc not yet read |
-| [`zia-66`](#zia-66-whether-the-255-ssl-inspection-rule-cap-is-raisable) | Whether the 255 SSL Inspection rule cap is raisable | zscaler doc not yet read / support ticket |
+| [`zia-66`](kb:zia.ssl-inspection.rules:cap-raisable) | Whether the 255 SSL Inspection rule cap is raisable | zscaler doc not yet read / support ticket |
 | [`zia-67`](#zia-67-tenant-profile-per-app-wire-mechanic-and-v1v2-protocol-semantics) | Tenant Profile per-app wire mechanic and v1/v2 protocol semantics | zscaler doc not yet read / lab test |
 | [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform `url_categories_predefined` EA gating, sandbox v1/v2 endpoint, static-IP throttle | primary API rate-limit table / lab test |
 | [`zia-69`](#zia-69-workload-group-runtime-expression-evaluation-expressionjson-sync-and-tag-type-enum) | Workload-group runtime expression evaluation, `expressionJson` sync, and tag-type enum | lab test / zscaler doc not yet read |
 | [`zia-70`](#zia-70-dlp_web_rules-live-read-returns-undocumented-uctemplateid) | `dlp_web_rules` live read returns undocumented `ucTemplateId` | lab test / zscaler confirmation |
-| [`zia-71`](#zia-71-web-eun-explicit-false-preserve-vs-clear-on-firewall-dns-rule-update) | Web-EUN explicit `false`: preserve vs clear on firewall-DNS update | lab test |
+| [`zia-71`](kb:zia.dns-control.api-rules:web-eun-false) | Web-EUN explicit `false`: preserve vs clear on firewall-DNS update | lab test |
 
 The ZPA reference re-verification pass (2026-06-15) registered the remaining `## Open questions` items from the ZPA docs — each links to its detailed entry below:
 
@@ -563,7 +560,7 @@ The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these op
 
 ### zia-05 — Admin rank order collision
 
-*Origin: `references/zia/url-filtering.md` § Open questions*
+*Origin: `kb:zia.url-filtering` § Open questions*
 
 Admin rank gates what order values a rule can have. Can two rules at different admin ranks end up with the same numerical order? If so, which evaluates first — the higher-ranked one, the older one, the alphabetically earlier one?
 
@@ -587,68 +584,9 @@ Admin Rank is an opt-in feature ("if you've enabled Admin Rank"); without it, ru
 Applies to ZIA URL Filtering, SSL Inspection, and other ZIA policy types that expose the Admin Rank field. ZPA access policies don't use the same admin-rank mechanism based on vendored material.
 
 ---
-
-### zia-07 — Cloud Application Risk Profile composition
-
-*Origin: `references/zia/cloud-app-control.md` § Mechanics*
-
-The CAC rule form offers "Cloud Application Risk Profile" as an alternative to enumerated "Cloud Applications." What a Risk Profile consists of — geolocation of data handling, vendor security attestations, encryption posture, published breach history, or something else — isn't described in the vendored docs. Needed to confidently answer "why was this app caught by our Medium-risk block rule?"
-
-**Status**: resolved (2026-04-23).
-
-**Answer**: A Cloud Application Risk Profile is an AND-of-ORs composition over a fixed set of **cloud-application attributes**. The profile matches any cloud application whose attributes satisfy all selected criteria.
-
-From *About Cloud Application Risk Profile* (`vendor/zscaler-help/about-cloud-application-risk-profile.md`) and *Adding a Cloud Application Risk Profile* (`vendor/zscaler-help/adding-cloud-application-risk-profile.md`):
-
-**Core classification attributes** (each can take one or more values; values within an attribute combine with OR):
-
-- **Risk Index** — 1–5 (1 = lowest, 5 = highest). Each cloud application is assigned a Zscaler-computed risk score, with per-app overrides available from the Application Information page. Multi-select supported.
-- **Application Status** — `Sanctioned` / `Unsanctioned`. Set per-app by the customer (see *About Cloud Application Status*).
-- **Tags** — customer-assigned tags (see *About Cloud Application Tags*).
-- **Certificates Supported** — named compliance certifications (e.g., `AICPA`, `GDPR`). Include- or exclude-style membership.
-- **Password Strength** — `Good` / `Poor` / `Unknown` (see article for the full criteria definitions).
-- **Data Encryption in Transit** — `SSLv2` / `SSLv3` / `TLSv1.0` / `TLSv1.1` / `TLSv1.2` / `TLSv1.3` / `Unknown`.
-- **SSL Cert Key Size** — `Any` / `2048 Bits` / `256 Bits` / `3072 Bits` / `384 Bits` / `4096 Bits` / `Unknown`.
-
-**Hosting & security characteristics** (each takes `Yes` / `No` / `Unknown`):
-
-- Poor Terms of Service
-- Admin Audit Logs
-- Data Breach in 3 Years
-- Source IP Restrictions
-- MFA Support
-- File Sharing
-- SSL Pinned
-- HTTP Security Header Support
-- Evasive
-- DNS CAA Policy
-- Weak Cipher Support
-- Valid SSL Certificate
-- Published CVE Vulnerability
-- Vulnerable to Heartbleed
-- Vulnerable to Poodle
-- Vulnerable to Logjam
-- Support for WAF
-- Remote Access Screen Sharing
-- Vulnerability Disclosure Policy
-- Sender Policy Framework (SPF)
-- DomainKeys Identified Mail (DKIM)
-- Domain-Based Message Authentication (DMARC)
-- Malware Scanning for Content
-
-**Composition logic**: AND between attributes; OR between multiple values within a multi-select attribute (Risk Index, Certificates Supported, Data Encryption in Transit, SSL Cert Key Size).
-
-Example from the doc: `[Risk Index (1 OR 3 OR 5)] AND [Application Status (Sanctioned)] AND [Certificates Supported (AICPA OR GDPR)] AND [SSL Pinned (Yes)]`.
-
-**Where the per-app attribute values come from**: Zscaler ThreatLabz (the vendor's security research arm) maintains the attribute database for known cloud apps. Customers can override Risk Index per app from the Application Information page. Status and Tags are customer-set.
-
-**Implication for "why was this app caught by our Medium-risk block rule?"**: inspect the rule's attached Risk Profile config, then look up the app's current attribute values on its Application Information page and compare. Any attribute mismatch is the exonerator; an all-match is the culprit.
-
----
-
 ### zia-08 — CAC tenant restrictions mechanics
 
-*Origin: `references/zia/cloud-app-control.md` § Edge cases*
+*Origin: `kb:zia.cloud-app-control` § Edge cases*
 
 Zscaler supports distinguishing corporate vs personal instances of the same SaaS app on shared hostnames (e.g., corporate Google Workspace vs personal Gmail both under `*.google.com`). The detection mechanism — header inspection post-decrypt, tenant ID parameter, OAuth audience claim, DNS-based hints — isn't described in the vendored CAC guide.
 
@@ -702,50 +640,6 @@ SDK-authoritative `app_type` enum values:
 **Still open**: the per-app inspection logic at the token level (OAuth audience claim, login-request header, SAML assertion attribute, etc.) isn't enumerated in the articles I captured. "Inspected post-decrypt in the login flow" is the mechanism class — the exact token field per app would be in per-app configuration guides (e.g., *Configuring a Microsoft Login Services Tenant Profile*, etc.) that weren't captured in this sweep. Low priority — the high-level mechanism is enough for skill answers, and per-app detail is operator-facing rather than skill-facing.
 
 ---
-
-### zia-09 — CAC app-identity when URL maps to multiple apps
-
-*Origin: `references/zia/cloud-app-control.md` § Mechanics*
-
-Many hostnames serve multiple cloud apps (e.g., `*.google.com` covers Drive, Docs, Gmail, Meet). How CAC picks which app identity a given request maps to — URL path, post-decrypt HTTP headers, user agent, some combination — isn't in the vendored material. Affects any "which CAC category applies to this URL" answer.
-
-**Status**: partially resolved (2026-04-23).
-
-**Answer** (partial): URL-to-app resolution is surfaced through the `/urlLookup` API endpoint and the Admin Console URL Lookup tool. From *Understanding Cloud App Categories* (`vendor/zscaler-help/understanding-cloud-app-categories.md`): "You can look up a cloud application for a URL using the URL Lookup tool or the urlLookup API."
-
-Background from *Configuring URL Categories Using API* p.11:
-
-> Custom URL classification is not returned by this request. Any URLs that are not categorized under a predefined URL category returns a value of MISCELLANEOUS_OR_UNKNOWN.
-
-So `/urlLookup` returns **predefined URL categories** (not Cloud App identity directly). For Cloud App identity specifically, the Admin Console URL Lookup tool provides the cloud app name, but that endpoint isn't documented in the API reference articles we've captured.
-
-**What this means operationally**: to answer "what Cloud App does URL X map to," the most-defensible path is (a) run `/urlLookup` for URL category, (b) cross-reference with the tenant's Cloud App Control supported-apps list (see "Viewing Supported Cloud Applications" — Policies > Access Control > SaaS Application Control > Policies), and (c) use the Admin Console URL Lookup tool for authoritative cloud-app identity.
-
-**Still open**: the internal logic Zscaler uses to resolve a shared-hostname URL to a specific cloud-app identity (e.g., how `*.google.com` splits into Drive vs Docs vs Gmail vs Meet) isn't documented. Presumably post-decrypt URL-path / HTTP-header inspection (given the Tenant Profiles model in `zia-08` works the same way), but not explicitly stated. Lab-testable with a few known URLs and the URL Lookup tool.
-
----
-
-### zia-13 — Explicit pipeline-order sourcing
-
-*Origin: `references/zia/ssl-inspection.md` § Mechanics*
-
-Our three drafts asserted the pipeline is SSL Inspection → URL Filtering → Cloud App Control. No single vendored source stated the full ordering explicitly.
-
-**Status**: resolved (2026-04-23).
-
-**Answer** (from *Understanding Policy Enforcement*, `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`, pp.1–13; canonical URL https://help.zscaler.com/zia/about-policy-enforcement):
-
-The actual flow is more nuanced than the simpler SSL→URL→CAC framing:
-
-1. **Firewall module always evaluates first.** For outbound web traffic, firewall policy runs before the web module sees the transaction. Example from the doc: firewall allows Box.net + web module blocks Box.net → traffic is blocked. Firewall "allow" does not supersede web block; both must pass.
-2. **Web module evaluation depends on traffic type and SSL state.** For HTTPS traffic there are **two passes**:
-   - **CONNECT/SNI pass** (domain-only): URL Filtering + Cloud App Control + Advanced Threat Protection (known malicious URLs) + Bandwidth Control evaluate using only the destination domain. In explicit-proxy mode, this happens on the CONNECT request; in transparent mode, on the SNI.
-   - **SSL Inspection policy decision**: evaluate whether to decrypt.
-   - **Full-URL pass** (only if decrypted): the complete policy pipeline runs on the decrypted URL and body — see the 10-step GET order on p.3–5 of the Policy Enforcement doc (Custom Malicious URLs → Cloud App Control → URL Filtering → Security Exceptions → Browser Control → Country Blocking → IPS → Suspicious Content → P2P → Bandwidth).
-3. **Per-method policy order differs.** HTTP POST adds Malware Protection, File Type Control, and DLP steps. HTTP GET/POST Response adds Sandbox, Malware, File Type Control, AI/ML Content Categorization.
-
-This means URL Filtering and CAC effectively evaluate **twice** on inspected HTTPS traffic — once domain-only, once full-URL. The drafts' simpler "before/after" framing was roughly right but missed the two-pass nuance. Corrected in `ssl-inspection.md` Mechanics section.
-
 ---
 
 ### log-01 — NSS feed format versions
@@ -1133,7 +1027,7 @@ The CSV doesn't define:
 2. Multi-category URL behavior — for a URL that matches multiple categories (e.g., a news site with embedded ads → News + Advertisement), do the fields show one (which?), the primary, or all matched as a delimited list?
 3. Whether Advanced Threat categories appear in `urlcat`, `urlsupercat`, both, or a different field.
 
-Cross-link: the `categories` skill content under `references/zia/url-filtering.md` covers the configuration side but doesn't translate to log-field semantics.
+Cross-link: the `categories` skill content under `kb:zia.url-filtering` covers the configuration side but doesn't translate to log-field semantics.
 
 **Resolves with**: tenant export with 50+ varied URLs spanning known multi-category sites, plus vendor doc on the hierarchy. **Status**: open — 2026-05-06.
 
@@ -2279,15 +2173,15 @@ So the request blocks until the user completes the higher-AL authentication. The
 - Z-Tunnel-mode interaction:
   - **Z-Tunnel 2.0** (packet-tunnel) captures UDP 443 — QUIC is intercepted at the tunnel layer.
   - **Z-Tunnel 1.0** (HTTP CONNECT) does not capture UDP — QUIC traffic egresses outside the tunnel.
-- Zscaler's recommendation: **block QUIC at the firewall** so browsers fall back to TCP/TLS (which can then be inspected). Cited from *Leading Practices Guide* p.24, *CAC Deployment Guide* troubleshooting section, and `references/zia/ssl-inspection.md`.
+- Zscaler's recommendation: **block QUIC at the firewall** so browsers fall back to TCP/TLS (which can then be inspected). Cited from *Leading Practices Guide* p.24, *CAC Deployment Guide* troubleshooting section, and `kb:zia.ssl-inspection`.
 
-**HTTP/2** — `references/zia/ssl-inspection.md` documents:
+**HTTP/2** — `kb:zia.ssl-inspection` documents:
 
 - **Per-rule `http2Enabled` toggle** on the SSL Inspection rule controls whether HTTP/2 inspection is enabled.
 - **Falls back to HTTP/1.1 for locations where Bandwidth Control is also enabled**, even if HTTP/2 is on in the SSL/TLS rule. Concrete operational gotcha.
 - Inspection capability exists; per-stream re-evaluation behavior not stated.
 
-**WebSocket** — `references/zia/dlp.md` § 5 has a sharply-scoped answer:
+**WebSocket** — `kb:zia.dlp` § 5 has a sharply-scoped answer:
 
 - **WebSocket DLP inspection is Microsoft-Copilot-only.** The WebSocket protocol option for DLP inspection works exclusively for Microsoft Copilot. Adding WebSocket as a protocol expecting it to cover other WebSocket-heavy apps (Slack, Figma, Linear, Notion) yields **zero coverage** for those apps. WebSocket SSL/TLS DLP is similarly Copilot-only. Cited from *Configuring DLP Policy Rules and Content Inspection* line 166.
 
@@ -3350,27 +3244,6 @@ Whether a macOS user denial of the ZCC Network Extension (in System Settings →
 **Resolves with**: lab test (deny Network Extension on macOS; observe ZCC error state and portal visibility) OR zscaler doc not yet read
 
 ---
-
-### zia-47 — DNS Control block_response_code accepted values
-
-*Origin: `references/zia/dns-control.md` § Open questions*
-
-A DNS Control rule model carries a `block_response_code` field, but no vendored source enumerates which DNS response codes it accepts (NXDOMAIN, REFUSED, specific rcodes, etc.). The Python and Go SDK sources describe it only as a DNS response-code string (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:190`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47-48`); MCP v0.15.0 no longer documents the field. Until the accepted set is known, the skill cannot say what a given response-blocking rule actually returns to the client resolver.
-
-**Status**: open
-**Resolves with**: lab test (configure a BLOCK rule, observe accepted values in the console / API) OR tenant read
-
----
-
-### zia-48 — DNS Control redirect_ip action binding
-
-*Origin: `references/zia/dns-control.md` § Open questions*
-
-The commented Go validator binds `redirect_ip` only to `REDIR_RES` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:286-290`). MCP v0.15.0 lists `redirect_ip` only as a generic advanced DNS field and does not document an action binding (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py:31-38`). Whether the live API enforces the Go validator's `REDIR_RES`-only binding remains unresolved.
-
-**Status**: open
-**Resolves with**: lab test (submit `redirect_ip` against each `REDIR_*` action, observe which the API accepts)
-
 ---
 
 ### zia-49 — CAC per-app action validity
@@ -4361,39 +4234,7 @@ Four source-unresolvable items on the content-inspection surfaces. (1) Whether a
 **2026-06-18 narrowing**: the Automate contract/reconciler now captures a static documented `fileTypes` vocabulary for `POST /zia/api/v1/fileTypeRules`; the generated report shows `filteringAction`, `operation`, and `state` as enum matches, and `fileTypes` as a contract-only enum beginning with `ANY`, `NONE`, and `FTCATEGORY_*` values and ending at `FTCATEGORY_TS` (`vendor/zscaler-api-specs/automate-zscaler/zia-divergences.json:5032-5035`, `:5087-5090`, `:5093-5384`). That resolves the "no static enum source" sub-question for `fileTypes`. It does not resolve FTP per-site scope, field-dependency validation, or whether `protocols` accepts any values beyond `HTTP_RULE`, `HTTPS_RULE`, and `FTP_RULE`.
 
 ---
-
-### zia-58 — DLP web rule action/severity enums, parent/sub-rule composition, EXTERNALDLP behavior
-
-*Origin: `references/zia/dlp.md` § Open questions*
-
-Several DLP web-rule behaviors are not pinned by SDK source. The `action` and `severity` fields are free strings with no enum declared (`vendor/zscaler-sdk-python/zscaler/zia/models/dlp_web_rules.py:49`, `:61`), so the concrete wire sets (help-doc prose names ALLOW / BLOCK / CONFIRM behaviorally; the severity bands) are unconfirmed from SDK. The rule model exposes a `parent_rule` / `sub_rules` hierarchy (`:62-63`) but the SDK does not document how sub-rule evaluation composes with the flat first-match-wins / Evaluate-All-Rules order from the help docs, nor how a parent match interacts with its sub-rules' actions. The `without_content_inspection` (EXTERNALDLP) variant is SDK-confirmed as a distinct no-content-inspection rule (`:53-55`) but what it keys on instead of payload content, and which forwarding surfaces it pairs with, is not pinned. Adjacent doc-level questions also remain: confidence-score-to-confidence-level numeric mapping for predefined dictionaries, whether MIP label matching requires Microsoft 365 integration on the Zscaler side, Evaluate-All-Rules terminal-action semantics when Block and Allow rules both fire, and EDM operational mechanics — all needing tenant tuning or help articles not yet vendored.
-
-**2026-06-21 live-read overlay update**: a clean-room downstream validation reported `deeplyNestedContentEnabled` and `timeoutFailClosedEnabled` in Web DLP rule read responses. The overlay records them as absent from the checked-in Automate contract, absent from a same-day Playwright recapture of all six Web DLP operation pages, absent from the vendored Go and Python SDKs, and absent from the Terraform provider; no tenant values or payload excerpts were retained (`vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.md:18-29`; `:31-38`; `vendor/zscaler-api-specs/automate-zscaler/observed-contract-overlays.json:9-53`). Treat both fields as read-side observations with unknown write support until Zscaler documents them or a lab write-test proves create/update acceptance.
-
-**Status**: open
-**Resolves with**: lab test (read live rules to enumerate `action`/`severity` values and observe parent/sub-rule + EXTERNALDLP behavior) OR zscaler doc not yet read (DLP rule and Exact Data Matching reference articles)
-
 ---
-
-### zia-59 — Plain REDIR_REQ dns_gateway requirement and edns_ecs_object/ZPA pairing
-
-*Origin: `references/zia/dns-control.md` § Open questions*
-
-Two DNS Control action-binding questions beyond `zia-47`/`zia-48`. First, whether plain `REDIR_REQ` requires a `dns_gateway`: the Go validator binds `dns_gateway` to `REDIR_REQ_KEEP_SENDER`, `REDIR_REQ_DOH`, `REDIR_REQ_TCP`, and `REDIR_REQ_UDP` but *not* to plain `REDIR_REQ` (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:267-280`); whether the bare action needs one is not stated in source. Second, whether `edns_ecs_object` is tied to the `REDIR_ZPA` action: no source binds `edns_ecs_object` to `REDIR_ZPA` (or any action) — it is a general resolution field (`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:109-110`), so the `zpa_ip_group` + `edns_ecs_object` pairing for `REDIR_ZPA` is not verifiable from vendor source.
-
-**Status**: open
-**Resolves with**: lab test (submit a `REDIR_REQ` rule with and without a `dns_gateway`, and a `REDIR_ZPA` rule with/without `edns_ecs_object`, observe what the API requires)
-
----
-
-### zia-60 — Network Service type behavior, country/category enums, and caps
-
-*Origin: `references/zia/firewall.md` § Open questions*
-
-Several firewall-surface items could not be backed from any vendor file in this pass. (1) `STANDARD` vs `PREDEFINED` Network Service `type` behavior — no `STANDARD`/`PREDEFINED` literal appears in SDK service/model source, and MCP v0.15.0 now returns the SDK-modeled service record without documenting or validating a `type` vocabulary (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/network_services.py:88-110`); only `CUSTOM` appears as a concrete SDK value, so the wire-level distinction is unverified. (2) Valid country-code values — the current MCP input describes the generic `COUNTRY_XX` form (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zia/ip_destination_groups.py:48-55`), while SDK examples use `COUNTRY_CA` / `COUNTRY_US` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:431`, `:469`); the full `COUNTRY_*` enum is not enumerated. (3) Allowed custom URL-category identifiers — `ip_categories` is documented as "Only Custom categories allowed" with example `CUSTOM_01` (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall.py:430`) but no source enumerates or validates the allowed identifiers. (4) `DSTN_DOMAIN` field requirement — it appears only in the four-value enum lists with no example or per-type field rule (vs `DSTN_FQDN` using `addresses`). (5) `tag` and `creatorContext` semantics — both exist on the Python Network Service model (`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_nw_service.py:34`, `:36`) but carry no description or allowed-values documentation. (6) Caps and ordering — no mined source states a hard cap on addresses per destination group or ports per network service, nor a precedence rule among the four port arrays.
-
-**Status**: open
-**Resolves with**: lab test (read live network services / destination groups to observe `type`, country, and category values and any caps) OR zscaler doc not yet read (Network Services and IP Destination Groups reference)
 
 ---
 
@@ -4418,18 +4259,6 @@ Three Private Service Edge questions the captured help pages do not settle. (1) 
 **Resolves with**: zscaler doc not yet read (PSE deployment / NAT and health-monitoring articles) OR support ticket (shared-NAT and ZIA-only monitoring) OR code read (newer SDK release for a hardware-PSE service)
 
 ---
-
-### zia-63 — Sandbox MD5 blocklist quota, help-portal enum, and the MP/ATP diagnosis API gap
-
-*Origin: `references/zia/sandbox.md` § Open questions*
-
-Three Sandbox items remain open. (1) MD5 blocklist quota: the SDK exposes `RemainingFileHashes` (`vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go:20`, read via `/fileHashCount` at `:80`) but neither SDK encodes the absolute ceiling or whether it is subscription-tiered; the cap is observable per-tenant at runtime but the policy behind it is unbacked by vendored source. (2) Help-portal framing of the custom MD5 block list: the section is SDK-derived (Python + Go); how Zscaler's help portal names/positions this surface, and whether the `type` enum values (`CUSTOM_FILEHASH_DENY` / `CUSTOM_FILEHASH_ALLOW`) are the documented set vs SDK-internal, is not captured — confirm against help before treating the enum as exhaustive. (3) The MCP server documents that there is no API for Malware Protection or ATP block diagnosis (only the console Traffic Capture UI); the skill should surface this gap when users hit either policy type. (The Sandbox quota-units question was resolved 2026-04-24 — `RatingQuota` is a time-bounded report-retrieval count.)
-
-**Status**: open
-**Resolves with**: lab test (read `/fileHashCount` on tenants of different Sandbox tiers to bound the MD5 ceiling) OR zscaler doc not yet read (Sandbox custom-hash help article confirming the `type` enum)
-
----
-
 ### zia-64 — SCIM department matching, attribute length, active=false session-kill, and caps
 
 *Origin: `references/zia/scim-provisioning.md` § Open questions*
@@ -4451,18 +4280,6 @@ The snapshot doc's "Check One-Click bypass states" jq query probes `enableMsftO3
 **Resolves with**: tenant read (a tenant with the UCaaS One-Click apps enabled, to locate the real field names/endpoint) OR zscaler doc not yet read
 
 ---
-
-### zia-66 — Whether the 255 SSL Inspection rule cap is raisable
-
-*Origin: `references/zia/ssl-inspection.md` § Open questions*
-
-The ranges-and-limitations capture lists "255 rules (245 custom + 10 predefined)" for SSL Inspection Policy Rules with no raise annotation (`vendor/zscaler-help/ranges-limitations-zia.md:190`), whereas the adjacent "All Other Policy Rules" row is explicitly annotated "→ 2,048 via support" (`:191`). Absence of an annotation is not proof the SSL cap is fixed; an earlier doc assertion that "the cap is NOT raisable" had no source and was removed. Whether the 255 SSL Inspection cap can be raised via Support is unverified.
-
-**Status**: open
-**Resolves with**: zscaler doc not yet read (a Zscaler limits source stating the SSL Inspection cap is fixed or raisable) OR support ticket
-
----
-
 ### zia-67 — Tenant Profile per-app wire mechanic and v1/v2 protocol semantics
 
 *Origin: `references/zia/tenant-profiles.md` § Open questions*
@@ -4524,34 +4341,6 @@ A live ZIA `web_dlp_rules` GET returns a flat integer field `ucTemplateId`. The 
 **Resolves with**: lab test (read a DLP web rule with a notification template set; observe whether the payload also carries `notificationTemplate`/`eunTemplateId` with the same id and whether `ucTemplateId` holds a non-zero value — co-occurrence ⇒ redundant flat alias, sole template id ⇒ live rename of `eun_template_id`) OR zscaler confirmation of the field's meaning
 
 ---
-
-### zia-71 — Web-EUN explicit false: preserve vs clear on firewall-DNS rule update
-
-*Origin: `references/zia/dns-control.md` § Open questions*
-
-Go v3.8.44 corrected the firewall-DNS wire key to `isWebEUNEnabled`, but the
-boolean still carries `omitempty`, so an explicit Go `false` is omitted from the
-request
-(`vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:155-156`).
-Python v1.9.39 emits its boolean under the differently cased
-`isWebEunEnabled` key
-(`vendor/zscaler-sdk-python/zscaler/zia/models/cloud_firewall_dns_rules.py:250-264`).
-The ZIA Ansible module passes `is_web_eun_enabled` through both its update and
-create calls
-(`vendor/ziacloud-ansible/plugins/modules/zia_cloud_firewall_dns_rules.py:640-663,670-710`),
-and its `deleteNone` helper removes `None` but preserves `false`
-(`vendor/ziacloud-ansible/plugins/module_utils/utils.py:153-160`). Static source
-therefore proves different request shapes, not the live update semantic:
-whether Go's omission preserves an existing `true`, clears it, or is treated
-the same as an explicit false remains unknown.
-
-**Status**: open
-**Resolves with**: lab test (set Web EUN true, update through Go with false and
-through Python/Ansible with false, then compare the read-back state and captured
-wire bodies)
-
----
-
 ### zia-72 — Provider v4.8.5 Creative Commons `false` backend effect
 
 *Origin: `references/zia/api-divergences.md` § Advanced URL/cloud-app settings have asymmetric SDK models and update semantics*

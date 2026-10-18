@@ -207,7 +207,7 @@ Sources per column:
   (Tier B — vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go;
   vendor/zscaler-sdk-go/zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go)
 - Firewall Filtering per-rule limit: up to 2 time windows per rule.
-  (Tier B — references/zia/firewall.md, criterion-limit table)
+  (Tier B — kb:zia.firewall, criterion-limit table)
 
 Rule types confirmed as **not** having a `time_windows` field in the Python models or Go
 structs (based on the model file listing): CASB DLP rules, CASB Malware rules, FTP
@@ -261,7 +261,7 @@ an allow rule with a business-hours window will be skipped outside those hours, 
 whether access is then permitted or denied depends on what lower-priority rules (or the
 default rule) determine.
 (Tier A — vendor/zscaler-help/about-time-intervals.md, general policy evaluation
-description; consistent with URL Filtering policy evaluation in references/zia/url-filtering.md)
+description; consistent with URL Filtering policy evaluation in kb:zia.url-filtering)
 
 ## 5. Holidays and exceptions
 
@@ -423,7 +423,7 @@ deferred question (see Section 8 and the clarifications file).
 Source: `vendor/zscaler-help/about-time-intervals.md`; `vendor/zscaler-sdk-python/zscaler/zia/time_intervals.py`.
 
 Firewall filtering rules accept a maximum of 2 time windows per rule.
-(Tier B — references/zia/firewall.md, criterion-limit table)
+(Tier B — kb:zia.firewall, criterion-limit table)
 
 No cap on the total number of time interval objects per tenant is documented in available
 sources.
@@ -469,9 +469,9 @@ cadence rather than rule activation windows.
 
 ## 9. Cross-links
 
-- [ZIA Firewall Filtering](./firewall.md) — criterion limits including the 2-time-window cap
+- [ZIA Firewall Filtering](kb:zia.firewall) — criterion limits including the 2-time-window cap
 - [ZIA URL Filtering](kb:zia.url-filtering) — Time as a rule criterion in the criteria-logic diagram
-- [ZIA DLP](./dlp.md) — DLP web rules (time windows absent from Python model)
+- [ZIA DLP](kb:zia.dlp) — DLP web rules (time windows absent from Python model)
 - [ZIA Bandwidth Control](./bandwidth-control.md) — time-windowed contention rules guidance
 - [ZIA SDK reference](./sdk.md) — `TimeIntervalsAPI` entry; `FirewallNetworkResourcesAPI` for `list_time_windows`
 - [ZIA Terraform reference](./terraform.md) — `zia_firewall_filtering_time_window` data source

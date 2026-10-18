@@ -88,6 +88,21 @@ test("quotes anchor at each listed git ref; code removed at the pin fails there 
   assert.doesNotMatch(both.errors[0], /@v1\.0\.0/);
 });
 
+test("a pointer must resolve, and expect pins the members the claim rests on", () => {
+  const spec = { rules: [{ name: "action", type: "object", required: true }], keyed: { action: { type: "object", required: true } } };
+  const g = graphOf(tmpRepo({ "vendor/fake/spec.json": spec }));
+  const ev = { source: "fake-help", path: "spec.json", pointer: "/rules/0" };
+  const keyed = { source: "fake-help", path: "spec.json", pointer: "/keyed/action" };
+  assert.deepEqual(anchorEvidence(g, { ...keyed, expect: { type: "object", required: true } }).errors, []);
+  assert.match(anchorEvidence(g, { ...keyed, expect: { required: false } }).errors[0], /member required is true, expected false/);
+  assert.match(anchorEvidence(g, { ...ev, pointer: "/rules/9", expect: { name: "x" } }).errors.join(" "), /does not resolve/);
+  assert.match(anchorEvidence(g, { ...ev, expect: { name: "action" } }).errors[0], /by index/);
+  assert.deepEqual(anchorEvidence(g, { ...ev, pointer: "/rules/[name=action]", expect: { type: "object" } }).errors, []);
+  assert.match(anchorEvidence(g, { ...ev, pointer: "/rules/[name=nope]", expect: { type: "object" } }).errors[0], /does not resolve/);
+  const noExpect = tmpRepo({ "vendor/fake/spec.json": spec, "references/zia/zia.example.json": subject({ claims: { c: { statement: "s", tier: "A", evidence: [keyed] } } }) });
+  assert.ok(messages(noExpect, { citations: false }).some((m) => /oneOf/.test(m)));
+});
+
 test("anchoring ignores PDF private-use glyphs and zero-width characters", () => {
   const root = tmpRepo({ "vendor/fake/doc.txt": "permitted without any\n   \nrestrictions if​ disabled" });
   const r = anchorEvidence(graphOf(root), { source: "fake-help", path: "doc.txt", quotes: ["permitted without any restrictions if disabled"] });

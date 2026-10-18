@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.doh",
+  "title": "DNS over HTTPS in DNS Control",
+  "aliases": [
+    "doh",
+    "dns over https",
+    "doh blocking",
+    "does dns control inspect doh",
+    "DOHTTPS_RULE",
+    "REDIR_REQ_DOH"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#protocols",
+    "zia/firewall-dns-rules#action"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    }
+  ],
+  "claims": {
+    "doh-covered": {
+      "statement": "Zscaler states DNS Control monitors and applies policy to all DNS requests and responses irrespective of protocol and encryption, including UDP, TCP and DNS over HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "Monitor and apply policies to all DNS requests and responses, irrespective of the protocol and the encryption used. This includes UDP, TCP, and DNS over HTTPS (DoH)."
+          ]
+        }
+      ]
+    },
+    "doh-protocol-value": {
+      "statement": "The rule `protocols` field has a DNS-over-HTTPS value `DOHTTPS_RULE`, alongside `ANY_RULE`, `SMRULEF_CASCADING_ALLOWED`, `TCP_RULE` and `UDP_RULE`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "Supported Values: \"ANY_RULE\", \"SMRULEF_CASCADING_ALLOWED\", \"TCP_RULE\", \"UDP_RULE\", \"DOHTTPS_RULE\""
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#protocols"
+      ]
+    },
+    "doh-protocol-choice": {
+      "statement": "A rule's Protocols condition offers DNS Over HTTPS, TCP and UDP; the options shown narrow with the chosen action (for example, only DoH and TCP for Redirect Request Using TCP).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "Select the protocols you want to control from DNS Over HTTPS, TCP, and UDP.",
+            "The protocols displayed might vary with the Action selected for the rule."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#protocols"
+      ]
+    }
+  },
+  "gaps": {
+    "doh-needs-decryption": {
+      "kind": "semantic",
+      "title": "Whether DoH queries are matched by DNS Control without SSL inspection of the DoH provider",
+      "status": "open",
+      "about": [
+        "zia/firewall-dns-rules#protocols"
+      ],
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying whether a DoH-blocking DNS rule works for uninspected DoH providers",
+      "detail": "Unverified legacy statement: \"For ZIA to inspect the DNS payload and apply DNS Control rules to it, SSL Inspection must be enabled for the DoH provider's domain (e.g., cloudflare-dns.com, dns.google). Without decryption, ZIA sees an HTTPS flow to a DoH endpoint; DNS Control doesn't engage on the inner DNS query.\" Also: the operator can combine SSL Inspection with DNS Control, or block DoH providers at URL Filtering or Firewall Filtering; without decryption the operator cannot match query name, record type or response inside DoH; the help statement is 'contingent on' SSL Inspection. The help pages say DoH is covered 'irrespective of the protocol and the encryption used' and do not mention a dependency. Test a DoH query to a provider outside any SSL inspection rule against a DNS rule scoped to DoH and read the log. Also: operators who enable DoH-blocking via DNS Control without SSL Inspection covering DoH endpoints \"get false confidence; DoH flows to uninspected providers are opaque.\""
+    }
+  }
+}

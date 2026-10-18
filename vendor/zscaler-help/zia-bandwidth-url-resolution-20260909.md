@@ -1,17 +1,49 @@
-SCOPE: URL resolution and plain-reader behavior for the two Configuring Bandwidth Classes URLs.
-**Captured:** 2026-09-09T16:25:47.853Z browser body; 2026-09-09T16:25:56Z HTTP response headers/body probe.
+# Configuring Bandwidth Classes
 
-REQUESTED-URL: https://help.zscaler.com/zia/adding-bandwidth-classes
-BROWSER INITIAL OBSERVATION: newly created Chrome tab initially reported URL/title "https://help.zscaler.com/zia/adding-bandwidth-classes" / "help.zscaler.com/zia/adding-bandwidth-classes" while the cookie shell was loading.
-BROWSER LOADED OBSERVATION: after client rendering, browser URL became https://help.zscaler.com/zia/Configuring-bandwidth-classes; document.title became "Configuring Bandwidth Classes | Zscaler"; canonical link became https://help.zscaler.com/zia/Configuring-bandwidth-classes.
-BROWSER BODY RESULT: same rendered article body as the direct capital-C URL; see zia-configuring-bandwidth-classes-20260909.md.
+**Source:** https://help.zscaler.com/zia/configuring-bandwidth-classes
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1399911, revision 3243721
 
-REQUESTED-URL: https://help.zscaler.com/zia/Configuring-bandwidth-classes
-BROWSER LOADED OBSERVATION: browser URL remained https://help.zscaler.com/zia/Configuring-bandwidth-classes; document.title was "Configuring Bandwidth Classes | Zscaler"; canonical link was https://help.zscaler.com/zia/Configuring-bandwidth-classes.
-BROWSER BODY RESULT: same rendered article body as the lowercase requested URL; see zia-configuring-bandwidth-classes-20260909.md.
+---
 
-HTTP PROBE (curl -L -o /dev/null -w): all six requested URLs returned HTTP 200 and content type text/html; charset=utf-8; each downloaded 1890 bytes. For the lowercase adding URL, url_effective remained https://help.zscaler.com/zia/adding-bandwidth-classes. Thus no HTTP 3xx Location redirect was observed; the capital-C resolution is client-side application routing after the server returns the JavaScript shell.
-
-HTTP RESPONSE HEADERS (lowercase adding URL): HTTP/2 200; server CloudFront; content-length 1890; date Wed, 09 Sep 2026 16:25:56 GMT; cache-control public, s-maxage=31536000, max-age=0, must-revalidate.
-
-PLAIN-READER RESULT: web text extraction of the requested Help pages returned only "If you're seeing this message, that means JavaScript has been disabled on your browser, please enable JS to make this app work." The browser-rendered captures in this directory are therefore the required body evidence; do not treat the one-line plain-reader shell as article content.
+Watch a video about Bandwidth Classes (shows legacy UI).
+Bandwidth classes identify the URL categories and applications to which the service allocates bandwidth. You must configure the bandwidth classes before you can reference them in the Bandwidth Control policy rules. To configure cloud application bandwidth classes, edit the predefined bandwidth classes or add new bandwidth classes (custom), then group URL categories, applications, or domains into the bandwidth classes.
+On the Cloud Applications tab:
+- You can add up to 245 custom bandwidth classes.
+- You can have up to 8 bandwidth classes with custom domains.
+- You can add up to 25,000 domains across all bandwidth classes (including URL categories).
+# Managing Predefined Bandwidth Classes
+The Cloud Applications tab lists predefined bandwidth classes to which you can add URL domains. You can also add your own custom domains. To learn more about predefined bandwidth classes, see About Bandwidth Classes.
+The following are the predefined bandwidth classes:
+- File Share: Includes URLs that represent file-sharing sites.
+- Finance: Includes URLs that represent business-oriented, financial web-based applications or tools, such as Smith Barney or E*Trade.
+- General Surfing: Includes all URL categories and cloud apps that do not fall into the following categories: Webmail, Instant Messaging, Streaming Media/File Share, and Social Networks/Blogging. This class can't be edited.
+- Sales/Support Apps: Includes URLs that represent business-oriented, sales/support web-based applications or tools, such as Salesforce or NetSuite.
+- Streaming Media: Includes URLs that represent streaming sites.
+To manage domains to the predefined bandwidth classes:
+- From the navigation menu, go to Internet Access > Resources > Bandwidth Classes.
+- Go to the Cloud Applications tab.
+- Click the Edit icon next to the bandwidth class you want to edit.
+- The Edit Bandwidth Class drawer appears.
+- In the Edit Bandwidth Class drawer:
+  - Domains: Enter the URLs you want to include in the bandwidth class, and click Add. Use the URL format guidelines for adding domains.
+  - Click the Edit or Delete icon to modify or remove an existing domain, respectively.
+- See image.
+- Click Save and activate your changes.
+You cannot delete a predefined bandwidth class.
+# Adding Custom Bandwidth Classes
+In addition to predefined bandwidth classes, you can add custom bandwidth classes and specify the URL categories and cloud applications. If you have created a custom bandwidth class that isn't being used in any policies for a location, then the custom class is added to the location’s default Bandwidth Control rule. The default rule includes all internet traffic not covered by other rules. By default, it's not guaranteed any bandwidth, but it can consume up to 100% of the bandwidth when available.
+To add a custom bandwidth class:
+- Go to Internet Access > Resources > Bandwidth Classes.
+- Go to the Cloud Applications tab.
+- Click Add Bandwidth Class.
+- The Add Bandwidth Class drawer appears.
+- In the Add Bandwidth Class drawer:
+  - Name: Enter a name for the class.
+  - Definition: Displays custom in the field. This is a non-editable field.
+  - URL Categories: Select URL categories to add to the bandwidth class.
+  - Cloud Applications: Select cloud applications to add to the bandwidth class. You can select cloud application categories or individual cloud applications.
+  - See image.
+  - Domains: Enter the URLs that you want to include in the bandwidth class and click Add Items. You can enter multiple entries. Press Enter after each entry. You can add domains for up to 8 individual bandwidth classes. For guidance on entering URLs, see the URL format guidelines. For item lists, you can view up to 500 items on a page; filter the list by searching for a word, phrase, or number contained in an item; and remove the first 25,000 items from the list (Remove 25K Items) or only items from a specific page (Remove Page). If you select Remove 25K Items or Remove Page, a confirmation window appears.
+- See image.
+- Click Save and activate the change.

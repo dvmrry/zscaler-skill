@@ -283,6 +283,6 @@ These claims are plausible and widely documented by the SaaS vendors themselves,
 
 ## Cross-links
 
-- CAC rule mechanics and how criteria compose: [`./cloud-app-control.md`](./cloud-app-control.md)
-- SSL inspection — pipeline position, One-Click bypass, how inspection gates post-decrypt feature enforcement: [`./ssl-inspection.md`](./ssl-inspection.md)
-- DLP with tenant-restricted context (e.g., allowing data upload only to the corporate tenant): [`./dlp.md`](./dlp.md)
+- CAC rule mechanics and how criteria compose: [`zia.cloud-app-control`](kb:zia.cloud-app-control)
+- SSL inspection — pipeline position, One-Click bypass, how inspection gates post-decrypt feature enforcement: [`zia.ssl-inspection`](kb:zia.ssl-inspection)
+- DLP with tenant-restricted context (e.g., allowing data upload only to the corporate tenant): [`zia.dlp`](kb:zia.dlp)

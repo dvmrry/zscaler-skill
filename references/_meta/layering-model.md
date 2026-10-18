@@ -107,7 +107,7 @@ Cited sources in the answer should attribute by layer:
 
 ```
 ## Sources
-- references/zia/url-filtering.md § Rule precedence (Layer 1: general)
+- kb:zia.url-filtering § Rule precedence (Layer 1: general)
 - overlay IaC for zia/url-filtering-rules, rule 47 (Layer 2: this tenant)
 - _data/knowledge/zia/gre-mtu-flap.md (Layer 3: local operational knowledge)
 ```

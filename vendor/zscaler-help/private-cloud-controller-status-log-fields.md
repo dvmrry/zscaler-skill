@@ -1,48 +1,51 @@
 # Understanding Private Cloud Controller Status Log Fields
 
 **Source:** https://help.zscaler.com/zpa/understanding-private-cloud-controller-status-log-fields
-**Captured:** 2026-04-28 via Playwright MCP.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1510696, revision 3203397
+
+---
 
 The Log Streaming Service (LSS) can send Private Cloud Controller Status log information to any third-party log analytics tool. By default, the Private Cloud Controller Status log type includes the fields listed in the following table for each log template (i.e., CSV, JSON, TSV). While configuring your log receiver, you can edit the default log stream content to capture only specific fields, and create a custom log template. The supported log field format specification must be included (i.e., %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o).
-
-## Field Table
-
+- View an example Private Cloud Controller Status log.
+- {"LogTimestamp": "Wed Aug 21 09:23:34 2024","Customer": "ddiltest.com","SessionID": "QljAAN/LRCDkqqJpEo8U","SessionType": "ZPN_TUNNEL_CONTROL","SessionStatus": "ZPN_STATUS_AUTHENTICATED","Version": "24.353.4-230-g1d191f1abe","PackageVersion": "","Platform": "el7","ZEN": "unset","PrivateCloudController": "Sample-PCC-1","PrivateCloudControllerGroup": "Sample-PCC-group","PrivateIP": "10.18.11.214","PublicIP": "10.18.11.214","Latitude": 12.971599,"Longitude": 77.594563,"CountryCode": "IN","TimestampAuthentication": "2024-08-21T09:23:34.903Z","TimestampUnAuthentication": "","CPUUtilization": 7,"MemUtilization": 4,"InterfaceDefRoute": "eth0","DefRouteGW": "10.18.0.1","PrimaryDNSResolver": "10.18.0.2","HostUpTime": "1718277251","PrivateCloudControllerStartTime": "1724232211","NumOfInterfaces": 5,"BytesRxInterface": 65413384825,"PacketsRxInterface": 654880671,"ErrorsRxInterface": 0,"DiscardsRxInterface": 0,"BytesTxInterface": 59824288939,"PacketsTxInterface": 652135932,"ErrorsTxInterface": 0,"DiscardsTxInterface": 0,"TotalBytesRx": 1835,"TotalBytesTx": 0,"MicroTenantID": "0"}
+The following table includes descriptions and supported field format specifications for each field within the template. To learn more about the format specifications listed for each field, including examples, see Understanding the Log Stream Content Format.
 | Field | Description | Supported Field Format Specifications |
 |---|---|---|
-| LogTimestamp | The timestamp when the log was generated | %[OPT]s, %[OPT]j, %[OPT]J |
-| Customer | The customer name | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| SessionID | The TLS session ID | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| SessionType | The type of session. The expected value for this field is ZPN_TUNNEL_CONTROL, which denotes the session from the Private Cloud Controller towards the closest Public Service Edge for Private Access. | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| SessionStatus | The status of the session. Expected values: ZPN_STATUS_AUTHENTICATED (successfully authenticated), ZPN_STATUS_AUTH_FAILED (failed to authenticate), ZPN_STATUS_DISCONNECTED (disconnected from a Service Edge) | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| Version | The Private Cloud Controller package version | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| PackageVersion | The package version | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| Platform | The host platform | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| ZEN | The Public Service Edge that was selected for the connection | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| PrivateCloudController | The Private Cloud Controller name | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| PrivateCloudControllerGroup | The Private Cloud Controller group name | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| PrivateIP | The private IP address of the Private Cloud Controller | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| PublicIP | The public IP address of the Private Cloud Controller | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| Latitude | The latitude coordinate of the Private Cloud Controller location | %[OPT]f, %[OPT]o |
-| Longitude | The longitude coordinate of the Private Cloud Controller location | %[OPT]f, %[OPT]o |
-| CountryCode | The country code | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| TimestampAuthentication | The timestamp in microseconds when the Private Cloud Controller was authenticated | %[OPT]s, %[OPT]j, %[OPT]J |
-| TimestampUnAuthentication | The timestamp in microseconds when the Private Cloud Controller was unauthenticated | %[OPT]s, %[OPT]j, %[OPT]J |
-| CPUUtilization | The CPU utilization in % | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| MemUtilization | The memory utilization in % | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| InterfaceDefRoute | The name of the interface to default route | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| DefRouteGW | The IP address of the gateway to default route | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| PrimaryDNSResolver | The IP address of the primary DNS resolver | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| HostUpTime | The time in seconds at which host was started | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| PrivateCloudControllerStartTime | The time in seconds at which the Private Cloud Controller was started | %[OPT]s, %[OPT]j, %[OPT]J, %[OPT]o |
-| NumOfInterfaces | The number of interfaces on the Private Cloud Controller host | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| BytesRxInterface | The bytes received on the interface | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| PacketsRxInterface | The packets received on the interface | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| ErrorsRxInterface | The errors received on the interface | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| DiscardsRxInterface | The discards received on the interface | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| BytesTxInterface | The bytes transmitted on the interface | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| PacketsTxInterface | The packets transmitted on the interface | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| ErrorsTxInterface | The errors transmitted on the interface | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| DiscardsTxInterface | The discards transmitted on the interface | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| TotalBytesRx | The total bytes received | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| TotalBytesTx | The total bytes transmitted | %[OPT]d, %[OPT]x, %[OPT]f, %[OPT]o |
-| MicroTenantID | The Microtenant ID of the Private Cloud Controller | %[OPT]s, %[OPT]j |
+| LogTimestamp | The timestamp when the log was generated | %[OPT]s%[OPT]j%[OPT]J |
+| Customer | The customer name | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| SessionID | The TLS session ID | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| SessionType | The type of session. The expected value for this field is ZPN_TUNNEL_CONTROL, which denotes the session from the Private Cloud Controller towards the closest Public Service Edge for Private Access. | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| SessionStatus | The status of the session. The expected values for this field are:ZPN_STATUS_AUTHENTICATED: The Private Cloud Controller successfully authenticated in Private AccessZPN_STATUS_AUTH_FAILED: The Private Cloud Controller failed to authenticate in Private AccessZPN_STATUS_DISCONNECTED: The Private Cloud Controller disconnected from a Service Edge for Private Access | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| Version | The Private Cloud Controller package version | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| PackageVersion | The package version | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| Platform | The host platform | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| ZEN | The Public Service Edge that was selected for the connection | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| PrivateCloudController | The Private Cloud Controller name | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| PrivateCloudControllerGroup | The Private Cloud Controller group name | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| PrivateIP | The private IP address of the Private Cloud Controller | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| PublicIP | The public IP address of the Private Cloud Controller | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| Latitude | The latitude coordinate of the Private Cloud Controller location | %[OPT]f%[OPT]o |
+| Longitude | The longitude coordinate of the Private Cloud Controller location | %[OPT]f%[OPT]o |
+| CountryCode | The country code | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| TimestampAuthentication | The timestamp in microseconds when the Private Cloud Controller was authenticated | %[OPT]s%[OPT]j%[OPT]J |
+| TimestampUnAuthentication | The timestamp in microseconds when the Private Cloud Controller was unauthenticated | %[OPT]s%[OPT]j%[OPT]J |
+| CPUUtilization | The CPU utilization in % | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| MemUtilization | The memory utilization in % | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| InterfaceDefRoute | The name of the interface to default route | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| DefRouteGW | The IP address of the gateway to default route | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| PrimaryDNSResolver | The IP address of the primary DNS resolver | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| HostUpTime | The time in seconds at which host was started | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| PrivateCloudControllerStartTime | The time in seconds at which the Private Cloud Controller was started | %[OPT]s%[OPT]j%[OPT]J%[OPT]o |
+| NumOfInterfaces | The number of interfaces on the Private Cloud Controller host | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| BytesRxInterface | The bytes received on the interface | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| PacketsRxInterface | The packets received on the interface | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| ErrorsRxInterface | The errors received on the interface | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| DiscardsRxInterface | The discards received on the interface | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| BytesTxInterface | The bytes transmitted on the interface | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| PacketsTxInterface | The packets transmitted on the interface | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| ErrorsTxInterface | The errors transmitted on the interface | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| DiscardsTxInterface | The discards transmitted on the interface | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| TotalBytesRx | The total bytes received | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| TotalBytesTx | The total bytes transmitted | %[OPT]d%[OPT]x%[OPT]f%[OPT]o |
+| MicroTenantID | The Microtenant ID of the Private Cloud Controller | %[OPT]s%[OPT]j |

@@ -20,6 +20,8 @@ class AnchorCase:
     needles: tuple[str, ...]
 
 
+# references/zia/dlp.md was converted to the knowledge graph; its content-location scopes are now
+# cited by keyed pointer in zia.dlp.rule-wire-shape and checked by `node scripts/kb.mjs validate`.
 CASES = [
     AnchorCase(
         "references/zia/api-divergences.md",
@@ -463,33 +465,6 @@ CASES = [
         2572,
         2572,
         ("copyPaste=all", "uploadDownload=all"),
-    ),
-    AnchorCase(
-        "references/zia/dlp.md",
-        "`dlp_content_locations_scopes`",
-        "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:124071-124083",
-        "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json",
-        124071,
-        124083,
-        ('"name": "dlpContentLocationsScopes"', '"HTTP_BODY"', "content locations"),
-    ),
-    AnchorCase(
-        "references/zia/dlp.md",
-        "`dlp_content_locations_scopes`",
-        "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:146797-146810",
-        "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json",
-        146797,
-        146810,
-        ('"name": "dlpContentLocationsScopes"', '"FILE_CONTENT"'),
-    ),
-    AnchorCase(
-        "references/zia/dlp.md",
-        "`dlp_content_locations_scopes`",
-        "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:181309-181321",
-        "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json",
-        181309,
-        181321,
-        ('"name": "dlpContentLocationsScopes"', '"FILENAME"', "content locations"),
     ),
     AnchorCase(
         "references/shared/secret-bearing-api-surfaces.md",

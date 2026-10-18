@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.traffic-path",
+  "title": "Where the firewall sits in the traffic path",
+  "aliases": [
+    "firewall before web module",
+    "firewall vs web module",
+    "firewall block or web block",
+    "firewall insights vs web insights",
+    "z-tunnel 1.0 firewall",
+    "pac firewall"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-rule-attribution"
+    }
+  ],
+  "claims": {
+    "firewall-first": {
+      "statement": "All web traffic is evaluated in the firewall module first, and only traffic that does not violate a firewall policy is forwarded to the web module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "All web traffic is first evaluated in the firewall module and only if it passes the firewall module"
+          ]
+        }
+      ]
+    },
+    "nonweb-firewall-only": {
+      "statement": "Outbound traffic to ports other than 80/443 (or other HTTP or HTTPS ports) goes directly to the firewall module and is blocked if it violates a firewall policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "it sends the traffic directly to the firewall module for policy evaluation."
+          ]
+        }
+      ]
+    },
+    "firewall-beats-web-allow": {
+      "statement": "If a web policy allows a transaction but a conflicting firewall policy blocks it, the firewall policy applies: for example, Cloud App Control allowing Box.com does not help when the firewall blocks it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "has a conflicting firewall policy that",
+            "the service blocks the transaction."
+          ]
+        }
+      ]
+    },
+    "enforcement-conditions": {
+      "statement": "The firewall module enforces on web traffic only when the traffic is outbound, from the user to the web, and the organization has enabled a firewall policy for the location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "going from the user to the web.",
+            "The organization has enabled a firewall policy for the location."
+          ]
+        }
+      ]
+    },
+    "explicit-forwarding-tuples": {
+      "statement": "For remote users on explicit forwarding, the firewall evaluates both the inner and the outer tuples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "Zscaler evaluates both the inner and",
+            "outer tuples."
+          ]
+        }
+      ]
+    },
+    "firewall-block-both-logs": {
+      "statement": "When web traffic violates a firewall policy, both the Firewall Insights and Web Insights logs show it blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "both the Firewall and the Web Insights logs"
+          ]
+        }
+      ]
+    },
+    "web-block-firewall-allowed": {
+      "statement": "When traffic passes the firewall policy but violates a web policy, Firewall Insights shows it allowed and Web Insights shows it blocked.",
+      "tier": "A",
+      "gaps": [
+        "web-block-firewall-log-conflict"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "Insights logs indicate that the traffic is allowed, whereas the Web"
+          ]
+        }
+      ]
+    },
+    "firewall-log-action": {
+      "statement": "The firewall NSS feed records the action as Allowed or Blocked, and the name of the rule applied to the transaction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "The action that the service took on the transaction: Allowed or Blocked",
+            "The name of the rule that was applied to the transaction"
+          ]
+        }
+      ]
+    },
+    "ztunnel-pac-opt-in": {
+      "statement": "For Z-Tunnel 1.0 and PAC traffic, the firewall must be enabled in Advanced Settings for this type of traffic: the option is Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "ensure that the firewall is enabled for this type of traffic in the Advanced Settings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.md",
+          "quotes": [
+            "you must enable the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "web-block-firewall-log-conflict": {
+      "kind": "semantic",
+      "title": "Does the firewall log show a web-module block as allowed or blocked",
+      "status": "open",
+      "detail": "The policy-enforcement guide says Firewall Insights shows traffic that passes the firewall but violates a web policy as allowed. Later, for HTTP traffic, it says that when the web module blocks a transaction the Public Service Edge does not send the traffic to the firewall module, 'However, your firewall logs show that the user's web transaction is blocked.' The two statements are in the same guide and are not reconciled.",
+      "blocks": "using the firewall log action alone to tell a firewall block from a web block",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "However, your firewall logs show that the user's web transaction is blocked."
+          ]
+        }
+      ]
+    },
+    "module-internal-order": {
+      "kind": "semantic",
+      "title": "Evaluation order among Filtering, NAT, DNS, IPS and FTP",
+      "status": "open",
+      "detail": "The old reference asserted both a fixed sequence (Filtering, NAT, DNS, IPS, FTP) and, separately, that NAT Control evaluates before Firewall Filtering, and that a flow traverses all four with a block from any dropping it. No captured source states an order or a traversal rule among the firewall policies. The only ordering stated is that ATP rules evaluate before IPS Control rules.",
+      "blocks": "answering whether a NAT rewrite changes what Filtering sees",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "about": [
+        "zia.firewall.nat:dnat-surface"
+      ]
+    },
+    "ztunnel-2-firewall": {
+      "kind": "semantic",
+      "title": "Whether Z-Tunnel 2.0 engages the firewall without an option",
+      "status": "open",
+      "detail": "The old reference said Z-Tunnel 2.0 forwarding engages the firewall automatically and that without the opt-in the firewall and IPS never run on Z-Tunnel 1.0 and PAC traffic. The captures only say the firewall must be enabled for Z-Tunnel 1.0 and PAC; they say nothing about Z-Tunnel 2.0.",
+      "blocks": "explaining why firewall rules do or do not apply to a forwarding method",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

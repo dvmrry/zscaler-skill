@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.api-rules",
+  "title": "DNS Control rule resource over the API",
+  "aliases": [
+    "firewallDnsRules",
+    "firewall dns rules api",
+    "dns rule put replace",
+    "isWebEUNEnabled",
+    "isWebEunEnabled",
+    "zpaIpGroup omitempty",
+    "enabled to state dns rule",
+    "dns rule protocols enum"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#state",
+    "zia/firewall-dns-rules#protocols",
+    "zia/firewall-dns-rules#applications",
+    "zia/firewall-dns-rules#zpaIpGroup",
+    "zia/firewall-dns-rules#ednsEcsObject",
+    "zia/firewall-dns-rules#dnsGateway",
+    "zia/firewall-dns-rules#isWebEUNEnabled",
+    "zia/firewall-dns-rules#isWebEunEnabled",
+    "zia/firewall-dns-rules#defaultDnsRuleNameUsed"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.delete-detach"
+    }
+  ],
+  "claims": {
+    "endpoint": {
+      "statement": "DNS rules use the dedicated endpoint `/zia/api/v1/firewallDnsRules`, separate from Firewall Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "firewallDnsRulesEndpoint = \"/zia/api/v1/firewallDnsRules\""
+          ]
+        }
+      ]
+    },
+    "update-is-put": {
+      "statement": "Updating a DNS rule is a PUT full replacement, not a patch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "(*FirewallDNSRules, error) { resp, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", firewallDnsRulesEndpoint, ruleID), *rules)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py",
+          "quotes": [
+            "\"\"\"Update a ZIA Cloud Firewall DNS rule (write, PUT-replace). Activate after.\"\"\""
+          ]
+        }
+      ]
+    },
+    "mcp-update-no-readback": {
+      "statement": "The MCP update tool builds its payload from the supplied fields and sends it straight to the SDK `update_rule`; it does not read the existing rule first.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/cloud_firewall_dns_rules.py",
+          "quotes": [
+            "rule, _, err = client.zia.cloud_firewall_dns.update_rule(args.rule_id, **payload)"
+          ]
+        }
+      ],
+      "conditions": "Rests on reading the tool: no get call appears before update_rule in the function. The omission semantics of build_rule_payload were not read."
+    },
+    "enabled-to-state": {
+      "statement": "The Python SDK converts the `enabled` boolean to the wire field `state` with `ENABLED` or `DISABLED`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_dns.py",
+          "quotes": [
+            "body[\"state\"] = \"ENABLED\" if body.pop(\"enabled\") else \"DISABLED\""
+          ],
+          "after": "def update_rule(self, rule_id: int, **kwargs)"
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#state"
+      ]
+    },
+    "protocols-enum": {
+      "statement": "The `protocols` values documented in the Go struct are `ANY_RULE`, `SMRULEF_CASCADING_ALLOWED`, `TCP_RULE`, `UDP_RULE`, `DOHTTPS_RULE`; the Python docstring gives only TCP, UDP, DOHTTPS as examples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "Supported Values: \"ANY_RULE\", \"SMRULEF_CASCADING_ALLOWED\", \"TCP_RULE\", \"UDP_RULE\", \"DOHTTPS_RULE\""
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#protocols"
+      ]
+    },
+    "zpa-ip-group-always-sent": {
+      "statement": "In Go, `zpaIpGroup` has no `omitempty`, so it is serialized even when nil, unlike most fields on the struct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "ZPAIPGroup *common.IDName `json:\"zpaIpGroup\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#zpaIpGroup"
+      ]
+    },
+    "python-edns-type": {
+      "statement": "The Python model assigns `edns_ecs_object` twice, first as a `ResourceReference` and then overwrites it with `CommonBlocks`, so the effective parse type is `CommonBlocks`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloud_firewall_dns_rules.py",
+          "quotes": [
+            "self.edns_ecs_object = common.ResourceReference(config[\"ednsEcsObject\"])",
+            "self.edns_ecs_object = common.CommonBlocks(config[\"ednsEcsObject\"])"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#ednsEcsObject"
+      ]
+    },
+    "python-id-wrapping": {
+      "statement": "The Python SDK's request-side id remapping list does not include `dns_gateway`, `zpa_ip_group` or `edns_ecs_object`, so a scalar id given for them is sent as-is rather than wrapped as `{id: ...}`, while the response parser reads them back as objects.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_dns.py",
+          "quotes": [
+            "transform_common_id_fields(reformat_params, body, body)"
+          ],
+          "after": "def add_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "(\"zpa_application_segment_groups\", \"zpaApplicationSegmentGroups\"),"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#dnsGateway",
+        "zia/firewall-dns-rules#zpaIpGroup",
+        "zia/firewall-dns-rules#ednsEcsObject"
+      ],
+      "conditions": "Rests on the absence of the three keys from reformat_params in zscaler/utils.py, found by searching that list; the transform's behavior for unlisted keys was not re-read."
+    },
+    "ansible-uses-python": {
+      "statement": "The ZIA Ansible module passes `is_web_eun_enabled` into the Python SDK's `update_rule`, so it inherits the Python wire spelling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_cloud_firewall_dns_rules.py",
+          "quotes": [
+            "updated_rule, _unused, error = client.cloud_firewall_dns.update_rule(**update_data)"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#isWebEunEnabled"
+      ]
+    },
+    "go-web-eun-omitempty": {
+      "statement": "Go emits `isWebEUNEnabled` with `omitempty`, so an explicit false is not sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "IsWebEUNEnabled bool `json:\"isWebEUNEnabled,omitempty\"`"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#isWebEUNEnabled"
+      ],
+      "gaps": [
+        "web-eun-false"
+      ]
+    },
+    "recorded-uppercase-eun": {
+      "statement": "Recorded Python integration responses from the DNS rules endpoint carry the key as `isWebEUNEnabled`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zia/cassettes/TestCloudFirewallDNSRules.yaml",
+          "after": "\"redirectIp\":\"8.8.8.8\",\"applications\":[],\"applicationGroups\":[],\"dnsRuleRequestTypes\":[],\"isEunEnabled\":false,\"eunTemplateId\":15,",
+          "quotes": [
+            "\"isWebEUNEnabled\":false,\"defaultDnsRuleNameUsed\":false,\"defaultRule\":false"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#isWebEUNEnabled"
+      ]
+    }
+  },
+  "divergences": {
+    "web-eun-key": {
+      "summary": "Spelling of the Web EUN wire key",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "Fixed mispelled attribute `isWebEunEnabled` to the expected API value `isWebEUNEnabled`"
+            ]
+          },
+          "says": "The API value is isWebEUNEnabled; Go was fixed to that in 3.8.44."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/cloud_firewall_dns_rules.py",
+            "quotes": [
+              "\"isWebEunEnabled\": self.is_web_eun_enabled,"
+            ]
+          },
+          "says": "The Python request dictionary emits isWebEunEnabled."
+        }
+      ],
+      "impact": "Python and Ansible callers may send a key the API does not recognise, so Web EUN writes may be rejected or ignored (the Go changelog says the misspelling caused payload errors on POST/PUT); compare by reading the rule back."
+    }
+  },
+  "gaps": {
+    "web-eun-false": {
+      "kind": "semantic",
+      "title": "What an omitted or explicit false Web EUN does on update",
+      "status": "open",
+      "former_ids": [
+        "zia-71"
+      ],
+      "about": [
+        "zia/firewall-dns-rules#isWebEUNEnabled",
+        "zia/firewall-dns-rules#isWebEunEnabled"
+      ],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "knowing whether Go can clear Web EUN and whether Python/Ansible spelling takes effect",
+      "detail": "Go omits false, Python emits a differently cased key. Whether omission preserves an existing true or clears it is not shown; see also the general rule-update gap in zia.sdk-go.write-encoding. Needs a live update test; do not infer equivalence between the clients."
+    }
+  }
+}

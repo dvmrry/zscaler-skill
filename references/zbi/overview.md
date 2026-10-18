@@ -223,4 +223,4 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-hel
 - Claims ledger for this refresh — [`./_claims-ledger.md`](./_claims-ledger.md)
 - ZIA URL Filter (`Isolate` action) — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZPA Isolation Policy (in the policy family evaluation order) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
-- SSL Inspection (prerequisite for isolating HTTPS) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- SSL Inspection (prerequisite for isolating HTTPS) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)

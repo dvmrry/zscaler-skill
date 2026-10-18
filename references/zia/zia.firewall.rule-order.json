@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.rule-order",
+  "title": "Firewall rule order, admin rank and predefined rules",
+  "aliases": [
+    "firewall rule precedence",
+    "ips rule order",
+    "nat rule order",
+    "default firewall rule",
+    "admin rank firewall",
+    "rule label view"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules#order",
+    "zia/firewall-filtering-rules#rank",
+    "zia/firewall-filtering-rules#defaultRule",
+    "zia/firewall-filtering-rules#predefined",
+    "zia/ips-policies#order",
+    "zia/ips-policies#rank",
+    "zia/nat-control-rules#order",
+    "zia/nat-control-rules#rank"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    }
+  ],
+  "claims": {
+    "ips-ascending-order": {
+      "statement": "IPS Control rules are evaluated in ascending numerical order of their rule order (Rule 1 before Rule 2).",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "IPS Control policy rules are evaluated in ascending numerical order."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallIpsRules/get/responses/200/content/application~1json/schema/items/properties/order",
+          "expect": {
+            "description": "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and this field specifies the order of execution for the rule."
+          }
+        }
+      ]
+    },
+    "nat-order-nth": {
+      "statement": "A NAT Control rule's order N means it is the N-th NAT Control rule of the same kind to be evaluated.",
+      "tier": "A",
+      "binds": [
+        "zia/nat-control-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/order",
+          "expect": {
+            "description": "Order of policy execution with respect to other NAT Control rules of the same kind. Order N indicates N-th NAT Control rule of the same kind is evaluated."
+          }
+        }
+      ]
+    },
+    "rank-bounds-order": {
+      "statement": "Admin rank determines the rule order that can be specified for an IPS rule. Rank can be configured only if admin ranking is enabled in Advanced Settings, and the IPS Control page shows the Admin Rank column only then.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies#rank",
+        "zia/ips-policies#order"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallIpsRules/get/responses/200/content/application~1json/schema/items/properties/rank",
+          "expect": {
+            "description": "The admin rank specified for the rule based on your assigned admin rank. Admin rank determines the rule order that can be specified for the rule. Admin rank can be configured if it is enabled in the Advanced Settings. ."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "Admin Rank: The admin rank for this rule. This is only visible if you have enabled it in the Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "ips-allow-rules-need-precedence": {
+      "statement": "To allow specific traffic past the default IPS rule, create rules of higher precedence, meaning a higher admin rank, than the default rule.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies#rank"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "You can create granular policies of higher precedence (i.e., higher admin rank) than the default rule to explicitly allow specific traffic"
+          ]
+        }
+      ]
+    },
+    "ips-views": {
+      "statement": "The IPS Control page lists rules either by rule order or by rule label.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "By default, the rules are listed in the ascending rule order.",
+            "Filter the IPS Control policy rules by Rule Label to view the rules grouped under the selected labels."
+          ]
+        }
+      ]
+    },
+    "predefined-rules-protected": {
+      "statement": "The Terraform provider refuses to delete five firewall filtering rules by name (Office 365 One Click Rule, UCaaS One Click Rule, Block All IPv6, Block malicious IPs and domains, Default Firewall Filtering Rule), and refuses any rule whose `predefined` flag is true.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#predefined",
+        "zia/firewall-filtering-rules#defaultRule"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "req.Name == \"Office 365 One Click Rule\" || req.Name == \"UCaaS One Click Rule\"",
+            "req.Name == \"Block All IPv6\" || req.Name == \"Block malicious IPs and domains\"",
+            "req.Name == \"Default Firewall Filtering Rule\"",
+            "if rule.Predefined {"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "filtering-first-match": {
+      "kind": "semantic",
+      "title": "First-match and rank semantics for Firewall Filtering and NAT rules",
+      "status": "open",
+      "detail": "The old reference said Firewall Filtering is first-match-wins in ascending order with admin rank as a gate, 'same model as URL Filtering'. The captures state ascending order for IPS rules only, and describe the Filtering order and rank fields without evaluation semantics. Whether a disabled Filtering rule holds its slot, and whether rank constrains order the way it does for URL Filtering, is not stated.",
+      "blocks": "deterministic precedence answers for overlapping Filtering rules",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go",
+          "quotes": [
+            "// Rule order number of the Firewall Filtering policy rule",
+            "// Admin rank of the Firewall Filtering policy rule"
+          ]
+        }
+      ]
+    }
+  }
+}

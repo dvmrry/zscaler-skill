@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.bypass-impact",
+  "title": "What stops working when traffic bypasses SSL/TLS inspection",
+  "aliases": [
+    "ssl bypass impact",
+    "dlp not working https",
+    "why wasn't this caught",
+    "features that need ssl inspection",
+    "sandbox ssl bypass",
+    "malware not detected https"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.exemptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox"
+    }
+  ],
+  "claims": {
+    "dependent-features": {
+      "statement": "These ZIA security features need decrypted traffic to work on encrypted transactions: Anti-Virus/Malware, Cloud Sandbox, Advanced Threat Prevention, Isolation, Data Loss Prevention, File Type Control, Inline CASB and the Intrusion Prevention System.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Many of Zscaler",
+            "security features require SSL inspection to work on encrypted transactions.",
+            "Anti-Virus/Malware",
+            "Cloud Sandbox",
+            "Advanced Threat Prevention",
+            "Data Loss Prevention (DLP)",
+            "File Type Control",
+            "Inline CASB",
+            "Intrusion Prevention System (IPS)"
+          ]
+        }
+      ]
+    },
+    "uninspected-blind": {
+      "statement": "Zscaler cannot see inside uninspected traffic, so embedded threats, inbound or outbound, are not detected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Zscaler cannot see inside uninspected traffic, meaning any embedded threats (inbound or outbound) are not detected."
+          ]
+        }
+      ]
+    },
+    "check-ssl-first": {
+      "statement": "When a dependent feature missed something on HTTPS, check whether the traffic matched a Do Not Inspect rule before looking at the feature's own policy.",
+      "tier": "B",
+      "conditions": "Diagnostic advice following from the dependency: no source states the troubleshooting order.",
+      "derived_from": [
+        "dependent-features",
+        "uninspected-blind"
+      ]
+    }
+  },
+  "gaps": {
+    "per-feature-bypass-effects": {
+      "kind": "semantic",
+      "title": "What each dependent feature does on bypassed HTTPS traffic",
+      "status": "open",
+      "detail": "Unverified legacy statement: DLP (Web, Inline CASB, Endpoint DLP sync) 'completely ineffective for HTTPS traffic'; Sandbox 'does not see files delivered over bypassed traffic'; Malware Protection 'can't scan payloads; reduced to URL/reputation matching only'; File Type Control 'MIME-type sniffing falls back to host/path heuristics; reliability drops'; ATP content-based rules 'Known-bad-URL still matches; deep-content detection doesn't'. The captured guide says only that these features require inspection. The ATP known-bad-URL part is supported by the pipeline's first-pass claims. Capturing each feature's help page would settle the rest.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

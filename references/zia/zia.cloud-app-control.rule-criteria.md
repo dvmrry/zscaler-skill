@@ -1,0 +1,5 @@
+{{criteria-expression}} Compare this with URL Filtering, where the criteria are URL categories rather than applications: [[zia.url-filtering.criteria]].
+
+The first term is the one that differs. {{apps-or-risk-profile}} {{risk-profile-covers-all}} When a rule names a Risk Profile, the question "why did this rule catch that app" becomes a question about the app's attributes: [[zia.cloud-app-control.risk-profiles]].
+
+To find which cloud application a URL belongs to, use the console tool rather than guessing from the hostname. {{url-lookup-tool}} {{urllookup-returns-categories}} The API route therefore answers a category question, not necessarily an application question; check the console tool for application identity. How CAC maps a request to an application on a shared hostname is not documented (gap `app-identity`), so treat a prediction of which CAC rule a given URL will hit as unverified until it is tested. Whether CAC can see enough to identify the app depends on decryption: [[zia.cloud-app-control.ssl-visibility]].

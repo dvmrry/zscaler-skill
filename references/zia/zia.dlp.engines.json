@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.engines",
+  "title": "DLP engines: the unit a rule references",
+  "aliases": [
+    "dlp engine",
+    "can a dlp rule use my custom dictionary",
+    "engine expression",
+    "dlp engine boolean operators",
+    "predefined dlp engine",
+    "validateDlpExpr",
+    "dlp engine channels",
+    "endpoint dlp channels"
+  ],
+  "binds": [
+    "zia/dlp-engines",
+    "zia/dlp-web-rules#dlpEngines"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.dictionaries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    }
+  ],
+  "claims": {
+    "engine-definition": {
+      "statement": "A DLP engine is a collection of one or more DLP dictionaries, and any mix of cloned, predefined and custom dictionaries can be added to one.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.md",
+          "quotes": [
+            "A Data Loss Prevention (DLP) engine is a collection of one or more DLP dictionaries."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-dictionaries.md",
+          "quotes": [
+            "Any combination of cloned, predefined, and custom dictionaries can be added to a DLP engine"
+          ]
+        }
+      ]
+    },
+    "rules-reference-engines": {
+      "statement": "DLP policy rules and Endpoint DLP policy rules must reference engines, not dictionaries. To use a custom dictionary in a rule, put it in an engine first.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#dlpEngines"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.md",
+          "quotes": [
+            "When you define your DLP policy rules and Endpoint DLP policy rules, you must reference DLP engines, rather than DLP dictionaries."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-dictionaries.md",
+          "quotes": [
+            "which is what you must reference when creating DLP policies"
+          ]
+        }
+      ]
+    },
+    "api-rule-has-engines-only": {
+      "statement": "The Web DLP rule object carries a `dlpEngines` list and no field for dictionaries, so the indirection is an API-level requirement as well as a console one.",
+      "tier": "B",
+      "binds": [
+        "zia/dlp-web-rules#dlpEngines"
+      ],
+      "conditions": "Rests on an absence in the Go SDK rule struct and the API reference's request fields for the add-rule operation: neither lists a dictionary field. Search: the field names of `request_body` for zia/data-loss-prevention/web-dlp-rule-resource-add-rule contain no name matching `dictionar`.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// The list of DLP engines to which the DLP policy rule must be applied."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/dlpEngines",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "predefined-engines-exist": {
+      "statement": "Zscaler provides predefined engines (the Match Only example names a PCI engine and a HIPAA engine) and supports custom ones. An admin can edit or clone a predefined engine as well as create a custom engine.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines#customDlpEngine",
+        "zia/dlp-engines#predefinedEngineName"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.md",
+          "quotes": [
+            "The Zscaler service provides predefined DLP engines and supports custom DLP engines.",
+            "You can edit predefined engines, create custom engines, or clone existing engines"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.md",
+          "quotes": [
+            "For example, you create a DLP rule with the PCI engine and select the Match Only option. In this case, the rule does not trigger when a transaction triggers both the PCI and HIPAA engine."
+          ]
+        }
+      ]
+    },
+    "boolean-composition": {
+      "statement": "An engine combines dictionaries with Boolean operators into a logical expression. The API expresses this as `engineExpression`, using All (AND), Any (OR), Exclude (NOT) and Sum (the total number of content matches).",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines#engineExpression"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.md",
+          "quotes": [
+            "you can also combine dictionaries with Boolean operators to create logical expressions"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpEngines/post/requestBody/content/application~1json/schema/properties/engineExpression",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "expression-wire-form": {
+      "statement": "On the wire an expression references dictionaries by ID, each wrapped in a `D` prefix and an `.S` suffix and compared with a number, for example `((D63.S > 1) AND (D38.S > 0))`. The engine object stores the expression as one string; it has no separate list of dictionaries.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-engines#engineExpression"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_engine.py",
+          "quotes": [
+            "zia.dlp.validate_dlp_expression(\"((D63.S > 1) AND (D38.S > 0))\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_engines/dlp_engines.go",
+          "quotes": [
+            "// The boolean logical operator in which various DLP dictionaries are combined within a DLP engine's expression."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpEngines/post/requestBody/content/application~1json/schema/properties/engineExpression",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ],
+      "gaps": [
+        "expression-threshold-meaning"
+      ]
+    },
+    "validate-expression-endpoint": {
+      "statement": "The API has an endpoint that validates an engine expression before it is saved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_engine.py",
+          "quotes": [
+            "Validates a DLP engine expression.",
+            "/dlpEngines/validateDlpExpr"
+          ]
+        }
+      ]
+    },
+    "engine-channels": {
+      "statement": "The DLP Engines page shows, per engine, the channels (Network Share, Personal Cloud Storage, Printing, or Removable Storage) associated with it. These are the Endpoint DLP channels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-engines.md",
+          "quotes": [
+            "Channels: The specific channels (Network Share, Personal Cloud Storage, Printing, or Removable Storage) associated with the DLP engine."
+          ]
+        }
+      ],
+      "gaps": [
+        "channel-scoping-semantics"
+      ]
+    },
+    "engine-limits": {
+      "statement": "A tenant can hold 480 custom engines with DLP Engine Expansion enabled and 58 without it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Custom DLP Engines | 480 engines (with DLP Engine Expansion enabled)58 engines (with DLP Engine Expansion disabled) |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "expression-threshold-meaning": {
+      "kind": "semantic",
+      "title": "What the number in a dictionary term such as D63.S > 1 compares against",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "stating whether the engine threshold is a match count or a confidence score",
+      "detail": "The API describes Sum as the total number of content matches, which suggests the `.S` value is a match count, but no source defines `.S`. A help article on understanding DLP engines is referenced by the captured engines article but not captured."
+    },
+    "channel-scoping-semantics": {
+      "kind": "semantic",
+      "title": "Whether a channel association limits where an engine triggers",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying that a channel-scoped engine never fires on inline web traffic",
+      "detail": "Unverified legacy statement: \"an engine can be scoped to specific channels ... engines scoped to them only trigger on that traffic type. Inline (web) DLP engines don't need channel scoping.\" The help page lists channels as a column on the engines table; no captured source says a channel association restricts an engine to that channel, or that an engine without channels is inline-only."
+    },
+    "predefined-engine-regimes": {
+      "kind": "data",
+      "title": "Unverified legacy statement: predefined engines exist per regulation such as HIPAA, PCI and GDPR",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ],
+      "blocks": "naming the predefined engines",
+      "detail": "Unverified legacy statement: \"Zscaler ships predefined engines (HIPAA, PCI, GDPR, etc.) that already combine multiple dictionaries per regulation.\" Only PCI, HIPAA and PII engines are named in help examples; GDPR and the per-regulation composition are not stated."
+    },
+    "composite-example": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: example engine (CreditCards OR SSNs) AND Healthcare",
+      "status": "wontfix",
+      "resolves_with": [
+        "design-decision"
+      ],
+      "blocks": "nothing",
+      "detail": "Unverified legacy statement: \"An engine can say '(CreditCards OR SSNs) AND Healthcare'\". Illustrative only; replaced by the expression forms in the API reference (see boolean-composition)."
+    }
+  }
+}

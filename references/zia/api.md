@@ -470,7 +470,7 @@ Cross-cutting hub for fields where `GET` and `POST`/`PUT` disagree on shape, val
 
 | Asymmetry | Topical home | Severity |
 |---|---|---|
-| **Sandbox default rule `order` is `127` on read; cannot be written as `127` (collides with default → `DUPLICATE_ITEM`).** Other ZIA rule types use `-1` as the default sentinel; sandbox is the outlier. Engineering tracks as `BUG-208047`. | [`./sandbox.md § Default rule order is 127, NOT -1`](./sandbox.md) | High — silently breaks rule-ordering math |
+| **Sandbox default rule `order` is `127` on read; cannot be written as `127` (collides with default → `DUPLICATE_ITEM`).** Other ZIA rule types use `-1` as the default sentinel; sandbox is the outlier. Engineering tracks as `BUG-208047`. | [`zia.sandbox`](kb:zia.sandbox) | High — silently breaks rule-ordering math |
 | **Location Management `tz` and `country` fields — read returns unprefixed; write-side current state TF-version-dependent.** ZIA API recently changed to return `NETHERLANDS_EUROPE_AMSTERDAM` (was `THE_NETHERLANDS_EUROPE_AMSTERDAM`). Confirmed by tf-zia#562 + v4.7.18 changelog ("align with recent API changes"). v4.7.18+ removes TF schema validation; whether the API accepts both forms or only one on write is not source-verified — three scenarios remain plausible. See [`../_meta/verification-protocol.md § Worked example`](../_meta/verification-protocol.md) for full evolution. | [`./locations.md § Edge cases (tz prefix)`](./locations.md) | High pre-v4.7.18; uncertain post-v4.7.18 (API behavior unverified) |
 | **URL Filter rule `description` whitespace and line endings normalized server-side.** What you `PUT` is not what `GET` returns; naive equality checks on round-trip falsely report drift. | [`#sdk-response-shape`](#sdk-response-shape) (this doc, in pattern callout) | Low — cosmetic but confuses diffs |
 | **User Management `auth_methods` — TF resource validator stricter than Go SDK / API.** TF data source `data_source_zia_user_management_users.go:98–99` accepts `[BASIC, DIGEST]`; TF resource `resource_zia_user_management_users.go:86` accepts only `[BASIC]`. Go SDK at `zscaler-sdk-go/zscaler/zia/services/usermanagement/users/users.go:105` validates `BASIC`-or-`DIGEST` (matching the API). DIGEST users created via portal or legacy API are readable via the data source but cannot be created or updated via the TF resource. **TF provider bug, not an API asymmetry.** Surfaced by `scripts/find-asymmetries.py` Pass 1 (intra-provider). | (TF-provider-level; no topical doc) | Medium — TF-only constraint; bypass via Go SDK or direct HTTP |
@@ -513,7 +513,7 @@ Complete list of ZIA submodules available at `vendor/zscaler-sdk-python/zscaler/
 - `casb_dlp_rules.py`, `casb_malware_rules.py` — CASB
 - `browser_control_settings.py` — Browser Control (evaluated in web module after URL filtering)
 - `atp_policy.py` — Advanced Threat Protection
-- `advanced_settings.py` — the "Advanced Policy Settings" page (controls cascading, AI/ML categorization, SafeSearch, etc. — see `references/zia/url-filtering.md`)
+- `advanced_settings.py` — the "Advanced Policy Settings" page (controls cascading, AI/ML categorization, SafeSearch, etc. — see `kb:zia.url-filtering`)
 - `dlp_dictionary.py`, `dlp_engine.py` — DLP
 - `bandwidth_classes.py`, `bandwidth_control_rules.py` — bandwidth classes and rules
 - `cloud_nss.py` — Cloud NSS feed configuration (log streaming)
@@ -540,11 +540,11 @@ Data sources mirror many of these (see `vendor/terraform-provider-zia/docs/data-
 - **Cross-SDK parity is a moving target.** The 2026-06-15 re-sweep confirmed the four named Go-only surfaces (`scim_api`, `eventlogentryreport`, `devicegroups`-write, and the now-regressed `email_profiles`) against the current Python tree, but parity drifts release-to-release in both directions — `email_profiles` landing in Python is the example. The full module diff (`vendor/zscaler-sdk-go/zscaler/zia/services/` vs `vendor/zscaler-sdk-python/zscaler/zia/`) should be re-run on each vendor refresh rather than trusted from this dated list. Whether any *other* surface beyond the four named has since gained a Python counterpart was spot-checked, not exhaustively diffed. (Tracked as `zia-51` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-51-cross-sdk-parity-drift-and-python-devicegroups-write-path).)
 - **`devicegroups` write-path in Python.** Python's `device_management.py` exposes `list_device_groups` (read) but no create/update/delete; whether the underlying `/deviceGroups` API supports group-level writes that simply aren't wrapped in the Python SDK yet (vs. being a Go-SDK-exclusive capability) is not source-verifiable from the SDK layer alone. (Tracked as `zia-51` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-51-cross-sdk-parity-drift-and-python-devicegroups-write-path).)
 
-See `zia/url-filtering.md`, `zia/ssl-inspection.md` for behavior-level clarifications.
+See `kb:zia.url-filtering`, `kb:zia.ssl-inspection` for behavior-level clarifications.
 
 ## Cross-links
 
 - URL filtering behavior — [`zia.url-filtering`](kb:zia.url-filtering)
-- Cloud App Control behavior — [`./cloud-app-control.md`](./cloud-app-control.md)
-- SSL inspection behavior — [`./ssl-inspection.md`](./ssl-inspection.md)
+- Cloud App Control behavior — [`zia.cloud-app-control`](kb:zia.cloud-app-control)
+- SSL inspection behavior — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Log stream config via Cloud NSS — [`./logs/web-log-schema.md`](./logs/web-log-schema.md)

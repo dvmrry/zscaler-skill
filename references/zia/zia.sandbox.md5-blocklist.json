@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.md5-blocklist",
+  "title": "Sandbox custom MD5 hash list",
+  "aliases": [
+    "custom md5 block list",
+    "behavioralAnalysisAdvancedSettings",
+    "file hash count",
+    "CUSTOM_FILEHASH_DENY",
+    "block a known bad hash",
+    "fileHashesToBeBlocked"
+  ],
+  "binds": [
+    "zia/sandbox-settings",
+    "zia/sandbox-settings#fileHashesToBeBlocked"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.rules"
+    }
+  ],
+  "claims": {
+    "endpoint": {
+      "statement": "Sandbox keeps a custom list of MD5 file hashes it blocks, under /zia/api/v1/behavioralAnalysisAdvancedSettings: GET reads the list and PUT replaces it.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-settings#fileHashesToBeBlocked"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "advancedSettingsEndpoint = \"/zia/api/v1/behavioralAnalysisAdvancedSettings\"",
+            "UpdateWithPut(ctx, advancedSettingsEndpoint, payload)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "Returns the custom list of MD5 file hashes that are blocked by Sandbox."
+          ]
+        }
+      ]
+    },
+    "two-shapes": {
+      "statement": "The list has two wire shapes. A flat `fileHashesToBeBlocked` array of strings, and a richer `md5HashValueList` of objects with `url` (the MD5), `urlComment` and `type`. The Python SDK documents `type` as CUSTOM_FILEHASH_DENY or CUSTOM_FILEHASH_ALLOW; the Go source illustrates it only as \"MALWARE\".",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-settings#fileHashesToBeBlocked"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "FileHashesToBeBlocked []string `json:\"fileHashesToBeBlocked,omitempty\"`",
+            "// e.g. \"MALWARE\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "``type`` (str): The type of hash, e.g., ``CUSTOM_FILEHASH_DENY`` or ``CUSTOM_FILEHASH_ALLOW``."
+          ]
+        }
+      ],
+      "gaps": [
+        "enum-and-help-framing"
+      ]
+    },
+    "allow-entries": {
+      "statement": "Because the Python type includes CUSTOM_FILEHASH_ALLOW, the same list may hold allow entries as well as deny entries, so \"blocklist\" can understate what is in it.",
+      "tier": "B",
+      "conditions": "Derived from the Python docstring and example, which pass an ALLOW entry in the same list; no source describes how Sandbox treats it.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "\"type\": \"CUSTOM_FILEHASH_ALLOW\""
+          ]
+        }
+      ]
+    },
+    "clear-with-empty-array": {
+      "statement": "To clear the list, send `md5HashValueList` as an empty array. The Go payload field deliberately has no `omitempty` because the API requires the key even as `[]`; dropping the key does not clear the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "Do not use omitempty - API requires md5HashValueList to be present (even as []) when clearing the list"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "Pass an empty list to clear the blocklist."
+          ]
+        }
+      ]
+    },
+    "hash-count": {
+      "statement": "A sub-endpoint, /behavioralAnalysisAdvancedSettings/fileHashCount, returns `blockedFileHashesCount` and `remainingFileHashes`, the used and unused quota for blocking MD5 hashes. `remainingFileHashes` is how many more can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "RemainingFileHashes    int `json:\"remainingFileHashes,omitempty\"`",
+            "fileHashCountEndpoint    = \"/fileHashCount\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "Retrieves the Cloud Sandbox used and unused quota for blocking MD5 file hashes."
+          ]
+        }
+      ],
+      "gaps": [
+        "quota-cap"
+      ]
+    },
+    "mcp-check": {
+      "statement": "The MCP workflow checks a suspect file by reading the blocked-hash list and looking for its MD5, and reads the hash count to see overall usage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "Returns the list of MD5 hashes currently blocked by Sandbox. Check if the file's hash appears in this list.",
+            "Returns blocked-hash usage statistics to understand overall sandbox activity volume."
+          ]
+        }
+      ]
+    },
+    "sdk-functions": {
+      "statement": "In the Go SDK the list is `Get` (flat), `Getv2` (rich), `Update` (flat), `Updatev2` (rich) and `GetFileHashCount`. In the Python SDK `get_behavioral_analysis` reads it, `add_hash_to_custom_list` writes the rich shape, and `get_file_hash_count` reads the count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
+          "quotes": [
+            "func Getv2(ctx context.Context",
+            "func Updatev2(ctx context.Context",
+            "func GetFileHashCount(ctx context.Context"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "def get_behavioral_analysis(self)",
+            "def add_hash_to_custom_list("
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "quota-cap": {
+      "kind": "data",
+      "title": "The tenant's MD5 blocklist cap and whether it varies by subscription",
+      "status": "open",
+      "former_ids": [
+        "zia-63"
+      ],
+      "detail": "The SDKs return how many hashes remain but encode no absolute ceiling or tier dependence. The number is observable per tenant at runtime.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "live",
+        "operator"
+      ],
+      "live_command": "zscalerctl zia sandbox-settings show"
+    },
+    "enum-and-help-framing": {
+      "kind": "semantic",
+      "title": "How Zscaler's help names this list and whether the type values are the documented set",
+      "status": "open",
+      "detail": "No help capture for this surface is vendored. Whether CUSTOM_FILEHASH_DENY and CUSTOM_FILEHASH_ALLOW are the complete documented values, or only what the Python SDK happens to use, is unknown.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

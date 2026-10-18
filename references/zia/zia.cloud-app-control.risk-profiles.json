@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.risk-profiles",
+  "title": "Cloud Application Risk Profiles in Cloud App Control",
+  "aliases": [
+    "cloud application risk profile",
+    "risk profile composition",
+    "risk index",
+    "why was this app caught by my risk rule",
+    "medium-risk block rule"
+  ],
+  "binds": [
+    "zia/cloud-app-control#cloudAppRiskProfile"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.cloud-app-control.rule-criteria"
+    }
+  ],
+  "claims": {
+    "where-configured": {
+      "statement": "A Cloud Application Risk Profile is created under Data Security > Inline CASB > Risk Profiles (Add Cloud Application Risk Profile) and then associated with Cloud App Control rules; the profile name is what the rule form displays.",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"A Cloud Application Risk Profile is created under Administration > Risk Profiles (Cloud Application tab) and then associated with Cloud App Control rules; the profile name is what the rule form displays.\" The recaptured page gives the Data Security > Inline CASB path.",
+      "binds": [
+        "zia/cloud-app-control#cloudAppRiskProfile"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-cloud-application-risk-profile.md",
+          "quotes": [
+            "From the navigation menu, go to Data Security > Inline CASB > Risk Profiles.",
+            "Click Add Cloud Application Risk Profile.",
+            "creating a cloud application risk profile and associating the profile with the Cloud App Control policy rules."
+          ]
+        }
+      ]
+    },
+    "composition": {
+      "statement": "A profile is a series of AND operators between its attributes (Application Status, Hosting Information, Security Information). The attributes that allow multiple values (Risk Index, Certificates Supported, Data Encryption in Transit, SSL Cert Key Size) are OR between their own values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-cloud-application-risk-profile.md",
+          "quotes": [
+            "The cloud application risk profile consists of a series of AND operators placed between the attributes in the Application Status, Hosting Information, and Security Information sections",
+            "The attributes that allow multiple value selection (Risk Index, Certificates Supported, Data Encryption in Transit, and SSL Cert Key Size) consist of a series of OR operators placed between the values in them"
+          ]
+        }
+      ]
+    },
+    "example": {
+      "statement": "Zscaler's example profile is [Risk Index (1 OR 3 OR 5)] AND [Application Status (Sanctioned)] AND [Certificates Supported (AICPA OR GDPR)] AND [SSL Pinned (Yes)].",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-cloud-application-risk-profile.md",
+          "quotes": [
+            "For example, [Risk Index (1 (OR) 3 (OR) 5)] (AND) [Application Status (Sanctioned)] (AND) [Certificates Supported (AICPA (OR) GDPR)] (AND) [SSL Pinned (Yes)]."
+          ]
+        }
+      ]
+    },
+    "core-attributes": {
+      "statement": "The core attributes are Risk Index (1 to 5, 1 lowest risk), Application Status (Sanctioned or Unsanctioned), Tags, Certificates Supported (include or exclude), Password Strength (Good, Poor, Unknown), Data Encryption in Transit (SSLv2, SSLv3, TLSv1.0, TLSv1.1, TLSv1.2, TLSv1.3, Unknown) and SSL Cert Key Size (256, 384, 768, 1024, 2048, 3072, 4096, 8192 Bits, Unknown).",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): the SSL Cert Key Size list previously read \"(Any, 2048, 256, 3072, 384, 4096 Bits, Unknown)\". The recaptured page drops Any and adds 768, 1024 and 8192 Bits.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-cloud-application-risk-profile.md",
+          "quotes": [
+            "Risk Index: Select the risk index number (1–5, 1 being the lowest risk and 5 being the highest",
+            "Application Status: Select the application status. You can select either Sanctioned or Unsanctioned",
+            "Certificates Supported: Select the supported certifications for the application. You can choose to either include or exclude certificates",
+            "Data Encryption in Transit: Select the data encryption versions (SSLv2, SSLv3, TLSv1.0, TLSv1.1, TLSv1.2, TLSv1.3, or Unknown",
+            "SSL Cert Key Size: Select a cert key size (256 Bits, 384 Bits, 768 Bits, 1024 Bits, 2048 Bits, 3072 Bits, 4096 Bits, 8192 Bits, or Unknown)."
+          ]
+        }
+      ]
+    },
+    "hosting-security-characteristics": {
+      "statement": "Beyond the core attributes the form lists 23 hosting and security characteristics (from Poor Terms of Service and Admin Audit Logs through SSL Pinned, MFA Support, Evasive, Weak Cipher Support, Published CVE Vulnerability, Vulnerable to Heartbleed, Poodle and Logjam, to SPF, DKIM, DMARC and Malware Scanning for Content), each set to Yes, No or Unknown.",
+      "tier": "A",
+      "conditions": "The count of 23 is taken by counting the bulleted list in the capture; the page does not state a total.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-cloud-application-risk-profile.md",
+          "quotes": [
+            "for the following hosting and security characteristics, to see which applications they are applied to.",
+            "Poor Terms of Service",
+            "Malware Scanning for Content"
+          ]
+        }
+      ]
+    },
+    "risk-index-overrides": {
+      "statement": "Applications with risk index overrides set on the Application Information page are evaluated in the policy when the Risk Index criterion matches.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-cloud-application-risk-profile.md",
+          "quotes": [
+            "All the cloud applications, including those with risk index overrides from the Application Information page, are evaluated in the policy if the risk index criterion matches."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "attribute-sources": {
+      "kind": "data",
+      "title": "Who supplies each risk attribute value",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ],
+      "blocks": "explaining why an app's attribute value differs from expectation",
+      "detail": "The captures say the Risk Index is a score assigned from risk attribute values, that Application Status and Tags have their own pages, and that the Risk Index can be overridden per app. They do not say which attribute values Zscaler maintains and which the customer sets. The earlier ledger named Zscaler ThreatLabz as the maintainer; no registered source says so, so that is not carried as a claim.",
+      "resolvable_by": [
+        "operator"
+      ]
+    }
+  }
+}

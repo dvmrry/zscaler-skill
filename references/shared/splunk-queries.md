@@ -128,7 +128,7 @@ Notes per `web-log-schema.md`:
 - `ssldecrypted` — `Yes` / `No`.
 - `externalspr` (SSL Policy Reason) — `Blocked`, `Inspected`, `N/A`, `Not inspected because of O365 bypass`, `Not inspected because of SSL policy`, `Not inspected because of UCaaS bypass`, `Not inspected because of Zscaler best practices`.
 
-Combining both distinguishes the "inspected and allowed" / "inspected and blocked" / "bypassed with Evaluate Other Policies" / "bypassed with Bypass Other Policies" cases — per [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md).
+Combining both distinguishes the "inspected and allowed" / "inspected and blocked" / "bypassed with Evaluate Other Policies" / "bypassed with Bypass Other Policies" cases — per [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 
 ### `segment-match-observed`
 

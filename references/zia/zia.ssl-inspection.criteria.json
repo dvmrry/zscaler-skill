@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.criteria",
+  "title": "SSL/TLS inspection rule criteria and the ones that silently don't match",
+  "aliases": [
+    "ssl inspection criteria",
+    "ssl rule not matching",
+    "ssl rule platforms",
+    "NO_CLIENT_CONNECTOR",
+    "connect user-agent",
+    "road warrior kerberos",
+    "destination group ignored sni"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    }
+  ],
+  "claims": {
+    "operator-expression": {
+      "statement": "An SSL/TLS inspection rule matches when this expression is true: Source IP Groups AND [URL Categories OR Cloud Applications OR Destination Groups OR Forwarding Gateways] AND ZPA Application Segment AND [Location Groups OR Locations] AND [Users OR Groups OR Departments] AND [Device Groups OR Devices OR Remote Users with Kerberos] AND Device Trust Level AND User Agent AND [Endpoint Applications OR Endpoint Application Tags] AND Endpoint Application Risk Level.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Source IP Groups (AND) [URL Categories (OR) Cloud Applications (OR) Destination Groups (OR) Forwarding Gateways] (AND) ZPA Application Segment (AND)",
+            "[Location Groups (OR) Locations] (AND) [Users (OR) Groups (OR) Departments] (AND) [Device Groups (OR) Devices (OR) Remote Users with Kerberos] (AND) Device Trust Level (AND) User Agent (AND)",
+            "[Endpoint Applications (OR) Endpoint Application Tags] (AND) Endpoint Application Risk Level."
+          ]
+        }
+      ],
+      "conditions": "Corrected on recapture (2026-10-18): previously \"An SSL/TLS inspection rule matches when this expression is true: Source IP Groups AND [URL Categories OR Cloud Applications OR Destination Groups OR Forwarding Gateways] AND ZPA Application Segment AND [Location Groups OR Locations] AND [Users OR Groups OR Departments] AND [Device Groups OR Devices OR Remote Users with Kerberos] AND Device Trust Level AND CONNECT User-Agent.\""
+    },
+    "zcc-criteria-unset-ignored": {
+      "statement": "Device trust levels, device groups, devices and platforms apply only to devices managed by Client Connector, and when none is set the criterion is ignored during evaluation; an unset `platforms` list means the rule applies to all device platforms.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#deviceGroups",
+        "zia/ssl-inspection-rules#devices",
+        "zia/ssl-inspection-rules#deviceTrustLevels",
+        "zia/ssl-inspection-rules#platforms"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.",
+            "Specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/platforms",
+          "expect": {
+            "type": "array"
+          },
+          "note": "platforms: 'If not set, rule is applied to all device platforms'"
+        }
+      ]
+    },
+    "dest-ip-groups-ignored-with-sni": {
+      "statement": "IP address-based destination groups in a rule's criteria are ignored when the HTTPS request carries an SNI value, so a rule scoped only by IP destination group does not match ordinary HTTPS traffic, only requests without SNI.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#destIpGroups"
+      ],
+      "conditions": "The second half of the statement (matches only requests without SNI) follows from the quoted rule; the help page does not spell it out.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "IP address-based destination groups in the rule criteria are ignored if an SNI value is present in HTTPS requests."
+          ]
+        }
+      ]
+    },
+    "destination-group-types": {
+      "statement": "Destination groups in an SSL/TLS inspection rule may be IP, FQDN or Wildcard FQDN groups; countries and custom categories configured in a destination group are ignored.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#destIpGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "The supported group types are IP, FQDN, and Wildcard FQDN.",
+            "The countries and custom categories configured in the destination groups are ignored."
+          ]
+        }
+      ]
+    },
+    "connect-user-agent-explicit-only": {
+      "statement": "The CONNECT User-Agent criterion applies only to SSL/TLS traffic forwarded in explicit proxy mode (PAC or PAC over tunnel); it does not apply to transparent proxy (tunnel) or Z-Tunnel 1.0 traffic, which has no user-agent context, so a rule scoped by user agent cannot match that traffic.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#userAgentTypes"
+      ],
+      "conditions": "The consequence for rule matching (a user-agent-scoped rule cannot match transparent traffic) is read from 'Not applied'; the help page does not state the match outcome.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "This criterion applies only to SSL/TLS traffic forwarded in explicit proxy mode (PAC or PAC over tunnel) and not to traffic forwarded via a transparent proxy (tunnel) or Z-Tunnel 1.0 due to lack of user agent context."
+          ]
+        }
+      ]
+    },
+    "zpa-segments-sipa-only": {
+      "statement": "The ZPA Application Segment criterion lists only segments that have Source IP Anchor enabled (up to 255 selectable); in the API it is the `zpaAppSegments` list, documented as Source IP Anchoring-enabled segments.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#zpaAppSegments"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "The list displays only those Private Access application segments that have the Source IP Anchor option enabled.",
+            "Select up to 255 Private Access (ZPA) application segments."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/zpaAppSegments",
+          "expect": {
+            "type": "array"
+          },
+          "note": "zpaAppSegments: 'List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable'"
+        }
+      ]
+    },
+    "platforms-values": {
+      "statement": "`platforms` is a list of Client Connector device platform tokens: `SCAN_IOS`, `SCAN_ANDROID`, `SCAN_MACOS`, `SCAN_WINDOWS`, `SCAN_LINUX`, and `NO_CLIENT_CONNECTOR`. The SDKs declare it as a plain string list with no enum, so only the API contract and the Terraform provider restrict the values.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#platforms"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/platforms",
+          "expect": {
+            "type": "array"
+          },
+          "note": "platforms enum: SCAN_IOS, SCAN_ANDROID, SCAN_MACOS, SCAN_WINDOWS, NO_CLIENT_CONNECTOR, SCAN_LINUX"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "Zscaler Client Connector device platforms for which the rule must be applied."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/ssl_inspection_rules.py",
+          "quotes": [
+            "self.platforms = ZscalerCollection.form_list(config[\"platforms\"] if \"platforms\" in config else [], str)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/validator.go",
+          "quotes": [
+            "\"SCAN_IOS\", \"SCAN_ANDROID\", \"SCAN_MACOS\", \"SCAN_WINDOWS\", \"NO_CLIENT_CONNECTOR\", \"SCAN_LINUX\","
+          ]
+        }
+      ]
+    },
+    "platforms-label-inferred": {
+      "statement": "The console most likely surfaces the platform criterion as Device Groups by OS type: the Leading Practices Guide writes rules as 'Device Group is Android, iOS, Windows, or macOS' and 'Device Group is No Client Connector', which matches the `platforms` tokens, so `NO_CLIENT_CONNECTOR` is the 'inspect Client Connector devices, exempt the rest' selector.",
+      "tier": "B",
+      "binds": [
+        "zia/ssl-inspection-rules#platforms",
+        "zia/ssl-inspection-rules#deviceGroups"
+      ],
+      "conditions": "Inference: the guide never mentions the API field. The match between its OS-type Device Group wording and the `platforms` tokens is by content, not by any source that links them. The SSL/TLS rule page separately lists Device Groups and Devices as criteria with no OS field.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Device Groups (OS Type). You can only identify device groups if the traffic is forwarded to Zscaler via the Zscaler Client Connector.",
+            "Rule 1: Inspect if Cloud App is OneDrive or SharePoint, Device Group is Android, iOS, Windows, or macOS, and the Location is HQ.",
+            "Rule 4: Exempt if Device Group is No Client Connector for Location HQ."
+          ]
+        }
+      ],
+      "gaps": [
+        "platforms-console-label"
+      ]
+    },
+    "road-warrior-kerberos": {
+      "statement": "`roadWarriorForKerberos` is the API form of the Remote Users with Kerberos criterion: when true the rule applies to remote users on PAC with Kerberos authentication, and it does not cover users forwarded by Client Connector.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#roadWarriorForKerberos"
+      ],
+      "conditions": "That the API field is the console's Remote Users with Kerberos criterion is inferred from matching wording; no source names the pair.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "This criterion applies only to remote user traffic with Kerberos authentication, which is forwarded via PAC files and not via Zscaler Client Connector."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/roadWarriorForKerberos",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "roadWarriorForKerberos: 'When set to true, the rule is applied to remote users that use PAC with Kerberos authentication.'"
+        }
+      ]
+    },
+    "identity-needs-zcc-or-surrogate-ip": {
+      "statement": "User, Group and Department criteria work only when traffic arrives through Client Connector (preferred) or through GRE/IPsec with Enforce Surrogate IP; without either the service cannot identify the user before inspection, so identity-scoped SSL rules do not apply. Device Group criteria need Client Connector.",
+      "tier": "A",
+      "conditions": "'Do not apply' is the guide's 'cannot identify the user ... to properly apply user-based policies'; the guide does not say whether the rule is skipped or evaluated as no match.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "You can only use user attributes if the traffic forwarded to Zscaler is from the Zscaler Client Connector (preferred) or if you enable Enforce Surrogate IP",
+            "Without Zscaler Client Connector or Surrogate IP, the service cannot identify the user (before inspection) to properly apply user-based policies and determine if inspection is desired."
+          ]
+        }
+      ]
+    },
+    "device-trust-scope": {
+      "statement": "Device Trust Level values High, Medium and Low apply only to Client Connector traffic; Unknown applies to all traffic.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#deviceTrustLevels"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "absent-from-url-filtering-and-cac": {
+      "kind": "semantic",
+      "title": "Whether road_warrior_for_kerberos and zpaAppSegments are absent from URL Filtering and Cloud App Control rules",
+      "status": "open",
+      "about": [
+        "zia/ssl-inspection-rules#roadWarriorForKerberos",
+        "zia/ssl-inspection-rules#zpaAppSegments"
+      ],
+      "detail": "Unverified legacy statement: 'Not available on URL Filtering or CAC rules - SSL-inspection-specific' and 'Absent from URL Filtering and CAC rules'. This is an absence claim; it would be settled by searching the URL Filtering and Cloud App Control rule schemas for the two fields.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "platforms-console-label": {
+      "kind": "semantic",
+      "title": "What the console calls the SSL rule `platforms` (OS) criterion",
+      "status": "partial",
+      "about": [
+        "zia/ssl-inspection-rules#platforms"
+      ],
+      "detail": "The rule-page criteria list names Device Groups and Devices only. The Leading Practices Guide describes Device Group selections by OS and 'No Client Connector', which fits `platforms`, but no capture shows the console control itself.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

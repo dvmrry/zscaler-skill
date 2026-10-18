@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.ssl-visibility",
+  "title": "Cloud App Control and SSL inspection: what CAC can see",
+  "aliases": [
+    "cac ssl inspection",
+    "one click office 365",
+    "ucaas one click",
+    "zoom one click",
+    "ms o365 optimize",
+    "cac granular action not working",
+    "cac and ssl bypass"
+  ],
+  "binds": ["zia/cloud-app-control"],
+  "related": [
+    { "rel": "depends-on", "to": "zia.ssl-inspection.pipeline" },
+    { "rel": "interacts-with", "to": "zia.cloud-app-control.rule-criteria" },
+    { "rel": "interacts-with", "to": "zia.cloud-app-control.ai-ml-rules" }
+  ],
+  "claims": {
+    "one-click-m365": {
+      "statement": "Enabling the Microsoft-recommended One Click Office 365 Configuration turns off SSL/TLS interception for all Microsoft 365 destinations. Disabling it and using the pre-existing configuration keeps granular controls.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_Advanced_Policy_Settings.txt",
+          "quotes": [
+            "turns off SSL/TLS Interception for all Microsoft 365 destinations as per Microsoft's",
+            "If you want to continue using existing granular controls for Microsoft 365,"
+          ] }
+      ]
+    },
+    "one-click-ucaas": {
+      "statement": "Enabling the one-click option for Zoom, GoTo, RingCentral, Webex or Talkdesk turns off SSL/TLS interception for all of that vendor's destinations; to keep granular controls the option must be disabled and cloud application and firewall network application policies configured instead.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_Advanced_Policy_Settings.txt",
+          "quotes": [
+            "it turns off SSL/TLS interception for all Zoom, GoTo,",
+            "disable the respective option, and enable"
+          ] }
+      ]
+    },
+    "o365-optimize-bypass": {
+      "statement": "The MS O365 Optimize URL category carries the note to bypass its sites from SSL/TLS Inspection and authentication.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "About_URL_Categories.txt",
+          "quotes": ["MS O365 Optimize: Sites that are required for"] }
+      ]
+    },
+    "domain-level-only-when-not-decrypted": {
+      "statement": "For traffic that is not decrypted, including destinations covered by the one-click options, Cloud App Control can use only the domain-level information from the first pass (CONNECT host or SNI), so it has less to identify the application with than for decrypted traffic.",
+      "tier": "B",
+      "derived_from": [
+        "zia.ssl-inspection.pipeline:first-pass-on-domain",
+        "zia.ssl-inspection.pipeline:not-inspected-domain-only",
+        "zia.cloud-app-control.ssl-visibility:one-click-m365",
+        "zia.cloud-app-control.ssl-visibility:one-click-ucaas"
+      ],
+      "conditions": "Derived from the pipeline claims plus the one-click claims. No source states how CAC identifies applications, so how much less visibility matters per application is unverified (see zia.cloud-app-control.rule-criteria:app-identity)."
+    }
+  }
+}

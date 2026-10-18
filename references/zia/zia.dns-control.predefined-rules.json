@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.predefined-rules",
+  "title": "Predefined DNS Control rules and the ZPA resolvers",
+  "aliases": [
+    "ucaas one click rule",
+    "zpa resolver for locations",
+    "zpa resolver for road warrior",
+    "zpa resolver for extranet locations",
+    "predefined dns rules",
+    "sipa dns rule",
+    "road warrior dns rule order"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#predefined",
+    "zia/firewall-dns-rules#defaultRule",
+    "zia/firewall-dns-rules#order"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.api-rules"
+    }
+  ],
+  "claims": {
+    "shipped-rules": {
+      "statement": "Zscaler provides three predefined DNS rules: UCaaS One Click Rule (allows firewall traffic when any UCaaS application is enabled in Advanced Settings), ZPA Resolver for Locations (forwards location users' source-IP-anchored traffic to ZPA), and ZPA Resolver for the Road Warrior (does the same for remote users).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "UCaaS One Click Rule: Allows traffic from the firewall when you enable any UCaaS application in the Advanced Settings.",
+            "ZPA Resolver for Locations: Forwards location users' source IP anchored traffic to Private Access (ZPA).",
+            "ZPA Resolver for the Road Warrior: Forwards remote users' source IP anchored traffic to Private Access."
+          ]
+        }
+      ]
+    },
+    "extranet-rule": {
+      "statement": "With Extranet Application Support enabled, a ZPA Resolver for Extranet Locations rule is added as a default rule, with a default IP pool for extranet traffic; Extranet Application Support is obtained through the Zscaler account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "If your organization has Extranet Application Support enabled, ZPA Resolver for Extranet Locations is added as a default rule",
+            "To access Extranet Application Support, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "modifiable-keep-high": {
+      "statement": "The predefined rules can be disabled or modified, and Zscaler recommends keeping them at a high rule order (Rule 1 and Rule 2).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "You can also disable or modify these predefined rules based on your needs. Zscaler also recommends maintaining these rules in higher rule order (i.e., Rule 1 and Rule 2)."
+          ]
+        }
+      ]
+    },
+    "enable-each": {
+      "statement": "For Source IP Anchoring, enable ZPA Resolver for Road Warrior for remote users and ZPA Resolver for Locations for location users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.md",
+          "quotes": [
+            "For remote users, enable the ZPA Resolver for Road Warrior rule.",
+            "For location users, enable the ZPA Resolver for Locations rule."
+          ]
+        }
+      ]
+    },
+    "road-warrior-above-locations": {
+      "statement": "The Road Warrior resolver rule must sit at a higher rule (lower number) than the Locations resolver rule; for example Road Warrior at rule 4 and Locations at rule 5 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.md",
+          "quotes": [
+            "The DNS rule order for the ZPA Resolver for Road Warrior rule should be a higher rule than the ZPA Resolver for Locations rule to configure Source IP Anchoring. For example, if ZPA Resolver for Road Warrior is at rule 4, then the ZPA Resolver for Locations should be at rule 5 and later."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#order"
+      ]
+    },
+    "dont-disable-road-warrior": {
+      "statement": "Zscaler does not recommend disabling ZPA Resolver for Road Warrior: road warrior traffic then falls under the Locations resolver rule instead of being blocked, is resolved from the Locations IP pools, and is not routed as intended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.md",
+          "quotes": [
+            "Zscaler does not recommend disabling the ZPA Resolver for Road Warrior rule. If disabled, the remote user traffic falls under the ZPA Resolver for Locations rule instead of blocking the traffic.",
+            "This leads to the Source IP Anchored traffic being resolved by the ZPA Resolver for Locations IP pools and the traffic is not routed as intended"
+          ]
+        }
+      ]
+    },
+    "dns-must-reach-zscaler": {
+      "statement": "Client DNS requests for domain-based non-web traffic should be forwarded to the Zscaler service for the predefined ZPA DNS resolver policies to take effect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-source-ip-anchoring.md",
+          "quotes": [
+            "The client's DNS requests for domain-based non-web traffic should be forwarded to Zscaler service so the predefined Private Access DNS Resolver policies take effect."
+          ]
+        }
+      ]
+    },
+    "predefined-flag": {
+      "statement": "The rule resource marks predefined rules with a boolean `predefined`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "A Boolean field that indicates that the rule is predefined by using a true value"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#predefined"
+      ]
+    },
+    "current-list": {
+      "statement": "The current console lists these predefined DNS rules: Unknown DNS Traffic, Default Firewall DNS Rule, Fallback ZPA Resolver for Locations, Fallback ZPA Resolver for Road Warrior, Critical Risk DNS Categories, Critical Risk DNS Tunnels, High-Risk DNS Categories, High-Risk DNS Tunnels, Risky DNS Categories and Risky DNS Tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "modifying-default-dns-control-rule.md",
+          "quotes": [
+            "| Unknown DNS Traffic |",
+            "| Default Firewall DNS Rule |",
+            "| Fallback ZPA Resolver for Locations |",
+            "| Fallback ZPA Resolver for Road Warrior |",
+            "| Critical Risk DNS Categories |",
+            "| Risky DNS Tunnels |"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#predefined"
+      ],
+      "conditions": "The list is from modifying-default-dns-control-rule.md (captured 2026-10-18); see divergence rule-set."
+    },
+    "fallback-resolvers": {
+      "statement": "The Fallback ZPA Resolver rules redirect source-IP-anchored traffic to the preconfigured IP pools during control plane maintenance; they are disabled by default, cannot be deleted, and are enabled only during that maintenance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "modifying-default-dns-control-rule.md",
+          "quotes": [
+            "The Fallback ZPA Resolver for Locations rule is predefined to redirect source IP anchored traffic from location users to the preconfigured IP pools during control plane maintenance."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "modifying-default-dns-control-rule.md",
+          "quotes": [
+            "This rule is disabled by default and cannot be deleted. It is only enabled during control plane maintenance to ensure the resiliency of the Source IP Anchoring feature."
+          ],
+          "after": "The Fallback ZPA Resolver for Locations rule is predefined to redirect"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "modifying-default-dns-control-rule.md",
+          "quotes": [
+            "The Fallback ZPA Resolver for Road Warrior rule is predefined to redirect source IP anchored traffic of remote users to the preconfigured IP pools during control plane maintenance."
+          ]
+        }
+      ]
+    },
+    "predefined-editing": {
+      "statement": "Predefined DNS rules can be enabled or disabled but not deleted unless specified otherwise; rules with a system-defined default rule order cannot be reordered and always have the lowest precedence; for false positives, create higher-ranked custom rules or disable the rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "modifying-default-dns-control-rule.md",
+          "quotes": [
+            "Predefined DNS rules can be enabled or disabled based on your organization's requirements. However, these rules cannot be deleted unless specified otherwise.",
+            "These rules with default Rule Order always maintain the lowest precedence.",
+            "you can either create custom rules using higher ranks or disable the rule that's causing the false positives."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#predefined",
+        "zia/firewall-dns-rules#order"
+      ]
+    },
+    "road-warrior-location": {
+      "statement": "Remote-user traffic is targeted by selecting the Road Warrior location in a rule; for Z-Tunnel 1.0 and PAC users those rules take effect only when Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors is on in Advanced Settings, and rules for other locations also apply to remote users from those locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "for policies configured for remote users to take effect.",
+            "also apply to remote user traffic from those locations."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#locations"
+      ]
+    }
+  },
+  "gaps": {
+    "resolver-mechanism": {
+      "kind": "semantic",
+      "title": "What the ZPA resolver rules change in the DNS answer, and what happens without them",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "explaining a wrong-source-IP symptom in SIPA to the DNS answer level",
+      "detail": "Unverified legacy statement: \"Without it, DNS returns the public IP of the SIPA destination, traffic egresses from the ZIA PSE (skipping the ZPA App Connector entirely), and the destination sees the PSE's IP, not the customer-controlled App Connector IP. SIPA breaks silently.\" Also: Road Warrior users are \"typically using Zscaler Client Connector in Z-Tunnel mode\" and \"don't forward through a location's IP; they forward directly via ZCC.\" Captured pages give the resolve-by-ZPA action (ephemeral IP from a preconfigured pool) and the Road Warrior location, but not the failure path. Compare DNS answers and egress IP with the rule on and off. The legacy doc also said the wrong pool means the destination sees an unexpected source IP, \"breaking Conditional Access or IP allowlist checks.\""
+    }
+  },
+  "divergences": {
+    "rule-set": {
+      "summary": "Which predefined DNS rules exist: three or ten",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-dns-control.md",
+            "quotes": [
+              "Zscaler provides the following predefined DNS Rules:"
+            ]
+          },
+          "says": "Three predefined rules: UCaaS One Click, ZPA Resolver for Locations, ZPA Resolver for the Road Warrior (page captured 2026-04-26; the Source IP Anchoring page, captured 2026-04-24, also names the non-fallback resolvers)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "modifying-default-dns-control-rule.md",
+            "quotes": [
+              "The Zscaler service provides a set of predefined rules for managing your DNS traffic."
+            ]
+          },
+          "says": "A table of ten, including Unknown DNS Traffic, Default Firewall DNS Rule, Fallback ZPA Resolver rules and risk rules; it omits UCaaS One Click and the non-fallback resolvers (page captured 2026-10-18)."
+        }
+      ],
+      "impact": "Do not assume UCaaS One Click or the non-fallback ZPA resolvers exist on a tenant, or that the newer ten do. Read the tenant's rules with predefined true."
+    }
+  }
+}

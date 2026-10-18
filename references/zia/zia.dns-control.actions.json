@@ -1,0 +1,442 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.actions",
+  "title": "DNS Control actions and what each API action requires",
+  "aliases": [
+    "dns control actions",
+    "redirect request",
+    "redirect response",
+    "REDIR_REQ",
+    "REDIR_RES",
+    "REDIR_ZPA",
+    "BLOCK_WITH_RESPONSE",
+    "block_response_code",
+    "redirect_ip",
+    "dns_gateway required",
+    "edns_ecs_object"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#action",
+    "zia/firewall-dns-rules#redirectIp",
+    "zia/firewall-dns-rules#blockResponseCode",
+    "zia/firewall-dns-rules#dnsGateway",
+    "zia/firewall-dns-rules#zpaIpGroup",
+    "zia/firewall-dns-rules#ednsEcsObject",
+    "zia/firewall-dns-rules#protocols"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.api-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.doh"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.predefined-rules"
+    }
+  ],
+  "claims": {
+    "console-actions": {
+      "statement": "The console's rule actions are Allow, Block, the Redirect Request variants (keep sender protocol, using DoH, using TCP), Redirect Response, and resolving Private Access (ZPA) application domain names; together they allow or block traffic, redirect requests to specific DNS servers, or redirect users by overwriting DNS responses.",
+      "tier": "A",
+      "conditions": "The About DNS Control page's Rule Action line reads \"allow, block, or redirect responses, redirect responses\", which looks garbled; the Configuring the DNS Control Policy page lists each action and is cited for them.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "Rule Action: The rule action to allow, block, or redirect responses, redirect responses, or resolve domain names of Private Access (ZPA) applications.",
+            "redirecting requests to specific DNS servers, redirecting users by overwriting DNS responses, etc."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "Redirect Request & Keep Sender Protocol: Redirect DNS requests using the original user protocol (DoH, UDP, or TCP)",
+            "Redirect Response: Replace the IP address of the resolved hostname in the DNS response with a preferred IP address",
+            "Redirect Request Using DoH: Redirect DNS requests using DNS over HTTPS (DoH)",
+            "Redirect Request Using TCP: Redirect DNS requests using TCP"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#action"
+      ]
+    },
+    "api-enum": {
+      "statement": "The API action enum has ten values: `ALLOW`, `BLOCK`, `REDIR_REQ`, `REDIR_RES`, `REDIR_ZPA`, `REDIR_REQ_DOH`, `REDIR_REQ_KEEP_SENDER`, `REDIR_REQ_TCP`, `REDIR_REQ_UDP`, `BLOCK_WITH_RESPONSE`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "Supported Values: \"ALLOW\", \"BLOCK\", \"REDIR_REQ\", \"REDIR_RES\", \"REDIR_ZPA\", \"REDIR_REQ_DOH\", \"REDIR_REQ_KEEP_SENDER\", \"REDIR_REQ_TCP\", \"REDIR_REQ_UDP\",\"BLOCK_WITH_RESPONSE\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_dns.py",
+          "quotes": [
+            "Supported values: ALLOW, BLOCK, REDIR_REQ, REDIR_RES, REDIR_ZPA, REDIR_REQ_DOH, REDIR_REQ_KEEP_SENDER,"
+          ],
+          "after": "def add_rule("
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#action"
+      ]
+    },
+    "validator-inactive": {
+      "statement": "The Go SDK contains a per-action field validator for DNS rules, but it is commented out; the live Create and Update call no validator, so the SDK does not enforce the dependencies below.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "/* func validateFirewallDNSRules(rule *FirewallDNSRules) error {",
+            "(*FirewallDNSRules, error) { resp, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", firewallDnsRulesEndpoint, ruleID), *rules)"
+          ]
+        }
+      ],
+      "conditions": "The comment-out is shown directly; that the live Create/Update call no validator rests on reading them, and that no other client enforces the rules rests on absence. Whether the API enforces the same dependencies is not shown by any source (see the gaps below)."
+    },
+    "validator-requirements": {
+      "statement": "The commented-out validator requires: `redirectIp` for REDIR_RES; a `zpaIpGroup` with an ID for REDIR_ZPA; a `dnsGateway` (with both ID and Name) for REDIR_REQ_DOH, REDIR_REQ_TCP and REDIR_REQ_UDP; and both a `dnsGateway` (ID and Name) and non-empty `protocols` for REDIR_REQ_KEEP_SENDER.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "return errors.New(\"redirectIp must be provided when action is REDIR_RES\")",
+            "return errors.New(\"zpaIpGroup must be provided with a valid ID when action is REDIR_ZPA\")",
+            "case \"REDIR_REQ_DOH\", \"REDIR_REQ_TCP\", \"REDIR_REQ_UDP\":",
+            "return errors.New(\"protocols must be provided when action is REDIR_REQ_KEEP_SENDER\")",
+            "return errors.New(\"dnsGateway must be provided with a valid ID and Name when action is REDIR_REQ_KEEP_SENDER\")"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#action",
+        "zia/firewall-dns-rules#redirectIp",
+        "zia/firewall-dns-rules#zpaIpGroup",
+        "zia/firewall-dns-rules#dnsGateway",
+        "zia/firewall-dns-rules#protocols"
+      ],
+      "conditions": "Inferred contract only: the validator is inactive, so these are what the SDK author believed the API requires.",
+      "gaps": [
+        "redirect-ip-binding",
+        "redir-req-gateway"
+      ]
+    },
+    "field-comments": {
+      "statement": "The SDK describes `dnsGateway` as used when the action redirects DNS requests to an external DNS service, and `zpaIpGroup` as the ZPA IP pool used to resolve ZPA application domains to ephemeral IPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "The DNS gateway used to redirect traffic, specified when the rule action is to redirect DNS request to an external DNS service.",
+            "The ZPA IP pool specified when the rule action is to resolve domain names of ZPA applications to an ephemeral IP address from a preconfigured IP pool."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#dnsGateway",
+        "zia/firewall-dns-rules#zpaIpGroup"
+      ]
+    },
+    "edns-general": {
+      "statement": "`ednsEcsObject` is described as the EDNS ECS object which resolves the DNS request, and the validator ties it to no action.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "EDNS ECS object which resolves DNS request"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#ednsEcsObject"
+      ],
+      "conditions": "The 'ties to no action' half rests on the absence of any ednsEcsObject clause in the commented-out validator.",
+      "gaps": [
+        "edns-ecs-zpa-pairing"
+      ]
+    },
+    "block-response-code": {
+      "statement": "`blockResponseCode` holds the DNS response code sent to the client when the action is configured to block and send a response code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "Specifies the DNS response code to be sent to the client when the action is configured to block and send response code"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#blockResponseCode"
+      ],
+      "gaps": [
+        "block-response-code-values"
+      ]
+    },
+    "console-actions-current": {
+      "statement": "The current console actions are Allow, Block (silent), Block with Response Code, Redirect Request & Keep Sender Protocol, Redirect Response, Redirect Request Using DoH, Using TCP, Using UDP, and Resolve by ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "Silently block all DNS requests and responses.",
+            "Blocks DNS requests and responses and sends the specified response code to the client.",
+            "Redirect DNS requests using the original user protocol (DoH, UDP, or TCP) to the DNS service configured in the specified DNS Gateway.",
+            "Resolve domain names of Private Access (ZPA) applications to an ephemeral IP address from a preconfigured IP pool."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#action"
+      ]
+    },
+    "response-codes": {
+      "statement": "Block with Response Code supports response codes 1 (FormErr), 2 (ServFail), 3 (NXDomain), 4 (NotImp) and 5 (Refused).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "| 1  | Format Error  | FormErr  |",
+            "| 2  | Server Failure  | ServFail  |",
+            "| 3  | Non-Existent Domain  | NXDomain  |",
+            "| 4  | Not Implemented  | NotImp  |",
+            "| 5  | Query Refused  | Refused  |"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#blockResponseCode",
+        "zia/firewall-dns-rules#action"
+      ],
+      "conditions": "Console values. The string format the API's blockResponseCode takes is not shown (gap block-response-code-values).",
+      "gaps": [
+        "block-response-code-values"
+      ]
+    },
+    "nxdomain-caution": {
+      "statement": "Zscaler advises using NXDomain only with request or response category criteria, avoiding catch-all categories such as Miscellaneous, preferring Refused or ServFail otherwise, and never applying a response code to a whole DNS request type (for example blocking all A or AAAA with NXDomain), which would likely cause a DNS outage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "Defining a response code for an entire type of DNS request should be strictly avoided.",
+            "would likely result in an unintended DNS outage."
+          ]
+        }
+      ]
+    },
+    "redirect-response": {
+      "statement": "Redirect Response replaces the resolved IP address in the DNS response with a configured IP address; it acts on the response side but can match request-side or response-side conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "Replace the IP address of the resolved hostname in the DNS response with a preferred IP address before sending the response to the client.",
+            "Enter the IP address that must replace the domain-resolved IP address in the DNS response to the client."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#redirectIp"
+      ]
+    },
+    "redirect-protocol-translation": {
+      "statement": "Redirect Request Using DoH translates UDP or TCP requests to DoH; Using TCP and Using UDP accept DoH or their own protocol but do not translate UDP-to-TCP or TCP-to-UDP; and the DNS gateway list is limited to gateways configured for that protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "If the incoming DNS request uses protocols other than DoH (i.e., UDP or TCP), the Zscaler service translates the protocol to DoH",
+            "However, UDP-to-TCP translation is not supported.",
+            "However, TCP-to-UDP translation is not supported.",
+            "Only DNS Gateways configured with DoH support are listed."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#dnsGateway",
+        "zia/firewall-dns-rules#action"
+      ]
+    },
+    "resolve-by-zpa-scope": {
+      "statement": "Resolve by ZPA applies only to Private Access application segments that have Source IP Anchoring enabled, and takes an IP pool configured for location or remote-user traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "is applicable only to Private Access application segments that have Source IP Anchoring enabled.",
+            "Select an IP pool preconfigured for location traffic or remote user traffic, depending on the origin of traffic being forwarded."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#zpaIpGroup",
+        "zia/firewall-dns-rules#action"
+      ]
+    },
+    "logging-and-eun": {
+      "statement": "Logging is fixed at Full. Web EUN works with Block; Client Connector EUN works with Block, Block with Response Code and Redirect Response; with both on, Web EUN takes precedence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "By default, logging is set to Full and cannot be changed.",
+            "When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "block-response-wording": {
+      "summary": "Which action sends the block response code",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/cloud_firewall_dns.py",
+            "quotes": [
+              "block_response_code (str): DNS response code sent when the rule action is BLOCK."
+            ],
+            "after": "def add_rule("
+          },
+          "says": "The response code is sent when the action is BLOCK."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+            "quotes": [
+              "Specifies the DNS response code to be sent to the client when the action is configured to block and send response code"
+            ]
+          },
+          "says": "The code is sent when the action is 'block and send response code', which reads as BLOCK_WITH_RESPONSE."
+        }
+      ],
+      "impact": "A rule with action BLOCK and a blockResponseCode may or may not return that code; the enum has a separate BLOCK_WITH_RESPONSE value. Do not promise a client-visible response code from BLOCK."
+    }
+  },
+  "gaps": {
+    "block-response-code-values": {
+      "kind": "semantic",
+      "title": "Accepted values of blockResponseCode",
+      "status": "partial",
+      "former_ids": [
+        "zia-47"
+      ],
+      "about": [
+        "zia/firewall-dns-rules#blockResponseCode"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "saying what a response-blocking rule returns to the client resolver",
+      "detail": "Read a response-code rule through the API and record the values for each of the five codes.",
+      "resolution": "The console accepts response codes 1 to 5 (claim response-codes). The string or numeric format the API's blockResponseCode field takes for them is still unobserved."
+    },
+    "redirect-ip-binding": {
+      "kind": "semantic",
+      "title": "Whether redirectIp applies only to REDIR_RES",
+      "status": "open",
+      "former_ids": [
+        "zia-48"
+      ],
+      "about": [
+        "zia/firewall-dns-rules#redirectIp"
+      ],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "knowing which actions accept or require a redirect IP",
+      "detail": "Only the inactive Go validator binds redirectIp, and only to REDIR_RES. The MCP tool lists it as a generic advanced field. Submit redirectIp against each REDIR_* action and record what the API accepts."
+    },
+    "redir-req-gateway": {
+      "kind": "semantic",
+      "title": "Whether plain REDIR_REQ requires a dnsGateway",
+      "status": "open",
+      "former_ids": [
+        "zia-59"
+      ],
+      "about": [
+        "zia/firewall-dns-rules#dnsGateway"
+      ],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "building a valid REDIR_REQ rule",
+      "detail": "The inactive validator binds dnsGateway to the four REDIR_REQ_* variants but not to REDIR_REQ. Submit REDIR_REQ with and without a gateway."
+    },
+    "edns-ecs-zpa-pairing": {
+      "kind": "semantic",
+      "title": "Whether ednsEcsObject must accompany zpaIpGroup on REDIR_ZPA",
+      "status": "open",
+      "about": [
+        "zia/firewall-dns-rules#ednsEcsObject",
+        "zia/firewall-dns-rules#zpaIpGroup"
+      ],
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "knowing whether a REDIR_ZPA rule needs an EDNS ECS object",
+      "detail": "Tracked with redir-req-gateway under the old ledger id zia-59. No source binds ednsEcsObject to REDIR_ZPA or any action. Submit REDIR_ZPA with and without it."
+    },
+    "block-returns-nxdomain": {
+      "kind": "semantic",
+      "title": "Console action names versus API enum for silent Block",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "mapping console actions to API action values",
+      "detail": "Unverified legacy statement: \"Block: return NXDOMAIN or drop query.\" Corrected by the configuring page: Block silently blocks requests and responses; only Block with Response Code returns a code. The unresolved part is which API enum value each console action uses (BLOCK versus BLOCK_WITH_RESPONSE, REDIR_* variants); no source lists the mapping. Compare console rules with their API records."
+    },
+    "redirect-use-cases": {
+      "kind": "semantic",
+      "title": "Intended uses of Redirect Request and Redirect Response",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "recommending patterns such as split DNS, sinkholes or steering clients",
+      "detail": "Unverified legacy statement: \"Redirect Request: forward the query to a specific DNS server (useful for split-DNS or sinkhole patterns). Redirect Response: overwrite the DNS response (rewrite the resolved IP, useful for steering clients to internal servers).\" The configuring page states the mechanics but not these use cases (it does describe redirecting blocked users to an EUN page by IP)."
+    }
+  }
+}

@@ -1,0 +1,9 @@
+For a "why was this blocked" question, the firewall module is the first place the traffic is judged, not the second. {{firewall-first}} {{nonweb-firewall-only}} So a flow can be stopped before any URL Filtering, Cloud App Control or SSL Inspection rule ever sees it. {{firewall-beats-web-allow}}
+
+The firewall only enforces if the right conditions hold. {{enforcement-conditions}} {{explicit-forwarding-tuples}} Z-Tunnel 1.0 and PAC need the firewall enabled in Advanced Settings. {{ztunnel-pac-opt-in}} What happens to Z-Tunnel 2.0 traffic is not stated by these sources; the old claim that Z-Tunnel 2.0 engages the firewall automatically is carried as a gap rather than a fact.
+
+**Telling the two modules apart in the logs.** {{firewall-block-both-logs}} {{web-block-firewall-allowed}} That asymmetry is the discriminator: a block that appears in both logs is a firewall block; a block only in Web Insights, with the firewall log showing allowed, is a web-policy block. The same guide also says that for some web-module blocks the firewall logs show the transaction blocked; that disagreement is the gap below, so when the two logs disagree with this rule, trust the web-rule attribution fields in [[zia.logs.web-rule-attribution]]. {{firewall-log-action}} Field names are the vendor's NSS names; a SIEM may rename them.
+
+**Order inside the firewall module.** The old reference drew Filtering, NAT, DNS, IPS and FTP in a fixed sequence and elsewhere said NAT is evaluated before Filtering. No captured source states an order among them; see the gap. How the pieces fit with the web side is in [[zia.url-filtering]] and [[zia.ssl-inspection.pipeline]]; the Cloud App Control interaction is in [[zia.cloud-app-control.precedence]].
+
+What to check: whether the location has the firewall enabled, whether the traffic is Z-Tunnel 1.0 or PAC and the option is on, and which log carries the block.

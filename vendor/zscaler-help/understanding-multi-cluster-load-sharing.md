@@ -1,37 +1,22 @@
 # Understanding Multi-Cluster Load Sharing
 
 **Source:** https://help.zscaler.com/zia/understanding-multi-cluster-load-sharing
-**Captured:** 2026-04-23 via Playwright MCP.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1402116, revision 3214225
 
 ---
 
-Internet & SaaS (ZIA) Help — Traffic Forwarding — Understanding Multi-Cluster Load Sharing
-
-**Multi-Cluster Load Sharing** allows multiple ZIA Public Service Edge clusters in **different network address blocks** to participate in a single Virtual IP (VIP) at a data center.
-
-Traffic to a given VIP can enter and be handled by **any instance of the Service Edge clusters** from any of the network address blocks listed for the data center. Complete DC information is published at `config.zscaler.com/<Zscaler Cloud Name>/cenr`.
-
-To find your cloud name: check the URL admins use to log in (e.g., `admin.zscalertwo.net` → cloud name `zscalertwo.net`). See *What is my cloud name for ZIA?*.
-
-## Operational Effect
-
-Traffic is distributed across every participating cluster load balancer (LB) instance; any LB can forward traffic to any service node in any participating cluster.
-
-This lets Zscaler **scale data centers without migrating your clusters**: new Service Edge capacity can be added to existing VIPs. Customers don't need to move GRE tunnels to a new VIP when a new cluster is added to a DC.
-
-## Example
-
-| Cluster | VIP | Cluster Type | Network address block |
+The Multi-Cluster Load Sharing feature allows multiple Public Service Edge for Internet & SaaS (ZIA) clusters in different network address blocks to participate in a Virtual IP (VIP) address from any network address block in a data center. The ingress traffic will enter a given VIP address and access the end destination via any instance of the Service Edge clusters from any of the network address blocks listed for the data center (DC). To view the complete list of data center information, go to config.zscaler.com/<Zscaler Cloud Name>/cenr.
+You can find the name of your cloud in the URL your admins use to log in to the Zscaler service. For example, if an organization logs in to admin.zscalertwo.net, then that organization's cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/cenr. To learn more, see Understanding Zscaler Cloud Names.
+All the traffic is distributed across every participating cluster load balancer (LB) instance, and they can forward traffic to any service node in any participating cluster.
+This feature allows Zscaler to scale its DCs without the need to migrate your clusters while using the same existing VIP addresses.
+For example, in the following table, ZSC Cluster 1 resides in the 165.225.80.0/23 network address block, and ZSC Cluster 3 in the 147.161.166.0/23 network address block. Both these clusters can serve the GRE VIP address 165.225.80.36, allowing us to add more Service Edge capacity without impacting your GRE VIP address destination. So, you no longer need to move your GRE tunnels to a new VIP address when a new cluster is added to a DC.
+| Cluster | VIP Address | Cluster Type | Network Address Block |
 |---|---|---|---|
 | ZSC Cluster 1 | 165.225.80.36 | GRE | 165.225.80.0/23 |
-| ZSC Cluster 1 | 165.225.80.37 | VPN | 165.225.80.0/23 |
-| ZSC Cluster 1 | 165.225.81.247 | PAC | 165.225.80.0/23 |
-| ZSC Cluster 3 (shared VIPs with Cluster 1) | 165.225.80.36 | GRE | 147.161.166.0/23 |
-| ZSC Cluster 3 | 165.225.80.37 | VPN | 147.161.166.0/23 |
-| ZSC Cluster 3 | 165.225.81.247 | PAC | 147.161.166.0/23 |
-
-Both clusters serve the GRE VIP `165.225.80.36` from *different* network address blocks. A customer's GRE tunnel pointed at that VIP can be served by either cluster.
-
-## Rollout
-
-Feature rollout follows the monthly infrastructure upgrade schedule per the Zscaler Service Continuity Customer Notification Protocol — not an opt-in feature per organization.
+| 165.225.80.37 | VPN | 165.225.80.0/23 |  |
+| 165.225.81.247 | PAC | 165.225.80.0/23 |  |
+| ZSC Cluster 3 (Shared VIP addresses with Cluster 1) | 165.225.80.36 | GRE | 147.161.166.0/23 |
+| 165.225.80.37 | VPN | 147.161.166.0/23 |  |
+| 165.225.81.247 | PAC | 147.161.166.0/23 |  |
+This feature rollout follows the monthly infrastructure upgrade schedule as per the Zscaler service Continuity Customer Notification Protocol.

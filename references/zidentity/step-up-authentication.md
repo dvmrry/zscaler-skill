@@ -98,7 +98,7 @@ Step-up authentication is triggered when a user attempts to access a resource th
 4. **Prompt delivery via ZCC** — the re-auth prompt comes through **Zscaler Client Connector**, not a browser redirect. ZCC displays the MFA challenge; user completes it; session upgrades to the higher level.
 5. **Access granted** — after successful re-auth, traffic proceeds.
 
-**Critical: step-up requires ZCC.** Users forwarding traffic via GRE/IPSec/PAC (non-ZCC paths) **do not receive step-up prompts**. A Conditional-action rule firing for a non-ZCC user results in a silent block or denied access — the user never gets the chance to elevate. This matches `references/zia/url-filtering.md § Conditional action` which says it's only supported with ZCC forwarding.
+**Critical: step-up requires ZCC.** Users forwarding traffic via GRE/IPSec/PAC (non-ZCC paths) **do not receive step-up prompts**. A Conditional-action rule firing for a non-ZCC user results in a silent block or denied access — the user never gets the chance to elevate. This matches `kb:zia.url-filtering § Conditional action` which says it's only supported with ZCC forwarding.
 
 ## Assurance levels (AL1–AL4) and ZPA access policy
 

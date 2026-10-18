@@ -49,7 +49,7 @@ There are two distinct SSL inspection configurations relevant to ZCC-deployed us
 
 ### ZIA SSL inspection (cloud-side)
 
-ZIA performs SSL/TLS decryption and re-encryption at the Service Edge (the cloud proxy). The ZIA SSL inspection policy (`references/zia/ssl-inspection.md`) controls which categories and destinations are decrypted. This is the primary location where SSL inspection policy is managed for users whose traffic flows through ZIA via Z-Tunnel.
+ZIA performs SSL/TLS decryption and re-encryption at the Service Edge (the cloud proxy). The ZIA SSL inspection policy (`kb:zia.ssl-inspection`) controls which categories and destinations are decrypted. This is the primary location where SSL inspection policy is managed for users whose traffic flows through ZIA via Z-Tunnel.
 
 When ZCC is in Z-Tunnel mode and routes traffic to a ZIA Service Edge, ZIA performs the actual SSL break-and-inspect. The user's device must trust the ZIA intermediate CA certificate for ZIA inspection to work without browser certificate errors.
 
@@ -168,7 +168,7 @@ The symptom is "the browser shows the destination's original certificate, not th
 
 1. **Traffic is bypassing ZIA entirely** — if the user's Forwarding Profile sends traffic direct on this network type (e.g., `actionType = NONE` on the active branch, see [`./forwarding-profile.md`](./forwarding-profile.md)), or if the destination is in the App Profile's VPN Gateway Bypass / Destination Exclusions list (see [`./z-tunnel.md`](./z-tunnel.md) § Bypass semantics), ZIA never sees the traffic and no inspection happens. **The original cert is correct in this case** — there is no Zscaler interception. Check forwarding-profile actions and bypass lists first, before suspecting SSL config.
 
-2. **The destination is in ZIA's Do Not Inspect SSL category** — managed in ZIA SSL inspection policy, not ZCC. Banking, healthcare, and certain SaaS categories are commonly in Do-Not-Inspect lists. ZIA still sees and logs the connection (so logs *do* exist) but doesn't decrypt — original cert is preserved. See `references/zia/ssl-inspection.md`.
+2. **The destination is in ZIA's Do Not Inspect SSL category** — managed in ZIA SSL inspection policy, not ZCC. Banking, healthcare, and certain SaaS categories are commonly in Do-Not-Inspect lists. ZIA still sees and logs the connection (so logs *do* exist) but doesn't decrypt — original cert is preserved. See `kb:zia.ssl-inspection`.
 
 Diagnostic flow for these cases:
 
@@ -187,7 +187,7 @@ A third hypothesis — that QUIC / HTTP3 traffic bypasses ZIA proxy inspection i
 
 Source: `vendor/zscaler-help/what-is-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
-The full ZIA SSL inspection reference — covering inspection policy rules, bypass categories, certificate management, and the SSL inspection pipeline — is at `references/zia/ssl-inspection.md`. For ZCC-deployed users, the effective SSL inspection behavior is jointly determined by:
+The full ZIA SSL inspection reference — covering inspection policy rules, bypass categories, certificate management, and the SSL inspection pipeline — is at `kb:zia.ssl-inspection`. For ZCC-deployed users, the effective SSL inspection behavior is jointly determined by:
 
 1. **ZCC forwarding mode** — whether traffic flows through ZIA Z-Tunnel at all (if the user is on a trusted network with bypass action, ZIA sees none of the traffic)
 2. **ZIA SSL inspection policy** (cloud-side) — which destinations are decrypted; managed via ZIA Admin Portal or ZIA API
@@ -215,7 +215,7 @@ The primary vendor source for ZCC-side SSL inspection configuration (`help.zscal
 
 ## Cross-links
 
-- ZIA SSL inspection policy (cloud-side, the primary inspection engine) — `references/zia/ssl-inspection.md`
+- ZIA SSL inspection policy (cloud-side, the primary inspection engine) — `kb:zia.ssl-inspection`
 - ZCC App Profile / Web Policy (certificate trust settings live here) — [`./web-policy.md`](./web-policy.md)
 - Forwarding profiles (whether traffic reaches ZIA at all) — [`./forwarding-profile.md`](./forwarding-profile.md) and [`./forwarding-profiles.md`](./forwarding-profiles.md)
 - Firefox certificate trust (separate store, separate ZCC integration) — [`./firefox-integration.md`](./firefox-integration.md)

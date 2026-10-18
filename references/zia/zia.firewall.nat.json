@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.nat",
+  "title": "NAT Control (destination NAT)",
+  "aliases": [
+    "nat control",
+    "dnat",
+    "dnatRules",
+    "destination nat",
+    "redirect ip",
+    "redirect fqdn",
+    "redirect port",
+    "source nat firewall",
+    "masquerade"
+  ],
+  "binds": [
+    "zia/nat-control-rules",
+    "zia/nat-control-rules#redirectIp",
+    "zia/nat-control-rules#redirectFqdn",
+    "zia/nat-control-rules#redirectPort",
+    "zia/nat-control-rules#resCategories"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.traffic-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    }
+  ],
+  "claims": {
+    "dnat-surface": {
+      "statement": "NAT Control rules are destination-NAT rules: the API and the SDKs manage them as `dnatRules`, and the firewall log records whether the destination NAT policy was applied and its name from the NAT Control page.",
+      "tier": "A",
+      "binds": [
+        "zia/nat-control-rules"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/nat_control_policies/nat_control_policies.go",
+          "quotes": [
+            "dnatRulesEndpoint = \"/zia/api/v1/dnatRules\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "nss-firewall-logs.csv",
+          "quotes": [
+            "Indicates if the destination NAT policy was applied",
+            "Any name under the Rule Name column on the NAT Control page"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-nat-control.md",
+          "quotes": [
+            "perform destination NAT and redirect traffic to specific IP addresses and ports."
+          ]
+        }
+      ]
+    },
+    "redirect-targets": {
+      "statement": "A NAT Control rule carries the redirect target: `redirectIp`, `redirectFqdn` and `redirectPort`. The FQDN is mutually exclusive with the IP, and an unset IP or port means no redirection to a specific IP or port.",
+      "tier": "A",
+      "binds": [
+        "zia/nat-control-rules#redirectIp",
+        "zia/nat-control-rules#redirectFqdn",
+        "zia/nat-control-rules#redirectPort"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/redirectFqdn",
+          "expect": {
+            "description": "FQDN to which the traffic will be redirected to when the DNAT rule is triggered. This is mutually exclusive to redirect IP"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/redirectIp",
+          "expect": {
+            "description": "IP address to which the traffic will be redirected to when the DNAT rule is triggered. If not set, no redirection is done to specific IP address."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/redirectPort",
+          "expect": {
+            "description": "Port to which the traffic will redirected to when the DNAT rule is triggered. If not set, no redirection is done to specific port."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/nat_control_policies/nat_control_policies.go",
+          "quotes": [
+            "json:\"redirectFqdn,omitempty\"",
+            "json:\"redirectIp,omitempty\"",
+            "json:\"redirectPort,omitempty\""
+          ]
+        }
+      ]
+    },
+    "res-categories": {
+      "statement": "`resCategories` restricts a NAT Control rule to resolved destination categories; if unset, the rule is not restricted to specific destination categories.",
+      "tier": "A",
+      "binds": [
+        "zia/nat-control-rules#resCategories"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/resCategories",
+          "expect": {
+            "description": "Resolved categories of destination for which the DNAT rule is applicable. If not set, the rule is not restricted to specific destination IP categories."
+          }
+        }
+      ]
+    },
+    "matching-criteria": {
+      "statement": "A NAT Control rule can also match on source and destination addresses and groups, users, groups, locations, devices, time windows and network services, using the same criteria shapes as a Firewall Filtering rule.",
+      "tier": "B",
+      "binds": [
+        "zia/nat-control-rules"
+      ],
+      "conditions": "The DNAT schema in the API capture declares these properties; that they behave like the Filtering criteria is inferred from the matching shapes, not stated.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/srcIps",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/destIpGroups",
+          "expect": {
+            "description": "User-defined destination IP address groups on which the rule is applied. If not set, rule is not restricted to specific destination IP address groups.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/users",
+          "expect": {
+            "description": "Name-ID pairs of users for which the policy must be applied. If not set, user criteria is not considered for policy enforcement.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/locations",
+          "expect": {
+            "description": "Name-ID pairs of locations for which the policy must be applied. If not set, the policy is applied for all the locations.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/nwServices",
+          "expect": {
+            "description": "Network services for which the rule is applicable. Services could be predefined or custom.",
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/timeWindows",
+          "expect": {
+            "description": "Time interval during which policy must be enforced. If not set, the policy is applied at all times.",
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "no-action-field": {
+      "statement": "The NAT Control rule schema in the API capture has no `action` key; it carries the redirect target, `state`, `accessControl` and `enableFullLogging`. The console's Action column describes the redirect to the specified destination and port.",
+      "tier": "B",
+      "binds": [
+        "zia/nat-control-rules"
+      ],
+      "conditions": "The absence of an `action` key rests on reading the DNAT schema's property list in the API capture.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties",
+          "expect": {
+            "redirectIp": {
+              "description": "IP address to which the traffic will be redirected to when the DNAT rule is triggered. If not set, no redirection is done to specific IP address.",
+              "type": "string"
+            },
+            "state": {
+              "description": "State whether it is enabled, disabled, or just set to monitoring.",
+              "enum": [
+                "DISABLED",
+                "ENABLED"
+              ],
+              "type": "string"
+            },
+            "accessControl": {
+              "description": "Access privilege of this rule based on the admin's Role Based Authorization (RBA) state. Ignored if the request is POST or PUT.",
+              "enum": [
+                "NONE",
+                "READ_ONLY",
+                "READ_WRITE"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-nat-control.md",
+          "quotes": [
+            "The action configured for the policy rule to redirect matched traffic to the specified destination and port."
+          ]
+        }
+      ]
+    },
+    "no-network-apps": {
+      "statement": "NAT Control rules cannot select network applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nat-control.md",
+          "quotes": [
+            "You cannot, however, select network applications within your NAT Control rules."
+          ]
+        }
+      ]
+    },
+    "ascending-order": {
+      "statement": "NAT Control rules are evaluated in ascending numerical order, and the page lists them in ascending rule order by default.",
+      "tier": "A",
+      "binds": [
+        "zia/nat-control-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nat-control.md",
+          "quotes": [
+            "NAT Control policy rules are evaluated in ascending numerical order.",
+            "By default, the rules are listed in the ascending rule order."
+          ]
+        }
+      ]
+    },
+    "no-health-check": {
+      "statement": "The service does not monitor the health or availability of the endpoint a NAT rule forwards to, so traffic is forwarded whether or not the destination is reachable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nat-control.md",
+          "quotes": [
+            "The Zscaler service does not monitor the health or the availability status of an endpoint to which NAT rules forward traffic.",
+            "NAT rules forward traffic to the specified destination irrespective of whether the destination endpoint is reachable"
+          ]
+        }
+      ]
+    },
+    "predefined-dns-rule": {
+      "statement": "The predefined Zscaler Trusted DNS Resolver NAT rule is enabled by default, sends standard DNS (dest:53) to the Zscaler Trusted DNS Resolver and drops iterative DNS queries. A separate higher-rank NAT rule can send iterative queries to an external resolver, and the predefined rule can be disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nat-control.md",
+          "quotes": [
+            "which is enabled by default.",
+            "but drops the iterative DNS queries as they are not supported.",
+            "you can configure a separate NAT rule with a higher rank",
+            "This rule directs your standard DNS traffic (dest:53) to the Zscaler Trusted DNS resolver"
+          ]
+        }
+      ]
+    },
+    "nat-logs": {
+      "statement": "NAT activity is recorded in Firewall Insights Logs for all traffic except DNS, whose NAT logs appear in DNS Insights Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-nat-control.md",
+          "quotes": [
+            "NAT logs for DNS traffic are displayed in DNS Insights Logs.",
+            "NAT policy-related activities are recorded and displayed in Firewall Insights Logs for all types of traffic, except for DNS traffic."
+          ]
+        }
+      ]
+    },
+    "trusted-resolver-rule": {
+      "statement": "`trustedResolverRule` is true on the predefined rule for the Zscaler Trusted DNS Resolver.",
+      "tier": "A",
+      "binds": [
+        "zia/nat-control-rules#trustedResolverRule"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dnatRules/get/responses/200/content/application~1json/schema/items/properties/trustedResolverRule",
+          "expect": {
+            "description": "Set to true in the predefined rule for Zscaler Trusted DNS Resolver"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "source-nat-support": {
+      "kind": "semantic",
+      "title": "Whether NAT Control supports source NAT or masquerading",
+      "status": "open",
+      "detail": "Unverified legacy statement: NAT Control rules remap addresses as masquerading (internal sources rewritten to a tenant public egress IP), as source NAT for overlapping address spaces, and as destination NAT / publishing. The NAT Control help page and the API describe destination NAT and redirect only; source NAT is not mentioned. Resolves with a vendor answer or lab test.",
+      "blocks": "advising on overlapping private address ranges or fixed egress addresses",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "dnat-count-bucket": {
+      "kind": "semantic",
+      "title": "How DNAT rules count against the rule caps",
+      "status": "open",
+      "detail": "The limits table lists NAT Control rules (1,023) separately from Firewall Filtering rules, but labels the Filtering row 'including DNAT'. Whether NAT Control rules count against the Filtering cap, the NAT cap, or both is not stated.",
+      "blocks": "capacity answers for tenants with many NAT rules",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Firewall Filtering Policy Rules (including DNAT) per Organization |",
+            "| NAT Control Policy Rules per Organization | 1,023 rules |"
+          ]
+        }
+      ]
+    }
+  }
+}

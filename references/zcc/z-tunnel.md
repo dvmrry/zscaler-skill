@@ -249,5 +249,5 @@ Either works; the GRE-as-default with no exclusion strategy is the failure mode.
 - Forwarding Profile (where Z-Tunnel selection lives) — [`./forwarding-profile.md`](./forwarding-profile.md)
 - Web Policy / App Profile (where bypass lists live) — [`./web-policy.md`](./web-policy.md)
 - Trusted Networks (triggers On-Trusted vs Off-Trusted action branches) — [`./trusted-networks.md`](./trusted-networks.md)
-- ZIA SSL Inspection (HTTP/2 inspection interaction — HTTP/2 in Bandwidth-Control-enabled locations falls back to HTTP/1.1 regardless of tunnel mode) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- ZIA SSL Inspection (HTTP/2 inspection interaction — HTTP/2 in Bandwidth-Control-enabled locations falls back to HTTP/1.1 regardless of tunnel mode) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - URL wildcard semantics (leading-period syntax shared between PAC `dnsDomainIs` and URL Filter entries) — [`zia.url-categories.entry-matching`](kb:zia.url-categories.entry-matching)

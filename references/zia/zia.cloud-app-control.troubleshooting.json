@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.troubleshooting",
+  "title": "Cloud App Control troubleshooting: blocked-but-allowed and allowed-but-blocked",
+  "aliases": [
+    "users can still access blocked cloud app",
+    "cac not blocking",
+    "quic bypass cac",
+    "pac file bypass",
+    "zscaler blocking an allowed cloud app",
+    "nrod cac"
+  ],
+  "binds": [
+    "zia/cloud-app-control"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.ssl-visibility"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-rule-attribution"
+    }
+  ],
+  "claims": {
+    "allowed-app-blocked": {
+      "statement": "When Zscaler blocks a cloud app that Cloud App Control allows, Zscaler's first check is whether Allow Cascading to URL Filtering is enabled and, if so, whether a matching URL Filtering rule allows the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "Zscaler is blocking an allowed cloud app: Verify that you enabled Allow Cascading to URL Filtering.",
+            "If so, verify that you have a corresponding URL filtering rule that allows this traffic."
+          ]
+        }
+      ]
+    },
+    "blocked-app-reachable": {
+      "statement": "When users still reach a blocked cloud app, Zscaler's checks are: whether their transactions appear in Web or Firewall Insights (if not, Zscaler says the traffic may go direct and bypass the rules, and that the PAC file or proxy settings can block the traffic), and whether the protocol is QUIC in Firewall Insights (if so, disable QUIC in the browser).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "Verify if transactions from the affected users are visible in Zscaler Web/Firewall Insights.",
+            "The PAC file / Proxy settings can block the traffic.",
+            "Verify if the protocol used is QUIC in Zscaler Firewall Insights. If yes, disable QUIC in Internet"
+          ]
+        }
+      ]
+    },
+    "nrod-never-after-cac-allow": {
+      "statement": "Because NROD can only be used in URL Filtering rules, a malicious new domain that only an NROD block would catch is not caught when a CAC rule explicitly allows the app and cascading is off: URL Filtering, and so NROD, never runs.",
+      "tier": "B",
+      "derived_from": [
+        "zia.url-filtering.advanced-settings:nrod-definition",
+        "zia.cloud-app-control.precedence:cac-allow-skips-url-filtering"
+      ],
+      "conditions": "Derived from two existing claims. Whether a domain that matches a CAC app can also be in the NROD category is not shown by any source."
+    }
+  },
+  "gaps": {
+    "quic-interception": {
+      "kind": "semantic",
+      "title": "Which deployments cannot intercept QUIC",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ],
+      "blocks": "telling an operator whether QUIC is the cause",
+      "detail": "Unverified legacy statement: \"users accessing blocked cloud apps anyway may be using QUIC (HTTP/3) which some deployments can't intercept. Workaround is disabling QUIC in the browser.\" The guide only says to check whether the protocol is QUIC in Firewall Insights and, if so, disable QUIC in the browser; no registered source says which deployments cannot intercept it."
+    }
+  }
+}

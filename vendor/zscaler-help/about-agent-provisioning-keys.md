@@ -1,35 +1,42 @@
 # About Agent Provisioning Keys
 
 **Source:** https://help.zscaler.com/zpa/about-agent-provisioning-keys
-**Captured:** 2026-08-04 via the Zscaler Help Portal rendered-data endpoint.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1531959, revision 3243083
 
 ---
 
-This is a scoped summary of the current rendered Help article.
-
-The Provisioning Keys page displays configured Microsegmentation agent
-provisioning keys for an agent group and supports monitoring and management of
-those keys.
-
-## Portal surface
-
-The page is under **Infrastructure > Connectors > Cloud > Agent Groups >
-select an agent group > Provisioning Keys**. Administrators can:
-
-- add a provisioning key as part of agent-group configuration;
-- filter the list by Name;
-- list the keys configured for the selected agent group;
-- view the signing certificate associated with a key;
-- copy, edit, or delete a key;
-- manage the agent group and view its details;
-- view the agents in the group; and
-- view installation instructions for the Agent Manager for VM agent groups or
-  the Helm chart for Kubernetes Cluster agent groups.
-
-The page also supports refresh, column and filter visibility, and pagination.
-
-## Source boundary
-
-This article documents the portal's group-scoped key inventory. It does not
-publish a GraphQL operation or establish that fields such as status or expiry
-are returned by an SDK query.
+The Provisioning Keys page gives insight into your organization's agent provisioning key data. It allows you to monitor and analyze the data for all configured agent provisioning keys in your organization.
+The Provisioning Keys page provides the following benefits and enables you to:
+- View a summary of agent provisioning keys data in your organization.
+- View, monitor, and analyze agent provisioning keys data for a single workload.
+- Take appropriate actions based on the agent provisioning keys data displayed.
+- Discover insights about collective agent provisioning keys data.
+# About the Provisioning Keys Page
+On the Provisioning Keys page (Zero Trust Cloud > Microsegmentation > Agent Groups), you can do the following by selecting an agent group and clicking Provisioning Keys:
+- Refresh the page to reflect the most current information.
+- Add an agent provisioning key. To learn more, see Configuring Agent Groups.
+- See image.
+- Show or hide the available columns.
+- Show or hide the available filters.
+- Filter the information by Name. After configuring the filter, click the button to apply the filter (e.g., Apply 1 filter) and view the results.
+- See image.
+- View a list of all agent provisioning keys that are configured for your agent group. For each agent provisioning key, you can see:
+  - Name: The name of the provisioning key.
+  - Maximum no. of Agents: The maximum number of agents that can use the provisioning key.
+  - Provisioning Key Utilization Count: The number of times the provisioning key has been used.
+  - Agent Group: The agent group associated with the provisioning key.
+  - Signing Certificate: The name of the signing certificate.
+  - Provisioning Key: The provisioning key that you can copy.
+- View the signing certificate for the agent provisioning key.
+- See image.
+- Copy an agent provisioning key.
+- Edit an agent provisioning key.
+- Delete an agent provisioning key.
+- Display more rows or a different page of the table.
+- Manage the agent group.
+- View details about the agent group.
+- View more details about the agent group.
+- See image.
+- View the agents in the agent group.
+- View instructions for downloading and installing the agent manager for VM agent groups or the Helm chart for Kubernetes Cluster agent groups.

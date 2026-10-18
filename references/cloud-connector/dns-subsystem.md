@@ -254,4 +254,4 @@ Items below are not resolvable from the captured SDK/API/Terraform/help sources.
 - Forwarding rules and methods: [`./forwarding.md`](./forwarding.md)
 - Azure deployment (NIC model, HA, VMSS): [`./azure-deployment.md`](./azure-deployment.md)
 - AWS deployment: `./aws-deployment.md` (in flight)
-- ZIA DNS Control (distinct from CC DNS Policies): [`../zia/firewall.md § DNS Control`](../zia/firewall.md)
+- ZIA DNS Control (distinct from CC DNS Policies): [`zia.firewall`](kb:zia.firewall)

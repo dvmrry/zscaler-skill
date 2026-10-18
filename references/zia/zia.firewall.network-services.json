@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.network-services",
+  "title": "Network services (port criteria)",
+  "aliases": [
+    "network service",
+    "networkServices",
+    "nw_services",
+    "service type",
+    "srcTcpPorts",
+    "destTcpPorts",
+    "service tag",
+    "port tuple",
+    "uppercase service names"
+  ],
+  "binds": [
+    "zia/network-services",
+    "zia/network-services#type",
+    "zia/network-services#protocol",
+    "zia/network-services#tag",
+    "zia/network-services#srcTcpPorts",
+    "zia/network-services#destTcpPorts",
+    "zia/network-services#srcUdpPorts",
+    "zia/network-services#destUdpPorts",
+    "zia/network-services#name"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.criteria"
+    }
+  ],
+  "claims": {
+    "type-values": {
+      "statement": "The API returns a network service's `type` as STANDARD, PREDEFINED or CUSTOM. The Go SDK model holds it as a free-form string.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#type"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/type",
+          "expect": {
+            "enum": [
+              "STANDARD",
+              "PREDEFINED",
+              "CUSTOM"
+            ]
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+          "quotes": [
+            "json:\"type,omitempty\""
+          ]
+        }
+      ]
+    },
+    "tag-values": {
+      "statement": "The API's `tag` field is an enumeration of identifiers for predefined services, such as HTTP, HTTPS, DNS, FTP, SSH, plus ICMP_ANY, UDP_ANY, TCP_ANY and OTHER_NETWORK_SERVICE.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#tag"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/responses/200/content/application~1json/schema/items/properties/tag",
+          "expect": {
+            "enum": [
+              "ICMP_ANY",
+              "UDP_ANY",
+              "TCP_ANY",
+              "OTHER_NETWORK_SERVICE",
+              "DNS",
+              "NETBIOS",
+              "FTP",
+              "GNUTELLA",
+              "H_323",
+              "HTTP",
+              "HTTPS",
+              "IKE",
+              "IMAP",
+              "ILS",
+              "IKE_NAT",
+              "IRC",
+              "LDAP",
+              "QUIC",
+              "TDS",
+              "NETMEETING",
+              "NFS",
+              "NTP",
+              "SIP",
+              "SNMP",
+              "SMB",
+              "SMTP",
+              "SSH",
+              "SYSLOG",
+              "TELNET",
+              "TRACEROUTE",
+              "POP3",
+              "PPTP",
+              "RADIUS",
+              "REAL_MEDIA",
+              "RTSP",
+              "VNC",
+              "WHOIS",
+              "KERBEROS_SEC",
+              "TACACS",
+              "SNMPTRAP",
+              "NMAP",
+              "RSYNC",
+              "L2TP",
+              "HTTP_PROXY",
+              "PC_ANYWHERE",
+              "MSN",
+              "ECHO",
+              "AIM",
+              "IDENT",
+              "YMSG",
+              "SCCP",
+              "MGCP_UA",
+              "MGCP_CA",
+              "VDO_LIVE",
+              "OPENVPN",
+              "TFTP",
+              "FTPS_IMPLICIT",
+              "ZSCALER_PROXY_NW_SERVICES",
+              "GRE_PROTOCOL",
+              "ESP_PROTOCOL",
+              "DHCP"
+            ]
+          }
+        }
+      ]
+    },
+    "protocol-filter-values": {
+      "statement": "The list filter `protocol` accepts ICMP, TCP, UDP, GRE, ESP or OTHER. The MCP tool describes the values, uppercases the supplied value and forwards it without validating membership.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#protocol"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get/parameters/[name=protocol]/schema",
+          "expect": {
+            "enum": [
+              "ICMP",
+              "TCP",
+              "UDP",
+              "GRE",
+              "ESP",
+              "OTHER"
+            ]
+          }
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/network_services.py",
+          "quotes": [
+            "Filter by protocol: ICMP, TCP, UDP, GRE, ESP, OTHER.",
+            "qp[\"protocol\"] = args.protocol.upper()"
+          ]
+        }
+      ]
+    },
+    "port-tuples": {
+      "statement": "The SDK and MCP accept ports as tuples of direction (src or dest), protocol (tcp or udp), start port and optionally end port; the end port is omitted for a single port.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#srcTcpPorts",
+        "zia/network-services#destTcpPorts",
+        "zia/network-services#srcUdpPorts",
+        "zia/network-services#destUdpPorts"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "`start port`, `end port`. If this is a single port and not a port range then `end port` can be omitted."
+          ],
+          "after": "def add_network_service("
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/network_services.py",
+          "quotes": [
+            "Port tuples: [[\"src\"|\"dest\", \"tcp\"|\"udp\", start, end?]]."
+          ]
+        }
+      ]
+    },
+    "wire-key-built-from-tuple": {
+      "statement": "The Python SDK builds the request key from the tuple as direction plus the title-cased protocol plus `Ports`, so ('dest','tcp',...) becomes `destTcpPorts`. It does not validate direction or protocol before building the key.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#srcTcpPorts",
+        "zia/network-services#destTcpPorts",
+        "zia/network-services#srcUdpPorts",
+        "zia/network-services#destUdpPorts"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "body.setdefault(f\"{items[0]}{items[1].title()}Ports\", []).append(port_dict)"
+          ],
+          "after": "def add_network_service("
+        }
+      ]
+    },
+    "single-port-encoding": {
+      "statement": "A single port is encoded differently by the two SDKs: the Python `PortRange` always emits both `start` and `end`, while the Go `NetworkPorts` tags both `omitempty`, so a single port is sent as `start` alone.",
+      "tier": "A",
+      "binds": [
+        "zia/network-services#srcTcpPorts"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloud_firewall_nw_service.py",
+          "quotes": [
+            "return {\"start\": self.start, \"end\": self.end}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+          "quotes": [
+            "End   int `json:\"end,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "update-replaces-ports": {
+      "statement": "Updating a network service without ports leaves the existing ports unchanged; supplying ports overwrites the existing ports entirely.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall.py",
+          "quotes": [
+            "If ports aren't provided then no changes will be made to the ports already defined.",
+            "the existing ports will be overwritten."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/network_services.py",
+          "quotes": [
+            "Port tuples; if provided REPLACES existing ports."
+          ]
+        }
+      ]
+    },
+    "name-lookup-case": {
+      "statement": "The MCP tool documents server-side `search` as case-sensitive and `name` as a client-side case-insensitive substring filter. Its lookup workflow says predefined service names are uppercase (HTTP, FTP, DNS) and that `search=\"http\"` does not match `HTTP`.",
+      "tier": "A",
+      "conditions": "This is the MCP layer's own documentation; no SDK or API capture states the server-side case behavior.",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/network_services.py",
+          "quotes": [
+            "Server-side query (case-sensitive).",
+            "Case-insensitive substring match on the service name."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/look-up-rule-targets/SKILL.md",
+          "quotes": [
+            "server-side `search=\"http\"` does NOT match `HTTP`."
+          ]
+        }
+      ]
+    },
+    "endpoint": {
+      "statement": "Network services are served at `/networkServices`, with a `/networkServices/lite` variant, in the API capture; the Go client uses the same path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices/get",
+          "expect": {
+            "description": "<p>Gets a list of all network services. The search parameters find matching values within the <code>name</code> or <code>description</code> attributes.</p> \n",
+            "operationId": "Network Service Resource Get Network Services"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1networkServices~1lite/get",
+          "expect": {
+            "description": "<p>Gets a name and ID dictionary of all network services.</p>\n",
+            "operationId": "Network Service Resource Get Network Services Lite"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+          "quotes": [
+            "networkServicesEndpoint = \"/zia/api/v1/networkServices\""
+          ]
+        }
+      ]
+    },
+    "service-count-cap": {
+      "statement": "An organization can have up to 832 firewall network services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Firewall Network Services | 832 services |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sdk-field-sets": {
+      "summary": "The Python and Go SDKs model different fields on a network service.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/models/cloud_firewall_nw_service.py",
+            "quotes": [
+              "\"creatorContext\": self.creator_context,"
+            ]
+          },
+          "says": "Python carries `creatorContext` and no top-level `protocol` attribute."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+            "quotes": [
+              "Protocol      string         `json:\"protocol,omitempty\"`"
+            ]
+          },
+          "says": "Go carries `protocol` and no `creatorContext`."
+        }
+      ],
+      "impact": "A read-modify-write through one SDK silently drops the field the other SDK models, and Python has no way to read `protocol` as an object attribute."
+    }
+  },
+  "gaps": {
+    "type-meanings": {
+      "kind": "semantic",
+      "title": "What the network service types mean",
+      "status": "open",
+      "detail": "The API capture lists STANDARD, PREDEFINED and CUSTOM for `type`. No source says whether STANDARD and PREDEFINED differ, which can be edited, or which one the predefined HTTP-style services carry. The old reference called this an open question about the vocabulary; the capture now settles the vocabulary but not the meaning.",
+      "former_ids": [
+        "zia-60"
+      ],
+      "about": [
+        "zia/network-services#type"
+      ],
+      "blocks": "telling an operator which services are editable",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "tag-and-creator-context": {
+      "kind": "semantic",
+      "title": "What `tag` and `creatorContext` mean",
+      "status": "open",
+      "detail": "Both fields exist on the Python model (`tag` also on Go and in the API capture) with no description or allowed-values text beyond the tag enumeration. `creatorContext` is not in Go.",
+      "about": [
+        "zia/network-services#tag"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "code-read"
+      ]
+    },
+    "port-array-precedence": {
+      "kind": "semantic",
+      "title": "Ordering and caps among the four port arrays",
+      "status": "open",
+      "detail": "No source states a cap on ports per service or a precedence among source and destination arrays when both are set.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

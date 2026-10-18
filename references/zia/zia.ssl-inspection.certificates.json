@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.certificates",
+  "title": "SSL/TLS inspection certificates: who signs, and where the root must be trusted",
+  "aliases": [
+    "ssl inspection certificate",
+    "zscaler root certificate",
+    "intermediate ca",
+    "custom trust store",
+    "firefox ssl inspection",
+    "ssl inspection hsm",
+    "ssl inspection chromeos",
+    "python pip certificate zscaler"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules#action.sslInterceptionCert"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.api-shape"
+    }
+  ],
+  "claims": {
+    "central-authority": {
+      "statement": "The Zscaler Central Authority is a private CA that acts as both root and intermediate for the ZIA service, or as an intermediate under the customer's private CA, and it authorizes Public Service Edges to act as intermediate CAs that issue certificates to end users for their requested destinations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "In ZIA, the Central Authority is a private CA, acting as both root and intermediate CA for the ZIA service or as an intermediate to your private CA.",
+            "The Central Authority authorizes the ZIA Public Service Edges to act as intermediate CAs, issuing certificates to end users for their requested destinations."
+          ]
+        }
+      ]
+    },
+    "per-request-certificates": {
+      "statement": "When inspecting, the Public Service Edge acts as a short-lived intermediate CA and issues a certificate on demand for each requested application, which the browser accepts because the Zscaler trust chain is in the device's certificate store.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "the ZIA Public Service Edge acts as a short-lived intermediate CA. As a user requests a connection, the ZIA Public Service Edge issues certificates on demand for the application."
+          ]
+        }
+      ]
+    },
+    "root-must-be-trusted": {
+      "statement": "With the default Zscaler intermediate certificate every client must have the Zscaler root certificate installed; otherwise browsers and applications show warnings or the traffic cannot be inspected properly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "If you use the default Zscaler intermediate certificate, ensure all clients have installed the Zscaler root certificate.",
+            "Failure to install the Zscaler root certificate results in warnings from browsers and applications or the inability to inspect the traffic properly."
+          ]
+        }
+      ]
+    },
+    "ca-options": {
+      "statement": "Zscaler offers two CA choices that are functionally equivalent and differ in deployment: Zscaler's own CA, whose root must be installed on machines, or the customer's existing CA with Zscaler as an intermediate, which needs an additional Zscaler subscription but lets clients already holding that root start immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "From a functional standpoint, the two options are equivalent, but there are differences in the deployment of the root CA.",
+            "Using your existing CA is an additional subscription with Zscaler.",
+            "Your client machines are already preloaded with your root CA certificate, and they can begin to use the ZIA service immediately without additional certificate installations in the client certificate store."
+          ]
+        }
+      ]
+    },
+    "hsm": {
+      "statement": "A customer who will not upload an intermediate certificate to Zscaler nodes can keep the private key in a cloud hardware security module (HSM).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "Zscaler supports private keys in cloud hardware security modules (HSM)."
+          ]
+        }
+      ]
+    },
+    "in-memory": {
+      "statement": "Web transaction content inspection takes place in memory and is never written to disk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "Web transaction content inspection takes place in memory and is never written to disk."
+          ]
+        }
+      ]
+    },
+    "override-intermediate": {
+      "statement": "An Inspect rule can override the default intermediate CA by choosing another intermediate CA from the list; on Block and Do Not Inspect + Evaluate rules the override appears only when the notification setting is on. In the API this is `overrideDefaultCertificate` with an `sslInterceptionCert` reference.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action.sslInterceptionCert",
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Select Yes to override the default intermediate Certificate Authority (CA) certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Choose an intermediate CA certificate from the list."
+          ],
+          "after": "Select Yes to override the default intermediate Certificate Authority (CA) certificate."
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "json:\"overrideDefaultCertificate,omitempty\"",
+            "json:\"sslInterceptionCert,omitempty\""
+          ]
+        }
+      ]
+    },
+    "own-trust-stores": {
+      "statement": "Some applications keep their own certificate trust store, so installing the Zscaler root in the operating system is not enough: Firefox, Python and developer tooling are the named examples, and non-browser applications that show SSL errors usually need the root in their own repository.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Some applications host their own certificate trust store and might also need to be updated. Firefox, Python, and Dev environments are common examples."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "If using Firefox, make sure to update its root certificate store.",
+            "Non-browser applications are getting SSL errors: Check if the Zscaler Root certificate is installed in the proper repository for these applications."
+          ]
+        }
+      ]
+    },
+    "own-trust-store-remedies": {
+      "statement": "For applications with custom trust stores Zscaler recommends installing the Zscaler root (or custom intermediate) certificate into the application's store, manually or with a tool such as SCCM; disabling certificate validation is advised only for short-term testing, and exempting the developer traffic or the destination domains are the less desirable alternatives.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Zscaler recommends handling the applications with custom trust stores by installing the Zscaler root cert (or custom intermediate cert) into the application",
+            "This is done manually or automatically via a tool like Microsoft System Center Configuration Manager (SCCM).",
+            "You can also disable cert validation, which Zscaler recommends only for short terms and testing.",
+            "Alternatively, you can exempt the traffic from developer users (which is less desirable) from SSL inspection."
+          ]
+        }
+      ]
+    },
+    "chromeos": {
+      "statement": "ChromeOS does not trust managed or user-installed certificates for OS-level communication, so only user traffic can be inspected; the traffic between the device and Google's ChromeOS services must be exempted, using a custom URL category of the required domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "you can only inspect user traffic, and you must exempt the traffic between the device and Google",
+            "Put the list of required exemptions by domain into a custom URL category and then bypass the custom URL category from inspection."
+          ]
+        }
+      ]
+    },
+    "mobile-mdm": {
+      "statement": "Installing the certificate on mobile devices requires Mobile Device Management, which is also commonly the best way to deploy Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Installing the certificate on mobile devices requires Mobile Device Management (MDM) and is also commonly the best way to deploy the Zscaler Client Connector application."
+          ]
+        }
+      ]
+    },
+    "servers-deferred": {
+      "statement": "Server networks are typically left out of the first inspection projects and added once user inspection is mostly done, because the root CA must reach the hosts, their containers and custom-trust-store applications; until then Zscaler recommends restricting server access to explicitly permitted destinations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Due to the potential complexity, server networks are typically excluded from the initial SSL inspection projects and are deployed when production user inspection is mostly completed.",
+            "Regarding servers, the primary challenge is getting the root CA certificate installed on the host machines, as well as any containers and applications which make use of Custom Trust Stores.",
+            "Zscaler recommends restricting server access to explicitly permitted destinations and blocking all other access"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "leaf-per-connection": {
+      "kind": "semantic",
+      "title": "Whether each inspected connection gets its own ephemeral leaf certificate valid for the destination hostname/SAN",
+      "status": "open",
+      "about": [
+        "zia/ssl-inspection-rules#action.sslInterceptionCert"
+      ],
+      "detail": "Unverified legacy statement: 'The client receives a fresh leaf cert per session, signed by Zscaler's CA, valid for the destination's hostname/SAN. There is no long-lived Zscaler-as-the-server cert; each connection gets its own ephemeral leaf.' The guide says the edge issues certificates on demand for the application; per-session uniqueness, lifetime and SAN contents are not stated.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "deployment-channels": {
+      "kind": "semantic",
+      "title": "Named deployment channels for the root certificate (Intune, Jamf, Android EMM, GPO)",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'MDM (Intune, Jamf, Android EMM) for mobile + ZCC bundling' and 'GPO is the implicit default for AD-joined Windows but the Leading Practices guide does not enumerate the GPO-specific path'. The guide names MDM and SCCM only.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "toolchain-trust-mechanisms": {
+      "kind": "data",
+      "title": "Per-toolchain trust-store mechanisms (Python, Node, Git, Java, Docker, Firefox policy)",
+      "status": "open",
+      "about": [
+        "zia/ssl-inspection-rules#action.sslInterceptionCert"
+      ],
+      "detail": "Unverified legacy statement: per-toolchain mechanisms - Firefox `security.enterprise_roots.enabled = true`; Python `PIP_CERT`/`REQUESTS_CA_BUNDLE` or patching certifi; Node `NODE_EXTRA_CA_CERTS` and `cafile` in `.npmrc`; Git `http.sslCAInfo`; Java `keytool -import` into cacerts; Docker certs under `/etc/docker/certs.d/` plus restart. The old doc listed environment variables, config keys and keystore commands for each toolchain from a Zscaler developer-environments blog that is not a registered source. The captured guides say only that such stores exist and need the root installed.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ],
+      "blocks": "telling a developer exactly how to trust the Zscaler root in a given toolchain"
+    }
+  }
+}

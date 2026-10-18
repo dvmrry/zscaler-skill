@@ -1,28 +1,35 @@
-# Getting Started (Workflow Automation API)
+# Getting Started
 
 **Source:** https://help.zscaler.com/legacy-apis/getting-started-workflow-automation-api
-**Captured:** 2026-04-26 via Playwright MCP (snapshot extraction).
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1452101, revision 3160750
 
 ---
 
 The API management is automatically enabled if you have a subscription to Workflow Automation.
-
 The Workflow Automation API authentication is based on a combination of the API key ID and key secret. You must create an API key to access the Workflow Automation API.
-
-Steps:
-1. Retrieve the Base URL and API Key
-2. Authenticate and Create an API Session
-3. Make an API Call
-
-To learn more about rate limiting and HTTP status codes, see Understanding API Rate Limiting (`/zia/understanding-api-rate-limiting-workflow-automation-api`) and API Response Codes and Error Messages (`/zia/api-response-codes-error-messages-workflow-automation-api`). If you encounter any issues with the API, contact Zscaler Support.
-
-## Navigation (sidebar structure)
-
-The Workflow Automation API section under `legacy-apis` contains:
-- Understanding Workflow Automation API (`/legacy-apis/understanding-workflow-automation-api`)
-- API Developer & Reference Guide (expandable)
-  - Getting Started (`/legacy-apis/getting-started-workflow-automation-api`) ← this page
-  - Configuring the Postman REST API Client (`/legacy-apis/configuring-postman-rest-api-client-workflow-automation-api`)
-  - Understanding API Rate Limiting (`/legacy-apis/understanding-api-rate-limiting-workflow-automation-api`)
-  - API Response Codes and Error Messages (`/legacy-apis/api-response-codes-error-messages-workflow-automation-api`)
-  - Reference Guide (expandable)
+- Retrieve the Base URL and API Key
+- The base URL for the API is https://api.us1.zsworkflow.net.
+- The API key includes an API key ID and a key secret that is required to authenticate the Workflow Automation API. To view your API key ID and key secret, see the About API Keys.
+- Authenticate and Create an API Session
+- To authenticate via the API and create a new session, send a POST request to /auth/api-key/token with the following parameters:
+  - key_id: A string that contains the API key ID. To learn more, see About API Keys.
+  - key_secret: A string that contains the key secret. The key secret is only accessible within the Workflow Automation Admin Portal when the API key is created for the first time. Ensure to copy your key secret to the clipboard when you first create your API key.
+- The API key is only valid for a set number of days if the Expire after time option is enabled in the Workflow Automation Admin Portal. If not, the authentication key does not expire.
+- A successful response to /auth/api-key/token returns an authorization token called Bearer <access_token>. The authorization token is passed onto subsequent authentication requests. If API calls are made after the expiry of the authorization token, a 401 error is returned. To resume making API calls, reauthenticate the API by sending a POST request to /auth/api-key/token.
+- Example POST request to /auth/api-key/token using a Python script. In your script, enter the actual key ID and the key secret. These are highlighted in red.
+- import requests import json url = "https://api.us1.zsworkflow.net/v1/auth/api-key/token" payload = { "key_id": "<api_key_id>", "key_secret": "<api_key_secret>" } headers = { "Content-Type": "application/json" } response = requests.post(url, headers=headers, data=json.dumps(payload)) if response.status_code == 201: data = json.loads(response.text) print("Session Token:", data['token']) else: print("Error:", response.status_code)
+- A successful response to this POST request is:
+- { "expires_in":43200, "token_type":"Bearer", "token":"eQdjlqWV9eyQiLCJhbVnBmeXJrcLTcyYzcCY29wZXMiOwOnsiZGxWdr4f 05vSEpQcEGciOiJIUzI1QiOiJleHRlcm5hbC1wdWMiJ9._uPBFJsaWMtY XBpLWRldm9hMS1zZWN1cml0eXJvc3Rlci1uZXQiLCJpc3MiOiJ0p0QW5j VnphRGdTR0ZQiXSwiZXhwIjoxNjXSWciLCzc0LCJplcklkIjoxLCJzLcw JlYWQiLCJkbHA6d3JpdGUiJRpbmctc3lz0aWNrZXdGVtOnJlYlgzMTc4M YXQiOjE2ONiJ9.eyJhdWzQsiZjcwNDtNDcyNi1hZDAyLWE5ZGFkOTI5NTE 1-W-luvQsNf4UBihmiwvnxAdrgMoqkX5DImp0aSI6IjdiIXhp8" }
+- If an unsuccessful POST request is made to /auth/api-key/token, the response code returns a 401 error if the API key is expired or disabled and a 500 error if the request is corrupt.
+  - Example of a 401 error.
+  - { "internalMessage": "Invalid input" }
+  - Example of a 500 error.
+  - { "internalMessage": "Failed to generate access token" }
+- Make an API Call
+- After you have successfully authenticated, you can make an API call. For example, send a GET request to the /incidents/transactions/{transactionId} endpoint to find DLP incidents corresponding to the given transaction ID.
+- Example GET request to /incidents/transactions/{transactionId} using a Python script. In your script, enter the actual transaction ID of the DLP incident and authorization token. These are highlighted in red.
+- import requests url = "https://api.us1.zsworkflow.net/dlp/v1/incidents/transactions/{transactionId}" transaction_id = "1234" headers = { "Authorization": "Bearer <access_token>", "Content-Type": "application/json" } response = requests.get(url.format(transactionId=transaction_id), headers=headers) if response.status_code == 200: data = response.json() print("DLP Incidents:") for incident in data["incidents"]: print(incident) print("Cursor:", data["cursor"]) else: print("Failed to get DLP Incidents. Status code:", response.status_code) print("Response:", response.text)
+- A successful response to this GET request:
+- { "incidents": [ { "internalId": "1-143-16786974353299200003", "integrationType": "ZscalerDLP", "transactionId": "16786974353299200003", "sourceType": null, "sourceSubType": null, "sourceActions": [ "Change to Read Only for Internal Collaborators" ], "severity": "HIGH", "priority": "LOW", "matchingPolicies": { "engines": [ { "name": "GLBA", "rule": "(((Citizen Service Number) > 0))" } ], "rules": [ { "name": "Block-GLBA-SSN" } ], "dictionaries": [ { "nameMatchCount": "Citizen Service Number[5]", "name": "Citizen Service Number", "matchCount": 5 } ] }, "matchCount": 0, "createdAt": "2023-03-13T08:50:46Z", "lastUpdatedAt": "2023-04-24T14:55:26Z", "sourceFirstObservedAt": "2023-03-13T08:50:35Z", "sourceLastObservedAt": "2023-03-13T08:50:35Z", "userInfo": { "name": "exampleuser@zscaler.com", "email": "exampleuser@zscaler.com", "clientIP": null, "uniqueIdentifier": "exampleuser@zscaler.com", "userId": 84197, "department": "Service Admin", "homeCountry": "US", "managerInfo": { "id": 84938, "name": "examplemanagername@zscaler.com", "email": "examplemanager@zscaler.com" } }, "applicationInfo": { "url": null, "category": "File", "name": "BOX", "hostnameOrApplication": "BOX", "additionalInfo": {} }, "contentInfo": { "fileName": "info-details.docx", "fileType": "docx", "additionalInfo": { "owner": null, "bucketName": "", "bucketOwner": "", "fileModification": "Mon Mar 13 08:31:35 2023", "messageId": "", "repository": "", "sender": "", "recipients": null, "objectName": "", "collaborators": null, "attachmentName": "", "channelName": "", "dlpMD5": "efe3c5d77004476aa8c4a20aeff07ce3", "objectId": "", "fileId": "154618300757" } }, "networkInfo": null, "metadataFileUrl": "https://zscaler-integration-devoa1.metadata.s3.us-east-2.amazonaws.com/16786974353299200003.json", "status": "RESOLVED", "resolution": "FALSE_POSITIVE", "assignedAdmin": { "email": "exampledlpadmin@zscaler.com" }, "lastNotifiedUser": { "role": "END_USER", "email": "examplelastnotifieduser@zscaler.com" }, "notes": [ { "body": "test closure", "createdAt": "2023-04-07T06:04:04Z", "lastUpdatedAt": "2023-04-07T06:04:04Z", "createdBy": 0, "lastUpdatedBy": 0 } ], "closedCode": null, "dlpIncidentTickets": [ { "ticketType": "JIRA_CLOUD", "ticketingSystemName": "Jira-tenant-proxy 2", "projectId": "17", "projectName": "Dev test team project", "ticketInfo": { "ticketId": "DTTP-11", "ticketUrl": "https://zscaler-dev.atlassian.net/browse/DTTP-11", "state": "Done" } } ], "labels": null } ], "cursor": { "totalPages": 1, "currentPageNumber": 0, "currentPageSize": 1, "totalElements": 1 }, }
+To learn more about rate limiting and HTTP status codes, see Understanding API Rate Limiting and API Response Codes and Error Messages. If you encounter any issues with the API, contact Zscaler Support.

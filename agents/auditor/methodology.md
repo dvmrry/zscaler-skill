@@ -152,7 +152,7 @@ Severity: Critical
 Better:
 ```
 Finding: same — terminology variance for SSL/TLS Inspection within
-         references/zia/ssl-inspection.md and web-log-schema.md
+         kb:zia.ssl-inspection and web-log-schema.md
 Severity: Low
 Notes: Zscaler docs use both; pick one and align — or document the
        distinction if intentional. Not blocking.

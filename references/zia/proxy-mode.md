@@ -9,7 +9,7 @@ source-tier: doc
 sources:
   - "vendor/zscaler-help/understanding-proxy-mode.md"
   - "vendor/zscaler-help/choosing-traffic-forwarding-methods.md"
-  - "references/zia/ssl-inspection.md"
+  - "kb:zia.ssl-inspection"
   - "references/zia/traffic-forwarding-methods.md"
 author-status: draft
 ---
@@ -18,7 +18,7 @@ author-status: draft
 
 This document covers how the **ZIA Public Service Edge identifies the destination host** once traffic arrives. It is upstream of SSL inspection policy (which governs what an SSL rule can match on) and downstream of traffic forwarding choice (which governs how traffic gets to the Service Edge in the first place).
 
-- For SSL inspection policy matching behavior — see [`./ssl-inspection.md`](./ssl-inspection.md).
+- For SSL inspection policy matching behavior — see [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 - For forwarding method choice (GRE/IPsec/PAC/ZCC) — see [`./traffic-forwarding-methods.md`](./traffic-forwarding-methods.md).
 
 ---
@@ -139,7 +139,7 @@ In transparent mode, the client has no knowledge of the proxy and cannot be prom
 
 ### 5.2 Transparent mode limitations
 
-- **The "Miscellaneous or Unknown" IP category over-exemption risk.** A "Do Not Inspect" SSL rule scoped to "Miscellaneous or Unknown" IP category will silently exempt nearly all traffic under transparent mode, because most public IPs have no URL-category classification — only the IP is known at that evaluation stage. The same rule under explicit mode only exempts actual unknown-SNI destinations. See [`./ssl-inspection.md §Transparent vs explicit traffic forwarding`](./ssl-inspection.md) for the full implication.
+- **The "Miscellaneous or Unknown" IP category over-exemption risk.** A "Do Not Inspect" SSL rule scoped to "Miscellaneous or Unknown" IP category will silently exempt nearly all traffic under transparent mode, because most public IPs have no URL-category classification — only the IP is known at that evaluation stage. The same rule under explicit mode only exempts actual unknown-SNI destinations. See [`zia.ssl-inspection`](kb:zia.ssl-inspection) for the full implication.
 - **SNI spoofing is theoretically possible** — a client could declare a different SNI than the site it is actually connecting to, allowing policy bypass. This is a known transparent-proxy limitation; SSL inspection mitigates it by decrypting and re-evaluating the actual TLS handshake.
 - **No proxy auth challenge.** The client doesn't know there's a proxy; it cannot respond to a `407` challenge. Authentication must use Surrogate IP or device identity.
 - **IPv6 gaps.** GRE and IPsec tunnel configuration may not cover IPv6 traffic. Check router/firewall capability explicitly.
@@ -184,8 +184,8 @@ No browser configuration needed. The router or SD-WAN appliance must:
 
 ## Cross-links
 
-- **SSL inspection policy matching behavior** — how transparent vs explicit mode affects SSL rule evaluation, SNI-only vs SNI+IP, and the Miscellaneous-or-Unknown over-exemption risk — [`./ssl-inspection.md §Transparent vs explicit traffic forwarding`](./ssl-inspection.md)
+- **SSL inspection policy matching behavior** — how transparent vs explicit mode affects SSL rule evaluation, SNI-only vs SNI+IP, and the Miscellaneous-or-Unknown over-exemption risk — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - **Forwarding method choice** — GRE vs IPsec vs PAC vs ZCC trade-offs, upstream of proxy mode — [`./traffic-forwarding-methods.md`](./traffic-forwarding-methods.md)
 - **PAC files API** — managing PAC files via SDK — [`../zia/api.md`](../zia/api.md) (PAC file service)
-- **CONNECT User-Agent criterion in SSL rules** — only fires in explicit mode — [`./ssl-inspection.md §Rule criteria`](./ssl-inspection.md)
-- **Do Not Inspect rule behavior difference** — same rule exempts dramatically different traffic volumes depending on proxy mode — [`./ssl-inspection.md §The two Do Not Inspect variants`](./ssl-inspection.md)
+- **CONNECT User-Agent criterion in SSL rules** — only fires in explicit mode — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
+- **Do Not Inspect rule behavior difference** — same rule exempts dramatically different traffic volumes depending on proxy mode — [`zia.ssl-inspection`](kb:zia.ssl-inspection)

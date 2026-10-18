@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.licensing",
+  "title": "Which firewall features need Advanced Firewall",
+  "aliases": [
+    "basic firewall",
+    "standard firewall",
+    "advanced firewall",
+    "firewall license",
+    "firewall tier",
+    "user group criteria not available firewall"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules#users",
+    "zia/firewall-filtering-rules#groups",
+    "zia/firewall-filtering-rules#departments",
+    "zia/firewall-filtering-rules#nwApplications",
+    "zia/ips-policies"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    }
+  ],
+  "claims": {
+    "identity-and-apps-need-advanced": {
+      "statement": "Configuring and applying firewall policies based on users, groups, departments or network applications requires Advanced Firewall.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#users",
+        "zia/firewall-filtering-rules#groups",
+        "zia/firewall-filtering-rules#departments",
+        "zia/firewall-filtering-rules#nwApplications"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.md",
+          "quotes": [
+            "Advanced Firewall is required to configure and apply policies based on users, groups, departments, or network applications"
+          ]
+        }
+      ]
+    },
+    "ips-needs-advanced": {
+      "statement": "IPS Control is available only with Advanced Firewall.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "IPS Control is available only with Advanced Firewall"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "standard-tier-criteria": {
+      "kind": "semantic",
+      "title": "Which other criteria work on the standard tier",
+      "status": "open",
+      "detail": "The old reference tabulated Location, Network Services and Source/Destination IP criteria as available on the standard tier. No captured source states this; the only tier-gated criteria in the captures are users, groups, departments, network applications and IPS Control. Neither the captures nor the SDKs say what the API returns when a standard-tier tenant submits a gated criterion.",
+      "blocks": "telling an operator whether a rejected rule is a license problem",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

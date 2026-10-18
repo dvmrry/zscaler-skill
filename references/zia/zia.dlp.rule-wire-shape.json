@@ -1,0 +1,485 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.rule-wire-shape",
+  "title": "Web DLP rule API fields, enums and fields the contract does not document",
+  "aliases": [
+    "webDlpRules api",
+    "dlp rule action enum",
+    "dlp rule severity",
+    "withoutContentInspection",
+    "ocrEnabled",
+    "dlp receiver icapServer deprecated",
+    "dlpContentLocationsScopes",
+    "deeplyNestedContentEnabled",
+    "timeoutFailClosedEnabled",
+    "webDlpGlobalOptions",
+    "dlp matchOnly sdk docstring"
+  ],
+  "binds": [
+    "zia/dlp-web-rules"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.error-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order.registry"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    }
+  ],
+  "claims": {
+    "endpoint": {
+      "statement": "Web DLP rules are managed at `/zia/api/v1/webDlpRules`, and tenant-wide DLP advanced settings at `/zia/api/v1/webDlpGlobalOptions`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "webDlpRulesEndpoint = \"/zia/api/v1/webDlpRules\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_global_options/dlp_global_options.go",
+          "quotes": [
+            "webDlpGlobalOptionsEndpoint = \"/zia/api/v1/webDlpGlobalOptions\""
+          ]
+        }
+      ]
+    },
+    "action-enum": {
+      "statement": "The API reference lists the rule `action` values as ANY, NONE, BLOCK, ALLOW and ICAP_RESPONSE. CONFIRM, which the console offers, is not in the list.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/action",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "BLOCK",
+              "ALLOW",
+              "ICAP_RESPONSE"
+            ]
+          }
+        }
+      ],
+      "gaps": [
+        "confirm-action-wire-value"
+      ]
+    },
+    "severity-enum": {
+      "statement": "A rule's `severity` is one of RULE_SEVERITY_HIGH, RULE_SEVERITY_MEDIUM, RULE_SEVERITY_LOW or RULE_SEVERITY_INFO.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#severity"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/severity",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "RULE_SEVERITY_HIGH",
+              "RULE_SEVERITY_MEDIUM",
+              "RULE_SEVERITY_LOW",
+              "RULE_SEVERITY_INFO"
+            ]
+          }
+        }
+      ]
+    },
+    "match-only-field": {
+      "statement": "The `matchOnly` field is the Match Only criterion for DLP engines, not a file-size switch. File size gating is `minSize`, in KB.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#matchOnly",
+        "zia/dlp-web-rules#minSize"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/matchOnly",
+          "expect": {
+            "type": "boolean",
+            "description": "The match only criteria for DLP engines."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// The match only criteria for DLP engines."
+          ]
+        }
+      ]
+    },
+    "sub-rules-model": {
+      "statement": "A rule can carry `subRules` (exception rules) and a `parentRule` ID; every attribute of the rule model applies to a sub-rule.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#parentRule"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// All attributes within the WebDlpRule model are applicable to the sub-rules.",
+            "// The unique identifier of the parent rule under which an exception rule is added."
+          ]
+        }
+      ]
+    },
+    "without-content-inspection": {
+      "statement": "`withoutContentInspection` true marks a DLP rule without content inspection. The matching console workflow uses external DLP engines to detect data and forward information to a third-party DLP solution.",
+      "tier": "B",
+      "binds": [
+        "zia/dlp-web-rules#withoutContentInspection"
+      ],
+      "conditions": "The field description is stated directly; that the flag is the API form of the \"without content inspection\" console workflow is inferred from the matching names. The help article that names that workflow is not captured (see gap without-content-inspection-keying).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// Indicates a DLP policy rule without content inspection, when the value is set to true."
+          ]
+        }
+      ],
+      "gaps": [
+        "without-content-inspection-keying"
+      ]
+    },
+    "ocr-two-switches": {
+      "statement": "OCR of images appears in two places: a per-rule `ocrEnabled` field in the Go SDK rule struct and Python add and update calls, and a tenant-wide `enableInlineDlpOcr` flag in the DLP global options. The API reference's rule fields do not list `ocrEnabled`.",
+      "tier": "B",
+      "binds": [
+        "zia/dlp-web-rules#ocrEnabled"
+      ],
+      "conditions": "The absence of `ocrEnabled` rests on the field names of the add-rule operation's `request_body` in the API reference containing no `ocrEnabled`.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "// Enables or disables image file scanning."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_global_options/dlp_global_options.go",
+          "quotes": [
+            "EnableInlineDlpOcr          bool                      `json:\"enableInlineDlpOcr,omitempty\"`"
+          ]
+        }
+      ],
+      "gaps": [
+        "ocr-switch-interaction"
+      ]
+    },
+    "scoping-and-handles": {
+      "statement": "Besides users, groups, departments and locations, the rule model scopes by included and excluded domain profiles (up to 8), source IP groups, workload groups, URL categories, cloud applications, user risk score levels, time windows and rule labels. It also carries per-rule handles for a notification template, an auditor and an external auditor email, and a ZCC notification flag.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#includedDomainProfiles",
+        "zia/dlp-web-rules#excludedDomainProfiles",
+        "zia/dlp-web-rules#sourceIpGroups",
+        "zia/dlp-web-rules#userRiskScoreLevels",
+        "zia/dlp-web-rules#notificationTemplate",
+        "zia/dlp-web-rules#auditor",
+        "zia/dlp-web-rules#externalAuditorEmail",
+        "zia/dlp-web-rules#zccNotificationsEnabled",
+        "zia/dlp-web-rules#inspectHttpGetEnabled",
+        "zia/dlp-web-rules#dlpDownloadScanEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go",
+          "quotes": [
+            "The list of domain profiles that must be added to the DLP rule criteria in order to apply the DLP rules only to domains that are part of the specified profiles.",
+            "// Source IP address groups for which the rule is applicable. If not set, the rule is not restricted to a specific source IP address group.",
+            "// The email address of an external auditor to whom DLP email notifications are sent.",
+            "// The template used for DLP notification emails.",
+            "InspectHttpGetEnabled bool `json:\"inspectHttpGetEnabled,omitempty\"`",
+            "UserRiskScoreLevels []string `json:\"userRiskScoreLevels,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "content-locations-field": {
+      "statement": "`dlpContentLocationsScopes` takes ANY, HTTP_BODY, FILE_CONTENT, DOCUMENT_PROPERTIES and FILENAME, and does not apply to DLP rules without content inspection. The 2026-06-21 overlay records it as absent from the Terraform provider.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#dlpContentLocationsScopes"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/dlpContentLocationsScopes",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/observed-contract-overlays.md",
+          "quotes": [
+            "it was absent from the Terraform provider at the 2026-06-21 verification point."
+          ]
+        }
+      ]
+    },
+    "receiver-replaces-icap-fields": {
+      "statement": "The rule fields `icapServer` and `zscalerIncidentReceiver` are deprecated and calls using them would not succeed; `receiver` replaces both, with a `type` of ICAP, ZIR or C2CIR and a tenant reference.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#receiver",
+        "zia/dlp-web-rules#icapServer",
+        "zia/dlp-web-rules#zscalerIncidentReceiver"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/icapServer",
+          "expect": {
+            "allOf": [
+              {
+                "description": "This is an immutable reference to an entity that mainly consists of id and name",
+                "properties": {
+                  "extensions": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "Additional information about the entity",
+                    "type": "object"
+                  },
+                  "externalId": {
+                    "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities.",
+                    "type": "string"
+                  },
+                  "id": {
+                    "description": "A unique identifier for an entity",
+                    "format": "int64",
+                    "type": "integer"
+                  },
+                  "name": {
+                    "description": "The configured name of the entity",
+                    "readOnly": true,
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/zscalerIncidentReceiver",
+          "expect": {
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/receiver/properties/type",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ICAP",
+              "ZIR",
+              "C2CIR"
+            ]
+          }
+        }
+      ]
+    },
+    "global-options-fields": {
+      "statement": "The `webDlpGlobalOptions` resource holds tenant-wide DLP settings: application and URL exemptions, `exemptUrlEncodedData`, inline, SaaS Security and email OCR flags, `enableEvaluateAllDlpRules`, EDM format flags, and `httpGetCustomUrlCategories` (the custom categories offered to a rule's HTTP GET inspection).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_global_options/dlp_global_options.go",
+          "quotes": [
+            "ExemptUrlEncodedData        bool                      `json:\"exemptUrlEncodedData,omitempty\"`",
+            "HttpGetCustomUrlCategories  []string                  `json:\"httpGetCustomUrlCategories,omitempty\"`",
+            "EnableCasbOcr               bool                      `json:\"enableCasbOcr,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "live-read-only-fields": {
+      "statement": "A downstream clean-room check saw `deeplyNestedContentEnabled` and `timeoutFailClosedEnabled` in live Web DLP rule reads. Neither is in the checked-in Automate contract, its same-day recapture, the Go or Python SDKs, or the Terraform provider, and their write status is unknown.",
+      "tier": "B",
+      "conditions": "Observed by a downstream validation on 2026-06-21 and recorded without tenant identifiers or values. Read-side only; do not treat the fields as writable.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/observed-contract-overlays.md",
+          "quotes": [
+            "| `deeplyNestedContentEnabled` (`deeply_nested_content_enabled`) | `/zia/api/v1/webDlpRules` | Live read response, values not retained |",
+            "| `timeoutFailClosedEnabled` (`timeout_fail_closed_enabled`) | `/zia/api/v1/webDlpRules` | Live read response, values not retained |"
+          ]
+        }
+      ],
+      "gaps": [
+        "live-only-field-write-status"
+      ]
+    },
+    "recapture-negative-control": {
+      "statement": "The six Web DLP operation pages were recaptured on 2026-06-21 and their hashes matched the checked-in reference, so the checked-in contract was current and still lacked the two live-read fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/observed-contract-overlays.md",
+          "quotes": [
+            "All six raw hashes matched the checked-in `zia-api-reference.json`, so the checked-in Automate artifact was current for this surface and still did not document the two live-read fields."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "match-only-docstring": {
+      "summary": "The Python SDK's add-rule docstring describes `match_only` as matching file size, while the API reference, the Go SDK and the help article describe it as the engine Match Only criterion.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zia/dlp_web_rules.py",
+            "quotes": [
+              "match_only (bool): If true, matches file size for DLP policy rule evaluation."
+            ]
+          },
+          "says": "match_only relates to file size."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/matchOnly",
+            "expect": {
+              "type": "boolean",
+              "description": "The match only criteria for DLP engines."
+            }
+          },
+          "says": "matchOnly is the match only criteria for DLP engines."
+        }
+      ],
+      "impact": "An agent reading the SDK docstring would explain a missing detection as a file-size effect when Match Only excluded the transaction.",
+      "resolution": {
+        "by": "match-only-field",
+        "rule": "source-rank",
+        "note": "The vendor API reference and help article outrank an SDK docstring."
+      }
+    }
+  },
+  "gaps": {
+    "confirm-action-wire-value": {
+      "kind": "semantic",
+      "title": "How the Confirm action is represented in the API",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "creating or auditing Confirm rules through the API or Terraform",
+      "detail": "Help offers Allow, Block and Confirm, but the API reference's action values are ANY, NONE, BLOCK, ALLOW and ICAP_RESPONSE. Read a Confirm rule from a tenant to see which value it carries."
+    },
+    "without-content-inspection-keying": {
+      "kind": "semantic",
+      "title": "What a rule without content inspection matches on and which forwarding handles it uses",
+      "status": "open",
+      "former_ids": [
+        "zia-58"
+      ],
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "explaining how such a rule decides to act when no ZIA engine inspects the payload",
+      "detail": "Unverified legacy statement: \"without_content_inspection ... forwards/acts without ZIA itself inspecting payload content (e.g. hand-off to a third party)\". The help article on rules without content inspection is not captured. The other parts of the zia-58 ledger entry are placed as follows: action and severity enums are claims here; parent and sub-rule composition is split between zia.dlp.evaluation and the gap below; the live-read fields are claim live-read-only-fields and the gap live-only-field-write-status."
+    },
+    "ocr-switch-interaction": {
+      "kind": "semantic",
+      "title": "Whether the per-rule ocrEnabled field is accepted and how it interacts with enableInlineDlpOcr",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying which OCR setting controls image scanning",
+      "detail": "Both SDKs expose a rule-level field the API reference omits, and a tenant-level inline OCR flag exists. No source states how they combine."
+    },
+    "live-only-field-write-status": {
+      "kind": "data",
+      "title": "Whether deeplyNestedContentEnabled and timeoutFailClosedEnabled are writable",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "adding either field to managed configuration",
+      "detail": "Only read responses show them. A scratch-tenant create or update that includes each would show whether the API accepts it.",
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "parent-action-interaction": {
+      "kind": "semantic",
+      "title": "How a matched exception rule changes the parent rule's action",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "predicting the outcome when both a parent rule and its exception rule match",
+      "detail": "Help says exception rules exclude users or groups; the SDK documents that sub-rules need Evaluate All Rules mode. Neither states precedence between a matched exception and its parent."
+    }
+  }
+}

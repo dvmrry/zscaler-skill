@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.ai-ml-rules",
+  "title": "AI & ML Applications rules: granular actions, prompt capture, tenant profiles",
+  "aliases": [
+    "ai ml applications rule",
+    "gen ai cloud app control",
+    "capture prompts",
+    "promptCaptureEnabled",
+    "chatgpt granular actions",
+    "claude tenant profile",
+    "block uploads to chatgpt"
+  ],
+  "binds": [
+    "zia/cloud-app-control#promptCaptureEnabled",
+    "zia/cloud-app-control#tenancyProfileIds",
+    "zia/cloud-app-control#actions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.cloud-app-control.rule-types"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.cloud-app-control.ssl-visibility"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.actions"
+    }
+  ],
+  "claims": {
+    "separate-flow": {
+      "statement": "The Help portal documents an AI/ML Applications rule as its own flow, distinct from the generic Cloud App Control rule article.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.md",
+          "quotes": [
+            "In the left-side menu, select AI & ML Applications, then click Add Rule."
+          ]
+        }
+      ]
+    },
+    "granular-actions-by-app": {
+      "statement": "The AI/ML rule page lists these granular actions: ChatGPT (Chatting, Uploading, Downloading, Deleting, Sharing, Inviting, Login); Google Gemini (Chatting, Downloading, Renaming, Uploading); Microsoft Copilot (Chatting, Deleting, Renaming, Sharing, Uploading); Perplexity (Chatting, Deleting, Sharing, Uploading); Poe (Chatting, Deleting, Sharing, Uploading); Runway (Creating, Deleting, Downloading, Renaming, Sharing).",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#actions"
+      ],
+      "conditions": "The list is the page's current public body (capture 2026-10-18); it can change as applications are added. Corrected on recapture (2026-10-18): the ChatGPT entry previously read \"ChatGPT (Chatting, Uploading, Downloading, Deleting, Sharing, Inviting)\" and omitted the Login granular action, which the page now lists with Domain Profiles.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.md",
+          "quotes": [
+            "For ChatGPT, the granular actions include Chatting, Deleting, Downloading, Inviting, Login, Sharing, and Uploading.",
+            "For Google Gemini, the granular actions include Chatting, Downloading, Renaming, and Uploading.",
+            "For Microsoft Copilot, the granular actions include Chatting, Deleting, Renaming, Sharing, and Uploading.",
+            "For Perplexity, the granular actions include Chatting, Deleting, Sharing, and Uploading.",
+            "For Poe, the granular actions include Chatting, Deleting, Sharing, and Uploading.",
+            "For Runway, the granular actions include Creating, Deleting, Downloading, Renaming, and Sharing."
+          ]
+        }
+      ]
+    },
+    "common-actions-and-ssl": {
+      "statement": "When several applications are selected together only their common granular actions appear, and the page requires SSL/TLS Inspection for granular actions to work as expected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.md",
+          "quotes": [
+            "If these applications are selected together, only the common granular actions among them appear.",
+            "For the granular actions to work as expected for an application, enable SSL/TLS Inspection for the application."
+          ]
+        }
+      ]
+    },
+    "capture-prompts": {
+      "statement": "The Capture Prompts option categorizes and stores end-user prompts, up to 2 KB each, for generative AI applications. Prompts are stored in Zscaler logs for the period the organization defines, and authorized users with log access can view them. The option appears only when the selected Gen AI applications support prompt configuration, and the page points administrators to Configuring Advanced Policy Settings.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#promptCaptureEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.md",
+          "quotes": [
+            "Enable this option to categorize and store end user prompts (up to 2 KB in",
+            "The prompts are stored in Zscaler logs for the period defined by your organization. Authorized users with access to the logs are able to view the prompts entered by end users in Gen AI applications.",
+            "This option appears only when you select Gen AI applications that support prompt configuration.",
+            "To learn more, see Configuring Advanced Policy Settings."
+          ]
+        }
+      ]
+    },
+    "prompt-capture-go-field": {
+      "statement": "The Go SDK rule model has `promptCaptureEnabled` (bool), described as whether capture of end-user prompts for generative AI applications is allowed or blocked, and applicable only when the Gen AI Applications Access field is Allow.",
+      "tier": "A",
+      "binds": [
+        "zia/cloud-app-control#promptCaptureEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+          "quotes": [
+            "PromptCaptureEnabled bool `json:\"promptCaptureEnabled,omitempty\"`",
+            "Note: This field is applicable only when the Gen AI Applications Access field is set to Allow when configuring the rule."
+          ]
+        }
+      ]
+    },
+    "prompt-capture-not-in-python": {
+      "statement": "The Python SDK rule model has no prompt-capture attribute and no `promptCaptureEnabled` key in its request format, so a Python client cannot set or read the field. This shows a client-model difference only; it does not show whether a tenant offers the feature.",
+      "tier": "B",
+      "binds": [
+        "zia/cloud-app-control#promptCaptureEnabled"
+      ],
+      "conditions": "Absence claim: grep for promptCapture and prompt_capture over zscaler/zia in the Python SDK at the pin returns nothing.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloudappcontrol.py",
+          "quotes": [
+            "\"cascadingEnabled\": self.cascading_enabled,"
+          ]
+        }
+      ]
+    },
+    "tenant-profiles-visibility": {
+      "statement": "In the AI/ML rule UI, Tenant Profiles appears only when ChatGPT is the selected cloud application, and the applications selected under the tenant profiles must not be exempted from SSL/TLS Inspection. This is a UI visibility condition; it does not establish an API token for Claude.",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"In the AI/ML rule UI, Tenant Profiles appears only when ChatGPT or Claude is the selected cloud application and the selected applications are not exempted from SSL/TLS Inspection. This is a UI visibility condition; it does not establish an API token for Claude.\" The recaptured page names ChatGPT only.",
+      "binds": [
+        "zia/cloud-app-control#tenancyProfileIds"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "adding-ai-ml-applications-rule-cloud-app-control.md",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Tenant Profile: Appears only when ChatGPT is selected as the cloud application.",
+            "Ensure that the applications selected under the tenant profiles are not exempted from SSL/TLS Inspection."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "granular-app-coverage": {
+      "summary": "Which AI & ML applications have granular controls",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-cloud-app-categories.md",
+            "quotes": [
+              "AI & ML Applications: Granular controls appear when ChatGPT or Microsoft Copilot are chosen with Application Access set to Allow."
+            ]
+          },
+          "says": "Granular controls appear for ChatGPT and Microsoft Copilot (capture 2026-10-18)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "adding-ai-ml-applications-rule-cloud-app-control.md",
+            "quotes": [
+              "For Google Gemini, the granular actions include Chatting, Downloading, Renaming, and Uploading."
+            ]
+          },
+          "says": "Granular actions are also listed for Gemini, Perplexity, Poe and Runway (capture 2026-10-18)."
+        }
+      ],
+      "impact": "An answer about which AI/ML apps can be controlled per action should not rely on the categories page alone.",
+      "resolution": {
+        "by": "zia.cloud-app-control.ai-ml-rules:granular-actions-by-app",
+        "rule": "source-rank",
+        "note": "The AI/ML rule page is the newer capture and the more specific page, so it is preferred; the categories page may be stale."
+      }
+    }
+  },
+  "gaps": {
+    "prompt-capture-vs-denied-access": {
+      "kind": "semantic",
+      "title": "Prompt capture when Gen AI Application Access is not Allow",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "knowing whether promptCaptureEnabled can be true on a rule that blocks the app, and whether the API rejects it",
+      "detail": "The Go field comment says the field applies only when Gen AI Applications Access is Allow. No source says what happens otherwise, and none shows which tenants have the feature."
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.uninspectable",
+  "title": "What SSL/TLS inspection cannot inspect: pinned apps, client certs, QUIC, BYOD, IoT",
+  "aliases": [
+    "cant inspect ssl",
+    "certificate pinning",
+    "undecryptable traffic",
+    "quic ssl inspection",
+    "byod guest network inspection",
+    "iot ssl inspection",
+    "ssl inspection fails for app"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.exemptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.bypass-impact"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    }
+  ],
+  "claims": {
+    "cannot-install-cert": {
+      "statement": "Inspection is not possible on devices that cannot reasonably install the Zscaler certificate, such as IoT/OT devices, BYOD and guest networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "inspection is not possible on devices that cannot reasonably install the certificate (e.g., IoT/OT, BYOD, guest networks, etc.)."
+          ]
+        }
+      ]
+    },
+    "cert-pinning": {
+      "statement": "Applications that pin a certificate reject any other certificate, so Zscaler cannot inspect them; the guide names Apple, many Microsoft 365 apps, Adobe, Cisco WebEx and the Dropbox app, and says pinning is common in iOS and Android apps. The remedies are to replace the application, bypass it only if it is valuable enough to justify the risk, or deny it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "In certificate pinning, the application is hard-coded with a server certificate and treats any other certificate as invalid.",
+            "Zscaler cannot inspect SSL traffic from sites or applications that use certificate pinning (e.g., Apple, many Microsoft 365 apps, Adobe, Cisco WebEx, Dropbox app,",
+            "This method is common with iOS and Android applications, which can make it more difficult to manage those environments.",
+            "Replace the application or bypass the traffic if you encounter certificate pinning.",
+            "Otherwise, deny the traffic."
+          ]
+        }
+      ]
+    },
+    "pinning-exempt-by-app-or-domain": {
+      "statement": "When an application breaks because of pinning, exempt it by removing the cloud application from SSL inspection or the individual domains, using custom URL categories; for mobile apps, SaaS Security can inspect the data at rest instead of in transit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "If certificate pinning is in place, exempt the applications from SSL Inspection by removing the cloud application from SSL Inspection or the individual domains from SSL Inspection, using the custom URL categories.",
+            "Instead of inspecting data in transit, you might consider leveraging SaaS Security functionality to inspect data at rest."
+          ]
+        }
+      ]
+    },
+    "client-certs-and-ciphers": {
+      "statement": "Zscaler cannot inspect sites and applications that use client-authentication certificates or unsupported ciphers, and recommends blocking undecryptable traffic unless the organization has a specific use case for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Finally, Zscaler cannot inspect sites and applications that use client-authentication certificates or use unsupported ciphers.",
+            "Zscaler recommends blocking undecryptable traffic unless your organization has a specific use case"
+          ]
+        }
+      ]
+    },
+    "quic": {
+      "statement": "QUIC (HTTP/3) skips the TCP handshake and uses UDP while Zscaler's inspection relies on TCP session information, so Zscaler recommends blocking QUIC; the browser or device then falls back to TCP and can be inspected. Both the Zscaler firewall and Client Connector can block it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "relies on TCP session information, so Zscaler recommends blocking Google QUIC.",
+            "When blocked, the browser or device falls back on TCP connections.",
+            "Client Connector both support blocking QUIC connections."
+          ]
+        }
+      ]
+    },
+    "byod-guest-segmented": {
+      "statement": "BYOD and guest networks are generally impossible to inspect because the root CA cannot be installed, so they should be completely segmented away from the organization's network with no access to anything but the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Ensure any BYOD and guest networks are completely segmented away from your organization",
+            "with no chance of accessing anything other than the internet."
+          ]
+        }
+      ]
+    },
+    "iot": {
+      "statement": "IoT devices are in a similar state: most do not accept trust-store changes, and where inspection is possible it likely needs a custom policy and one or more sublocations for those devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Internet of Things (IoT) devices are in a similar state to BYOD and guest networks.",
+            "though it is likely that a custom policy is required along with the creation of one or more sublocations specific to these nodes."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "pinning-flavors": {
+      "kind": "semantic",
+      "title": "Two flavors of pinning: leaf/key pinning versus CA-bundle pinning",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Leaf/key pinning - most iOS/Android apps, Adobe products, Cisco WebEx app, Dropbox app, many Microsoft 365 components' versus 'CA-bundle pinning - the application embeds a specific set of trusted CAs and ignores the OS trust store. Duo Desktop, Duo Mobile, and the Duo Authentication Proxy all do this'. The guide lists the pinned apps but does not split pinning into flavors.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "ca-bundle-pinned-vendor-apps": {
+      "kind": "data",
+      "title": "Vendor applications that embed their own CA bundle and refuse an inspecting proxy (Duo Desktop, Duo Mobile, Duo Authentication Proxy)",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Proxy connections that perform HTTPS inspection or filtering from endpoints are not supported' (Duo) and 'No deployment path. Bypass at the network or SSL layer.' The old doc cited Duo's own documentation (a Duo Desktop page and Duo KB 9585) for these apps not supporting HTTPS inspection and having no way to deploy a root. Those pages are not registered sources and the captured Zscaler guides do not mention Duo, so the claim is carried as a gap, not as fact.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ],
+      "blocks": "deciding whether Duo traffic needs an exemption rather than a trust-store fix"
+    }
+  }
+}

@@ -1,28 +1,112 @@
 # Configuring AppProtection Policies
 
 **Source:** https://help.zscaler.com/zpa/configuring-appprotection-policies
-**Captured:** 2026-04-24 via Playwright MCP.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1484931, revision 3243385
 
 ---
 
+AppProtection policy rules enable you to implement AppProtection control. For a complete list of ranges and limitations for AppProtection policy rules, see Ranges & Limitations.
 To configure an AppProtection policy rule:
-
-1. Go to **Policies > Cybersecurity > Inline Security > Protection Policies > AppProtection**.
-2. Click **Add Rule**.
-3. In the **Add AppProtection Rule** window:
-   - **Name** — no special characters except `.`, `-`, `_`
-   - **Description** — optional
-   - **Rule Action** — `Inspect` or `Bypass Inspection`
-   - **AppProtection Profile** — choose a security profile with a set of common or control-specific actions
-
-## Criteria section
-
-You can copy criteria from an existing **Access Policy** rule, or use **Add Criteria** (up to 10 condition sets):
-
-- **Applications** — application segments and segment groups (`OR` between multiples)
-- **Client Connector Posture Profiles** — `AND` between condition sets; `OR` within a set, toggleable to `AND`
-- **Client Connector Trusted Networks** — `OR` between multiples
-- **Client Types** — Client Connector, Cloud Browser, Cloud Connector, Machine Tunnel, Web Browser, Internet & SaaS (ZIA) Service Edge
-- **Cloud Connector Groups** — `AND` between multiples
-- **Machine Groups + platform criteria**
-- **SAML and SCIM Attributes** / **Session and User Attributes** (ZIdentity)
+- From the navigation menu, go to Private Access > Private App Protection > App Protection Policy.
+- Click Add Rule.
+- The Add Rule page appears.
+- On the Add Rule page, enter the following information:
+  - Rule Name: Enter an AppProtection policy name. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).
+  - Description: (Optional) Enter a description.
+  - Action: Select Inspect or Bypass Inspection.
+  - AppProtection Profile: Choose an AppProtection profile that is a security profile with a set of common or control specific actions.
+  - Criteria: Select an option:
+    - Copy the criteria from an existing Access Policy Rule: Select Yes to copy the criteria from an existing access policy. The criteria from that access policy appears. You can modify the criteria if you want to adjust it for this AppProtection policy rule.
+    - Add Criteria: Click the drop-down menu to select the criteria you want to use. The drop-down menu only displays criteria that are not already in use by the rule, except for Client Connector Posture Profiles condition sets. You can add up to 10 condition sets.
+- Applications
+- Choose the application segments and segment groups to which this rule applies:
+  - Application Segments: Choose the application segments, and click Done. You can search for a specific application segment, click Select All to apply all applications segments, or click Clear Selection to remove all selections. The application segments you've configured appear in the menu. There is no limit to the number you can select.
+- If you added multiple application segments to the policy rule, Private Access (ZPA) uses an OR Boolean operator between them.
+- There are limits to the number of application segments applied to a rule. For a complete list of ranges and limitations for AppProtection Policy rules, see Ranges & Limitations.
+  - Segment Groups: Choose the segment groups, and click Done. You can search for a specific segment group, click Select All to apply all segment groups, or click Clear Selection to remove all selections. The segment groups you've configured appear in the menu. There is no limit to the number you can select.
+- If you added multiple segment groups to the policy rule, Private Access uses an OR Boolean operator between them.
+- Client Connector Posture Profiles
+- Choose the condition sets to which the rule applies. You can add up to 10 Client Connector Posture Profile condition sets to the rule. Click Add Criteria to include additional sets.
+- Each condition set can contain multiple posture profiles to enforce on a user’s device. For each profile, select one of the following:
+  - VERIFIED: Zscaler Client Connector verified the user's device against the criteria specified in the posture profile.
+  - VERIFICATION FAILED: Zscaler Client Connector was unable to verify the user's device against the criteria specified in the posture profile.
+- Make sure you have configured the posture profiles within the Zscaler Admin Console. The posture profiles you configure in the Zscaler Admin Console appear in the drop-down menu, where you can search for a specific profile.
+- If you added multiple posture profile condition sets to the policy rule, Private Access uses an AND Boolean operator between them. Private Access evaluates each posture profile condition set individually.
+- See image.
+- If you added multiple posture profiles within a posture profile condition set, Private Access uses an OR Boolean operator between them by default. However, you can toggle this to an AND operator by clicking on it.
+- See image.
+- Client Connector Trusted Networks
+- Choose the trusted networks to which the rule applies, and click Done. You can search for a specific trusted network, click Select All to have the rule apply to all trusted networks, or click Clear Selection to remove all selections. The trusted networks you've configured appear in the menu. There is no limit to the number you can select.
+- A forwarding profile tells Zscaler Client Connector how to treat traffic from your users' systems in different network environments for Private Access. When a user connects to a network, Zscaler Client Connector checks to determine what type of network the user is connected to.
+- If you added multiple trusted networks to the policy rule, Private Access uses an OR Boolean operator between them.
+- Make sure you have configured your Trusted Network Criteria within the Zscaler Admin Console. The trusted networks you configure in the Zscaler Admin Console appear in the drop-down menu.
+- Client Types
+- Choose the client types to which the rule applies, and click Done. You can search for a specific client type, click Select All to apply all client types, or click Clear Selection to remove all selections. The valid client types are:
+  - Client Connector: To learn more, see What Is Zscaler Client Connector?
+  - Cloud Browser: To learn more, see What Is Zero Trust Browser?
+  - Cloud Connector: To learn more, see About Cloud Connectors.
+  - Machine Tunnel: To learn more, see About Machine Tunnels.
+  - Web Browser: To learn more, see About Browser Access.
+  - Internet & SaaS (ZIA) Service Edge: To learn more, see Understanding Source IP Anchoring.
+- If you added multiple client types to the policy rule, Private Access uses an OR Boolean operator between them.
+- Rules using the Web Browser or Internet & SaaS Service Edge client types can not also use posture profiles or trusted networks criteria. The posture profiles or trusted networks criteria only work with Client Connector.
+- Cloud Connector Groups
+- The Cloud Connector Group criteria type cannot be configured with the SAML and SCIM Attributes criteria type.
+- Choose the Cloud Connector groups to which the policy applies, and click Done. You can search for a specific Cloud Connector group, click Select All to apply all Cloud Connector groups, or click Clear Selection to remove all selections. The Cloud Connector groups you've configured appear in the menu. There is no limit to the number you can select.
+- If you've added multiple Cloud Connector groups to the policy rule, Private Access uses an AND Boolean operator between them.
+- External IAM IdP
+- To use External IAM IdP, select the IdP from the drop-down menu. You can search for a specific IAM IdP, click Select All Displayed to apply the IdPs listed, click Clear All to remove all selections, or click the Delete icon to the right of a selected IdP to remove it from your list. There is no limit to the number you can select. Click Cancel to exit the drop-down menu.
+- This criteria is the external IdP attribute configured in Authentication Service and is only supported for IdPs created in Authentication Service.
+- Federated Applications
+- Select a partner and applications federated to the partner to which the policy applies:
+  - Partner: Select a partner from the drop-down menu.
+  - Applications Federated by Partner: Select one or more applications federated to the partner from the drop-down menu. You can search for a specific federated application, click Select All to apply all federated applications, or click Remove to remove the selections.
+- When configuring AppProtection policies and using the Federated Applications criteria, only the Client Types criteria set to Client Connector is supported for the host partner. Additionally, only the host partner can configure AppProtection policies for guest partners. The end users from the guest partner are also evaluated against the AppProtection policies configured by the host partner.
+- Machine Groups
+- Choose the Machine groups to which this rule applies, and click Done. You can search for a specific Machine group, click Select All to apply all groups, or click Clear Selection to remove all selections. The Machine groups you've configured appear in the menu. There is no limit to the number you can select.
+- If a Machine group is selected, Machine Tunnel as a client type is required as well.
+- Platforms
+- Choose the platforms to which the rule applies and click Save. This allows you to control which applications are designated to which devices. The valid platform types are:
+  - Windows
+  - macOS
+  - Linux
+  - iOS
+  - Android
+- If you added multiple platforms to the policy rule, Private Access uses an OR Boolean operator between them.
+- SAML and SCIM Attributes or Session and User Attributes
+  - If you are subscribed to Authentication Service for users, the SAML and SCIM Attributes criteria is replaced with Session and User Attributes. To learn more, see What Is Authentication Service?
+  - The SAML and SCIM Attributes criteria type cannot be configured with the Cloud Connector Group criteria type.
+- To use SAML or SCIM Criteria:
+  - Click Select IdP and choose the identity provider (IdP) configuration you want to include in the policy rule. The IdP must be configured for User SSO. To learn more, see Configuring an IdP for Single Sign-On. If you need to include multiple IdPs in the policy rule, click Select IdP again.
+  - Click Select SAML and SCIM Criteria to add the criteria to which this rule applies:
+  - SAML Attributes or Session Attributes
+  - By default, the policy rule for SAML Attributes is set to Any SAML attribute. Keep this if you want to apply the rule action to any user (i.e., the rule applies to all users, groups, departments, etc.).
+  - Alternatively, choose a specific SAML attribute from the drop-down menu if you want to apply the rule action to specific users, groups, departments, etc.:
+    - You can search for a specific attribute, select a listed attribute, or click Clear Selection to remove all selected attributes.
+    - After you make a selection, enter the SAML attribute value (i.e., the users to whom the rule applies) in the text field that appears.
+    - Click Add More to add multiple attributes, if necessary.
+  - If you are subscribed to Authentication Service for users, the SAML Attributes option is replaced with Session Attributes. The user attributes are populated from Authentication Service are used for defining various sign-on policies. To learn more, see About Attributes and What Is Authentication Service?
+  - SCIM Attributes or User Attributes
+  - Choose a specific SCIM attribute from the drop-down menu to apply the rule action to specific users, groups, departments, etc:
+    - You can search for a specific attribute, select a listed attribute, or click Clear Selection to remove all selected attributes.
+    - After you make a selection, enter the SCIM attribute value (i.e., the users to whom the rule applies) in the text field that appears.
+    - Click Add More to add multiple attributes, if necessary.
+  - If you are subscribed to Authentication Service for users, the SCIM Attributes option is replaced with User Attributes. The group attributes are populated from Authentication Service are used for defining various sign-on policies. To learn more, see About Attributes and What Is Authentication Service?
+  - SCIM Groups
+  - Choose a specific SCIM group from the drop-down menu to apply the rule action to a specific group:
+    - You can search for a specific group, select a listed group, or click Clear Selection to remove all selected groups.
+    - Click Add More to add multiple groups, if necessary.
+- These criteria appear under SAML and SCIM Attributes > <IdP Name>, where <IdP Name> is name of the IdP configuration you selected in step a.
+- See image.
+- In order for Private Access to process SAML and SCIM criteria in a rule, you must enable the SAML Attributes for Policy setting for SAML and the SCIM Attributes and Groups for Policy setting for SCIM when configuring an IdP. To learn more, see Configuring an IdP for Single Sign-On.
+- If you added multiple attributes or groups to the policy rule, Private Access uses an OR Boolean operator between them by default. For example, if you selected FirstName and LastName, the policy rule is only applied to users with the specified FirstName OR LastName for that IdP. However, you can toggle this to an AND operator by clicking on it.
+- See image.
+- If the corresponding IdP setting (SAML Attributes for Policy) is disabled for SAML, but the policy rule has criteria for SAML attributes, Private Access evaluates the rule differently depending on the Boolean operator between the criteria:
+  - OR: Private Access skips evaluating the criteria for SAML attributes, but continues to evaluate the criteria for SCIM attributes and SCIM groups.
+  - AND: Private Access does not evaluate this policy rule. You must remove the criteria under SAML Attributes for Private Access to process the policy rule.
+- If the corresponding IdP setting (SCIM Attributes and Groups for Policy) is disabled for SCIM, but the policy rule has criteria for SCIM attributes or SCIM groups, Private Access evaluates the rule differently depending on the Boolean operator between the criteria:
+  - OR: Private Access skips evaluating the criteria for SCIM attributes and SCIM groups, but continues to evaluate the criteria for SAML attributes.
+  - AND: Private Access evaluates this policy rule. You must remove the criteria for SCIM attributes and SCIM groups for Private Access to process the policy rule.
+The Boolean logic used between Criteria is always displayed. For example, when a user requests access to an application, the policy rule is evaluated to check if an application segment OR its segment group are present AND whether any of the SAML attributes are applicable to the user making the request before it grants or denies access. You can always view the Rule Action and Criteria as well as the applied Boolean logic on the AppProtection Policy page.
+- Click Save.

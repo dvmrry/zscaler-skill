@@ -1,34 +1,22 @@
 # Understanding Zscaler Cloud Names
 
 **Source:** https://help.zscaler.com/unified/understanding-zscaler-cloud-names
-**Captured:** 2026-08-12 via Zscaler Help `/zapi/fetch-data` JSON (`body.content`) extraction.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1545180, revision 3232744
 
 ---
 
-An organization is provisioned on one Zscaler cloud and its traffic is
-processed by that cloud only. Administrators may need the cloud name for SAML
-admin SSO, `config.zscaler.com`, Trust Portal notices, and Support or Account
-team work. The ZIA and ZPA cloud names are visible in Zscaler Admin Console
-Account Settings.
-
-## Production cloud names
-
-| Service | Documented cloud name(s) |
+To maximize operational efficiency, Zscaler built a highly scalable, global multi-cloud infrastructure. An organization is provisioned on one cloud and its traffic is processed by that cloud only. However, some configurations require that you specify the name of the cloud on which your organization is provisioned. For example, you must specify a cloud name when you configure SAML for admin Single Sign-On (SSO). You might also need to know the clouds your organization is provisioned on in order to locate configuration information on config.zscaler.com, maintenance notifications on Zscaler Trust Portal, or when you are working with Zscaler Support and Zscaler Account teams.
+You can find the names of the Internet & SaaS (ZIA) and Private Access (ZPA) clouds on which your organization has been provisioned by accessing the Account Settings page within the Zscaler Admin Console.
+The following table lists the production clouds your organization might be provisioned on for each service:
+| Zscaler Service | Zscaler Cloud |
 |---|---|
-| Internet & SaaS (ZIA) | `zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net` |
-| Private Access (ZPA) | `private.zscaler.com`, `zpatwo.net` |
-| Digital Experience (ZDX) | `zdxcloud.net` |
-| Client Connector | `mobile.zscaler.net`, `mobile.zscalerone.net`, `mobile.zscalertwo.net`, `mobile.zscalerthree.net`, `mobile.zscloud.net` |
-| Cloud & Branch Connector | `connector.zscaler.net`, `connector.zscalerone.net`, `connector.zscalertwo.net`, `connector.zscalerthree.net`, `connector.zscloud.net` |
-| Zero Trust Branch | `goairgap.com` |
-| Zscaler Cellular | `ztsim.com` |
-| Risk360 | `zscalerrisk.net` |
-| Authentication Service | `zslogin.net` |
-
-Client Connector and Cloud & Branch Connector names are derived from the
-organization's ZIA cloud. For example, a tenant on `zscaler.net` uses
-`mobile.zscaler.net` and `connector.zscaler.net` for those services.
-
-This table is the public production list in the captured article. It is not a
-government-cloud matrix and does not supersede SDK/provider-specific government
-host routing.
+| Internet & SaaS | zscaler.netzscalerone.netzscalertwo.netzscalerthree.netzscloud.net |
+| Private Access | private.zscaler.comzpatwo.net |
+| Digital Experience (ZDX) | zdxcloud.net |
+| Zscaler Client Connector | The cloud your organization is provisioned on is based on the Internet & SaaS (ZIA) cloud. For example, if you are provisioned for zscaler.net for Internet & SaaS, then the cloud for Zscaler Client Connector is mobile.zscaler.net.mobile.zscaler.netmobile.zscalerone.netmobile.zscalertwo.netmobile.zscalerthree.netmobile.zscloud.net |
+| Cloud & Branch Connector | The cloud your organization is provisioned on is based on the Internet & SaaS (ZIA) cloud. For example, if you are provisioned for zscaler.net for Internet & SaaS, then the cloud for Cloud & Branch Connector is connector.zscaler.net.connector.zscaler.netconnector.zscalerone.netconnector.zscalertwo.netconnector.zscalerthree.netconnector.zscloud.net |
+| Zero Trust Branch | goairgap.com |
+| Zscaler Cellular | ztsim.com |
+| Zscaler Risk360 | zscalerrisk.net |
+| Authentication Service | zslogin.net |

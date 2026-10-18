@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.dictionaries",
+  "title": "DLP dictionaries: predefined, cloned and custom",
+  "aliases": [
+    "dlp dictionary",
+    "predefined dlp dictionary",
+    "custom dlp dictionary",
+    "clone a predefined dictionary",
+    "confidence score threshold",
+    "dlp dictionary types",
+    "edm dictionary",
+    "idm dictionary",
+    "mip label dictionary",
+    "validateDlpPattern"
+  ],
+  "binds": [
+    "zia/dlp-dictionaries"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.engines"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    }
+  ],
+  "claims": {
+    "dictionary-definition": {
+      "statement": "A DLP dictionary is the detection primitive: a set of algorithms that detect a specific kind of information in user traffic and activities.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-dictionaries.md",
+          "quotes": [
+            "A Data Loss Prevention (DLP) dictionary contains a set of patented algorithms that are designed to detect specific kinds of information in your users' traffic and activities."
+          ]
+        }
+      ]
+    },
+    "predefined-and-custom": {
+      "statement": "Zscaler provides predefined dictionaries that an admin can modify and, in some cases, clone; custom dictionaries cover content the predefined ones do not.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#custom"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-dictionaries.md",
+          "quotes": [
+            "The Zscaler service provides predefined dictionaries that you can modify and, in some cases, clone.",
+            "You can also create custom dictionaries for content not covered by predefined dictionaries."
+          ]
+        }
+      ]
+    },
+    "predefined-catalog": {
+      "statement": "The predefined dictionaries are enumerated in one long help article, which also marks the dictionaries that Endpoint DLP does not support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-predefined-dlp-dictionaries.md",
+          "quotes": [
+            "Zscaler provides the following Data Loss Prevention (DLP) dictionaries.",
+            "Dictionaries marked with an asterisk (*) are not supported for Endpoint Data Loss Prevention (DLP)."
+          ]
+        }
+      ]
+    },
+    "cloning-is-limited": {
+      "statement": "Cloning is limited to a set of identification-based predefined dictionaries (Credit Cards, Social Security Numbers, National Identification Numbers and similar), with at most 4 clones per predefined dictionary. A clone records its source in `dictTemplateId`.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#dictTemplateId",
+        "zia/dlp-dictionaries#predefinedClone",
+        "zia/dlp-dictionaries#dictionaryCloningEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlpdictionaries/dlpdictionaries.go",
+          "quotes": [
+            "Only a limited set of identification-based predefined dictionaries (e.g., Credit Cards, Social Security Numbers, National Identification Numbers, etc.) can be cloned. Up to 4 clones can be created from a predefined dictionary."
+          ]
+        }
+      ]
+    },
+    "confidence-threshold-decides-violation": {
+      "statement": "Each dictionary's confidence score threshold (where it applies) helps determine what counts as a violation. For predefined dictionaries the threshold is a Low, Medium or High level whose criteria are described per dictionary in the help article, and the API carries it as `confidenceThreshold` with the values `CONFIDENCE_LEVEL_LOW`, `CONFIDENCE_LEVEL_MEDIUM` and `CONFIDENCE_LEVEL_HIGH`.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#confidenceThreshold",
+        "zia/dlp-dictionaries#thresholdType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-dictionaries.md",
+          "quotes": [
+            "The specified confidence score threshold helps determine what counts as a violation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-predefined-dlp-dictionaries.md",
+          "after": "This dictionary detects Aadhaar Unique Identification (UID) numbers from India.",
+          "quotes": [
+            "The following table lists the Confidence Score Threshold criteria for this dictionary"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/confidenceThreshold",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "CONFIDENCE_LEVEL_LOW",
+              "CONFIDENCE_LEVEL_MEDIUM",
+              "CONFIDENCE_LEVEL_HIGH"
+            ]
+          }
+        }
+      ]
+    },
+    "threshold-type-values": {
+      "statement": "A dictionary also has a `thresholdType` of `VIOLATION_COUNT_ONLY`, `CONFIDENCE_SCORE_ONLY` or `VIOLATION_AND_CONFIDENCE`, so a dictionary can be gated by match count, by confidence, or by both. The API reference marks `thresholdType` read-only.",
+      "tier": "B",
+      "binds": [
+        "zia/dlp-dictionaries#thresholdType"
+      ],
+      "conditions": "The API reference lists the three values with the description \"DLP threshold type\" and no definitions; the reading of each value is from its name.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/thresholdType",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "VIOLATION_COUNT_ONLY",
+              "CONFIDENCE_SCORE_ONLY",
+              "VIOLATION_AND_CONFIDENCE"
+            ],
+            "readOnly": true
+          }
+        }
+      ],
+      "gaps": [
+        "threshold-type-semantics"
+      ]
+    },
+    "custom-dictionary-types": {
+      "statement": "A custom dictionary is one of three types in the API: patterns and phrases (`PATTERNS_AND_PHRASES`), exact data matching (`EXACT_DATA_MATCH`) or indexed data matching (IDM, `INDEXED_DATA_MATCH`). Patterns and phrases each carry a count action of all matches or unique matches.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#dictionaryType",
+        "zia/dlp-dictionaries#patterns",
+        "zia/dlp-dictionaries#phrases"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/dictionaryType",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "PATTERNS_AND_PHRASES",
+              "EXACT_DATA_MATCH",
+              "INDEXED_DATA_MATCH"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-dlp-dictionaries.md",
+          "quotes": [
+            "you can create custom dictionaries that trigger based on specific patterns and phrases, or trigger based on exact data matching."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlpdictionaries/dlpdictionaries.go",
+          "quotes": [
+            "// List of Indexed Document Match (IDM) profiles and their corresponding match accuracy for custom DLP dictionaries."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/patterns/items/properties/action",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "PATTERN_COUNT_TYPE_ALL",
+              "PATTERN_COUNT_TYPE_UNIQUE"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/phrases/items/properties/action",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "PHRASE_COUNT_TYPE_UNIQUE",
+              "PHRASE_COUNT_TYPE_ALL"
+            ]
+          }
+        }
+      ]
+    },
+    "mip-labels-dictionary": {
+      "statement": "A rule's Document Properties content location matches file metadata such as MIP labels. The captured help does not describe a MIP-label custom dictionary, and the API's `dictionaryType` has no MIP value.",
+      "tier": "B",
+      "binds": [
+        "zia/dlp-dictionaries#dictionaryType"
+      ],
+      "conditions": "Corrected on recapture (2026-10-18): previously \"Help lists a way to define Microsoft Information Protection (MIP) labels for custom dictionaries, and a rule's Document Properties content location matches file metadata such as MIP labels. The API's `dictionaryType` has no MIP value.\". The absence of a MIP value is from the dictionaryType enum in the API reference.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.md",
+          "after": "You then configure your policy rules based on that setting:",
+          "quotes": [
+            "Document Properties: Matches are based on the file metadata (i.e., MIP labels)."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/dictionaryType",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "PATTERNS_AND_PHRASES",
+              "EXACT_DATA_MATCH",
+              "INDEXED_DATA_MATCH"
+            ]
+          }
+        }
+      ],
+      "gaps": [
+        "mip-label-api-representation"
+      ]
+    },
+    "validate-pattern-unreliable": {
+      "statement": "The Python SDK's `validateDlpPattern` helper warns that the endpoint returns a valid response but does not fail for obviously wrong patterns, and that the API documentation does not describe its request. Do not treat a passing validation as proof a custom pattern is well formed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/dlp_dictionary.py",
+          "quotes": [
+            "This endpoint is returning a valid response but validation isn't failing for obvious wrong patterns. Use at",
+            "/dlpDictionaries/validateDlpPattern"
+          ]
+        }
+      ]
+    },
+    "dictionary-limits": {
+      "statement": "A tenant can hold 801 custom dictionaries with DLP Dictionary Expansion enabled and 160 without it, at most 64 custom parent dictionaries, and 63 sub-dictionaries per parent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Custom DLP Dictionaries | 801 dictionaries (with DLP Dictionary Expansion enabled)160 dictionaries (with DLP Dictionary Expansion disabled) |",
+            "| Custom DLP Parent Dictionaries | 64 dictionaries |",
+            "| Custom DLP Sub-Dictionaries | 63 per parent dictionary |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "threshold-type-semantics": {
+      "kind": "semantic",
+      "title": "What each dictionary thresholdType value gates on",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "stating whether a dictionary fires on count, confidence or both",
+      "detail": "The API lists the three values without definitions, and the help articles describe the confidence level but not how a count threshold combines with it."
+    },
+    "mip-label-api-representation": {
+      "kind": "semantic",
+      "title": "How a MIP-label dictionary is represented and whether it needs Microsoft 365 integration",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "answering whether MIP matching works from document metadata alone",
+      "detail": "The captured help has only the article title. No source says whether the Zscaler side needs a Microsoft 365 integration, or which dictionaryType a MIP-label dictionary uses."
+    },
+    "edm-mechanics": {
+      "kind": "semantic",
+      "title": "How exact data matching works operationally",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "describing EDM hashing, whether source data leaves the tenant, and update cadence",
+      "detail": "The captured help does not cover EDM setup. The API shows EDM schema and template identifiers on the dictionary but no mechanics."
+    },
+    "predefined-catalog-contents": {
+      "kind": "data",
+      "title": "Unverified legacy statement: the predefined catalog is hundreds of dictionaries including HIPAA, GDPR, medical terms and API keys",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ],
+      "blocks": "stating how many predefined dictionaries exist and which regimes they cover",
+      "detail": "Unverified legacy statement: \"Zscaler ships hundreds of these covering: credit cards, SSNs, passport numbers, bank account numbers, HIPAA data, GDPR categories, financial terms, medical terms, source code signatures, API keys, and MANY more.\" The captured article lists dictionaries (it contains Credit Cards, Social Security Numbers (US), Source Code and Medical Information entries) but a count and the HIPAA, GDPR and API-key claims were not checked against it. Reading the article's headings, or listing dictionaries live, resolves it."
+    },
+    "edm-false-positive-rate": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: EDM has a near-zero false-positive rate",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ],
+      "blocks": "advising EDM over patterns on accuracy grounds",
+      "detail": "Unverified legacy statement: \"Exact Data Matching ... Stronger than pattern matching because false-positive rate is near-zero.\" No registered source states it."
+    },
+    "threshold-tuning-advice": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: credit card thresholds should be low and fuzzy dictionaries high",
+      "status": "open",
+      "resolves_with": [
+        "operator-experience",
+        "source-read"
+      ],
+      "blocks": "recommending a threshold per dictionary",
+      "detail": "Unverified legacy statement: \"conservative for high-signal patterns (credit cards -> low threshold = many matches), strict for fuzzy patterns (medical terms -> high threshold = only confident matches).\" The help describes per-dictionary Low, Medium and High criteria but gives no tuning guidance."
+    }
+  }
+}

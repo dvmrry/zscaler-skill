@@ -177,7 +177,7 @@ In addition to the per-category coverage gap, the cross-product clarifications a
 ## Cross-links
 
 - ZIA web log schema (inline CASB / Cloud App Control fields) — [`./web-log-schema.md`](./web-log-schema.md)
-- DLP dictionaries (referenced by `dlpdict` field) — [`../dlp.md`](../dlp.md) if exists, otherwise [`../../../vendor/zscaler-help/about-dlp-dictionaries.md`](../../../vendor/zscaler-help/about-dlp-dictionaries.md)
+- DLP dictionaries (referenced by `dlpdict` field) — [`zia.dlp`](kb:zia.dlp) if exists, otherwise [`../../../vendor/zscaler-help/about-dlp-dictionaries.md`](../../../vendor/zscaler-help/about-dlp-dictionaries.md)
 - DLP engines — [`../../../vendor/zscaler-help/about-dlp-engines.md`](../../../vendor/zscaler-help/about-dlp-engines.md)
 - SIEM log mapping (CASB row) — [`../../shared/siem-log-mapping.md`](../../shared/siem-log-mapping.md)
 - Cloud NSS feed configuration — [`../../../vendor/zscaler-help/about-cloud-nss-feeds.md`](../../../vendor/zscaler-help/about-cloud-nss-feeds.md)

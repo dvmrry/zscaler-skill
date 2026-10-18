@@ -209,7 +209,7 @@ Source: `vendor/zscaler-help/configuring-dynamic-location-groups.md`.
 
 ## Cross-links
 
-- Rule scoping examples: [`zia.url-filtering`](kb:zia.url-filtering), [`./ssl-inspection.md`](./ssl-inspection.md), [`./cloud-app-control.md`](./cloud-app-control.md).
+- Rule scoping examples: [`zia.url-filtering`](kb:zia.url-filtering), [`zia.ssl-inspection`](kb:zia.ssl-inspection), [`zia.cloud-app-control`](kb:zia.cloud-app-control).
 - Cloud Connector Workload sublocations: [`../cloud-connector/overview.md`](../cloud-connector/overview.md).
 - Forwarding methods that terminate at locations (GRE/IPSec): [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md) and the captured GRE deployment docs under `vendor/zscaler-help/`.
 - Extranet-specific behavior: not yet covered as a dedicated doc — see help article *About Extranet* if needed.

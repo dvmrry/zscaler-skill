@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.coverage",
+  "title": "What Sandbox analyzes and why a file may not be",
+  "aliases": [
+    "basic vs advanced sandbox",
+    "file not sandboxed",
+    "sandbox not analyzing",
+    "no active content",
+    "sandbox file size limit",
+    "sandbox file types"
+  ],
+  "binds": [
+    "zia/sandbox-rules#fileTypes"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    }
+  ],
+  "claims": {
+    "tier-limits": {
+      "statement": "Basic Sandbox analyzes only .exe, .dll, .scr, .ocx, .sys and .zip files up to 2 MB. Advanced Sandbox covers all common types including Office, PDF, APK and scripts, up to 20 MB (50 MB for .exe files and archives).",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            ".zip only",
+            "All common types including Office, PDF, APK, scripts",
+            "File size | 2 MB max | Up to 20 MB (50 MB for .exe and archives)"
+          ]
+        }
+      ]
+    },
+    "basic-lacks-features": {
+      "statement": "Basic Sandbox has no quarantine, no Patient 0 alerts and no Sandbox report API; its URL category filtering is limited to a subset of categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "Quarantine | Not available | Yes",
+            "Patient 0 alerts | Not available | Yes",
+            "Sandbox report API | Not available | Yes",
+            "URL category filtering | Limited categories only | All URL categories"
+          ]
+        }
+      ]
+    },
+    "out-of-scope-not-analyzed": {
+      "statement": "A file whose type or size does not match the subscription level is not analyzed by Sandbox. Files over the size limit are handled by File Type Control instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "If a file type or size doesn't match the subscription level, Sandbox won't analyze it.",
+            "Files exceeding the limit are handled by File Type Control policy instead."
+          ]
+        }
+      ],
+      "gaps": [
+        "advanced-out-of-scope-action"
+      ]
+    },
+    "static-fast-path": {
+      "statement": "For Office documents and PDFs, ZIA runs static analysis first. A file with no macros, embedded scripts or suspicious objects is classified benign without Sandbox analysis, and Web Insights logs show \"Allowed - No Active Content\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "the file is classified as benign without Sandbox analysis",
+            "Allowed - No Active Content"
+          ]
+        }
+      ]
+    },
+    "previously-analyzed": {
+      "statement": "A file whose MD5 was already analyzed and classified benign may be passed without re-analysis.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "it may be fast-pathed without re-analysis"
+          ]
+        }
+      ]
+    },
+    "needs-decryption": {
+      "statement": "Cloud Sandbox is among the Zscaler features that depend on SSL inspection to work on encrypted transactions. If a DO_NOT_INSPECT or DO_NOT_DECRYPT SSL rule matches the traffic, Sandbox cannot see the file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "after": "The features that depend on SSL inspection are:",
+          "quotes": [
+            "Cloud Sandbox"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "If traffic is not SSL-inspected, Sandbox, Malware Protection, and ATP cannot scan the file content"
+          ]
+        }
+      ]
+    },
+    "not-analyzed-checklist": {
+      "gaps": [
+        "check-order-vs-report"
+      ],
+      "statement": "The source's order for a file that was not sent to Sandbox is: SSL inspection, file type against tier, file size against tier, static no-active-content pre-check, previously analyzed benign MD5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "commands/investigate-sandbox.md",
+          "quotes": [
+            "1. SSL not inspecting traffic for this domain (Step 4)",
+            "5. File already analyzed and cached as benign"
+          ]
+        }
+      ]
+    },
+    "no-active-content-reading": {
+      "statement": "An \"Allowed - No Active Content\" log entry means the static pre-check found nothing to detonate; it is not evidence that Sandbox analyzed and cleared the file.",
+      "tier": "B",
+      "conditions": "Reading of the source's wording (\"without Sandbox analysis\"); no source states it as a warning.",
+      "derived_from": [
+        "static-fast-path"
+      ]
+    },
+    "help-default-rule": {
+      "statement": "The default Sandbox rule analyzes Windows executable and library files of 2 MB or less downloaded from suspicious URL categories (including Anonymizer, FileHost, Shareware Download, Web Host and Miscellaneous or Unknown), also when they are inside ZIP archives. A file the service has never seen is allowed and sent to the Sandbox engine; malicious Adware, Malware & Botnets and P2P & Anonymizer files are blocked.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#defaultRule"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "It analyzes Windows executable files and Windows library files (such as dynamic-link libraries) that are 2 MB or less and downloaded from URLs in suspicious URL categories.",
+            "The service also analyzes these files if they’re contained in ZIP archive files.",
+            "the service allows the downloads and sends the files to the Sandbox engine for analysis"
+          ]
+        }
+      ]
+    },
+    "help-size-ceilings": {
+      "statement": "Advanced Sandbox can scan files larger than 2 MB and lets the admin choose which file types are analyzed. Sandbox supports sizes up to 50 MB for Windows EXEs, Android APKs and archives, and the Advanced Detections package analyzes EXE and DLL files up to 200 MB.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#fileTypes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "You can scan files sized higher than 2 MB.",
+            "Zscaler Sandbox supports file sizes up to 50MB for Windows EXEs, Android APKs, and Archive file types.",
+            "you can analyze EXE and DLL files sized up to 200 MB"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "check-order-vs-report": {
+      "kind": "semantic",
+      "title": "Whether SSL inspection should be checked before or after the report lookup",
+      "status": "open",
+      "detail": "The MCP workflow fetches the Sandbox report first and treats a missing report as the sign the file was not analyzed, then checks SSL inspection. The earlier reference said to check SSL bypass before exploring Sandbox policy; no source states that ordering.",
+      "resolves_with": [
+        "operator-experience"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "The file was not analyzed by Sandbox. Proceed to Step 3D to diagnose why."
+          ]
+        }
+      ]
+    },
+    "other-types-ceiling": {
+      "kind": "semantic",
+      "title": "The size ceiling for Advanced file types other than EXE, APK and archives",
+      "status": "open",
+      "detail": "Only the MCP skill states 20 MB for the remaining types; the help page is silent.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "advanced-out-of-scope-action": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: what happens to out-of-scope files on Advanced Sandbox",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier reference said Advanced out-of-scope files are \"subject to policy\", and that Basic passes them through silently. The MCP skill says only that Sandbox won't analyze them and that over-size files go to File Type Control; no source describes the Advanced case.",
+      "resolves_with": [
+        "operator-experience",
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "advanced-size-ceiling": {
+      "summary": "The MCP skill and the help page give different Advanced size ceilings.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "mcp-server",
+            "path": "skills/zia/investigate-sandbox/SKILL.md",
+            "quotes": [
+              "Up to 20 MB (50 MB for .exe and archives)"
+            ]
+          },
+          "says": "20 MB generally, 50 MB for .exe files and archives; APK is not in the 50 MB group."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-sandbox.md",
+            "quotes": [
+              "Zscaler Sandbox supports file sizes up to 50MB for Windows EXEs, Android APKs, and Archive file types."
+            ]
+          },
+          "says": "50 MB for Windows EXEs, Android APKs and archives; no general 20 MB figure; 200 MB with Advanced Detections."
+        }
+      ],
+      "impact": "A size-limit answer for an APK, or for any type with a limit above 20 MB, depends on which source is used; the 200 MB package tier is absent from the MCP skill.",
+      "resolution": {
+        "by": "help-size-ceilings",
+        "rule": "source-rank",
+        "note": "The vendor help page outranks the MCP skill; the general 20 MB figure for other types remains unconfirmed by help (see gap other-types-ceiling)."
+      }
+    }
+  }
+}

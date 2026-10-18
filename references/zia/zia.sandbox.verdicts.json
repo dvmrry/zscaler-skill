@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.verdicts",
+  "title": "Which engine blocked the file, and what a Sandbox verdict means",
+  "aliases": [
+    "blocked by sandbox vs malware protection vs atp",
+    "blocked policy type",
+    "sandbox says benign but file is blocked",
+    "benign verdict"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.coverage"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering"
+    }
+  ],
+  "claims": {
+    "blocked-policy-type": {
+      "statement": "The Blocked Policy Type field in Web Insights logs identifies which security control is responsible for a block: Sandbox, Malware Protection, or Advanced Threat Protection. The log also carries Policy Action and Threat Super Category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "The Blocked Policy Type in Web Insights logs identifies which security control is responsible:",
+            "Threat Super Category from Web Insights logs"
+          ]
+        }
+      ]
+    },
+    "mp-atp-no-transaction-api": {
+      "statement": "The MCP server has no tool to investigate a Malware Protection or ATP block: its guidance for those two policy types is advisory, and a transaction is attributed through Web Insights logs. The SDKs expose Malware Protection and ATP only as policy settings and lists, not per-transaction verdicts.",
+      "tier": "B",
+      "conditions": "The first sentence is the skill's own statement. The second rests on reading the Go service files: every function there reads or writes a settings or list endpoint under /cyberThreatProtection/. Absence in two SDKs is not proof the API has no such endpoint.",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "ZIA Malware Protection | No API -- advisory guidance only",
+            "ZIA ATP | No API -- advisory guidance only"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
+          "quotes": [
+            "/zia/api/v1/cyberThreatProtection/advancedThreatSettings"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/malware_protection/malware_protection.go",
+          "quotes": [
+            "/zia/api/v1/cyberThreatProtection/malwarePolicy"
+          ]
+        }
+      ],
+      "gaps": [
+        "mp-atp-diagnosis-api"
+      ]
+    },
+    "classification-types": {
+      "statement": "A Sandbox report's Classification type is MALICIOUS, SUSPICIOUS or BENIGN. MALICIOUS means the block is expected; BENIGN means Sandbox should not be the blocker and the investigation moves to other policies; SUSPICIOUS calls for reading the behavioral indicators in the full report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "If `MALICIOUS` -- the block is expected behavior; the sandbox correctly identified the threat",
+            "If `SUSPICIOUS` -- review the behavioral indicators in the full report",
+            "If `BENIGN` -- the file should not be blocked by Sandbox; look for other policies"
+          ]
+        }
+      ]
+    },
+    "benign-not-clean": {
+      "statement": "A BENIGN Sandbox verdict covers only Sandbox. A file Sandbox cleared can still be blocked by Malware Protection, ATP or File Type Control, and URL Filtering can block before Sandbox is reached. The source's first suspects for a block under a BENIGN verdict are Malware Protection and ATP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "look for other policies (Malware Protection, ATP, File Type Control)",
+            "check URL filtering (may block before sandbox)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "commands/investigate-sandbox.md",
+          "quotes": [
+            "should not be blocked by sandbox; check Malware Protection or ATP"
+          ]
+        }
+      ]
+    },
+    "sandbox-row": {
+      "statement": "For a Sandbox block the investigation is API-driven: take the file's MD5 from the Web Insights log and fetch its Sandbox report, check the quota, the blocked-hash list and the hash count. The tools are the report, quota, behavioral-analysis and file-hash-count calls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "File MD5 hash (if available from Web Insights logs)",
+            "`zia_get_sandbox_quota()` -- check quota usage and subscription limits",
+            "`zia_get_sandbox_behavioral_analysis()` -- list of MD5 hashes blocked by sandbox"
+          ]
+        }
+      ]
+    },
+    "mp-atp-python-surfaces": {
+      "statement": "The Python SDK exposes Malware Protection (`malware_protection_policy`) as get/update pairs for the malware policy, malware inspection, malware protocols and malware settings, and ATP (`atp_policy`) as get/update settings plus security-exception and malicious-URL list calls. None returns a per-transaction verdict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/malware_protection_policy.py",
+          "quotes": [
+            "def get_atp_malware_policy(self)",
+            "def get_atp_malware_inspection(self)",
+            "def get_atp_malware_protocols(self)",
+            "def get_malware_settings(self)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "quotes": [
+            "def get_atp_settings(self)",
+            "def get_atp_security_exceptions(self)",
+            "def get_atp_malicious_urls(self)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "mp-atp-diagnosis-api": {
+      "kind": "semantic",
+      "title": "Whether any ZIA API attributes a single transaction to Malware Protection or ATP",
+      "status": "open",
+      "detail": "The MCP skill says there is no API for Malware Protection or ATP diagnosis and the two SDKs expose settings only; whether the ZIA API has any per-transaction endpoint is not established by a source.",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ],
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "No API -- advisory guidance only"
+          ],
+          "after": "ZIA Malware Protection"
+        }
+      ]
+    },
+    "sandbox-first-engine": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: a file blocked by Sandbox is blocked before any other engine sees it",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier reference asserted this engine ordering. The help page points to About Policy Enforcement for the order of enforcement, which is not captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "confidence-score": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: a Sandbox Detail Report confidence score",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier decision tree said to check the report for a confidence score. The report model has Classification Score; no source calls it a confidence score or says how to use it.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

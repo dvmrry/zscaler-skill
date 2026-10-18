@@ -1,50 +1,212 @@
 # Configuring Forwarding Profiles for Zscaler Client Connector
 
 **Source:** https://help.zscaler.com/zscaler-client-connector/configuring-forwarding-profiles-zscaler-client-connector
-**Captured:** 2026-04-26 via Playwright MCP (innerText extraction of <article>).
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1285416, revision 3243869
 
 ---
 
-Zscaler Client Connector Help 
-Forwarding Traffic Management 
-Configuring Forwarding Profiles for Zscaler Client Connector
-Client Connector
-Configuring Forwarding Profiles for Zscaler Client Connector
-Ask Zscaler
-
 Watch a video about forwarding profiles.
-
 The forwarding profile tells Zscaler Client Connector how to treat traffic from your users' systems in different network environments for the Internet & SaaS and Private Access services.
-
 To configure a forwarding profile:
-
-Go to Infrastructure > Connectors > Client > Forwarding Profile for Platforms.
-
-Click Add Forwarding Profile.
-
-The Add Forwarding Profile window appears.
-
-In the Add Forwarding Profile window:
-Profile Definition
-Trusted Network Criteria
-Trusted Network Evaluation
-Windows Driver Selection
-Forwarding Profile Action for Internet & SaaS
-Forwarding Profile Action for Private Access
-Click Save.
-Was this article helpful? Click an icon below to submit feedback.
-Related Articles
- 
-About Forwarding Profiles
-Configuring Forwarding Profiles for Zscaler Client Connector
-Searching for a Forwarding Profile
-About Trusted Networks
-Configuring Trusted Networks for Zscaler Client Connector
-Searching for a Trusted Network
-About Z-Tunnel 1.0 & Z-Tunnel 2.0
-Best Practices for Deploying Z-Tunnel 2.0
-Migrating from Z-Tunnel 1.0 to Z-Tunnel 2.0
-Configuring Dedicated Proxy Ports
-Copying a Forwarding Profile
-
-NOTE: This page uses dynamically loaded sub-sections (Profile Definition, Trusted Network Criteria, Trusted Network Evaluation, Windows Driver Selection, Forwarding Profile Action for Internet & SaaS, Forwarding Profile Action for Private Access). The rendered text above is sparse; full detail may require interactive expansion.
+- From the navigation menu, go to Infrastructure > Client Connector > Forwarding Profile.
+- Click Add Forwarding Profile.
+- The Add Forwarding Profile window appears.
+- In the Add Forwarding Profile window:
+  - Profile Definition
+  - In the Profile Name field, enter a unique alphanumeric name for the forwarding profile.
+  - Trusted Network Criteria
+  - Define the network information and conditions that your network must meet for Zscaler Client Connector to verify that it's one of your trusted networks.
+  - To configure the Trusted Network Criteria:
+    - Add Condition: Select one of the following conditions, then click Add Condition.
+    - Zscaler recommends using static properties, such as DNS Server and DNS Search Domains, for Trusted Network Criteria. In contrast, Hostname and IP resolution is a dynamic property because Zscaler Client Connector must resolve a hostname to see if it resolves to the IP address specified in the Trusted Network Criteria. There is a chance that a resolution might fail because of network transition processes. If a resolution fails, the app could incorrectly determine the network is an untrusted one, in which case it applies the incorrect forwarding profile action.
+      - DNS Server: The DNS servers where your corporate network sends DNS requests. Enter the DNS servers, separated by commas. IPv6 addresses are supported if you’re using Zscaler Client Connector version 3.4 and later for Windows. The app verifies at least one DNS server.
+      - DNS Search Domains: The search domains configured as the primary domains for the network adapter used for connecting to Zscaler. Enter the search domains, separated by commas. The app only verifies the primary domains assigned to the active network adapter.
+      - Hostname and IP: The hostname and the IP addresses where the hostname resolves when users are on the corporate network. For Hostname, enter the hostname. For Resolved IPs for Hostname, enter the IP addresses that the hostname resolves to, separated by commas. IPv6 addresses are supported if you’re using Zscaler Client Connector version 3.4 and later for Windows. The app verifies at least one IP address.
+      - Don’t use a domain that is covered by a Private Access Application Segment, unless the domain is configured with Always as the bypass in the Client Connector Access section.
+      - Network Range: The network range for subnets and private IPs. Enter the valid network ranges, separated by commas.
+      - Default Gateway: Enter the IP address of the default gateway to the internet.
+      - DHCP Server: Enter the valid DHCP server, separated by commas.
+      - Egress IP: Enter the egress IP address of the network. This option allows you to differentiate a location that matches the trusted network criteria of other locations. Applies only to Zscaler Client Connector version 4.6 and later for Windows.
+      - Predefined Trusted Networks: This option is only applicable if you have Zscaler Client Connector version 2.1 and later for Windows. Using this option allows you to select multiple trusted networks. To select networks from the drop-down menu, you must first define the Trusted Network Criteria for each network on the Trusted Networks page. To learn more, see About Trusted Networks.
+      - You cannot configure Trusted Network Criteria for a network (i.e., DNS Server, DNS Search Domains, or Hostname and IP) and use the Predefined Trusted Networks option at the same time.
+    - Repeat this step to specify more than one condition.
+    - Condition Match: This field appears after you configure a condition.
+      - If specifying only one condition for the criteria, skip this step.
+      - If specifying multiple conditions for the criteria, select one of the following options:
+        - Any: Select if you want the app to validate only one of the conditions to determine if the network is trusted.
+        - All: Select if you want the app to validate all of the conditions to determine if the network is trusted.
+  - Trusted Network Evaluation
+  - Select how Zscaler Client Connector evaluates trusted network criteria.
+    - Select Evaluate Trusted NW against All Default Route Adapters to have Zscaler Client Connector evaluate trusted network criteria against all adapters with a default route. Zscaler Client Connector uses the adapter with the lowest metric if it finds more than one match.
+    - Select Enable Split VPN-Trusted Network to have Zscaler Client Connector detect whether the device is running a split-tunnel VPN in addition to the currently supported full-tunnel VPN-trusted network detection.
+    - Select Skip Trusted Criteria match for VPN Adapters to have Zscaler Client Connector not require trusted network criteria to match VPN adapters. The adapter's presence triggers network detection.
+  - Windows Driver Selection
+  - Select the Tunnel Driver Type to use when handling traffic for Windows devices when in Tunnel mode:
+    - Route-Based: Zscaler Client Connector creates a virtual network adapter. The app uses OS routing to forward traffic via this interface to the Zscaler service.
+    - Packet Filter-Based: Zscaler Client Connector uses Windows filtering to capture and forward traffic to the Zscaler service. This option allows for more granular control over traffic, reduces interoperability issues for applications that manage network adapters on the system, and allows VPN clients to better interoperate with the app. You must use this driver if you enable packet capture. This is the default value.
+    - Zscaler Client Connector version 4.8 and later for Windows does not use the route-based driver. If a Windows device has Zscaler Client Connector version 4.8 or later installed, the app always uses the packet filter-based driver, regardless of this setting.
+  - Forwarding Profile Action for ZIA
+  - Define how Zscaler Client Connector treats traffic from your users' systems for the Internet & SaaS (ZIA) service for On-Trusted Network, VPN-Trusted Network, Off-Trusted Network, or Split VPN-Trusted Network types. To learn more, see About Forwarding Profiles.
+  - To specify how the app treats traffic from your users' systems, select one of the following forwarding profile actions for each network type:
+    - Tunnel
+    - Tunnel with Local Proxy
+    - Enforce Proxy
+    - None
+  - If you want On-Trusted Network behavior to apply to VPN-Trusted Network or Off-Trusted Network, select Same as "On-Trusted Network" for either environment.
+  - Zscaler recommends using Tunnel (Packet Filter-Based) as your forwarding profile action for Windows and using Tunnel with Local Proxy for macOS. With these modes, users don’t encounter interoperability issues if they have VPN clients running alongside Zscaler Client Connector. If you experience issues with Tunnel (Packet Filter-Based), Zscaler recommends that you use Tunnel with Local Proxy instead. To learn more, see Best Practices for Zscaler Client Connector and VPN Client Interoperability.
+  - This table lists the capabilities for each Internet & SaaS forwarding mode
+| Capability/Mode | Z-Tunnel 1.0 | Z-Tunnel 2.0 | Enforce Proxy | Tunnel with Local Proxy | None |
+|---|---|---|---|---|---|
+| Forward all web traffic (80/443) |  |  |  |  |  |
+| Forward all web traffic on nonstandard ports |  |  |  |  |  |
+| Forward all non-web traffic (all ports/protocols) |  |  |  |  |  |
+| Forward web traffic transparently (includes non‑proxy‑aware apps). |  |  |  |  |  |
+| Manage IP-layer bypasses/inclusions/excursions* |  |  |  |  |  |
+| Supports no-default route environments |  |  |  |  |  |
+| Forward no traffic |  |  |  |  |  |
+  - *Z-Tunnel 1.0 is supported when Z-Tunnel 2.0 is configured to fall back to Z-Tunnel 1.0 for Zscaler Client Connector for Windows 3.4 and later.
+  - To learn more, see Best Practices for Adding Bypasses for Z-Tunnel 2.0.
+  - In Tunnel mode, the app tunnels traffic at the network layer. It captures user traffic by setting IP routes on user devices. The app forwards all port 80/443 traffic to the Zscaler service through a routing mode tunnel called the Zscaler Tunnel (Z-Tunnel).
+    - (Optional) For Tunnel Version Selection, you can select which version of Z-Tunnel to use. To see this field, you must select Packet Filter-Based for the driver method.
+    - To use Z-Tunnel 2.0, you must complete all configuration steps. To learn more, see Z-Tunnel 2.0.
+    - If you select Z-Tunnel 2.0, the Advanced Z-Tunnel Configuration menu appears.
+    - See the instructions for Advanced Z-Tunnel Configuration.
+    - For Block Unreachable Domains Traffic: This option drops or bypasses domains that are not reachable from the Internet & SaaS Public Service Edge.
+    - For Drop IPv6 in Dual Stack Network:
+      - Enable this option to have Zscaler Client Connector intercept and drop IPv6 packets coming from a dual stack network (IPv4 and IPv6 run simultaneously alongside each other). For Windows platforms, this setting is supported only in LWF mode.
+      - Disable this option when using IPv6. When this option is enabled, it takes precedence over all IPv6 settings.
+    - For Drop IPv6 in IPv6 Only Network:
+      - Enable this option to have Zscaler Client Connector intercept and drop IPv6 packets coming from an IPv6-only network. This setting prevents IPv6-only traffic from bypassing Zscaler Client Connector if IPv6 is not enabled or if IPv6 inclusions are not configured.
+      - Disable this option when using IPv6. When this option is enabled, it takes precedence over all IPv6 settings.
+    - Dynamic ZIA Service Edge Assignment: Enable this option to configure settings for probe interval, probe sample size, and threshold rank. The default setting is disabled.
+      - Probe Interval (In Seconds): The time interval in which an IP address connects with a server. Choose a time between 30 to 600 seconds. The default is 60 seconds.
+      - Probe Sample Size: The number of retries required to establish a connection before a failover. The default is 5 times.
+      - Threshold Rank: Ranks the change in latency of the primary and secondary Public Service Edges, Private Service Edges, or Virtual Service Edges. Select a rank from 1 to 5 from the drop-down menu. If the value exceeds the threshold limit, the switch is made from the primary to the secondary Service Edge, or vice versa. Rank 1 is a minimum change, which is the most aggressive for switching from the primary to the secondary Service Edge.
+    - In the Configure System Proxy Settings drop-down menu, define the proxy settings for your users’ systems.
+      - Proxy Action Type: To define specific system proxy settings for user devices, select one of the following options:
+        - Enforce: If you select this option, Zscaler Client Connector enforces your proxy settings by monitoring system proxy changes and reapplying settings, which ensures that users cannot tamper with their proxy settings.
+        - Apply on Trusted Network Type Change: If you select this option, Zscaler Client Connector only applies your proxy settings when the network type changes. For example, the network shifts from a trusted network to an untrusted one. Zscaler Client Connector only updates system proxy settings on network type changes, but won’t monitor for proxy changes afterward.
+        - Apply on Any Network Change: If you select this option, Zscaler Client Connector only applies your proxy settings if there is any network change, but does not monitor for proxy changes afterward.
+        - Never: If you select this option, Zscaler Client Connector never alters your proxy settings.
+      - Configure the following system proxy settings:
+        - Automatically Detect Settings: Select this option if you want the users’ devices to use proxy discovery on the network.
+        - PAC URL Location: Select this option if you want to use a PAC file to specify automatic proxy settings on users’ devices. Zscaler Client Connector enforces your chosen proxy settings based on the PAC file retrieved from the selected location:
+          - PAC URL: If you select this option, enter a valid PAC URL in the Custom PAC URL field. The maximum number of characters is 512. If Enforce Secure PAC URLs is enabled, you must enter a URL with the https:// prefix (not http://).
+          - Zscaler Client Connector downloads the PAC file from this URL directly. If you restrict access to the PAC file location (e.g., it's hosted in a SIPA domain), Zscaler Client Connector can download the file through Z-Tunnel 2.0. Contact Zscaler Support to enable this option.
+          - Registry Key: If you select this option, enter the following:
+            - Registry Path: The registry path for Zscaler Client Connector to locate the PAC URL from the device. The maximum number of characters is 61,440.
+            - Registry Name: The registry name for Zscaler Client Connector to locate the PAC URL from the device. The maximum number of characters is 2,048.
+        - Use Proxy Server for Your LAN: Select this option if you want to use a specific proxy server and port.
+          - IP Address or Domain: Enter an FQDN, IP address, or a plain hostname with the http:// or https:// prefix.
+          - Port: Enter any port ranging from 1 to 65534.
+          - Bypass Proxy Server for Local Addresses: Select this option if you want to bypass local resources.
+        - Execute GPO Update: Select this option if you want to execute the GPO update command on Windows devices when Zscaler Client Connector detects a network change.
+  - Zscaler Client Connector version 4.3 and later for iOS supports Z-Tunnel 2.0 over TLS. DTLS is not supported on iOS devices.
+    - Primary Transport Selection: Select the primary transport for Z-Tunnel 2.0. This setting determines how Zscaler Client Connector connects to the cloud. DTLS uses UDP over port 443 and TLS uses TCP over port 443.
+    - DTLS Connection Timeout: Enter any value from 5 to 60 seconds. This setting determines how long Zscaler Client Connector waits before falling back to another transport mechanism.
+    - TLS Connection Timeout: Enter any value from 5 to 60 seconds. This setting determines how long Zscaler Client Connector waits before falling back to another transport mechanism.
+    - MTU for Zscaler Adapter: (Optional) This option is only applicable if you’re using Zscaler Client Connector version 2.1.2 or later. Select Maximum Transmission Unit (MTU) value between 800 and 1400 for Z-Tunnel 2.0 inner IP packet. The default value is 0 (zero). The default value for a direct connection is 1400 and 1360/1300 for GRE/IPSec tunnels, respectively. Windows leverages maximum Maximum Segment Size (MSS) clipping. For IPv6, the acceptable range is 1300–1400.
+    - For the Windows version of Zscaler Client Connector, Z-Tunnel 2.0 (in DTLS mode) changes the MSS for the TCP stream based on the configured MTU value because it uses the Windows filter driver instead of the Zscaler adapter.
+    - Path MTU Discovery: Select this option to have Zscaler Client Connector discover the optimal path MTU for Z-Tunnel 2.0. You can use this option even if you change the value for MTU for Zscaler Adapter.
+    - Allow TLS Fallback: (Optional) This option is only applicable if you’re using Zscaler Client Connector version 3.4 or later for Windows, Zscaler Client Connector version 3.9 or later for macOS, and Zscaler Client Connector version 4.3 and later for iOS. If DTLS is set as your primary transport selection, you can enable TLS as a fallback option. If Zscaler Client Connector is unable to connect using DTLS, it attempts to connect using TLS.
+    - Enable DTLS Instability Detection and Fallback: If DTLS is set as your primary transport selection and Allow TLS Fallback is enabled, you can enable this option to have Zscaler Client Connector monitor the stability of the DTLS connection and automatically switch to TLS if a data transfer rate restriction is detected (e.g., throttling due to a misconfigured network device or a network policy).
+  - Applies only to Zscaler Client Connector version 4.8 and later for Windows. Contact Zscaler Support to enable this feature.
+    - Z-Tunnel 2.0 Setup Failure Behavior: (Optional) This option is only applicable if you’re using Zscaler Client Connector version 3.4 or later. In cases where you might need Zscaler Client Connector to switch from Z-Tunnel 2.0 to Z-Tunnel 1.0, you can define the behavior for Zscaler Client Connector to follow.
+      - Fall back to Z-Tunnel 1.0 and bypass non-web traffic: Zscaler Client Connector tunnels web traffic via Z-Tunnel 1.0 and bypasses everything else.
+      - Fall back to Z-Tunnel 1.0 and block non-web traffic: Zscaler Client Connector tunnels web traffic via Z-Tunnel 1.0 and blocks all traffic that cannot be tunneled, except the DNS.
+      - Block all traffic: Zscaler Client Connector blocks all traffic except DNS and control-channel communications to the Zscaler Zero Trust Exchange (ZTE) for policy, PAC file, and software updates.
+    - Send All DNS During Fail-Close to Trusted-DNS Server: (Optional) Select this option to send DNS traffic to a specific DNS server during a Z-Tunnel 2.0 failure. If enabled, you can enter IP addresses for an IPv4 DNS server and an IPv6 DNS server. If you select this option but don’t enter a server, Zscaler Client Connector uses the DNS server in the original request if it’s configured on the device or the first DNS server on the system.
+    - Applies only to Zscaler Client Connector version 4.7 for Windows and is available only if Fall back to Z-Tunnel 1.0 and bypass non-web traffic or Block all traffic is selected. Contact Zscaler Support to enable this feature.
+      - IPv4 Trusted DNS Server During Fail-Close: Enter an IPv4 IP address (e.g., 192.0.2.1). Zscaler Client Connector uses this server for DNS requests to an IPv4 destination.
+      - IPv6 Trusted DNS Server During Fail-Close: Enter an IPv6 IP address (e.g., [2001:0000::]). Zscaler Client Connector uses this server for DNS requests to an IPv6 destination.
+    - Drop IPv6 Include Traffic When not supported: Enable this option to drop IPv6 traffic that matches the destination inclusion if IPv6 is not provisioned for the company or the Public Service Edge.
+    - Zscaler Client Connector version 4.1 and later for Windows supports IPv6 tunneling in dual stack and IPv6-only networks in both Z-Tunnel 1.0 and Z-Tunnel 2.0. While Internet & SaaS can process both IPv4 and IPv6 traffic, because the infrastructure supports only IPv4 traffic, IPv6-only network addresses are converted to IPv4.
+    - Redirect Web Traffic to Zscaler Client Connector Listening Proxy: Enable this option to redirect all 80/443 traffic to the Zscaler Client Connector listening proxy, with the remaining traffic passing through Z-Tunnel 2.0. Enabling this option allows bypasses in the app profile PAC to be applied to web traffic without a forwarding profile PAC.
+    - Use Z-Tunnel 2.0 for Proxied Web Traffic: Enable this option to have Zscaler Client Connector use the Z-Tunnel 2.0 protocol to tunnel web traffic received on the Zscaler Client Connector listening proxy. If this option is disabled and Redirect Web Traffic to Zscaler Client Connector Listening Proxy is enabled, Zscaler Client Connector uses Z-Tunnel 1.0 for web traffic and Z-Tunnel 2.0 for the remaining traffic.
+    - Zscaler recommends enabling both Redirect Web Traffic to Zscaler Client Connector Listening Proxy and Use Z-Tunnel 2.0 for Proxied Web Traffic. For more information, see Best Practices for Adding Bypasses for Z-Tunnel 2.0.
+  - In Tunnel with Local Proxy mode, Zscaler Client Connector sets proxy settings on user devices so that all proxy-aware traffic is tunneled to Zscaler. The app does this by automatically installing a PAC file on the system to force all traffic to go to the local host.
+  - When using Zscaler Client Connector for Linux in openSUSE KDE or Arch Linux KDE environments, use Firefox version 109 or earlier. Firefox version 110 can send traffic directly.
+    - Block Unreachable Domains Traffic: This option drops or bypasses domains that are not reachable from the Public Service Edge.
+    - Configure System Proxy Settings: In the Proxy Action Type drop-down menu, the Enforce option is selected by default and cannot be changed. This option allows Zscaler Client Connector to enforce your proxy settings by monitoring for network changes and reapplying settings. Zscaler Client Connector also ensures that users cannot tamper with their proxy settings.
+    - Configure the following system proxy settings:
+      - PAC URL Location: This option is selected by default and uses a PAC file to specify automatic proxy settings on users’ devices. Zscaler Client Connector enforces your chosen proxy settings based on the PAC file retrieved from the selected location:
+        - PAC URL: If you select this option, enter a valid PAC URL in the Custom PAC URL field. The maximum number of characters is 512. If Enforce Secure PAC URLs is enabled, you must enter a URL with the https:// prefix (not http://).
+        - Zscaler Client Connector downloads the PAC file from this URL directly. If you restrict access to the PAC file location (e.g., it's hosted in a SIPA domain), Zscaler Client Connector can download the file through Z-Tunnel 2.0. Contact Zscaler Support to enable this option.
+        - Registry Key: If you select this option, enter the following:
+          - Registry Path: The registry path for Zscaler Client Connector to locate the PAC URL from the device. The maximum number of characters is 61,440.
+          - Registry Name: The registry name for Zscaler Client Connector to locate the PAC URL from the device. The maximum number of characters is 2,048.
+    - Execute GPO Update: Select this option if you want to execute the GPO update command on Windows devices when Zscaler Client Connector detects a network change.
+  - In Tunnel with Local Proxy mode, Zscaler recommends you use the Disable Loopback Restriction, Override WPAD, and Restart WinHTTP Service options to ensure the app can properly set proxy settings on Windows devices. To learn more, see Configuring Zscaler Client Connector Profiles.
+  - In Enforce Proxy mode, Zscaler Client Connector enforces system proxy settings as specified, without tunneling any traffic.
+  - Zscaler Client Connector enforces system proxy settings, and all applications on the device must comply with these settings. Administrators will review any custom proxy settings within applications, then restrict these settings.
+  - In the Configure System Proxy Settings drop-down menu, define the proxy settings for your users’ systems.
+    - Proxy Action Type: The Enforce option is selected by default and cannot be changed. This option allows Zscaler Client Connector to enforce your proxy settings by monitoring for network changes and reapplying settings. Zscaler Client Connector also ensures that users cannot tamper with their proxy settings.
+    - Configure the following system proxy settings:
+      - Automatically Detect Settings: Select this option if you want the users’ devices to use proxy discovery on the network.
+      - PAC URL Location: Select this option if you want to use a PAC file to specify automatic proxy settings on users’ devices. Zscaler Client Connector enforces your chosen proxy settings based on the PAC file retrieved from the selected location:
+        - PAC URL: If you select this option, enter a valid PAC URL in the Custom PAC URL field. The maximum number of characters is 512. If Enforce Secure PAC URLs is enabled, you must enter a URL with the https:// prefix (not http://).
+        - Registry Key: If you select this option, enter the following:
+          - Registry Path: The registry path for Zscaler Client Connector to locate the PAC URL from the device. The maximum number of characters is 61,440.
+          - Registry Name: The registry name for Zscaler Client Connector to locate the PAC URL from the device. The maximum number of characters is 2,048.
+      - Use Proxy Server for Your LAN: Select this option if you want to use a specific proxy server and port.
+        - IP Address or Domain: Enter an FQDN, IP address, or a plain hostname with the http:// or https:// prefix.
+        - Port: Enter any port ranging from 1 to 65534.
+        - Bypass Proxy Server for Local Addresses: Select this option if you want to bypass local resources.
+      - Execute GPO Update: Select this option if you want to execute the GPO update command on Windows devices when Zscaler Client Connector detects a network change.
+  - In None mode, Zscaler Client Connector does not tunnel any traffic at all.
+  - In the Configure System Proxy Settings drop-down menu, define the proxy settings for your users’ systems.
+    - Proxy Action Type: To define specific system proxy settings for user devices, select one of the following options:
+      - Apply on Trusted Network Type Change: If you select this option, Zscaler Client Connector only applies your proxy settings if there is any network change, but does not monitor for proxy changes afterward.
+      - Apply on Any Network Change: If you select this option, Zscaler Client Connector only enforces your proxy settings when the network changes, but does not monitor for proxy changes afterward.
+      - Never: If you select this option, Zscaler Client Connector never alters your proxy settings.
+    - Configure the following system proxy settings:
+      - Automatically Detect Settings: Select this option if you want the users’ devices to use proxy discovery on the network.
+      - PAC URL Location: Select this option if you want to use a PAC file to specify automatic proxy settings on users’ devices. Zscaler Client Connector enforces your chosen proxy settings based on the PAC file retrieved from the selected location:
+        - PAC URL: If you select this option, enter a valid PAC URL in the Custom PAC URL field. The maximum number of characters is 512. If Enforce Secure PAC URLs is enabled, you must enter a URL with the https:// prefix (not http://).
+        - Registry Key: If you select this option, enter the following:
+          - Registry Path: The registry path for Zscaler Client Connector to locate the PAC URL from the device. The maximum number of characters is 61,440.
+          - Registry Name: The registry name for Zscaler Client Connector to locate the PAC URL from the device. The maximum number of characters is 2,048.
+      - Use Proxy Server for Your LAN: Select this option if you want to use a specific proxy server and port.
+        - IP Address or Domain: Enter an FQDN, IP address, or a plain hostname with the http:// or https:// prefix.
+        - Port: Enter any port ranging from 1 to 65534.
+        - Bypass Proxy Server for Local Addresses: Select this option if you want to bypass local resources.
+      - Execute GPO Update: Select this option if you want to execute the GPO update command on Windows devices when Zscaler Client Connector detects a network change.
+  - Define how Zscaler Client Connector treats traffic from your users' systems for the Private Access service for On-Trusted Network, VPN-Trusted Network, Off-Trusted Network, or Split VPN-Trusted Network types. To learn more, see About Forwarding Profiles.
+  - To specify how the app treats traffic from your users' systems, you can select Tunnel or None as the forwarding profile actions for each network type:
+    - On-Trusted Network:
+      - Tunnel: Zscaler Client Connector tunnels traffic for the Private Access service (i.e., Zscaler Client Connector uses the Private Access (ZPA) service to provide users with access to internal applications even when users are on trusted networks).
+      - You can enable Dynamic ZPA Service Edge Assignment to configure settings for probe interval, probe sample size, and threshold rank:
+        - Probe Interval (In Seconds): The time interval in which an IP address connects with a server. Select an option from the drop-down menu. Options are in 30-second intervals and range from 30 to 600 seconds. The default is 30 seconds.
+        - Probe Sample Size: The number of retries required to establish a connection before a failover. Select an option from the drop-down menu. The default is 5 times.
+        - Threshold Rank: Ranks the change in latency of the primary and secondary Public Service Edges. Select a rank from 1 to 5 from the drop-down menu. If the value exceeds the threshold limit, the switch is made from the primary to the secondary Service Edge, or vice versa. Rank 1 is a minimum change, which is the most aggressive for switching from the primary to the secondary Service Edge.
+        - Enable Machine Tunnel: Select to enable Dynamic ZPA Service Edge Assignment for machine tunnels.
+      - None: Private Access is disabled and Zscaler Client Connector does not provide access to internal applications. Users access the applications directly.
+    - VPN-Trusted Network:
+    - Do not select Tunnel for the VPN-Trusted Network type.
+      - Tunnel: For Private Access, the app does not forward user traffic if a VPN is also running on the device.
+      - You can enable Dynamic ZPA Service Edge Assignment to configure settings for probe interval, probe sample size, and threshold rank:
+        - Probe Interval (In Seconds): The time interval in which an IP address connects with a server. Select an option from the drop-down menu. Options are in 30-second intervals and range from 30 to 600 seconds. The default is 30 seconds.
+        - Probe Sample Size: The number of retries required to establish a connection before a failover. Select an option from the drop-down menu. The default is 5 times.
+        - Threshold Rank: Ranks the change in latency of the primary and secondary Public Service Edges. Select a rank from 1 to 5 from the drop-down menu. If the value exceeds the threshold limit, the switch is made from the primary to the secondary Service Edge, or vice versa. Rank 1 is a minimum change, which is the most aggressive for switching from the primary to the secondary Service Edge.
+        - Enable Machine Tunnel: Select to enable Dynamic ZPA Service Edge Assignment for machine tunnels.
+      - None: Private Access is disabled and Zscaler Client Connector does not provide access to internal applications.
+    - Off-Trusted Network:
+      - Tunnel: Zscaler Client Connector tunnels traffic for the Private Access service (i.e., Zscaler Client Connector uses the Private Access service to provide users with access to internal applications when users are off trusted networks).
+      - You can enable Dynamic ZPA Service Edge Assignment to configure settings for probe interval, probe sample size, and threshold rank:
+        - Probe Interval (In Seconds): The time interval in which an IP address connects with a server. Select an option from the drop-down menu. Options are in 30-second intervals and range from 30 to 600 seconds. The default is 30 seconds.
+        - Probe Sample Size: The number of retries required to establish a connection before a failover. Select an option from the drop-down menu. The default is 5 times.
+        - Threshold Rank: Ranks the change in latency of the primary and secondary Public Service Edges. Select a rank from 1 to 5 from the drop-down menu. If the value exceeds the threshold limit, the switch is made from the primary to the secondary Service Edge, or vice versa. Rank 1 is a minimum change, which is the most aggressive for switching from the primary to the secondary Service Edge.
+        - Enable Machine Tunnel: Select to enable Dynamic ZPA Service Edge Assignment for machine tunnels.
+      - None: Private Access is disabled and Zscaler Client Connector does not provide users with access to internal applications. Users can only access internal applications if they have another mechanism for reaching internal networks.
+    - Split VPN-Trusted Network:
+      - Tunnel: For Private Access, the app can forward any traffic not going through Split-Tunnel VPN to Private Access. This condition can require VPN configuration to exclude Private Access infrastructure.
+      - You can enable Dynamic ZPA Service Edge Assignment to configure settings for probe interval, probe sample size, and threshold rank:
+        - Probe Interval (In Seconds): The time interval in which an IP address connects with a server. Select an option from the drop-down menu. Options are in 30-second intervals and range from 30 to 600 seconds. The default is 30 seconds.
+        - Probe Sample Size: The number of retries required to establish a connection before a failover. Select an option from the drop-down menu. The default is 5 times.
+        - Threshold Rank: Ranks the change in latency of the primary and secondary Public Service Edges. Select a rank from 1 to 5 from the drop-down menu. If the value exceeds the threshold limit, the switch is made from the primary to the secondary Service Edge, or vice versa. Rank 1 is a minimum change, which is the most aggressive for switching from the primary to the secondary Service Edge.
+        - Enable Machine Tunnel: Select to enable Dynamic ZPA Service Edge Assignment for machine tunnels.
+      - None: Private Access is disabled, and Zscaler Client Connector does not provide access to internal applications.
+  - If you want On-Trusted Network behavior to apply to VPN-Trusted Network or Off-Trusted Network, select Same as "On-Trusted Network" for either environment.
+  - Forwarding Profile Action for ZPA
+- Click Save.

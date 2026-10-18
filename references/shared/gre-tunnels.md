@@ -205,6 +205,6 @@ Key tunnel object fields: `source_ip` (the registered static IP), `primary_dest_
 
 - Forwarding method comparison (GRE vs IPsec vs PAC vs ZCC) — [`../zia/traffic-forwarding-methods.md`](../zia/traffic-forwarding-methods.md)
 - Z-Tunnel 1.0 vs 2.0 and GRE coexistence — [`./z-tunnel.md`](./z-tunnel.md)
-- SSL inspection behavior under transparent (GRE) vs explicit forwarding — [`../zia/ssl-inspection.md § Transparent vs explicit`](../zia/ssl-inspection.md)
+- SSL inspection behavior under transparent (GRE) vs explicit forwarding — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Location and Sublocation model (how GRE source IPs map to policy scope) — [`../zia/locations.md`](../zia/locations.md)
 - Cloud architecture (PSE VIPs, data center topology) — [`./cloud-architecture.md`](./cloud-architecture.md)

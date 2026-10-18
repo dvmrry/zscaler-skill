@@ -141,7 +141,7 @@ ZIA policy rules reference the *resolved ZIA objects* (users, groups, department
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go`.
 
-Firewall Filtering rules accept `users`, `groups`, and `departments` as criteria — declared in the SDK struct as plain `[]common.IDNameExtensions` with no count limit stated in the struct or its comments (`filteringrules.go:88-94`). These reference the ZIA user, group, and department objects respectively. A SCIM-provisioned user's group memberships and department assignment make them matchable by firewall rules without any additional configuration beyond SCIM sync being active. The per-criterion caps (32 users, 32 groups, 32 departments per rule) are documented and sourced in [`./firewall.md § Firewall Filtering rule criteria`](./firewall.md) — they are not derivable from the Go SDK struct and belong with the firewall reference, not here.
+Firewall Filtering rules accept `users`, `groups`, and `departments` as criteria — declared in the SDK struct as plain `[]common.IDNameExtensions` with no count limit stated in the struct or its comments (`filteringrules.go:88-94`). These reference the ZIA user, group, and department objects respectively. A SCIM-provisioned user's group memberships and department assignment make them matchable by firewall rules without any additional configuration beyond SCIM sync being active. The per-criterion caps (32 users, 32 groups, 32 departments per rule) are documented and sourced in [`zia.firewall`](kb:zia.firewall) — they are not derivable from the Go SDK struct and belong with the firewall reference, not here.
 
 Note: identity-aware firewall rules require the Advanced Firewall license. Basic Firewall rules can only scope by IP/port/location; they cannot reference SCIM-derived user or group identity.
 
@@ -155,7 +155,7 @@ URL Filtering rules support `users`, `groups`, `departments`, `device_groups`, a
 
 Source: `vendor/zscaler-sdk-go/zscaler/zia/services/dlp/dlp_web_rules/dlp_web_rules.go` (criteria fields); `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md:136` (unauthenticated-traffic constraint).
 
-DLP Web Rules support `departments`, `groups`, `users`, `locations`, and `location_groups` as criteria. The same SCIM-provisioned user/group/department objects are referenced. One constraint documented in the DLP reference: a DLP rule that applies to unauthenticated traffic must set `Any` for both groups and departments — SCIM-derived group/department scoping requires authenticated user context. The vendor source states this directly: "Any rule that applies to unauthenticated traffic must apply to all groups and departments" (`configuring-dlp-policy-rules-content-inspection.md:136`); the Go SDK struct only declares the criteria fields, not this save-time constraint. See [`./dlp.md`](./dlp.md) for the full DLP treatment.
+DLP Web Rules support `departments`, `groups`, `users`, `locations`, and `location_groups` as criteria. The same SCIM-provisioned user/group/department objects are referenced. One constraint documented in the DLP reference: a DLP rule that applies to unauthenticated traffic must set `Any` for both groups and departments — SCIM-derived group/department scoping requires authenticated user context. The vendor source states this directly: "Any rule that applies to unauthenticated traffic must apply to all groups and departments" (`configuring-dlp-policy-rules-content-inspection.md:136`); the Go SDK struct only declares the criteria fields, not this save-time constraint. See [`zia.dlp`](kb:zia.dlp) for the full DLP treatment.
 
 ### Forwarding Control
 
@@ -167,7 +167,7 @@ Forwarding Control rules support `users`, `groups`, `departments`, `device_group
 
 | Rule type | User | Group | Department | Notes |
 |---|---|---|---|---|
-| Firewall Filtering | Yes | Yes | Yes | Advanced Firewall license required for identity criteria; per-criterion caps in [`./firewall.md`](./firewall.md) |
+| Firewall Filtering | Yes | Yes | Yes | Advanced Firewall license required for identity criteria; per-criterion caps in [`zia.firewall`](kb:zia.firewall) |
 | URL Filtering | Yes | Yes | Yes | Standard |
 | DLP Web Rules | Yes | Yes | Yes | Unauthenticated-traffic rules must use `Any` for group/dept |
 | Forwarding Control | Yes | Yes | Yes | Standard |
@@ -394,8 +394,8 @@ These came up while documenting ZIA SCIM and could not be backed from any vendor
 - ZPA SCIM group-to-policy operand mapping (how ZPA uses `SCIM_GROUP` and `SCIM` operands) — [`../zpa/scim-policy-mapping.md`](../zpa/scim-policy-mapping.md)
 - ZIA user management SDK methods (users, groups, departments) — [`./sdk.md § user_management`](./sdk.md)
 - ZIA Go SDK SCIM API source — `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/`
-- ZIA Firewall identity criteria (users/groups/departments, Advanced Firewall requirement) — [`./firewall.md`](./firewall.md)
+- ZIA Firewall identity criteria (users/groups/departments, Advanced Firewall requirement) — [`zia.firewall`](kb:zia.firewall)
 - ZIA URL Filtering identity criteria — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA Forwarding Control identity criteria (users/groups/departments for SIPA scoping) — [`./forwarding-control.md`](./forwarding-control.md)
-- ZIA DLP identity criteria — [`./dlp.md`](./dlp.md)
+- ZIA DLP identity criteria — [`zia.dlp`](kb:zia.dlp)
 - Token revocation for hard access removal — [`../zidentity/api-clients.md`](../zidentity/api-clients.md)

@@ -11,8 +11,8 @@ sources:
   - "references/zcc/index.md"
   - "references/zia/traffic-forwarding-methods.md"
   - "references/zpa/app-segments.md"
-  - "references/zia/url-filtering.md"
-  - "references/zia/ssl-inspection.md"
+  - "kb:zia.url-filtering"
+  - "kb:zia.ssl-inspection"
   - "references/zpa/app-connector.md"
 author-status: draft
 ---
@@ -59,9 +59,9 @@ Fast triage:
 | Identity | user/group/attribute mismatch; SCIM/SAML drift; step-up auth ambiguity | `references/zidentity/index.md`, `references/shared/scim-provisioning.md` | none |
 | Service Edge | wrong PoP; PSE/PSEN issue; subcloud/routing concern | `references/shared/cloud-architecture.md`, `references/zia/private-service-edge.md` | none |
 | Routing | internet vs private-app path is wrong; app segment catches/misses traffic | `references/zpa/app-segments.md`, `references/shared/source-ip-anchoring.md` | `grounding/zpa-segment-matching.md` |
-| ZIA policy | URL/category/rule/CAC/SSL/DLP/Sandbox outcome looks wrong | `references/zia/url-filtering.md`, `references/zia/ssl-inspection.md` | `grounding/zia-url-filtering-precedence.md`, `grounding/zia-ssl-inspection-bypass.md` |
+| ZIA policy | URL/category/rule/CAC/SSL/DLP/Sandbox outcome looks wrong | `kb:zia.url-filtering`, `kb:zia.ssl-inspection` | `grounding/zia-url-filtering-precedence.md`, `grounding/zia-ssl-inspection-bypass.md` |
 | ZPA connector | segment allowed but app not reached; empty `Connector`; no connector eligible | `references/zpa/app-connector.md`, `references/zpa/segment-server-groups.md` | `grounding/zpa-connector-assignment.md` |
-| Egress/response | destination allowlist/source-IP issue; SIPA; post-CONNECT surprise | `references/shared/source-ip-anchoring.md`, `references/zia/ssl-inspection.md` | depends on path |
+| Egress/response | destination allowlist/source-IP issue; SIPA; post-CONNECT surprise | `references/shared/source-ip-anchoring.md`, `kb:zia.ssl-inspection` | depends on path |
 
 ## Inspect tenant config
 

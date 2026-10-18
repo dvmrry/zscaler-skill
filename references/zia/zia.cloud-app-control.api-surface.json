@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.api-surface",
+  "title": "Cloud App Control API and SDK surface: app entries, flags, duplicate",
+  "aliases": [
+    "underMigration",
+    "appNotReady",
+    "appCatModified",
+    "deprecated cloud app",
+    "cloud app val",
+    "cloud app lifecycle flags",
+    "duplicate cac rule",
+    "createDuplicate",
+    "add_duplicate_rule"
+  ],
+  "binds": [
+    "zia/cloud-app-control#applications"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.service-defects"
+    }
+  ],
+  "claims": {
+    "app-entry-fields": {
+      "statement": "Application entries in the availableActions request body (`cloudApps[]`) are objects with `val`, `webApplicationClass`, `backendName`, `originalName`, `name` and five booleans: `deprecated`, `misc`, `appNotReady`, `underMigration` and `appCatModified`. The Python SDK models the same ten fields as its Application class. The same boolean fields appear on application lists in the advanced settings responses, and the API reference gives no description for any of them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-api-reference.json",
+          "quotes": [
+            "\"name\": \"cloudApps[].underMigration\",",
+            "\"name\": \"cloudApps[].appCatModified\",",
+            "\"name\": \"cloudApps[].val\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloudappcontrol.py",
+          "quotes": [
+            "self.under_migration = config[\"underMigration\"] if \"underMigration\" in config else False",
+            "self.app_cat_modified = config[\"appCatModified\"] if \"appCatModified\" in config else False"
+          ]
+        }
+      ]
+    },
+    "val-echoed": {
+      "statement": "The Python Application model reads the server-assigned numeric `val` and writes it back unchanged in its request format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/cloudappcontrol.py",
+          "quotes": [
+            "self.val = config[\"val\"] if \"val\" in config else None",
+            "\"val\": self.val,"
+          ]
+        }
+      ]
+    },
+    "python-duplicate-exists": {
+      "statement": "The Python SDK has a working-shaped duplicate call: `add_duplicate_rule` posts to /webApplicationRules/{rule_type}/duplicate/{rule_id} with the new name as the `name` query parameter and the rule fields as the body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloudappcontrol.py",
+          "quotes": [
+            "def add_duplicate_rule(self, rule_type: str, rule_id: str, name: str, **kwargs) -> APIResult[dict]:",
+            "/webApplicationRules/{rule_type}/duplicate/{rule_id}",
+            "params = {\"name\": name}"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cloud-apps-element-shape": {
+      "summary": "Element shape of cloudApps in the availableActions request",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/zia-api-reference.json",
+            "quotes": [
+              "\"name\": \"cloudApps[].webApplicationClass\","
+            ]
+          },
+          "says": "The API reference lists each cloudApps element as an object (val, name, flags, webApplicationClass)."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
+            "quotes": [
+              "CloudApps []string `json:\"cloudApps,omitempty\"`"
+            ]
+          },
+          "says": "The Go SDK, and with it the Terraform provider, sends cloudApps as a list of strings; the Python method also takes a list of application names."
+        }
+      ],
+      "impact": "A hand-built request that follows the reference may differ from what the SDKs send. The reference capture predates allAvailableActions, so it may also be stale."
+    }
+  },
+  "gaps": {
+    "flag-meanings": {
+      "kind": "semantic",
+      "title": "What deprecated, misc, appNotReady, underMigration and appCatModified mean",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ],
+      "blocks": "using the flags to explain why an app stopped matching a rule",
+      "detail": "No registered source defines the flags. The earlier doc glossed them (for example that underMigration means the app may behave inconsistently under policy), but that was inference from the names, and it said they are absent from the console, which no source states. Treat a true flag as a lead to check with Zscaler, not as an explanation."
+    }
+  }
+}

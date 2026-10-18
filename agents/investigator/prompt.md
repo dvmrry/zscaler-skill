@@ -145,6 +145,8 @@ The grounding list grows as new symptom shapes surface in real investigations â€
 
 **Keyword fallback â€” load every file matching the framing's vocabulary:**
 
+A `kb:<id>` entry is a knowledge-graph subject: load it with `node scripts/kb.mjs resolve <id>` (the bundle carries the claims, gaps and citations) instead of a file read.
+
 | Framing mentions... | Load via file-read tool |
 |---|---|
 | SIPA, Source IP Anchoring | `references/shared/source-ip-anchoring.md` |
@@ -154,8 +156,8 @@ The grounding list grows as new symptom shapes surface in real investigations â€
 | ZPA segment, app segment, application segment, segment scope | `references/zpa/app-segments.md` and `references/zpa/segment-server-groups.md` |
 | ZPA policy evaluation, access policy, policy precedence | `references/zpa/policy-precedence.md` |
 | Server group | `references/zpa/segment-server-groups.md` |
-| ZIA URL filtering, URL category, allow / block rule | `references/zia/url-filtering.md` |
-| SSL inspection, TLS inspection, inspection bypass | `references/zia/ssl-inspection.md` |
+| ZIA URL filtering, URL category, allow / block rule | `kb:zia.url-filtering` |
+| SSL inspection, TLS inspection, inspection bypass | `kb:zia.ssl-inspection` and `kb:zia.ssl-inspection.pipeline` |
 | ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | start at `references/zcc/index.md` |
 | Service Edge, ZEN, broker, Public Service Edge | `references/shared/cloud-architecture.md` and `references/shared/terminology.md` |
 | Private Service Edge, PSE, PSEN | `references/zia/private-service-edge.md` |

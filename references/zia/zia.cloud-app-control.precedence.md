@@ -6,4 +6,4 @@ One setting changes it, and only in one direction. {{cascading-allow-path}} {{ca
 
 An allow has to be an *explicit* rule match. {{no-cac-rule-url-filtering-runs}} A CAC allow scoped to one department therefore leaves everyone else to URL Filtering.
 
-{{cac-rule-order}} {{document-cascading}} When answering for a specific tenant, the cascading state is the first fact to establish. Each pass of the pipeline evaluates CAC before URL Filtering: see [[zia.ssl-inspection.pipeline]].
+{{per-rule-cascade}} So a tenant with the global option off can still have individual rules that cascade; check the rule as well as the setting. {{cac-rule-order}} {{document-cascading}} {{prefer-cac-for-predefined-apps}} When answering for a specific tenant, the cascading state is the first fact to establish. Each pass of the pipeline evaluates CAC before URL Filtering: see [[zia.ssl-inspection.pipeline]].

@@ -179,7 +179,7 @@ AI Guard adds a **content-aware LLM inspection** layer for prompts and responses
 
 Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
-- **Inline mode requires SSL inspection** — prompt/response payloads are HTTPS to LLM providers, so SSL bypass on LLM domains can prevent AI Guard inline inspection. Cross-link to [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md) for operational SSL-bypass diagnosis.
+- **Inline mode requires SSL inspection** — prompt/response payloads are HTTPS to LLM providers, so SSL bypass on LLM domains can prevent AI Guard inline inspection. Cross-link to [`zia.ssl-inspection`](kb:zia.ssl-inspection) for operational SSL-bypass diagnosis.
 - **ZIA proxy-chain mode requires forwarding hygiene** — the guide calls for the AI Guard proxy-chain certificate, proxy gateway, `forward.zseclipse.net:9443` endpoint, fail-close behavior, QUIC block/drop, wildcard destination groups, and Forwarding Control rules for supported AI-provider domains.
 - **DaaS mode requires application changes** — every prompt/response path needs API calls. Not a pure "drop in" deploy.
 - **GPU-based inference** is part of AI Guard's detector model. Placement depends on deployment mode: SaaS/proxy and DaaS call the Zscaler service, while OnPrem hybrid is documented for data-residency/compliance cases. No published latency numbers are captured.
@@ -232,8 +232,8 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 | Existing reference | AI Security touchpoint |
 |---|---|
 | [`zia.url-filtering`](kb:zia.url-filtering) — GenAI URL Filter categories | Navigation target for category-level AI app access questions. |
-| [`../zia/dlp.md`](../zia/dlp.md) — DLP GenAI prompt scanning, HTTP GET query inspection | Navigation target for sensitive-data-in-prompt questions. |
-| [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md) | Navigation target for SSL bypass and decrypt prerequisites that can affect inline inspection. |
+| [`zia.dlp`](kb:zia.dlp) — DLP GenAI prompt scanning, HTTP GET query inspection | Navigation target for sensitive-data-in-prompt questions. |
+| [`zia.ssl-inspection`](kb:zia.ssl-inspection) | Navigation target for SSL bypass and decrypt prerequisites that can affect inline inspection. |
 | [`../zbi/policy-integration.md`](../zbi/policy-integration.md) — Isolate action | Navigation target for AI app isolation questions under the Secure Access pillar. |
 | [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md) | Future cross-product hook target. |
 
@@ -275,6 +275,6 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 - AI Security claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)
 - Portfolio map (where AI Security sits in the Zscaler portfolio): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
 - ZIA URL Filtering routing target: [`zia.url-filtering`](kb:zia.url-filtering)
-- ZIA DLP routing target: [`../zia/dlp.md`](../zia/dlp.md)
-- SSL inspection routing target for inline inspection prerequisites: [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- ZIA DLP routing target: [`zia.dlp`](kb:zia.dlp)
+- SSL inspection routing target for inline inspection prerequisites: [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - ZBI routing target: [`../zbi/overview.md`](../zbi/overview.md)

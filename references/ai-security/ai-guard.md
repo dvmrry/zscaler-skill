@@ -481,7 +481,7 @@ For operators asking "how do I control GenAI app usage across the org" → ZIA. 
 ## Cross-links
 
 - ZIA AI app access-control routing target: [`../zia/index.md`](../zia/index.md)
-- ZIA DLP routing target: [`../zia/dlp.md`](../zia/dlp.md)
+- ZIA DLP routing target: [`zia.dlp`](kb:zia.dlp)
 - AI Guard is in the ai-security reference directory alongside: [`./index.md`](./index.md), [`./overview.md`](./overview.md), [`./ai-guard-coverage.md`](./ai-guard-coverage.md)
 - API and integration divergences: [`./api-divergences.md`](./api-divergences.md)
 - Claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)

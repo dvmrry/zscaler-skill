@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.rule-criteria",
+  "title": "What a Cloud App Control rule matches on",
+  "aliases": [
+    "cac rule criteria",
+    "cloud applications or risk profile",
+    "how does cac identify the app",
+    "url to cloud app mapping",
+    "cloud app lookup"
+  ],
+  "binds": [
+    "zia/cloud-app-control#applications",
+    "zia/cloud-app-control#cloudAppRiskProfile"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.cloud-app-control.risk-profiles" },
+    { "rel": "see-also", "to": "zia.cloud-app-control.ssl-visibility" },
+    { "rel": "see-also", "to": "zia.url-filtering.criteria" }
+  ],
+  "claims": {
+    "criteria-expression": {
+      "statement": "A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile] AND [Groups OR Users OR Departments] AND [Location Groups OR Locations] AND Time AND [Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile].",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"A Cloud App Control rule matches on the logical expression: [Cloud Applications OR Cloud Application Risk Profile] AND [Users OR Groups OR Departments] AND [Location Groups OR Locations] AND Time AND [Device Groups OR Devices] AND Device Trust Level AND User Agent AND User Risk Profile.\" The recaptured page adds Cloud Application Instances to the application group and places the device and agent criteria in one OR group.",
+      "binds": ["zia/cloud-app-control#applications", "zia/cloud-app-control#cloudAppRiskProfile"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "adding-rules-cloud-app-control-policy.md",
+          "quotes": [
+            "The logical relationship between the categories is AND",
+            "Applications: [ Cloud Applications OR Cloud Application Instances OR Cloud Application Risk Profile ]",
+            "Who, Where, & When: [ (Groups OR Users OR Departments) AND (Location Groups OR Locations) AND Time ]",
+            "Devices & Agents: [ Devices OR Device Groups OR Device Trust Level OR CONNECT User-Agent OR User Risk Profile ]"
+          ] }
+      ]
+    },
+    "apps-or-risk-profile": {
+      "statement": "A rule names its applications either through the Cloud Applications field or through a Cloud Application Risk Profile, not both.",
+      "tier": "A",
+      "binds": ["zia/cloud-app-control#applications", "zia/cloud-app-control#cloudAppRiskProfile"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": ["You can select the Cloud Application Risk Profile or the Cloud Applications field for the rule."] },
+        { "source": "zscaler-help", "path": "adding-instant-messaging-rule-cloud-app-control.md",
+          "quotes": ["You can either select the Cloud Application Risk Profile or the Cloud Applications field for the rule."] }
+      ]
+    },
+    "risk-profile-covers-all": {
+      "statement": "A rule that selects a Risk Profile applies to every cloud application whose attributes satisfy the profile, so one such rule can cover many applications at once.",
+      "tier": "A",
+      "binds": ["zia/cloud-app-control#cloudAppRiskProfile"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": ["The Cloud App Control policy rule applies to all specified cloud applications if you select the cloud application risk profile criterion."] },
+        { "source": "zscaler-help", "path": "about-cloud-application-risk-profile.md",
+          "quotes": ["The policy applies to cloud applications with attributes that match the risk profile criteria."] }
+      ]
+    },
+    "url-lookup-tool": {
+      "statement": "Zscaler documents the Admin Console URL Lookup tool and the urlLookup API as the way to look up the cloud application for a URL.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "understanding-cloud-app-categories.md",
+          "quotes": ["You can look up a cloud application for a URL using the URL Lookup tool or the urlLookup API."] }
+      ]
+    },
+    "urllookup-returns-categories": {
+      "statement": "The API reference describes the /urlLookup endpoint as returning the URL categories a URL belongs to, with custom classifications omitted and uncategorized URLs returned as MISCELLANEOUS_OR_UNKNOWN. It does not mention cloud applications.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_URL_Categories_Using_API.txt",
+          "quotes": [
+            "To determine the categories to which a URL belongs, send a POST request to /urlLookup",
+            "Custom URL classification is not returned by this request."
+          ] }
+      ]
+    }
+  },
+  "gaps": {
+    "app-identity": {
+      "kind": "semantic",
+      "former_ids": ["zia-09"],
+      "title": "How CAC picks the cloud application for a URL on a shared hostname",
+      "status": "partial",
+      "resolves_with": ["lab-test", "source-read"],
+      "blocks": "deterministic answers to which CAC category and rule apply to a given URL",
+      "detail": "No registered source describes the mapping from a request to a cloud application. The Help page says the URL Lookup tool or the urlLookup API gives the cloud application for a URL, while the API reference describes /urlLookup as returning URL categories only; the two are not reconciled. The earlier ledger guessed at an app-to-URL-pattern database and post-decrypt header or path inspection; neither is sourced. What is visible before decryption is covered in zia.cloud-app-control.ssl-visibility.",
+      "evidence": [
+        { "source": "zscaler-help", "path": "understanding-cloud-app-categories.md",
+          "quotes": ["You can look up a cloud application for a URL using the URL Lookup tool or the urlLookup API."] },
+        { "source": "zscaler-help", "path": "Configuring_URL_Categories_Using_API.txt",
+          "quotes": ["To determine the categories to which a URL belongs, send a POST request to /urlLookup"] }
+      ]
+    }
+  }
+}

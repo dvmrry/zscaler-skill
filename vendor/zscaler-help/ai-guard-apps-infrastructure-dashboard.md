@@ -1,39 +1,44 @@
-# About AI Guard Dashboard — Apps & Infrastructure
+# About AI Guard Dashboard
 
 **Source:** https://help.zscaler.com/secure-ai-apps-infra/about-ai-guard-dashboard
-**Captured:** 2026-08-04 via the official Help Center article payload.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1541822, revision 3242906
 
 ---
 
-This is the current Apps & Infrastructure dashboard article. It is distinct
-from the AI Guard for Users dashboard article.
-
-## Dashboard scope
-
-- The dashboard gives a high-level view of AI applications managed by AI
-  Guard, including application, LLM, policy-detection, and AI bot transaction
-  counts.
-- The dashboard uses the **AI Applications** tab.
-- Administrators can select a date range of up to 90 days, search by policy
-  name, filter by Policy Name, Severity, and Prompt Detections, refresh the
-  data, and export a PDF for the selected period.
-- Summary values include Number of Apps, Number of LLMs, Number of Detections,
-  and Number of Transactions.
-
-## Transactions and conversations
-
-- Entries can be viewed as individual prompt transactions or as connected,
-  multi-prompt conversation threads.
-- Conversation-thread viewing is exclusive to DAS/API mode and does not appear
-  in Proxy mode.
-- In the Conversations view, a message icon shows the number of transactions
-  in a thread, and the entry can be expanded to inspect the individual
-  transactions.
-- Transaction rows expose date and time, app, policy name, severity, prompt and
-  response detections, LLM, and prompt and response actions.
-- Transaction details are organized into Overview, Detection Summary,
-  Performance & Network Stats, Custom Request Headers, and Prompt Details.
-
-This article describes the Apps & Infrastructure surface. Its separation from
-the Users article does not imply that AI Guard no longer manages or reports on
-users.
+The AI Guard dashboard provides a high-level overview of all AI applications AI Guard manages. This includes information such as the number of apps, number of policy detections, and number of AI bot transactions.
+The AI Guard Dashboard page provides the following benefits and enables you to:
+- View general statistics of your apps, LLMs, and policy detections.
+- View information on individual policy transactions.
+- Search by specific policy names or filters.
+# About the AI Guard Dashboard Page
+On the AI Guard Dashboard page (AI Guard > Dashboard), you can do the following:
+- Select the AI Applications tab.
+- Select the date range (up to 90 days) for your data.
+- Search by a specific policy name.
+- Filter your data based on criteria such as Policy Name, Severity, and Prompt Detections.
+- Refresh will update your dashboard with the most current data.
+- Export a PDF copy of your dashboard for the selected date range.
+- View the following information:
+  - Number of Apps: The total number of applications.
+  - Number of LLMs: The total number of LLMs.
+  - Number of Detections: The total number of policy detections.
+  - Number of Transactions: The total number of transactions.
+- View dashboard entries as individual prompt transactions, or view multi-prompt AI interactions as a single, connected conversation thread.
+  - With Conversations selected, you will see a message icon next to a transaction's date, indicating the number of transactions in that conversation thread. Expand the entry to view details of the individual transactions.
+  - See image.
+  - Clicking a conversation opens the Transaction Details page. View prompt details by clicking Reveal Prompt, which shows a full back-and-forth, chat-style layout.
+  - See image.
+- Conversation grouping respects existing session boundary logic.
+- View a list of all transactions. On the Transaction Details page, you can see the following:
+  - Date and Time: The date and time of the transaction.
+  - App: The name of the app.
+  - Policy Name: The name of the policy associated with this transaction.
+  - Severity: The level of severity of the transaction. The severity can be Info, Low, Medium, High, and Critical.
+  - Prompt Detections: The specific prompt detectors that the policy triggered.
+  - Response Detections: The specific response detectors that the policy triggered.
+  - LLM: The LLM used for this transaction.
+  - Prompt Action: Displays whether the AI Guard policy transaction resulted in the prompt being Allowed or Blocked.
+  - Response Action: Displays whether the AI Guard policy transaction resulted in the response being Allowed or Blocked.
+  - Details: Clicking the Details icon opens a window showing detailed information in the following sections: Overview, Detection Summary, Performance & Network Stats, Custom Request Headers, and Prompt Details.
+  - See image.

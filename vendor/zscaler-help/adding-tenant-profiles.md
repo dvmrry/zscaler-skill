@@ -1,51 +1,229 @@
 # Adding Tenant Profiles
 
 **Source:** https://help.zscaler.com/zia/adding-tenant-profiles
-**Captured:** 2026-09-03 via Zscaler Help `/zapi/fetch-data` JSON (`data.info` and `data.body.content` extraction).
-**Status:** 200
-**Canonical:** https://help.zscaler.com/zia/adding-tenant-profiles
-**Help node:** `1401746`
-**Help revision:** `3229787`
-**Body content length:** 45,085 HTML characters
-**Public PDF:** https://help.zscaler.com/pdf/gov/en/1401746.pdf
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1401746, revision 3246273
 
 ---
 
-Internet & SaaS (ZIA) Help — Policies — Cloud Apps — Tenant Restriction — Adding Tenant Profiles
-
 Zscaler's tenancy restriction feature allows you to restrict access either to personal accounts, business accounts, or both for certain cloud applications. The feature consists of two parts: creating tenant profiles and associating the profiles with the Cloud App Control policy rules.
-
 To add a tenant profile:
-
-1. Go to Policies > Access Control > Internet & SaaS > Tenant Profiles.
-2. Click Add Tenant Profile. The Add Tenant Profile page appears.
-3. In the **Cloud Application** field, select one of the following applications and configure it accordingly:
-   - YouTube
-   - Google Apps
-   - Microsoft Login Services
-   - Slack
-   - Amazon Web Services
-   - Dropbox
-   - Webex Login Services
-   - Zoho Login Services
-   - Google Cloud Platform
-   - Zoom
-   - IBM SmartCloud
-   - GitHub
-   - ChatGPT
-   - Claude
-
-The current Help body uses **Claude** as the cloud-application display name. It
-does not document an API token or SDK enum named `CLAUDE_AI`; any mapping from
-the Help label to that token belongs to the separately pinned SDK source.
-
-   Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated. However, for **YouTube** and **Amazon Web Services**, subsequent policies are evaluated, so an explicit block policy is required to block other tenants for them.
-
-   Ensure to select these cloud applications as a criterion in an SSL Inspection rule if their tenant profiles are associated with a cloud application rule. In the SSL Inspection rule, for the following cloud applications, do as follows:
-   - **Office 365**: Select Microsoft Login Services as the cloud application with a rule order higher than Office 365 One Click Rule.
-   - **Google Apps**: Select Google Login Services as the cloud application.
-   - **Webex Teams/Webex Meetings**: Select Webex Login Services as the cloud application.
-
-4. In the **Tenant Profile Name** field, enter a unique name for the tenant profile. This name is displayed while configuring the respective Cloud App Control policy rules.
-5. **Description**: (Optional) Enter any additional comments or information. The description cannot exceed 10,240 characters.
-6. Click Save and activate the change.
+- From the navigation menu, go to Data Security > Inline CASB > Tenant Profiles.
+- Click Add Tenant Profile.
+- The Add Tenant Profile drawer appears.
+- In the Cloud Application field, select one of the following applications and configure it accordingly:
+  - Amazon Web Services
+  - To configure the tenant profile for Amazon Web Services, in the Account IDs field, enter the account IDs (e.g., 123456789012) you want to add to the tenant profile and click Add Items.
+  - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 512 account IDs. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - To learn more about associating tenant profiles of Amazon Web Services with the Cloud App Control policy rule, see Adding a Hosting Providers Rule for Cloud App Control.
+    - Internet & SaaS (ZIA) supports the following AWS login methods:
+      - Sign in to the AWS Management Console as a root user or IAM user.
+      - Sign in as a federated identity.
+      - Sign in through the AWS Command Line Interface and other programmatic methods like API and SDK (Software Development Kit).
+    - The Zscaler service supports the tenancy restrictions for Amazon Web Services through CLI. However, the tenancy restrictions via CLI are not supported for the following services:
+      - Amazon Auto Scaling
+      - Amazon Bedrock
+      - Amazon Braket
+      - Amazon Chime
+      - Amazon Cloud Directory
+      - Amazon CloudSearch
+      - Amazon Comprehend
+      - Amazon DynamoDB
+      - Amazon EMR
+      - Amazon Elastic Block Store
+      - Amazon Elastic Container Service
+      - Amazon Elastic File System
+      - Amazon Elastic Kubernetes Service
+      - Amazon Elastic Load Balancing
+      - Amazon Elastic Transcoder
+      - Amazon Elasticsearch Service
+      - Amazon EventBridge
+      - Amazon Fraud Detector
+      - Amazon FSx
+      - Amazon Kendra
+      - Amazon Lex
+      - Amazon Lightsail
+      - Amazon Macie
+      - Amazon MSK
+      - Amazon Polly
+      - Amazon S3
+      - Amazon SES
+      - Amazon Simple Queue Service
+      - Amazon SNS
+      - Amazon Textract
+      - Amazon Transcribe
+      - Amazon Translate
+      - Amazon WorkDocs (Amazon Zocalo)
+      - Amazon WorkMail
+      - Amazon Workspaces
+      - AWS Cloud Financial Management
+      - AWS Data Exchange
+      - AWS DataSync
+      - AWS Identity and Access Management
+      - AWS Key Management Service
+      - AWS Managed Services
+      - AWS Network Firewall
+      - AWS Resource Access Manager
+      - AWS Snow Family
+      - AWS Storage Gateway
+      - AWS VPN
+  - ChatGPT
+  - To configure a tenant profile for ChatGPT, in the Workspace ID for ChatGPT field, enter the workspace ID (e.g., 437adf77-4085-4b22-b7b1-de7b6f5ec6c0) associated with the ChatGPT-Allowed-Workspace-Id header for ChatGPT and click Add Items. To learn more, refer to the ChatGPT documentation.
+  - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 16 workspace IDs per profile. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - The service intercepts requests related to chatgpt.com and its subdomain (*chatgpt.com) and adds the HTTP header ChatGPT-Allowed-Workspace-Id (values of the Workspace ID for ChatGPT field).
+  - To learn more about associating ChatGPT tenant profiles with the Cloud App Control policy rule, see Adding an AI & ML Applications Rule for Cloud App Control.
+  - Claude
+  - To configure a tenant profile for Claude, in the Workspace ID for Claude field, enter the workspace ID (e.g., 550e8400-e29b-41d4-a716-446655440000) associated with the anthropic-allowed-org-ids header for Claude and click Add Items. To learn more, refer to the Claude documentation.
+  - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 16 workspace IDs per profile. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - The service intercepts requests related to Claude (claude.ai and claude.com) and Anthropic (anthropic.com) and adds the HTTP header anthropic-allowed-org-ids (values of the Workspace ID for Claude field).
+  - To learn more about associating Claude tenant profiles with the Cloud App Control policy rule, see Adding an AI & ML Applications Rule for Cloud App Control.
+  - Docusign
+  - To configure a tenant profile for Docusign, in the Account ID for Docusign field, enter the account ID (e.g., 39zyx869-df2d-4zyx-b64d-573111wzyx06) associated with the X-Docusign-Allow-Organization header for Docusign and click Add Items. To learn more, refer to the Docusign documentation.
+  - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 16 account IDs per profile. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - The service intercepts requests related to docusign.com or docusign.net and adds the HTTP header X-Docusign-Allow-Organization (values of the Account ID for Docusign field).
+  - To learn more about associating Docusign tenant profiles with the Cloud App Control policy rule, see Adding a Productivity & CRM Tools Rule for Cloud App Control.
+  - Dropbox
+  - To configure the tenant profile for Dropbox, in the Dropbox Team ID field, enter the team IDs (e.g., 4875936) you want to add to this tenant profile, and click Add Items.
+  - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 100 team IDs. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - The service intercepts requests related to Dropbox and adds the HTTP header X-Dropbox-allowed-Team-Ids (values of the Dropbox Team ID field). This header's value is the business account's team ID, which can be obtained from the network control section of the Dropbox Business admin console. You must enable network control for tenancy restriction. To learn more about network control, refer to the Dropbox help page.
+  - To learn more about associating tenant profiles of Dropbox with the Cloud App Control policy rule, see Adding a File Sharing Rule for Cloud App Control.
+  - GitHub
+  - To configure a tenant profile for GitHub, in the Enterprise Slug for GitHub field, enter the enterprise slug (e.g., avocado-corp) associated with the sec-GitHub-allowed-enterprise header for GitHub. To learn more, refer to the GitHub documentation.
+  - You can add only one enterprise slug per profile. To learn more, see Ranges & Limitations.
+  - To learn more about associating GitHub tenant profiles with the Cloud App Control policy rule, see Adding a System & Development Rule for Cloud App Control.
+  - Google
+  - To configure the tenant profile for Google apps:
+    - In the Domains field, enter the domains (e.g., www.zscaler.com) you want to add to this tenant profile and click Add Items.
+    - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 100 domains. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+    - In the Allow Consumer Access field, select Yes to allow consumer access to the domains in the tenant profile. This field is set to No by default.
+    - In the Allow Visitor Access field, select Yes to allow visitors access to the domains in the tenant profile. This field is set to No by default.
+  - The service intercepts any google.com (or associated Google app) request and adds the HTTP header X-GoogApps-Allowed-Domains (values of the Domains field), which identifies the domains from which users can access Google services. This prevents users from accessing Gmail and other Google apps from other domains.
+  - This feature does not affect Google apps that do not require users to sign in, such as Google search. But a user who signs in from Google search with an account that is not placed on the allowlist is blocked.
+  - For additional information from Google, refer to here and here.
+  - To learn more about associating tenant profiles of Google apps with the Cloud App Control policy rule, see Adding Rules to the Cloud App Control Policy.
+  - Google Cloud Platform
+  - To configure the tenant profile for the Google Cloud Platform:
+    - In the Allowed Organization IDs field, enter the allowed organization IDs (e.g., 123456789012) you want to add to this tenant profile and click Add Items. To learn more, refer to the Google Cloud documentation.
+    - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 100 tenants. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+    - In the Allow Cloud Storage Resources field, select Yes to allow the users to access the public cloud storage resources. This field is set to No by default.
+  - To learn more about associating Google Cloud Platform tenant profiles with the Cloud App Control policy rule, see Adding a Hosting Providers Rule for Cloud App Control.
+  - IBM Smart Cloud
+  - To configure a tenant profile for IBM SmartCloud, in the IBM Account IDs field, enter the account IDs (e.g., 1234567890123456) associated with the IBM-Cloud-Tenant header for IBM SmartCloud and click Add Items. To learn more, refer to the IBM Cloud documentation.
+  - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 100 account IDs per profile. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - The service intercepts incoming requests to cloud.ibm.com and its subdomain (*cloud.ibm.com) and adds the HTTP header IBM-Cloud-Tenant (values of the IBM Account IDs field).
+  - To learn more about associating IBM SmartCloud tenant profiles with the Cloud App Control policy rule, see Adding a Hosting Providers Rule for Cloud App Control.
+  - Microsoft Login Services
+  - You can configure the following tenant profile types for Microsoft Login Services:
+    - Version 1
+    - To configure Version 1 tenant profile for Microsoft Login Services:
+      - In the Tenant Directory ID field, enter the tenant directory ID (e.g., f4c77d8d-6bb8-41a2-a3c9-69dd3edaa158). This field specifies the Microsoft Entra tenant ID that is enforcing the tenant restriction policy.
+      - In the Office 365 Tenants or Tenant IDs field, enter the tenant names or tenant IDs (e.g., corp1.safemarch.com or 784b1673-628c-56e3-c3b2-5d2f0d59524m) that you want to add to this tenant profile, and click Add Items. This field specifies the Microsoft tenant's users that are allowed access.
+      - Do not exempt these domains from authentication.
+      - To enter multiple entries, press Enter after each entry, then click Add Items. You can add one tenant directory per tenant profile and up to 500 Office 365 tenant names. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+      - In the Allow Personal Office 365 Domains field, select No to block the personal Office 365 domains in the tenant profile. The Zscaler service inserts the sec-Restrict-Tenant-Access-Policy header when this field is set as No and users attempt to sign in to Microsoft personal account. This header is inserted only for login.live.com traffic. This field is set to Yes by default. To learn more about allowing personal accounts for Microsoft applications, refer to the Microsoft documentation.
+    - Version 2
+    - In the Tenant Directory ID:Policy ID field, enter the tenant directory ID of your organization (Microsoft Entra tenant ID) followed by the policy ID with a colon in between (e.g., f4c77d8d-6bb8-41a2-a3c9-69dd3edaa158:quadsj) to configure the Version 2 tenant profile for Microsoft Login Services. To learn more, refer to the Microsoft documentation.
+    - The Tenant Directory ID and Policy ID are GUIDs from your tenant on the Azure Active Directory portal. You can find these GUIDs as follows:
+      - Tenant Directory ID: Log in as an administrator to the Azure Active Directory portal, select Azure Active Directory, and then select Properties.
+      - Policy ID: Call the following API endpoint: /crosstenantaccesspolicy/default. Use the id field value in the Response preview.
+      - See image.
+  - The version of the tenant profiles can be changed only when the profiles are not associated with any policy.
+  - The Zscaler service inserts the following headers when a tenant profile is associated with the Cloud App Control policy rule and there is an incoming request to login.microsoftonline.com, login.microsoft.com, login.windows.net, or login.live.com:
+    - Restrict-Access-Context: Identifies the Microsoft Entra tenant that is enforcing the tenant restriction policy.
+    - The value of the Tenant Directory ID field is inserted into this header.
+    - Restrict-Access-To-Tenants: Identifies the Microsoft tenant's users that are allowed access.
+    - The values of the Office 365 Tenants or Tenant IDs field are inserted into this header.
+    - sec-Restrict-Tenant-Access-Policy: Restricts access to Microsoft personal accounts when configured.
+    - The value of the Allow Personal Office 365 Domains field is inserted into this header only for login.live.com traffic when the field is set to No.
+  - To learn more about Microsoft Tenant Restrictions, refer to the Microsoft Tenant Restriction documentation and Microsoft documentation.
+  - The following caveats apply to the Microsoft Login Services tenant profile:
+    - Add only one tenant directory ID per tenant profile.
+    - Entry of wildcard domains is not allowed in the tenant profile.
+    - Associate multiple tenant profiles with a Cloud App Control policy rule only if their tenant directory IDs are the same.
+  - To learn more about associating tenant profiles of Microsoft Login Services with the Cloud App Control policy rule, see Adding an IT Services Rule for Cloud App Control.
+  - Slack
+  - To configure the tenant profile for Slack:
+    - In the Workspace ID field, enter your workspace ID (e.g., T2DQ3J9AA).
+    - If an incorrect value is entered in this field, Slack might allow traffic to any Slack workspace, resulting in a security gap. To approve Slack workspaces for your network, refer to the Slack help page.
+    - In the Allowed Workspace ID field, enter the allowed workspace IDs you want to add to this tenant profile, and click Add Items.
+    - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 256 allowed workspace IDs. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - The service intercepts requests related to Slack and adds the following headers:
+    - X-Slack-Allowed-Workspaces-Requester (value of the Your Workspace ID field)
+    - X-Slack-Allowed-Workspaces (values of the Allowed Workspace ID field)
+  - To learn more about associating tenant profiles of Slack with the Cloud App Control policy rule, see Adding a Collaboration & Online Meetings Rule for Cloud App Control.
+  - Webex Login Services
+  - To configure the tenant profile for Webex Teams and Webex Meetings, in the Webex Tenants(Webex Teams and Meetings) field, enter the tenants (e.g., zscaler.com) you want to add to this tenant profile and click Add Items.
+  - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 100 tenants. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - The service intercepts incoming requests to the following domains and adds the HTTP header CiscoSpark-Allowed-Domains (values of the Webex Tenants(Webex Teams and Meetings) field):
+    - identity.webex.com
+    - identity-eu.webex.com
+    - idbroker.webex.com
+    - idbroker-secondary.webex.com
+    - idbroker-b-us.webex.com
+    - idbroker-eu.webex.com
+    - atlas-a.wbx2.com
+  - To learn more about Webex Tenant Restrictions, refer to the Webex documentation.
+  - To learn more about associating tenant profiles of Webex Login Services with the Cloud App Control policy rule, see Adding an IT Services Rule for Cloud App Control.
+  - YouTube
+  - To configure the tenant profile for YouTube, in the YouTube Configuration field, select one of the following configuration types:
+    - YouTube Category ID
+    - In the YouTube Category ID field, select the required categories from the following list of categories:
+      - Action/Adventure
+      - Anime/Animation
+      - Autos & Vehicles
+      - Classics
+      - Comedy
+      - Documentary
+      - Drama
+      - Education
+      - Entertainment
+      - Family
+      - Film & Animation
+      - Foreign
+      - Gaming
+      - Horror
+      - Howto & Style
+      - Movies
+      - Music
+      - News & Politics
+      - Nonprofits & Activism
+      - People & Blogs
+      - Pets & Animals
+      - Science & Technology
+      - Sci-fi/Fantasy
+      - Shorts
+      - Short Movies
+      - Shows
+      - Sports
+      - Thriller
+      - Trailers
+      - Travel & Events
+      - Videoblogging
+    - You can select any number of YouTube category IDs and also search for YouTube category IDs.
+    - YouTube Channel ID
+    - In the YouTube Channel ID field, enter the YouTube channel IDs (e.g., UCSylwuqCXM_W13ARfzASm3Q) you want to add to this tenant profile, and click Add Items.
+    - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 200 YouTube channel IDs. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+    - YouTube School ID
+    - In the YouTube School ID field, enter the IDs YouTube assigned to your school network (e.g., UC1xagwHTcYzlpIriGARvPig), which you want to add to this tenant profile, and click Add Items.
+    - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 100 YouTube school IDs. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - To learn more about associating tenant profiles of YouTube with the Cloud App Control policy rule, see Adding a Streaming Media Rule for Cloud App Control.
+  - Zoho Login Services
+  - To configure the tenant profile for Zoho Login Services, in the Zoho ID field, enter your Zoho ID (e.g., 100001) you want to add to this tenant profile and click Add Items.
+  - To enter multiple entries, press Enter after each entry, then click Add Items. You can add up to 128 IDs. To learn more, see Ranges & Limitations. For item lists, you can filter the list by searching for a word, phrase, or number contained in an item, and you can remove all items from the list (Remove All) or only items from a specific page (Remove Page). If you select Remove All or Remove Page, a confirmation window appears.
+  - Contact Zoho support to get your Zoho ID.
+  - To learn more about associating tenant profiles of Zoho Login Services with the Cloud App Control policy rule, see Adding an IT Services Rule for Cloud App Control.
+  - Zoom
+  - To configure a tenant profile for Zoom, in the Policy Label field, enter the policy label associated with the X-ZoomApps-Policy header for Zoom.
+  - Contact Zoom Support for the policy label.
+  - To learn more about associating Zoom tenant profiles with the Cloud App Control policy rule, see Adding a Collaboration & Online Meetings Rule for Cloud App Control.
+  - You can associate only one Zoom tenant profile with the Cloud App Control policy rule.
+  - Allowing a specific tenant automatically blocks other tenants for most of the cloud applications, and subsequent policies are not evaluated. However, for YouTube and Amazon Web Services, subsequent policies are evaluated, so an explicit block policy is required to block other tenants for them.
+  - Ensure to select these cloud applications as a criterion in an SSL/TLS Inspection rule if their tenant profiles are associated with a cloud application rule. In the SSL/TLS Inspection rule, for the following cloud applications, do as follows:
+    - Office 365: Select Microsoft Login Services as the cloud application with a rule order higher than Office 365 One Click Rule.
+    - Google Apps: Select Google Login Services as the cloud application.
+    - Webex Teams/Webex Meetings: Select Webex Login Services as the cloud application.
+- See image.
+- In the Tenant Profile Name field, enter a unique name for the tenant profile.
+- This name is displayed while configuring the respective Cloud App Control policy rules.
+- Description: (Optional) Enter any additional comments or information. The description cannot exceed 10,240 characters.
+- Click Save and activate the change.

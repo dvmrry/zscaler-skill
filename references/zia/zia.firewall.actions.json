@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.actions",
+  "title": "Firewall rule actions",
+  "aliases": [
+    "block_drop",
+    "block_reset",
+    "block_icmp",
+    "eval_nwapp",
+    "bypass_ips",
+    "firewall action values",
+    "full logging firewall"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules#action",
+    "zia/ips-policies#action",
+    "zia/firewall-filtering-rules#enableFullLogging"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    }
+  ],
+  "claims": {
+    "filtering-action-values": {
+      "statement": "A Firewall Filtering rule's action is one of ALLOW, BLOCK_DROP, BLOCK_RESET, BLOCK_ICMP or EVAL_NWAPP.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK_DROP",
+              "BLOCK_RESET",
+              "BLOCK_ICMP",
+              "EVAL_NWAPP"
+            ]
+          }
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "\"BLOCK_ICMP\",",
+            "\"EVAL_NWAPP\","
+          ]
+        }
+      ]
+    },
+    "ips-action-values": {
+      "statement": "An IPS Control rule's action is one of ALLOW, BLOCK_DROP, BLOCK_RESET or BYPASS_IPS.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-policies#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallIpsRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK_DROP",
+              "BLOCK_RESET",
+              "BYPASS_IPS"
+            ]
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_firewall_ips.py",
+          "quotes": [
+            "Supported Values: ALLOW, BLOCK_DROP, BLOCK_RESET, BYPASS_IPS"
+          ],
+          "after": "def add_rule("
+        }
+      ]
+    },
+    "bypass-ips-is-bypass": {
+      "statement": "BYPASS_IPS is the API value for the IPS Control option that lets specific traffic bypass Zscaler's IPS. Firewall Filtering has no such value.",
+      "tier": "B",
+      "binds": [
+        "zia/ips-policies#action"
+      ],
+      "conditions": "Derived by pairing the help capture's bypass option with the only IPS action value that names a bypass; the Filtering enum was searched and has no bypass value.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ips-control.md",
+          "quotes": [
+            "You can also configure rules to allow specific types of traffic to bypass Zscaler's IPS."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallIpsRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK_DROP",
+              "BLOCK_RESET",
+              "BYPASS_IPS"
+            ]
+          }
+        }
+      ]
+    },
+    "full-logging-block-only": {
+      "statement": "Only block rules support full logging on a Firewall Filtering rule; full logging on other rules requires the Full Logging license. Without full logging the service groups sessions by user, rule, network service and network application and records them periodically.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#enableFullLogging"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "Only Block rules support full logging. Full logging on all other rules requires the Full Logging license."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "action-semantics": {
+      "kind": "semantic",
+      "title": "Wire behavior of the block actions and EVAL_NWAPP",
+      "status": "open",
+      "detail": "No captured source describes what BLOCK_DROP, BLOCK_RESET and BLOCK_ICMP send to the client, or what EVAL_NWAPP does and whether a rule with it terminates evaluation. The SDKs and Terraform only enumerate the values.",
+      "blocks": "telling an operator what a user or attacker sees for each block action, and how EVAL_NWAPP rules compose",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "enum": [
+              "ALLOW",
+              "BLOCK_DROP",
+              "BLOCK_RESET",
+              "BLOCK_ICMP",
+              "EVAL_NWAPP"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

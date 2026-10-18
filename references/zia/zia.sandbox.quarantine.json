@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.quarantine",
+  "title": "Files stuck in Sandbox quarantine",
+  "aliases": [
+    "file stuck in quarantine",
+    "one-time download link",
+    "dynamic hash",
+    "PSE cache lag",
+    "allow and scan",
+    "patient 0"
+  ],
+  "binds": [
+    "zia/sandbox-rules#firstTimeOperation"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.sandbox.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    }
+  ],
+  "claims": {
+    "one-time-links": {
+      "statement": "For one-time download links the URL stops serving the file after the first request, so later download attempts return 404 or 403 from the origin. Web Insights shows \"Sent for Analysis\" for the first transaction and \"Allowed\" afterwards, with the server-side 404.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "**One-time download links** -- After the initial request, the URL no longer serves the file.",
+            "then \"Allowed\" for subsequent attempts (but with server-side 404)"
+          ]
+        }
+      ],
+      "gaps": [
+        "one-time-link-remedy"
+      ]
+    },
+    "dynamic-hash": {
+      "statement": "Some sites generate a unique file per request, so each request has a different MD5 and starts a new quarantine. Web Insights shows several \"Sent for Analysis\" entries for the same URL with different MD5 hashes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "Each new hash triggers a new quarantine.",
+            "multiple \"Sent for Analysis\" entries for the same URL but with different MD5 hashes"
+          ]
+        }
+      ]
+    },
+    "allow-and-scan-remedy": {
+      "statement": "The documented remedy for the dynamic-hash case is a Sandbox rule for the affected domain set to \"Allow and scan\" instead of quarantine. The file is delivered immediately while Sandbox analyzes in the background, and a Patient 0 alert fires if it is malicious.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "Create a Sandbox rule for the affected domain to \"Allow and scan\" instead of quarantine.",
+            "If malicious, a Patient 0 alert fires."
+          ]
+        }
+      ]
+    },
+    "pse-cache-lag": {
+      "statement": "After analysis completes on one Public Service Edge the result may not yet be cached on another, so a user at a different location may briefly see the quarantine page again; it resolves once the cache propagates. A report showing Benign while the file is still quarantined means the cache has not caught up, and the user should retry shortly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "skills/zia/investigate-sandbox/SKILL.md",
+          "quotes": [
+            "This resolves itself after the cache propagates.",
+            "the PSE cache hasn't updated yet. The user should retry shortly."
+          ]
+        }
+      ]
+    },
+    "hash-propagation": {
+      "statement": "Sandbox propagates the hash of a malicious file to all Public Service Edges for Internet & SaaS, which the help page describes as a real-time denylist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "Hash propagation of malicious files across all Public Service Edges for Internet & SaaS"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "one-time-link-remedy": {
+      "kind": "semantic",
+      "title": "Whether Allow and scan also fixes a one-time download link",
+      "status": "open",
+      "detail": "The skill names the Allow-and-scan rule only for the dynamic-hash case. For a one-time link it lists the cause but no remedy; the earlier reference extended the same rule to it without a source.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "persistent-quarantine-escalation": {
+      "kind": "semantic",
+      "title": "What to do when a quarantine persists after the verdict is Benign",
+      "status": "open",
+      "detail": "The skill says cache lag resolves itself. Whether and how long to wait before a Zscaler support ticket, and what to quote in it, is not stated; the earlier reference's advice to quote the MD5 had no source.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ]
+    }
+  }
+}

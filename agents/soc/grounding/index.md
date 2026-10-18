@@ -20,8 +20,8 @@ sources:
   - "references/shared/audit-logs.md"
   - "references/shared/siem-log-mapping.md"
   - "references/zidentity/admin-rbac.md"
-  - "references/zia/ssl-inspection.md"
-  - "references/zia/cloud-app-control.md"
+  - "kb:zia.ssl-inspection"
+  - "kb:zia.cloud-app-control"
 dependencies: []
 author-status: draft
 ---
@@ -86,8 +86,8 @@ When instructions are ambiguous, bias toward:
 ### `policy`
 
 - [`zia.url-filtering`](kb:zia.url-filtering)
-- [`references/zia/ssl-inspection.md`](../../../references/zia/ssl-inspection.md)
-- [`references/zia/cloud-app-control.md`](../../../references/zia/cloud-app-control.md)
+- [`zia.ssl-inspection`](kb:zia.ssl-inspection)
+- [`zia.cloud-app-control`](kb:zia.cloud-app-control)
 - [`references/zpa/app-segments.md`](../../../references/zpa/app-segments.md)
 - [`references/zpa/policy-precedence.md`](../../../references/zpa/policy-precedence.md)
 

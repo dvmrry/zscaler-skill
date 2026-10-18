@@ -1,128 +1,42 @@
-# Admin RBAC — consolidated capture notes
+# About Internet & SaaS Role Management
 
-**Captured:** 2026-04-24 via Playwright MCP. Content below is structured summary of 8 help articles across ZIA, ZPA, and ZIdentity admin-role surfaces. Verbatim innerText excerpts preserved where the source language is critical; operational details summarized where original is procedural.
-
-## Sources
-
-### ZIA
-
-- [About Role Management](https://help.zscaler.com/zia/about-role-management)
-- [About Administrators](https://help.zscaler.com/zia/about-administrators)
-- [Understanding Admin Scope](https://help.zscaler.com/zia/about-admin-scope)
-- [About Audit Logs](https://help.zscaler.com/zia/about-audit-logs)
-
-### ZPA
-
-- [About Private Access Roles](https://help.zscaler.com/zpa/about-private-access-roles)
-- [Configuring Administrator Roles](https://help.zscaler.com/zpa/configuring-administrator-roles)
-
-### ZIdentity
-
-- [About ZIdentity Admin Roles](https://help.zscaler.com/zidentity/about-zidentity-admin-roles)
-- [Admin Roles and Permissions](https://help.zscaler.com/zidentity/admin-roles-and-permissions)
+**Source:** https://help.zscaler.com/zia/about-role-management
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1399851, revision 3240575
 
 ---
 
-## ZIA: About Role Management
-
-> The admin roles that are assigned to admins dictate the level of access they have to the ZIA Admin Portal. Zscaler provides a default super admin role which has full access to the ZIA Admin Portal and Executive Insights App. For each additional role you create, you must define the role's access by specifying:
-> - Admin rank
-> - Permissions
-> - Functional scope
-
-> Admins who have permission to manage roles can only add, edit, or delete roles with **less scope and lower rank** than their own.
-
-Role management enables: configure admins based on role + functional scope, assign rank-based roles to maintain hierarchy, view all configured admins and their access levels.
-
-## ZIA: About Administrators
-
-Each admin account comprises a **role** and **scope**:
-
-- **Role** (or SD-WAN partner API role) — specifies which features admins can access in the ZIA Admin Portal.
-- **Scope** — specifies which areas of the organization (which departments, which locations) admins can configure policies or settings for.
-
-Zscaler provides a default admin account with full access. The new default admin login format is:
-
-```
-admin@<Organization ID>.<Zscaler Cloud>.net
-```
-
-On the Administrators page, per-admin columns include: **Login ID, Name, Role, Status, Scope, Login Type, Comments, Password Expired, Type** (Standard Admin / SD-WAN partner API / Executive App Admin / Standard & Executive App Admin).
-
-## ZIA: Understanding Admin Scope
-
-An admin's scope specifies which areas of the organization they can manage. Default admin = scope over entire organization. Each additional admin selects one of:
-
-- Organization
-- Department
-- Location
-- Location Group
-
-**You can assign scope over the entire organization OR either location, location group, or department** — you **can't combine** location, location group, and department.
-
-Admin scope affects: Rule Criteria, Editing Rules or Settings, Assigning Scope for New Admins, Access to Organizational Resources, and Access to ZIA Admin Portal Features.
-
-## ZIA: About Audit Logs
-
-Zscaler records the actions of every admin in the ZIA Admin Portal and through the Cloud Service APIs. Audit logs provide:
-
-- View alterations made (PAC file modifications, URL filtering policy changes).
-- View details on changes made by admins during login sessions.
-- Demonstrate compliance with security policies.
-- Detect and investigate suspicious activity.
-
-**Lockout behavior:** If an admin account makes **5 unsuccessful login attempts within 1 minute**, the account is locked for **5 minutes** and failed attempts are recorded.
-
-**Retention:** **Audit logs stored for up to 6 months.**
-
-Per-log columns: Timestamp, Action, Category, Sub-Category, Resource, Admin ID, Client IP, Interface (Admin UI or API), Trace ID, Result (success/failure).
-
-## ZPA: About Private Access Roles
-
-For each admin, choose from predefined roles:
-
-- **ZPA Administrator** — read, add, edit, and delete privileges in the Zscaler Admin Console (default).
-- **ZPA Read Only Administrator** — only read privileges.
-
-**ZPA Administrator privileges** enable creating custom admin roles. You can only manage custom roles with **equal or lower privileges than your own**.
-
-Predefined-role columns: Name, # of Admins with This Role, # of API Keys with This Role, Description.
-
-**Permission changes take up to 2 minutes to take effect.**
-
-## ZPA: Configuring Administrator Roles
-
-Add a new admin role:
-
-1. Go to **Administration > Admin Management > Role Based Access Control > Private Access**.
-2. Click **Add Role**.
-3. Define: **Name**, **Description** (optional), **Access Control features**.
-
-### Available features for role configuration
-
-Administration Control, API Key Management, App Connector Management, Authentication, Business Continuity Management, Certificate Management, Client Connector Portal, Client Sessions, Cloud Connector Management, Company Information, Configuration, Dashboard, Diagnostics, Log Streaming, Machine Management, Notification Management, Policies, Private Service Edge Management, Privileged Remote Access, Privileged Sessions, Security Management, SCIM Management, VPN (For Legacy Apps).
-
-Role changes take up to **2 minutes** to take effect. Missing permissions show a warning icon next to the permission group.
-
-## ZIdentity: About ZIdentity Admin Roles
-
-ZIdentity provides **4 predefined admin roles**:
-
-1. **Super Admin** — system role, full permissions.
-2. **View Only Admin** — system role, view-only.
-3. **User Admin** — system role, user-management permission.
-4. **CXO Insight User** — system role, CXO insight permission.
-
-Users and user groups must be added to ZIdentity before admin roles can be assigned.
-
-**For ZIdentity-enabled tenants, admin roles must be assigned in the Zscaler Admin Console.**
-
-For ZIdentity tenants migrated to the Zscaler Admin Console, at least **View Only permission** is required on Users and User Groups modules to submit a Zscaler Support ticket.
-
-## ZIdentity: Admin Roles and Permissions (permission matrix)
-
-The full matrix covers 25+ modules with Full / View Only / Restricted / None permission levels. Modules include:
-
-Admin Sign on Policy · Authentication Methods · Users and Groups · User Credentials · Roles · External Identities · IP Locations & Groups · Authentication Session · Administrative Entitlements · Service Entitlements · Audit Logs · Guest Domain · Remote Assistance · Branding · API Clients & Resources · Executive Insights · Token Validators · Log Streaming
-
-(Full matrix is verbose; re-capture the live article for the authoritative version when drafting detailed permission-based policy.)
+Watch a video About Admin Roles (shows legacy UI).
+The admin roles that are assigned to admins dictate the level of access they have to the Zscaler Admin Console. Zscaler provides a default super admin role which has full access to the Zscaler Admin Console and Executive Insights App. This role is assigned to the default admin, but you can assign this role to other admins as necessary. For each additional role you create, you must define the role's access by specifying:
+- Admin rank
+- Permissions
+- Functional scope
+If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Internet & SaaS are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.
+Admins who have permission to manage roles can only add, edit, or delete roles with less scope and lower rank. To learn more, see Adding Admin Roles and Adding SD-WAN Partner API Roles.
+Configuring an admin is one of the tasks that you must complete while configuring role-based administration. To learn more, see Configuring Role-Based Administration.
+Role management provides the following benefits and enables you to:
+- Configure Internet & SaaS (ZIA) admins for the Zscaler Admin Console based on their role and functional scope in the organization.
+- Assign rank-based roles to admins to maintain hierarchy among the admins so that a lower-ranked admin can't modify the settings of an admin with a higher rank.
+- View all the configured admins and their access levels, functional scope, rank, and other information.
+The API role configured in the external OAuth 2.0 authentication server for a client application dictates the client application's permission and access to the different API categories in the Zscaler cloud service API. You add the API role using the Zscaler Admin Console and then configure the external OAuth 2.0 authentication server to use that role. This enables the different APIs within the API categories of the Zscaler cloud service API to be authenticated through the use of an OAuth 2.0 authentication server instead of the APIs passing an admin user, password, and API key.
+Adding an API role is one of the tasks that you must complete before you can configure the external OAuth 2.0 authentication server.
+To learn more, see Securing Internet & SaaS APIs with OAuth 2.0.
+# About the Role Management Page
+On the Role Management page for Internet & SaaS (Administration > Role Management > Internet & SaaS), you can do the following:
+- Add an admin role.
+- Add an SD-WAN partner API role.
+- Add an API role.
+- Search for a configured admin role, SD-WAN partner API role, or API role.
+- View a list of all admin roles, SD-WAN partner API roles, and API roles configured for your organization. For each role, you can view the following information:
+  - Name: The name of the role.
+  - Admin Rank: The assigned admin rank for the admin role. This is visible only if admin ranking is enabled in the Advanced Settings. Admin rank does not apply to SD-WAN partner API or API roles.
+  - Full Access: The areas of the Zscaler Admin Console where admins with this role have full access or, for API roles, the areas in the cloud service API to which the client application has full access.
+  - View-Only Access: The areas of the Zscaler Admin Console where admins with this role have view-only access or, for API roles, the areas in the cloud service API to which the client application has view-only access.
+  - None Access: The areas of the Zscaler Admin Console where admins with this role don't have any access or, for API roles, the areas in the cloud service API to which the client application doesn't have any access.
+  - User Names: This shows whether the usernames are visible or obfuscated within the Zscaler service or APIs.
+  - Device Information: This shows whether the device information (i.e., device hostname, device name, and device owner) is visible or obfuscated within the Zscaler Admin Console or APIs.
+  - Type: The type of role. The admin role types are Standard Admin, SD-WAN Partner API, Executive App Admin, or Standard & Executive App Admin. The API role type is API Client.
+- Modify the table and its columns.
+- Edit the default Executive Insights App role.
+- View a configured admin role with greater scope and higher rank, or an SD-WAN partner API role.
+- Edit a configured admin role with less scope and lower rank, an SD-WAN partner API role, or an API role.

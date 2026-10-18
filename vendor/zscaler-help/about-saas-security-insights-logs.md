@@ -1,63 +1,1579 @@
 # About SaaS Security Insights Logs
 
 **Source:** https://help.zscaler.com/zia/about-saas-security-insights-logs
-**Captured:** 2026-04-26 via Playwright MCP (innerText extraction of article).
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1401431, revision 3246183
 
 ---
 
 The Zscaler service provides real-time log consolidation across the globe, so you can view every scan performed by the Zscaler SaaS Connector of data based on your SaaS application tenant.
-
 Logs are stored for 180 days in the Zscaler Nanolog servers. Zscaler also offers the Nanolog Streaming Service (NSS), a virtual machine (VM) that can stream web traffic logs in real time from the Zscaler Nanolog to your security information and event management (SIEM) system, such as Splunk, enabling real-time alerting, correlation with the logs of your firewall and other devices, and long-term local log archival. Contact your Zscaler representative or Zscaler Support for more information on subscribing to NSS.
-
 You can view the logs for files that triggered the real-time Data at Rest Scanning DLP rules in the SaaS Security Insights Logs page for Webex.
-
 The SaaS Security Insights Logs page provides the following benefits and enables you to:
-
 - View logs for each transaction for your SaaS applications processed by Zscaler.
 - Quickly access the desired logs with the help of multiple filters and operators when troubleshooting.
-
 Interactive reports support UTF-8 characters enabling the display of special characters.
-
-## About the SaaS Security Insights Logs Page
-
-On the SaaS Security Insights Logs page (Analytics > SaaS Security Insights > Logs), you can do the following:
-
+# About the SaaS Security Insights Logs Page
+On the SaaS Security Insights Logs page (Data Explorer > Internet & SaaS > SaaS Security Insights), you can do the following:
 - Clear all filters. You are redirected to the default Insights page.
 - Click to show or hide the left pane.
+- Download the data to a CSV file.
 - Choose a predefined time frame or select Custom to use the calendar and time menus to define your own time frame. In Custom, the end date can be up to 92 days after start date.
 - View the records in a log table. You can search for specific entries wherever you see a magnifying glass on a column field name. You can also sort certain columns by ascending or descending order. To customize the column fields:
-  - Click the icon on the top right of the logs to list the available fields for display. Tick a box to add a column or clear it to remove a column. Alternatively, click Select all or Deselect all to display or remove all columns.
+  - Click the icon (#5 in the following image) on the top right of the logs to list the available fields for display. Tick a box to add a column or clear it to remove a column. Alternatively, click Select all or Deselect all to display or remove all columns.
   - Drag a column to another location.
   - Resize a column by positioning the cursor on its border and dragging it to the desired width.
-  - Customize your log view by selecting or deselecting which column fields you want to see.
-
-Each application category has its own set of columns:
-
-- Collaboration Columns
-- CRM Columns
-- Email Columns
-- File Columns
-- Gen AI Columns
-- ITSM Columns
-- Public Cloud Storage Columns
-- Repository Columns
-
+- Customize your log view by selecting or deselecting which column fields you want to see.
+- Each application category has its own set of columns.
+  - Collaboration Columns
+    - Action: The Data at Rest Scanning DLP policy rule action.
+  - No Data at Rest Scanning DLP / Malware policy rule action is performed if a SaaS application detects the malware. If SaaS application detects the malware, the Zscaler service does not run its anti-virus.
+    - Advanced Threat Category: If the service detected a threat in the record, it displays the virus or spyware type, if applicable.
+    - Application: The type of sanctioned SaaS application (e.g., Slack).
+    - Application Category: The type of application category.
+    - Channel Name: The name of the Slack, Webex Teams, Microsoft Teams, or Zoom channel.
+    - Collaboration Scope: The collaboration scope and permissions for SaaS application tenant files.
+    - Component: The type of component (e.g., Message, Email).
+    - DLP Dictionaries: Indicates if data leakage was detected by a DLP dictionary.
+    - DLP Engine: Indicates if data leakage was detected by a Data Loss Prevention (DLP) engine.
+    - DLP Identifier: Used to search for records using this DLP identifier. Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record.
+    - Data Center: The name of the data center.
+    - Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location. You can sort and search through this column.
+    - Document Type: The type of document uploaded or downloaded during the transaction.
+    - Download Time: The download time of the suspicious file detected by Data at Rest Scanning.
+    - Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.
+  - When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column.
+    - External Recipients: The email recipients outside your organization.
+    - File ID: The ID of a file. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: The MD5 hash for the file.
+    - File Size: The size of the file.
+    - File Type: The type of file that was either uploaded or downloaded.
+    - Internal Recipients: The recipients within your organization.
+    - Logged Time: The incident logged time, which is when we perform a scan and evaluate policies and log results. You can sort by ascending or descending order.
+    - Message ID: The email message identifier. Every email message has a unique ID. An Exchange or Gmail administrator can log in to their admin portals and search and pull a specific message with this ID if needed.
+    - Number of External Recipients: The number of recipients outside your organization.
+    - Number of Internal Recipients: The number of recipients within your organization.
+    - Policy Type: The type of policy that took action during the record.
+    - Rule Name: The name of the rule that triggered the session or aggregated sessions.
+    - Run ID: A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - SHA: The secure hash algorithm (SHA).
+    - Scan ID: Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant.
+    - Sender Name: The name of the message sender.
+    - Severity: The severity level of the incidents detected by the Data at Rest Scanning DLP policy.
+    - Shared Channel Domain: The shared channel domain in Slack, Webex Teams, Microsoft Teams, or Zoom.
+    - Tenant: The sanctioned SaaS application that is integrated with the Zscaler service.
+    - Threat Name: If the service detected a threat in the record, it displays the name of the threat. Click to read more information about the threat in the Zscaler Threat Library.
+    - Threat Super Category: If the service detected a threat in the record, it displays the Virus and Spyware super category, if applicable.
+    - User: The email address of the user who performed the record. If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location. You can sort and search through this column.
+  - CRM Columns
+    - Action: The Data at Rest Scanning DLP policy rule action.
+  - No Data at Rest Scanning DLP / Malware policy rule action is performed if a SaaS application detects the malware. If SaaS application detects the malware, the Zscaler service does not run its anti-virus.
+    - Advanced Threat Category: If the service detected a threat in the record, it displays the virus or spyware type, if applicable.
+    - Application: The type of sanctioned SaaS application (e.g., Salesforce).
+    - Application Category: The type of application category.
+    - Collaboration Scope: The collaboration scope and permissions for SaaS application tenant files.
+    - DLP Dictionaries: Indicates if data leakage was detected by a DLP dictionary.
+    - DLP Engine: Indicates if data leakage was detected by a Data Loss Prevention (DLP) engine.
+    - DLP Identifier: Used to search for records using this DLP identifier. Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record.
+    - Data Center: The name of the data center.
+    - Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location. You can sort and search through this column.
+    - Document Type: The type of document uploaded or downloaded during the transaction.
+    - Download Time: The download time of the suspicious file detected by Data at Rest Scanning.
+    - External Collaborators: The collaborators outside your organization.
+    - Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.
+  - When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column.
+    - File MD5: The MD5 hash for the file.
+    - File Message ID: The file's message ID.
+    - File Message Modification Time: The date and time when a file message was modified.
+    - File Name: The name of the suspicious file detected by Data at Rest Scanning policy.
+    - File Size: The size of the file.
+    - File Source Location: The source location of the files containing sensitive data that were detected by the Data at Rest Scanning DLP or Malware Detection policy.
+    - File Type: The type of file that was either uploaded or downloaded.
+    - Internal Collaborators: The internal collaborators within your organization.
+    - Logged Time: The incident logged time, which is when we perform a scan and evaluate policies and log results. You can sort by ascending or descending order.
+    - Number of External Collaborators: The number of collaborators outside your organization.
+    - Number of Internal Collaborators: The number of collaborators within your organization.
+    - Object Name: The name of an object (e.g., you might have the object type Opportunity with an object name of "Pepsi".).
+    - Object Type: The type of object (e.g., budget request, campaign, opportunity).
+    - Policy Type: The type of policy that took action during the record.
+    - Public URL: The public URLs used to access a shared file.
+    - Rule Name: The name of the rule that triggered the session or aggregated sessions.
+    - Run ID: A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - SHA: The secure hash algorithm (SHA).
+    - Scan ID: Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant.
+    - Severity: The severity level of the incidents detected by the Data at Rest Scanning DLP policy.
+    - Shared Channel Domain: The shared channel domain in Salesforce or Dynamic 365.
+    - Tenant: The sanctioned SaaS application that is integrated with the Zscaler service.
+    - Threat Name: If the service detected a threat in the record, it displays the name of the threat. Click to read more information about the threat in the Zscaler Threat Library.
+    - Threat Super Category: If the service detected a threat in the record, it displays the Virus and Spyware super category, if applicable.
+    - User: The email address of the user who performed the record. If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location. You can sort and search through this column.
+  - Email Columns
+    - Action: The Data at Rest Scanning DLP policy rule action.
+  - No Data at Rest Scanning DLP / Malware policy rule action is performed if a SaaS application detects the malware. If SaaS application detects the malware, the Zscaler service does not run its anti-virus.
+    - Advanced Threat Category: If the service detected a threat in the record, it displays the virus or spyware type, if applicable.
+    - Application: The type of sanctioned SaaS application (e.g., Exchange).
+    - Application Category: The type of application category.
+    - Attachments: The attachments within the email message.
+    - DLP Dictionaries: Indicates if data leakage was detected by a DLP dictionary.
+    - DLP Engine: Indicates if data leakage was detected by a Data Loss Prevention (DLP) engine.
+    - DLP Identifier: Used to search for records using this DLP identifier. Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record.
+    - Data Center: The name of the data center.
+    - Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location. You can sort and search through this column.
+    - Document Type: The type of document uploaded or downloaded during the transaction.
+    - Download Time: The download time of the suspicious file detected by Data at Rest Scanning.
+    - Email Direction: The direction of the email (Inbound or Outbound).
+    - Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.
+  - When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column.
+    - External Recipients: The email recipients outside your organization.
+    - Internal Recipients: The email recipients within your organization.
+    - Logged Time: The incident logged time, which is when we perform a scan and evaluate policies and log results. You can sort by ascending or descending order.
+    - Mail Sent Time: The time the email was sent.
+    - Message ID: The email message identifier. Every email message has a unique ID. An Exchange or Gmail administrator can log in to their admin portals and search and pull a specific message with this ID if needed.
+    - Message Size: The size of the email message.
+    - Number of External Recipients: The number of recipients outside your organization.
+    - Number of Internal Recipients: The number of recipients within your organization.
+    - Owner Name: The owner of the mailbox where the questionable email is located. It can be a sender (DLP) or a recipient (Malware).
+    - Policy Type: The type of policy that took action during the record.
+    - Rule Name: The name of the rule that triggered the session or aggregated sessions.
+    - Run ID: A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant.
+    - Sender Name: The name of the email sender.
+    - Severity: The severity level of the incidents detected by the Data at Rest Scanning DLP policy.
+    - Shared Channel Domain: The shared channel domain.
+    - Subdocument Type: The type of subdocument uploaded or downloaded during the transaction.
+    - Tenant: The sanctioned SaaS application that is integrated with the Zscaler service.
+    - Thread Name: The name of the email thread.
+    - Threat Name: If the service detected a threat in the record, it displays the name of the threat. Click to read more information about the threat in the Zscaler Threat Library.
+    - Threat Super Category: If the service detected a threat in the record, it displays the Virus and Spyware super category, if applicable.
+  - File Columns
+    - Action: The Data at Rest Scanning DLP policy rule action.
+  - No Data at Rest Scanning DLP / Malware policy rule action is performed if a SaaS application detects the malware. If SaaS application detects the malware, the Zscaler service does not run its anti-virus.
+    - Advanced Threat Category: If the service detected a threat in the record, it displays the virus or spyware type, if applicable.
+    - Application: The type of sanctioned SaaS application (e.g., Box).
+    - Application Category: The type of application category.
+    - Collaboration Scope: The collaboration scope and permissions for SaaS application tenant files.
+    - DLP Dictionaries: Indicates if data leakage was detected by a DLP dictionary.
+    - DLP Engine: Indicates if data leakage was detected by a Data Loss Prevention (DLP) engine.
+    - DLP Identifier: Used to search for records using this DLP identifier. Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record.
+    - Data Center: The name of the data center.
+    - Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location. You can sort and search through this column.
+    - Document Type: The type of document uploaded or downloaded during the transaction.
+    - Download Time: The download time of the suspicious file detected by Data at Rest Scanning.
+    - External Collaborators: The collaborators outside your organization.
+    - External Collaborator Group: The group of collaborators outside your organization with whom the user shares assets.
+    - A group can have both internal and external members. Individual members of a group are logged under either Internal Collaborator or External Collaborators, depending upon the type of domain they belong to. A group is classified as an external collaborator group if even one member is an external collaborator, regardless of how many internal members it contains (e.g., 1 external member in a group of 100, where 99 are internal).
+    - File ID: The ID of a file. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: The MD5 hash for the file.
+    - File Modification Time: The date and time when a Data at Rest Scanning DLP policy modified the collaboration scope for SaaS application tenant files.
+    - File Name: The name of the suspicious file detected by Data at Rest Scanning policy.
+    - File Size: The size of the file.
+    - File Source Location: The source location of the files containing sensitive data that were detected by the Data at Rest Scanning DLP or Malware Detection policy.
+    - File Type: The type of file that was either uploaded or downloaded.
+    - Internal Collaborators: The internal collaborators within your organization.
+    - Internal Collaborator Group: The group of collaborators within your organization with whom the user shares assets.
+    - A group can have both internal and external members. Individual members of a group are logged under either Internal Collaborator or External Collaborators, depending upon the type of domain they belong to.
+    - Last Modified User: The email address of the user who last modified the file.
+    - For Smartsheet, only the user who performed the first activity, from the time of the file scan, is displayed even though the file might have had multiple activities thereafter.
+    - Last Shared User: The email address of the user who last shared the file. This column does not populate user details for the following applications as it is not supported:
+      - Google Drive
+      - Box
+      - ShareFile
+      - Confluence
+      - Smartsheet
+    - For Dropbox, only the user who last modified a shared file is displayed, even if another user shared it and modified it immediately.
+    - Last Shared On: The date and time when the file was shared. This column does not populate timeline details for the following applications as it is not supported:
+      - Google Drive
+      - ShareFile
+      - Confluence
+      - Smartsheet
+    - Logged Time: The incident logged time, which is when we perform a scan and evaluate policies and log results. You can sort by ascending or descending order.
+    - Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.
+    - When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column.
+    - Number of External Collaborators: The number of collaborators outside your organization.
+    - Number of Internal Collaborators: The number of collaborators within your organization.
+    - Policy Type: The type of policy that took action during the record.
+    - Public URL: The public URLs used to access a shared file.
+    - Rule Name: The name of the rule that triggered the session or aggregated sessions.
+    - Run ID: A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - SHA: The secure hash algorithm (SHA).
+    - Scan ID: Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant.
+    - Severity: The severity level of the incidents detected by the Data at Rest Scanning DLP policy.
+    - Shared Channel Domain: The shared channel domain.
+    - Subdocument Type: The type of subdocument uploaded or downloaded during the transaction.
+    - Tenant: The sanctioned SaaS application that is integrated with the Zscaler service.
+    - Threat Name: If the service detected a threat in the record, it displays the name of the threat. Click to read more information about the threat in the Zscaler Threat Library.
+    - Threat Super Category: If the service detected a threat in the record, it displays the Virus and Spyware super category, if applicable.
+    - User: The email address of the user who performed the record. If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location. You can sort and search through this column.
+  - Gen AI Columns
+    - Action: The Data at Rest Scanning DLP policy rule action.
+  - No Data at Rest Scanning DLP / Malware policy rule action is performed if a SaaS application detects the malware. If SaaS application detects the malware, the Zscaler service does not run its anti-virus.
+    - Advanced Threat Category: If the service detected a threat in the record, it displays the virus or spyware type, if applicable.
+    - Application: The type of sanctioned SaaS application (e.g., ChatGPT).
+    - Application Category: The type of application category.
+    - Bot Name: The name of the bot that has responded to the DLP.
+    - Component: The type of component (e.g., Message, Email).
+    - DLP Dictionaries: Indicates if data leakage was detected by a DLP dictionary.
+    - DLP Engine: Indicates if data leakage was detected by a Data Loss Prevention (DLP) engine.
+    - DLP Identifier: Used to search for records using this DLP identifier. Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record.
+    - Data Center: The name of the data center.
+    - Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location. You can sort and search through this column.
+    - Document Type: The type of document uploaded or downloaded during the transaction.
+    - Download Time: The download time of the suspicious file detected by Data at Rest Scanning.
+    - Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.
+  - When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column.
+    - File ID: The ID of a file. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: The MD5 hash for the file.
+    - File Size: The size of the file.
+    - File Type: The type of file that was either uploaded or downloaded.
+    - Logged Time: The incident logged time, which is when we perform a scan and evaluate policies and log results. You can sort by ascending or descending order.
+    - Message ID: The email message identifier. Every email message has a unique ID. An Exchange or Gmail administrator can log in to their admin portals and search and pull a specific message with this ID if needed.
+    - Policy Type: The type of policy that took action during the record.
+    - Rule Name: The name of the rule that triggered the session or aggregated sessions.
+    - Run ID: A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - SHA: The secure hash algorithm (SHA).
+    - Scan ID: Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant.
+    - Sender Name: The name of the message sender.
+    - Sender Type: The type of sender, i.e., bot, system, or user.
+    - Severity: The severity level of the incidents detected by the Data at Rest Scanning DLP policy.
+    - Tenant: The sanctioned SaaS application that is integrated with the Zscaler service.
+    - Threat Name: If the service detected a threat in the record, it displays the name of the threat. Click to read more information about the threat in the Zscaler Threat Library.
+    - Threat Super Category: If the service detected a threat in the record, it displays the Virus and Spyware super category, if applicable.
+    - Transaction Message: The reason explaining why the transaction failed. Shows N/A for successful transactions.
+    - User: The email address of the user who performed the record. If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location. You can sort and search through this column.
+  - ITSM Columns
+    - Action: The Data at Rest Scanning DLP policy rule action.
+  - No Data at Rest Scanning DLP / Malware policy rule action is performed if a SaaS application detects the malware. If SaaS application detects the malware, the Zscaler service does not run its anti-virus.
+    - Advanced Threat Category: If the service detected a threat in the record, it displays the virus or spyware type, if applicable.
+    - Application: The type of sanctioned SaaS application (e.g., ServiceNow).
+    - Application Category: The type of application category.
+    - Collaboration Scope: The collaboration scope and permissions for SaaS application tenant files.
+    - Component: The type of component (e.g., Message, Email).
+    - DLP Dictionaries: Indicates if data leakage was detected by a DLP dictionary.
+    - DLP Engine: Indicates if data leakage was detected by a Data Loss Prevention (DLP) engine.
+    - DLP Identifier: Used to search for records using this DLP identifier. Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record.
+    - Data Center: The name of the data center.
+    - Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location. You can sort and search through this column.
+    - Document Type: The type of document uploaded or downloaded during the transaction.
+    - Download Time: The download time of the suspicious file detected by Data at Rest Scanning.
+    - External Collaborators: The collaborators outside your organization.
+    - Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.
+  - When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column.
+    - File MD5: The MD5 hash for the file.
+    - File Message: The message of the file.
+    - File Message Modification Time: The date and time when a file message was modified.
+    - File Name: The name of the suspicious file detected by Data at Rest Scanning policy.
+    - File Source Location: The source location of the files containing sensitive data that were detected by the Data at Rest Scanning DLP or Malware Detection policy.
+    - Internal Collaborators: The internal collaborators within your organization.
+    - Logged Time: The incident logged time, which is when we perform a scan and evaluate policies and log results. You can sort by ascending or descending order.
+    - Number of External Collaborators: The number of collaborators outside your organization.
+    - Number of Internal Collaborators: The number of collaborators within your organization.
+    - Object Name: The name of an object (e.g., you might have the object type Opportunity with an object name of "Pepsi".)
+    - Object Type: The type of object (e.g., budget request, campaign, opportunity).
+    - Policy Type: The type of policy that took action during the record.
+    - Rule Name: The name of the rule that triggered the session or aggregated sessions.
+    - Run ID: A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - SHA: The secure hash algorithm (SHA).
+    - Scan ID: Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant.
+    - Severity: The severity level of the incidents detected by the Data at Rest Scanning DLP policy.
+    - Shared Channel Domain: The shared channel domain.
+    - Tenant: The sanctioned SaaS application that is integrated with the Zscaler service.
+    - Threat Name: If the service detected a threat in the record, it displays the name of the threat. Click to read more information about the threat in the Zscaler Threat Library.
+    - Threat Super Category: If the service detected a threat in the record, it displays the Virus and Spyware super category, if applicable.
+    - User: The email address of the user who performed the record. If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location. You can sort and search through this column.
+  - Public Cloud Storage Columns
+  - To enable Amazon S3, Google Cloud Platform, and Microsoft Azure for your organization, contact your Zscaler Account team.
+    - Action: The Data at Rest Scanning DLP policy rule action.
+  - No Data at Rest Scanning DLP / Malware policy rule action is performed if a SaaS application detects the malware. If SaaS application detects the malware, the Zscaler service does not run its anti-virus.
+    - Advanced Threat Category: If the service detected a threat in the record, it displays the virus or spyware type, if applicable.
+    - Application: The type of sanctioned SaaS application (e.g., Amazon S3).
+    - Application Category: The type of application category.
+    - Bucket Name: The name of the bucket.
+    - Collaboration Scope: The collaboration scope and permissions for SaaS application tenant files.
+    - Collaborators: The collaborators of the files.
+    - Data Center: The name of the data center.
+    - Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location. You can sort and search through this column.
+    - DLP Dictionaries: Indicates if data leakage was detected by a DLP dictionary.
+    - DLP Engine: Indicates if data leakage was detected by a Data Loss Prevention (DLP) engine.
+    - DLP Identifier: Used to search for the records using this DLP identifier. Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record.
+    - Document Type: The type of document uploaded or downloaded during the transaction.
+    - Download Time: The download time of the suspicious file detected by Data at Rest Scanning.
+    - Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.
+  - When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column.
+    - File ID: The ID of a file. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: The MD5 hash for the file.
+    - File Modification Time: The date and time for when a Data at Rest Scanning DLP policy modified the collaboration scope for SaaS application tenant files.
+    - File Name: The name of the suspicious file detected by Data at Rest Scanning policy.
+    - File Size: The size of the file.
+    - File Source Location: The source location of the files containing sensitive data that were detected by the Data at Rest Scanning DLP or Malware Detection policy.
+    - File Type: The type of file that was either uploaded or downloaded.
+    - Logged Time: The incident logged time, which is when we perform a scan and evaluate policies and log results. You can sort by ascending or descending order.
+    - Number of Collaborators: The number of collaborators for the file.
+    - Object Type: The type of object.
+    - Policy Type: The type of the policy that took action during the record.
+    - Public URL: The public URLs used to access a shared file.
+    - Rule Name: The name of the rule that triggered on the session or aggregated sessions.
+    - Run ID: A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant.
+    - Severity: The severity level of the incidents detected by the Data at Rest Scanning DLP policy.
+    - SHA: The secure hash algorithm (SHA).
+    - Tenant: The sanctioned SaaS application that is integrated with the Zscaler service.
+    - Threat Name: If the service detected a threat in the record, it displays the name of the threat. Click to read more information about the threat in the Zscaler Threat Library.
+    - Threat Super Category: If the service detected a threat in the record, it displays the Virus and Spyware super category, if applicable.
+    - User: The email address of the user who performed the record. If an internet gateway location was specified and authentication is not required, this field displays the name of the gateway location. You can sort and search through this column.
+  - Repository Columns
+    - Action: The Data at Rest Scanning DLP policy rule action.
+  - No Data at Rest Scanning DLP / Malware policy rule action is performed if a SaaS application detects the malware. If SaaS application detects the malware, the Zscaler service does not run its anti-virus.
+    - Advanced Threat Category: If the service detected a threat in the record, it displays the virus or spyware type, if applicable.
+    - Application: The type of sanctioned SaaS application (e.g., GitHub).
+    - Application Category: The type of application category.
+    - Collaboration Scope: The collaboration scope and permissions for SaaS application tenant files.
+    - DLP Dictionaries: Indicates if data leakage was detected by a DLP dictionary.
+    - DLP Engine: Indicates if data leakage was detected by a Data Loss Prevention (DLP) engine.
+    - DLP Identifier: Used to search for records using this DLP identifier. Whenever a DLP rule is hit, and the appropriate alert is configured, an email containing this ID is sent to your auditors. Use it as a filter to locate the exact record.
+    - Data Center: The name of the data center.
+    - Department: The department to which the user belongs. As with the User field, if authentication is not required and the traffic comes from a location specified in the service, this field displays the name of the gateway location. You can sort and search through this column.
+    - Document Type: The type of document uploaded or downloaded during the transaction.
+    - Download Time: The download time of the suspicious file detected by Data at Rest Scanning.
+    - External Collaborators: The collaborators outside your organization.
+    - Non-Provisioned Owner: The file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service.
+  - When a non-provisioned file owner within your organization is later provisioned to the Internet & SaaS service, the service begins to log the file owner under the User column.
+    - File ID: The ID of a file. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: The MD5 hash for the file.
+    - File Name: The name of the suspicious file detected by Data at Rest Scanning policy.
+    - File Size: The size of the file.
+    - File Source Location: The source location of the files containing sensitive data that were detected by the Data at Rest Scanning DLP or Malware Detection policy.
+    - Last Modified Time: The last time (date and time) the file was modified. You can sort by ascending or descending order.
+    - Logged Time: The incident logged time, which is when we perform a scan and evaluate policies and log results. You can sort by ascending or descending order.
+    - Number of External Collaborators: The number of collaborators outside your organization.
+    - Policy Type: The type of policy that took action during the record.
+    - Project Name: The name of the project.
+    - Repository Name: The name of the repository.
+    - Rule Name: The name of the rule that triggered the session or aggregated sessions.
+    - Run ID: A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - SHA: The secure hash algorithm (SHA).
+    - Scan ID: Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: The amount of time, in milliseconds, the Data at Rest Scanning policy took to scan content within the tenant.
+    - Severity: The severity level of the incidents detected by the Data at Rest Scanning DLP policy.
+    - Shared Channel Name
+    - Threat Name: If the service detected a threat in the record, it displays the name of the threat. Click to read more information about the threat in the Zscaler Threat Library.
+    - Threat Super Category: If the service detected a threat in the record, it displays the Virus and Spyware super category, if applicable.
+    - User: The email address of the user who performed the record. If an internet gateway location is specified and authentication is not required, this field displays the name of the gateway location. You can sort and search through this column.
 - Filter the data by application category. You can filter by Collaboration, CRM, Email, File, Gen AI, ITSM, or Repository. Depending on the application category you select, certain filters change accordingly.
 - Define filters to narrow down the list or to find records, such as those associated with a specific URL. Certain filters, like Users, Departments, Locations, and others, support the selection of multiple values. For these, you can select up to 200 values in a single filter. You can also choose to include or exclude the selected values. Also, certain filters support additional operators (i.e., Does Not Contain, Does Not Start With, Does Not End With, Is Null, Is Not Null) for filters that perform string match, like Threat Super Category and others.
-
-Each application category has its own set of log filters:
-
-- Collaboration Log Filters
-- CRM Log Filters
-- Email Log Filters
-- File Log Filters
-- Gen AI Log Filters
-- ITSM Log Filters
-- Public Cloud Storage Log Filters
-- Repository Log Filters
-
+- Each application category has its own set of log filters.
+  - Collaboration Log Filters
+    - Accessibility Flag: A multivalue flag that provides the accessibility information of the asset.
+      - Accessible by MS Copilot: Indicates if the asset is accessible by Microsoft Copilot.
+    - Action: Use this filter to view records based on the Data at Rest Scanning DLP policy rule action. The default option for this filter is None. You can search for specific actions. The following actions appear under this filter:
+      - Failed to make external sharing read only
+      - Failed to make internal sharing read only
+      - Failed to make sharing read only
+      - Failed to notify end user
+      - Failed to quarantine Malware
+      - Failed to remove Collaborators
+      - Failed to remove Discoverable
+      - Failed to remove external sharing
+      - Failed to remove Internal Link Share
+      - Failed to remove internal sharing
+      - Failed to remove Malware
+      - Failed to remove Public Link Share
+      - Failed to revoke Sharing/Make Private
+      - Make internal sharing read only
+      - Notify end user
+      - Quarantine Malware
+      - Read Only for All Collaborators
+      - Read Only for External Collaborators
+      - Remove Collaborators
+      - Remove Discoverable
+      - Remove External Collaborators and Shareable Link
+      - Remove Internal Link Share
+      - Remove Malware
+      - Remove Public Link Share
+      - Remove Sharing
+      - Report Incident Only
+      - Report Malware
+      - No action
+    - Advanced Threat Category: Use this filter to view records associated with a specific advanced threat category. These threats are detected by Malware Protection. The default option for this filter is Any. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Browser Exploit
+      - Adware
+      - Adware/Spyware Sites
+      - Archive Bomb
+      - Backdoor
+      - Benign
+      - Boot Virus
+      - Botnet Callback
+      - Browser Exploit
+      - Cross-site Scripting
+      - Cryptomining
+      - Denial of Service Attack
+      - Dialer
+      - Domain Generation Algorithm (DGA) Domains
+      - Downloader
+      - Macro Virus
+      - Malicious Content
+      - MalwareTool
+      - Misdisinfection
+      - Other Malware
+      - Other Spyware
+      - Other Threat
+      - Other Virus
+      - Password Stealer
+      - Peer-to-Peer
+      - Privacy Risk
+      - Proxy
+      - Ransomware
+      - Sandbox Adware
+      - Sandbox Anonymizer
+      - Sandbox Malware
+      - Sent for Analysis
+      - Spyware Callback
+      - Suspicious Content
+      - Suspicious Destination
+      - Trojan
+      - Unauthorized Communication
+      - Unrecognized Virus
+      - Unwanted Application
+      - Web Spam
+      - Worm
+    - Application: Use this filter to view records associated with a specific SaaS application. The following SaaS applications appear under this filter:
+      - Microsoft Teams
+      - Slack
+      - Webex Teams
+      - Zoom
+    - Channel Name: The name of the Slack, Webex Teams, Microsoft Teams, or Zoom channel. Enter all or part of the channel name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Collaboration Scope: Use this filter to view records based on the collaboration scope and permissions for SaaS application tenant files. The following collaborations appear under this filter:
+      - External Collaborators - Edit: Allows specific individuals outside your organization's tenant explicit permission to edit and modify the file.
+      - External Collaborators - View: Allows specific individuals outside your organization's tenant explicit permission to view (read-only) the file. These users cannot make any changes or modifications.
+      - External Link - Edit: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to edit and modify the file. No specific user authentication beyond having the link is typically required from an external perspective.
+      - External Link - View: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to view (read-only) the file. External users are not required to authenticate.
+      - Internal Collaborators - Edit: Allows specific individuals within your organization's tenant explicit permission to edit and modify the file.
+      - Internal Collaborators - View: Allows specific individuals within your organization's tenant explicit permission to view (read-only) the file.
+      - Internal Link - Edit: Allows anyone within your organization's tenant who possesses the shared link to edit and modify the file. Access is restricted to authenticated internal users.
+      - Internal Link - View: Allows anyone within your organization's tenant who possesses the shared link to view (read-only) the file. Access is restricted to authenticated internal users.
+      - Private - Edit: The file is not shared with anyone else and can only be accessed and edited by its owner (or explicitly assigned co-owners if the platform allows it within a private context).
+    - Component: Use this filter to view records associated with the type of component. The following components appear under this filter:
+      - Message
+      - Email
+    - Data Center: Use this filter to limit the data to traffic associated with a specific data center.
+    - Department: Use this filter to view records associated with a specific department. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted departments from the list. Click Select All to select all the configured departments. You can search for specific departments. You can choose to include or exclude certain departments.
+    - DLP Dictionary: Use this filter to see which records contain this dictionary as a trigger. If a dictionary was triggered, the name of the dictionary is displayed along with a match count indicating the search score or match count for this dictionary. The default option for this filter is None. You can search for specific DLP dictionaries.
+    - DLP Engine: Use this filter to view records in which data leakage was detected. The default option for this filter is Any. You can search for specific DLP engines.
+    - Document Type: Use this filter to limit the data to traffic associated with a specific upload or download document type. The following types appear under this filter:
+      - Corporate Finance
+      - Corporate Legal
+      - Court Form
+      - DMV
+      - Immigration
+      - Insurance
+      - Invoice
+      - Legal
+      - Medical Information
+      - None
+      - Real Estate
+      - Resume
+      - Tax
+      - Technical
+      - Unknown
+    - Download Time: Use this filter to view records associated with the download time. The default option for this filter is All. The following download time ranges appear under this filter:
+      - All Sizes
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Event: Use this filter to view records associated with the type of event. The default option for this filter is All. The following events appear under this filter:
+      - Incidents: Violations against either a DLP or Malware policy. This is caused when a file is scanned for the first time or when a change in the file violates the policy.
+      - Scans: Inspections of a file.
+    - Non-Provisioned Owner: Use this filter to view records associated with file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS (ZIA) service. The default option for this filter is None. You can search for specific non-provisioned owners.
+    - External Recipients: Use this filter to view records associated with specific recipients outside your organization. The default option for this filter is None. You can search for specific external recipients.
+    - File ID: Use this filter to view records associated with a file ID. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: Use this filter to view records associated with the MD5 hash of a file.
+    - File Size: Use this filter to view records associated with a file's size. You can put in a file size range.
+    - Internal Recipients: Use this filter to view records associated with specific recipients within your organization. The default option for this filter is None. You can search for specific internal recipients.
+    - Label: The Microsoft Purview Information Protection (MIP) label applied to the asset.
+    - Message ID: Use this filter to view records associated with the email message identifier. Every email message has a unique ID. An Exchange or Gmail administrator can log in to their admin portals and search and pull a specific message with this ID if needed.
+    - Number of External Recipients: Use this filter to view records associated with the number of recipients outside your organization. You can put in your own range.
+    - Number of Internal Recipients: Use this filter to view records associated with the number of recipients within your organization. You can put in your own range.
+    - Policy Type and Rule Name: Use this filter to view records associated with the policy and rule that took action. The following policy types appear under this filter:
+      - DLP
+      - Malware
+    - Run ID: Use this filter to view records associated with a run ID. A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Use this filter to view records associated with a scan ID. Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: Use this filter to view records associated with the time of a scan. The default option for this filter is All. The following scan time ranges appear under this filter:
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Sender Name: Use this filter to view records associated with the sender's name. You can search for a specific sender.
+    - SHA: Use this filter to view records associated with a specific secure hash algorithm (SHA). Enter all or part of the SHA in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Shared Channel Domain: Use this filter to view records associated with a specific shared channel domain in Slack, Webex Teams, Microsoft Teams, or Zoom. Enter all or part of the shared channel domain in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Show Delayed Logs: Use this filter to view records based on delayed logs.
+    - Tenant: Use this filter to view records associated with a specific tenant. The default option for this filter is All. You can search for specific tenants.
+    - Threat Super Category: Use this filter to view records associated with a specific threat super category. The default option for this filter is None. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Threat
+      - Malware
+      - Sandbox
+      - Spyware
+      - Virus
+    - User Group: Use this filter to view records associated with a specific user group. You can choose to include or exclude the selected groups. The default option for this filter is None. You can search for specific user groups.
+  - CRM Log Filters
+    - Action: Use this filter to view records based on the Data at Rest Scanning DLP policy rule action. The default option for this filter is None. You can search for specific actions. The following actions appear under this filter:
+      - Failed to make external sharing read only
+      - Failed to make internal sharing read only
+      - Failed to make sharing read only
+      - Failed to notify end user
+      - Failed to quarantine Malware
+      - Failed to remove Collaborators
+      - Failed to remove Discoverable
+      - Failed to remove external sharing
+      - Failed to remove Internal Link Share
+      - Failed to remove internal sharing
+      - Failed to remove Malware
+      - Failed to remove Public Link Share
+      - Failed to revoke Sharing/Make Private
+      - Make internal sharing read only
+      - Notify end user
+      - Quarantine Malware
+      - Read Only for All Collaborators
+      - Read Only for External Collaborators
+      - Remove Collaborators
+      - Remove Discoverable
+      - Remove External Collaborators and Shareable Link
+      - Remove Internal Link Share
+      - Remove Malware
+      - Remove Public Link Share
+      - Remove Sharing
+      - Report Incident Only
+      - Report Malware
+      - No action
+    - Advanced Threat Category: Use this filter to view records associated with a specific advanced threat category. These threats are detected by Malware Protection. The default option for this filter is Any. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Browser Exploit
+      - Adware
+      - Adware/Spyware Sites
+      - Archive Bomb
+      - Backdoor
+      - Benign
+      - Boot Virus
+      - Botnet Callback
+      - Browser Exploit
+      - Cross-site Scripting
+      - Cryptomining
+      - Denial of Service Attack
+      - Dialer
+      - Domain Generation Algorithm (DGA) Domains
+      - Downloader
+      - Macro Virus
+      - Malicious Content
+      - MalwareTool
+      - Misdisinfection
+      - Other Malware
+      - Other Spyware
+      - Other Threat
+      - Other Virus
+      - Password Stealer
+      - Peer-to-Peer
+      - Privacy Risk
+      - Proxy
+      - Ransomware
+      - Sandbox Adware
+      - Sandbox Anonymizer
+      - Sandbox Malware
+      - Sent for Analysis
+      - Spyware Callback
+      - Suspicious Content
+      - Suspicious Destination
+      - Trojan
+      - Unauthorized Communication
+      - Unrecognized Virus
+      - Unwanted Application
+      - Web Spam
+      - Worm
+    - User Group: Use this filter to view records associated with a specific user group. You can choose to include or exclude the selected groups. The default option for this filter is None. You can search for specific user groups.
+  - Email Log Filters
+    - Accessibility Flag: A multivalue flag that provides the accessibility information of the asset.
+      - Accessible by MS Copilot: Indicates if the asset is accessible by Microsoft Copilot.
+    - Action: Use this filter to view records based on the Data at Rest Scanning DLP policy rule action. The default option for this filter is None. You can search for specific actions. The following actions appear under this filter:
+      - Report Incident Only
+      - Report Malware
+    - Advanced Threat Category: Use this filter to view records associated with a specific advanced threat category. These threats are detected by Malware Protection. The default option for this filter is Any. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Browser Exploit
+      - Adware
+      - Adware/Spyware Sites
+      - Archive Bomb
+      - Backdoor
+      - Benign
+      - Boot Virus
+      - Botnet Callback
+      - Browser Exploit
+      - Cross-site Scripting
+      - Cryptomining
+      - Denial of Service Attack
+      - Dialer
+      - Domain Generation Algorithm (DGA) Domains
+      - Downloader
+      - Macro Virus
+      - Malicious Content
+      - MalwareTool
+      - Misdisinfection
+      - Other Malware
+      - Other Spyware
+      - Other Threat
+      - Other Virus
+      - Password Stealer
+      - Peer-to-Peer
+      - Privacy Risk
+      - Proxy
+      - Ransomware
+      - Sandbox Adware
+      - Sandbox Anonymizer
+      - Sandbox Malware
+      - Sent for Analysis
+      - Spyware Callback
+      - Suspicious Content
+      - Suspicious Destination
+      - Trojan
+      - Unauthorized Communication
+      - Unrecognized Virus
+      - Unwanted Application
+      - Web Spam
+      - Worm
+    - Application: Use this filter to view records associated with a specific SaaS application. The following SaaS applications appear under this filter:
+      - Exchange
+      - Gmail
+    - Attachment File Name: Use this filter to view records associated with the name of the file attachment in the questionable email. You can filter by Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Data Center: Use this filter to limit the data to traffic associated with a specific data center.
+    - Department: Use this filter to view records associated with a specific department. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted departments from the list. Click Select All to select all the configured departments. You can search for specific departments. You can choose to include or exclude certain departments.
+    - DLP Dictionary: Use this filter to see which records contain this dictionary as a trigger. If a dictionary was triggered, the name of the dictionary is displayed along with a match count indicating the search score or match count for this dictionary. The default option for this filter is None. You can search for specific DLP dictionaries.
+    - DLP Engine: Use this filter to view records in which data leakage was detected. The default option for this filter is Any. You can search for specific DLP engines.
+    - Document Type: Use this filter to limit the data to traffic associated with a specific upload or download document type. The following types appear under this filter:
+      - Corporate Finance
+      - Corporate Legal
+      - Court Form
+      - DMV
+      - Immigration
+      - Insurance
+      - Invoice
+      - Legal
+      - Medical Information
+      - None
+      - Real Estate
+      - Resume
+      - Tax
+      - Technical
+      - Unknown
+    - Download Time: Use this filter to view records associated with the download time. The default option for this filter is All. The following download time ranges appear under this filter:
+      - All Sizes
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Email Direction: Use this filter to view records associated with the email direction. The default option for this filter is None. The following directions appear under this filter:
+      - Inbound
+      - Outbound
+    - Event: Use this filter to view records associated with the type of event. The default option for this filter is All. The following events appear under this filter:
+      - Incidents: Violations against either a DLP or Malware policy. This is caused when a file is scanned for the first time or when a change in the file violates the policy.
+      - Scans: Inspections of a file.
+    - External Recipients: Use this filter to view records associated with specific email recipients outside your organization. The default option for this filter is None. You can search for specific external recipients.
+    - Internal Recipients: Use this filter to view records associated with specific email recipients within your organization. The default option for this filter is None. You can search for specific internal recipients.
+    - Label: The Microsoft Purview Information Protection (MIP) label applied to the asset.
+    - Message ID: Use this filter to view records associated with the email message identifier. Every email message has a unique ID. An Exchange or Gmail administrator can log in to their admin portals and search and pull a specific message with this ID if needed.
+    - Message Size: Use this filter to view records associated with the size of the email message. The default option for this filter is All Sizes. The following size ranges appear under this filter:
+      - 0 - 1KB
+      - 1KB - 100KB
+      - 100KB - 1MB
+      - 1MB - 5MB
+      - 5MB - 10MB
+      - 10MB - 50MB
+      - 50MB - 100MB
+      - Above 100MB
+      - Custom
+    - Non-Provisioned Owner: Use this filter to view records associated with file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service. The default option for this filter is None. You can search for specific non-provisioned owners.
+    - Number of External Recipients: Use this filter to view records associated with the number of recipients outside your organization. You can put in your own range.
+    - Number of Internal Recipients: Use this filter to view records associated with the number of recipients within your organization. You can put in your own range.
+    - Owner Name: Use this filter to view records associated with the owner of the mailbox where the questionable email is located. It can be a sender (DLP) or a recipient (Malware). The default option for this filter is Any. You can search for specific owners. You can choose to include or exclude certain owners.
+    - Policy Type and Rule Name: Use this filter to view records associated with the policy and rule that took action. The following policy types appear under this filter:
+      - DLP
+      - Malware
+    - Run ID: Use this filter to view records associated with a run ID. A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Use this filter to view records associated with a scan ID. Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: Use this filter to view records associated with the time of a scan. The default option for this filter is All. The following scan time ranges appear under this filter:
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Sender Name: Use this filter to view records associated with the sender's name. You can search for a specific sender.ecords associated with the sender's name.
+    - Severity: Use this filter to view records based on the severity level of the incidents detected by the Data at Rest Scanning DLP policy. The default option for this filter is None. The following levels of severity appear under this filter:
+      - High
+      - Information
+      - Low
+      - Medium
+    - Show Delayed Logs: Use this filter to view records based on delayed logs.
+    - Subdocument Type: Use this filter to limit the data to traffic associated with a specific uploaded or downloaded subdocument type. The default option for this filter is None.
+    - Tenant: Use this filter to view records associated with a specific tenant. The default option for this filter is All. You can search for specific tenants.
+    - Thread Name: Use this filter to view records associated with a specific email thread name.
+    - Threat Super Category: Use this filter to view records associated with a specific threat super category. The default option for this filter is None. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Threat
+      - Malware
+      - Sandbox
+      - Spyware
+      - Virus
+    - User Group: Use this filter to view records associated with a specific user group. You can choose to include or exclude the selected groups. The default option for this filter is None. You can search for specific user groups.
+  - File Log Filters
+    - Accessibility Flag: A multivalue flag that provides the accessibility information of the asset.
+      - Accessible by MS Copilot: Indicates if the asset is accessible by Microsoft Copilot.
+    - Action: Use this filter to view records based on the Data at Rest Scanning DLP policy rule action. The default option for this filter is None. You can search for specific actions. The following actions appear under this filter:
+      - Failed to make external sharing read only
+      - Failed to make internal sharing read only
+      - Failed to make sharing read only
+      - Failed to notify end user
+      - Failed to quarantine Malware
+      - Failed to remove Collaborators
+      - Failed to remove Discoverable
+      - Failed to remove external sharing
+      - Failed to remove Internal Link Share
+      - Failed to remove internal sharing
+      - Failed to remove Malware
+      - Failed to remove Public Link Share
+      - Failed to revoke Sharing/Make Private
+      - Make internal sharing read only
+      - Notify end user
+      - Quarantine Malware
+      - Read Only for All Collaborators
+      - Read Only for External Collaborators
+      - Remove Collaborators
+      - Remove Discoverable
+      - Remove External Collaborators and Shareable Link
+      - Remove Internal Link Share
+      - Remove Malware
+      - Remove Public Link Share
+      - Remove Sharing
+      - Report Incident Only
+      - Report Malware
+      - No action
+    - Advanced Threat Category: Use this filter to view records associated with a specific advanced threat category. These threats are detected by Malware Protection. The default option for this filter is Any. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Browser Exploit
+      - Adware
+      - Adware/Spyware Sites
+      - Archive Bomb
+      - Backdoor
+      - Benign
+      - Boot Virus
+      - Botnet Callback
+      - Browser Exploit
+      - Cross-site Scripting
+      - Cryptomining
+      - Denial of Service Attack
+      - Dialer
+      - Domain Generation Algorithm (DGA) Domains
+      - Downloader
+      - Macro Virus
+      - Malicious Content
+      - MalwareTool
+      - Misdisinfection
+      - Other Malware
+      - Other Spyware
+      - Other Threat
+      - Other Virus
+      - Password Stealer
+      - Peer-to-Peer
+      - Privacy Risk
+      - Proxy
+      - Ransomware
+      - Sandbox Adware
+      - Sandbox Anonymizer
+      - Sandbox Malware
+      - Sent for Analysis
+      - Spyware Callback
+      - Suspicious Content
+      - Suspicious Destination
+      - Trojan
+      - Unauthorized Communication
+      - Unrecognized Virus
+      - Unwanted Application
+      - Web Spam
+      - Worm
+    - Application: Use this filter to view records associated with a specific SaaS application. The following SaaS applications appear under this filter:
+      - Box
+      - Confluence
+      - Dropbox
+      - Google Drive
+      - OneDrive
+      - ShareFile
+      - SharePoint
+      - Smartsheet
+    - Collaboration Scope: Use this filter to view records based on the collaboration scope and permissions for SaaS application tenant files. The following collaborations appear under this filter:
+      - External Collaborators - Edit: Allows specific individuals outside your organization's tenant explicit permission to edit and modify the file.
+      - External Collaborators - View: Allows specific individuals outside your organization's tenant explicit permission to view (read-only) the file. These users cannot make any changes or modifications.
+      - External Link - Edit: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to edit and modify the file. No specific user authentication beyond having the link is typically required from an external perspective.
+      - External Link - View: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to view (read-only) the file. External users are not required to authenticate.
+      - Internal Collaborators - Edit: Allows specific individuals within your organization's tenant explicit permission to edit and modify the file.
+      - Internal Collaborators - View: Allows specific individuals within your organization's tenant explicit permission to view (read-only) the file.
+      - Internal Link - Edit: Allows anyone within your organization's tenant who possesses the shared link to edit and modify the file. Access is restricted to authenticated internal users.
+      - Internal Link - View: Allows anyone within your organization's tenant who possesses the shared link to view (read-only) the file. Access is restricted to authenticated internal users.
+      - Private - Edit: The file is not shared with anyone else and can only be accessed and edited by its owner (or explicitly assigned co-owners if the platform allows it within a private context).
+    - Data Center: Use this filter to limit the data to traffic associated with a specific data center.
+    - Department: Use this filter to view records associated with a specific department. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted departments from the list. Click Select All to select all the configured departments. You can search for specific departments. You can choose to include or exclude certain departments.
+    - DLP Dictionary: Use this filter to see which records contain this dictionary as a trigger. If a dictionary was triggered, the name of the dictionary is displayed along with a match count indicating the search score or match count for this dictionary. The default option for this filter is None. You can search for specific DLP dictionaries.
+    - DLP Engine: Use this filter to view records in which data leakage was detected. The default option for this filter is Any. You can search for specific DLP engines.
+    - Document Type: Use this filter to limit the data to traffic associated with a specific upload or download document type. The following types appear under this filter:
+      - Corporate Finance
+      - Corporate Legal
+      - Court Form
+      - DMV
+      - Immigration
+      - Insurance
+      - Invoice
+      - Legal
+      - Medical Information
+      - None
+      - Real Estate
+      - Resume
+      - Tax
+      - Technical
+      - Unknown
+    - Download Time: Use this filter to view records associated with the download time. The default option for this filter is All. The following download time ranges appear under this filter:
+      - All Sizes
+      - 0 - 10 SEC
+      - 10 SEC - 30 SEC
+      - 30 SEC - 1 MIN
+      - 1 MIN - 5 MIN
+      - 5 MIN - 10 MIN
+      - 10 MIN - 30 MIN
+      - 30 MIN - 1 HOUR
+      - Above 1 HOUR
+      - Custom
+    - Event: Use this filter to view records associated with the type of event. The default option for this filter is All. You can choose from the following events:
+      - Incidents: Violations against either a DLP or Malware policy. This is caused when a file is scanned for the first time or when a change in the file violates the policy.
+      - Scans: Inspections of a file.
+    - External Collaborators: Use this filter to view records associated with specific collaborators outside your organization. The default option for this filter is None. You can search for specific external collaborators.
+    - External Collaborator Group: Use this filter to view records associated with specific collaborator groups outside your organization. You can search for specific external collaborators. You can filter by Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Non-Provisioned Owner: Use this filter to view records associated with file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service. The default option for this filter is None. You can search for specific non-provisioned owners.
+    - File ID: Use this filter to view records associated with a file ID. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: Use this filter to view records associated with the MD5 hash of a file.
+    - File Name: Use this filter to view records associated with the file name. Enter all or part of the file name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - File Size: Use this filter to view records associated with a file's size. You can put in a file size range.
+    - File Source Location: Use this filter to view records associated with the file source location. You can filter by Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Internal Collaborators: Use this filter to view records associated with specific collaborators within your organization. The default option for this filter is None. You can search for specific internal collaborators.
+    - Internal Collaborator Group: Use this filter to view records associated with specific collaborator groups within your organization. You can search for specific internal collaborators.
+    - Label: The Microsoft Purview Information Protection (MIP) label applied to the asset.
+    - Last Modified User: Use this filter to view the records pertaining to the user who last modified the file that triggered the DLP violation. The default option for this filter is None.
+    - Last Shared User: Use this filter to view the records pertaining to the user who last shared the file that triggered the DLP violation. The default option for this filter is None.
+    - Number of External Collaborators: Use this filter to view records associated with the number of collaborators outside your organization. You can put in your own range.
+    - Number of Internal Collaborators: Use this filter to view records associated with the number of collaborators within your organization. You can put in your own range.
+    - Policy Type and Rule Name: Use this filter to view records associated with the policy and rule that took action. The following policy types appear under this filter:
+      - DLP
+      - Malware
+    - Public URL: Use this filter to view records associated with a public URL used to access a shared file. You can choose either URL, Path, or Host. Enter all or part of the public URL, path, or host in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Run ID: Use this filter to view records associated with a run ID. A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Use this filter to view records associated with a scan ID. Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: Use this filter to view records associated with the time of a scan. The default option for this filter is All. The following scan time ranges appear under this filter:
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Severity: Use this filter to view records based on the severity level of the incidents detected by the Data at Rest Scanning DLP policy. The default option for this filter is None. The following levels of severity appear under this filter:
+      - High
+      - Information
+      - Low
+      - Medium
+    - SHA: Use this filter to view records associated with a specific secure hash algorithm (SHA). Enter all or part of the SHA in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Show Delayed Logs: Use this filter to view records based on delayed logs.
+    - Subdocument Type: Use this filter to limit the data to traffic associated with a specific upload or download subdocument type. The default option for this filter is Any.
+    - Tenant: Use this filter to view records associated with a specific tenant. The default option for this filter is All. You can search for specific tenants.
+    - Threat Super Category: Use this filter to view records associated with a specific threat super category. The default option for this filter is None. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Threat
+      - Malware
+      - Sandbox
+      - Spyware
+      - Virus
+    - Transaction Message: Use this filter to view failed transactions based on the error reason. The default option for this filter is Any. You can search for a specific error type. The following errors appear under this filter:
+      - Account Inactive - The user account is deleted, inactive, or marked as spam
+      - Backup Not Found - Backup for file not found
+      - Bad Gateway
+      - Bad Request
+      - Conflict - A resource with this value already exists, or path not accessible
+      - Decrypt Failed - Failed to decrypt an object (e.g., from CloudTrail)
+      - Error Applying Label - Error while applying label
+      - Error Copying Quarantine File - Error while copying file to quarantine location
+      - Error Deleting File - Error while deleting the file
+      - Error Fetching File Metadata - Error while fetching file metadata
+      - Error File Encrypted - Default format doesn't support writing properties without protection
+      - Error File is Locked - Error while accessing file
+      - Error Finding Quarantine Folder - Error while finding quarantine folder
+      - Error Getting Member Count - Error while fetching group member count
+      - Error Getting SharePoint Members - Error while fetching SharePoint online group membership
+      - Error Moving File - Error while moving file
+      - Error Privileged Label - Can't override privileged label
+      - Error Reading File Content - Error while reading file content
+      - Error Uploading File - Error while uploading file
+      - Error Uploading Tombstone File - Error while uploading file to tombstone file
+      - Forbidden - Access denied to the requested resource
+      - Gateway Timeout
+      - Gone - The requested resource is no longer available
+      - Inherited Permission Error - Action cannot be performed on this sharing type
+      - Internal Server Error
+      - Invalid Arguments - Invalid arguments passed to the endpoint
+      - Invalid Grant
+      - Invalid Path - The specified path (e.g., for CloudTrail) is invalid or not found
+      - Invitation Failed - Error while re-adding valid user invitation to the file
+      - Not Found - The requested resource does not exist or is not available
+      - Operation Timed Out
+      - Permission Deletion Failed - Sharing permission could not be deleted
+      - Permission Denied - Invalid license, subscription, or scope
+      - Resource Locked - The resource that is being accessed is locked
+      - Restore Operation Failed - Error while moving file to original location
+      - Service Unavailable
+      - Too Many Requests - Application has been throttled or rate limit exceeded
+      - Unauthorized - Required authentication information is either missing or invalid for the requested resource
+      - Unknown Method - The requested API method not found
+      - Unprocessable Entity - The resource does not exist or no permission to view it
+    - User: Use this filter to view records associated with the owner of the questionable file. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted users from the list. Click Select All to select all the configured users. You can search for specific file owners. You can choose to include or exclude certain file owners.
+    - User Group: Use this filter to view records associated with a specific user group. You can choose to include or exclude the selected groups. The default option for this filter is None. You can search for specific user groups.
+  - Gen AI Log Filters
+    - Action: Use this filter to view records based on the Data at Rest Scanning DLP policy rule action. The default option for this filter is None. You can search for specific actions. Choose the action Report Incident Only under this filter.
+    - Advanced Threat Category: Use this filter to view records associated with a specific advanced threat category. These threats are detected by Malware Protection. The default option for this filter is Any. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Browser Exploit
+      - Adware
+      - Adware/Spyware Sites
+      - Archive Bomb
+      - Backdoor
+      - Benign
+      - Boot Virus
+      - Botnet Callback
+      - Browser Exploit
+      - Cross-site Scripting
+      - Cryptomining
+      - Denial of Service Attack
+      - Dialer
+      - Domain Generation Algorithm (DGA) Domains
+      - Downloader
+      - Macro Virus
+      - Malicious Content
+      - MalwareTool
+      - Misdisinfection
+      - Other Malware
+      - Other Spyware
+      - Other Threat
+      - Other Virus
+      - Password Stealer
+      - Peer-to-Peer
+      - Privacy Risk
+      - Proxy
+      - Ransomware
+      - Sandbox Adware
+      - Sandbox Anonymizer
+      - Sandbox Malware
+      - Sent for Analysis
+      - Spyware Callback
+      - Suspicious Content
+      - Suspicious Destination
+      - Trojan
+      - Unauthorized Communication
+      - Unrecognized Virus
+      - Unwanted Application
+      - Web Spam
+      - Worm
+    - Application: Use this filter to view records associated with a specific generative AI application. The following applications appear under this filter:
+      - ChatGPT
+    - Bot Name: Use this filter to view records associated with a specific bot name. Enter all or part of the bot name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Component: Use this filter to view records associated with the type of component. The default option for this filter is None. The following components appear under this filter:
+      - File
+      - Message
+    - Data Center: Use this filter to limit the data to traffic associated with a specific data center.
+    - Department: Use this filter to view records associated with a specific department. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted departments from the list. Click Select All to select all the configured departments. You can search for specific departments. You can choose to include or exclude certain departments.
+    - DLP Dictionary: Use this filter to see which records contain this dictionary as a trigger. If a dictionary was triggered, the name of the dictionary is displayed along with a match count indicating the search score or match count for this dictionary. The default option for this filter is None. You can search for specific DLP dictionaries.
+    - DLP Engine: Use this filter to view records in which data leakage was detected. The default option for this filter is Any. You can search for specific DLP engines.
+    - Document Type: Use this filter to limit the data to traffic associated with a specific upload or download document type. The following types appear under this filter:
+      - Corporate Finance
+      - Corporate Legal
+      - Court Form
+      - DMV
+      - Immigration
+      - Insurance
+      - Invoice
+      - Legal
+      - Medical Information
+      - None
+      - Real Estate
+      - Resume
+      - Tax
+      - Technical
+      - Unknown
+    - Download Time: Use this filter to view records associated with the download time. The default option for this filter is All. The following download time ranges appear under this filter:
+      - All Sizes
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Event: Use this filter to view records associated with the type of event. The default option for this filter is All. The following events appear under this filter:
+      - Incident: Violations against either a DLP or Malware policy. This is caused when a file is scanned for the first time or when a change in the file violates the policy.
+      - Violation
+      - xceliware
+    - File MD5: Use this filter to view records associated with the MD5 hash of a file.
+    - File Name: Use this filter to view records associated with the file name. Enter all or part of the file name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - File Size: Use this filter to view records associated with a file's size. You can type in a file size range.
+    - File Type: The type of file that was either uploaded or downloaded.
+    - Message ID: Use this filter to view records associated with the email message identifier. Every email message has a unique ID. An Exchange or Gmail administrator can log in to their admin portals and search and pull a specific message with this ID if needed.
+    - Non-Provisioned Owner: Use this filter to view records associated with file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service. The default option for this filter is None. You can search for specific non-provisioned owners.
+    - Policy Type and Rule Name: Use this filter to view records associated with the policy and rule that took action. The following policy types appear under this filter:
+      - DLP
+      - Malware
+    - Run ID: Use this filter to view records associated with a run ID. A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Use this filter to view records associated with a scan ID. Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: Use this filter to view records associated with the time of a scan. The default option for this filter is All. The following scan time ranges appear under this filter:
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Sender Type: Use this filter to view records associated with a sender. The default option for this filter is None. The following sender types appear under this filter:
+      - Bot
+      - System
+      - User
+    - Severity: Use this filter to view records based on the severity level of the incidents detected by the Data at Rest Scanning DLP policy. The default option for this filter is None. The following levels of severity appear under this filter:
+      - High
+      - Information
+      - Low
+      - Medium
+    - SHA: Use this filter to view records associated with a specific secure hash algorithm (SHA). Enter all or part of the SHA in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Show Delayed Logs: Use this filter to view records based on delayed logs.
+    - Tenant: Use this filter to view records associated with a specific tenant. The default option for this filter is All. You can search for specific tenants.
+    - Threat Name Search: Use this filter to view records associated with a specific threat name. Enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Threat Super Category: Use this filter to view records associated with a specific threat super category. The default option for this filter is None. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Threat
+      - Malware
+      - Sandbox
+      - Spyware
+      - Virus
+    - User: Use this filter to view records associated with a specific user. Select Hide Deleted if you want to remove deleted users from the list. Click Select All to select all the configured users.
+    - User Group: Use this filter to view records associated with a specific user group. You can choose to include or exclude the selected groups. The default option for this filter is None. You can search for specific user groups.
+  - ITSM Log Filters
+    - Action: Use this filter to view records based on the Data at Rest Scanning DLP policy rule action. The default option for this filter is None. You can search for specific actions. The following actions appear under this filter:
+      - Failed to make external sharing read only
+      - Failed to make internal sharing read only
+      - Failed to make sharing read only
+      - Failed to notify end user
+      - Failed to quarantine Malware
+      - Failed to remove Collaborators
+      - Failed to remove Discoverable
+      - Failed to remove external sharing
+      - Failed to remove Internal Link Share
+      - Failed to remove internal sharing
+      - Failed to remove Malware
+      - Failed to remove Public Link Share
+      - Failed to revoke Sharing/Make Private
+      - Make internal sharing read only
+      - Notify end user
+      - Quarantine Malware
+      - Read Only for All Collaborators
+      - Read Only for External Collaborators
+      - Remove Collaborators
+      - Remove Discoverable
+      - Remove External Collaborators and Shareable Link
+      - Remove Internal Link Share
+      - Remove Malware
+      - Remove Public Link Share
+      - Remove Sharing
+      - Report Incident Only
+      - Report Malware
+      - No action
+    - Advanced Threat Category: Use this filter to view records associated with a specific advanced threat category. These threats are detected by Malware Protection. The default option for this filter is Any. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Browser Exploit
+      - Adware
+      - Adware/Spyware Sites
+      - Archive Bomb
+      - Backdoor
+      - Benign
+      - Boot Virus
+      - Botnet Callback
+      - Browser Exploit
+      - Cross-site Scripting
+      - Cryptomining
+      - Denial of Service Attack
+      - Dialer
+      - Domain Generated Algorithm Domains
+      - Downloader
+      - Macro Virus
+      - Malicious Content
+      - MalwareTool
+      - Misdisinfection
+      - Other Malware
+      - Other Spyware
+      - Other Threat
+      - Other Virus
+      - Password Stealer
+      - Peer-to-Peer
+      - Privacy Risk
+      - Proxy
+      - Ransomware
+      - Sandbox Adware
+      - Sandbox Anonymizer
+      - Sandbox Malware
+      - Sent for Analysis
+      - Spyware Callback
+      - Suspicious Content
+      - Suspicious Destination
+      - Trojan
+      - Unauthorized Communication
+      - Unrecognized Virus
+      - Unwanted Application
+      - Web Spam
+      - Worm
+    - Application: Use this filter to view records associated with a specific SaaS application. The following SaaS applications appear under this filter:
+      - Jira Software
+      - ServiceNow
+    - Collaboration Scope: Use this filter to view records based on the collaboration scope and permissions for SaaS application tenant files. The following collaborations appear under this filter:
+      - External Collaborators - Edit: Allows specific individuals outside your organization's tenant explicit permission to edit and modify the file.
+      - External Collaborators - View: Allows specific individuals outside your organization's tenant explicit permission to view (read-only) the file. These users cannot make any changes or modifications.
+      - External Link - Edit: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to edit and modify the file. No specific user authentication beyond having the link is typically required from an external perspective.
+      - External Link - View: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to view (read-only) the file. External users are not required to authenticate.
+      - Internal Collaborators - Edit: Allows specific individuals within your organization's tenant explicit permission to edit and modify the file.
+      - Internal Collaborators - View: Allows specific individuals within your organization's tenant explicit permission to view (read-only) the file.
+      - Internal Link - Edit: Allows anyone within your organization's tenant who possesses the shared link to edit and modify the file. Access is restricted to authenticated internal users.
+      - Internal Link - View: Allows anyone within your organization's tenant who possesses the shared link to view (read-only) the file. Access is restricted to authenticated internal users.
+      - Private - Edit: The file is not shared with anyone else and can only be accessed and edited by its owner (or explicitly assigned co-owners if the platform allows it within a private context).
+    - Component: Use this filter to view records associated with the type of component. The following components appear under this filter:
+      - Message
+      - Email
+    - Data Center: Use this filter to limit the data to traffic associated with a specific data center.
+    - Department: Use this filter to view records associated with a specific department. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted departments from the list. Click Select All to select all the configured departments. You can search for specific departments. You can choose to include or exclude certain departments.
+    - DLP Dictionary: Use this filter to see which records contain this dictionary as a trigger. If a dictionary was triggered, the name of the dictionary is displayed along with a match count indicating the search score or match count for this dictionary. The default option for this filter is None. You can search for specific DLP dictionaries.
+    - DLP Engine: Use this filter to view records in which data leakage was detected. The default option for this filter is Any. You can search for specific DLP engines.
+    - Document Type: Use this filter to limit the data to traffic associated with a specific upload or download document type. The following types appear under this filter:
+      - Corporate Finance
+      - Corporate Legal
+      - Court Form
+      - DMV
+      - Immigration
+      - Insurance
+      - Invoice
+      - Legal
+      - Medical Information
+      - None
+      - Real Estate
+      - Resume
+      - Tax
+      - Technical
+      - Unknown
+    - Download Time: Use this filter to view records associated with the download time. The default option for this filter is All. The following download time ranges appear under this filter:
+      - All Sizes
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Event: Use this filter to view records associated with the type of event. The default option for this filter is All. The following events appear under this filter:
+      - Incidents: Violations against either a DLP or Malware policy. This is caused when a file is scanned for the first time or when a change in the file violates the policy.
+      - Scans: Inspections of a file.
+    - External Collaborators: Use this filter to view records associated with specific collaborators outside your organization. The default option for this filter is None. You can search for specific external collaborators.
+    - Non-Provisioned Owner: Use this filter to view records associated with file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service. The default option for this filter is None. You can search for specific non-provisioned owners.
+    - File MD5: Use this filter to view records associated with the MD5 hash of a file.
+    - File Message ID: Use this filter to view records associated with the file's message ID. Enter all or part of the file message ID in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - File Name: Use this filter to view records associated with the file name. Enter all or part of the file name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - File Source Location: Use this filter to view records associated with the file source location. You can filter by Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Internal Collaborators: Use this filter to view records associated with specific collaborators within your organization. The default option for this filter is None. You can search for specific internal collaborators.
+    - Number of External Collaborators: Use this filter to view records associated with the number of collaborators outside your organization. You can put in your own range.
+    - Number of Internal Collaborators: Use this filter to view records associated with the number of collaborators within your organization. You can put in your own range.
+    - Object Name: Use this filter to view records associated with a specific object name (e.g., you might have the object type Opportunity with an object name of "Pepsi"). You can filter by Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Object Type: Use this filter to view records associated with a specific object type (e.g., Account, Organization, Profile). The default option for this filter is None. You can search for specific object types.
+    - Policy Type and Rule Name: Use this filter to view records associated with the policy and rule that took action. The following policy types appear under this filter:
+      - DLP
+      - Malware
+    - Public URL: Use this filter to view records associated with a public URL used to access a shared file. You can choose either URL, Path, or Host. Enter all or part of the public URL, path, or host in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Run ID: Use this filter to view records associated with a run ID. A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Use this filter to view records associated with a scan ID. Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: Use this filter to view records associated with the time of a scan. The default option for this filter is All. The following scan time ranges appear under this filter:
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Severity: Use this filter to view records based on the severity level of the incidents detected by the Data at Rest Scanning DLP policy. The default option for this filter is None. The following levels of severity appear under this filter:
+      - High
+      - Information
+      - Low
+      - Medium
+    - SHA: Use this filter to view records associated with a specific secure hash algorithm (SHA). Enter all or part of the SHA in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Show Delayed Logs: Use this filter to view records based on delayed logs.
+    - Tenant: Use this filter to view records associated with a specific tenant. The default option for this filter is All. You can search for specific tenants.
+    - Threat Super Category: Use this filter to view records associated with a specific threat super category. The default option for this filter is None. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Threat
+      - Malware
+      - Sandbox
+      - Spyware
+      - Virus
+    - User Group: Use this filter to view records associated with a specific user group. You can choose to include or exclude the selected groups. The default option for this filter is None. You can search for specific user groups.
+  - Public Cloud Storage Log Filters
+  - To enable Amazon S3, Google Cloud Platform, and Microsoft Azure for your organization, contact your Zscaler Account team.
+    - Action: Use this filter to view records based on the Data at Rest Scanning DLP policy rule action. The default option for this filter is None. You can search for specific actions. The following actions appear under this filter:
+      - Failed to make external sharing read only
+      - Failed to make internal sharing read only
+      - Failed to make sharing read only
+      - Failed to notify end user
+      - Failed to quarantine Malware
+      - Failed to remove Collaborators
+      - Failed to remove Discoverable
+      - Failed to remove external sharing
+      - Failed to remove Internal Link Share
+      - Failed to remove internal sharing
+      - Failed to remove Malware
+      - Failed to remove Public Link Share
+      - Failed to revoke Sharing/Make Private
+      - Make internal sharing read only
+      - Notify end user
+      - Quarantine Malware
+      - Read Only for All Collaborators
+      - Read Only for External Collaborators
+      - Remove Collaborators
+      - Remove Discoverable
+      - Remove External Collaborators and Shareable Link
+      - Remove Internal Link Share
+      - Remove Malware
+      - Remove Public Link Share
+      - Remove Sharing
+      - Report Incident Only
+      - Report Malware
+      - No action
+    - Advanced Threat Category: Use this filter to view records associated with a specific advanced threat category. These threats are detected by Malware Protection. The default option for this filter is Any. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Browser Exploit
+      - Adware
+      - Adware/Spyware Sites
+      - Archive Bomb
+      - Backdoor
+      - Benign
+      - Boot Virus
+      - Botnet Callback
+      - Browser Exploit
+      - Cross-site Scripting
+      - Cryptomining
+      - Denial of Service Attack
+      - Dialer
+      - Domain Generation Algorithm (DGA) Domains
+      - Downloader
+      - Macro Virus
+      - Malicious Content
+      - MalwareTool
+      - Misdisinfection
+      - Other Malware
+      - Other Spyware
+      - Other Threat
+      - Other Virus
+      - Password Stealer
+      - Peer-to-Peer
+      - Privacy Risk
+      - Proxy
+      - Ransomware
+      - Sandbox Adware
+      - Sandbox Anonymizer
+      - Sandbox Malware
+      - Sent for Analysis
+      - Spyware Callback
+      - Suspicious Content
+      - Suspicious Destination
+      - Trojan
+      - Unauthorized Communication
+      - Unrecognized Virus
+      - Unwanted Application
+      - Web Spam
+      - Worm
+    - Application: Use this filter to view records associated with a specific SaaS application. The following SaaS application appear under this filter:
+      - Amazon S3
+      - Google Cloud Platform
+      - Microsoft Azure
+    - Bucket Name: Use this filter to view records associated with a specific bucket.
+    - Collaboration Scope: Use this filter to view records based on the collaboration scope and permissions for SaaS application tenant files. The following collaborations appear under this filter:
+      - External Collaborators - Edit: Allows specific individuals outside your organization's tenant explicit permission to edit and modify the file.
+      - External Collaborators - View: Allows specific individuals outside your organization's tenant explicit permission to view (read-only) the file. These users cannot make any changes or modifications.
+      - External Link - Edit: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to edit and modify the file. No specific user authentication beyond having the link is typically required from an external perspective.
+      - External Link - View: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to view (read-only) the file. External users are not required to authenticate.
+      - Internal Collaborators - Edit: Allows specific individuals within your organization's tenant explicit permission to edit and modify the file.
+      - Internal Collaborators - View: Allows specific individuals within your organization's tenant explicit permission to view (read-only) the file.
+      - Internal Link - Edit: Allows anyone within your organization's tenant who possesses the shared link to edit and modify the file. Access is restricted to authenticated internal users.
+      - Internal Link - View: Allows anyone within your organization's tenant who possesses the shared link to view (read-only) the file. Access is restricted to authenticated internal users.
+      - Private - Edit: The file is not shared with anyone else and can only be accessed and edited by its owner (or explicitly assigned co-owners if the platform allows it within a private context).
+    - Collaborators: Use this filter to view records associated with specific collaborators. The default option for this filter is None. You can search for specific collaborators.
+    - Data Center: Use this filter to limit the data to traffic associated with a specific data center.
+    - Department: Use this filter to view records associated with a specific department. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted departments from the list. Click Select All to select all the configured departments. You can search for specific departments. You can choose to include or exclude certain departments.
+    - DLP Dictionary: Use this filter to see which records contain this dictionary as a trigger. If a dictionary was triggered, the name of the dictionary is displayed along with a match count indicating the search score or match count for this dictionary. The default option for this filter is None. You can search for specific DLP dictionaries.
+    - DLP Engine: Use this filter to view records in which data leakage was detected. The default option for this filter is Any. You can search for specific DLP engines.
+    - Document Type: Use this filter to limit the data to traffic associated with a specific upload or download document type. The following types appear under this filter:
+      - Corporate Finance
+      - Corporate Legal
+      - Court Form
+      - DMV
+      - Immigration
+      - Insurance
+      - Invoice
+      - Legal
+      - Medical Information
+      - None
+      - Real Estate
+      - Resume
+      - Tax
+      - Technical
+      - Unknown
+    - Download Time: Use this filter to view records associated with the download time. The default option for this filter is All. The following download time ranges appear under this filter:
+      - All Sizes
+      - 0 - 10 SEC
+      - 10SEC - 30 SEC
+      - 30SEC - 1 MIN
+      - 1MIN - 5 MIN
+      - 5MIN - 10 MIN
+      - 10MIN - 30 MIN
+      - 30MIN - 1 HOUR
+      - Above 1 HOUR
+      - Custom
+    - Event: Use this filter to view records associated with the type of event. The default option for this filter is All. The following events appear under this filter:
+      - Incidents: Violations against either a DLP or Malware policy. This is caused when a file is scanned for the first time or when a change in the file violates the policy.
+      - Scans: Inspections of a file.
+    - Non-Provisioned Owner: Use this filter to view records associated with file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service. The default option for this filter is None. You can search for specific non-provisioned owners.
+    - File ID: Use this filter to view records associated with a file ID. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: Use this filter to view records associated with the MD5 hash of a file.
+    - File Name: Use this filter to view records associated with the file name. Enter all or part of the file name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - File Size: Use this filter to view records associated with a file's size. You can put in a file size range.
+    - File Source Location: Use this filter to view records associated with the file source location. You can filter by Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Number of Collaborators: Use this filter to view records associated with the number of collaborators. You can put in your own range.
+    - Policy Type and Rule Name: Use this filter to view records associated with the policy and rule that took action. The following policy types appear under this filter:
+      - DLP
+      - Malware
+    - Public URL: Use this filter to view records associated with a public URL used to access a shared file. You can choose either URL, Path, or Host. Enter all or part of the public URL, path, or host in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Run ID: Use this filter to view records associated with a run ID. A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Use this filter to view records associated with a scan ID. Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: Use this filter to view records associated with the time of a scan. The default option for this filter is All. The following scan time ranges appear under this filter:
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Severity: Use this filter to view records based on the severity level of the incidents detected by the Data at Rest Scanning DLP policy. The default option for this filter is None. The following levels of severity appear under this filter:
+      - High
+      - Information
+      - Low
+      - Medium
+    - SHA: Use this filter to view records associated with a specific secure hash algorithm (SHA). Enter all or part of the SHA in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Show Delayed Logs: Use this filter to view records based on delayed logs.
+    - Tenant: Use this filter to view records associated with a specific tenant. The default option for this filter is All. You can search for specific tenants.
+    - Threat Name Search: Use this filter to view records associated with a specific threat. Enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Threat Super Category: Use this filter to view records associated with a specific threat super category. The default option for this filter is None. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Threat
+      - Malware
+      - Sandbox
+      - Spyware
+      - Virus
+    - User: Use this filter to view records associated with the owner of the questionable file. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted users from the list. Click Select All to select all the configured users. You can search for specific file owners. You can choose to include or exclude certain file owners.
+    - User Group: Use this filter to view records associated with a specific user group. You can choose to include or exclude the selected groups. The default option for this filter is None. You can search for specific user groups.
+  - Repository Log Filters
+    - Action: Use this filter to view records based on the Data at Rest Scanning DLP policy rule action. The default option for this filter is None. You can search for specific actions. The following actions appear under this filter:
+      - Failed to make external sharing read only
+      - Failed to make internal sharing read only
+      - Failed to make sharing read only
+      - Failed to notify end user
+      - Failed to quarantine Malware
+      - Failed to remove Collaborators
+      - Failed to remove Discoverable
+      - Failed to remove external sharing
+      - Failed to remove Internal Link Share
+      - Failed to remove internal sharing
+      - Failed to remove Malware
+      - Failed to remove Public Link Share
+      - Failed to revoke Sharing/Make Private
+      - Make internal sharing read only
+      - Notify end user
+      - Quarantine Malware
+      - Read Only for All Collaborators
+      - Read Only for External Collaborators
+      - Remove Collaborators
+      - Remove Discoverable
+      - Remove External Collaborators and Shareable Link
+      - Remove Internal Link Share
+      - Remove Malware
+      - Remove Public Link Share
+      - Remove Sharing
+      - Report Incident Only
+      - Report Malware
+      - No action
+    - Advanced Threat Category: Use this filter to view records associated with a specific advanced threat category. These threats are detected by Malware Protection. The default option for this filter is Any. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Browser Exploit
+      - Adware
+      - Adware/Spyware Sites
+      - Archive Bomb
+      - Backdoor
+      - Benign
+      - Boot Virus
+      - Botnet Callback
+      - Browser Exploit
+      - Cross-site Scripting
+      - Cryptomining
+      - Denial of Service Attack
+      - Dialer
+      - Domain Generation Algorithm (DGA) Domains
+      - Downloader
+      - Macro Virus
+      - Malicious Content
+      - MalwareTool
+      - Misdisinfection
+      - Other Malware
+      - Other Spyware
+      - Other Threat
+      - Other Virus
+      - Password Stealer
+      - Peer-to-Peer
+      - Privacy Risk
+      - Proxy
+      - Ransomware
+      - Sandbox Adware
+      - Sandbox Anonymizer
+      - Sandbox Malware
+      - Sent for Analysis
+      - Spyware Callback
+      - Suspicious Content
+      - Suspicious Destination
+      - Trojan
+      - Unauthorized Communication
+      - Unrecognized Virus
+      - Unwanted Application
+      - Web Spam
+      - Worm
+    - Application: Use this filter to view records associated with a specific SaaS application. The following SaaS application appear under this filter:
+      - Bitbucket
+      - GitHub
+      - GitLab
+    - Collaboration Scope: Use this filter to view records based on the collaboration scope and permissions for SaaS application tenant files. The following collaborations appear under this filter:
+      - External Collaborators - Edit: Allows specific individuals outside your organization's tenant explicit permission to edit and modify the file.
+      - External Collaborators - View: Allows specific individuals outside your organization's tenant explicit permission to view (read-only) the file. These users cannot make any changes or modifications.
+      - External Link - Edit: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to edit and modify the file. No specific user authentication beyond having the link is typically required from an external perspective.
+      - External Link - View: Allows anyone who possesses the shared link (whether they are internal or external to your organization) to view (read-only) the file. External users are not required to authenticate.
+      - Internal Collaborators - Edit: Allows specific individuals within your organization's tenant explicit permission to edit and modify the file.
+      - Internal Collaborators - View: Allows specific individuals within your organization's tenant explicit permission to view (read-only) the file.
+      - Internal Link - Edit: Allows anyone within your organization's tenant who possesses the shared link to edit and modify the file. Access is restricted to authenticated internal users.
+      - Internal Link - View: Allows anyone within your organization's tenant who possesses the shared link to view (read-only) the file. Access is restricted to authenticated internal users.
+      - Private - Edit: The file is not shared with anyone else and can only be accessed and edited by its owner (or explicitly assigned co-owners if the platform allows it within a private context).
+    - Data Center: Use this filter to limit the data to traffic associated with a specific data center.
+    - Department: Use this filter to view records associated with a specific department. The default option for this filter is Any. Select Hide Deleted if you want to remove deleted departments from the list. Click Select All to select all the configured departments. You can search for specific departments. You can choose to include or exclude certain departments.
+    - DLP Dictionary: Use this filter to see which records contain this dictionary as a trigger. If a dictionary was triggered, the name of the dictionary is displayed along with a match count indicating the search score or match count for this dictionary. The default option for this filter is None. You can search for specific DLP dictionaries.
+    - DLP Engine: Use this filter to view records in which data leakage was detected. The default option for this filter is Any. You can search for specific DLP engines.
+    - Document Type: Use this filter to limit the data to traffic associated with a specific upload or download document type. The following types appear under this filter:
+      - Corporate Finance
+      - Corporate Legal
+      - Court Form
+      - DMV
+      - Immigration
+      - Insurance
+      - Invoice
+      - Legal
+      - Medical Information
+      - None
+      - Real Estate
+      - Resume
+      - Tax
+      - Technical
+      - Unknown
+    - Download Time: Use this filter to view records associated with the download time. The default option for this filter is All. The following download time ranges appear under this filter:
+      - All Sizes
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Event: Use this filter to view records associated with the type of event. The default option for this filter is All. The following events appear under this filter:
+      - Incidents: Violations against either a DLP or Malware policy. This is caused when a file is scanned for the first time or when a change in the file violates the policy.
+      - Scans: Inspections of a file.
+    - External Collaborators: Use this filter to view records associated with specific collaborators outside your organization. The default option for this filter is None. You can search for specific external collaborators.
+    - Non-Provisioned Owner: Use this filter to view records associated with file owners (inside or outside your organization) that are not provisioned to the Internet & SaaS service. The default option for this filter is None. You can search for specific non-provisioned owners.
+    - File ID: Use this filter to view records associated with a file ID. For example, if a file was scanned multiple times, an admin can use the file ID to view the scan trail.
+    - File MD5: Use this filter to view records associated with the MD5 hash of a file.
+    - File Name: Use this filter to view records associated with the file name. Enter all or part of the file name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - File Size: Use this filter to view records associated with a file's size. You can put in a file size range.
+    - File Source Location: Use this filter to view records associated with a file source location. You can filter by Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Number of External Collaborators: Use this filter to view records associated with the number of collaborators outside your organization. You can put in your own range.
+    - Policy Type and Rule Name: Use this filter to view records associated with the policy and rule that took action. The following policy types appear under this filter:
+      - DLP
+      - Malware
+    - Project Name: Use this filter to view records associated with a specific project name. You can filter by Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Run ID: Use this filter to view records associated with a run ID. A run is when a scan is stopped and started. Every run is identified and tracked with a run ID.
+    - Scan ID: Use this filter to view records associated with a scan ID. Every scan that is defined in the Historic Scan Configuration has a unique identifier associated with it.
+    - Scan Time: Use this filter to view records associated with the time of a scan. The default option for this filter is All. The following scan time ranges appear under this filter:
+      - 0 - 10SEC
+      - 10SEC - 30SEC
+      - 30SEC - 1MIN
+      - 1MIN - 5MIN
+      - 5MIN - 10MIN
+      - 10MIN - 30MIN
+      - 30MIN - 1HOUR
+      - Above 1 HOUR
+      - Custom
+    - Severity: Use this filter to view records based on the severity level of the incidents detected by the Data at Rest Scanning DLP policy. The default option for this filter is None. The following levels of severity appear under this filter:
+      - High
+      - Information
+      - Low
+      - Medium
+    - SHA: Use this filter to view records associated with a specific secure hash algorithm (SHA). Enter all or part of the SHA in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null.
+    - Show Delayed Logs: Use this filter to view records based on delayed logs.
+    - Tenant: Use this filter to view records associated with a specific tenant. The default option for this filter is All. You can search for specific tenants.
+    - Threat Super Category: Use this filter to view records associated with a specific threat super category. The default option for this filter is None. You can search for specific categories. You can also use the toggle to turn on Threat Name Search to enter all or part of the threat name in the text field, and choose Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. The following categories appear under this filter:
+      - Advanced Threat
+      - Malware
+      - Sandbox
+      - Spyware
+      - Virus
+    - User Group: Use this filter to view records associated with a specific user group. You can choose to include or exclude the selected groups. The default option for this filter is None. You can search for specific user groups.
 - You can either download the list of transactions as a CSV file or keep it displayed on your screen. When you download the list, the Zscaler service only exports visible columns. It exports up to 100K lines of data at a time. You can continue to use the service while the export is in progress. The limit for the number of times you can export is 20 requests/hour. For a complete list of ranges and limits per feature, see Ranges & Limitations.
 - Choose the number of records that you want displayed on the page.
-- Always click Apply Filters to activate your changes.
-- View the weblog time, which appears at the bottom of every window. The Nanolog servers collect the logs of all users worldwide, and then consolidates and correlates them. The weblog time displays the date and time of the logs that are being processed by the Nanolog servers.
+- Click Run Query to display the logs.
 - Go to the Insights page.

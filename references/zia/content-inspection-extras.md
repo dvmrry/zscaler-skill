@@ -105,7 +105,7 @@ Web module — **Policies > File Type Control**. Evaluates as part of the post-S
 
 ### Pipeline interaction
 
-- **SSL Inspection bypass = no File Type Control.** Traffic that bypasses SSL decrypt can't be inspected by File Type Control either (no visibility into HTTPS-encoded file payloads). Same rule as DLP and Sandbox — see [`./ssl-inspection.md § SSL bypass is a cross-policy gate`](./ssl-inspection.md).
+- **SSL Inspection bypass = no File Type Control.** Traffic that bypasses SSL decrypt can't be inspected by File Type Control either (no visibility into HTTPS-encoded file payloads). Same rule as DLP and Sandbox — see [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 - **File Type Control evaluates before DLP engines** for matching files. A file blocked by FTC never reaches DLP. If you want DLP logs of what would have been scanned, don't block at FTC — flag via CAUTION action and let DLP run.
 - **Archive extraction happens at FTC.** DLP gets the extracted file list downstream — so a ZIP bomb or deeply nested archive can be terminated at FTC without stressing DLP.
 
@@ -261,11 +261,11 @@ Source: `vendor/zscaler-help/about-ftp-control.md`.
 
 ## Cross-links
 
-- FTP / File Type Control intersection with DLP: [`./dlp.md`](./dlp.md).
-- SSL bypass cascading to content-inspection loss: [`./ssl-inspection.md § SSL bypass is a cross-policy gate`](./ssl-inspection.md).
+- FTP / File Type Control intersection with DLP: [`zia.dlp`](kb:zia.dlp).
+- SSL bypass cascading to content-inspection loss: [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 - PRA as the SSH-audit substitute: [`../zpa/privileged-remote-access.md`](../zpa/privileged-remote-access.md).
-- Firewall Control context: [`./firewall.md`](./firewall.md).
-- Sandbox handling of executables (what File Type Control hands off to): [`./sandbox.md`](./sandbox.md).
+- Firewall Control context: [`zia.firewall`](kb:zia.firewall).
+- Sandbox handling of executables (what File Type Control hands off to): [`zia.sandbox`](kb:zia.sandbox).
 
 ## Open questions
 

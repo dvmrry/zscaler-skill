@@ -1,0 +1,630 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.api-shape",
+  "title": "SSL/TLS inspection rule wire format: the nested action object, tokens and casing",
+  "aliases": [
+    "ssl inspection action object",
+    "decryptSubActions",
+    "doNotDecryptSubActions",
+    "PASS_THRU",
+    "showEUN",
+    "ssl rule jq",
+    "ssl inspection mcp tool",
+    "ssl rule validation"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules#action"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.sdk-go.service-defects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.rules"
+    }
+  ],
+  "claims": {
+    "action-nested-required": {
+      "statement": "In the API response schema an SSL rule's `action` is a required nested object, not a string: `type` is `DECRYPT`, `DO_NOT_DECRYPT` or `BLOCK`, and the object carries `decryptSubActions`, `doNotDecryptSubActions`, `overrideDefaultCertificate`, `showEUN`, `showEUNATP` and `sslInterceptionCert`.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action",
+          "expect": {
+            "type": "object"
+          },
+          "note": "action: required object"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "action",
+              "name",
+              "order",
+              "rank"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/type",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "DECRYPT",
+              "DO_NOT_DECRYPT",
+              "BLOCK"
+            ]
+          },
+          "note": "action.type enum"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions",
+          "expect": {
+            "type": "object"
+          },
+          "note": "decryptSubActions container"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions",
+          "expect": {
+            "type": "object"
+          },
+          "note": "doNotDecryptSubActions container"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/overrideDefaultCertificate",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "overrideDefaultCertificate"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/showEUN",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "showEUN"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/showEUNATP",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "showEUNATP"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/sslInterceptionCert",
+          "expect": {
+            "type": "object"
+          },
+          "note": "sslInterceptionCert container"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "json:\"decryptSubActions,omitempty\"",
+            "json:\"doNotDecryptSubActions,omitempty\""
+          ]
+        }
+      ]
+    },
+    "console-to-api-mapping": {
+      "statement": "The console's Inspect is `DECRYPT`, Do Not Inspect is `DO_NOT_DECRYPT`, and Evaluate versus Bypass Other Policies is `doNotDecryptSubActions.bypassOtherPolicies` false or true; Block is `BLOCK`.",
+      "tier": "B",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "conditions": "Name-based inference: no source states the mapping in one place. The Terraform examples pair the bypass flag with DO_NOT_DECRYPT and the guide pairs the same console words with the same behavior.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions/properties/bypassOtherPolicies",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "bypassOtherPolicies boolean"
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ssl_inspection_rules.md",
+          "quotes": [
+            "bypass_other_policies                 = true",
+            "bypass_other_policies                 = false"
+          ]
+        }
+      ]
+    },
+    "decrypt-fields": {
+      "statement": "`decryptSubActions` holds `serverCertificates`, `ocspCheck`, `blockSslTrafficWithNoSniEnabled`, `minClientTLSVersion`, `minServerTLSVersion`, `blockUndecrypt` and `http2Enabled`, in camelCase on the wire. Client and server TLS floors are separate fields.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/blockSslTrafficWithNoSniEnabled",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/blockUndecrypt",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/http2Enabled",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/minClientTLSVersion",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "CLIENT_TLS_1_0",
+              "CLIENT_TLS_1_1",
+              "CLIENT_TLS_1_2",
+              "CLIENT_TLS_1_3"
+            ]
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/minServerTLSVersion",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "SERVER_TLS_1_0",
+              "SERVER_TLS_1_1",
+              "SERVER_TLS_1_2",
+              "SERVER_TLS_1_3"
+            ]
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/ocspCheck",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/serverCertificates",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ALLOW",
+              "BLOCK",
+              "PASS_THRU"
+            ]
+          },
+          "note": "member"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "json:\"minClientTLSVersion,omitempty\"",
+            "json:\"minServerTLSVersion,omitempty\"",
+            "json:\"blockUndecrypt,omitempty\"",
+            "json:\"http2Enabled,omitempty\""
+          ]
+        }
+      ]
+    },
+    "dnd-fields": {
+      "statement": "`doNotDecryptSubActions` holds `bypassOtherPolicies`, `serverCertificates`, `ocspCheck`, `blockSslTrafficWithNoSniEnabled` and a single `minTLSVersion`, not split into client and server.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions/properties/blockSslTrafficWithNoSniEnabled",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions/properties/bypassOtherPolicies",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions/properties/minTLSVersion",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "SERVER_TLS_1_0",
+              "SERVER_TLS_1_1",
+              "SERVER_TLS_1_2",
+              "SERVER_TLS_1_3"
+            ]
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions/properties/ocspCheck",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "member"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions/properties/serverCertificates",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ALLOW",
+              "BLOCK"
+            ]
+          },
+          "note": "member"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "json:\"bypassOtherPolicies,omitempty\"",
+            "json:\"minTLSVersion,omitempty\""
+          ]
+        }
+      ]
+    },
+    "server-certificates-tokens": {
+      "statement": "`serverCertificates` takes `ALLOW`, `BLOCK` or `PASS_THRU` under `decryptSubActions`, but only `ALLOW` or `BLOCK` under `doNotDecryptSubActions`. The console's Pass Through is the token `PASS_THRU`, so a filter on `PASSTHROUGH` never matches.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/serverCertificates",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ALLOW",
+              "BLOCK",
+              "PASS_THRU"
+            ]
+          },
+          "note": "decryptSubActions.serverCertificates enum ALLOW, BLOCK, PASS_THRU"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions/properties/serverCertificates",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "ALLOW",
+              "BLOCK"
+            ]
+          },
+          "note": "doNotDecryptSubActions.serverCertificates enum ALLOW, BLOCK"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "// ALLOW, BLOCK, PASS_THRU"
+          ]
+        }
+      ]
+    },
+    "tls-version-tokens": {
+      "statement": "TLS floors are enumerated tokens: `minClientTLSVersion` takes `CLIENT_TLS_1_0` to `CLIENT_TLS_1_3`, while `minServerTLSVersion` and the Do Not Inspect `minTLSVersion` take `SERVER_TLS_1_0` to `SERVER_TLS_1_3`.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/minClientTLSVersion",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "CLIENT_TLS_1_0",
+              "CLIENT_TLS_1_1",
+              "CLIENT_TLS_1_2",
+              "CLIENT_TLS_1_3"
+            ]
+          },
+          "note": "minClientTLSVersion enum CLIENT_TLS_1_0..1_3"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/decryptSubActions/properties/minServerTLSVersion",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "SERVER_TLS_1_0",
+              "SERVER_TLS_1_1",
+              "SERVER_TLS_1_2",
+              "SERVER_TLS_1_3"
+            ]
+          },
+          "note": "minServerTLSVersion enum SERVER_TLS_1_0..1_3"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/doNotDecryptSubActions/properties/minTLSVersion",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "SERVER_TLS_1_0",
+              "SERVER_TLS_1_1",
+              "SERVER_TLS_1_2",
+              "SERVER_TLS_1_3"
+            ]
+          },
+          "note": "doNotDecryptSubActions.minTLSVersion enum SERVER_TLS_1_0..1_3"
+        }
+      ]
+    },
+    "eun-casing": {
+      "statement": "The contract spells the notification flags `showEUN` and `showEUNATP`, and the Python SDK emits exactly those on writes; its model accepts several alternate spellings when parsing, a sign that an SDK key-conversion step has been in the path.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "conditions": "'A sign that conversion has been in the path' is inference from the alias list. Whether a live response ever returns other casings is gap eun-read-casing.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/showEUN",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "action.showEUN boolean"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/action/properties/showEUNATP",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "action.showEUNATP boolean"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/ssl_inspection_rules.py",
+          "quotes": [
+            "\"showEUN\": self.show_eun,",
+            "\"showEUNATP\": self.show_eun_atp,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/ssl_inspection_rules.py",
+          "quotes": [
+            "self.show_eun = next((config[k] for k in [\"show_eun\", \"showEun\", \"showEUN\"] if k in config), False)"
+          ]
+        }
+      ],
+      "gaps": [
+        "eun-read-casing"
+      ]
+    },
+    "python-kwargs-casing": {
+      "statement": "The Python SDK takes snake_case keyword arguments and camelCases the whole request body before sending; an explicit exception table makes `show_eun`, `show_eunatp`, `min_tls_version`, `min_client_tls_version` and `min_server_tls_version` become the contract spellings, so jq queries on snapshot data must use the camelCase names.",
+      "tier": "A",
+      "conditions": "The jq statement is advice following from the wire being camelCase; snapshot data comes from the API, not from the Python SDK.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "\"show_eun\": \"showEUN\",",
+            "\"show_eunatp\": \"showEUNATP\",",
+            "\"min_client_tls_version\": \"minClientTLSVersion\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ],
+          "after": "# Preserve existing logic for other services"
+        }
+      ]
+    },
+    "python-no-client-validation": {
+      "statement": "Apart from key and ID rewriting, the Python SDK sends the caller's keyword arguments as the request body without checking the action: `add_rule` assigns `body = kwargs`, so a `decryptSubActions` block on a `DO_NOT_DECRYPT` rule, or any of the combinations the Go SDK rejects, reaches the API unchecked.",
+      "tier": "A",
+      "conditions": "Code read: no validation step appears between kwargs and the request. What the API itself does with such a body is gap zia.sdk-go.service-defects:ssl-action-api-contract.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "body = kwargs"
+          ],
+          "after": "Adds a new ssl inspection filter rule."
+        }
+      ],
+      "gaps": [
+        "zia.sdk-go.service-defects:ssl-action-api-contract"
+      ]
+    },
+    "go-validator-block-and-cert-rules": {
+      "statement": "Beyond the required-field rules recorded in the SDK defects, the Go validator also rejects a `DECRYPT` rule that sets `showEUN` or `showEUNATP`, a `BLOCK` rule that carries either sub-action block or sets `showEUNATP`, and any rule with `overrideDefaultCertificate` false that attaches `sslInterceptionCert`.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action",
+        "zia/ssl-inspection-rules#action.sslInterceptionCert"
+      ],
+      "conditions": "Client-side checks only; whether the API enforces the same rules is gap zia.sdk-go.service-defects:ssl-action-api-contract.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "when action.type is 'DECRYPT', neither showEUN nor showEUNATP can be set",
+            "when action.type is 'BLOCK', neither decryptSubActions nor doNotDecryptSubActions can be set",
+            "when action.type is 'BLOCK', showEUNATP cannot be set",
+            "when action.type is 'BLOCK' and overrideDefaultCertificate is false, sslInterceptionCert cannot be set"
+          ]
+        }
+      ],
+      "gaps": [
+        "zia.sdk-go.service-defects:ssl-action-api-contract"
+      ]
+    },
+    "mcp-full-records": {
+      "statement": "The MCP list and get tools for SSL inspection rules return the SDK model converted with `as_dict()` and passed through `shape_many`/`shape_one`, which never drop attributes, so the nested `action` and its sub-action blocks are present whenever the SDK supplies them.",
+      "tier": "A",
+      "conditions": "This is SDK-model passthrough, not a guarantee about the raw HTTP response: the SDK decides which attributes exist.",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ssl_inspection.py",
+          "quotes": [
+            "return shape_many([r.as_dict() for r in (rules or [])])"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ssl_inspection.py",
+          "quotes": [
+            "return shape_one(rule.as_dict())"
+          ],
+          "after": "def zia_get_ssl_inspection_rule(args: GetInput) -> dict[str, Any]:"
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/shaping/helpers.py",
+          "quotes": [
+            "Nothing is dropped; the shaper can only ADD to or NORMALIZE the record,"
+          ]
+        }
+      ]
+    },
+    "mcp-no-output-schema": {
+      "statement": "The MCP server declares no fixed output schema for ordinary API records, because the set of attributes a resource carries is owned by the API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/spec.py",
+          "quotes": [
+            "returns a Zscaler API record verbatim and therefore advertises no ``outputSchema``: the set of attributes a resource carries is owned by the API, not by this server"
+          ]
+        }
+      ]
+    },
+    "mcp-list-query": {
+      "statement": "The SSL rule list tool takes no filter arguments because the API offers neither server-side search nor pagination; the MCP bridge adds an optional JMESPath `query` that filters client-side after the SDK call, and its keys are the returned records' keys, usually snake_case even where the API documents camelCase.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/ssl_inspection.py",
+          "quotes": [
+            "server-side search nor pagination, so the tool takes no filtering arguments."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/registry/fastmcp_bridge.py",
+          "quotes": [
+            "call, for client-side filtering and projection.",
+            "of the returned records, which are usually snake_case",
+            "even where the Zscaler API documents camelCase"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "eun-read-casing": {
+      "kind": "data",
+      "title": "Whether the live API ever returns `showEUN`/`showEUNATP` in a casing other than the contract's",
+      "status": "open",
+      "about": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "detail": "The contract and the Python request format use uppercase. The Python model also parses `showEun` and `showEunatp`, which suggests some path produces them. No tenant read has been compared.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia ssl-inspection-rules list"
+    }
+  }
+}

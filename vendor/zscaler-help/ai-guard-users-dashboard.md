@@ -1,32 +1,38 @@
-# About AI Guard Dashboard — Users
+# About AI Guard Dashboard
 
 **Source:** https://help.zscaler.com/secure-ai-users/about-ai-guard-dashboard
-**Captured:** 2026-08-04 via the official Help Center article payload.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1540886, revision 3226311
 
 ---
 
-This is the current AI Guard for Users dashboard article. It is distinct from
-the Apps & Infrastructure dashboard article.
-
-## Dashboard scope
-
-- The dashboard provides a high-level view of users managed by AI Guard,
-  including user, LLM, policy-detection, and AI bot transaction counts.
-- In the AI Security Admin Portal, the page is available at **AI Guard >
-  Dashboard** and uses the **Users** tab.
-- Administrators can select a date range of up to 90 days, search by policy
-  name, filter by Policy Name, Severity, and Prompt Detections, refresh the
-  data, and export a PDF for the selected period.
-- Summary values include Number of Users, Number of LLMs, Number of Detections,
-  and Number of Transactions.
-
-## Transactions
-
-- Transaction rows expose date and time, user, policy name, severity, prompt
-  and response detections, LLM, and prompt and response actions.
-- Transaction details are organized into Overview, Detection Summary,
-  Performance & Network Stats, Custom Request Headers, and Prompt Details.
-
-The current Users article does not document the multi-prompt Conversations
-view described by the Apps & Infrastructure article. This capture does not
-infer whether that view is available or unavailable for user transactions.
+The AI Guard dashboard provides a high-level overview of all the users and AI applications AI Guard manages. This includes information such as the number of users or apps, number of policy detections, and number of AI bot transactions.
+The AI Guard Dashboard page provides the following benefits and enables you to:
+- View general statistics of your users, LLMs, and policy detections.
+- View information on individual policy transactions.
+- Search by specific policy names or filters.
+# About the AI Guard Dashboard Page
+On the AI Guard Dashboard page (AI Security Admin Portal > AI Guard > Dashboard), you can do the following:
+- Select the Users tab.
+- Select the date range (up to 90 days) for your data.
+- Search by a specific policy name.
+- Filter your data based on criteria such as Policy Name, Severity, and Prompt Detections.
+- Refresh will update your dashboard with the most current data.
+- Export a PDF copy of your dashboard for the selected date range.
+- View the following information:
+  - Number of Users: The total number of users.
+  - Number of LLMs: The total number of LLMs.
+  - Number of Detections: The total number of policy detections.
+  - Number of Transactions: The total number of transactions.
+- View a list of all transactions. For each transaction, you can see the following:
+  - Date and Time: The date and time of the transaction.
+  - User: The name of the user.
+  - Policy Name: The name of the policy associated with this transaction.
+  - Severity: The level of severity of the transaction. The severity can be Info, Low, Medium, High, and Critical.
+  - Prompt Detections: The specific prompt detectors that the policy triggered.
+  - Response Detections: The specific response detectors that the policy triggered.
+  - LLM: The LLM used for this transaction.
+  - Prompt Action: Displays whether the AI Guard policy transaction resulted in the prompt being Allowed or Blocked.
+  - Response Action: Displays whether the AI Guard policy transaction resulted in the response being Allowed or Blocked.
+  - Details: Clicking the Details icon opens a window showing detailed information in the following sections: Overview, Detection Summary, Performance & Network Stats, Custom Request Headers, and Prompt Details.
+  - See image.

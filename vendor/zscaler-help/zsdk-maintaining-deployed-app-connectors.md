@@ -1,40 +1,174 @@
 # Maintaining Deployed App Connectors
 
 **Source:** https://help.zscaler.com/zsdk/maintaining-deployed-app-connectors
-**Captured:** 2026-04-26 via Playwright MCP (innerText extraction of <article>).
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1508916, revision 3093086
 
 ---
 
-Zscaler SDK for Mobile Apps Help 
-Applications 
-App Connectors 
-App Connector Deployment 
-Maintaining Deployed App Connectors
-Zscaler SDK for Mobile Apps
-Maintaining Deployed App Connectors
-Ask Zscaler
-
 After you deploy an App Connector and complete the proper networking configurations, perform the following procedures to verify that the App Connector is running and healthy and that the sizing and scalability specifications you decided upon before deployment are still adequate for your organization's needs:
-
-Check App Connector Status
-Verify App Connector Sizing Specifications
-
+- Check App Connector Status
+- You can check the status of App Connectors in two ways:
+  - Using the App Connectors page and Health dashboard: You can check the status by accessing the App Connectors page and using the Health dashboard within the ZSDK Admin Portal.
+  - To check the App Connector's status using the ZSDK Admin Portal:
+    - Go to Configuration & Control > Private Infrastructure > App Connector Management > App Connectors. Check that the App Connector you deployed appears in the table of configured App Connectors.
+    - Go to Dashboard > Health. Check that the App Connector you deployed appears in the App Connectors widget. The App Connector must have enrolled successfully at least once for it to appear within the Health dashboard.
+    - For example, if you deployed San Jose App Connector 3, you see the following:
+      - In Configuration & Control > Private Infrastructure > App Connector Management > App Connectors:
+      - In Dashboards > Health, within the App Connectors widget:
+  - Using systemd: You can use systemd to check that the zpa-connector service is running on the local system.
+  - To check App Connector status using systemd:
+    - Log in to the App Connector console using your admin credentials.
+    - Enter the following command:
+    - [admin@zpa-connector ~]$ sudo systemctl status zpa-connector
+    - A healthy App Connector typically consists of two processes: the parent process and the child. However, if only the parent process is present, it could mean that the App Connector is not healthy. For example, the following output indicates a healthy App Connector that is in an active or running status. Both the parent process of PID 2696 and the child process of PID 2705 are present.
+    - zpa-connector.service - Zscaler Private Access App Connector Loaded: loaded (/usr/lib/systemd/system/zpa-connector.service; enabled; vendor preset: enabled) Active: active (running) since Thu 2016-08-18 00:58:44 UTC; 2h 16min ago Main PID: 2696 (zpa-connector) CGroup: /system.slice/zpa-connector.service ├─2696 /opt/zscaler/bin/zpa-connector └─2705 zpa-connector-child
+    - The next example shows that the App Connector (with parent process PID 2696) is in an inactive or stopped status:
+    - zpa-connector.service - Zscaler Private Access App Connector Loaded: loaded (/usr/lib/systemd/system/zpa-connector.service; enabled; vendor preset: enabled) Active: inactive (dead) since Thu 2016-08-18 03:19:03 UTC; 9s ago Process: 2696 ExecStart=/opt/zscaler/bin/zpa-connector (code=killed, signal=TERM) Main PID: 2696 (code=killed, signal=TERM)
+    - The systemd core dump is enabled by default in Red Hat Enterprise Linux 8 (RHEL 8). If the systemd core dump is enabled, the systemd output of a zpa-connector service running on RHEL 8 can include core dump information.
+- Verify App Connector Sizing Specifications
+- After an App Connector is deployed, check that the virtual machine (VM) image is meeting your requirements:
+  - Log in to the App Connector console using your admin credentials.
+  - Enter the following command:
+  - [admin@zpa-connector ~]$ free -g
+  - Verify that the total available memory is at least 4 GB, as shown in the total column as the value 4. For example:
+  - [admin@zpa-connector ~]$ free -g total used free shared buff/cache available Mem: 4 0 3 0 0 4 Swap: 0 0 0
+  - Enter the following command:
+  - [admin@zpa-connector ~]$ cat /proc/cpuinfo | grep flags
+  - Check to see whether the list includes the ht flag, which is highlighted in green within the following example:
+  - flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology eagerfpu pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm fsgsbase bmi1 avx2 smep bmi2 erms invpcid xsaveopt
+  - Enter the following command:
+  - [admin@zpa-connector ~]$ cat /proc/cpuinfo | grep processor
+  - You should see a list of processors. For example:
+  - processor : 0 processor : 1 processor : 2 processor : 3
+  - If your list of flags included ht in the previous step, then you should see a minimum of 4 processors displayed here. If not, then you should see a minimum of two processors.
+- To learn more, see App Connector Specifications and Sizing Requirements.
 After verifying your deployment, perform the following procedures to update and maintain the system:
-
-Change the Default Admin Password for the App Connector System Console
-Log In to and Out of the App Connector System Console
-Start, Stop, or Restart an App Connector
-View App Connector Logs
-Install Endpoint Monitoring Tools
-Replace a Provisioning Key or Move App Connector to New Hardware
-Replace an App Connector Using an Existing App Connector Provisioning Key
-Update App Connector System Software
-Update App Connector Software Packages
-
-Was this article helpful? Click an icon below to submit feedback.
-Related Articles
- 
-Understanding App Connector Deployment
-App Connector Deployment Prerequisites
-App Connector Deployment Checklist
-Maintaining Deployed App Connectors
+- Change the Default Admin Password for the App Connector System Console
+- The default admin account username is admin and the password is zscaler. For enhanced security, you must use the passwd command to change the credentials on the default admin account. If you forget a changed admin account password, Zscaler recommends deploying a new App Connector rather than trying to recover it.
+- To change the default admin account credentials:
+  - Log in to the App Connector console using the default admin username and password.
+  - Enter the passwd command, then enter the current default password (zscaler).
+  - [admin@zpa-connector ~]$ passwd Changing password for user admin. Changing password for admin. (current) UNIX password: New password: Retype new password: passwd: all authentication tokens updated successfully. [admin@zpa-connector ~]$
+  - Enter the logout command:
+  - [admin@zpa-connector ~]$ logout
+- Log In to and Out of the App Connector System Console
+- To log in to the App Connector console, enter the admin credentials:
+- zpa-connector login: admin Password: *******
+- After the initial boot of an App Connector instance, it can take up to 15 minutes for the admin credentials to apply. So, if you receive an Invalid Credentials error after initial boot, wait a few minutes and try again.
+- To log out of the App Connector console, enter logout:
+- [admin@zpa-connector ~]$ logout
+- Start, Stop, or Restart an App Connector
+- The App Connector is configured to start automatically at system boot. In some scenarios, it might be necessary to stop, start, or restart the App Connector.
+  - Log in to the system hosting the App Connector package via Secure Shell (SSH) or log in to the local App Connector console using your admin credentials.
+  - Using systemd, enter the appropriate command:
+  - Start:
+  - [admin@zpa-connector ~]$ sudo systemctl start zpa-connector
+  - Stop:
+  - [admin@zpa-connector ~]$ sudo systemctl stop zpa-connector
+  - Restart:
+  - [admin@zpa-connector ~]$ sudo systemctl restart zpa-connector
+- The following logs might be seen in the App Connector console when an App Connector is restarted, upgraded, or downgraded. This potential error can be ignored:
+- Mar 23 12:45:39 centos zpa-connector-child[18383]: Upgrade prep error for: Connector, err: ZPATH_RESULT_ERR, upgrade_id: 73195382414249455
+- View App Connector Logs
+- The App Connector records logs using the syslog facilities of the local Linux system.
+- To view App Connector logs:
+  - Log in to the App Connector console using your admin credentials.
+  - Enter the following command:
+  - [admin@zpa-connector ~]$ sudo journalctl -u zpa-connector
+  - The information displayed includes the log output of the App Connector to the local system-logging facilities. Also, a running App Connector periodically outputs status messages. For example:
+  - -------- App Connector Status:ID=217246525011525974:Name=Test App Connector-1:Ver=18.42.1 -------- Certificate will expire in 370 days, 21 hours, 39 minutes Control connection state: fohh_connection_connected, local:[10.80.202.1]:53040 remote:broker1a.ec2.prod.zpath.net...3.245]:443 RPC Messages: BrkRq = 0, BrkRqAck = 0, BindReq = 0, BindReqAck = 0, AppRtDisc = 0, AppRtReq = 0, DsnAstChk = 0 Broker data connection count = 0, backed_off connections = 0 Data Transfer: Total ToBroker = 0 bytes, Total FromBroker = 0 bytes Mtunnels: Total Created = 0, Total Freed = 0, Current Active = 0 Registered apps count = 0, alive app = 0, passive_health = 0, service_count = 0, target_count = 0, alive_target ...target = 0
+  - To create a text file containing the current App Connector log information, use the following command:
+  - [admin@zpa-connector ~]$ sudo journalctl > dump-of-journalctl.txt
+- Older App Connector logs are automatically stored in the /var/log/messages file.
+- Install Endpoint Monitoring Tools
+- You can install monitoring or endpoint security tools on the App Connector host OS as long as the tools do not interfere with Zscaler processes or compete for resources. You must ensure that other tools do not consume host OS resources to an extent that results in resources available for the App Connector services dropping below minimum provisioning requirements. It is the organization’s responsibility to ensure that the tools you run don’t interfere with the proper operation of the internal processes and external communication of the App Connector services.
+- Replace a Provisioning Key or Move App Connector to New Hardware
+- You must re-enroll the App Connector to replace its provisioning key or if it is moved to new hardware. For both cases, you must use a new key with the VM image that you originally deployed.
+- To replace a provisioning key for an App Connector:
+  - Log in to the ZPA Admin Portal and go to Configuration & Control > Private Infrastructure > App Connector Management > App Connectors.
+  - Locate the App Connector that you want to replace the provisioning key for and click the Delete icon.
+  - In the confirmation window that appears, click Delete.
+  - (Optional) If you do not already have your new App Connector provisioning key, be sure to complete the procedure for adding a new App Connector with a new provisioning key.
+  - Log in to the App Connector console using your admin credentials.
+  - Temporarily enable sshd:
+    - For Amazon Web Services (AWS), update your security group to allow inbound connections from port 22. To learn more, see the App Connector Deployment Guide for Amazon Web Services (AWS).
+    - For Microsoft Azure, update your network security group (firewall) to allow inbound connections from port 22. To learn more, see the App Connector Deployment Guide for Microsoft Azure.
+    - For all other platforms, enter the following command:
+    - [admin@zpa-connector ~]$ sudo systemctl start sshd
+  - Enter the following command to stop the zpa-connector service:
+  - [admin@zpa-connector ~]$ sudo systemctl stop zpa-connector
+  - Use one of the following options to remove the old provisioning key file:
+    - Enter a command to get full root access, and then enter the remove command, rm:
+    - [admin@zpa-connector ~]$ sudo su [admin@zpa-connector /home/admin]# rm -f /opt/zscaler/var/*
+    - Enter the following command in a subshell:
+    - [admin@zpa-connector ~]$ sudo bash -c "rm -f /opt/zscaler/var/*"
+  - Create a new provisioning key file with 644 permissions at /opt/zscaler/var/provision_key. For example:
+  - [admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key [admin@zpa-connector ~]$ sudo chmod 644 /opt/zscaler/var/provision_key
+  - You must reconfigure your proxy settings in the App Connector after creating a new provisioning key file because the proxy settings are removed along with the old provisioning key file in the previous step.
+  - Copy the provisioning key from the ZPA Admin Portal, paste it into the file, and save. Use an editor, such as vi.
+  - [admin@zpa-connector ~]$ sudo vi /opt/zscaler/var/provision_key
+  - If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key, making sure that the key is within double quotes ("):
+  - echo "<App Connector Provisioning Key>" | sudo tee /opt/zscaler/var/provision_key
+  - Enter the following command to verify the file's content:
+  - [admin@zpa-connector ~]$ sudo cat /opt/zscaler/var/provision_key
+  - The output should return the provisioning key that you entered in the previous step.
+  - Enter the following command to start the zpa-connector service:
+  - [admin@zpa-connector ~]$ sudo systemctl start zpa-connector
+  - For all platforms, with the exception of AWS and Azure, enter the following command to disable sshd:
+  - [admin@zpa-connector ~]$ sudo systemctl stop sshd
+  - For AWS and Azure, make sure that you disable inbound access via port 22.
+- Replace an App Connector Using an Existing App Connector Provisioning Key
+- If you need to replace a deployed App Connector using a new provisioning key on an existing VM image, complete the Replace an App Connector provisioning key procedure. If you need to replace a deployed App Connector using an existing provisioning key on a new VM image:
+  - Log in to the ZSDK Admin Portal and go to Configuration & Control > Private Infrastructure > App Connector Management > App Connector Provisioning Keys.
+  - On the App Connector Provisioning Keys page, locate the existing key that you want to use and click the Edit icon.
+  - In the Edit App Connector Provisioning Key window, increase the Maximum Reuse of Provisioning Key value to accommodate the number of App Connectors that you are going to replace. To learn more, see Managing App Connector Provisioning Keys.
+  - Deploy the new replacement App Connector VM images using the existing provisioning key from the previous step. By doing so, these new App Connectors automatically join the same App Connector group as the App Connectors that you are replacing. To learn more, see the Deployment Guide for your App Connector.
+  - When the new App Connectors are deployed, they appear within the Health dashboard. Verify that the new App Connectors in the App Connector group are enabled and showing an Up Time. To learn more, see Viewing App Connector Details.
+  - Go to Configuration & Control > Private Infrastructure > App Connector Management > App Connectors.
+  - On the App Connectors page, locate the App Connectors that you want to replace and click the Edit icon.
+  - In the Edit App Connector window, set the Status to Disabled. To learn more, see Managing App Connectors.
+  - Verify that user access to your applications is still working as desired.
+  - To ensure that all user traffic has fully transferred to the new replacement App Connectors, wait at least 24 hours before deleting the disabled App Connectors.
+- When the user sessions have expired on the disabled App Connectors, delete them within the ZSDK Admin Portal and remove any old VM instances from your environment.
+- Update App Connector System Software
+- Occasionally, it might be necessary to update the OS software to mitigate major security vulnerabilities that were discovered in Linux.
+- To update the App Connector system software:
+  - Log in to the App Connector console using your admin credentials.
+  - Enter the following command to upgrade the local system software:
+  - [admin@zpa-connector ~]$ sudo yum update -y
+  - After running the sudo yum update command, the following response is returned. Zscaler handles the entitlement and recommends ignoring this response:
+  - Updating Subscription Management repositories. Unable to read consume identity This system is not registered with an entitlement server. You can use "rhc" or "subscription-manager" to register.
+  - After completing the update process, reboot the App Connector using the following command:
+  - [admin@zpa-connector ~]$ sudo reboot
+- Update App Connector Software Packages
+- There are multiple ways to upgrade the App Connector software package:
+  - Update the App Connector software package with a proxy server.
+    - Log in to the App Connector console using your admin credentials.
+    - Edit the /etc/yum.conf file. Use an editor, such as vi.
+    - [admin@zpa-connector ~]$ sudo vi /etc/yum.conf
+    - Add the proxy server and port information as well as the proper authentication credentials for it. For example:
+    - # The proxy server - proxy server:port number proxy=http://proxy.example.com:8080 # Proxy authentication proxy_username=proxyusername proxy_password=proxypassword
+    - Update the App Connector software package using the following command:
+    - [admin@zpa-connector ~]$ sudo yum update
+    - After completing the update process, restart the App Connector using the following command:
+    - [admin@zpa-connector ~]$ sudo systemctl restart zpa-connector
+  - Update the App Connector software package with access to the package repository.
+    - Log in to the App Connector console using your admin credentials.
+    - Update the App Connector software package using the following command:
+    - [admin@zpa-connector ~]$ sudo yum update zpa-connector
+    - After completing the update process, restart the App Connector using the following command:
+    - [admin@zpa-connector ~]$ sudo systemctl restart zpa-connector
+  - Update the App Connector software package without access to the package repository.
+    - Download one of the following .rpm files:
+      - Red Hat Enterprise Linux 8-based deployments
+      - Red Hat Enterprise Linux 9-based deployments
+    - Use the scp command to copy the .rpm file to the App Connector. For example:
+    - $ scp <RPM Version>
+    - Log in to the App Connector console using your admin credentials.
+    - Update the App Connector software package using the following command:
+    - [admin@zpa-connector ~]$ sudo rpm -Uvh zpa-connector-24.566.1-1.el9.x86_64.rpm
+    - Make sure that the update completes successfully. For example:
+    - [admin@zpa-connector ~]$ sudo rpm -Uvh zpa-connector-24.566.1-1.el9.x86_64.rpm [sudo] password for admin: Preparing... ################################# [100%] Updating / installing... 1:zpa-connector-24.566.1-1.el9 ################################# [ 50%] Warning: zpa-connector.service changed on disk. Run 'systemctl daemon-reload' to reload units. Cleaning up / removing... 2:zpa-connector-24.566.1-1.el9 ################################# [100%]
+    - Restart the App Connector using the following command:
+    - [admin@zpa-connector ~]$ sudo systemctl restart zpa-connector

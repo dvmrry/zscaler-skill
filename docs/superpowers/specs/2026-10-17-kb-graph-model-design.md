@@ -423,6 +423,19 @@ CI re-checks every affected quote on a trigger:
 
 This replaces the manual reverify cycle.
 
+### Capture format and pointer rules (2026-10-18)
+
+- **Help captures** are written only by `scripts/help_capture.py`. A crawl4ai server supplies the
+  rendered article HTML; the repo's renderer turns it into canonical text (plain text, nested `- `
+  lists, Markdown table rows, no emphasis or link syntax), so the same HTML always gives the same
+  text and a crawl4ai upgrade cannot change a capture. `help_capture.py check` refetches committed
+  captures and prints a diff on drift; `--replace` rewrites them in place, after which
+  `kb.mjs validate` lists exactly the quotes the change broke. Older captures (Playwright innerText,
+  PDF text) stay until they are recaptured.
+- **JSON pointers are keyed.** A step into an array by index is rejected because it shifts when the
+  source is regenerated. `[member=value]` selects the one element whose member matches. API facts
+  cite the OpenAPI document, not the flattened field list. Every pointer carries `expect`.
+
 ## Company index (overlay)
 
 ```

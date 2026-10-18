@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.submission",
+  "title": "Submitting files to Sandbox and out-of-band inspection (Discan)",
+  "aliases": [
+    "discan",
+    "zscsb submit",
+    "submit file for inspection",
+    "out-of-band file inspection",
+    "sandbox submission api"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.rules"
+    }
+  ],
+  "claims": {
+    "submit": {
+      "statement": "The submit call sends a raw or archive file for full analysis (up to 100 files per day). Files are scanned by Zscaler antivirus and sent to the sandbox; the `force` parameter makes the sandbox reanalyze a file that already has a verdict. The verdict is read afterwards from the report endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go",
+          "quotes": [
+            "You can submit up to 100 files per day",
+            "you can use the 'force' parameter to make the sandbox to reanalyze it",
+            "After files are sent for analysis, you must use GET /sandbox/report/{md5Hash} in order to retrieve the verdict."
+          ]
+        }
+      ]
+    },
+    "submit-needs-rule": {
+      "statement": "A file whose type is not covered by the default policy rule is analyzed only if a Sandbox policy rule includes that file type; otherwise the response shows \"Unknown\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go",
+          "quotes": [
+            "If not, an 'Unknown' message is shown in the response."
+          ]
+        }
+      ]
+    },
+    "discan": {
+      "statement": "Discan submits a file for out-of-band inspection that yields a real-time verdict for known and unknown files, using Malware Prevention, Advanced Threat Prevention, the Sandbox cloud effect, AI/ML analysis and third-party threat intelligence. It supports the file types of the Malware Protection and ATP policies, limits each file to 400 MB, and includes no dynamic file analysis, so it cannot catch what only detonation reveals. The Go SDK calls it `Discan` (POST /zscsb/discan); the Python SDK calls it `submit_file_for_inspection`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_submission/sandbox_submission.go",
+          "quotes": [
+            "Sandbox cloud effect, AI/ML-driven file analysis, and integrated third-party threat intelligence feeds",
+            "each file is limited to a size of 400 MB",
+            "Note: Dynamic file analysis is not included in out-of-band file inspection."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox.py",
+          "quotes": [
+            "def submit_file_for_inspection(self, file_path: str)",
+            "_sandbox_base_endpoint = \"/zscsb\""
+          ]
+        }
+      ]
+    },
+    "automate-publication": {
+      "statement": "The public Automate capture no longer lists `POST /zscsb/submit` or `POST /zscsb/discan`; the pinned Go and Python SDKs still construct both paths. This shows a gap between publication and clients, not that the backend routes were retired.",
+      "tier": "B",
+      "conditions": "The removal from the capture is stated by the capture notes. That it says nothing about the backend is an inference: a capture drop is not a retirement notice, and no tenant test is vendored.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/rosetta.md",
+          "quotes": [
+            "Removed from capture: `POST /zscsb/submit` (`zia/sandbox-submission-api/submit-file`).",
+            "Removed from capture: `POST /zscsb/discan` (`zia/sandbox-submission-api/submit-file-for-scan`)."
+          ]
+        }
+      ],
+      "gaps": [
+        "submission-route-status"
+      ]
+    },
+    "daily-quota": {
+      "statement": "Advanced Sandbox allows 100 API file submissions per day by default; the quota can be raised through the Zscaler account team or Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "By default, Advanced Sandbox allows for 100 API file submissions per day. This quota can be raised by contacting your Zscaler Account team or Zscaler Support."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "submission-route-status": {
+      "kind": "data",
+      "title": "Whether /zscsb/submit and /zscsb/discan still work on a tenant",
+      "status": "open",
+      "detail": "The routes are absent from the public operation pages but present in both SDKs. Validate against the target tenant before treating them as current.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "dynamic-analysis-duration": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: dynamic analysis takes 3 to 10 minutes",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier reference gave this range. The only timing in the sources is the Go SDK's note that a report is available 10 minutes after submission.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    }
+  }
+}

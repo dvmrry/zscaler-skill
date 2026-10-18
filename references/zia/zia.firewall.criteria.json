@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.criteria",
+  "title": "Firewall Filtering rule criteria",
+  "aliases": [
+    "firewall rule criteria",
+    "endpoint applications",
+    "context shield",
+    "eun template",
+    "is_eun_enabled",
+    "source countries",
+    "device trust level firewall"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules",
+    "zia/firewall-filtering-rules#excludeContextShieldEndPoint",
+    "zia/firewall-filtering-rules#isEunEnabled",
+    "zia/firewall-filtering-rules#eunTemplateId",
+    "zia/firewall-filtering-rules#sourceCountries",
+    "zia/firewall-filtering-rules#deviceTrustLevels"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.licensing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    }
+  ],
+  "claims": {
+    "unset-unrestricted": {
+      "statement": "A criterion left unset does not restrict the rule: an unset source IP list means the rule is not restricted to a specific source address, and unset destination countries mean it is not restricted to specific destination countries.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#srcIps",
+        "zia/firewall-filtering-rules#destCountries"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/filteringrules/filteringrules.go",
+          "quotes": [
+            "If not set, the rule is not restricted to a specific source IP address."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/destCountries",
+          "expect": {
+            "description": "Destination countries for which the rule is applicable. If not set, the rule is not restricted to specific destination countries."
+          }
+        }
+      ]
+    },
+    "source-countries-ignored": {
+      "statement": "If `sourceCountries` has no value it is ignored during policy evaluation and the rule applies to all source countries; when set, `excludeSrcCountries` decides whether the listed countries are included or excluded.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#sourceCountries",
+        "zia/firewall-filtering-rules#excludeSrcCountries"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/sourceCountries",
+          "expect": {
+            "description": "The list of source countries that must be included or excluded from the rule based on the excludeSrcCountries field value. If no value is set, this field is ignored during policy evaluation and the rule is applied to all source countries."
+          }
+        }
+      ]
+    },
+    "device-trust-scope": {
+      "statement": "High, Medium and Low device trust evaluation applies only to Zscaler Client Connector traffic, while the Unknown level applies to all traffic; with no value the criterion is ignored.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#deviceTrustLevels"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties/deviceTrustLevels",
+          "expect": {
+            "description": "<p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your  in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p>"
+          }
+        }
+      ]
+    },
+    "context-shield-exclusion": {
+      "statement": "The Terraform resource has a boolean `exclude_context_shield_end_point`: when true, the context shield end point is excluded from the rule.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#excludeContextShieldEndPoint"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "If set to true, the context shield end point is excluded from the rule"
+          ]
+        }
+      ]
+    },
+    "context-shield-not-in-capture": {
+      "statement": "The API capture's firewall filtering rule schema does not list `excludeContextShieldEndPoint`.",
+      "tier": "B",
+      "binds": [
+        "zia/firewall-filtering-rules#excludeContextShieldEndPoint"
+      ],
+      "conditions": "Absence: the property list of the capture's response schema was searched for the field and does not contain it; the pointer shows the list that was read.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1firewallFilteringRules/get/responses/200/content/application~1json/schema/items/properties",
+          "expect": {
+            "order": {
+              "description": "Rule order number of the Firewall Filtering policy rule",
+              "format": "int32",
+              "type": "integer"
+            },
+            "rank": {
+              "description": "Admin rank of the Firewall Filtering policy rule",
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "eun-attributes": {
+      "statement": "The Terraform resource schema has optional `is_eun_enabled` (Web EUN enabled for the rule) and `eun_template_id` (the associated EUN template ID); the data source page documents both.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#isEunEnabled",
+        "zia/firewall-filtering-rules#eunTemplateId"
+      ],
+      "gaps": [
+        "eun-template-plan-diff"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "If set to true, Web EUN is enabled for the rule",
+            "The EUN template ID associated with the rule"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/data-sources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "The ID of the Enhanced User Notification (EUN) template associated with the rule."
+          ]
+        }
+      ]
+    },
+    "endpoint-app-blocks": {
+      "statement": "The Terraform resource has `end_point_applications` (with `zapp_id`) and `end_point_application_groups` (with `group_id`) blocks, and its docs say they can only be set when `data_transfer_method` is APPLICATION_FILE_ACCESS.",
+      "tier": "A",
+      "gaps": [
+        "endpoint-app-semantics"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "Can only be set when `data_transfer_method` is `APPLICATION_FILE_ACCESS`."
+          ],
+          "after": "* `end_point_applications` - (Block)"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "\"end_point_applications\":       setCustomKeyIDsSchema(\"zapp_id\""
+          ]
+        }
+      ]
+    },
+    "endpoint-app-condition-unmeetable": {
+      "statement": "The documented `data_transfer_method` condition cannot be met on this resource: the firewall filtering rule schema has no `data_transfer_method` attribute, and the block descriptions say 'DLP policy rule', which suggests the text was carried over from the DLP resource.",
+      "tier": "B",
+      "conditions": "Rests on a search of the resource schema and the SDK struct for `data_transfer_method`, which found nothing.",
+      "derived_from": [
+        "endpoint-app-blocks"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "The endpoint applications to which the DLP policy rule must be applied"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "eun-template-plan-diff": {
+      "kind": "semantic",
+      "title": "Plan diff on eun_template_id when the attribute is omitted",
+      "status": "open",
+      "detail": "Upstream issue zscaler/terraform-provider-zia#605 reports that omitting `eun_template_id` shows a plan diff from 14 to null, and that apply leaves the tenant value at 14. It is operator-reported and has not been reproduced here. The issue is not a registered source, so no evidence is attached. The provider and SDK chain is described in the Terraform data-source and field-fidelity subjects.",
+      "blocks": "advising whether omitting EUN attributes is safe",
+      "resolves_with": [
+        "lab-test",
+        "code-read"
+      ],
+      "about": [
+        "zia/firewall-filtering-rules#eunTemplateId"
+      ]
+    },
+    "endpoint-app-semantics": {
+      "kind": "semantic",
+      "title": "What the endpoint application criteria do on a firewall rule",
+      "status": "open",
+      "detail": "No source says how a Firewall Filtering rule matches endpoint applications or groups, and the API capture's rule schema does not list the fields. The Terraform docs describe them with DLP wording.",
+      "blocks": "using the endpoint application blocks",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.incident-forwarding",
+  "title": "Where a DLP match goes: notification, ICAP, Incident Receiver and Cloud-to-Cloud",
+  "aliases": [
+    "dlp icap",
+    "dlp third party integration",
+    "can third party dlp block",
+    "zscaler incident receiver",
+    "cloud to cloud incident forwarding",
+    "c2c incident forwarding",
+    "dlp notification template",
+    "dlp email auditor",
+    "dlp end user notification",
+    "dlp zwa incidents",
+    "cloudToCloudIR"
+  ],
+  "binds": [
+    "zia/dlp-web-rules#receiver",
+    "zia/dlp-icap-servers",
+    "zia/dlp-incident-receiver-servers",
+    "zia/dlp-notification-templates"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rule-wire-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.terraform.credential-handling"
+    }
+  ],
+  "claims": {
+    "native-action": {
+      "statement": "A DLP rule can detect data, allow or block the transaction, and notify the organization's auditor. ZIA's own action is the decision.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.md",
+          "quotes": [
+            "You can use the Zscaler Data Loss Prevention (DLP) engines to detect data, allow or block transactions, and notify your organization's auditor when a user's transaction triggers a DLP rule."
+          ]
+        }
+      ]
+    },
+    "icap-one-way": {
+      "statement": "A rule can forward information about a violating transaction to a third-party DLP solution over secure ICAP, but Zscaler does not take ICAP responses back. Zscaler decides by its own policy and the third party receives a copy for remediation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.md",
+          "quotes": [
+            "However, Zscaler does not take ICAP responses from your DLP solution.",
+            "Zscaler only monitors or blocks content according to the policy you configure, then forwards information about transactions so that your organization can take the necessary remediation steps."
+          ]
+        }
+      ]
+    },
+    "icap-needs-matching-rule": {
+      "statement": "The third-party solution needs a rule that detects the same data type, or the forwarded information does not appear in its dashboard. The other criteria of the two rules need not correspond.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.md",
+          "quotes": [
+            "Ensure that in your third-party DLP solution, you configured a rule that detects the same data type as the rule you configure here.",
+            "However, the rules do not need to correspond exactly."
+          ]
+        }
+      ]
+    },
+    "incident-receiver": {
+      "statement": "A Zscaler Incident Receiver is another optional destination, for content that triggers an outbound email policy rule, over the same secure ICAP, and it too does not send ICAP responses back.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.md",
+          "quotes": [
+            "Zscaler does not take ICAP responses from your Incident Receiver; instead,"
+          ]
+        }
+      ]
+    },
+    "cloud-to-cloud": {
+      "statement": "Cloud-to-Cloud Incident Forwarding sends metadata and evidence about violating transactions directly to the customer's public cloud storage without appliances. It is selected on the rule by tenant and forwarding configuration.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#receiver"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.md",
+          "quotes": [
+            "Configure Cloud-to-Cloud Incident Forwarding to send metadata and evidence about transactions that violate a DLP policy rule directly to your public cloud storage without deploying appliances.",
+            "Choose a Tenant and a Cloud-to-Cloud Incident Forwarding Configuration from their respective drop-down menus."
+          ]
+        }
+      ]
+    },
+    "c2c-api": {
+      "statement": "Cloud-to-Cloud forwarding is a configurable API surface of its own (`/cloudToCloudIR`, with a lite list, a count and a validate-delete check), not only a back-end pipe.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/cloud_to_cloud_ir.py",
+          "quotes": [
+            "/cloudToCloudIR/count",
+            "/cloudToCloudIR/config/{receiver_id}/validateDelete",
+            "/cloudToCloudIR/lite"
+          ]
+        }
+      ]
+    },
+    "supporting-objects-endpoints": {
+      "statement": "The objects a rule points at have their own endpoints: ICAP servers (`/icapServers`), Incident Receiver servers (`/incidentReceiverServers`), notification templates (`/dlpNotificationTemplates`), IDM profiles (`/idmprofile`) and EDM schemas (`/dlpExactDataMatchSchemas`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_icap_servers/dlp_icap_server.go",
+          "quotes": [
+            "dlpIcapServersEndpoint = \"/zia/api/v1/icapServers\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_incident_receiver_servers/dlp_incident_receiver_servers.go",
+          "quotes": [
+            "dlpIncidentReceiverEndpoint = \"/zia/api/v1/incidentReceiverServers\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_notification_templates/dlp_notification_templates.go",
+          "quotes": [
+            "dlpNotificationTemplatesEndpoint = \"/zia/api/v1/dlpNotificationTemplates\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_idm_profiles/dlp_idm_profiles.go",
+          "quotes": [
+            "dlpIDMProfileEndpoint = \"/zia/api/v1/idmprofile\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/dlp/dlp_exact_data_match/dlp_exact_data_match.go",
+          "quotes": [
+            "dlpEDMSchemaEndpoint = \"/zia/api/v1/dlpExactDataMatchSchemas\""
+          ]
+        }
+      ]
+    },
+    "notification-needs-both": {
+      "statement": "Email notification needs both an auditor and a notification template on the rule; with either missing no notification is sent. Templates are configured separately beforehand.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#auditor",
+        "zia/dlp-web-rules#notificationTemplate"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.md",
+          "quotes": [
+            "if you do not select an auditor and Notification Template, a notification is not sent for this rule",
+            "Configure DLP notification templates if you want to email notifications to your organization's auditor when your users' transactions violate DLP policy rules."
+          ]
+        }
+      ],
+      "gaps": [
+        "one-of-auditor-template"
+      ]
+    },
+    "end-user-notification": {
+      "statement": "In default mode, a rule can enable an end user notification (EUN) on the endpoint when content triggers it, with a default or custom message, and EUN is supported only with Block actions. The Evaluate All Rules article describes the same setting as a Show/Hide choice whose message type depends on the rule's action.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-web-rules#eunTemplateId"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.md",
+          "quotes": [
+            "EUN is supported only with Block actions and requires Advanced DLP rule.",
+            "You can select from default and custom notification messages to display for users."
+          ]
+        }
+      ],
+      "conditions": "Corrected on recapture (2026-10-18): previously \"A rule can show or hide an end user notification message on the endpoint when content triggers it, using the default inline-web-DLP message or a custom one; the message type depends on the rule's action.\""
+    },
+    "zwa-captures-incidents": {
+      "statement": "Workflow Automation integrates with ZIA to capture the Data Protection incidents generated from the DLP policies defined in ZIA, and its Incidents page covers Inline, Endpoint, Email and SaaS Security DLP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-workflow-automation.md",
+          "quotes": [
+            "Workflow Automation integrates with Internet & SaaS (ZIA) to capture the Data Protection incidents generated from the DLP policies defined in Internet & SaaS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zwa-managing-incidents.md",
+          "quotes": [
+            "(Inline DLP, Endpoint DLP, Email DLP, and SaaS Security DLP)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "one-of-auditor-template": {
+      "kind": "semantic",
+      "title": "Whether an auditor without a template (or the reverse) sends nothing",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying a half-configured notification fails silently",
+      "detail": "The help sentence says a notification is not sent if no auditor and notification template are selected; it does not say which single missing element suppresses it."
+    },
+    "zwa-ingest-path": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: ZWA ingests its incidents through Cloud-to-Cloud Incident Forwarding",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "stating that ZWA sees no incidents unless Cloud-to-Cloud forwarding is configured",
+      "detail": "Unverified legacy statement: \"This is where ZWA ingests its incidents ... ZWA reads from the C2C incident stream\" and \"If C2C isn't configured, ZWA never sees incidents even if DLP is firing.\" No registered source names the ingest path; the captured ZWA pages say only that it integrates with ZIA to capture the incidents."
+    }
+  }
+}

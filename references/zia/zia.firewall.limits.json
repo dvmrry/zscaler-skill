@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.limits",
+  "title": "Firewall rule, criteria and group limits",
+  "aliases": [
+    "firewall rule limit",
+    "10 rules standard firewall",
+    "1021 rules",
+    "users per rule 32",
+    "fqdn per group 100",
+    "custom ips signature limit",
+    "terraform firewall maxitems"
+  ],
+  "binds": [
+    "zia/firewall-filtering-rules",
+    "zia/nat-control-rules",
+    "zia/ips-policies",
+    "zia/ips-signature-rules"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.licensing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.destination-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-services"
+    }
+  ],
+  "claims": {
+    "filtering-rule-cap": {
+      "statement": "Firewall Filtering is capped at 1,021 rules with Advanced Firewall and 10 on the standard tier. The row is labeled 'including DNAT' and notes up to 4,000 with strict criteria.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Firewall Filtering Policy Rules (including DNAT) per Organization | 1,021 rules, if subscribed to Advanced Firewall. Only 10 rules are supported for Standard Firewall."
+          ]
+        }
+      ]
+    },
+    "nat-and-ips-rule-caps": {
+      "statement": "NAT Control is capped at 1,023 rules, and IPS rules share the 1,024-rule bucket for DLP, IPS and other policies, which rises to 2,048 through support.",
+      "tier": "A",
+      "binds": [
+        "zia/nat-control-rules",
+        "zia/ips-policies"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| NAT Control Policy Rules per Organization | 1,023 rules |",
+            "| All Other Policy Rules (i.e., DLP Policy, Inline Web DLP Policy, IPS Control Policy, etc.) | 1,024 rules |"
+          ]
+        }
+      ]
+    },
+    "per-rule-identity-caps": {
+      "statement": "Per rule, on any policy: up to 32 users, 32 groups, 32 departments, 32 locations, 32 location groups, 8 times, 64 devices, 8 device groups and 8 workload groups.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#users",
+        "zia/firewall-filtering-rules#groups",
+        "zia/firewall-filtering-rules#departments",
+        "zia/firewall-filtering-rules#locations",
+        "zia/firewall-filtering-rules#locationGroups",
+        "zia/firewall-filtering-rules#timeWindows",
+        "zia/firewall-filtering-rules#devices",
+        "zia/firewall-filtering-rules#deviceGroups",
+        "zia/firewall-filtering-rules#workloadGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Users per Rule | 32",
+            "| Groups per Rule | 32 groups |",
+            "Departments per Rule | 32",
+            "Locations per Rule | 32",
+            "Location Groups per Rule | 32",
+            "Times per Rule | 8",
+            "Devices per Rule | 64",
+            "Device Groups per Rule | 8",
+            "Workload Groups per Rule | 8"
+          ]
+        }
+      ]
+    },
+    "per-rule-address-caps": {
+      "statement": "Per rule: up to 1,000 source IP or destination groups, 1,000 service groups or application groups, 8,000 source IP entries, 8,000 destination IP entries and FQDNs, and 5,000 destination FQDNs.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#srcIpGroups",
+        "zia/firewall-filtering-rules#destIpGroups",
+        "zia/firewall-filtering-rules#nwServiceGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Source IP/Destination Groups per Rule | 1,000",
+            "Service Groups/Application Groups per Rule | 1,000",
+            "| Source IP Groups IP Address Entries per Rule | 8,000 IP address entries |",
+            "| Destination Groups IP Address Entries and FQDNS per Rule | 8,000 IP address entries |",
+            "Destination Groups FQDNs per Rule | 5,000"
+          ]
+        }
+      ]
+    },
+    "dest-group-org-caps": {
+      "statement": "Per organization, destination groups can hold up to 5,000 FQDNs, or 16,000 with Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Destination Groups FQDNs per Organization | 5,000 address entries16K address entries with Advanced Firewall |"
+          ]
+        }
+      ]
+    },
+    "custom-ips-caps": {
+      "statement": "An organization can have up to 500 custom IPS signature rules and 64 custom IPS threat categories.",
+      "tier": "A",
+      "binds": [
+        "zia/ips-signature-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "Custom IPS Signature Rules | 500",
+            "Custom IPS Threat Categories | 64"
+          ]
+        }
+      ]
+    },
+    "provider-caps": {
+      "statement": "The Terraform provider caps `time_windows` at 2, `labels` at 1, `nw_services` at 1,024 and `workload_groups` at 255 on a firewall filtering rule, and declares no cap on users, groups, departments, locations, location groups, source and destination IP groups, network service groups or application groups.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#timeWindows",
+        "zia/firewall-filtering-rules#labels",
+        "zia/firewall-filtering-rules#nwServices",
+        "zia/firewall-filtering-rules#workloadGroups"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "\"time_windows\": setIDsSchemaTypeCustom(intPtr(2),",
+            "\"labels\": setIDsSchemaTypeCustom(intPtr(1),",
+            "\"nw_services\": setIDsSchemaTypeCustom(intPtr(1024),",
+            "\"workload_groups\": setIdNameSchemaCustom(255,",
+            "\"users\": setIDsSchemaTypeCustom(nil,",
+            "\"locations\": setIDsSchemaTypeCustom(nil,",
+            "\"src_ip_groups\": setIDsSchemaTypeCustom(nil,",
+            "\"dest_ip_groups\": setIDsSchemaTypeCustom(nil,",
+            "\"nw_service_groups\": setIDsSchemaTypeCustom(nil,",
+            "\"nw_application_groups\": setIDsSchemaTypeCustom(nil,"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "time-window-cap": {
+      "summary": "The product allows 8 times per rule; the Terraform provider schema allows 2 on a firewall filtering rule.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "| Times per Rule | 8 times |"
+            ]
+          },
+          "says": "Up to 8 times per rule."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_firewall_filtering_rules.go",
+            "quotes": [
+              "\"time_windows\": setIDsSchemaTypeCustom(intPtr(2),"
+            ]
+          },
+          "says": "At most 2 time_windows."
+        }
+      ],
+      "impact": "A rule with 3 to 8 time intervals is valid in the product but cannot be expressed through this resource."
+    },
+    "workload-group-cap": {
+      "summary": "The product allows 8 workload groups per rule; the Terraform provider schema allows 255.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.md",
+            "quotes": [
+              "| Workload Groups per Rule | 8 workload groups |"
+            ]
+          },
+          "says": "Up to 8 workload groups per rule."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "zia/resource_zia_firewall_filtering_rules.go",
+            "quotes": [
+              "\"workload_groups\": setIdNameSchemaCustom(255,"
+            ]
+          },
+          "says": "Schema allows 255."
+        }
+      ],
+      "impact": "The provider will not reject a plan with more than 8 workload groups, so the failure, if any, would come from the API; no source shows the response."
+    }
+  },
+  "gaps": {
+    "strict-criteria-4000": {
+      "kind": "semantic",
+      "title": "What 'strict criteria' means for the 4,000 Firewall Filtering rule ceiling",
+      "status": "open",
+      "detail": "The limits row says Firewall Filtering allows 1,021 rules, and the note says 'An increased limit of 4,000 rules is available' subject to 'strict criteria requirements'. The criteria are not defined.",
+      "blocks": "capacity answers above 1,021 rules",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "about": [
+        "zia/firewall-filtering-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "An increased limit of 4,000 rules is available"
+          ]
+        }
+      ]
+    }
+  }
+}

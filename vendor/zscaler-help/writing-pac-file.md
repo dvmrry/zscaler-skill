@@ -1,36 +1,202 @@
 # Writing a PAC File
 
 **Source:** https://help.zscaler.com/zia/writing-pac-file
-**Captured:** 2026-04-24 via Playwright MCP.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1399396, revision 3243746
 
 ---
 
-Copy and paste any one of the 4 default PAC files — **recommended.pac**, **proxy.pac**, **mobile_proxy.pac**, **kerberos.pac** — from the ZIA Admin Portal based on your requirements. Customize them as necessary. Build your PAC file one element at a time; save the file and test it after each addition.
-
-## Prerequisites
-
-Before you begin, review *Best Practices for Writing PAC Files*.
-
-By default, each PAC file that you upload to the Zscaler service can be up to **256 KB** in size. Contact Zscaler Support to increase the PAC file size limit to a maximum of **2 MB**.
-
-## PAC File Components
-
+This article describes how to write a new PAC file.
+- Copy and paste any 1 of the 4 default PAC files, recommended.pac, proxy.pac, mobile_proxy.pac, or kerberos.pac from the Zscaler Admin Console based on your requirements. You can customize these default PAC files as necessary.
+- See image.
+- Build your PAC file one element at a time.
+- Save the file and test it after each addition.
+# Prerequisites
+Before you begin, ensure that you review Best Practices for Writing PAC Files.
+By default, each PAC file that you upload to the Zscaler service can be up to 256 KB in size. Contact Zscaler Support to increase the PAC file size limit to a maximum of 2 MB.
+# PAC File Components
+Be aware of the following components of a PAC file while writing it:
 - FindProxyForURL Function
+- A PAC file must start with the opening function FindProxyForURL(url, host) on the first line. This function identifies which URLs, hostnames, or IP addresses are redirected to a proxy. The URL variable must contain the full URL of a destination (e.g., http://www.zscaler.com), and the host variable must contain a domain name or its IP address (e.g., zscaler.com or 72.249.144.174). Generally speaking, the host variable is preferable to the URL variable. If no URL or host is specified, all web requests use the return argument.
 - Return Statements
+- Enter a return statement in curly brackets after each argument. The return statement directs requests to a proxy or the specified destination. For example:
+- function FindProxyForURL(url, host) { return "PROXY ${GATEWAY}:9400"; return "DIRECT"; }
+- A return statement accepts one of two values:
+  - DIRECT tells the browser to bypass the proxy and go directly to the destination server.
+  - PROXY tells the browser to send the request to a proxy.
+- The DIRECT or PROXY values must be in uppercase characters and enclosed in quotation marks. Add a semicolon immediately after the closing quotation marks. For example:
+- return "DIRECT"; return "PROXY ${GATEWAY}:9400";
+- Each PROXY statement must specify the fully qualified hostname or the IP address of the proxy and the port. IP addresses are generally discouraged because they can change at any time. Zscaler recommends that you use the variables ${GATEWAY} and ${SECONDARY_GATEWAY} instead. If your organization uses a subcloud, use the variables ${GATEWAY.<Subcloud>.<Zscaler cloud>.net} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net}.
+- The Zscaler service uses its geolocation technology to automatically find the Public Service Edge for Internet & SaaS (ZIA) that is closest to you and with the quickest response time. Naming a primary and secondary gateway provides failover when one of the Public Service Edges is unavailable for any reason.
+- Public Service Edges accept web requests on ports 80, 443, 9400, 9443, and 9480.
+  - Port 80 is the standard port used by almost all web servers.
+  - Port 443 is the standard port used for encrypted (HTTPS) traffic. Port 9400 can be used instead if another host between the end user and Public Service Edge attempts to redirect the user’s traffic before it can reach the Public Service Edge.
+  - Ensure to allow port 9400 for outbound traffic destined for Public Service Edge from the user's end before adding the proxy entry to the PAC file. If port 9400 is blocked at the user's end for outbound traffic, do not add the proxy entry for the port to the PAC file. This ensures that there is no latency due to the browser's multiple attempts to connect to the blocked port until it fails over to a reachable port.
+  - Port 9443 can be used for remote users who need the service to proxy and inspect HTTPS transactions.
+  - Port 9480 can be used to exempt authentication for traffic that is destined for Public Service Edges from a known location. Remote users can use this port to forward traffic to Zscaler. However, they are forced to authenticate because Zscaler does not accept unauthenticated traffic from unregistered IP addresses or unknown locations.
+- Write the opening function FindProxyForURL(url,host) { } followed by a return statement on the next line. For example:
+- function FindProxyForURL(url, host) { return "PROXY ${GATEWAY}:9400"; return "DIRECT"; }
+- Save the text file and test it. Verify that the PAC file sends your browser to the Zscaler service with no other arguments, IF statements, or other elements. Confirm by going to ip.zscaler.com, which indicates if you reached the web server directly or through a Public Service Edge.
 - Arguments
+- You can add various arguments that identify which internal or external hosts must be proxied to. Add one nested argument at a time, and then test and confirm that the PAC file works properly after each addition.
+- The following is a sample PAC file that contains arguments, each of which is preceded by a comment.
+- function FindProxyForURL(url, host) { // //Exclude FTP from proxy // if (url.substring(0, 4) == "ftp:") { return "DIRECT"; } // //Bypass proxy for internal hosts // if (isInNet(host, "0.0.0.0", "255.0.0.0")|| isInNet(host, "10.0.0.0", "255.0.0.0") || isInNet(host, "127.0.0.0", "255.0.0.0") || isInNet(host, "169.254.0.0", "255.255.0.0") || isInNet(host, "172.16.0.0", "255.240.0.0") || isInNet(host, "192.0.2.0", "255.255.255.0")|| isInNet(host, "64.206.157.136", "255.255.255.255")) { return "DIRECT"; } // //Bypass proxy for this server // if (dnsDomainIs(host, "mail.domain.com")) { return "DIRECT"; } return "PROXY ${GATEWAY}:9400; PROXY ${SECONDARY_GATEWAY}:9400; DIRECT"; }
+- For the arguments in the preceding sample PAC file, specify the following:
+  - Excluding FTP Traffic
+  - The following lines exclude FTP traffic from being redirected to the proxy (since the service does not support native FTP):
+  - // //Exclude FTP from proxy // if (url.substring(0, 4) == "ftp:") { return "DIRECT"; }
+  - The argument begins with a simple IF statement using the built-in function called url.substring. IF arguments are always followed by opening and closing parentheses—they describe the conditions under which the argument must be evaluated and for which a result is required. In the example, the argument specifies that if the URL contains the string ftp: in the first four characters of the URL (from 0 to 4), return DIRECT—bypass the proxy named in the following line.
+  - The argument’s result must be enclosed within its own set of open and closed curly brackets.
+  - Save this change to the PAC file and upload it to the Zscaler Admin Console. Reload the PAC file in your browser and go to an FTP download site such as ftp://ftp.hp.com/. After loading this page, log in to the specific Insights log (for example, Web Insights) to determine if this transaction was logged. The transaction should not appear in the logs.
+  - Excluding Requests for Internal Hosts
+  - The following lines in the PAC file example exclude requests for internal hosts from being redirected to a proxy:
+  - // //Do not send traffic to the following network to Zscaler // if (isInNet(host), "192.168.0.0", "255.255.0.0") { return "DIRECT"; }
+  - This argument uses the JavaScript function IsInNet(), which is typically used to identify either of the following:
+    - Client IP address (if the request comes from this IP address, use this proxy). Be aware that this argument returns the first IP address on your device, based on its OS. The first IP address, shown when you use the ipconfig command, might be the IPv6 address of the device or the IP address of virtual adapters and this can cause conflicts.
+    - Host server IP address (if the request is going to this address, use this proxy). Be aware that this argument results in a DNS lookup. It can impact performance if the DNS server is not available. Instead, you can use the following to constrain the IsInNet() function based on the host domains being accessed:
+  - if dnsDomainIs(host, "internal.net") { if (isInNet(host, "10.0.0.0”, "255.0.0.0")) Return "DIRECT"; }
+  - Save the PAC file and test again. Browse to an internal host and ensure that you can reach it. If you were proxied through a Public Service Edge, your request would be denied. The request first goes outside your network to the Zscaler proxy but is then blocked as it tries to access an internal host as it comes back in from outside the network.
+  - Excluding Internal Networks
+  - The following lines in the PAC file example exclude requests for multiple internal hosts from being redirected to a proxy:
+  - // //Bypass proxy for internal hosts // if(isInNet(host, "0.0.0.0", "255.0.0.0")|| isInNet(host, "10.0.0.0", "255.0.0.0") || isInNet(host, "127.0.0.0", "255.0.0.0") || isInNet(host, "169.254.0.0", "255.255.0.0") || isInNet(host, "172.16.0.0", "255.240.0.0") || isInNet(host, "192.0.2.0", "255.255.255.0")|| isInNet(host, "64.206.157.136", "255.255.255.255")) { return "DIRECT"; }
+  - As shown in the example, before closing the IF argument with a final parenthesis, the Boolean or (||) operator is used to concatenate the internal networks. The last isInNet statement does not require the Boolean or (||) operator. Instead, it uses an additional parenthesis to close the opening parenthesis.
+  - The last statement is a specific IP address, not a network. To bypass specific hosts, enter the exact IP address with a subnet mask of 255.255.255.255.
+  - The use of isInNet() is extremely effective when the host you are trying to reach is an actual IP address. If you try to reach a host by a domain name, such as https://zscaler.com, your browser must perform a DNS lookup for it. If the hostname is not resolvable, the client needs to wait for DNS to time out before moving on. To avoid this and to avoid placing an undue strain on the name server, insert a variable that uses a regular expression immediately preceding the isInNet() argument to restrict the result just to IP addresses.
+  - Therefore, instead of entering:
+  - if (isInNet(host, "0.0.0.0", "255.0.0.0")|| isInNet(host, "10.0.0.0", "255.0.0.0") || isInNet(host, "127.0.0.0", "255.0.0.0") || ...) { return "DIRECT"; }
+  - Enter this:
+  - reip = /^\d+\.\d+\.\d+\.\d+$/g; if (reip.test(host)) { if (isInNet(host, "0.0.0.0", "255.0.0.0")|| isInNet(host, "10.0.0.0", "255.0.0.0") || isInNet(host, "127.0.0.0", "255.0.0.0") || ...) { return "DIRECT"; } }
+  - Here, the variable reip = /^\d+\.\d+\.\d+\.\d+$/g; is used in the argument if(reip.test(host)), and the result is only used if the host is an IP address in one of the networks specified in the nested IF argument.
+  - This can only be used for URLs that include IP addresses, such as http://192.0.2.3/example.
+  - In some versions of Internet Explorer, the use of the preceding variable might not work. An alternative to this is to use the JavaScript shell expression match function:
+  - if (shExpMatch(host, "/^\d+\.\d+\.\d+\.\d+$/g")) { if (isInNet(host, "10.0.0.0", "255.0.0.0") || isInNet(host, "192.168.0.0", "255.255.0.0")) { return "DIRECT"; } }
+  - Save this change, reload the PAC file in your browser, and then try browsing to an internal web server in the internal network. If you can reach the server, you have bypassed the Public Service Edge.
+  - Excluding Servers
+  - The following lines in the PAC file example exclude e specific servers, such as mail.domain.com, from being redirected to a proxy. In the example, a separate if isInNet() argument lists internal hostnames:
+  - //Bypass proxy for this server // if (dnsDomainIs(host, "mail.domain.com")) { return "DIRECT"; } //To bypass all hosts in a domain, use dnsDomainIs(host, "host.com") You can also use the following to bypass specific internal hosts: var bypassHosts = /(remote\.mydomain\.com|mail\.mydomain\.com)/; if (bypassHosts.test(host)) { return "DIRECT"; }
+  - The preceding argument includes a variable that contains two hosts: remote.mydomain.com and mail.mydomain.com. Using the JavaScript test (host) function, any host you enter here returns DIRECT and does not require a DNS lookup. var is the JavaScript function to set a variable. bypassHosts is a JavaScript function. You must use this specific name or function. Forward slashes mark the beginning and ending boundaries of the variable. Open and close parentheses in the variable match the parentheses in the argument (test(host)). The periods in the hostnames must be “escaped” with a backslash. The variable itself requires a semicolon to close the variable argument.
 - Zscaler-Specific Variables
-- Manual Failover to Secondary Data Center
-
-## Manual Failover to Secondary Data Center
-
-When the primary data center is down, the failover to the secondary data center is automatic. However, if the primary data center is unavailable for other reasons (ISP issues, latency, etc.), modify the PAC file syntax as follows to manually fail over to the secondary data center:
-
-```javascript
+- The following are the different Zscaler-specific variables you can use in your PAC file argument:
+  - Gateway Variable
+  - You can use the ${GATEWAY} and ${SECONDARY_GATEWAY} variables to determine the Public Service Edge closest to the client. For example:
+  - return "PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80; DIRECT";
+  - The Zscaler service uses its geolocation technology to find the closest Public Service Edge with the quickest response time. These variables provide the optimal user experience.
+  - If your organization uses a subcloud, use the variables ${GATEWAY.<Subcloud>.<Zscaler cloud>.net} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net}. For example:
+  - return "PROXY ${GATEWAY.<Subcloud>.<Zscaler cloud>.net}:80; PROXY ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net}:80; DIRECT";
+  - If your organization has many users behind a single egress IP address, you can configure the PAC file to choose from multiple gateway IP addresses to distribute the load. To do this, use the following variables:
+    - The load-balancing PAC variables are designed for non-tunnel traffic. You do not require these variables for load-balancing your tunnel (GRE/IPSec) traffic.
+    - Regional surcharge data centers are not included in the gateway variable.
+    - Gateway Index Tokens
+    - Zscaler recommends this method if you want the users to be distributed across multiple gateway IP addresses in a data center for load-balancing purposes.
+    - Add the suffixes _F0 through _F7 to the ${GATEWAY} variable in the PAC file for the PAC server to return the healthy gateway IP addresses through the 8 variables. For example, the ${GATEWAY_F0} variable corresponds to the first healthy IP address that is available, the ${GATEWAY_F1} variable corresponds to the second healthy IP address, and so on.
+    - Use the following syntax to include the ${GATEWAY_F0} variable in your PAC file:
+    - return "PROXY ${GATEWAY_F0}:80; PROXY ${SECONDARY_GATEWAY_F0}:80; DIRECT";
+    - If the data center has fewer than 8 healthy gateway IP addresses, then the PAC server allocates the available healthy VIP addresses to all 8 variables in a round-robin fashion.
+    - If your organization uses a subcloud, you can use the gateway index tokens (_F0 through _F7 suffix) with the subcloud variables. For example, ${GATEWAY.<Subcloud>.<Zscaler cloud>.net_F1} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_F1}.
+    - Dynamic Gateway Tokens
+    - Use the suffix _FX to the ${GATEWAY} variable in the PAC file for the PAC server to dynamically issue gateway IP addresses based on the client fingerprints (all users coming from a single egress IP address are given an IP address from a pool of healthy gateway IP addresses). The fingerprint is used to ensure that a single device continues its session to the same gateway IP address.
+    - Use the following syntax to include the ${GATEWAY_FX}variable in your PAC file:
+    - return "PROXY ${GATEWAY_FX}:80; PROXY ${SECONDARY_GATEWAY_FX}:80; DIRECT";
+    - You can also use the _FX suffix with the subcloud variables. For example, ${GATEWAY.<Subcloud>.<Zscaler cloud>.net_FX} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_FX}.
+    - The _FX suffix provides load balancing across multiple VIP addresses depending on the HTTP headers (useragent, x-forwarded-for, and z-client). This variable is effective only for Zscaler Client Connector clients because the z-client ID is different for each user. To implement load balancing for non-Zscaler Client Connector clients, you can use the Gateway Index Tokens. To learn more, see Load Balancing for PAC Forwarded Traffic.
+  - Gateway Host Variable
+  - You can use the ${Gateway_Host} variable to resolve to a hostname instead of an IP address. For Kerberos authentication and IPv6 traffic, this is a mandatory configuration.
+  - Zscaler mandates using this variable and resolving your hostname to forward IPv6 traffic to Internet & SaaS. You must also ensure that IPv6 support is enabled for your organization and locations in the Zscaler Admin Console.
+  - Use the following syntax to include the ${GATEWAY_HOST} variable in your PAC file:
+  - return "PROXY ${GATEWAY_HOST}:80; PROXY ${SECONDARY_GATEWAY_HOST}:80; DIRECT";
+  - If your organization uses a subcloud, use the variables ${GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST}. For example:
+  - return "PROXY ${GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST}:80; PROXY ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST}:80; DIRECT";
+  - If your organization has many users behind a single-egress IP address, you can configure the PAC file to choose from multiple gateway hosts to distribute the load. To do this, use the following variables:
+  - The load-balancing PAC variables are designed for non-tunnel traffic. You do not require these variables for load-balancing your tunnel (GRE/IPSec) traffic.
+    - Gateway Host Index Tokens
+    - Zscaler recommends this method if you want the users to be distributed across multiple gateway hosts in a data center for load-balancing purposes.
+    - Add the suffixes _F0 through _F7 to the ${GATEWAY_HOST} variable in the PAC file for the PAC server to return the healthy gateway host through the 8 variables. For example, ${GATEWAY_HOST_F0} corresponds to the first healthy host that is available, ${GATEWAY_HOST_F1} corresponds to the second healthy host, and so on.
+    - Use the following syntax to include the ${GATEWAY_HOST_F0} variable in your PAC file:
+    - return "PROXY ${GATEWAY_HOST_F0}:80; PROXY ${SECONDARY_GATEWAY_HOST_F0}:80; DIRECT";
+    - If the data center has fewer than 8 healthy gateways, then the PAC server allocates the available healthy gateway hosts to all 8 variables in a round-robin fashion.
+    - If your organization uses a subcloud, you can use the gateway host index tokens (_F0 through _F7 suffix) with the subcloud variables. For example, ${GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_F1} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_F1}.
+    - Dynamic Gateway Host Tokens
+    - Use the suffix _FX to the ${GATEWAY_HOST} variable in the PAC file for the PAC server to dynamically issue gateway hosts based on the client fingerprint (all users coming from a single egress IP address are given an IP address from a pool of healthy gateway IP addresses). The fingerprint is used to ensure that a single device continues its session on the same gateway host.
+    - Use the following syntax to include the ${GATEWAY_HOST_FX} variable in your PAC file:
+    - return "PROXY ${GATEWAY_HOST_FX}:80; PROXY ${SECONDARY_GATEWAY_HOST_FX}:80; DIRECT";
+    - You can also use the _FX suffix with the subcloud variables. For example, ${GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_FX} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_FX}.
+    - The _FX suffix provides load balancing for multiple gateway hosts depending on the HTTP headers (useragent, x-forwarded-for, and z-client). This variable is effective only for Zscaler Client Connector clients because the z-client ID is different for each user. To implement load balancing for non-Zscaler Client Connector clients, you can use the Gateway Host Index Tokens. To learn more, see Load Balancing for PAC Forwarded Traffic.
+  - Source IP Variable
+  - You can use the ${SRCIP} variable to determine the client's public IP address. For example:
+  - var egressip = "${SRCIP}"; if (shExpMatch(egressip,"203.0.113.10")) { /* User is in the office */ return "PROXY 10.84.0.188:80;DIRECT"; }
+  - Country Variable
+  - You can use the ${COUNTRY} variable to determine the client's country as shown in the following sample:
+  - var country = "${COUNTRY}"; if (shExpMatch(country,"Canada")) { /* User is in Canada */ return "PROXY ${COUNTRY_GATEWAY}:80;DIRECT"; }
+  - The ${COUNTRY} variable supports the countries listed on GeoNames. Your IP addresses might not fall into those categories.
+  - You can also set exceptions for specific URLs when accessed from a specific country using the ${COUNTRY} variable as shown in the following sample:
+  - var country = "${COUNTRY}"; if (shExpMatch(country,"Canada") && ((dnsDomainIs(host,"*.oracleindustry.com")) || (dnsDomainIs(host,"cegbuger-p6.oracleindustry.com")))) { return "PROXY ${COUNTRY_GATEWAY}:80;DIRECT"; }
+  - Country Gateway Variable
+  - You can use the ${COUNTRY_GATEWAY} and ${COUNTRY_SECONDARY_GATEWAY} variables to determine the closest Public Service Edge in the client's country. For example:
+  - return "PROXY ${COUNTRY_GATEWAY}:80; PROXY ${COUNTRY_SECONDARY_GATEWAY}:80";
+  - When there is no Public Service Edge configured in your country, the ${COUNTRY_GATEWAY} variable behaves just like the ${GATEWAY} variable.
+  - If your organization uses a subcloud, use the variables ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net} and ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net}. For example:
+  - return "PROXY ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net}:80; PROXY ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net}:80; DIRECT";
+  - This prevents clients that are near multiple Public Service Edges or in countries that are close to one another from having their traffic forwarded to the wrong Public Service Edges.
+  - If your organization has many users behind a single egress IP address, you can configure the PAC file to choose from multiple gateway IP addresses within a country to distribute the load. To do this, use the following variables:
+  - The load-balancing PAC variables are designed for non-tunnel traffic. You do not require these variables for load-balancing your tunnel (GRE/IPSec) traffic.
+    - Country Gateway Index Tokens
+    - Zscaler recommends this method if you want the users to be distributed across multiple gateway IP addresses in a data center for load-balancing purposes.
+    - Add the suffixes _F0 through _F7 to the ${COUNTRY_GATEWAY} variable in the PAC file for the PAC server to return the healthy gateway IP addresses within the country through the 8 variables. For example, the ${COUNTRY_GATEWAY_F0} variable corresponds to the first healthy IP address available, the ${COUNTRY_GATEWAY_F1} variable corresponds to the second healthy IP address, and so on.
+    - Use the following syntax to include the ${COUNTRY_GATEWAY_F0} variable in your PAC file:
+    - return "PROXY ${COUNTRY_GATEWAY_F0}:80; PROXY ${COUNTRY_SECONDARY_GATEWAY_F0}:80; DIRECT";
+    - If the data center has fewer than 8 healthy gateways, then the PAC server allocates the available healthy gateway IP addresses to all 8 variables in a round-robin fashion.
+    - If your organization uses a subcloud, you can use the country gateway host index tokens (_F0 through _F7 suffix) with the subcloud variables. For example, ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net_F1} and ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_F1}.
+    - Dynamic Country Gateway Tokens
+    - Use the suffix _FX to the ${COUNTRY_GATEWAY} variable in the PAC file for the PAC server to dynamically issue the gateway IP addresses within a country based on the client fingerprints (all users coming from a single egress IP address are given an IP address from a pool of healthy gateway IP addresses). The fingerprint is used to ensure that a single device continues its session to the same gateway IP address.
+    - Use the following syntax to include the ${COUNTRY_GATEWAY_FX}variable in your PAC file:
+    - return "PROXY ${COUNTRY_GATEWAY_FX}:80; PROXY ${COUNTRY_SECONDARY_GATEWAY_FX}:80; DIRECT";
+    - You can also use the _FX suffix with the subcloud variables. For example, ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net_FX} and ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_FX}.
+    - The _FX suffix provides load balancing for multiple gateway IP addresses depending on the HTTP headers (useragent, x-forwarded-for, and z-client). This variable is effective only for Zscaler Client Connector clients because the z-client ID is different for each user. To implement load balancing for non-Zscaler Client Connector clients, you can use the Country Gateway Index Tokens. To learn more, see Load Balancing for PAC Forwarded Traffic.
+  - Country Gateway Host Variable
+  - You can use the ${COUNTRY_GATEWAY_HOST} variable to determine the closest Public Service Edge in the client's country using the hostname instead of an IP address.
+  - Zscaler recommends this setting only for Kerberos authentication.
+  - Use the following syntax to include the ${COUNTRY_GATEWAY_HOST} variable in your PAC file:
+  - return "PROXY ${COUNTRY_GATEWAY_HOST}:80; PROXY ${COUNTRY_SECONDARY_GATEWAY_HOST}:80; DIRECT";
+  - When there is no Public Service Edge configured in your country, the ${COUNTRY_GATEWAY_HOST} variable behaves just like the ${GATEWAY_HOST} variable.
+  - If your organization uses a subcloud, use the variables ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST} and ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST}. For example:
+  - return "PROXY ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST}:80; PROXY ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST}:80; DIRECT";
+  - If your organization has many users behind a single-egress IP address, you can configure the PAC file to choose from multiple gateway hosts within a country to distribute the load. To do this, use the following variables:
+  - The load-balancing PAC variables are designed for non-tunnel traffic. You do not require these variables for load-balancing your tunnel (GRE/IPSec) traffic.
+    - Country Gateway Host Index Tokens
+    - Zscaler recommends this method if you want the users to be distributed across multiple gateway hosts in a data center for load-balancing purposes.
+    - Add the suffixes_F0 through _F7 to the ${COUNTRY_GATEWAY_HOST} variable in the PAC file for the PAC server to return the healthy gateway hosts within the country through the 8 variables. For example, the ${COUNTRY_GATEWAY_HOST_F0} variable corresponds to the first healthy host that is available, the ${COUNTRY_GATEWAY_HOST_F1} variable corresponds to the second healthy host, and so on.
+    - Use the following syntax to include the ${COUNTRY_GATEWAY_HOST_F0} variable in your PAC file:
+    - return "PROXY ${COUNTRY_GATEWAY_HOST_F0}:80; PROXY ${COUNTRY_SECONDARY_GATEWAY_HOST_F0}:80; DIRECT";
+    - If the data center has fewer than 8 healthy gateways, then the PAC server allocates the available healthy gateway hosts to all 8 variables in a round-robin fashion.
+    - If your organization uses a subcloud, you can use the country gateway host index tokens (_F0 through _F7 suffix) with the subcloud variables. For example, ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_F1} and ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_F1}.
+    - Dynamic Country Gateway Host Tokens
+    - Use the suffix _FX to the ${COUNTRY_GATEWAY_HOST} variable in the PAC file for the PAC server to dynamically issue the gateway hosts within a country based on the client fingerprints, i.e., all users from a single egress IP address are given a gateway host from a pool of healthy gateway hosts. The fingerprint is used to ensure that a single device continues its session on the same gateway host.
+    - Use the following syntax to include the ${COUNTRY_GATEWAY_HOST_FX} variable in your PAC file:
+    - return "PROXY ${COUNTRY_GATEWAY_HOST_FX}:80; PROXY ${COUNTRY_SECONDARY_GATEWAY_HOST_FX}:80; DIRECT";
+    - You can also use the _FX suffix with the subcloud variables. For example, ${COUNTRY_GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_FX} and ${COUNTRY_SECONDARY.GATEWAY.<Subcloud>.<Zscaler cloud>.net_HOST_FX}.
+    - The _FX suffix provides load balancing for multiple gateway hosts depending on the HTTP headers (useragent, x-forwarded-for, and z-client). This variable is effective only for Zscaler Client Connector clients because the z-client ID is different for each user. To implement load balancing for non-Zscaler Client Connector clients, you can use the Country Gateway Host Index Tokens. To learn more, see Load Balancing for PAC Forwarded Traffic.
+  - Custom Port Variable
+  - To use this variable, enable the Use Preferred Port from PAC for Z-Tunnel 1.0 or the Use Preferred Port from PAC for Z-Tunnel 2.0 option in the Zscaler Client Connector Windows profile policy rule.
+  - You can use the ${ZS_CUSTOM_PORT} variable to return an appropriate custom port based on your country and the Z-Tunnel version. For example, if you are in China, then the variable is replaced with port 9401 for Z-Tunnel 2.0 requests and 9400 for Z-Tunnel 1.0 requests. The ports are subject to change.
+  - However, if you are in a country other than China, then the variable is replaced with port 443 for Z-Tunnel 2.0 and Z-Tunnel 1.0 requests.
+  - Use the following syntax to include the ${ZS_CUSTOM_PORT} variable in your PAC file:
+  - return "PROXY ${GATEWAY_FX}:${ZS_CUSTOM_PORT}; PROXY ${SECONDARY_GATEWAY_FX}:${ZS_CUSTOM_PORT}; DIRECT";
+  - This variable is applicable only if you use Zscaler Client Connector version 4.2.0 or later.
+  - Zscaler Client Connector Trusted Network Variable
+  - You can use the ${TRUSTED_NETWORK} variable to determine Zscaler Client Connector's current network type. The following values correspond to the supported network types: ON_TRUSTED, OFF_TRUSTED, VPN_TRUSTED, and SPLIT_VPN_TRUSTED. These values are taken only if the variable is used in an APP Profile PAC file.
+  - If there is no network type available or if the variable is used in a forwarding profile or Proxy PAC file, then the variable takes the value NOT_AVAILABLE.
+  - For example:
+  - var network = "${TRUSTED_NETWORK}"; if (network == "ON_TRUSTED") return "PROXY ${GATEWAY_FX}:12345; PROXY ${SECONDARY_GATEWAY_FX}:12345; DIRECT"; else if (network == "OFF_TRUSTED") return "PROXY ${GATEWAY_FX}:${ZS_CUSTOM_PORT}; PROXY ${SECONDARY_GATEWAY_FX}:${ZS_CUSTOM_PORT}; DIRECT";
+  - This variable is applicable only if you use Zscaler Client Connector version 4.2.0 or later.
+  - Zscaler Client Connector Z-Tunnel 2.0 Variable
+  - You can use the ${ZT2_REQUEST}variable to determine the Z-Tunnel version for which the PAC file is requested. This variable takes the value true if the request is for Z-Tunnel 2.0 or the value false if the request is for Z-Tunnel 1.0.
+  - In this example, port 9981 is used for Z-Tunnel 2.0 requests and port 9980 is used for Z-Tunnel 1.0 requests.
+  - var tunnel2 = "${ZT2_REQUEST}"; if (tunnel2 == "true") return "PROXY ${GATEWAY_FX}:9981; PROXY ${SECONDARY_GATEWAY_FX}:9981; DIRECT"; else return "PROXY ${GATEWAY_FX}:9980; PROXY ${SECONDARY_GATEWAY_FX}:9980; DIRECT";
+- The Zscaler-specific variables are applicable only if you host your PAC files on the Zscaler cloud.
+# Manual Failover to Secondary Data Center
+When the primary data center is down, the failover to the secondary data center is automatic. However, if the primary data center is unavailable for any other reason, such as ISP issues, latency issues, etc., modify the PAC file syntax as follows to manual failover to the secondary data center:
 return "PROXY ${SECONDARY_GATEWAY_FX}:80; PROXY ${GATEWAY_FX}:80; DIRECT";
-```
-
-If your organization uses a subcloud, use the variables `${GATEWAY.<Subcloud>.<Zscaler Cloud>.net}` and `${SECONDARY.GATEWAY.<Subcloud>.<Zscaler Cloud>.net}`. For example:
-
-```javascript
+If your organization uses a subcloud, use the variables ${GATEWAY.<Subcloud>.<Zscaler Cloud>.net} and ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler Cloud>.net}. For example:
 return "PROXY ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler Cloud>.net_FX}:80; PROXY ${GATEWAY.<Subcloud>.<Zscaler Cloud>.net_FX}:80; DIRECT";
-```
+- See a sample PAC file.
+- function FindProxyForURL(url, host) { // //Exclude FTP from proxy // if (url.substring(0, 4) == "ftp:") { return "DIRECT"; } // //Bypass proxy for internal hosts // if (isInNet(host, "0.0.0.0", "255.0.0.0")|| isInNet(host, "10.0.0.0", "255.0.0.0") || isInNet(host, "127.0.0.0", "255.0.0.0") || isInNet(host, "169.254.0.0", "255.255.0.0") || isInNet(host, "172.16.0.0", "255.240.0.0") || isInNet(host, "192.0.2.0", "255.255.255.0")|| isInNet(host, "64.206.157.136", "255.255.255.255")) { return "DIRECT"; } // //Bypass proxy for this server // if (dnsDomainIs(host, "mail.domain.com")) { return "DIRECT"; } return "PROXY ${SECONDARY_GATEWAY_FX}:9400; PROXY ${GATEWAY_FX}:9400; DIRECT"; }

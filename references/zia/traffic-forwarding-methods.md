@@ -179,7 +179,7 @@ PAC (Proxy Auto-Config) is a JavaScript function (`FindProxyForURL`) distributed
 ### PAC vs explicit proxy
 
 A bare PAC file delivers traffic as HTTP CONNECT or plain HTTP to Zscaler's explicit proxy port. This is "explicit proxy mode" in ZIA's forwarding context, which has two important policy implications:
-1. SSL inspection rules match on SNI only (not destination IP) — the Miscellaneous Or Unknown over-exemption footgun that exists under transparent/tunnel forwarding does not apply. See [`./ssl-inspection.md §Transparent vs explicit`](./ssl-inspection.md).
+1. SSL inspection rules match on SNI only (not destination IP) — the Miscellaneous Or Unknown over-exemption footgun that exists under transparent/tunnel forwarding does not apply. See [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 2. Z-Tunnel 1.0 / Z-Tunnel 2.0 CONNECT User-Agent criteria in SSL Inspection rules only work under explicit proxy mode — not under transparent/tunnel forwarding.
 
 ### Hosted PAC files
@@ -286,7 +286,7 @@ When `Enforce Authentication` is enabled on the location/sublocation that PAC-fo
 
 ### PAC CONNECT User-Agent criterion in SSL rules
 
-See [`./ssl-inspection.md`](./ssl-inspection.md).
+See [`zia.ssl-inspection`](kb:zia.ssl-inspection).
 
 SSL Inspection rules with `CONNECT User-Agent` criteria only match explicit-proxy (PAC) traffic — not transparent-proxy (GRE/IPsec tunnel) traffic. A rule scoped to `CONNECT User-Agent = ZCC` will silently not fire for traffic arriving via GRE tunnels.
 
@@ -302,7 +302,7 @@ Large enterprises often run GRE at main offices, IPsec at smaller branches (dyna
 
 - Location / Sublocation / Location Group model (prerequisite) — [`./locations.md`](./locations.md)
 - Post-inspection forwarding decisions (ZPA / DIRECT / DROP) — [`./forwarding-control.md`](./forwarding-control.md)
-- SSL inspection — transparent vs explicit forwarding, SNI-only vs IP+SNI matching — [`./ssl-inspection.md`](./ssl-inspection.md)
+- SSL inspection — transparent vs explicit forwarding, SNI-only vs IP+SNI matching — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - ZCC Z-Tunnel 1.0 vs 2.0 mechanics — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
 - ZCC Forwarding Profile — per-app routing, trusted networks, ZPA segment forwarding — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
 - Cloud architecture — Public Service Edges, VIPs, data center topology — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)

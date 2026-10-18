@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.endpoint-dlp",
+  "title": "Endpoint DLP API families in the SDKs and Terraform provider",
+  "aliases": [
+    "endpoint dlp api",
+    "endPointDlpRules",
+    "dlpEndpointResource",
+    "endpoint dlp resource groups",
+    "endpoint dlp custom apps",
+    "endpoint dlp sub rules",
+    "endpoint dlp terraform",
+    "zia_endpoint_dlp_rules",
+    "endpoint dlp channels"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.engines"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionaries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.data-source-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.error-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    }
+  ],
+  "claims": {
+    "families": {
+      "statement": "The Go SDK manages Endpoint DLP as separate families, each with its own path: the application catalog and custom applications (`/endPointApplications`), application groups (`/endPointApplicationGroups`), endpoint resources (`/dlpEndpointResource`), resource groups (`/endPointDlpResourceGroups`), and rules with their exception (sub) rules (`/endPointDlpRules`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go",
+          "quotes": [
+            "endPointApplicationsEndpoint = \"/zia/api/v1/endPointApplications\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_application_groups/endpoint_application_groups.go",
+          "quotes": [
+            "endPointApplicationGroupsEndpoint = \"/zia/api/v1/endPointApplicationGroups\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_resource/endpoint_resource.go",
+          "quotes": [
+            "dlpEndpointResourceEndpoint = \"/zia/api/v1/dlpEndpointResource\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_resource_group/endpoint_resource_group.go",
+          "quotes": [
+            "endPointDlpResourceGroupsEndpoint = \"/zia/api/v1/endPointDlpResourceGroups\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_dlp_rules/endpoint_dlp_rules.go",
+          "quotes": [
+            "endPointDlpRulesEndpoint = \"/zia/api/v1/endPointDlpRules\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go",
+          "quotes": [
+            "endPointDlpSubRulesEndpoint = \"/zia/api/v1/endPointDlpRules\""
+          ]
+        }
+      ]
+    },
+    "release-note-sub-rules": {
+      "statement": "The Go SDK release notes list Endpoint DLP exception (sub) rule create, update and delete under `/endPointDlpRules/{id}/subRule`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Adds a new exception (sub) rule to an existing Endpoint DLP rule.",
+            "Deletes the Endpoint DLP exception (sub) rule based on the specified IDs."
+          ]
+        }
+      ]
+    },
+    "resource-channels": {
+      "statement": "Endpoint resources are grouped by four channels, PRINTING, REMOVABLE_DRIVE_TRANSFER, NETWORK_DRIVE_TRANSFER and PERSONAL_CLOUD_STORAGE, and channel-scoped reads take one of those values in the path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_resource_channel/endpoint_resource_channel.go",
+          "quotes": [
+            "ChannelPrinting               Channel = \"PRINTING\"",
+            "ChannelRemovableDriveTransfer Channel = \"REMOVABLE_DRIVE_TRANSFER\"",
+            "ChannelNetworkDriveTransfer   Channel = \"NETWORK_DRIVE_TRANSFER\"",
+            "ChannelPersonalCloudStorage   Channel = \"PERSONAL_CLOUD_STORAGE\""
+          ]
+        }
+      ]
+    },
+    "go-aggregates-pages": {
+      "statement": "The Go SDK's endpoint application list functions page through the results themselves, requesting 5000 per page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go",
+          "after": "func GetAllEndpointApplications(ctx",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, endpoint, &applications, 5000)"
+          ]
+        }
+      ]
+    },
+    "python-single-page": {
+      "statement": "The Python SDK's endpoint application list issues one request and returns that response's current page, so it does not reproduce the Go aggregation; callers must page themselves.",
+      "tier": "B",
+      "conditions": "Read of the Python list function, which sends one request and decodes `response.get_results()`; contrasted with the Go function in go-aggregates-pages. Same pattern as the shared SDK pagination subject.",
+      "derived_from": [
+        "go-aggregates-pages"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/endpoint_applications.py",
+          "after": "Lists the endpoint applications configured in your organization.",
+          "quotes": [
+            "response, error = self._request_executor.execute(request)"
+          ]
+        }
+      ]
+    },
+    "python-unified-client-only": {
+      "statement": "The Endpoint DLP accessors are registered on the unified Python `ZIAService` client and not on the legacy client.",
+      "tier": "B",
+      "conditions": "Rests on an absence: `grep -n -i endpoint vendor/zscaler-sdk-python/zscaler/zia/legacy.py` returns no Endpoint DLP property, while zia_service.py defines them.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/zia_service.py",
+          "quotes": [
+            "def endpoint_dlp_rules(self) -> EndpointDLPRulesAPI:"
+          ]
+        }
+      ]
+    },
+    "python-custom-app-model-mixup": {
+      "statement": "In the Python SDK, custom-app list and get decode `EndpointApplicationsCustomApps`, but create and update declare and decode `DlpEndpointResource`. This is an SDK wrapper defect, not evidence of the endpoint's wire schema.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/endpoint_custom_apps.py",
+          "quotes": [
+            "def get_custom_app(self, app_id: int) -> APIResult[EndpointApplicationsCustomApps]:",
+            "def add_custom_app(self, **kwargs) -> APIResult[DlpEndpointResource]:",
+            "def update_custom_app(self, app_id: int, **kwargs) -> APIResult[DlpEndpointResource]:"
+          ]
+        }
+      ]
+    },
+    "go-request-serializer": {
+      "statement": "The Go shared endpoint-application request serializer sends only non-empty `resourceId` and `zappId`, because the API rejects writes that carry the read-only `version` and `versions` objects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "quotes": [
+            "The API rejects create/update requests when",
+            "m[\"zappId\"] = e.ZappID"
+          ]
+        }
+      ]
+    },
+    "go-versions-shape-differs": {
+      "statement": "The shared Go model types `versions` as one `Versions` struct, while the custom-application response model types the same wire key as a list; the two response shapes are not interchangeable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "quotes": [
+            "Versions         Versions `json:\"versions,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go",
+          "quotes": [
+            "Versions         []Versions `json:\"versions,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "terraform-resources": {
+      "statement": "Terraform provider v4.8.0 added Endpoint DLP custom applications, application groups, resources, resource groups, rules and sub-rules, plus data sources for applications, rules, channels and resource group tags. Release context: Go SDK v3.8.41 and Python SDK v1.9.39 introduced the families (Python registers them in v1.9.41 too); Terraform v4.8.0 added the provider side.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the resource and data source `zia_endpoint_dlp_custom_apps`",
+            "Added the resource and data source `zia_endpoint_dlp_rules`",
+            "Added the resource `zia_endpoint_dlp_application_group`",
+            "Added the resource `zia_endpoint_dlp_resource_group` - Creates and manages Endpoint DLP resource groups (tags).",
+            "Added the resource `zia_endpoint_dlp_sub_rules`",
+            "Added the data source `zia_dlp_endpoint_resource_channels`",
+            "Added the data source `zia_dlp_endpoint_resource_group_tag` - Retrieves DLP endpoint resource tags defined for a channel.",
+            "Added the resource `zia_endpoint_dlp_resource` - Creates and manages Endpoint DLP resources."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "# 3.8.41 (July 20, 2026)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.9.39 (July 27, 2026)"
+          ]
+        }
+      ]
+    },
+    "outside-automate-capture": {
+      "statement": "The Endpoint DLP families are outside the current Automate API capture, so their fields cannot be checked against the vendor contract; they exist as Go SDK and Terraform surface only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zia-divergences.md",
+          "quotes": [
+            "Official client/provider families that cannot yet be reconciled field by field because no corresponding operation is mapped in the current Automate capture:",
+            "| `endpoint_dlp_rules` | `/zia/api/v1/endPointDlpRules` | `go`, `tf` |"
+          ]
+        }
+      ],
+      "gaps": [
+        "tenant-entitlement"
+      ]
+    }
+  },
+  "gaps": {
+    "tenant-entitlement": {
+      "kind": "data",
+      "title": "Whether a tenant is entitled to Endpoint DLP and these endpoints",
+      "status": "open",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ],
+      "blocks": "assuming the API families work on a given tenant because the client has them",
+      "detail": "Client presence does not establish entitlement or live rollout; the call result on the tenant does."
+    },
+    "application-response-fields": {
+      "kind": "data",
+      "title": "Endpoint application response fields are not enumerated here",
+      "status": "wontfix",
+      "resolves_with": [
+        "code-read"
+      ],
+      "resolvable_by": [
+        "none"
+      ],
+      "blocks": "nothing",
+      "detail": "The legacy doc listed the descriptive, OS, file, signature, type and version fields of endpoint-application responses. Dropped as SDK field mapping; read the Go struct EndPointApplications in zscaler/zia/services/common/common.go."
+    }
+  }
+}

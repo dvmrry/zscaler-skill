@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.tunnel-detection",
+  "title": "DNS tunnel detection",
+  "aliases": [
+    "dns tunneling",
+    "dns tunnel detection",
+    "dns exfiltration",
+    "detecting and controlling dns tunnels",
+    "dns tunnels rule"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#applications"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.criteria"
+    }
+  ],
+  "claims": {
+    "tunnel-purpose": {
+      "statement": "DNS Control can detect and prevent DNS tunneling; Zscaler points to a separate page, Detecting and Controlling DNS Tunnels, for details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "DNS Control also allows you to detect and prevent DNS tunneling from occurring on your network. To learn more, see Detecting and Controlling DNS Tunnels."
+          ]
+        }
+      ]
+    },
+    "tunnels-as-applications": {
+      "statement": "A DNS rule's `applications` field holds DNS tunnels and network applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "DNS tunnels and network applications to which the rule applies"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#applications"
+      ]
+    },
+    "detection-method": {
+      "statement": "Detection uses machine learning: DNS proxy logs go to the analytics system and a detection engine that computes a risk score per domain; detected tunnel hostnames propagate to all ZIA Public Service Edges, and the proxy acts per your policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "detecting-and-controlling-dns-tunnels.md",
+          "quotes": [
+            "The detection engine uses advanced machine learning techniques to compute a risk score to classify domains.",
+            "When the engine detects a tunnel hostname, the information is propagated to all Public Service Edges for Internet & SaaS (ZIA)."
+          ]
+        }
+      ]
+    },
+    "three-categories": {
+      "statement": "Detected tunnels fall into three categories: Commonly Allowed (productive, mostly security services), Commonly Blocked (malicious or harmful) and Unknown (not yet classified); four further application categories (Network Service, Social Networking, Web, Web Search) can be controlled at DNS level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "detecting-and-controlling-dns-tunnels.md",
+          "quotes": [
+            "Commonly Allowed DNS Tunnels: This contains tunnels that use DNS tunneling for productive reasons.",
+            "Unknown DNS Tunnels: This contains tunnels that are not yet classified.",
+            "There are 4 additional categories that you can control alongside the DNS tunnels:"
+          ]
+        }
+      ]
+    },
+    "logged-in-insights": {
+      "statement": "The service logs all detected DNS tunnels and network apps in DNS Insights, and the DNS Overview dashboard shows the most common ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "detecting-and-controlling-dns-tunnels.md",
+          "quotes": [
+            "The service logs all detected DNS tunnels and network apps in DNS Insights."
+          ]
+        }
+      ]
+    },
+    "unknown-traffic-rule": {
+      "statement": "The predefined Unknown DNS Traffic rule, set to block, stops malformed queries and non-DNS traffic on port 53 and some forms of DNS abuse consistent with tunneling methods; Zscaler also recommends a rule blocking the Commonly Blocked and Unknown tunnel categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-dns-control-rules.md",
+          "quotes": [
+            "In addition, this rule also identifies and blocks certain forms of DNS abuse in real time that are consistent with certain DNS tunneling methods.",
+            "Create a DNS filtering rule to block the following DNS tunnels by using the DNS Tunnel & Network Apps criteria:"
+          ]
+        }
+      ]
+    },
+    "category-selection": {
+      "statement": "Selecting a parent tunnel category in a rule includes all tunnels in it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "selecting a parent category includes all of its members."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "tunnel-mechanics": {
+      "kind": "semantic",
+      "title": "Detection signals, log fields, and a carve-out for legitimate tunnels",
+      "status": "open",
+      "about": [
+        "zia/firewall-dns-rules#applications"
+      ],
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "explaining why a query was or was not treated as a tunnel, and carving out legitimate tools",
+      "detail": "Unverified legacy statement: Detection triggers on \"anomalously long subdomain labels or query strings; high-entropy subdomain names; unusually high query rates for a single domain; DNS record types atypical for normal client usage (TXT, NULL, CNAME)\"; matched queries are \"logged with a tunnel-detection indicator\"; \"No separate 'allow tunnel' action exists\"; and legitimate tools are carved out with \"an Allow rule with explicit domain criteria above the tunnel-detection rule in order.\" The captured page says only that machine learning scores domains, so the signals are unconfirmed; the log is DNS Insights, with no named indicator field; the 'no allow action' wording conflicts with the Commonly Allowed category. Compare with a DNS log sample and a rule using the Commonly Allowed category."
+    }
+  }
+}

@@ -229,7 +229,19 @@ function anchorIn(text, ev, label) {
   if (ev.pointer !== undefined) {
     let doc;
     try { doc = JSON.parse(text); } catch { errors.push(`${label} is not JSON; a pointer needs a JSON source`); }
-    if (doc !== undefined && resolvePointer(doc, ev.pointer) === undefined) errors.push(`${label}: pointer ${ev.pointer} does not resolve`);
+    const value = doc === undefined ? undefined : resolvePointer(doc, ev.pointer);
+    // A step into an array is positional and shifts when the source is regenerated; cite a keyed path.
+    if (doc !== undefined && pointerHasIndex(doc, ev.pointer)) {
+      errors.push(`${label}: pointer ${ev.pointer} steps into an array by index; select the element by a key, e.g. /parameters/[name=id], or cite a keyed document`);
+    }
+    if (doc !== undefined && value === undefined) errors.push(`${label}: pointer ${ev.pointer} does not resolve`);
+    // A pointer proves only that a path exists; `expect` pins the members the claim rests on.
+    for (const [k, want] of Object.entries(ev.expect || {})) {
+      const got = value !== null && typeof value === "object" ? value[k] : undefined;
+      if (value !== undefined && JSON.stringify(got) !== JSON.stringify(want)) {
+        errors.push(`${label}: pointer ${ev.pointer} member ${k} is ${JSON.stringify(got)}, expected ${JSON.stringify(want)}`);
+      }
+    }
     anchors.push({ pointer: ev.pointer });
   }
   if (ev.quotes) {
@@ -293,11 +305,31 @@ export function anchorEvidence(g, ev, cache = new Map()) {
   return { ok: errors.length === 0, errors, anchors, repoPath: f.repoPath, kind: f.src.kind };
 }
 
+/** True when any step of the pointer indexes into an array. */
+function pointerHasIndex(doc, pointer) {
+  const steps = pointer.split("/").slice(1);
+  for (let i = 0; i < steps.length; i++) {
+    const parent = resolvePointer(doc, `/${steps.slice(0, i).join("/")}`.replace(/^\/$/, ""));
+    if (Array.isArray(parent) && !SELECT.test(steps[i].replace(/~1/g, "/").replace(/~0/g, "~"))) return true;
+  }
+  return false;
+}
+
+/** `[member=value]` selects the one array element whose member equals value (a keyed step). */
+const SELECT = /^\[([^=\]]+)=(.*)\]$/;
+
 export function resolvePointer(doc, pointer) {
   if (pointer === "") return doc;
   let node = doc;
   for (const raw of pointer.split("/").slice(1)) {
     const key = raw.replace(/~1/g, "/").replace(/~0/g, "~");
+    const sel = Array.isArray(node) ? SELECT.exec(key) : null;
+    if (sel) {
+      const hits = node.filter((el) => el && typeof el === "object" && String(el[sel[1]]) === sel[2]);
+      if (hits.length !== 1) return undefined;
+      node = hits[0];
+      continue;
+    }
     if (node === null || typeof node !== "object" || !(key in node)) return undefined;
     node = node[key];
   }

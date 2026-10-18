@@ -220,7 +220,7 @@ Operational implications:
 
 From the ZIA cloud architecture doc:
 
-- **Sandbox servers** — hold Sandbox reports and host the behavioral analysis sandbox itself. See [`../zia/sandbox.md`](../zia/sandbox.md).
+- **Sandbox servers** — hold Sandbox reports and host the behavioral analysis sandbox itself. See [`zia.sandbox`](kb:zia.sandbox).
 - **PAC file servers** — host Zscaler-provided and customer-uploaded PAC files.
 - **Zscaler Admin Console** — multi-tenant config UI, shared across all tenants on a cloud.
 - **Log Routers** — direct logs from Service Edges to the correct regional Nanolog cluster per tenant.
@@ -255,5 +255,5 @@ The platform is built so that **data plane (Service Edges) can run on cached sta
 - Z-Tunnel 1.0 vs 2.0 (customer-facing tunnel mechanics) — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
 - ZCC fail-open (the client-side last-resort when cloud is unreachable) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
 - IPSec tunnels — VSE forwarding-method constraint, cipher suites, NAT-T — [`./ipsec-tunnels.md`](./ipsec-tunnels.md)
-- Sandbox servers (one of the support systems mentioned here) — [`../zia/sandbox.md`](../zia/sandbox.md)
+- Sandbox servers (one of the support systems mentioned here) — [`zia.sandbox`](kb:zia.sandbox)
 - Nanolog / NSS log streaming — `vendor/zscaler-help/understanding-nanolog-streaming-service.md`

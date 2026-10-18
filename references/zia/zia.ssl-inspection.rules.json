@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.rules",
+  "title": "SSL/TLS inspection rule order, predefined and default rules, limits",
+  "aliases": [
+    "ssl rule order",
+    "ssl inspection rule limit",
+    "255 ssl rules",
+    "predefined ssl rule",
+    "default ssl rule",
+    "ssl rule name length",
+    "zia-66"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.exemptions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    }
+  ],
+  "claims": {
+    "ascending-order": {
+      "statement": "SSL/TLS inspection rules are evaluated in ascending numerical order, top-down, and the first match decides.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Rules are evaluated in a top-down, first-match style."
+          ]
+        }
+      ]
+    },
+    "inspect-before-exempt": {
+      "statement": "To inspect something an exemption would otherwise cover, place an inspection rule before the exemption; for example inspect Client Connector device groups first, then exempt the locations.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "If you need something inspected that is otherwise exempted, build an inspection rule before the exemption rule."
+          ]
+        }
+      ]
+    },
+    "disabled-holds-slot": {
+      "statement": "A disabled SSL/TLS inspection rule is skipped but keeps its place in the rule order.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Disabling this option does not actively enforce the rule, and the service skips it and moves to the next rule. However, the rule does not lose its place in the rule order."
+          ]
+        }
+      ]
+    },
+    "name-length": {
+      "statement": "A rule name can be at most 31 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#name"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-tls-inspection-policy.md",
+          "quotes": [
+            "Enter a user-friendly name for the rule. The maximum length is 31 characters."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "quotes": [
+            "name (str): Name of the rule, max 31 chars."
+          ],
+          "after": "Adds a new ssl inspection filter rule."
+        }
+      ]
+    },
+    "rule-cap": {
+      "statement": "The tenant can hold 255 SSL Inspection rules, made up of 245 custom and 10 predefined. The limits table lists no support-raise path for this row, unlike the 1,024 'All Other Policy Rules' row, which is annotated as raisable to 2,048 by contacting the Zscaler Account team.",
+      "tier": "A",
+      "conditions": "Whether the cap is fixed or simply undocumented as raisable is gap cap-raisable.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "255 rules (245 custom rules and 10 predefined rules)",
+            "from 1,024 rules to 2,048 rules"
+          ]
+        }
+      ],
+      "gaps": [
+        "cap-raisable"
+      ]
+    },
+    "predefined-rules": {
+      "statement": "Zscaler ships predefined special rules: Zscaler-Recommended Exemptions (enabled by default), O365 tenant restriction inspection rules, an O365 One Click rule, a UCaaS One Click rule, and an Unauthorized Traffic Bypass for IoT Classifications rule. The help page calls them not editable, to be implemented as is, but they can be enabled or disabled. The IoT rule is disabled by default and cannot be deleted; for that rule only rule order, admin rank, status, label and the Evaluate/Bypass choice can change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "About_SSL_TLS_Inspection_Policy.txt",
+          "quotes": [
+            "Zscaler provides the following predefined special rules which you can enable or disable based on your",
+            "These rules are not editable and can only be implemented as is.",
+            "Zscaler-Recommended Exemptions rule: Predefined rule to automatically exempt known destinations that cannot be SSL/TLS inspected. This rule is enabled by default.",
+            "O365 One Click rule: Predefined rule, controlled by the Microsoft-Recommended and Legacy Office 365 One Click setting.",
+            "This rule is disabled by default and cannot be deleted."
+          ]
+        }
+      ]
+    },
+    "default-rule": {
+      "statement": "The Leading Practices rule set ends with a Default rule whose action is Do Not Inspect with Evaluate Other Policies; 'inspect everything not exempted' is a separate, administrator-built Inspect All rule placed above it.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#defaultRule"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Do Not Inspect Default Default Rule N/A Evaluate other policies.",
+            "New default. Inspect everything not exempted."
+          ]
+        }
+      ]
+    },
+    "marker-fields": {
+      "statement": "`predefined` is a read-only boolean marking Zscaler's predefined SSL rules, `defaultRule` is a boolean marking the default rule (the contract does not mark it read-only), and `accessControl` is a read-only RBAC privilege (`NONE`, `READ_ONLY`, `READ_WRITE`) for the calling admin.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#predefined",
+        "zia/ssl-inspection-rules#defaultRule",
+        "zia/ssl-inspection-rules#accessControl"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/predefined",
+          "expect": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "note": "predefined: readonly boolean, 'whether the rule is a predefined SSL inspection rule'"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/defaultRule",
+          "expect": {
+            "type": "boolean"
+          },
+          "note": "defaultRule: boolean, not marked readonly"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/accessControl",
+          "expect": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "READ_ONLY",
+              "READ_WRITE"
+            ],
+            "readOnly": true
+          },
+          "note": "accessControl: readonly string, enum NONE, READ_ONLY, READ_WRITE"
+        }
+      ]
+    },
+    "predefined-management": {
+      "statement": "Predefined SSL rules cannot be deleted; through the provider only attributes such as description, state and labels can be changed on them, and Default Rules must not be imported or managed because the API does not support managing them.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#predefined"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_ssl_inspection_rules.md",
+          "quotes": [
+            "**NOTE 1** Zscaler SSL Inspection rules contain default and predefined rules which cannot be deleted.",
+            "**NOTE 4** DO NOT import or manage Default Rules. Management of default rules are not supported via the API.",
+            "Certain attributes on `predefined` rules can still be managed or updated via Terraform such as:"
+          ]
+        }
+      ]
+    },
+    "strip-readonly-on-put": {
+      "statement": "The API rejects a PUT on a predefined SSL rule that carries the server-managed fields `predefined`, `defaultRule` and `accessControl` (the contract marks only `predefined` and `accessControl` read-only); the provider clears all three in its reorder callback, so a reorder that reads a rule and writes it back must do the same. Do not echo them back.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#predefined",
+        "zia/ssl-inspection-rules#defaultRule",
+        "zia/ssl-inspection-rules#accessControl"
+      ],
+      "conditions": "Stated for reorder PUTs against predefined rules; the sources do not say whether a custom-rule PUT tolerates the fields.",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "The API rejects PUT requests for predefined rules when read-only fields (`Predefined`, `DefaultRule`, `AccessControl`) are included."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ssl_inspection_rules.go",
+          "quotes": [
+            "rule.Predefined = false",
+            "rule.AccessControl = \"\""
+          ],
+          "after": "Strip read-only/server-managed fields so PUTs against"
+        }
+      ]
+    },
+    "no-pagination": {
+      "statement": "The SSL inspection rule list returns every rule in one response; the Go SDK reads it with a single call because the API does not support pagination.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
+          "quotes": [
+            "Use service.Client.Read directly since the API doesn't support pagination"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "name-truncation": {
+      "kind": "semantic",
+      "title": "What happens when automation sends a rule name longer than 31 characters",
+      "status": "open",
+      "about": [
+        "zia/ssl-inspection-rules#name"
+      ],
+      "detail": "Unverified legacy statement: 'Automation scripts that generate descriptive rule names from app metadata will silently truncate - names get rejected at rule-save time.' The two halves contradict each other (truncate versus reject) and no source shows which happens.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "cap-raisable": {
+      "kind": "data",
+      "title": "Whether the 255 SSL Inspection rule cap can be raised through Support",
+      "status": "open",
+      "former_ids": [
+        "zia-66"
+      ],
+      "about": [
+        "zia/ssl-inspection-rules"
+      ],
+      "detail": "The limits capture lists '255 rules (245 custom + 10 predefined)' with no raise annotation, while the adjacent 1,024 row says a possible increase to 2,048 is available by contacting the Zscaler Account team. Absence of an annotation does not prove the SSL cap is fixed. The old doc asserted 'NOT raisable' with no source.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ],
+      "blocks": "advising a large tenant to consolidate rules versus request a higher cap"
+    }
+  }
+}

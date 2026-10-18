@@ -321,7 +321,7 @@ Some field descriptions in the vendor CSV give a one-line definition and a coupl
 - SPL patterns that query these fields — [`../../shared/splunk-queries.md`](../../shared/splunk-queries.md)
 - Decision criteria for when to consult logs — [`../../shared/log-correlation.md`](../../shared/log-correlation.md)
 - URL filtering rule semantics (for interpreting rule-label fields) — [`zia.url-filtering`](kb:zia.url-filtering)
-- SSL inspection pipeline (for interpreting `%s{ssldecrypted}` + `%s{externalspr}`) — [`../ssl-inspection.md`](../ssl-inspection.md)
+- SSL inspection pipeline (for interpreting `%s{ssldecrypted}` + `%s{externalspr}`) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 
 ## Open questions
 

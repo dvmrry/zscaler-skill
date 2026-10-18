@@ -254,5 +254,5 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 - ZIA URL Filtering (`Isolate` action origin) — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA Malware Protection and ATP (prerequisites for Smart Isolation) — [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)
 - ZPA policy precedence (Isolation Policy's place in family order) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
-- SSL Inspection (prerequisite for HTTPS isolation) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
+- SSL Inspection (prerequisite for HTTPS isolation) — [`zia.ssl-inspection`](kb:zia.ssl-inspection)
 - Cross-product integration catalog — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)

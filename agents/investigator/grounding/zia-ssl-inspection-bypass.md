@@ -7,7 +7,7 @@ last-verified: "2026-05-07"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/zia/ssl-inspection.md"
+  - "kb:zia.ssl-inspection"
 author-status: draft
 ---
 
@@ -25,14 +25,14 @@ author-status: draft
 
 Read these *before* interpreting any web log or transaction record. SSL inspection bypass has two structural traps: the two "Do Not Inspect" variants are semantically different, and bypass is a cross-policy gate (it affects what subsequent policies can see).
 
-- [`references/zia/ssl-inspection.md § The two "Do Not Inspect" variants — read this carefully`](../../../references/zia/ssl-inspection.md) — the variant trap.
-- [`references/zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../../../references/zia/ssl-inspection.md) — what depends on inspection (URL filtering, DLP, sandboxing) and what's invisible without it.
-- [`references/zia/ssl-inspection.md § Bypass rule hygiene — anti-patterns`](../../../references/zia/ssl-inspection.md) — over-broad bypass patterns and what they cost.
-- [`references/zia/ssl-inspection.md § Audit rubric for SSL bypass rules`](../../../references/zia/ssl-inspection.md) — checklist for evaluating an existing bypass rule.
+- [`zia.ssl-inspection`](kb:zia.ssl-inspection) — the variant trap.
+- [`zia.ssl-inspection`](kb:zia.ssl-inspection) — what depends on inspection (URL filtering, DLP, sandboxing) and what's invisible without it.
+- [`zia.ssl-inspection`](kb:zia.ssl-inspection) — over-broad bypass patterns and what they cost.
+- [`zia.ssl-inspection`](kb:zia.ssl-inspection) — checklist for evaluating an existing bypass rule.
 
 ## Load docs
 
-- `references/zia/ssl-inspection.md`
+- `kb:zia.ssl-inspection`
 
 ## Inspect tenant config
 

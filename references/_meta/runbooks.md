@@ -196,14 +196,14 @@ Start
 │  └─ NO → continue ↓
 │
 ├─ Is the rule disabled but holding its order slot?
-│  └─ YES → Per the disabled-rule-holds-its-slot rule. See references/zia/url-filtering.md.
+│  └─ YES → Per the disabled-rule-holds-its-slot rule. See kb:zia.url-filtering.
 │           Disabled rules don't fire but DO occupy their order slot.
 │           A higher-order disabled rule can prevent a lower-order rule from being matched.
 │  └─ NO → continue ↓
 │
 ├─ Is rule order set correctly?
 │  └─ Check the rule's order attribute. Sandbox default rule = 127 (NOT -1) per BUG-208047.
-│           See references/zia/sandbox.md if dealing with sandbox rules.
+│           See kb:zia.sandbox if dealing with sandbox rules.
 │
 ├─ Is the URL falling into a different category than expected?
 │  └─ Verify the URL’s category resolution against the overlay's IaC, a live `zscalerctl` read, or logs.

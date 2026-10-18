@@ -66,7 +66,7 @@ generalize those semantics to an API, SDK, Terraform provider, or MCP surface.
 
 ## Cross-links
 
-- DLP policy behavior: [`./dlp.md`](./dlp.md)
+- DLP policy behavior: [`zia.dlp`](kb:zia.dlp)
 - Time-interval rule components: [`./time-intervals.md`](./time-intervals.md)
 - URL-category and rule behavior: [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA reference hub: [`./index.md`](./index.md)

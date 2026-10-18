@@ -1,28 +1,33 @@
 # About Microsoft Azure Accounts
 
 **Source:** https://help.zscaler.com/cloud-branch-connector/about-microsoft-azure-accounts
-**Captured:** 2026-08-04 via Zscaler Help `/zapi/fetch-data` JSON (`body.content`) extraction.
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1507556, revision 3240524
 
 ---
 
-Microsoft Azure partner integration allows user-defined tags and Azure
-resource attributes to be used in Zscaler security policy. Zscaler fetches the
-information from Azure tenants and subscriptions through a service principal.
-
-Within Zscaler, an **Azure account** is the service-account object that maps to
-service-principal credentials with access to subscriptions in one Azure
-tenant. Azure tag discovery is in Limited Availability and requires Zscaler
-Support.
-
-The integration is documented to:
-
-- discover workloads and metadata across a set of Azure subscriptions;
-- display the discovered workloads and metadata; and
-- associate Cloud Connectors with workload information for policy
-  enforcement.
-
-The portal path is **Infrastructure > Connectors > Cloud > Management > Partner
-Integrations > Azure**. The Azure account table exposes application ID, name,
-last modifier and modification time, and counts of regions, subscriptions,
-Cloud Connectors, and Event Grid resources. The UI supports add, search, edit,
-delete, and detail navigation for those counts.
+Microsoft Azure partner integrations enable you to use user-defined tags and resource attributes in Zscaler security policies. To fetch this information from the Azure tenant and subscriptions, you must provide a service principal. Zscaler configuration requires a service account called an Azure account, which maps to service principal credentials that have access to a set of subscriptions in the same tenant.
+Tag discovery services for Azure are in Limited Availability (LA). To learn more, contact Zscaler Support.
+Partner integrations provide the following benefits and enable you to:
+- Configure permissions for Zscaler to discover workloads and associated metadata from a set of Azure subscriptions.
+- View discovered workloads and the associated metadata.
+- Associate a Cloud Connector with the workload information to enforce Zscaler security policies.
+# About the Azure Page
+On the Azure page (Zero Trust Cloud > Common Resources > Azure), you can do the following:
+- Add an Azure account.
+- Search for an account.
+- View a list of all accounts. For each account, you can view:
+  - Application ID: The ID of the Azure application. Select the application ID to view the dashboard details.
+  - Name: The name of the account.
+  - Last Modified By: The last admin to modify the account.
+  - Last Modified On: The date and time when the account was last modified.
+  - Regions: The number of regions in the account.
+  - Subscriptions: The number of subscriptions in the account.
+  - Cloud Connectors: The number of Cloud Connectors in the account.
+  - Event Grid: The number of event grids in the account.
+  - You can select the Regions, Subscriptions, Cloud Connectors, or Event Grid number in an account to view the dashboard details.
+- Modify the table and its columns.
+- Edit an account.
+- Delete an account.
+- Go to the Amazon Web Services (AWS) Accounts page.
+- Go to the Google Cloud Platform (GCP) Accounts page.

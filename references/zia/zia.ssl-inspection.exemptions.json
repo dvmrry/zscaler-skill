@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.exemptions",
+  "title": "Writing SSL/TLS inspection exemptions without exempting too much",
+  "aliases": [
+    "ssl bypass rules",
+    "ssl exemption hygiene",
+    "do not inspect rule design",
+    "s3 wildcard exemption",
+    "ssl inspection exceptions",
+    "click-to-run exemption",
+    "audit ssl bypass"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.bypass-impact"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.uninspectable"
+    }
+  ],
+  "claims": {
+    "bypass-only-controlled": {
+      "statement": "Zscaler strongly recommends inspecting all traffic and placing a bypass only for controlled, understood exceptions, and only after consulting legal counsel for the impacted region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Zscaler strongly recommends that you inspect all traffic and place a bypass only in controlled and understood exceptions.",
+            "Choose to bypass traffic only after consulting your legal counsel for the impacted region."
+          ]
+        }
+      ]
+    },
+    "bypass-purposes": {
+      "statement": "The cases where a bypass is generally applicable are banking and finance destinations, healthcare destinations, business functions that need undecryptable traffic, business functions that need certificate-pinned sites or applications, and applications such as parts of Microsoft 365 that break when inspected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Banking and finance destinations.",
+            "Healthcare destinations.",
+            "Business functions that require the use of undecryptable traffic.",
+            "Business functions that require the use of certificate-pinned sites or applications.",
+            "Applications, such as certain parts of Microsoft 365, that have issues when inspected."
+          ]
+        }
+      ]
+    },
+    "finance-health-recommendation": {
+      "statement": "Some organizations bypass the Finance and Health URL categories for privacy reasons, but Zscaler recommends enabling inspection for all URL categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt",
+          "quotes": [
+            "Some organizations choose to bypass SSL/TLS Inspection for Finance and Health URL categories due to privacy concerns.",
+            "Zscaler recommends that you enable SSL/TLS Inspection for all URL categories."
+          ]
+        }
+      ]
+    },
+    "opt-out-design": {
+      "statement": "Build the rule set as opt-out: end with an Inspect rule for everything not explicitly exempted, so new groups, applications, categories and locations are inspected automatically until configured otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Build with the intention of Opt-Out in mind. Set your final policy to inspect everything not explicitly exempted previously."
+          ]
+        }
+      ]
+    },
+    "fqdn-not-ip": {
+      "statement": "Bypass entries should be FQDNs or domains, not IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Avoid adding IP addresses in favor of FQDNs or domains.",
+            "Use an FQDN or domains, and avoid exclusion based on IP addresses."
+          ]
+        }
+      ]
+    },
+    "specific-not-wildcard": {
+      "statement": "Prefer the most specific domains over wildcards: add `corp.safemarch.com` and `eng.safemarch.com` rather than `.safemarch.com`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "While adding domains, try adding the most specific domains in the bypass instead of wildcards"
+          ]
+        }
+      ]
+    },
+    "no-paths": {
+      "statement": "A bypass entry must be the FQDN only: anything beyond the domain, such as a path, is not visible without first inspecting the communication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Do not add file paths or anything other than the FQDN (i.e., safemarch.com/games/), as anything beyond the domain is not visible without first inspecting the communication."
+          ]
+        }
+      ]
+    },
+    "prefer-cloud-app": {
+      "statement": "Where a matching Cloud Application exists, use it instead of managing the domains by hand.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Avoid trying to manage domains if a matching Cloud Application exists."
+          ]
+        }
+      ]
+    },
+    "shared-storage-domains": {
+      "statement": "Do not exempt the shared-storage CDN domains `.s3.amazonaws.com`, `.blob.core.windows.net` or `.cloudfront.net` or similar: any subscriber can get its own storage subdomain there, so exempting the parent leaves every AWS S3 or Azure Blob account uninspected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "(.s3).amazonaws.com",
+            "(.blob.core).windows.net",
+            ".cloudfront.net",
+            "These are destinations where any subscriber can get their own file storage subdomain.",
+            "Exempting these domains from inspection means no inspection occurs for any AWS S3 or Azure Blob storage account"
+          ]
+        }
+      ]
+    },
+    "exception-hygiene": {
+      "statement": "Keep SSL exceptions in at least one dedicated URL category or destination group, investigate before adding any bypass, and document every entry for later audit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Zscaler recommends creating at least one URL category or IP and FQDN Destination Group specific to managing SSL exceptions.",
+            "Avoid creating bypasses to resolve access issues without proper investigation and understanding.",
+            "Document your entries within your documentation system for future reference during the audit and review."
+          ]
+        }
+      ]
+    },
+    "predefined-exemptions-differ": {
+      "statement": "The two predefined exemption styles differ in what survives: the Zscaler Recommended Exemptions rule is Do Not Inspect with Evaluate Other Policies, so URL Filtering still runs, while the Zscaler Microsoft 365 Click-to-Run rule is Do Not Inspect with Bypass Other Policies, so it does not.",
+      "tier": "A",
+      "conditions": "Read from the guide's example rule table, which is flattened PDF text; the row alignment is the reading used here.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "1 Zscaler N/A Do Not Inspect Recommended Evaluate Other Exemption Rule Policies Show End User Notifications: Disabled",
+            "Click-to-Run (Policy > URL & Cloud Do Not Inspect 3 N/A App Control > Bypass Other Policies"
+          ]
+        }
+      ]
+    },
+    "m365-inspect-except-click-to-run": {
+      "statement": "The guide's Microsoft 365 policy is to inspect OneDrive, SharePoint and similar services but exclude Click-to-Run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Inspect OneDrive, SharePoint, etc., but exclude Click-to-Run from Microsoft 365."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "googleusercontent-exemption": {
+      "kind": "semantic",
+      "title": "Whether a wildcard on googleusercontent.com is as dangerous as the shared-storage CDN domains",
+      "status": "open",
+      "detail": "Unverified legacy statement: '*.googleusercontent.com - Google Drive shared content lives under user-suffixed subdomains' listed with S3, Azure Blob and CloudFront as exemptions to avoid. The guide names only S3, Azure Blob and CloudFront.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "click-to-run-rationale": {
+      "kind": "semantic",
+      "title": "Why Microsoft 365 Click-to-Run ships with Bypass Other Policies",
+      "status": "open",
+      "detail": "Unverified legacy statement: Zscaler ships Click-to-Run with Bypass Other Policies 'because the URLs would break under URL Filtering too'. The guide shows the rule and its action but gives no reason.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

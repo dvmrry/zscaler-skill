@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.rules",
+  "title": "Sandbox rules: first-time file behavior and the default rule",
+  "aliases": [
+    "sandbox rule",
+    "sandboxRules",
+    "firstTimeOperation",
+    "ALLOW_SCAN",
+    "byThreatScore",
+    "Default BA Rule",
+    "sandbox rule order 127",
+    "AI instant verdict"
+  ],
+  "binds": [
+    "zia/sandbox-rules",
+    "zia/sandbox-rules#baRuleAction",
+    "zia/sandbox-rules#firstTimeEnable",
+    "zia/sandbox-rules#firstTimeOperation",
+    "zia/sandbox-rules#mlActionEnabled",
+    "zia/sandbox-rules#byThreatScore",
+    "zia/sandbox-rules#baPolicyCategories",
+    "zia/sandbox-rules#fileTypes",
+    "zia/sandbox-rules#zpaAppSegments",
+    "zia/sandbox-rules#order",
+    "zia/sandbox-rules#defaultRule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.coverage"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.quarantine"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.error-handling"
+    }
+  ],
+  "claims": {
+    "ba-rule-action": {
+      "statement": "A rule's terminal action, `baRuleAction`, is ALLOW or BLOCK.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#baRuleAction"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "Supported values: \"ALLOW\" and \"BLOCK\""
+          ]
+        }
+      ]
+    },
+    "first-time-operation": {
+      "statement": "`firstTimeEnable` says whether a First-Time Action is configured, and `firstTimeOperation` is what happens when users download an unknown file for the first time: ALLOW_SCAN, QUARANTINE, ALLOW_NOSCAN or QUARANTINE_ISOLATE.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#firstTimeEnable",
+        "zia/sandbox-rules#firstTimeOperation"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "A Boolean value indicating whether a First-Time Action is specifically configured for the rule.",
+            "Supported values: \"ALLOW_SCAN\", \"QUARANTINE\", \"ALLOW_NOSCAN\", \"QUARANTINE_ISOLATE\""
+          ]
+        }
+      ]
+    },
+    "allow-and-scan-is-allow-scan": {
+      "statement": "The console's \"Allow and Scan\" first-time action corresponds to `firstTimeOperation = ALLOW_SCAN`, so the quarantine remedy for dynamic-hash files can be configured through the API.",
+      "tier": "B",
+      "binds": [
+        "zia/sandbox-rules#firstTimeOperation"
+      ],
+      "conditions": "Matches the console name in the API field description (\"Quarantine and Allow and Scan\") to the enum by wording; no source states the mapping.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/rosetta.md",
+          "quotes": [
+            "such as Quarantine and Allow and Scan for First-Time Action"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "\"ALLOW_SCAN\""
+          ]
+        }
+      ]
+    },
+    "ml-action": {
+      "statement": "`mlActionEnabled` turns on the AI Instant Verdict option, which has the service use AI analysis to assign threat scores to unknown files. It is available only with specific first-time actions such as Quarantine and Allow and Scan.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#mlActionEnabled"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/rosetta.md",
+          "quotes": [
+            "use AI analysis to instantly assign threat scores to unknown files. This option is available to use only with specific rule actions such as Quarantine and Allow and Scan for First-Time Action."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "You can enable artificial intelligence (AI) pre-scanning for unknown files in quarantine."
+          ]
+        }
+      ]
+    },
+    "threat-score-range": {
+      "statement": "`byThreatScore` is a minimum threat score that can be set between 40 and 70.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#byThreatScore"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox_rules.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "Minimum threat score can be set between 40 to 70."
+          ]
+        }
+      ]
+    },
+    "scope-fields": {
+      "statement": "A rule is scoped by threat categories (`baPolicyCategories`, for example ADWARE_BLOCK, BOTMAL_BLOCK, RANSOMWARE_BLOCK, SUSPICIOUS_BLOCK), file types (`fileTypes`), URL categories, users, groups, departments, locations, location groups, time windows, Client Connector devices and device groups, labels, and ZPA Application Segments, which apply only to the ZPA Gateway forwarding method.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#baPolicyCategories",
+        "zia/sandbox-rules#fileTypes",
+        "zia/sandbox-rules#zpaAppSegments"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "The threat categories to which the rule applies",
+            "The list of file types to which the Sandbox Rule must be applied.",
+            "This field is applicable only for the ZPA Gateway forwarding method.",
+            "Name-ID pairs of users for which rule must be applied",
+            "Name-ID pairs of groups for which rule must be applied",
+            "Name-ID pairs of departments for which rule must be applied",
+            "Name-ID pairs of locations for which rule must be applied",
+            "Name-ID pairs of time interval during which rule must be enforced.",
+            "Name-ID pairs of devices for which rule must be applied.",
+            "DeviceGroups []common.IDNameExtensions `json:\"deviceGroups\"`",
+            "The list of URL categories to which the DLP policy rule must be applied."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox_rules.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "ba_policy_categories=[\"ADWARE_BLOCK\", \"BOTMAL_BLOCK\", \"ANONYP2P_BLOCK\","
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "ZPA Application Segment: The Private Access application segments selected for the rule to apply to."
+          ]
+        }
+      ]
+    },
+    "rule-ordering": {
+      "statement": "Sandbox rules are evaluated in ascending numerical order, and `order` sets the position of the rule.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#order"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)"
+          ]
+        }
+      ]
+    },
+    "default-rule-marker": {
+      "statement": "The Terraform provider identifies the default Sandbox rule by `order == 127` or the name \"Default BA Rule\". It skips that rule when computing the next order, removes it from state on read \"to prevent drift\", and filters it out of rule lists. The API model carries a `defaultRule` boolean.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#order",
+        "zia/sandbox-rules#defaultRule"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_rules.go",
+          "quotes": [
+            "// Ignore Default BA Rule to prevent drift",
+            "if rule.Order != 127 && rule.Name != \"Default BA Rule\" {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/sandbox/sandbox_rules/sandbox_rules.go",
+          "quotes": [
+            "If set to true, the default rule is applied"
+          ]
+        }
+      ],
+      "gaps": [
+        "default-order-semantics"
+      ],
+      "conditions": "The captured help page (about-sandbox) says the default rule is evaluated last but never mentions order 127, so 127 is visible only in provider code and the API."
+    },
+    "python-crud": {
+      "statement": "The Python SDK has full CRUD for sandbox rules (`list_rules`, `get_rule`, `add_rule`, `update_rule`, `delete_rule`) over /sandboxRules, with the same field set as the Go SDK, so first-time behavior is configurable through either SDK.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/sandbox_rules.py",
+          "quotes": [
+            "def list_rules(",
+            "def delete_rule(self, rule_id: int) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/sandboxrules.py",
+          "quotes": [
+            "self.ml_action_enabled = config[\"mlActionEnabled\"]"
+          ]
+        }
+      ]
+    },
+    "default-rule-last": {
+      "statement": "The default rule is always the last rule checked, and rules are applied in rule order from first to last.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#order",
+        "zia/sandbox-rules#defaultRule"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "The default rule is always the last rule checked.",
+            "The default rule is evaluated last."
+          ]
+        }
+      ]
+    },
+    "zpa-uploads": {
+      "statement": "If Internet & SaaS inspects Private Access traffic, uploads to Private Access assets are sandboxed when the file is unknown to the service.",
+      "tier": "A",
+      "binds": [
+        "zia/sandbox-rules#zpaAppSegments"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "uploads to Private Access assets are sandboxed if the file is unknown to the Zscaler service"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "default-order-semantics": {
+      "kind": "data",
+      "title": "How the API treats the default rule's order 127",
+      "status": "open",
+      "detail": "The provider hard-codes 127 as the default rule's slot, but no vendored source states what GET /sandboxRules returns for it, whether a custom rule may use 127 or a higher order, or whether new rules are placed around it. An upstream issue cited by the earlier reference (terraform-provider-zia #405, ticket BUG-208047) is not vendored, so its claims about ordering chaos and a fix are unverified. The 127 value is not mentioned on the captured help page.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zia sandbox-rules list",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-sandbox.md",
+          "quotes": [
+            "The default rule is always the last rule checked."
+          ]
+        }
+      ]
+    },
+    "default-rule-create": {
+      "kind": "semantic",
+      "title": "What creating or importing the default rule returns",
+      "status": "open",
+      "detail": "The earlier reference said creating \"Default BA Rule\" returns DUPLICATE_ITEM and that it should not be imported into state. The provider skips the rule on read, but no source shows the create error.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "sipa-cross-reference": {
+      "kind": "semantic",
+      "title": "Unverified legacy statement: ZPA Application Segments on a Sandbox rule mirror SSL Inspection's and relate to source IP anchoring",
+      "status": "open",
+      "detail": "Unverified legacy statement: The earlier reference linked the field to SSL Inspection's `zpa_app_segments` and to the SIPA doc. No source read connects them; the SIPA coverage belongs to the shared source-ip-anchoring area.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

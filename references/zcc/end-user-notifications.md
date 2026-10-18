@@ -14,7 +14,7 @@ sources:
   - "references/zcc/install-parameters.md"
   - "references/zcc/web-policy.md"
   - "references/zcc/sdk.md"
-  - "references/zia/url-filtering.md"
+  - "kb:zia.url-filtering"
 author-status: draft
 ---
 

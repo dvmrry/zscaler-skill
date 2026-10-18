@@ -68,6 +68,6 @@ This refresh did not find a DSPM SDK, Terraform, Ansible, MCP, or Postman surfac
 ## Cross-Links
 
 - Claims ledger for this refresh: [`./_claims-ledger.md`](./_claims-ledger.md)
-- ZIA DLP: [`../zia/dlp.md`](../zia/dlp.md)
+- ZIA DLP: [`zia.dlp`](kb:zia.dlp)
 - AEM: [`../aem/overview.md`](../aem/overview.md)
 - Portfolio map: [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)

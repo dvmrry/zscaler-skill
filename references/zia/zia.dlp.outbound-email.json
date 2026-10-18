@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.outbound-email",
+  "title": "Outbound Email DLP rules in the SDKs and Terraform provider",
+  "aliases": [
+    "outbound email dlp",
+    "emailDlpRules",
+    "email dlp rule actions csv",
+    "zia_outbound_email_dlp"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.error-handling"
+    }
+  ],
+  "claims": {
+    "go-endpoint": {
+      "statement": "The Go SDK manages Outbound Email DLP rules at `/zia/api/v1/emailDlpRules` with get, lite list, list, create, update and delete, plus `GetActions`, which returns raw CSV bytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go",
+          "quotes": [
+            "emailDlpRulesEndpoint = \"/zia/api/v1/emailDlpRules\"",
+            "func GetLite(ctx context.Context, service *zscaler.Service) ([]OutboundEmailDlp, error) {",
+            "The response body is CSV and is"
+          ]
+        }
+      ]
+    },
+    "python-endpoint": {
+      "statement": "The Python SDK offers the same actions endpoint, returning the CSV mapping of supported rule actions as bytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/outbound_email_dlp_rules.py",
+          "quotes": [
+            "The response body is a CSV file."
+          ]
+        }
+      ]
+    },
+    "release-notes-understate": {
+      "statement": "The Go and Python release notes mention only the actions CSV endpoint, although the list, lite, get and CRUD methods are also present in code. The methods shipped in Go v3.8.41 and Python v1.9.39.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the following new ZIA Outbound Email DLP endpoint"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the following new ZIA Outbound Email DLP endpoint"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "# 3.8.41 (July 20, 2026)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.9.39 (July 27, 2026)"
+          ]
+        }
+      ]
+    },
+    "terraform-resource": {
+      "statement": "Terraform provider v4.8.0 added the `zia_outbound_email_dlp` resource and data source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the resource and data source `zia_outbound_email_dlp`"
+          ]
+        }
+      ]
+    }
+  }
+}

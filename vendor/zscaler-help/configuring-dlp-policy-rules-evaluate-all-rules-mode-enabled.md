@@ -1,0 +1,397 @@
+# Configuring DLP Policy Rules with Evaluate All Rules Mode Enabled
+
+**Source:** https://help.zscaler.com/zia/configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled
+**Captured:** 2026-10-18 via help_capture.py (article payload, canonical text)
+**Revision:** node 1471836, revision 3239260
+
+---
+
+This article applies only to organizations with Evaluate All Rules mode enabled. To access this feature, contact your Zscaler Account team.
+By default, the Zscaler service evaluates inline Data Loss Prevention (DLP) policy rules according to rule order, with evaluation stopping at the first match. However, if Evaluate All Rules mode is enabled for your organization, you can instead have the Zscaler service evaluate all rules, enforcing the rule with the most restrictive action. Evaluate All Rules mode uses rule order only when multiple rules with the same action are matched. In that case, the rule order determines which policy rule is triggered.
+You must first delete all existing inline DLP rules before you change the way the Zscaler service evaluates rules. To learn more, see Configuring DLP Advanced Settings.
+With Evaluate All Rules mode enabled for your organization, you first set how the Zscaler service evaluates inline DLP rules on the DLP Advanced Settings page (Data Security > Common Resources > DLP Advanced Settings).
+See image.
+# Policy Execution
+The DLP policy supports different rule conditions, grouped into categories. A series of AND and OR logical operators are applied between these criteria to form a combination of rule set that is used to evaluate for traffic matches. The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:
+- Who, Where, & When: [ (Users OR Groups OR Departments OR User Risk Profile) AND (Locations OR Location Groups OR Source IP groups) AND Time AND
+- Destination IP: URL Categories AND
+- Applications: [ Cloud Applications AND ZPA Application Segment ] AND
+- Protocols: Protocols AND
+- What: [ Content Matching AND File Types AND Minimum Data Size (KB) AND Inspect Downloads AND DLP Engines AND Workload Groups ]
+# Configuring DLP Policy
+You then configure your policy rules based on that setting:
+- Configuring a DLP policy rule to evaluate all rules
+- When you configure the Zscaler service to evaluate all rules, you have the ability to create exception rules, which are child rules that allow you to exclude specific users or groups in your organization that must perform tasks as part of a necessary workflow that might otherwise violate inline DLP policy. There is not a limit to the number of exception rules that you can assign to each parent rule. As you configure rules, you also specify whether each rule uses Zscaler DLP engines or a third-party DLP solution.
+- To configure a DLP policy rule to evaluate all rules:
+  - 1. Configure DLP dictionaries and engines, if necessary. Use DLP dictionaries and engines as they are or modify them to suit your needs. You can also create custom dictionaries or engines. Skip this step if you don't want to modify or create custom DLP dictionaries and engines.
+  - 2. Configure DLP notification templates if you want to email notifications to your organization's auditor when your users' transactions violate DLP policy rules.
+  - 3. (Optional) Configure ICAP receivers if you want to forward information about transactions that violate DLP policy to your third-party solution. Skip this step if you don't have a third-party DLP solution or if you don't want to forward content.
+  - 4. (Optional) Configure a Zscaler Incident Receiver to forward information about content that triggers an outbound email policy rule to your Incident Receiver via secure Internet Content Adaptation Protocol (ICAP). Zscaler does not take ICAP responses from your Incident Receiver; instead, the service only monitors or blocks content according to the policy you configure, then forwards information about activities so that your organization can take necessary remediation steps.
+  - 5. (Optional) Configure Cloud-to-Cloud Incident Forwarding to send metadata and evidence about transactions that violate a DLP policy rule directly to your public cloud storage without deploying appliances.
+  - 6. Define your policy rules.
+    - From the navigation menu, go to Data Security > Inline DLP > Data Loss Prevention.
+    - Click Add Rule.
+    - The Add Rule page appears.
+    - On the Add Rule page, you can configure the following sections:
+    - Criteria
+      - Content Matching: Choose Select DLP Engines to select up to 4 engines. You can also search for DLP engines. If you select None, then the Zscaler service doesn't use DLP engines to scan the content; instead, the service functions as a filter, only flagging content based on the criteria you specify.
+      - The Match Only option takes effect for both Allow and Block rule actions. You can select Match Only to configure how engines must trigger in order for the service to take action. To learn more, see DLP Policy Configuration Example: Match Only.
+      - If Match Only is deselected, only one of the engines is required to trigger in order for the service to take action.
+      - For example, suppose you create two DLP rules:
+        - Rule 1: Uses the PCI engine, the Match Only option selected, and a Block rule action.
+        - Rule 2: Uses the PII engine and a Block rule action.
+      - With Match Only deselected, if a transaction triggers only the PCI engine, then Rule 1 is triggered.
+      - If Match Only is selected, all engines are required to trigger in order for the service to take action, and the transaction must not match any other engines from different rules.
+      - For example, suppose you have the same two DLP rules as in the earlier example:
+        - Rule 1: Uses the PCI engine, the Match Only option selected, and a Block rule action.
+        - Rule 2: Uses the PII engine and a Block rule action.
+      - With Match Only selected, if a transaction triggers both the PCI and PII engines, then Rule 2 is triggered.
+    - The Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text. The maximum size also applies to files extracted from archive files.
+      - Content Locations: You can choose one or more content locations as a match criteria to target specific sections of a file or transaction. Matches vary depending on which content location you select.
+      - To enable this feature, contact Zscaler Support.
+        - File
+          - Document Properties: Matches are based on the file metadata (i.e., MIP labels).
+          - File Content: Matches are based on the actual content of the file, not including metadata.
+          - File Name: Matches are based on the name of the file.
+        - HTTP Body
+          - HTTP Body: Matches are based on the non-file body of the HTTP request. Matches are based on the body of the HTTP request. Note: you must also select non-file file type when selecting HTTP Body as a content location.
+      - Inspect HTTP GET Query Parameters: You can configure DLP rules to inspect HTTP GET Query Parameters for the following URL categories: Generative AI and ML Applications, Safe Search Engines, Translation Tools, Web Search, and User-Defined Custom URL Categories. To enable, choose Enable for Inspect HTTP GET Requests, then select a URL category from the drop-down menu. To learn more, see Configuring DLP Advanced Settings.
+      - To select a user-defined custom URL category from the drop-down menu, go to the DLP Advanced Settings page (Data Security > Common Resources > DLP Advanced Settings) and select a User-Defined URL.
+      - Source IP Groups: Select Any to apply the rule to all source IP groups, or select any number of source IP groups. You can also search for source IP groups or click the Add icon to add a new source IP group.
+      - URL Categories: Select Any to apply the rule to all URL categories, or select any number of URL categories. You can search for URL categories or click the Add icon to create a new URL category. You can create DLP policy rules that apply to only content being sent to specific URL categories. For example, you can create a rule that blocks credit card numbers from being sent to websites in the Adult Material URL category.
+    - You can also select custom TLD categories from this field.
+    - Conversely, you can create DLP policy rules to exempt some sites from a rule that blocks content. For example, an organization must protect its source code generally, but still allow the content to be sent to certain authorized sites. To achieve this, the organization can create one rule that blocks all outbound source code and create another rule that allows outbound source code to a specific URL category that includes the authorized URLs.
+    - If you want to exempt a specific website or custom URL category from DLP evaluation, you must add the website or URL category to the Cloud Apps & URL Exceptions for DLP list. To learn more, see Configuring DLP Advanced Settings.
+      - Cloud Applications: Select Any to apply the rule to all cloud applications, or select any number of cloud applications. You can also search for applications. You can create DLP policy rules that apply to only content being sent to specific cloud applications. For example, you can create a rule that blocks offensive content from being posted to Facebook.
+    - By default, this field displays the first 100 cloud applications. The subsequent 100 cloud applications are displayed when you select Click to see more following the list. You can repeat this process to view the remaining cloud applications.
+    - See image.
+    - Conversely, you can create DLP policy rules that allow specific kinds of content to certain applications. For example, you can have a rule that blocks the release of financial information generally and create another rule that exempts financial information being sent to an application like Salesforce.
+    - If you want to exempt a specific cloud application from DLP evaluation, you must add the cloud application to the Cloud Apps & URL Exceptions for DLP list. To learn more, see Configuring DLP Advanced Settings.
+    - The DLP policy applies AND logic to the URL Categories and Cloud Applications fields when inspecting your organization's traffic. In order for a DLP rule to trigger, the Zscaler service must detect the rule’s selected URL categories and cloud applications in a transaction.
+      - Email Recipient Domain Profiles (Gmail and Outlook): Choose Include to apply the rule only to the selected domain profiles, or choose Exclude to apply the rule to all other domain profiles and not selected domain profiles. You can select up to 8 domain profiles, and you can search for domain profiles.
+      - Cloud Application Instances: Select the cloud application instances to which the rule applies. You can select a maximum of 8 instances per rule.
+    - The cloud application instance appears only if its parent application is selected as the cloud application.
+      - ZPA Application Segment: Select Any to apply the rule to all Private Access (ZPA) application segments, or select up to 255 Private Access application segments. The list displays only those Private Access application segments that have the Source IP Anchor option enabled.
+    - If you select the Inspect App Segments option from the list, then the configured rule applies to all the Private Access application segments paired to your Internet & SaaS (ZIA) tenant. This option is only available if the SIPA App Segments subscription is enabled for your organization.
+      - File Type: From the drop-down menu, choose the file types for the rule. You can create DLP policy rules that apply just to content being sent via specific file types. Policies that reference Zscaler DLP engines support different file types than policies that reference external DLP engines. Zscaler DLP engines can scan files of up to 100 MB. For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB. You can also select custom file types you have previously configured.
+    - Zscaler-defined file types are considered before custom file types and custom files inside archives are not detected.
+      - Minimum Data Size: Enter the minimum size requirement that data must meet before the DLP rule applies. The default minimum data size, 0 KB, means there is no minimum data size requirement.
+      - Users: You can specify how the DLP rule applies to your users.
+        - Choose Include to apply the rule to selected users and no other users. From the drop-down menu, choose Any to apply the rule to all users or select up to 32 users.
+        - Choose Exclude to apply the rule to all other users and not selected users. You can select up to 256 users.
+    - When selecting users, you can search for users or click the Add icon to add a new user. If you’ve enabled the Policy for Unauthenticated Traffic, you can also select special users to apply this rule to all unauthenticated users or select specific types of unauthenticated users.
+      - Groups: You can specify how the DLP rule applies to your groups.
+        - Choose Include to apply the rule to selected groups and no other groups. From the drop-down menu, choose Any to apply the rule to all groups or select up to 32 groups.
+        - Choose Exclude to apply the rule to all other groups and not selected groups. You can select up to 256 groups.
+    - When selecting groups, you can search for groups or click the Add icon to add a new group.
+      - Departments: You can specify how the DLP rule applies to your departments.
+        - Choose Include to apply the rule to selected departments and no other departments. From the drop-down menu, choose Any to apply the rule to all departments or select up to 32 departments.
+        - Choose Exclude to apply the rule to all other departments and not selected departments. You can select up to 256 departments.
+    - When selecting departments, you can search for groups or click the Add icon to add a new department. If you’ve enabled the Policy for Unauthenticated Traffic, you can also select pecial Departments to apply this rule to all unauthenticated transactions.
+    - Any rule that applies to unauthenticated traffic must apply to all groups and departments. So, if you have chosen to apply this rule to unauthenticated traffic for either Users or Departments, select Any from the drop-down menus for Groups and Departments.
+    - The DLP policy applies OR logic to the Users, Groups, and Departments fields when inspecting your organization’s traffic. In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments.
+      - User Risk Profile: Select the user risk score levels to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
+    - Users are assigned a risk score based on their browsing activities. A range of risk scores is grouped as a risk score level.
+    - By default, the following user risk score levels are available:
+      - Low: Level with user risk scores ranging from 0 to 29
+      - Medium: Level with user risk scores ranging from 30 to 59
+      - High: Level with user risk scores ranging from 60 to 79
+      - Critical: Level with user risk scores ranging from 80 to 100
+    - Contact Zscaler Support to customize the user risk score range of these levels for your organization.
+      - Locations: Select Any to apply the rule to all locations, or select up to 32 locations. You can also search for a location or click the Add icon to add a new location.
+    - Contact Zscaler Support to increase the limit of Users, Groups, Departments, or Locations.
+      - Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups. You can also search for a location group.
+      - Time: Select Always to apply this rule to all time intervals, or select up to two time intervals. You can also search for a time interval or click the Add icon to add a new time interval.
+      - Protocols: Select the protocols to which the rule applies.
+        - HTTP: Data transactions and file uploads from HTTP websites.
+        - HTTPS: Data transactions and file uploads from HTTP websites encrypted by SSL/TLS.
+        - Native FTP: Data transactions and file uploads from native FTP servers.
+        - WebSocket: Data transactions from WebSocket websites.
+        - WebSocket SSL/TLS: Data transactions from WebSocket websites encrypted by SSL/TLS.
+    - The WebSocket protocol is supported only for the Microsoft Copilot application.
+      - Workload Groups: Select up to 8 workload groups for which you want to apply the rule. You can also search for a workload group. Selecting None ignores workload groups when the policy is evaluated. To learn more, see About Workload Groups.
+      - Inspect Downloads: Enable this option to allow DLP inspection for content downloaded from specific cloud apps. If this option is enabled, you must also choose Any for URL Categories and at least one cloud app for Cloud Application. If disabled, the DLP rule only applies to content being sent to cloud apps. The Inspect Downloads feature does not apply to Exact Data Match (EDM) or Indexed Data Matching (IDM) engines.
+    - Actions
+    - In the Action section, select the action to apply when the rule conditions are met and configure the logging mode:
+      - Data Traffic: Choose the action that the Zscaler service must apply when packets match the rule:
+        - Allow: Allow the packets to pass through the DLP rule.
+        - Block: Block the packets to pass through the DLP rule.
+    - Details
+    - In the Details section, provide general information about the DLP rule:
+      - Rule Name: A system-generated rule name is automatically populated, and the name can be edited. The name cannot exceed 63 characters.
+      - Description: (Optional) Click Add Description and enter additional notes or information about the rule in the text field. You can adjust this field's size as needed, depending on your content length. The description cannot exceed 10,240 characters.
+      - Rule Label: (Optional) Click Add Rule Label and select a label from the drop-down menu.
+      - Rule Order: A rule order is automatically assigned and displayed. It determines the rule's position in the ascending order of evaluation used for all rules within the policy. You can modify the rule order, but if you've enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
+      - To modify the rule order:
+        - Click Edit.
+        - In the Edit Rule Order drawer that appears, enter the required rule order under Current Rule. You can review the existing rules shown in the drawer and modify your current rule order.
+        - You can also adjust the number of rules displayed per page and navigate through the next and previous pages.
+        - Click Apply.
+      - Admin Rank: Click Edit and select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu. This option appears if you enable Admin Ranking on the Advanced Settings page. Your assigned admin rank determines the values you can select (e.g., you cannot select a rank higher than your own). The rule's admin rank determines the value you can select for rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.
+      - Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic.
+      - Disabled rules can have a rule order assigned. During evaluation, the service skips the disabled rules and moves to the successive ones.
+    - DLP Incident Receiver
+    - (Optional) Configure the DLP Incident Receiver settings:
+      - ICAP: Select the applicable ICAP receiver from the drop-down menu. You must configure ICAP receivers to complete this step.
+      - Zscaler Incident Receiver: Select the applicable Zscaler Incident Receiver from the drop-down menu. You must configure your Zscaler Incident Receivers to complete this step.
+      - Cloud-to-Cloud Forwarding: Select the applicable Tenant and Cloud-to-Cloud Forwarding Configuration from the drop-down menus. You must configure Cloud-to-Cloud Forwarding to complete this step.
+    - Ensure that in your third-party DLP solution, you've configured a rule that detects the same data type as the rule you configure here. For example, if you configure a Zscaler DLP rule blocking credit card data, you must also configure a rule in your third-party solution blocking credit card data.
+    - Otherwise, the information that Zscaler sends to your solution regarding a particular rule violation does not appear in your on-premises solution's dashboard. However, the rules do not need to correspond exactly. You do not need to ensure that other criteria for the rules, beyond the data type, correspond. For example, if a Zscaler DLP rule blocks credit card numbers going to a specific URL category, the rule in your on-premises DLP solution must also block credit card numbers, but need not match the URL category criteria.
+    - Notification
+    - (Optional) Define the following Notification settings:
+      - Configure an email notification for the rule. If you do not select an auditor and notification template, a notification is not sent for this rule.
+        - Email Auditor Type: Select whether the auditor is from a Hosted database or External to your organization.
+          - Select or search for Email Auditor if the auditor is from a hosted database.
+          - Select Auditor Email Address if the auditor is external, and enter the auditor’s email address.
+        - Email Notification Template: Select a notification template from the drop-down menu.
+      - Configure the End User Notification (EUN) for the rule. The type of EUN messages that appear on the endpoint depends on the Action configured for the rule.
+        - End User Notification: Select Show to show an EUN message on endpoints when content triggers the DLP policy rule, or select Hide if you don't want an EUN message to appear.
+        - Custom Message: Select Default to use the default EUN message configured for inline web DLP, or select a custom EUN message from the drop-down menu. You can also search for custom messages or click the Add icon to add a new custom message.
+    - Click Save and activate the change.
+  - For example, if a policy rule using predefined Zscaler DLP engines is configured, the Zscaler service blocks all the files that:
+    - Contain medical information.
+    - Are over 1,000 KB in size.
+    - Are being sent by users in the Operations group through Gmail.
+  - The Zscaler service sends an email notification regarding the policy violation to your organization's auditor but doesn't forward information to an incident receiver.
+  - 7. (Optional) Define exception rules.
+  - Exception rules are child rules that allow you to exclude specific users or groups in your organization who must perform tasks as part of a necessary workflow that might otherwise violate inline DLP policy. There is no limit to the number of exception rules that you can assign to each parent rule.
+  - To define an exception rule:
+    - From the navigation menu, go to Data Security > Inline DLP > Data Loss Prevention.
+    - Find an existing inline DLP rule in the list and click the Add Exception Rule icon.
+    - The Add DLP Exception Rule page appears.
+    - In the Add DLP Exception Rule page, configure the following:
+    - Criteria
+    - On the Add DLP Exception Rule page, define the following Criteria:
+      - Content Matching: Choose Select DLP Engines to select up to 4 engines. You can also search for DLP engines. If you select None, then the Zscaler service doesn't use DLP engines to scan the content; instead, the service functions as a filter, only flagging content based on the criteria you specify.
+      - The Match Only option takes effect for both Allow and Block rule actions. You can select Match Only to configure how engines must trigger in order for the service to take action. To learn more, see DLP Policy Configuration Example: Match Only.
+      - If Match Only is deselected, only one of the engines is required to trigger in order for the service to take action.
+      - For example, suppose you create two DLP rules:
+        - Rule 1: Uses the PCI engine, the Match Only option selected, and a Block rule action.
+        - Rule 2: Uses the PII engine and a Block rule action.
+      - With Match Only deselected, if a transaction triggers only the PCI engine, then Rule 1 is triggered.
+      - If Match Only is selected, all engines are required to trigger in order for the service to take action, and the transaction must not match any other engines from different rules.
+      - For example, suppose you have the same two DLP rules as in the earlier example:
+        - Rule 1: Uses the PCI engine, the Match Only option selected, and a Block rule action.
+        - Rule 2: Uses the PII engine and a Block rule action.
+      - With Match Only selected, if a transaction triggers both the PCI and PII engines, then Rule 2 is triggered.
+    - The Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text. The maximum size also applies to files extracted from archive files.
+      - Content Locations: You can choose one or more content locations as a match criteria to target specific sections of a file or transaction. Matches vary depending on which content location you select.
+      - To enable this feature, contact Zscaler Support.
+        - File
+          - Document Properties: Matches are based on the file metadata (i.e., MIP labels).
+          - File Content: Matches are based on the actual content of the file, not including metadata.
+          - File Name: Matches are based on the name of the file.
+        - HTTP Body
+          - HTTP Body: Matches are based on the non-file body of the HTTP request. Matches are based on the body of the HTTP request. Note: you must also select non-file file type when selecting HTTP Body as a content location.
+      - Inspect HTTP GET Query Parameters: You can configure DLP rules to inspect HTTP GET Query Parameters for the following URL categories: Generative AI and ML Applications, Safe Search Engines, Translation Tools, Web Search, and User-Defined Custom URL Categories. To enable, choose Enable for Inspect HTTP GET Requests, then select a URL category from the drop-down menu. To learn more, see Configuring DLP Advanced Settings.
+      - To select a user-defined custom URL category from the drop-down menu, go to the DLP Advanced Settings page (Data Security > Common Resources > DLP Advanced Settings) and select a User-Defined URL.
+      - Source IP Groups: Select Any to apply the rule to all source IP groups, or select any number of source IP groups. You can also search for source IP groups or click the Add icon to add a new source IP group.
+      - URL Categories: Select Any to apply the rule to all URL categories, or select any number of URL categories. You can search for URL categories or click the Add icon to create a new URL category. You can create DLP policy rules that apply to only content being sent to specific URL categories. For example, you can create an exception rule that blocks credit card numbers from being sent to websites in the Adult Material URL category.
+    - You can also select custom TLD categories from this field.
+    - Conversely, you can create DLP policy rules to exempt some sites from a rule that blocks content. For example, an organization must protect its source code generally, but still allow the content to be sent to certain authorized sites. To achieve this, the organization can create one rule that blocks all outbound source code and create another rule that allows outbound source code to a specific URL category that includes the authorized URLs.
+    - If you want to exempt a specific website or custom URL category from DLP evaluation, you must add the website or URL category to the Cloud Apps & URL Exceptions for DLP list. To learn more, see Configuring DLP Advanced Settings.
+      - Cloud Applications: Select Any to apply the exception rule to all cloud applications, or select any number of cloud applications. You can also search for applications. You can create DLP policy rules that apply to only content being sent to specific cloud applications. For example, you can create a rule that blocks offensive content from being posted to Facebook.
+    - By default, this field displays the first 100 cloud applications. The subsequent 100 cloud applications are displayed when you select Click to see more following the list. You can repeat this process to view the remaining cloud applications.
+    - See image.
+    - Conversely, you can create DLP policy rules that allow specific kinds of content for certain applications. For example, you can have a rule that blocks the release of financial information generally and create another rule that exempts financial information being sent to an application like Salesforce.
+    - If you want to exempt a specific cloud application from DLP evaluation, you must add the cloud application to the Cloud Apps & URL Exceptions for DLP list. To learn more, see Configuring DLP Advanced Settings.
+    - The DLP policy applies AND logic to the URL Categories and Cloud Applications fields when inspecting your organization's traffic. In order for a DLP exception rule to trigger, the Zscaler service must detect the rule’s selected URL categories and cloud applications in a transaction.
+      - Email Recipient Domain Profiles (Gmail and Outlook): Choose Include to apply the rule only to the selected domain profiles, or choose Exclude to apply the rule to all other domain profiles and not selected domain profiles. You can select up to 8 domain profiles, and you can search for domain profiles.
+      - Cloud Application Instances: Select the cloud application instances to which the exception rule applies. You can select a maximum of 8 instances per exception rule.
+    - The cloud application instance appears only if its parent application is selected as the cloud application.
+      - ZPA Application Segment: Select Any to apply the exception rule to all Private Access (ZPA) application segments, or select up to 255 Private Access application segments. You can also search for Private Access application segments.
+    - The list displays only those Private Access application segments that have the Source IP Anchor option enabled. To learn more, see About Source IP Anchoring.
+      - File Type: From the drop-down menu, choose the file types for the exception rule. You can create DLP policy rules that apply just to content being sent via specific file types. Policies that reference Zscaler DLP engines support different file types than policies that reference external DLP engines. Zscaler DLP engines can scan files of up to 100 MB. For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB. You can also select custom file types you have previously configured.
+      - Zscaler-defined file types are considered before custom file types and custom files inside archives are not detected.
+      - Minimum Data Size: Enter the minimum size requirement that data must meet before the DLP exception rule applies. The default minimum data size, 0 KB, means there is no minimum data size requirement.
+      - Users: You can specify how the DLP exception rule applies to your users.
+        - Choose Include to apply the exception rule to selected users and no other users. From the drop-down menu, choose Any to apply the rule to all users or select up to 32 users.
+        - Choose Exclude to apply the exception rule to all other users and not selected users. You can select up to 256 users.
+        - When selecting users, you can search for users or click the Add icon to add a new user. If you’ve enabled the Policy for Unauthenticated Traffic, you can also select special users to apply this rule to all unauthenticated users or select specific types of unauthenticated users.
+      - Groups: You can specify how the DLP exception rule applies to your groups.
+        - Choose Include to apply the exception rule to selected groups and no other groups. From the drop-down menu, choose Any to apply the rule to all groups or select up to 32 groups.
+        - Choose Exclude to apply the exception rule to all other groups and not selected groups. You can select up to 256 groups.
+        - When selecting groups, you can search for groups or click the Add icon to add a new group.
+      - Departments: You can specify how the DLP exception rule applies to your departments.
+        - Choose Include to apply the exception rule to selected departments and no other departments. From the drop-down menu, choose Any to apply the rule to all departments or select up to 32 departments.
+        - Choose Exclude to apply the exception rule to all other departments and not selected departments. You can select up to 256 departments.
+        - When selecting departments, you can search for groups or click the Add icon to add a new department. If you’ve enabled the Policy for Unauthenticated Traffic, you can also select special departments to apply this rule to all unauthenticated transactions.
+    - Any rule that applies to unauthenticated traffic must apply to all groups and departments. So, if you have chosen to apply this rule to unauthenticated traffic for either Users or Departments, select Any from the drop-down menus for Groups and Departments.
+    - The DLP policy applies OR logic to the Users, Groups, and Departments fields when inspecting your organization’s traffic. In order for the DLP exception rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments.
+      - User Risk Profile: Select the user risk score levels to which the exception rule applies. Selecting no value ignores this criterion in the policy evaluation. Users are assigned a risk score based on their browsing activities. A range of risk scores is grouped as a risk score level.
+    - By default, the following user risk score levels are available:
+      - Low: Level with user risk scores ranging from 0 to 29
+      - Medium: Level with user risk scores ranging from 30 to 59
+      - High: Level with user risk scores ranging from 60 to 79
+      - Critical: Level with user risk scores ranging from 80 to 100
+    - Contact Zscaler Support to customize the user risk score range of these levels for your organization.
+      - Locations: Select Any to apply the exception rule to all locations, or select up to 32 locations. You can also search for a location or click the Add icon to add a new location.
+      - Contact Zscaler Support to increase the limit of Users, Groups, Departments, or Locations.
+      - Location Groups: Select Any to apply the exception rule to all location groups, or select up to 32 location groups. You can also search for a location group.
+      - Time: Select Always to apply this rule to all time intervals, or select up to two time intervals. You can also search for a time interval or click the Add icon to add a new time interval.
+      - Protocols: Select the protocols to which the exception rule applies.
+        - HTTP: Data transactions and file uploads from HTTP websites.
+        - HTTPS: Data transactions and file uploads from HTTP websites encrypted by SSL/TLS.
+        - Native FTP: Data transactions and file uploads from native FTP servers.
+        - WebSocket: Data transactions from WebSocket websites.
+        - WebSocket SSL/TLS: Data transactions from WebSocket websites encrypted by SSL/TLS.
+    - WebSocket protocol is supported only for the Microsoft Copilot application.
+      - Workload Groups: Select up to 8 workload groups for which you want to apply the rule. You can also search for a workload group. Selecting None ignores workload groups when the policy is evaluated. To learn more, see About Workload Groups.
+      - Inspect Downloads: Enable this option to allow DLP inspection for content downloaded from specific cloud apps. If this option is enabled, you must also choose Any for URL Categories and at least one cloud app for Cloud Application. If disabled, the DLP exception rule only applies to content being sent to cloud apps. The Inspect Downloads feature does not apply to Exact Data Match (EDM) or Indexed Data Matching (IDM) engines.
+    - Actions
+    - In the Action section, select the action to apply when the rule conditions are met and configure the logging mode:
+      - Action: Select the action for the rule:
+        - Allow: The service allows and logs the transaction.
+        - Block: The service blocks and logs the transaction.
+        - Confirm: Users can justify the transaction to continue, or cancel the transaction altogether; in both cases, the service logs the transaction accordingly.
+      - If the confirmation message times out without the end user taking action, the Zscaler service automatically cancels the transaction. To learn more, see Configuring User Confirmation Notification Templates.
+    - Details
+    - In the Details section, provide general information about the DLP rule:
+      - Rule Name: Enter a unique name for the DLP rule or use the default name.
+      - Description: (Optional) Enter any additional notes or information. The description cannot exceed 10,240 characters.
+      - Rule Label: Select a rule label to associate it with the rule. To learn more, see About Rule Labels.
+      - Rule Order: Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule’s place in the order. You can change the value, but if you’ve enabled admin ranking, then the assigned admin rank determines the rule order values you can select.
+      - Severity: Select the severity of the violation from the drop-down menu (i.e., High, Medium, Low, or Information).
+      - Rule Status: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The Zscaler service skips it and moves to the next rule.
+    - DLP Incident Receiver
+    - (Optional) Configure the DLP Incident Receiver settings:
+      - ICAP: Select the applicable ICAP receiver from the drop-down menu. You must configure ICAP receivers to complete this step.
+      - Zscaler Incident Receiver: Select the applicable Zscaler Incident Receiver from the drop-down menu. You must configure your Zscaler Incident Receivers to complete this step.
+      - Cloud-to-Cloud Forwarding: Select the applicable Tenant and Cloud-to-Cloud Forwarding Configuration from the drop-down menus. You must configure Cloud-to-Cloud Forwarding to complete this step.
+    - Ensure that in your third-party DLP solution, you've configured a rule that detects the same data type as the exception rule you configure here. For example, if you configure a Zscaler DLP exception rule blocking credit card data, you must also configure a rule in your third-party solution blocking credit card data.
+    - Otherwise, the information that Zscaler sends to your solution regarding a particular rule violation does not appear in your on-premises solution's dashboard. However, the rules do not need to correspond exactly. You don't need to ensure that other criteria for the rules, beyond the data type, correspond. For example, if a Zscaler DLP exception rule blocks credit card numbers going to a specific URL category, the rule in your on-premises DLP solution must also block credit card numbers, but needn't match the URL category criteria.
+    - Notification
+    - (Optional) Define the following Notification settings:
+      - Configure an email notification for the rule. If you do not select an auditor and notification template, a notification is not sent for this rule.
+        - Email Auditor Type: Select whether the auditor is from a Hosted database or External to your organization.
+          - Select or search for Email Auditor if the auditor is from a hosted database.
+          - Select Auditor Email Address if the auditor is external, and enter the auditor’s email address.
+        - Email Notification Template: Select a notification template from the drop-down menu.
+      - Configure the End User Notification (EUN) for the rule. The type of EUN messages that appear on the endpoint depends on the Action configured for the rule.
+        - End User Notification: Select Show to show an EUN message on endpoints when content triggers the DLP policy rule, or select Hide if you don't want an EUN message to appear.
+        - Custom Message: Select Default to use the default EUN message configured for inline web DLP, or select a custom EUN message from the drop-down menu. You can also search for custom messages or click the Add icon to add a new custom message.
+    - Click Save and activate the change.
+  - For example, for an exception rule using predefined Zscaler DLP engines configured, the Zscaler service allows all PDF files that:
+    - Contain medical information
+    - Are any size
+    - Are sent via Gmail by Service Admin Group members
+- Configuring a DLP policy rule to use rule order
+- Configuring a DLP policy rule to use rule order when Evaluate All Rules mode is enabled for your organization fundamentally resembles default Zscaler behavior, in that the Zscaler service stops evaluating rules at the first match. The biggest difference is that you have a single option to create a DLP rule, instead of initially choosing between creating a DLP rule with content inspection or creating a DLP rule without content inspection. Additionally, unlike configuring a DLP policy rule to evaluate all rules, you do not have the option to create exception rules.
+- To configure a DLP policy rule to use rule order:
+  - 1. Configure DLP dictionaries and engines, if necessary. Use DLP dictionaries and engines as they are or modify them to suit your needs. You can also create custom dictionaries or engines. Skip this step if you don't want to modify or create custom DLP dictionaries and engines.
+  - 2. Configure DLP notification templates if you want to email notifications to your organization's auditor when your users' transactions violate DLP policy rules.
+  - 3. (Optional) Configure ICAP receivers if you want to forward information about transactions that violate DLP policy to your third-party solution. Skip this step if you don't have a third-party DLP solution or if you don't want to forward content.
+  - 4. (Optional) Configure a Zscaler Incident Receiver to forward information about content that triggers an outbound email policy rule to your Incident Receiver via secure Internet Content Adaptation Protocol (ICAP). Zscaler does not take ICAP responses from your Incident Receiver; instead, the service only monitors or blocks content according to the policy you configure, then forwards information about activities so that your organization can take necessary remediation steps.
+  - 5. (Optional) Configure Cloud-to-Cloud Incident Forwarding to send metadata and evidence about transactions that violate DLP policy directly to your public cloud storage without deploying appliances.
+  - 6. Define your policy rules.
+  - From the navigation menu, go to Data Security > Inline DLP > Data Loss Prevention.
+  - Click Add DLP Rule.
+  - The Add Rule page appears.
+  - On the Add Rule page, configure the following:
+    - Criteria
+    - Actions
+    - On the Add Rule page, enter the following DLP Rule attributes:
+      - Action: Select the action for the rule:
+        - Allow: The service allows and logs the transaction.
+        - Block: The service blocks and logs the transaction.
+        - Confirm: Users can justify the transaction to continue, or cancel the transaction altogether; in both cases, the service logs the transaction accordingly.
+      - If the confirmation message times out without the end user taking action, the Zscaler service automatically cancels the transaction. To learn more, see Configuring User Confirmation Notification Templates.
+    - Details
+    - In the Details section, provide general information about the DLP rule:
+      - Rule Name: Enter a unique name for the DLP rule or use the default name.
+      - Description: (Optional) Enter any additional notes or information. The description cannot exceed 10,240 characters.
+      - Rule Label: Select a rule label to associate it with the rule. To learn more, see About Rule Labels.
+      - Rule Order: Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule’s place in the order. You can change the value, but if you’ve enabled admin ranking, then the assigned admin rank determines the rule order values you can select.
+      - Severity: Select the severity of the violation from the drop-down menu (i.e., High, Medium, Low, or Information).
+      - Rule Status: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The Zscaler service skips it and moves to the next rule.
+    - DLP Incident Receiver
+    - (Optional) Configure the DLP Incident Receiver settings:
+      - ICAP: Select the applicable ICAP receiver from the drop-down menu. You must configure ICAP receivers to complete this step.
+      - Zscaler Incident Receiver: Select the applicable Zscaler Incident Receiver from the drop-down menu. You must configure your Zscaler Incident Receivers to complete this step.
+      - Cloud-to-Cloud Forwarding: Select the applicable Tenant and Cloud-to-Cloud Forwarding Configuration from the drop-down menus. You must configure Cloud-to-Cloud Forwarding to complete this step.
+    - Ensure that in your third-party DLP solution, you've configured a rule that detects the same data type as the rule you configure here. For example, if you configure a Zscaler DLP rule blocking credit card data, you must also configure a rule in your third-party solution blocking credit card data.
+    - Otherwise, the information that Zscaler sends to your solution regarding a particular rule violation does not appear in your on-premises solution's dashboard. However, the rules do not need to correspond exactly. You don't need to ensure that other criteria for the rules, beyond the data type, correspond. For example, if a Zscaler DLP rule blocks credit card numbers going to a specific URL category, the rule in your on-premises DLP solution must also block credit card numbers, but needn't match the URL category criteria.
+    - Notification
+    - (Optional) Define the following Notification settings:
+      - Configure an email notification for the rule. If you do not select an auditor and notification template, a notification is not sent for this rule.
+        - Email Auditor Type: Select whether the auditor is from a Hosted database or External to your organization.
+          - Select or search for Email Auditor if the auditor is from a hosted database.
+          - Select Auditor Email Address if the auditor is external, and enter the auditor’s email address.
+        - Email Notification Template: Select a notification template from the drop-down menu.
+      - Configure the End User Notification (EUN) for the rule. The type of EUN messages that appear on the endpoint depends on the Action configured for the rule.
+        - End User Notification: Select Show to show an EUN message on endpoints when content triggers the DLP policy rule, or select Hide if you don't want an EUN message to appear.
+        - Custom Message: Select Default to use the default EUN message configured for inline web DLP, or select a custom EUN message from the drop-down menu. You can also search for custom messages or click the Add icon to add a new custom message.
+  - Click Save and activate the change.
+- For example, if a policy rule using predefined Zscaler DLP engines is configured, the Zscaler service blocks all the files that:
+  - Contain medical information
+  - Are over 1,000 KB in size
+  - Are being sent by users in the Operations group through Gmail
+- The Zscaler service sends an email notification regarding the policy violation to your organization's auditor but doesn't forward information to an incident receiver.
+  - Content Matching: Choose Select DLP Engines to select up to 4 engines. You can also search for DLP engines. If you select None, then the Zscaler service doesn't use DLP engines to scan the content; instead, the service functions as a filter, only flagging content based on the criteria you specify.
+    - If deselected, only one of the engines is required to trigger in order for the service to take action.
+    - If selected, all engines are required to trigger in order for the service to take action, and the transaction must not match any other engines from different rules.
+    - For example, you create a DLP rule with the PCI engine and select the Match Only option. In this case, the rule does not trigger when a transaction triggers both the PCI and HIPAA engine. It only triggers when a transaction triggers only the PCI engine.
+- The Zscaler DLP engines support files up to 400 MB and can scan the first 100 MB of the extracted text. The maximum size also applies to files extracted from archive files.
+  - Content Locations: You can choose one or more content locations as a match criteria to target specific sections of a file or transaction. Matches vary depending on which content location you select.
+  - To enable this feature, contact Zscaler Support.
+    - File
+      - Document Properties: Matches are based on the file metadata (i.e., MIP labels).
+      - File Content: Matches are based on the actual content of the file, not including metadata.
+      - File Name: Matches are based on the name of the file.
+    - HTTP Body
+      - HTTP Body: Matches are based on the non-file body of the HTTP request. Matches are based on the body of the HTTP request. Note: you must also select non-file file type when selecting HTTP Body as a content location.
+  - Inspect HTTP GET Query Parameters: You can configure DLP rules to inspect HTTP GET Query Parameters for the following URL categories: Generative AI and ML Applications, Safe Search Engines, Translation Tools, Web Search, and User-Defined Custom URL Categories. To enable, choose Enable for Inspect HTTP GET Requests, then select a URL category from the drop-down menu. To learn more, see Configuring DLP Advanced Settings.
+  - To select a user-defined custom URL category from the drop-down menu, go to the DLP Advanced Settings page (Data Security > Common Resources > DLP Advanced Settings) and select a User-Defined URL.
+  - Source IP Groups: Select Any to apply the rule to all source IP groups, or select any number of source IP groups. You can also search for source IP groups or click the Add icon to add a new source IP group.
+  - URL Categories: Select Any to apply the rule to all URL categories, or select any number of URL categories. You can search for URL categories or click the Add icon to create a new URL category. You can create DLP policy rules that apply to only content being sent to specific URL categories. For example, you can create a rule that blocks credit card numbers from being sent to websites in the Adult Material URL category.
+- You can also select custom TLD categories from this field.
+- Conversely, you can create DLP policy rules to exempt some sites from a rule that blocks content. For example, an organization must protect its source code generally, but still allow the content to be sent to certain authorized sites. To achieve this, the organization can create one rule that blocks all outbound source code and create another rule that allows outbound source code to a specific URL category that includes the authorized URLs.
+- If you want to exempt a specific website or custom URL category from DLP evaluation, you must add the website or URL category to the Cloud Apps & URL Exceptions for DLP list. To learn more, see Configuring DLP Advanced Settings.
+  - Cloud Applications: Select Any to apply the rule to all cloud applications, or select any number of cloud applications. You can also search for applications. You can create DLP policy rules that apply to only content being sent to specific cloud applications. For example, you can create a rule that blocks offensive content from being posted to Facebook.
+- By default, this field displays the first 100 cloud applications. The subsequent 100 cloud applications are displayed when you select Click to see more following the list. You can repeat this process to view the remaining cloud applications.
+- See image.
+- Conversely, you can create DLP policy rules that allow specific kinds of content to certain applications. For example, you can have a rule that blocks the release of financial information generally and create another rule that exempts financial information being sent to an application like Salesforce.
+- If you want to exempt a specific cloud application from DLP evaluation, you must add the cloud application to the Cloud Apps & URL Exceptions for DLP list. To learn more, see Configuring DLP Advanced Settings.
+- The DLP policy applies AND logic to the URL Categories and Cloud Applications fields when inspecting your organization's traffic. In order for a DLP rule to trigger, the Zscaler service must detect the rule’s selected URL categories and cloud applications in a transaction.
+  - Email Recipient Domain Profiles (Gmail and Outlook): Choose Include to apply the rule only to the selected domain profiles, or choose Exclude to apply the rule to all other domain profiles and not selected domain profiles. You can select up to 8 domain profiles, and you can search for domain profiles.
+  - Cloud Application Instances: Select the cloud application instances to which the rule applies. You can select a maximum of 8 instances per rule.
+- The cloud application instance appears only if its parent application is selected as the cloud application.
+  - ZPA Application Segment: Select Any to apply the rule to all Private Access (ZPA) application segments, or select up to 255 Private Access application segments. You can also search for Private Access application segments.
+- The list displays only those Private Access application segments that have the Source IP Anchor option enabled. To learn more, see About Source IP Anchoring.
+  - File Type: From the drop-down menu, choose the file types for the rule. You can create DLP policy rules that apply just to content being sent via specific file types. Policies that reference Zscaler DLP engines support different file types than policies that reference external DLP engines. Zscaler DLP engines can scan files of up to 100 MB. For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB. You can also select custom file types you have previously configured.
+  - Zscaler-defined file types are considered before custom file types and custom files inside archives are not detected.
+  - Minimum Data Size: Enter the minimum size requirement that data must meet before the DLP rule applies. The default minimum data size, 0 KB, means there is no minimum data size requirement.
+  - Users: You can specify how the DLP rule applies to your users.
+    - Choose Include to apply the rule to selected users and no other users. From the drop-down menu, choose Any to apply the rule to all users or select up to 32 users.
+    - Choose Exclude to apply the rule to all other users and not selected users. You can select up to 256 users.
+- When selecting users, you can search for users or click the Add icon to add a new user. If you’ve enabled the Policy for Unauthenticated Traffic, you can also select special users to apply this rule to all unauthenticated users or select specific types of unauthenticated users.
+  - Groups: You can specify how the DLP rule applies to your groups.
+    - Choose Include to apply the rule to selected groups and no other groups. From the drop-down menu, choose Any to apply the rule to all groups or select up to 32 groups.
+    - Choose Exclude to apply the rule to all other groups and not selected groups. You can select up to 256 groups.
+- When selecting groups, you can search for groups or click the Add icon to add a new group.
+  - Departments: You can specify how the DLP rule applies to your departments.
+    - Choose Include to apply the rule to selected departments and no other departments. From the drop-down menu, choose Any to apply the rule to all departments or select up to 32 departments.
+    - Choose Exclude to apply the rule to all other departments and not selected departments. You can select up to 256 departments.
+- When selecting departments, you can search for groups or click the Add icon to add a new department. If you’ve enabled the Policy for Unauthenticated Traffic, you can also select special departments to apply this rule to all unauthenticated transactions.
+- Any rule that applies to unauthenticated traffic must apply to all groups and departments. So, if you have chosen to apply this rule to unauthenticated traffic for either Users or Departments, select Any from the drop-down menus for Groups and Departments. The DLP policy applies OR logic to the Users, Groups, and Departments fields when inspecting your organization’s traffic. In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments.
+  - User Risk Profile: Select the user risk score levels to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.
+- Users are assigned a risk score based on their browsing activities. A range of risk scores is grouped as a risk score level.
+- By default, the following user risk score levels are available:
+  - Low: Level with user risk scores ranging from 0 to 29
+  - Medium: Level with user risk scores ranging from 30 to 59
+  - High: Level with user risk scores ranging from 60 to 79
+  - Critical: Level with user risk scores ranging from 80 to 100
+- Contact Zscaler Support to customize the user risk score range of these levels for your organization.
+  - Locations: Select Any to apply the rule to all locations, or select up to 32 locations. You can also search for a location or click the Add icon to add a new location.
+  - Contact Zscaler Support to increase the limit of Users, Groups, Departments, or Locations.
+  - Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups. You can also search for a location group.
+  - Time: Select Always to apply this rule to all time intervals, or select up to two time intervals. You can also search for a time interval or click the Add icon to add a new time interval.
+  - Protocols: Select the protocols to which the rule applies.
+    - HTTP: Data transactions and file uploads from HTTP websites.
+    - HTTPS: Data transactions and file uploads from HTTP websites encrypted by SSL/TLS.
+    - Native FTP: Data transactions and file uploads from native FTP servers.
+    - WebSocket: Data transactions from WebSocket websites.
+    - WebSocket SSL/TLS: Data transactions from WebSocket websites encrypted by SSL/TLS.
+- The WebSocket protocol is supported only for the Microsoft Copilot application.
+  - Workload Groups: Select up to 8 workload groups for which you want to apply the rule. You can also search for a workload group. Selecting None ignores workload groups when the policy is evaluated. To learn more, see About Workload Groups.
+  - Inspect Downloads: Enable this option to allow DLP inspection for content downloaded from specific cloud apps. If this option is enabled, you must also choose Any for URL Categories and at least one cloud app for Cloud Application. If disabled, the DLP rule only applies to content being sent to cloud apps. The Inspect Downloads feature does not apply to Exact Data Match (EDM) or Indexed Data Matching (IDM) engines.

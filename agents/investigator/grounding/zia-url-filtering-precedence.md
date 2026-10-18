@@ -7,7 +7,7 @@ last-verified: "2026-05-07"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/zia/url-filtering.md"
+  - "kb:zia.url-filtering"
 author-status: draft
 ---
 
@@ -31,7 +31,7 @@ Read these *before* interpreting any web log. URL filtering precedence has two n
 
 ## Load docs
 
-- `references/zia/url-filtering.md`
+- `kb:zia.url-filtering`
 
 ## Inspect tenant config
 

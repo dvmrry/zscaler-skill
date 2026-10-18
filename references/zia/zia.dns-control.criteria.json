@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.criteria",
+  "title": "What a DNS Control rule can match on",
+  "aliases": [
+    "dns control criteria",
+    "dns rule conditions",
+    "dns record types",
+    "dns request types rule",
+    "resolved ip location"
+  ],
+  "binds": [
+    "zia/firewall-dns-rules#dnsRuleRequestTypes",
+    "zia/firewall-dns-rules#resCategories",
+    "zia/firewall-dns-rules#destCountries",
+    "zia/firewall-dns-rules#destIpCategories",
+    "zia/firewall-dns-rules#users",
+    "zia/firewall-dns-rules#groups",
+    "zia/firewall-dns-rules#departments",
+    "zia/firewall-dns-rules#locations",
+    "zia/firewall-dns-rules#locationGroups"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    }
+  ],
+  "claims": {
+    "condition-list": {
+      "statement": "DNS Control rules can use conditions such as users, groups, or departments, client locations, categorization of domains and IP addresses, DNS record types, and the location of resolved IPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-dns-control.md",
+          "quotes": [
+            "Define granular DNS filtering rules using a number of DNS conditions, such as users, groups, or departments, client locations, categorization of domains and IP addresses, DNS record types, the location of resolved IPs, etc."
+          ]
+        }
+      ]
+    },
+    "request-types-field": {
+      "statement": "The rule resource carries the matched DNS record types in `dnsRuleRequestTypes`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "DNS request types to which the rule applies"
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#dnsRuleRequestTypes"
+      ]
+    },
+    "res-categories-field": {
+      "statement": "The rule resource carries a list of IP categories in `resCategories`; the SDK comment calls it destination IP categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go",
+          "quotes": [
+            "List of destination IP categories to which the rule applies."
+          ]
+        }
+      ],
+      "binds": [
+        "zia/firewall-dns-rules#resCategories"
+      ],
+      "gaps": [
+        "resolved-ip-field-mapping"
+      ]
+    },
+    "condition-logic": {
+      "statement": "Rule conditions are grouped into categories (Who/Where/When, Source IP, Destination/Resolved IPs, DNS Application); categories combine with AND, and each category has its own AND/OR operators inside.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:"
+          ]
+        }
+      ]
+    },
+    "console-dns-conditions": {
+      "statement": "The DNS Application conditions include DNS Tunnels & Network Apps, DNS Application Group, Resolved IP-Based Countries (destination identified by server location), Request/Response Categories (URL and TLD categories), DNS Request Type, Protocols, and endpoint application conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "Select the countries you want to control. Their destination is identified based on the server location.",
+            "Select the request and response URL and TLD categories to which the rule applies.",
+            "Select the DNS request types to which the rule applies."
+          ]
+        }
+      ]
+    },
+    "unset-ignored": {
+      "statement": "A condition left at its default (Any) is ignored during policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "If you don't make specific selections, the field remains set to Any, and the criterion is ignored during policy evaluation."
+          ],
+          "after": "Select up to two time intervals during which the rule applies."
+        }
+      ]
+    },
+    "limits-32": {
+      "statement": "A rule can select up to 32 users, 32 groups, 32 departments, 32 locations and 32 location groups; Zscaler Support can raise those limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dns-control-policy.md",
+          "quotes": [
+            "Contact Zscaler Support to increase the limit of Users, Groups, Departments, or Locations.",
+            "Select up to 32 organization users to which the rule applies."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "resolved-ip-field-mapping": {
+      "kind": "semantic",
+      "title": "Which rule fields implement 'categorization of IP addresses' and 'location of resolved IPs'",
+      "status": "open",
+      "about": [
+        "zia/firewall-dns-rules#resCategories",
+        "zia/firewall-dns-rules#destCountries",
+        "zia/firewall-dns-rules#destIpCategories"
+      ],
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "blocks": "saying which API field a console 'resolved IP' condition corresponds to",
+      "detail": "The help page names the conditions and the SDK names resCategories, destCountries, destIpCategories and destAddresses with generic comments. No captured source maps console conditions to wire fields. Read a rule created in the console that uses each condition."
+    },
+    "advanced-firewall-criteria": {
+      "kind": "semantic",
+      "title": "Which identity criteria require Advanced Firewall",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ],
+      "blocks": "saying whether users, groups and departments work on an Essential-tier tenant",
+      "detail": "Unverified legacy statement: \"Users, groups, departments (Advanced Firewall)\". The configuring page lists these conditions without a tier note; it ties only Client Connector EUN to Advanced DNS from the Advanced Firewall. Check against an Essential-tier tenant or Zscaler entitlements."
+    }
+  }
+}
