@@ -1,0 +1,524 @@
+// scripts/kb-resolve.mjs
+//
+// Resolve an ID or text to one layer-labelled bundle, render subjects as
+// Markdown, and load/validate the company overlay. Pure and deterministic: the
+// same graph, overlay, and query always produce the same output, and nothing is
+// written. Every consumer (skill loader, Medina pack, MCP wrapper) is a thin
+// adapter over resolve().
+import { execFileSync } from "node:child_process";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { validate } from "./kb-schema.mjs";
+import {
+  ID, META, allEvidence, anchorEvidence, gitlink, idKind, normalizeText, qualify, resolvePointer, sha256File,
+} from "./kb-lib.mjs";
+
+const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
+export const BUNDLE_VERSION = 1;
+
+// ---------------------------------------------------------------- overlay
+
+/** Load a company overlay root. Missing overlay is not an error: returns null. */
+export function loadOverlay(g, dir) {
+  if (!dir) return null;
+  const root = path.resolve(dir);
+  const cfgFile = path.join(root, "overlay.json");
+  if (!fs.existsSync(cfgFile)) throw new Error(`overlay: ${cfgFile} not found`);
+  const config = readJson(cfgFile);
+  const records = [];
+  const kdir = path.join(root, "knowledge");
+  if (fs.existsSync(kdir)) {
+    for (const scope of fs.readdirSync(kdir, { withFileTypes: true })) {
+      if (!scope.isDirectory()) continue;
+      for (const name of fs.readdirSync(path.join(kdir, scope.name)).sort()) {
+        if (!name.endsWith(".json")) continue;
+        const file = path.join(kdir, scope.name, name);
+        records.push({ file: path.relative(root, file), data: readJson(file) });
+      }
+    }
+  }
+  return { root, config, records };
+}
+
+/** Validate overlay config and records against public IDs and the relation table. */
+export function validateOverlay(g, ov) {
+  const errors = [];
+  const err = (file, message) => errors.push({ file, message });
+  for (const e of validate(g.schemas, "overlay.schema.json", ov.config, { $ref: "#/$defs/overlay" })) err("overlay.json", e);
+  const seen = new Set();
+  for (const { file, data } of ov.records) {
+    for (const e of validate(g.schemas, "overlay.schema.json", data, { $ref: "#/$defs/record" })) err(file, e);
+    if (!data?.id) continue;
+    if (path.basename(file, ".json") !== data.id) err(file, `file name must equal id (${data.id}.json)`);
+    if (seen.has(data.id)) err(file, `duplicate ID ${data.id}`);
+    seen.add(data.id);
+    const kinds = (data.about || []).map((id) => g.nodes.get(id)?.kind);
+    (data.about || []).forEach((id, i) => { if (!kinds[i]) err(file, `about unknown public ID ${id}`); });
+    const need = (cond, msg) => { if (!cond) err(file, msg); };
+    switch (data.kind) {
+      case "claim":
+        need(["extends", "narrows", "contradicts"].includes(data.relation), "a claim's relation is extends, narrows, or contradicts");
+        need(Boolean(data.statement), "a claim needs a statement");
+        need(Boolean(data.confidence), "a claim needs a confidence");
+        if (data.relation === "narrows" || data.relation === "contradicts") {
+          need(kinds.every((k) => k === "claim"), `${data.relation} must target public claims only`);
+          need(Boolean(data.scope), `${data.relation} requires scope`);
+        }
+        if (data.relation === "contradicts") need((data.evidence || []).length > 0, "contradicts requires evidence");
+        break;
+      case "procedure":
+        need(data.relation === "extends", "a procedure's relation is extends");
+        need(kinds.every((k) => k === "subject"), "a procedure attaches to subjects");
+        break;
+      case "mapping":
+        need(data.relation === "maps", "a mapping's relation is maps");
+        need(kinds.every((k) => k === "type" || k === "field"), "a mapping attaches to types or fields");
+        for (const f of [...Object.keys(data.map || {}), ...(data.dropped_fields || [])]) {
+          need(g.nodes.get(f)?.kind === "field", `mapping names unknown public field ${f}`);
+        }
+        break;
+      case "iac-coverage": {
+        need(data.relation === "extends", "iac-coverage's relation is extends");
+        need(kinds.every((k) => k === "type" || k === "field"), "iac-coverage attaches to types or fields");
+        need((data.pointers || []).length > 0, "iac-coverage needs pointers into the IaC repo");
+        need(Boolean(ov.config.iac), "iac-coverage needs overlay.json iac");
+        for (const p of data.pointers || []) {
+          const r = resolveOverlayPointer(ov, p);
+          if (r.error) err(file, r.error);
+        }
+        break;
+      }
+    }
+    if (data.status === "promoted") need(g.nodes.get(data.promoted_to)?.kind === "claim", "promoted records need promoted_to: a public claim ID");
+    if (data.status !== "promoted" && data.promoted_to) err(file, "promoted_to is only for promoted records");
+  }
+  return errors;
+}
+
+function resolveOverlayPointer(ov, p) {
+  if (!ov.config.iac) return { error: "no iac repo configured in overlay.json" };
+  const repoRoot = path.resolve(ov.root, ov.config.iac.path);
+  const file = path.resolve(repoRoot, p.file);
+  if (!file.startsWith(repoRoot + path.sep)) return { error: `pointer file escapes the IaC repo: ${p.file}` };
+  if (!fs.existsSync(file)) return { error: `IaC file not found: ${p.file}` };
+  const value = resolvePointer(readJson(file), p.pointer);
+  if (value === undefined) return { error: `IaC pointer does not resolve: ${p.file}#${p.pointer}` };
+  return { value };
+}
+
+// ---------------------------------------------------------------- bundle pieces
+
+export function confidenceOf(claim) {
+  if (claim.confidence_override) return claim.confidence_override.value;
+  return { A: "high", B: "medium", C: "low", D: "low" }[claim.tier];
+}
+
+// Citations point at path and lines by default; quote text is the evidence level, added on request.
+function citations(g, evidence, ctx) {
+  return evidence.map((ev) => {
+    const r = anchorEvidence(g, ev, ctx.cache);
+    const base = { source: ev.source, path: `${g.sources.sources[ev.source]?.root}/${ev.path}`, ...(ev.at ? { at: ev.at } : {}) };
+    if (ev.pointer !== undefined) return { ...base, pointer: ev.pointer };
+    const cite = ctx.evidence
+      ? { quotes: r.anchors.map((a) => ({ text: a.quote, line: a.line })) }
+      : { lines: [...new Set(r.anchors.map((a) => a.line))].sort((a, b) => a - b) };
+    return { ...base, ...cite, ...(r.ok ? {} : { anchor_errors: r.errors }) };
+  });
+}
+
+function claimView(g, node, ctx) {
+  const d = node.data;
+  return {
+    id: node.id, statement: d.statement, tier: d.tier, confidence: confidenceOf(d),
+    ...(d.conditions ? { conditions: d.conditions } : {}),
+    ...(d.binds ? { binds: d.binds } : {}),
+    ...(d.gaps ? { gaps: d.gaps.map((x) => qualify(node.subject, x)) } : {}),
+    ...(d.status && d.status !== "active" ? { status: d.status } : {}),
+    citations: citations(g, d.evidence, ctx),
+  };
+}
+
+function gapView(node) {
+  const d = node.data;
+  return {
+    id: node.id, kind: d.kind, title: d.title, status: d.status,
+    ...(d.former_ids ? { former_ids: d.former_ids } : {}),
+    ...(d.about ? { about: d.about } : {}),
+    ...(d.blocks ? { blocks: d.blocks } : {}),
+    ...(d.detail ? { detail: d.detail } : {}),
+    ...(d.resolves_with ? { resolves_with: d.resolves_with } : {}),
+    ...(d.resolvable_by ? { resolvable_by: d.resolvable_by } : {}),
+    ...(d.live_command ? { live_command: d.live_command } : {}),
+    ...(d.resolution ? { resolution: d.resolution } : {}),
+  };
+}
+
+function typeView(g, typeId, onlyFields, ov) {
+  const t = g.nodes.get(typeId).data;
+  const fields = {};
+  for (const [p, f] of Object.entries(t.fields)) {
+    if (onlyFields && !onlyFields.has(p)) continue;
+    const { evidence, classification, ...rest } = f;
+    fields[p] = rest;
+  }
+  const live = ov?.config.live && t.live ? { ...t.live, available: true } : t.live ? { ...t.live, available: false, note: "needs a company overlay with a live tool and credentials" } : undefined;
+  return { id: t.id, kind: t.kind, ...(t.title ? { title: t.title } : {}), ...(t.names ? { names: t.names } : {}), ...(t.iac ? { iac: t.iac } : {}), ...(live ? { live } : {}), fields };
+}
+
+function companyFacets(ov, ids) {
+  if (!ov) return [];
+  const out = [];
+  for (const { data } of ov.records) {
+    if (data.status !== "active") continue;
+    if (!(data.about || []).some((a) => ids.has(a))) continue;
+    const facet = {
+      layer: "company", id: data.id, kind: data.kind, relation: data.relation, about: data.about, title: data.title,
+      ...(data.statement ? { statement: data.statement } : {}),
+      ...(data.scope ? { scope: data.scope } : {}),
+      ...(data.confidence ? { confidence: data.confidence } : {}),
+      ...(data.map ? { map: data.map } : {}),
+      ...(data.dropped_fields ? { dropped_fields: data.dropped_fields } : {}),
+      ...(data.refresh ? { refresh: data.refresh } : {}),
+      ...(data.evidence ? { evidence: data.evidence } : {}),
+    };
+    if (data.pointers) {
+      facet.iac = data.pointers.map((p) => ({ label: p.label, source: `${p.file}#${p.pointer}`, value: resolveOverlayPointer(ov, p).value ?? null }));
+    }
+    out.push(facet);
+  }
+  return out.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function tiers(ov) {
+  return {
+    knowledge: { public: true, company: Boolean(ov) },
+    iac: { available: Boolean(ov?.config.iac) },
+    live: { available: Boolean(ov?.config.live) },
+  };
+}
+
+// ---------------------------------------------------------------- resolve
+
+export function resolve(g, query, { overlay = null, cases = "summary", evidence = false } = {}) {
+  const ctx = { cache: new Map(), cases, evidence };
+  const base = { bundle_version: BUNDLE_VERSION, query, tiers: tiers(overlay) };
+  let id = query;
+  if (!g.nodes.has(id) && g.formerIds.has(id)) id = g.formerIds.get(id);
+  if (!g.nodes.has(id)) {
+    let hits = [...(g.aliases.get(normalizeText(query)) || [])].sort();
+    if (!hits.length) hits = containingAllWords(g, query);
+    if (hits.length === 1) id = hits[0];
+    else {
+      return { ...base, resolved: null, candidates: hits.map((h) => ({ id: h, kind: g.nodes.get(h).kind, title: titleOf(g, h) })) };
+    }
+  }
+  const node = g.nodes.get(id);
+  if (node.kind === "type" || node.kind === "field") return { ...base, resolved: { id, kind: node.kind }, ...typeBundle(g, node.kind === "type" ? id : node.type, node.kind === "field" ? node.path : null, overlay, ctx) };
+  const subjectId = node.kind === "subject" ? id : node.subject;
+  return { ...base, resolved: { id, kind: node.kind }, ...(node.kind !== "subject" ? { focus: id } : {}), ...subjectBundle(g, subjectId, overlay, ctx) };
+}
+
+/**
+ * Fallback for text with no exact alias: every subject or type whose alias or
+ * title contains all of the query's words. A filter, not a ranking: results are
+ * sorted by ID and the caller picks.
+ */
+function containingAllWords(g, query) {
+  const words = normalizeText(query).split(" ").filter(Boolean);
+  if (!words.length) return [];
+  const out = new Set();
+  for (const [text, ids] of g.aliases) {
+    const have = new Set(text.split(" "));
+    if (!words.every((w) => have.has(w))) continue;
+    for (const id of ids) {
+      const k = g.nodes.get(id).kind;
+      if (k === "subject" || k === "type") out.add(id);
+    }
+  }
+  return [...out].sort();
+}
+
+function titleOf(g, id) {
+  const n = g.nodes.get(id);
+  return n?.data?.title || n?.data?.statement || id;
+}
+
+function itemsOf(g, subjectId, kind) {
+  return [...g.nodes.values()].filter((n) => n.kind === kind && n.subject === subjectId);
+}
+
+function subjectBundle(g, subjectId, ov, ctx) {
+  const s = g.nodes.get(subjectId).data;
+  const prose = renderProse(g, subjectId, { footnotes: false });
+  // A claim inlined in the prose is not repeated: its statement is already there.
+  const claims = itemsOf(g, subjectId, "claim").map((n) => {
+    const v = claimView(g, n, ctx);
+    if (!prose.order.includes(n.local)) return v;
+    const { statement, ...rest } = v;
+    return { ...rest, in_prose: true };
+  });
+  const boundFields = new Map(); // type -> Set(field path) | null (whole type)
+  const bindAll = [...(s.binds || []), ...claims.flatMap((c) => c.binds || [])];
+  for (const b of bindAll) {
+    const [t, f] = b.split("#");
+    if (!g.nodes.has(t)) continue;
+    if (!boundFields.has(t)) boundFields.set(t, new Set());
+    if (f) boundFields.get(t).add(f);
+  }
+  const ids = new Set([subjectId, ...claims.map((c) => c.id), ...bindAll]);
+  return {
+    subject: {
+      id: subjectId, title: s.title,
+      ...(s.aliases ? { aliases: s.aliases } : {}),
+      related: (s.related || []).map((r) => ({ ...r, title: titleOf(g, r.to) })),
+      prose,
+    },
+    claims,
+    gaps: itemsOf(g, subjectId, "gap").map(gapView),
+    divergences: itemsOf(g, subjectId, "divergence").map((n) => ({
+      id: n.id, summary: n.data.summary, impact: n.data.impact,
+      positions: n.data.positions.map((p) => ({ says: p.says, citation: citations(g, [p.evidence], ctx)[0] })),
+      ...(n.data.resolution ? { resolution: { ...n.data.resolution, by: qualify(subjectId, n.data.resolution.by) } } : {}),
+    })),
+    // Cases default to their request and expectation; --cases adds the synthetic configs.
+    cases: itemsOf(g, subjectId, "case").map((n) => {
+      const { config, ...rest } = n.data;
+      return {
+        id: n.id, ...rest, ...(ctx.cases === "full" ? { config } : {}),
+        claims: n.data.claims.map((c) => qualify(subjectId, c)),
+        expect: { ...n.data.expect, ...(n.data.expect.gap ? { gap: qualify(subjectId, n.data.expect.gap) } : {}) },
+      };
+    }),
+    types: [...boundFields.entries()].sort().map(([t, fs_]) => typeView(g, t, fs_.size ? fs_ : null, ov)),
+    company: companyFacets(ov, ids),
+  };
+}
+
+function typeBundle(g, typeId, focusField, ov, ctx) {
+  const bound = [...(g.bindsTo.get(focusField ? `${typeId}#${focusField}` : typeId) || [])].sort();
+  const subjects = new Map();
+  const gaps = [];
+  for (const id of bound) {
+    const n = g.nodes.get(id);
+    if (n.kind === "gap") { gaps.push(gapView(n)); continue; }
+    const sid = n.kind === "subject" ? n.id : n.subject;
+    if (!subjects.has(sid)) subjects.set(sid, { id: sid, title: titleOf(g, sid), claims: [] });
+    if (n.kind === "claim") subjects.get(sid).claims.push({ id: n.id, statement: n.data.statement, tier: n.data.tier, confidence: confidenceOf(n.data), ...(n.data.binds ? { binds: n.data.binds } : {}) });
+  }
+  const fieldIds = Object.keys(g.nodes.get(typeId).data.fields).map((f) => `${typeId}#${f}`);
+  return {
+    type: typeView(g, typeId, focusField ? new Set([focusField]) : null, ov),
+    subjects: [...subjects.values()],
+    gaps,
+    company: companyFacets(ov, new Set([typeId, ...fieldIds])),
+    hint: "Resolve a subject ID for its full reasoning and citations.",
+  };
+}
+
+// ---------------------------------------------------------------- render
+
+/** Render a subject's prose with claims inlined. With footnotes, citations are appended. */
+export function renderProse(g, subjectId, { footnotes = true } = {}) {
+  const node = g.nodes.get(subjectId);
+  const md = path.join(g.root, node.file.replace(/\.json$/, ".md"));
+  const text = fs.existsSync(md) ? fs.readFileSync(md, "utf8").trim() : "";
+  const order = [];
+  const num = (local) => {
+    if (!order.includes(local)) order.push(local);
+    return order.indexOf(local) + 1;
+  };
+  let out = text.replace(/\{\{([a-z0-9]+(?:-[a-z0-9]+)*)(\|ref)?\}\}/g, (_, local, ref) => {
+    const claim = node.data.claims?.[local];
+    if (!claim) return `{{${local}}}`;
+    const n = num(local);
+    const mark = footnotes ? `[^${n}]` : `[${local}]`;
+    return ref ? mark : `${claim.statement} ${mark}`;
+  });
+  out = out.replace(/\[\[([^\]\s]+)\]\]/g, (_, id) => (g.nodes.has(id) ? `[${titleOf(g, id)}](kb:${id})` : `[[${id}]]`));
+  return { text: out, order };
+}
+
+export function renderSubject(g, subjectId) {
+  const node = g.nodes.get(subjectId);
+  const s = node.data;
+  const cache = new Map();
+  const { text, order } = renderProse(g, subjectId, { footnotes: true });
+  const parts = [`# ${s.title}`, "", `\`${subjectId}\``, ""];
+  if (text) parts.push(text, "");
+  const claims = Object.keys(s.claims || {});
+  const further = claims.filter((c) => !order.includes(c));
+  if (further.length) {
+    parts.push("## Further facts", "");
+    for (const c of further) parts.push(`- ${s.claims[c].statement} [^${order.push(c)}]`);
+    parts.push("");
+  }
+  const divs = Object.entries(s.divergences || {});
+  if (divs.length) {
+    parts.push("## Divergences", "");
+    for (const [id, d] of divs) {
+      parts.push(`### ${id}`, "", d.summary, "");
+      for (const p of d.positions) parts.push(`- **${p.evidence.source}:** ${p.says} (${citeLine(g, p.evidence, cache)})`);
+      parts.push("", `Impact: ${d.impact}`, "");
+    }
+  }
+  const gaps = Object.entries(s.gaps || {}).filter(([, gp]) => gp.status !== "resolved");
+  if (gaps.length) {
+    parts.push("## Open gaps", "");
+    for (const [id, gp] of gaps) {
+      const extra = gp.kind === "data" ? ` Resolvable by: ${(gp.resolvable_by || []).join(", ")}.${gp.live_command ? ` Live: \`${gp.live_command}\`.` : ""}` : "";
+      parts.push(`- **${gp.title}** (\`${subjectId}:${id}\`, ${gp.kind}, ${gp.status}${gp.former_ids ? `; formerly ${gp.former_ids.join(", ")}` : ""}).${gp.blocks ? ` Blocks ${gp.blocks}.` : ""}${extra}`);
+    }
+    parts.push("");
+  }
+  const cases = Object.entries(s.cases || {});
+  if (cases.length) {
+    parts.push("## Cases", "");
+    for (const [id, c] of cases) parts.push(`- \`${id}\`: ${JSON.stringify(c.request)} → ${JSON.stringify(c.expect)}${c.note ? ` (${c.note})` : ""}`);
+    parts.push("");
+  }
+  if (order.length) {
+    parts.push("## Sources", "");
+    order.forEach((c, i) => {
+      const claim = s.claims[c];
+      parts.push(`[^${i + 1}]: Tier ${claim.tier}. ${claim.evidence.map((ev) => citeLine(g, ev, cache)).join("; ")}`);
+    });
+    parts.push("");
+  }
+  return parts.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
+}
+
+function citeLine(g, ev, cache) {
+  const root = g.sources.sources[ev.source]?.root;
+  if (ev.pointer !== undefined) return `\`${root}/${ev.path}\` at \`${ev.pointer}\``;
+  const r = anchorEvidence(g, ev, cache);
+  const lines = r.anchors.map((a) => a.line).filter(Boolean);
+  const where = lines.length ? `:${[...new Set(lines)].join(",")}` : "";
+  // Lines come from the pin when listed, otherwise from the first ref; say which.
+  const refs = ev.at ? ` (at ${ev.at.join(", ")}; lines from ${ev.at.includes("HEAD") ? "HEAD" : ev.at[0]})` : "";
+  return `\`${root}/${ev.path}${where}\`${refs} — "${ev.quotes.map((q) => q.trim()).join(" … ")}"`;
+}
+
+// ---------------------------------------------------------------- manifest + verified
+
+/** Add or refresh capture-manifest entries for every cited capture file. */
+export function updateManifest(g) {
+  const files = { ...g.manifest.files };
+  const cited = new Set();
+  for (const { ev } of allEvidence(g)) {
+    const src = g.sources.sources[ev.source];
+    if (src?.kind === "capture") cited.add(`${src.root}/${ev.path}`);
+  }
+  let changed = 0;
+  for (const file of [...cited].sort()) {
+    const full = path.join(g.root, file);
+    if (!fs.existsSync(full)) continue;
+    const sha = sha256File(full);
+    const prev = files[file];
+    if (prev?.sha256 === sha) continue;
+    const head = fs.readFileSync(full, "utf8").slice(0, 600);
+    const url = head.match(/^URL:\s*(\S+)/m)?.[1] || head.match(/^Source:\s*(https?:\/\/\S+)/m)?.[1] || prev?.captured_from || null;
+    const captured = head.match(/Captured:\*{0,2}\s*(\d{4}-\d{2}-\d{2})/)?.[1] || gitDate(g.root, file);
+    files[file] = { captured_from: url, captured_at: captured, sha256: sha };
+    changed++;
+  }
+  const sorted = Object.fromEntries(Object.entries(files).sort());
+  fs.writeFileSync(path.join(g.root, META, "capture-manifest.json"), JSON.stringify({ schema_version: 1, files: sorted }, null, 2) + "\n");
+  return changed;
+}
+
+function gitDate(root, file) {
+  try {
+    const out = execFileSync("git", ["-C", root, "log", "-1", "--format=%cs", "--", file], { encoding: "utf8" }).trim();
+    return out || new Date().toISOString().slice(0, 10);
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+/**
+ * Regenerate verified.json: per source, its pin and the result of the last check.
+ * checked_at only moves when the pin or the result changes, so the file churns
+ * only on real change.
+ */
+export function updateVerified(g, today = new Date().toISOString().slice(0, 10)) {
+  const file = path.join(g.root, META, "verified.json");
+  const prev = fs.existsSync(file) ? readJson(file).sources : {};
+  const results = {};
+  const cache = new Map();
+  for (const { ev } of allEvidence(g)) {
+    const r = anchorEvidence(g, ev, cache);
+    if (!results[ev.source]) results[ev.source] = { citations: 0, failing: 0 };
+    const s = results[ev.source];
+    s.citations++;
+    if (!r.ok) s.failing++;
+  }
+  const sources = {};
+  for (const id of Object.keys(results).sort()) {
+    const src = g.sources.sources[id];
+    const pin = src.kind === "submodule"
+      ? gitlink(g.root, src.root)
+      : `manifest:${sha256OfManifest(g, src.root)}`;
+    const entry = { kind: src.kind, pin, ...results[id] };
+    const old = prev[id];
+    entry.checked_at = old && old.pin === entry.pin && old.citations === entry.citations && old.failing === entry.failing ? old.checked_at : today;
+    sources[id] = entry;
+  }
+  fs.writeFileSync(file, JSON.stringify({ schema_version: 1, generated_by: "node scripts/kb.mjs verified", sources }, null, 2) + "\n");
+  return sources;
+}
+
+function sha256OfManifest(g, root) {
+  const entries = Object.entries(g.manifest.files).filter(([f]) => f.startsWith(root + "/")).sort();
+  return entries.length ? sha256String(JSON.stringify(entries)).slice(0, 16) : "empty";
+}
+function sha256String(s) {
+  return crypto.createHash("sha256").update(s).digest("hex");
+}
+
+// ---------------------------------------------------------------- CLI glue
+
+export async function runCommand(root, g, cmd, args, { option, usage }) {
+  const overlayDir = option(args, "--overlay") ?? process.env.ZSCALER_KB_OVERLAY;
+  const ov = overlayDir ? loadOverlay(g, overlayDir) : null;
+  if (ov) {
+    const errors = validateOverlay(g, ov);
+    if (errors.length) {
+      for (const e of errors) console.error(`overlay error: ${e.file}: ${e.message}`);
+      return 1;
+    }
+  }
+  if (cmd === "resolve") {
+    // Compact JSON by default: indentation costs agents about a quarter of a bundle's tokens.
+    const pretty = args.includes("--pretty");
+    const cases = args.includes("--cases") ? "full" : "summary";
+    const evidence = args.includes("--evidence");
+    const query = args.filter((a) => !["--pretty", "--cases", "--evidence"].includes(a)).join(" ").trim();
+    if (!query) usage("resolve needs an ID or text");
+    process.stdout.write(JSON.stringify(resolve(g, query, { overlay: ov, cases, evidence }), null, pretty ? 2 : 0) + "\n");
+    return 0;
+  }
+  if (cmd === "render") {
+    const id = args[0];
+    if (!id || g.nodes.get(id)?.kind !== "subject") usage("render needs a subject ID");
+    process.stdout.write(renderSubject(g, id));
+    return 0;
+  }
+  if (cmd === "manifest") {
+    console.log(`capture manifest: ${updateManifest(g)} entries added or refreshed`);
+    return 0;
+  }
+  if (cmd === "verified") {
+    const s = updateVerified(g);
+    for (const [id, v] of Object.entries(s)) console.log(`${id}: ${v.citations} citations, ${v.failing} failing, pin ${v.pin}`);
+    return Object.values(s).some((v) => v.failing) ? 1 : 0;
+  }
+  if (cmd === "migrate-links") {
+    const { migrateLinks } = await import("./kb-migrate.mjs");
+    return migrateLinks(root, g, args);
+  }
+  usage(`unknown command ${cmd}`);
+  return 2;
+}
+
+export { ID, idKind };

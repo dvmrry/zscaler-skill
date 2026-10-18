@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.criteria",
+  "title": "How URL Filtering rule criteria combine",
+  "aliases": [
+    "url filtering criteria",
+    "rule criteria and or",
+    "urlCategories2",
+    "second url categories field",
+    "user risk profile",
+    "unset criteria"
+  ],
+  "binds": [
+    "zia/url-filtering-rules#urlCategories",
+    "zia/url-filtering-rules#urlCategories2",
+    "zia/url-filtering-rules#users",
+    "zia/url-filtering-rules#groups",
+    "zia/url-filtering-rules#departments",
+    "zia/url-filtering-rules#locations",
+    "zia/url-filtering-rules#locationGroups",
+    "zia/url-filtering-rules#userRiskScoreLevels"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.url-filtering.rule-order" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.pipeline" }
+  ],
+  "claims": {
+    "operator-expression": {
+      "statement": "A rule matches when this expression is true: Source IP Groups AND Source Countries AND URL Categories AND [Users OR/AND Groups OR/AND Departments] AND User Risk Profile AND [Location Groups OR Locations] AND Time AND Request Methods AND Protocols AND User Agent AND [Device Groups OR Devices] AND Device Trust.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "Source IP Groups (AND) Source Countries (AND) URL Categories (AND) [Users (OR/AND) Groups (OR/AND) Departments] (AND) User Risk Profile (AND) [Location Groups (OR) Locations] (AND) Time (AND) Request Methods (AND) Protocols (AND) User Agent (AND) [Device Groups (OR) Devices] (AND) Device Trust."
+          ] }
+      ]
+    },
+    "unset-ignored": {
+      "statement": "An unset criterion is ignored, not treated as \"matches nothing\": a rule with no Locations applies at every location.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "after": "URL Categories: Select any number of URL super categories or categories or both.",
+          "quotes": ["Selecting no value ignores this criterion in the policy evaluation."] }
+      ]
+    },
+    "url-categories2-and": {
+      "statement": "A second URL Categories field (`urlCategories2` in the API) is ANDed with the first: the URL must be in a category from each field, which makes the rule narrower, not broader.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#urlCategories", "zia/url-filtering-rules#urlCategories2"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["The URL Categories fields are connected with a logical AND operator."] },
+        { "source": "sdk-python", "path": "zscaler/zia/url_filtering.py",
+          "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+          "quotes": ["Note: The urlCategories and urlCategories2 parameters are connected with a logical AND operator"] }
+      ]
+    },
+    "user-risk-score-levels": {
+      "statement": "The console's User Risk Profile criterion selects user risk score levels (by default Low 0–29, Medium 30–59, High 60–79, Critical 80–100; ranges are customizable through Support). The API carries it as `userRiskScoreLevels`.",
+      "tier": "B",
+      "binds": ["zia/url-filtering-rules#userRiskScoreLevels"],
+      "conditions": "The console-label-to-field mapping is a chain of evidence: the help describes the criterion as risk score levels, and the rule model's only risk field is userRiskScoreLevels.",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "User Risk Profile: Select the user risk score levels to which the rule applies.",
+            "Low: Level with user risk scores ranging from 0 to 29",
+            "Critical: Level with user risk scores ranging from 80 to 100"
+          ] },
+        { "source": "sdk-go", "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": ["UserRiskScoreLevels []string `json:\"userRiskScoreLevels,omitempty\"`"] }
+      ]
+    },
+    "api-only-scoping": {
+      "statement": "The API also scopes rules by workload groups and by HTTP header profiles; these appear in tenant data even when operators never set them in the console.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#workloadGroups", "zia/url-filtering-rules#httpHeaderProfiles"],
+      "evidence": [
+        { "source": "sdk-go", "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "// The list of preconfigured workload groups to which the policy must be applied.",
+            "// Name-ID pairs HTTP header profile to which the rule applies"
+          ] }
+      ]
+    },
+    "payload-criteria-need-inspection": {
+      "statement": "Criteria that need the request itself (Request Methods, Protocols, URL path) can only be evaluated on decrypted traffic; on uninspected HTTPS only domain-level evaluation exists, so such rules silently do not fire.",
+      "tier": "B",
+      "binds": ["zia/url-filtering-rules#requestMethods", "zia/url-filtering-rules#protocols"],
+      "conditions": "Chain of evidence: pre-decrypt evaluation sees only the destination domain.",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": ["During a CONNECT request or an incoming SSL connection (SNI), only the destination domain is available and not the full URL."] }
+      ]
+    }
+  },
+  "cases": {
+    "two-category-fields-and": {
+      "kind": "rule-evaluation",
+      "claims": ["url-categories2-and"],
+      "config": {
+        "rules": [{ "id": 1, "order": 1, "state": "ENABLED", "action": "BLOCK", "urlCategories": ["SOCIAL_NETWORKING"], "urlCategories2": ["GAMBLING"] }],
+        "predefined": { "social.example": ["SOCIAL_NETWORKING"] }
+      },
+      "request": { "url": "https://social.example/" },
+      "expect": { "verdict": "no-match" },
+      "note": "The URL is only in the first field's category, so the AND fails and the rule does not match."
+    }
+  }
+}

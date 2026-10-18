@@ -37,6 +37,7 @@ const FULL_CHECKS = [
     env: { MCP_CONFORMANCE_OFFLINE: "1" },
   },
   { name: "documentation hygiene", command: "./scripts/check-hygiene.py", args: [] },
+  { name: "knowledge graph (citations anchored)", command: "node", args: ["scripts/kb.mjs", "validate"] },
   {
     name: "changed reference source-pin paths",
     command: "./scripts/check-verified-against.py",

@@ -544,7 +544,7 @@ See `zia/url-filtering.md`, `zia/ssl-inspection.md` for behavior-level clarifica
 
 ## Cross-links
 
-- URL filtering behavior — [`./url-filtering.md`](./url-filtering.md)
+- URL filtering behavior — [`zia.url-filtering`](kb:zia.url-filtering)
 - Cloud App Control behavior — [`./cloud-app-control.md`](./cloud-app-control.md)
 - SSL inspection behavior — [`./ssl-inspection.md`](./ssl-inspection.md)
 - Log stream config via Cloud NSS — [`./logs/web-log-schema.md`](./logs/web-log-schema.md)

@@ -67,6 +67,14 @@ needs; do not enumerate them upfront. Exclude stale local runtime copies
 question explicitly needs source verification, SDK/TF/API surface checks, or
 citation repair.
 
+## Knowledge graph first, where it exists
+
+For areas converted to the knowledge graph (see `SKILL.md` § Knowledge graph),
+run `node scripts/kb.mjs resolve "<ID or a few words>"` before searching
+files. One bundle carries the subject's reasoning, its cited claims, open gaps,
+the tenant object types it binds, and any company-overlay facets. Cite claim
+IDs. Use `rg` for areas not yet converted.
+
 ## Operational knowledge
 
 After identifying the product scope, check the matching

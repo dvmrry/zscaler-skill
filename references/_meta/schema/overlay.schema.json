@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "overlay.schema.json",
+  "title": "Company overlay: overlay.json and company records",
+  "description": "The company index never redefines a public node; every record attaches to public IDs with a declared relation (design doc: Company index).",
+  "$defs": {
+    "overlay": {
+      "type": "object",
+      "required": ["schema_version"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "iac": {
+          "type": "object",
+          "required": ["path", "kind"],
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "kind": { "enum": ["infrawright"] }
+          },
+          "additionalProperties": false
+        },
+        "live": {
+          "type": "object",
+          "required": ["tool"],
+          "properties": { "tool": { "const": "zscalerctl" } },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "environment": { "type": "string", "minLength": 1 },
+        "cloud": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "condition": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "pointer": {
+      "description": "A JSON Pointer into a file of a configured overlay repository. Resolved and merged at resolve time, never copied.",
+      "type": "object",
+      "required": ["repo", "file", "pointer", "label"],
+      "properties": {
+        "repo": { "enum": ["iac"] },
+        "file": { "type": "string", "minLength": 1 },
+        "pointer": { "type": "string", "pattern": "^(/[^/]*)*$" },
+        "label": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "overlay-evidence": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["case", "log-sample", "vendor-call", "vendor-ticket", "vendor-email", "public-doc"] },
+        "ref": { "type": "string", "minLength": 1 },
+        "note": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "record": {
+      "type": "object",
+      "required": ["schema_version", "id", "kind", "relation", "about", "title", "status"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "id": { "$ref": "common.schema.json#/$defs/company-id" },
+        "kind": { "enum": ["claim", "procedure", "mapping", "iac-coverage"] },
+        "relation": { "enum": ["extends", "narrows", "contradicts", "maps"] },
+        "about": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/node-id" }, "uniqueItems": true },
+        "title": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["active", "promoted", "retired"] },
+        "promoted_to": { "$ref": "common.schema.json#/$defs/item-id" },
+        "statement": { "type": "string", "minLength": 1 },
+        "scope": { "$ref": "#/$defs/scope" },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/overlay-evidence" } },
+        "map": {
+          "type": "object",
+          "description": "Public field ID -> company representation (e.g. a Splunk field name).",
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "system": { "type": "string", "minLength": 1 },
+        "dropped_fields": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/field-id" }, "uniqueItems": true },
+        "refresh": { "type": "string", "minLength": 1 },
+        "pointers": { "type": "array", "items": { "$ref": "#/$defs/pointer" } }
+      },
+      "additionalProperties": false,
+      "description": "Kind/relation pairing and relation-target rules (narrows/contradicts only against claims; scope required) are enforced in kb-lib validateCompanyRecord, because they depend on resolved node kinds."
+    }
+  }
+}

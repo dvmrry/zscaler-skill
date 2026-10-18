@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.pipeline",
+  "title": "Where SSL inspection sits in ZIA web policy evaluation (the two passes)",
+  "aliases": [
+    "two-pass model",
+    "does ssl inspection happen before url filtering",
+    "sni pass",
+    "connect pass",
+    "do not inspect evaluate other policies",
+    "do not inspect bypass other policies",
+    "policy enforcement order"
+  ],
+  "binds": [
+    "zia/ssl-inspection-rules#action",
+    "zia/url-filtering-rules"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.url-filtering.rule-order"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.criteria"
+    }
+  ],
+  "claims": {
+    "firewall-first": {
+      "statement": "Web traffic is evaluated by the firewall module first; only traffic that passes it reaches the web module. A firewall allow does not override a web-module block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "All web traffic is first evaluated in the firewall module and only if it passes the firewall module (i.e., if it didn't violate any firewall policies), it's forwarded to the web module where the traffic is evaluated against the web policies."
+          ]
+        }
+      ]
+    },
+    "first-pass-on-domain": {
+      "statement": "Before any decryption, URL Filtering and Cloud App Control evaluate on the destination domain alone: the CONNECT request in explicit proxy mode, the TLS Client Hello SNI in transparent mode.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "In the explicit proxy mode, the URL filtering and cloud application policies are evaluated against the first CONNECT request.",
+            "The policies are evaluated on the incoming SSL connection based on the SNI. This is the first step of policy evaluation for the traffic in transparent proxy mode.",
+            "During a CONNECT request or an incoming SSL connection (SNI), only the destination domain is available and not the full URL."
+          ]
+        }
+      ]
+    },
+    "first-pass-subset": {
+      "statement": "Only domain-based policies run in that first pass: Known Malicious URLs (Advanced Threat Protection), Cloud App Control, URL Filtering (matching the domain against URL categories and custom categories), and Bandwidth Control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "These policies are only a subset of the policies enforced on the HTTP traffic:",
+            "Known Malicious URLs (Advanced Threat Protection): The Public Service Edge checks if the requested URL is known to have malicious content",
+            "Bandwidth Control: The Public Service Edge checks how much bandwidth to allocate the request"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "after": "These policies are only a subset of the policies enforced on the HTTP traffic:",
+          "quotes": [
+            "URL Filtering: The Public Service Edge checks if the requested URL belongs to URL categories or custom URL categories blocked by your organization's URL Filtering policy."
+          ]
+        }
+      ]
+    },
+    "first-pass-block": {
+      "statement": "A first-pass block ends the connection before any TLS handshake completes: a block on the CONNECT host header returns HTTP 403, a block on the SNI resets the connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "block happens on the CONNECT host header, the service responds with a 403 error. If the block happens on the SNI, the service resets the connection."
+          ]
+        }
+      ]
+    },
+    "ssl-decision-between": {
+      "statement": "The SSL inspection policy is evaluated on the same CONNECT or SNI information and decides whether the connection is decrypted.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "The SSL inspection policy is evaluated against the CONNECT request."
+          ]
+        }
+      ]
+    },
+    "second-pass-after-decrypt": {
+      "statement": "When the connection is inspected and allowed, ZIA decrypts the following HTTP transactions and enforces policy on them, with the full URL, headers, and body visible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "If the traffic is allowed, then the Public Service Edge decrypts the further HTTP transactions and enforces the policies on them."
+          ]
+        }
+      ]
+    },
+    "url-filtering-twice": {
+      "statement": "On inspected HTTPS, URL Filtering therefore evaluates twice: first on the domain, then on the full decrypted request. \"SSL inspection happens before URL Filtering\" is wrong: the SSL decision sits between the two URL Filtering passes and gates only the second.",
+      "tier": "B",
+      "binds": [
+        "zia/url-filtering-rules",
+        "zia/ssl-inspection-rules#action"
+      ],
+      "conditions": "Chain of evidence from first-pass-on-domain, ssl-decision-between, and second-pass-after-decrypt.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "In the explicit proxy mode, the URL filtering and cloud application policies are evaluated against the first CONNECT request.",
+            "If the traffic is allowed, then the Public Service Edge decrypts the further HTTP transactions and enforces the policies on them."
+          ]
+        }
+      ]
+    },
+    "not-inspected-domain-only": {
+      "statement": "When SSL inspection does not decrypt but other policies are still evaluated (Do Not Inspect with Evaluate Other Policies), only the domain-level pass happens: a URL Filtering block on the domain still fires, while path-, method-, and payload-based rules and decrypt-dependent features (DLP, sandbox, malware) do not.",
+      "tier": "B",
+      "binds": [
+        "zia/ssl-inspection-rules#action",
+        "zia/url-filtering-rules"
+      ],
+      "conditions": "Chain of evidence: the documented no-inspection path still blocks on the CONNECT/SNI pass and then forwards without further inspection.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "If the request hits the block rule, then the Public Service Edge closes the connection and returns a 403 error.",
+            "If the connection is allowed, then the Public Service Edge sends the traffic to the internet without inspecting the traffic further."
+          ]
+        }
+      ]
+    },
+    "bypass-other-policies": {
+      "statement": "Do Not Inspect with Bypass Other Policies skips URL Filtering and Cloud App Control entirely for that traffic, not just decryption; Zscaler advises against it for custom exemptions.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+          "quotes": [
+            "Avoid Bypass Other Policies for any custom exemption rules. This feature bypasses the SSL inspection engines, the URL Filtering policies, and Cloud App Control policies. Any traffic matching the criteria isn’t access controlled later, even if it is policy-dictated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "then the Public Service Edge neither inspects nor enforces policy on the traffic. Instead, it sends the traffic directly to the internet."
+          ]
+        }
+      ]
+    },
+    "eun-inspects-first-transaction": {
+      "statement": "With SSL inspection off but Show EUN for Blocked Traffic on, ZIA still decrypts the first HTTPS transaction of a blocked connection to show the notification, so it behaves like the inspected case for blocks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "If SSL inspection is disabled, but Show EUN for Blocked Traffic is enabled, then the Public Service Edge performs SSL inspection on the first HTTPS transaction to respond with an end user notification (EUN)."
+          ]
+        }
+      ]
+    },
+    "user-context-needed": {
+      "statement": "User-scoped rules can only apply in the first pass if the user is known then (Surrogate IP or Client Connector); without user context on an authenticated location, ZIA skips that evaluation rather than guess.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Understanding_Policy_Enforcement.txt",
+          "quotes": [
+            "You must enable Surrogate IP or use Zscaler Client Connector for the Public Service Edge to have the user context during the CONNECT request or the Client Hello SNI.",
+            "Service Edge skips the policy evaluation to avoid an incorrect decision."
+          ]
+        }
+      ]
+    },
+    "transparent-matches-destination-ip": {
+      "statement": "Under transparent forwarding, SSL inspection exemptions match on the destination IP as well as the SNI, and most IP addresses are categorized Miscellaneous or Unknown, so exempting that category exempts almost all traffic. Under explicit forwarding only the SNI is evaluated.",
+      "tier": "A",
+      "binds": [
+        "zia/ssl-inspection-rules#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt",
+          "quotes": [
+            "policies on both SNI and IP addresses are evaluated for exemption from SSL/TLS Inspection",
+            "exempts almost all traffic from SSL/TLS Inspection as most IP addresses are categorized as miscellaneous or unknown.",
+            "in the case of explicit traffic forwarding, Zscaler evaluates the policies only based on SNI"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "mixed-forwarding": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-11"
+      ],
+      "title": "Explicit and transparent forwarding mixed for the same users",
+      "status": "partial",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "bypass-and-default-rule": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-12"
+      ],
+      "title": "Whether the default URL Filtering action applies to Do Not Inspect + Evaluate Other Policies traffic that matches no rule",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "a deterministic answer for unmatched, uninspected traffic"
+    }
+  },
+  "cases": {
+    "domain-block-without-inspection": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "not-inspected-domain-only",
+        "first-pass-on-domain"
+      ],
+      "config": {
+        "ssl": {
+          "action": "DO_NOT_INSPECT",
+          "evaluate_other_policies": true
+        },
+        "rules": [
+          {
+            "id": 1,
+            "order": 1,
+            "state": "ENABLED",
+            "action": "BLOCK",
+            "urlCategories": [
+              "CUSTOM_01"
+            ]
+          }
+        ],
+        "categories": [
+          {
+            "id": "CUSTOM_01",
+            "urls": [
+              "evil.example.com"
+            ]
+          }
+        ]
+      },
+      "request": {
+        "url": "https://evil.example.com/path",
+        "mode": "explicit"
+      },
+      "expect": {
+        "verdict": "block",
+        "rule": 1
+      }
+    },
+    "path-rule-needs-inspection": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "not-inspected-domain-only"
+      ],
+      "config": {
+        "ssl": {
+          "action": "DO_NOT_INSPECT",
+          "evaluate_other_policies": true
+        },
+        "rules": [
+          {
+            "id": 1,
+            "order": 1,
+            "state": "ENABLED",
+            "action": "BLOCK",
+            "urlCategories": [
+              "CUSTOM_01"
+            ]
+          }
+        ],
+        "categories": [
+          {
+            "id": "CUSTOM_01",
+            "urls": [
+              "example.com/private/"
+            ]
+          }
+        ]
+      },
+      "request": {
+        "url": "https://example.com/private/report",
+        "mode": "explicit"
+      },
+      "expect": {
+        "verdict": "no-match"
+      },
+      "note": "The path is invisible without decryption, so the path entry cannot match."
+    },
+    "bypass-skips-url-filtering": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "bypass-other-policies"
+      ],
+      "config": {
+        "ssl": {
+          "action": "DO_NOT_INSPECT",
+          "evaluate_other_policies": false
+        },
+        "rules": [
+          {
+            "id": 1,
+            "order": 1,
+            "state": "ENABLED",
+            "action": "BLOCK",
+            "urlCategories": [
+              "CUSTOM_01"
+            ]
+          }
+        ],
+        "categories": [
+          {
+            "id": "CUSTOM_01",
+            "urls": [
+              "evil.example.com"
+            ]
+          }
+        ]
+      },
+      "request": {
+        "url": "https://evil.example.com/",
+        "mode": "transparent"
+      },
+      "expect": {
+        "verdict": "allow"
+      },
+      "note": "Bypass Other Policies: URL Filtering never runs."
+    },
+    "transparent-misc-exemption-exempts-clean-sni": {
+      "kind": "rule-evaluation",
+      "claims": [
+        "transparent-matches-destination-ip"
+      ],
+      "config": {
+        "ssl_rules": [
+          {
+            "order": 1,
+            "action": "DO_NOT_INSPECT",
+            "evaluate_other_policies": true,
+            "urlCategories": [
+              "MISCELLANEOUS_OR_UNKNOWN"
+            ]
+          }
+        ]
+      },
+      "request": {
+        "url": "https://docs.example.com/",
+        "mode": "transparent",
+        "sni_category": "PROFESSIONAL_SERVICES",
+        "destination_ip_category": "MISCELLANEOUS_OR_UNKNOWN"
+      },
+      "expect": {
+        "verdict": "allow"
+      },
+      "note": "Not decrypted: the exemption matched on the destination IP even though the SNI is categorized elsewhere. Under explicit forwarding the same request would be inspected."
+    }
+  }
+}

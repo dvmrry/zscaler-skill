@@ -31,6 +31,8 @@ import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from kb_prose import is_kb_prose
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DIRS = ("references",)
@@ -596,6 +598,8 @@ def should_skip(path: Path) -> bool:
     rel = path.relative_to(REPO_ROOT)
     parts = rel.parts
     if path.name in {"README.md", "template.md"}:
+        return True
+    if is_kb_prose(path):  # cited through its claims; checked by kb.mjs validate
         return True
     if rel == Path("references/_meta/clarifications.md"):
         return True

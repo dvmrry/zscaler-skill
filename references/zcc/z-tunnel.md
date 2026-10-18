@@ -110,7 +110,7 @@ Two common patterns:
 2. **Same netmask → more fields wins.** `10.0.0.0/8:443:tcp` beats `10.0.0.0/8:443` beats `10.0.0.0/8`. Port, port range, and protocol all count as fields.
 3. **Identical rules → Inclusions win.** If a rule is in both Exclusions and Inclusions with the same specificity, the Inclusion is honored.
 
-This is a specificity-wins pattern, parallel to URL Filtering's cross-category specificity rule ([`../zia/url-filtering.md § The specificity rule`](../zia/url-filtering.md)) and ZPA's segment specificity ([`../zpa/app-segments.md`](../zpa/app-segments.md)). **Specificity-wins is the recurring Zscaler pattern.**
+This is a specificity-wins pattern, parallel to URL Filtering's cross-category specificity rule ([`zia.url-filtering`](kb:zia.url-filtering)) and ZPA's segment specificity ([`../zpa/app-segments.md`](../zpa/app-segments.md)). **Specificity-wins is the recurring Zscaler pattern.**
 
 #### 3. Port-based bypasses (Windows and macOS only)
 
@@ -248,4 +248,4 @@ Either works; the GRE-as-default with no exclusion strategy is the failure mode.
 - Web Policy / App Profile (where bypass lists live) — [`./web-policy.md`](./web-policy.md)
 - Trusted Networks (triggers On-Trusted vs Off-Trusted action branches) — [`./trusted-networks.md`](./trusted-networks.md)
 - ZIA SSL Inspection (HTTP/2 inspection interaction — HTTP/2 in Bandwidth-Control-enabled locations falls back to HTTP/1.1 regardless of tunnel mode) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
-- URL wildcard semantics (leading-period syntax shared between PAC `dnsDomainIs` and URL Filter entries) — [`../zia/wildcard-semantics.md`](../zia/wildcard-semantics.md)
+- URL wildcard semantics (leading-period syntax shared between PAC `dnsDomainIs` and URL Filter entries) — [`zia.url-categories.entry-matching`](kb:zia.url-categories.entry-matching)

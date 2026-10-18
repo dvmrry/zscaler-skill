@@ -59,6 +59,11 @@ const CHECKS = [
     args: ["scripts/check-citations.mjs"],
   },
   {
+    name: "knowledge graph (structure)",
+    command: "node",
+    args: ["scripts/kb.mjs", "validate", "--no-citations"],
+  },
+  {
     name: "helper command refs",
     command: "node",
     args: ["scripts/check-helper-command-refs.mjs"],

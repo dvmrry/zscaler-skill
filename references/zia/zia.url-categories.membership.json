@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-categories.membership",
+  "title": "Which URL category a URL belongs to",
+  "aliases": [
+    "specificity rule",
+    "most specific category wins",
+    "custom category precedence",
+    "wildcard vs exact category",
+    "retain parent category",
+    "predefined vs custom category"
+  ],
+  "binds": [
+    "zia/url-categories#urls",
+    "zia/url-categories#dbCategorizedUrls",
+    "zia/url-filtering-rules#urlCategories"
+  ],
+  "related": [
+    { "rel": "depends-on", "to": "zia.url-categories.entry-matching" },
+    { "rel": "see-also", "to": "zia.url-filtering.rule-order" }
+  ],
+  "claims": {
+    "specific-entry-wins": {
+      "statement": "When a URL matches entries in more than one custom category, the category with the more specific matching entry wins, and rules referencing the less specific (wildcard) category do not apply to that URL, regardless of rule order.",
+      "tier": "A",
+      "binds": ["zia/url-categories#urls", "zia/url-filtering-rules#urlCategories"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "URL_Filtering_Deployment_and_Operations_Guide.txt",
+          "quotes": [
+            "More specific custom category entries always take precedence. URL filtering rules aren’t applied to a category with a wildcard if the destination is defined more specifically in another category.",
+            "When accessing www.example.com, the CUSTOM_C1 policy isn’t applied because CUSTOM_C2 is more specific (even though CUSTOM_C1 is higher in the rule order)."
+          ] },
+        { "source": "zscaler-help", "path": "About_URL_Categories.txt",
+          "quotes": ["SaaS (ZIA) always looks for a specific match first."] }
+      ]
+    },
+    "resolved-before-rules": {
+      "statement": "Category membership is resolved before rules are walked: a rule matches a URL through the category the URL resolved to, not through every category with a matching entry.",
+      "tier": "B",
+      "binds": ["zia/url-filtering-rules#urlCategories"],
+      "conditions": "Chain of evidence: the specificity examples show a higher-ordered wildcard rule not applying, which first-match ordering alone cannot explain.",
+      "evidence": [
+        { "source": "zscaler-help", "path": "URL_Filtering_Deployment_and_Operations_Guide.txt",
+          "quotes": ["(even though CUSTOM_C1 is higher in the rule order)"] },
+        { "source": "zscaler-help", "path": "About_URL_Categories.txt",
+          "quotes": ["they won't be blocked because those exact domain names are in Custom Category 2, which is not blocked."] }
+      ]
+    },
+    "retain-parent-choice": {
+      "statement": "When a URL is added manually to a category, the admin chooses whether it also keeps its original (parent) category.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "About_URL_Categories.txt",
+          "quotes": ["you can also specify whether you want it to retain its original parent category."] }
+      ]
+    },
+    "retain-parent-both-match": {
+      "statement": "A URL that retains its parent category is covered both by rules referencing the custom category and by rules referencing its original predefined category, so rule order decides which fires. The API holds these URLs in `dbCategorizedUrls`, separate from `urls`.",
+      "tier": "A",
+      "binds": ["zia/url-categories#dbCategorizedUrls", "zia/url-filtering-rules#urlCategories"],
+      "evidence": [
+        { "source": "sdk-go", "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "quotes": [
+            "URLs added to a custom URL category are also retained under the original parent URL category",
+            "The URLs entered are covered by policies that reference the original parent URL category as well as those that reference the custom URL category."
+          ] },
+        { "source": "zscaler-help", "path": "URL_Filtering_Deployment_and_Operations_Guide.txt",
+          "quotes": ["If the site is added in the Retaining Parent category, check the rule order to make sure that another rule does not block access to this URL first."] }
+      ]
+    },
+    "without-retain-parent": {
+      "statement": "A URL added to a custom category without retaining its parent is covered by the custom category instead of its original predefined category, so rules on the predefined category stop matching it.",
+      "tier": "B",
+      "binds": ["zia/url-categories#urls", "zia/url-filtering-rules#urlCategories"],
+      "conditions": "Chain of evidence: retaining the parent is an explicit opt-in, and only retained URLs are documented as covered by parent-category policies.",
+      "evidence": [
+        { "source": "zscaler-help", "path": "About_URL_Categories.txt",
+          "quotes": ["you can specify whether you want google.com also to retain its original Web Search category."] },
+        { "source": "sdk-go", "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "quotes": ["The URLs entered are covered by policies that reference the original parent URL category as well as those that reference the custom URL category."] }
+      ]
+    },
+    "retain-parent-counters": {
+      "statement": "The API reports retained entries per category through `urlsRetainingParentCategoryCount` and `ipRangesRetainingParentCategoryCount`; there is no `patternsRetainingParentCategoryCount` or `keywordsRetainingParentCategoryCount` field, and the keyword count is `retainParentKeywordCount`.",
+      "tier": "A",
+      "binds": ["zia/url-categories"],
+      "evidence": [
+        { "source": "sdk-go", "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "quotes": [
+            "UrlsRetainingParentCategoryCount int `json:\"urlsRetainingParentCategoryCount\"`",
+            "IPRangesRetainingParentCategoryCount int `json:\"ipRangesRetainingParentCategoryCount\"`",
+            "RetainParentKeywordCount int `json:\"retainParentKeywordCount,omitempty\"`"
+          ] }
+      ]
+    },
+    "ip-rarely-categorized": {
+      "statement": "Bare IP addresses are usually not placed in predefined categories, unless a SaaS or cloud provider dedicates the IP or range to one application.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "About_URL_Categories.txt",
+          "quotes": [
+            "Zscaler does not typically place IP addresses into the predefined URL categories.",
+            "However, if a SaaS or cloud provider dedicates an IP address or IP range to an application, the Zscaler service categorizes it."
+          ] }
+      ]
+    }
+  },
+  "gaps": {
+    "same-specificity-collision": {
+      "kind": "semantic",
+      "former_ids": ["zia-02"],
+      "title": "Two custom categories with equally specific matching entries",
+      "status": "open",
+      "resolves_with": ["lab-test", "tenant-data"],
+      "blocks": "deterministic precedence answers when admins have overlapping custom categories",
+      "detail": "The specificity rule picks the more specific entry; no source says which category wins when both entries are equally specific."
+    },
+    "predefined-membership": {
+      "kind": "data",
+      "title": "Which predefined categories a URL belongs to",
+      "about": ["zia/url-categories", "zia/url-filtering-rules#urlCategories"],
+      "status": "open",
+      "detail": "Vendor docs never publish predefined-category membership, and IaC exports only custom categories (infrawright fetches url-categories with customOnly=true). A rule that references a predefined category cannot be decided offline: an earlier such rule must be treated as ambiguous, not skipped, because it shields every rule below it.",
+      "resolvable_by": ["live"],
+      "live_command": "zscalerctl zia url-lookup <host>"
+    },
+    "predefined-vs-custom": {
+      "kind": "semantic",
+      "former_ids": ["zia-01"],
+      "title": "A URL in both a predefined and a custom category",
+      "status": "resolved",
+      "resolves_with": ["source-read"],
+      "resolution": "Governed by Retain Parent Category, not by specificity: see claims retain-parent-both-match and without-retain-parent. The 2026-04-23 ledger answer also listed patternsRetainingParentCategoryCount and keywordsRetainingParentCategoryCount fields that the SDK does not have (claim retain-parent-counters)."
+    }
+  },
+  "cases": {
+    "exact-in-lower-rule-beats-wildcard-in-higher-rule": {
+      "kind": "rule-evaluation",
+      "claims": ["specific-entry-wins", "resolved-before-rules"],
+      "config": {
+        "rules": [
+          { "id": 1, "order": 1, "state": "ENABLED", "action": "BLOCK", "urlCategories": ["CUSTOM_C1"] },
+          { "id": 2, "order": 2, "state": "ENABLED", "action": "ALLOW", "urlCategories": ["CUSTOM_C2"] }
+        ],
+        "categories": [
+          { "id": "CUSTOM_C1", "urls": [".example.com"] },
+          { "id": "CUSTOM_C2", "urls": ["www.example.com"] }
+        ]
+      },
+      "request": { "url": "https://www.example.com/" },
+      "expect": { "verdict": "allow", "rule": 2, "category": "CUSTOM_C2" }
+    },
+    "retain-parent-off-custom-rule-fires": {
+      "kind": "rule-evaluation",
+      "claims": ["without-retain-parent"],
+      "config": {
+        "rules": [
+          { "id": 10, "order": 1, "state": "ENABLED", "action": "BLOCK", "urlCategories": ["SOCIAL_NETWORKING"] },
+          { "id": 20, "order": 2, "state": "ENABLED", "action": "ALLOW", "urlCategories": ["CUSTOM_01"] }
+        ],
+        "categories": [{ "id": "CUSTOM_01", "urls": [".example.com"], "dbCategorizedUrls": [] }],
+        "predefined": { "www.example.com": ["SOCIAL_NETWORKING"] }
+      },
+      "request": { "url": "https://www.example.com/path" },
+      "expect": { "verdict": "allow", "rule": 20 },
+      "note": "Eval 2, Retain Parent off. Assumes the predefined membership is known (see the predefined-membership data gap)."
+    },
+    "retain-parent-on-rule-order-decides": {
+      "kind": "rule-evaluation",
+      "claims": ["retain-parent-both-match", "zia.url-filtering.rule-order:first-match"],
+      "config": {
+        "rules": [
+          { "id": 10, "order": 1, "state": "ENABLED", "action": "BLOCK", "urlCategories": ["SOCIAL_NETWORKING"] },
+          { "id": 20, "order": 2, "state": "ENABLED", "action": "ALLOW", "urlCategories": ["CUSTOM_01"] }
+        ],
+        "categories": [{ "id": "CUSTOM_01", "urls": [], "dbCategorizedUrls": [".example.com"] }],
+        "predefined": { "www.example.com": ["SOCIAL_NETWORKING"] }
+      },
+      "request": { "url": "https://www.example.com/path" },
+      "expect": { "verdict": "block", "rule": 10 },
+      "note": "Eval 2, Retain Parent on."
+    },
+    "predefined-category-shields-later-block": {
+      "kind": "rule-evaluation",
+      "claims": ["zia.url-filtering.rule-order:first-match"],
+      "config": {
+        "rules": [
+          { "id": 1, "order": 1, "state": "ENABLED", "action": "ALLOW", "urlCategories": ["SOCIAL_NETWORKING"] },
+          { "id": 2, "order": 2, "state": "ENABLED", "action": "BLOCK" }
+        ],
+        "categories": []
+      },
+      "request": { "url": "https://social.example/" },
+      "expect": { "verdict": "ambiguous", "at_rule": 1, "gap": "predefined-membership" },
+      "note": "Predefined membership is unknown offline. The undecidable early rule shields the later block; it is never skipped."
+    }
+  }
+}

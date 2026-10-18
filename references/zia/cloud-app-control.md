@@ -41,15 +41,7 @@ How Cloud App Control (CAC) evaluates against SaaS / cloud application traffic, 
 
 ## Summary
 
-Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
-
-CAC evaluates **before** URL Filtering. For a cloud-app transaction:
-
-- **CAC explicitly allows** → URL Filtering **does not evaluate** (default). The transaction is allowed even if a URL Filtering rule would otherwise block it. Flip this with "Allow Cascading to URL Filtering" — then URL Filtering also evaluates after CAC allow.
-- **CAC explicitly blocks** → request is blocked. Cascading does not rescue this; URL Filtering does not get to override.
-- **No CAC rule matches** → URL Filtering evaluates normally. CAC is out of the picture.
-
-CAC rules match on either **Cloud Applications** (enumerated apps like Facebook, Google Drive, GitHub, ChatGPT) OR **Cloud Application Risk Profile** (not both in the same rule) combined with standard criteria (users, groups, locations, etc.). Rules evaluate **top-down, first-match-wins**, same shape as URL Filtering. The default terminal behavior is **Allow All** — absence of a matching CAC rule means "CAC says nothing; URL Filtering takes over."
+Which of Cloud App Control and URL Filtering applies (CAC first, a CAC allow skipping URL Filtering, cascading, a CAC block being final, no matching CAC rule leaving URL Filtering to decide) now lives in the knowledge graph as [Cloud App Control versus URL Filtering](kb:zia.cloud-app-control.precedence).
 
 ## Mechanics
 
@@ -107,13 +99,7 @@ Claude (`vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.md
 
 ### Evaluation order within CAC
 
-From the *Cloud App Control Deployment and Operations Guide*, p.2:
-
-> Rules evaluation proceeds in order from top to bottom.
-
-> The default policy behavior is Allow All.
-
-Same first-match-wins model as URL Filtering. A disabled rule is skipped without losing its place — URL Filtering states this explicitly (*Configuring the URL Filtering Policy* p.3), and ZIA's shared policy-enforcement engine makes CAC parity the most-defensible inference. No CAC-specific doc explicitly restates the rule; see [clarification `zia-06`](../_meta/clarifications.md#zia-06-cac-disabled-rule-semantics).
+See [Cloud App Control versus URL Filtering](kb:zia.cloud-app-control.precedence).
 
 ### What a CAC rule matches on
 
@@ -148,30 +134,7 @@ Each app entry also has a server-assigned **`val`** (numeric internal identifier
 
 ## Precedence rule with URL filtering
 
-This is the primary integration question. **The precedence mechanics below are deterministic — answer CAC-vs-URL-Filtering cascading questions at `Confidence: high`** even though this file's frontmatter is `medium` (the medium hedge covers app-identification mechanics in [`clarification zia-09`](../_meta/clarifications.md#zia-09-cac-app-identity-when-url-maps-to-multiple-apps), not the precedence rules). Behavior by the four cases:
-
-Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
-
-| URL Filtering says | CAC says | Result (default, no cascading) | Result (cascading enabled) |
-|---|---|---|---|
-| Block | Allow | **Allow** (CAC wins) | **Block** (URL Filtering evaluates after and fires) |
-| Allow | Allow | Allow | Allow |
-| Block | Block | Block | Block |
-| Allow | Block | **Block** (CAC wins) | Block (same — CAC block always wins) |
-| Block | no matching rule | Block (URL Filtering evaluates) | Block (same) |
-| Allow | no matching rule | Allow | Allow |
-
-From *Configuring the URL Filtering Policy*, p.1 (also restated in *CAC Deployment Guide*, p.3):
-
-> By default, the Cloud App Control policy takes precedence over the URL Filtering policy. If a user requests a cloud app that you explicitly allow with Cloud App Control policy, the service only applies the Cloud App Control policy and not the URL Filtering policy.
-
-> However, this behavior changes if you enable Allow Cascading to URL Filtering in Advanced Settings. If you do, the service applies the URL Filtering policy even if it applies a Cloud App Control policy rule allowing the transaction.
-
-> If the example changed so that you had a Cloud Control Policy rule that blocked Facebook, while URL Filtering allowed it, Facebook is blocked even if Allow Cascading to URL Filtering was enabled.
-
-Cascading is a **one-way override on the Allow path only.** It does not let URL Filtering rescue a CAC-blocked request.
-
-"Allow Cascading to URL Filtering" lives under Advanced Web App Control Options (navigated from Advanced Policy Settings). Operations teams are advised to document its state, per *CAC Deployment Guide*, p.3: "Document the Allow Cascading to URL Filtering settings to understand the flow of the evaluated rules to help internal personnel and Zscaler Support troubleshoot issues."
+See [Cloud App Control versus URL Filtering](kb:zia.cloud-app-control.precedence).
 
 ## Interaction with SSL inspection
 
@@ -243,47 +206,18 @@ Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.t
 
 ## Worked example (covers eval Q5)
 
-Source: `vendor/zscaler-help/Cloud_App_Control_Deployment_and_Operations_Guide.txt`; `vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`; `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`.
-
-Scenario: Your URL Filtering policy has a Block rule on the Social Networking category (which includes Facebook). Your CAC policy has an Allow rule specifically for the Facebook app, restricted to the Marketing department.
-
-Case A — **cascading disabled (default)**, Marketing user visits Facebook:
-
-1. CAC evaluates first. The user is in Marketing; the Allow-Facebook rule matches. **CAC allows.**
-2. Because CAC allowed, URL Filtering does not evaluate at all.
-3. **Result: user can access Facebook.** The Social Networking Block rule in URL Filtering is bypassed for this transaction.
-
-Case B — **cascading disabled**, Engineering user (not in Marketing) visits Facebook:
-
-1. CAC evaluates first. The Allow-Facebook rule doesn't match (wrong department). No other CAC rule matches. **Per *Understanding Policy Enforcement* p.4, "no matching CAC rule" means URL Filtering evaluates normally** — CAC's default Allow-All is not an explicit allow.
-2. URL Filtering evaluates; Social Networking Block fires.
-3. **Result: Engineering user is blocked.**
-
-Case C — **cascading enabled**, Marketing user visits Facebook:
-
-1. CAC evaluates first. Allow-Facebook rule matches; CAC explicitly allows.
-2. Cascading forces URL Filtering to evaluate anyway.
-3. URL Filtering Social Networking Block fires.
-4. **Result: Marketing user is blocked.** Cascading defeats the narrower CAC allow.
-
-Case D — **cascading enabled**, CAC has an explicit Block-Facebook rule, URL Filtering has an Allow rule for Facebook:
-
-1. CAC evaluates first. CAC block fires.
-2. URL Filtering does **not** get to override (cascading only opens the Allow path).
-3. **Result: user is blocked** regardless of URL Filtering's Allow.
-
-The asymmetry matters: **cascading is a way to tighten CAC allows with URL Filtering's stricter rules**, not a way to relax CAC blocks.
+Moved with its cases to [Cloud App Control versus URL Filtering](kb:zia.cloud-app-control.precedence).
 
 ## Open questions
 
 - Tenant restriction per-app inspection logic — [clarification `zia-08`](../_meta/clarifications.md#zia-08-cac-tenant-restrictions-mechanics) *(partial: supported apps + SSL-Inspection-required doc'd; exact token-field per app not captured)*
 - App-identity determination when a URL could map to multiple cloud apps — [clarification `zia-09`](../_meta/clarifications.md#zia-09-cac-app-identity-when-url-maps-to-multiple-apps) *(partial: `/urlLookup` returns URL category only; cloud-app identity via Admin Console URL Lookup tool)*
 
-Resolved while writing or after capture: default-Allow-All vs explicit-Allow for cascading ([`zia-10`](../_meta/clarifications.md#zia-10-cac-default-allow-all-vs-explicit-allow-for-cascading) via *Understanding Policy Enforcement* p.4); Cloud Application Risk Profile composition ([`zia-07`](../_meta/clarifications.md#zia-07-cloud-application-risk-profile-composition) via *Adding a Cloud Application Risk Profile*); CAC disabled-rule semantic parity with URL Filtering ([`zia-06`](../_meta/clarifications.md#zia-06-cac-disabled-rule-semantics) via *Adding an Instant Messaging Rule for Cloud App Control*).
+Resolved while writing or after capture: default-Allow-All vs explicit-Allow for cascading ([`zia-10`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit) via *Understanding Policy Enforcement* p.4); Cloud Application Risk Profile composition ([`zia-07`](../_meta/clarifications.md#zia-07-cloud-application-risk-profile-composition) via *Adding a Cloud Application Risk Profile*); CAC disabled-rule semantic parity with URL Filtering ([`zia-06`](kb:zia.cloud-app-control.precedence:cac-disabled-rules) via *Adding an Instant Messaging Rule for Cloud App Control*).
 
 ## Cross-links
 
-- URL Filtering rule precedence (the other side of this interaction) — [`./url-filtering.md`](./url-filtering.md)
+- URL Filtering rule precedence (the other side of this interaction) — [`zia.url-filtering`](kb:zia.url-filtering)
 - SSL inspection ordering and how it gates CAC post-decrypt visibility — [`./ssl-inspection.md`](./ssl-inspection.md)
 - Cross-product policy evaluation — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
 - SPL pattern for observing which policy layer fired — [`../shared/splunk-queries.md`](../shared/splunk-queries.md) (add a dedicated `cac-vs-url-filter-drift` pattern when the schema docs are derived)

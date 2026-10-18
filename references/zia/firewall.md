@@ -89,7 +89,7 @@ A tenant on Basic can still run a firewall, just scoped to IP/port/location — 
 
 Source: `vendor/zscaler-help/configuring-firewall-policies.md`; `vendor/zscaler-help/about-ips-control.md`.
 
-Firewall runs **before** web-module policies (URL Filtering, CAC, SSL Inspection, DLP). The split is documented in *Understanding Policy Enforcement* and threaded in [`./url-filtering.md`](./url-filtering.md):
+Firewall runs **before** web-module policies (URL Filtering, CAC, SSL Inspection, DLP). The split is documented in *Understanding Policy Enforcement* and threaded in [`zia.url-filtering`](kb:zia.url-filtering):
 
 ```
 traffic hits PSE
@@ -173,7 +173,7 @@ Source: `vendor/terraform-provider-zia/zia/resource_zia_firewall_filtering_rules
 | `BLOCK_ICMP` | ICMP unreachable (for non-TCP flows). |
 | `EVAL_NWAPP` | **Evaluate Network Application** — hand off to the network-app evaluator. A rule with this action doesn't terminate evaluation; it triggers a deeper L7 inspection for app-id and then applies a subsequent rule's action. Useful for "if this is Skype traffic, apply rule X" patterns where the L4 tuple alone can't tell.
 
-Rule evaluation is **first-match-wins in ascending Rule Order**, with Admin Rank as a structural gate (higher-rank admin can override lower-rank admin's rule positioning). Same model as URL Filtering — see [`./url-filtering.md § Rule order and first-match semantics`](./url-filtering.md).
+Rule evaluation is **first-match-wins in ascending Rule Order**, with Admin Rank as a structural gate (higher-rank admin can override lower-rank admin's rule positioning). Same model as URL Filtering — see [`zia.url-filtering`](kb:zia.url-filtering).
 
 ## IPS Control specifics
 
@@ -467,7 +467,7 @@ These open firewall items are tracked together as `zia-60` in [`../_meta/clarifi
 ## Cross-links
 
 - Rule scoping by Location / Location Group: [`./locations.md`](./locations.md).
-- Pipeline ordering (Firewall → Web module two-pass): [`./url-filtering.md`](./url-filtering.md).
+- Pipeline ordering (Firewall → Web module two-pass): [`zia.url-filtering`](kb:zia.url-filtering).
 - Log schema for firewall events: [`./logs/firewall-log-schema.md`](./logs/firewall-log-schema.md).
 - SPL pattern for firewall-vs-web-module block discrimination: [`../shared/splunk-queries.md § firewall-vs-web-module-block`](../shared/splunk-queries.md).
 - ATP evaluation order: [`./malware-and-atp.md`](./malware-and-atp.md).

@@ -1,0 +1,136 @@
+{
+  "bundle_version": 1,
+  "query": "zia/web-log",
+  "tiers": {
+    "knowledge": {
+      "public": true,
+      "company": true
+    },
+    "iac": {
+      "available": true
+    },
+    "live": {
+      "available": true
+    }
+  },
+  "resolved": {
+    "id": "zia/web-log",
+    "kind": "type"
+  },
+  "type": {
+    "id": "zia/web-log",
+    "kind": "log",
+    "title": "ZIA web log (NSS web feed)",
+    "names": {
+      "nss": "web"
+    },
+    "fields": {
+      "action": {
+        "type": "string",
+        "label": "Policy Action",
+        "description": "The action the service took on the transaction (Allowed, Blocked)."
+      },
+      "reason": {
+        "type": "string",
+        "label": "Policy Reason",
+        "description": "The action taken and, for blocks, the policy applied."
+      },
+      "rulelabel": {
+        "type": "string",
+        "label": "Blocked Policy Name",
+        "description": "The rule applied to the transaction. Populated only for Block rules."
+      },
+      "ruletype": {
+        "type": "string",
+        "label": "Blocked Policy Type",
+        "description": "The type of policy that blocked. Populated only for Block rules."
+      },
+      "urlfilterrulelabel": {
+        "type": "string",
+        "label": "URL Filtering Policy Name",
+        "description": "The URL Filtering rule applied to the transaction."
+      },
+      "apprulelabel": {
+        "type": "string",
+        "label": "Cloud Application Policy Name",
+        "description": "The Cloud App Control rule applied to the transaction."
+      },
+      "appname": {
+        "type": "string",
+        "label": "Cloud Application",
+        "description": "The cloud application of the transaction."
+      },
+      "urlcat": {
+        "type": "string",
+        "label": "URL Category",
+        "description": "The category of the destination URL."
+      },
+      "urlcatmethod": {
+        "type": "string",
+        "description": "The source of the URL's category (for example Database A)."
+      }
+    }
+  },
+  "subjects": [
+    {
+      "id": "zia.logs.web-rule-attribution",
+      "title": "Which rule decided a web transaction, from the logs",
+      "claims": [
+        {
+          "id": "zia.logs.web-rule-attribution:category-source",
+          "statement": "`urlcat` records the category the transaction was judged under, and `urlcatmethod` records where that categorization came from, which is how logs reveal a URL's actual category membership.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#urlcat",
+            "zia/web-log#urlcatmethod"
+          ]
+        },
+        {
+          "id": "zia.logs.web-rule-attribution:rulelabel-block-only",
+          "statement": "`rulelabel` and `ruletype` are filled only when a Block rule applied; an allowed transaction has neither, so an empty `rulelabel` does not mean no rule matched.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#rulelabel",
+            "zia/web-log#ruletype"
+          ]
+        },
+        {
+          "id": "zia.logs.web-rule-attribution:separate-layer-labels",
+          "statement": "URL Filtering and Cloud App Control each have their own rule-name field (`urlfilterrulelabel`, `apprulelabel`), so one record can name both when both layers evaluated, and the allow-side rule is visible there even when `rulelabel` is empty.",
+          "tier": "B",
+          "confidence": "medium",
+          "binds": [
+            "zia/web-log#urlfilterrulelabel",
+            "zia/web-log#apprulelabel"
+          ]
+        }
+      ]
+    }
+  ],
+  "gaps": [],
+  "company": [
+    {
+      "layer": "company",
+      "id": "company.zia.splunk-web-mapping",
+      "kind": "mapping",
+      "relation": "maps",
+      "about": [
+        "zia/web-log"
+      ],
+      "title": "Synthetic fixture: how our SIEM stores ZIA web log fields",
+      "map": {
+        "zia/web-log#urlfilterrulelabel": "zs_url_rule",
+        "zia/web-log#apprulelabel": "zs_app_rule",
+        "zia/web-log#rulelabel": "zs_block_rule",
+        "zia/web-log#urlcat": "zs_category",
+        "zia/web-log#action": "zs_action"
+      },
+      "dropped_fields": [
+        "zia/web-log#urlcatmethod"
+      ]
+    }
+  ],
+  "hint": "Resolve a subject ID for its full reasoning and citations."
+}

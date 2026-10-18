@@ -190,7 +190,7 @@ Forwarding Control rules share the standard ZIA rule-criteria model. From the TF
 - Network: `nw_services`, `nw_service_groups`, `nw_application_groups`
 - App: `zpa_app_segments` (for ZPA method), `app_service_groups`
 
-Rule evaluation is first-match-wins in ascending Rule Order, with Admin Rank as a structural gate — same model as URL Filtering and Firewall. See [`./url-filtering.md`](./url-filtering.md).
+Rule evaluation is first-match-wins in ascending Rule Order, with Admin Rank as a structural gate — same model as URL Filtering and Firewall. See [`zia.url-filtering`](kb:zia.url-filtering).
 
 ### Terraform shape for `nw_services`
 
@@ -277,7 +277,7 @@ For Surrogate IP mechanics and the related five-minute lockout behavior, see [`.
 
 ## Cross-links
 
-- Traffic pipeline position (Firewall → Web module → Forwarding Control): [`./firewall.md`](./firewall.md), [`./url-filtering.md`](./url-filtering.md).
+- Traffic pipeline position (Firewall → Web module → Forwarding Control): [`./firewall.md`](./firewall.md), [`zia.url-filtering`](kb:zia.url-filtering).
 - Z-Tunnel 1.0/PAC forwarding gate for road warriors: [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md).
 - ZPA App Segments (ZPA-side counterpart to `zpa_app_segments` references): [`../zpa/app-segments.md`](../zpa/app-segments.md).
 - ZPA App Connectors (the physical egress point for SIPA): [`../zpa/app-connector.md`](../zpa/app-connector.md).

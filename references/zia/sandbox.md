@@ -265,5 +265,5 @@ Source: `vendor/zscaler-mcp-server/skills/zia/investigate-sandbox/SKILL.md`; `ve
 ## Cross-links
 
 - SSL inspection — upstream gate for sandbox visibility — [`./ssl-inspection.md`](./ssl-inspection.md)
-- URL filtering — may block before Sandbox engages — [`./url-filtering.md`](./url-filtering.md)
+- URL filtering — may block before Sandbox engages — [`zia.url-filtering`](kb:zia.url-filtering)
 - Activation gate — Sandbox rule changes stage like any other ZIA config — [`../shared/activation.md`](../shared/activation.md)

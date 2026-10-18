@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "registry.schema.json",
+  "title": "Registries: products, sources, and the capture manifest",
+  "$defs": {
+    "products": {
+      "type": "object",
+      "required": ["schema_version", "products"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "products": {
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/segment" },
+          "additionalProperties": {
+            "type": "object",
+            "required": ["title"],
+            "properties": {
+              "title": { "type": "string", "minLength": 1 },
+              "aliases": { "$ref": "common.schema.json#/$defs/aliases" },
+              "type_scope": {
+                "description": "Scope used in type IDs when it differs from the product ID (zscalerctl names Cloud Connector types ztw/...).",
+                "$ref": "common.schema.json#/$defs/segment"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "object",
+      "required": ["schema_version", "sources"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "sources": {
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/segment" },
+          "additionalProperties": {
+            "type": "object",
+            "required": ["kind", "root", "rank", "title"],
+            "properties": {
+              "kind": { "enum": ["submodule", "capture"] },
+              "root": { "type": "string", "pattern": "^vendor/[A-Za-z0-9._-]+$" },
+              "rank": { "type": "integer", "minimum": 1 },
+              "title": { "type": "string", "minLength": 1 },
+              "url": { "type": "string", "pattern": "^https://" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "capture-manifest": {
+      "type": "object",
+      "required": ["schema_version", "files"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["captured_at", "sha256"],
+            "properties": {
+              "captured_from": { "type": ["string", "null"] },
+              "captured_at": { "$ref": "common.schema.json#/$defs/date" },
+              "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+              "derived_from": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

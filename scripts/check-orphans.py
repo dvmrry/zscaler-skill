@@ -41,6 +41,8 @@ import re
 import sys
 from pathlib import Path
 
+from kb_prose import is_kb_prose
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFS = REPO_ROOT / "references"
 
@@ -145,7 +147,8 @@ def collect_linked_targets(sources: list[Path], repo_root: Path) -> set[Path]:
 
 def find_orphans(repo_root: Path) -> tuple[list[Path], list[Path]]:
     """Return (non-exempt orphans, exempt orphans)."""
-    ref_files = sorted((repo_root / "references").rglob("*.md"))
+    # KB prose is reached by ID (kb.mjs resolve), not by path links.
+    ref_files = sorted(p for p in (repo_root / "references").rglob("*.md") if not is_kb_prose(p))
     sources = collect_source_files(repo_root)
     linked_targets = collect_linked_targets(sources, repo_root)
 

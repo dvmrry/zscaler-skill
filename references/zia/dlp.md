@@ -124,7 +124,7 @@ Location: `Policy > Data Loss Prevention`.
 
 Rule attributes:
 
-- **Rule Order** — ascending numerical, first-match-wins. Same pattern as URL Filter (see [`./url-filtering.md`](./url-filtering.md)).
+- **Rule Order** — ascending numerical, first-match-wins. Same pattern as URL Filter (see [`zia.url-filtering`](kb:zia.url-filtering)).
 - **Admin Rank** — 0 (highest) to 7. Rules with higher admin rank always precede lower; rank gates which Rule Order values an admin can select.
 - **Rule Status** — Enabled / Disabled. Disabled rules retain their order slot (same pattern as URL Filter).
 - **Rule Label** — freeform categorization tag.
@@ -133,7 +133,7 @@ Rule criteria:
 
 - **Content Matching** — select DLP engines (up to 4 per rule). "Any" applies to all engines.
 - **Match Only mode** — for both Allow and Block actions, controls how engines must trigger together. See *DLP Policy Configuration Example: Match Only* in Zscaler docs.
-- **Inspect HTTP GET Query Parameters** — enables DLP inspection on URL query strings for specific URL categories: Generative AI and ML Applications, Safe Search Engines, Translation Tools, Web Search, and User-Defined Custom URL Categories. **Particularly relevant for GenAI-prompt data exfil detection** (pairs with the LLM-vendor prompt-tracking flags in Advanced URL Settings — see [`./url-filtering.md § GenAI prompt-tracking flags`](./url-filtering.md)).
+- **Inspect HTTP GET Query Parameters** — enables DLP inspection on URL query strings for specific URL categories: Generative AI and ML Applications, Safe Search Engines, Translation Tools, Web Search, and User-Defined Custom URL Categories. **Particularly relevant for GenAI-prompt data exfil detection** (pairs with the LLM-vendor prompt-tracking flags in Advanced URL Settings — see [`zia.url-filtering`](kb:zia.url-filtering)).
 
 ### Content inspection limits
 
@@ -333,7 +333,7 @@ These open DLP items are tracked together as `zia-58` in [`../_meta/clarificatio
 ## Cross-links
 
 - SSL Inspection (upstream decrypt dependency) — [`./ssl-inspection.md`](./ssl-inspection.md)
-- URL Filtering (upstream gate; may block before DLP sees traffic) — [`./url-filtering.md`](./url-filtering.md)
+- URL Filtering (upstream gate; may block before DLP sees traffic) — [`zia.url-filtering`](kb:zia.url-filtering)
 - Cloud App Control (parallel decryption dependency) — [`./cloud-app-control.md`](./cloud-app-control.md)
 - Malware Protection / ATP (adjacent cybersecurity-policy family sharing pipeline position) — [`./malware-and-atp.md`](./malware-and-atp.md)
 - Sandbox (another SSL-decrypt-dependent detection engine) — [`./sandbox.md`](./sandbox.md)

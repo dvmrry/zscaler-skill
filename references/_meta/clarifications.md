@@ -105,12 +105,16 @@ Each entry follows this template. Body is narrative — the existing zia-01 entr
 ## Status summary
 
 Skim this before reading the full entries. Summary refreshed 2026-08-14:
-25 entries are resolved or clarified, 34 are partially resolved, and 408 are open.
+21 entries are resolved or clarified, 32 are partially resolved, and 404 are open.
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
 tenant snapshots, operator experience, or vendor confirmation rather than more
 public-doc reading.
+
+Entries migrated to the knowledge graph are no longer listed here; they are gaps
+with their old ID kept in `former_ids` (resolve with `node scripts/kb.mjs resolve <old-id>`):
+`zia-01` → [`zia.url-categories.membership:predefined-vs-custom`](kb:zia.url-categories.membership:predefined-vs-custom); `zia-02` → [`zia.url-categories.membership:same-specificity-collision`](kb:zia.url-categories.membership:same-specificity-collision); `zia-03` → [`zia.url-categories.entry-matching:wildcard-tokenization`](kb:zia.url-categories.entry-matching:wildcard-tokenization); `zia-04` → [`zia.url-filtering.advanced-settings:nrod-lag`](kb:zia.url-filtering.advanced-settings:nrod-lag); `zia-06` → [`zia.cloud-app-control.precedence:cac-disabled-rules`](kb:zia.cloud-app-control.precedence:cac-disabled-rules); `zia-10` → [`zia.cloud-app-control.precedence:default-allow-vs-explicit`](kb:zia.cloud-app-control.precedence:default-allow-vs-explicit); `zia-11` → [`zia.ssl-inspection.pipeline:mixed-forwarding`](kb:zia.ssl-inspection.pipeline:mixed-forwarding); `zia-12` → [`zia.ssl-inspection.pipeline:bypass-and-default-rule`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule); `zia-14` → [`zia.url-categories.entry-matching:exactly-five-levels`](kb:zia.url-categories.entry-matching:exactly-five-levels); `zia-15` → [`zia.url-categories.entry-matching:console-accepts-asterisk`](kb:zia.url-categories.entry-matching:console-accepts-asterisk).
 
 The 2026-06-18 Automate-contract / rosetta closure pass narrowed several
 previously open source-surface questions without settling their runtime
@@ -191,12 +195,8 @@ families.
 
 | ID | Title |
 |---|---|
-| [`zia-01`](#zia-01-predefined-vs-custom-category-specificity) | Predefined-vs-custom via Retain Parent Category toggle |
-| [`zia-03`](#zia-03-wildcard-tokenization) | Wildcard tokenization — leading-period only; asterisk invalid |
 | [`zia-05`](#zia-05-admin-rank-order-collision) | Admin rank structurally enforces precedence regardless of order-value collisions |
-| [`zia-06`](#zia-06-cac-disabled-rule-semantics) | CAC disabled-rule semantic identical to URL Filtering (doc'd verbatim in per-category CAC rule articles) |
 | [`zia-07`](#zia-07-cloud-application-risk-profile-composition) | Cloud Application Risk Profile composition — full attribute list documented |
-| [`zia-10`](#zia-10-cac-default-allow-all-vs-explicit-allow-for-cascading) | CAC default Allow-All is not "explicit allow" |
 | [`zia-13`](#zia-13-explicit-pipeline-order-sourcing) | Pipeline order — firewall → web module two-pass |
 | [`zpa-02`](#zpa-02-zpa-more-granular-definition) | "More granular" = most-specific FQDN wins |
 | [`zpa-03`](#zpa-03-multimatch-mixed-style-evaluation) | Multimatch mixed style — rejected at config time |
@@ -221,10 +221,8 @@ families.
 
 | ID | Title | What's still open |
 |---|---|---|
-| [`zia-04`](#zia-04-nrod-propagation-lag) | NROD propagation lag | Documented as "within hours of going live" — upper-bound precision unstated |
 | [`zia-08`](#zia-08-cac-tenant-restrictions-mechanics) | CAC tenant restrictions mechanics | Supported apps + SSL-Inspection-required mechanic doc'd; per-app token-field inspection details in per-app config articles not yet vendored |
 | [`zia-09`](#zia-09-cac-app-identity-when-url-maps-to-multiple-apps) | CAC app-identity when URL maps to multiple apps | URL-Lookup API is the mapping surface; internal URL-to-app resolution logic still undocumented |
-| [`zia-11`](#zia-11-transparent-vs-explicit-forwarding-mixed-mode) | Transparent vs explicit forwarding mixed mode | Silent per-session drift for tenants not gating rules by Device/Location Group |
 | [`log-01`](#log-01-nss-feed-format-versions) | NSS feed format versions | Exact field-presence differences between CSV/JSON/TSV output templates |
 | [`log-02`](#log-02-cloud-nss-vs-legacy-nss-divergence) | Cloud NSS vs legacy NSS divergence | Both source from the same Nanolog — field content parity expected; branching most likely needed for format (Cloud NSS recommends JSON) and per-instance feed-count limits, not field presence |
 | [`log-04`](#log-04-mpatp-blocked-policy-type-log-field) | MP/ATP blocked-policy-type log field | Full `ruletype` and `reason` enums still require tenant evidence |
@@ -258,7 +256,7 @@ families.
 
 ### Open
 
-- **zia**: `zia-02`, `zia-12`, `zia-14`–`zia-48`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-58`–`zia-67`, `zia-69`–`zia-72`
+- **zia**: `zia-16`–`zia-48`, `zia-50`–`zia-52`, `zia-54`–`zia-56`, `zia-58`–`zia-67`, `zia-69`–`zia-72`
 - **log**: `log-03`, `log-05`–`log-22`
 - **zpa**: `zpa-01`, `zpa-04`, `zpa-09`–`zpa-14`, `zpa-16`–`zpa-20`, `zpa-22`–`zpa-40`, `zpa-42`–`zpa-47`, `zpa-50`–`zpa-83`
 - **shared**: `shared-06`–`shared-16`, `shared-20`–`shared-39`
@@ -563,98 +561,6 @@ The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these op
 
 ## Entries
 
-### zia-01 — Predefined vs custom category specificity
-
-*Origin: `references/zia/url-filtering.md` § Open questions*
-
-If a URL matches both a predefined category (e.g., Social Networking) and a custom category with varying specificity, which one wins at policy evaluation time? Zscaler docs describe specificity-wins-across-custom-categories but are silent on custom-to-predefined comparison.
-
-**Status**: resolved (2026-04-23).
-
-**Answer**: The "both categories" premise is governed by the **Retain Parent Category** setting on each custom-category entry, which controls whether adding a URL to a custom category removes it from its predefined classification.
-
-From *About URL Categories* (`vendor/zscaler-help/About_URL_Categories.txt`) p.19:
-
-> If you manually add a URL or subdomain to an existing super category, category, or custom category, you can also specify whether you want it to retain its original parent category. For example, if you manually add www.google.com to a User-Defined category, you can specify whether you want google.com also to retain its original Web Search category.
-
-Two cases:
-
-- **Retain Parent Category OFF** (default behavior for manually-added URLs in most contexts): the URL is removed from its original predefined classification and belongs *only* to the custom category. Rules against the predefined category do not match. Rules against the custom category do.
-- **Retain Parent Category ON**: the URL belongs to **both** the custom and its original predefined category simultaneously. Rules against either can match → **rule order decides** which fires (same first-match-wins principle that governs rule evaluation generally).
-
-*URL Filtering Deployment and Operations Guide* (`vendor/zscaler-help/URL_Filtering_Deployment_and_Operations_Guide.txt`) p.4 confirms the rule-order behavior for the Retain-Parent case explicitly:
-
-> Wrong category is shown on the blocked page: Check logs to see which category is logged for the transaction. Is the URL in question added to a custom category? If the site is added in the Retaining Parent category, check the rule order to make sure that another rule does not block access to this URL first.
-
-This is a *different* resolution mechanism from the custom-to-custom specificity rule. Specificity-wins handles the case where a URL matches multiple custom categories at different specificities — it picks which one the URL "belongs to" before rules evaluate. Retain Parent Category handles the case where a URL is simultaneously in a custom and a predefined category — in that case rule order is the tiebreaker.
-
-Operationally visible via the "No. of URLs Retaining Parent Category" / "No. of Keywords Retaining Parent Category" / "No. of IP Ranges Retaining Parent Category" columns on the URL Categories page (*About URL Categories* pp.21–22), and via the `urlsRetainingParentCategoryCount`, `keywordsRetainingParentCategoryCount`, `ipRangesRetainingParentCategoryCount`, and `patternsRetainingParentCategoryCount` fields in the `/urlCategories` API response (*Configuring URL Categories Using API*).
-
-**Implication for the Q5-style question in `url-filtering.md`**: check the Retain-Parent state of the custom entry. If OFF → URL is only in the custom category, the predefined rule won't match. If ON → URL is in both, rule order resolves which fires. The prior "two plausible outcomes" framing collapses into one deterministic flow once Retain Parent is known.
-
----
-
-### zia-02 — Same-specificity custom category collision
-
-*Origin: `references/zia/url-filtering.md` § Open questions*
-
-If two custom categories contain the identical exact entry (e.g., both have `www.example.com`), which category wins the URL at category-resolution time? Creation order? Internal category ID? First-rule-that-references-one?
-
-**Resolves with**: lab test OR tenant snapshot. **Status**: open. **Blocks**: deterministic precedence answers when admins have overlapping custom categories.
-
-**Doc sweep 2026-04-23**: Checked *About URL Categories*, *URL Filtering Deployment and Operations Guide*, *Configuring URL Categories Using API*, *Configuring the URL Filtering Policy*. None address two custom categories containing an identical exact entry. The "specific match first" rule (*About URL Categories* p.20) and the "more specific takes precedence" statement (*URL Filtering Ops Guide* p.2) only disambiguate when specificity differs. For equal-specificity collisions, no doc rule fires.
-
-One data point, not a resolution: *Configuring URL Categories Using API* shows each category carries an internal numeric `val` identifier that increments on creation (CUSTOM_05 → val 132, CUSTOM_10 → val 137, CUSTOM_16 → val 143). This suggests ordering information exists internally, but whether category resolution uses it — vs creation-timestamp, vs alphabetical, vs something else — is not stated. Still a lab-test or tenant-snapshot question.
-
----
-
-### zia-03 — Wildcard tokenization
-
-*Origin: `references/zia/url-filtering.md` § Open questions; feeds `references/zia/wildcard-semantics.md`*
-
-Zscaler's docs show wildcards as `.example.com` (leading dot, no asterisk). Whether `*.example.com`, `*example.com`, bare `example.com` behave differently was unclear.
-
-**Status**: resolved (2026-04-23).
-
-**Answer**: From *URL Format Guidelines* (`vendor/zscaler-help/url-format-guidelines.md`, captured via Playwright from https://help.zscaler.com/zia/url-format-guidelines):
-
-- `*` is **not** a valid wildcard character. `*.safemarch.com` and `*safemarch.com` are explicitly **not permitted**.
-- Leading period `.safemarch.com` is the only domain-level wildcard form. It matches: the bare domain, subdomains up to 5 levels deep, and any path under any of those.
-- Exact form `safemarch.com` (no leading period) matches only the exact domain, plus implicit right-side path wildcard.
-- Right-side (path / port / query-string) matching is implicit — no syntax needed.
-- Exact match takes priority over wildcard match across custom categories.
-
-Full semantics codified in `references/zia/wildcard-semantics.md`.
-
----
-
-### zia-04 — NROD propagation lag
-
-*Origin: `references/zia/url-filtering.md` § Open questions*
-
-How long after a URL is first observed does Newly Registered and Observed Domains classification propagate to URL Filtering evaluation? Affects "why did this brand-new domain slip past our NROD-block rule" questions.
-
-**Status**: partially resolved (2026-04-23).
-
-**Answer**: Zscaler publishes the propagation-lag ceiling as "within hours of going live." From *Configuring Advanced Policy Settings* (`vendor/zscaler-help/Configuring_Advanced_Policy_Settings.txt`) p.1, describing the Enable Suspicious New Domains Lookup toggle:
-
-> Enable this option to provide advanced protection to users against the newly registered and observed domains that are **identified within hours of going live**. This feature also identifies newly revived domains. These domains are often considered potentially malicious until they are well-known or categorized. Identifying them improves the overall security posture. This feature is a prerequisite for using the Newly Registered and Observed Domains and Newly Revived Domains URL categories in a policy rule.
-
-Context from *About URL Categories* (`vendor/zscaler-help/About_URL_Categories.txt`) p.9:
-
-> Sites whose domains were created in the last 30 days and are currently not categorized by Zscaler. ... To determine if a Miscellaneous or Unknown URL belongs in the Newly Registered and Observed Domain (NROD) category, when a URL is found in the Miscellaneous or Unknown category, it is checked against Zscaler's NROD database. If there's a match, the URL is categorized as a Newly Registered and Observed Domain.
-
-So two distinct time windows now have doc-backed values:
-
-- **Propagation lag** (domain goes live → appears in Zscaler's NROD database): "within hours" per Advanced Policy Settings. Not a precise SLA, but Zscaler's own published bound.
-- **Eligibility window** (how long a domain stays in NROD after creation): 30 days per About URL Categories.
-
-Related category "Newly Revived Domains" (*About URL Categories* p.18) covers sites reactivated after ~10 days of inactivity; different phenomenon, shares the same lookup toggle.
-
-**Still open**: upper-bound precision. "Within hours" could mean 1, 6, or 24 — affects whether a Block-on-NROD rule reliably catches a domain that went live earlier the same day. Resolves with support ticket OR operator experience (observed delay in practice).
-
----
-
 ### zia-05 — Admin rank order collision
 
 *Origin: `references/zia/url-filtering.md` § Open questions*
@@ -679,29 +585,6 @@ Two takeaways:
 Admin Rank is an opt-in feature ("if you've enabled Admin Rank"); without it, rule order is a flat numeric sequence and admin identity doesn't affect evaluation.
 
 Applies to ZIA URL Filtering, SSL Inspection, and other ZIA policy types that expose the Admin Rank field. ZPA access policies don't use the same admin-rank mechanism based on vendored material.
-
----
-
-### zia-06 — CAC disabled rule semantics
-
-*Origin: `references/zia/cloud-app-control.md` § Mechanics*
-
-For URL Filtering, the docs explicitly state that disabled rules keep their place in the rule order. The CAC Deployment Guide doesn't restate this — whether disabled CAC rules behave identically (skip-in-place) or differently (removed from the evaluation list, changing effective order) is unstated. Very likely identical but unconfirmed.
-
-**Status**: resolved (2026-04-23).
-
-**Answer**: CAC's Rule Status semantic is **identical to URL Filtering's** — doc'd verbatim in the per-category Adding-X-Rule articles.
-
-From *Adding an Instant Messaging Rule for Cloud App Control* (`vendor/zscaler-help/adding-instant-messaging-rule-cloud-app-control.md`), which is the template that all 19 per-category CAC rule-adding articles follow:
-
-> **Rule Status**: An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule.
-
-This matches *Configuring the URL Filtering Policy* (`Configuring_the_URL_Filtering_Policy.txt`) p.3 word-for-word. CAC-Rule-Status-parity-with-URL-Filtering is now directly documented, not inferred.
-
-Corroborating facts:
-
-- *Adding Rules to the Cloud App Control Policy* (`vendor/zscaler-help/adding-rules-cloud-app-control-policy.md`) describes the predefined *Allow Unauthenticated Traffic for IoT Classifications* rule as "disabled by default and cannot be deleted" with Rule Status as a modifiable field — confirming per-rule Rule Status exists as a first-class CAC field, not just a URL-Filtering-only construct.
-- The shared policy-enforcement engine doc (*Understanding Policy Enforcement* pp.1–13, see `zia-13`) covers URL Filtering and CAC under the same evaluation semantics, making cross-module behavioral divergence structurally unlikely.
 
 ---
 
@@ -839,85 +722,6 @@ So `/urlLookup` returns **predefined URL categories** (not Cloud App identity di
 **What this means operationally**: to answer "what Cloud App does URL X map to," the most-defensible path is (a) run `/urlLookup` for URL category, (b) cross-reference with the tenant's Cloud App Control supported-apps list (see "Viewing Supported Cloud Applications" — Policies > Access Control > SaaS Application Control > Policies), and (c) use the Admin Console URL Lookup tool for authoritative cloud-app identity.
 
 **Still open**: the internal logic Zscaler uses to resolve a shared-hostname URL to a specific cloud-app identity (e.g., how `*.google.com` splits into Drive vs Docs vs Gmail vs Meet) isn't documented. Presumably post-decrypt URL-path / HTTP-header inspection (given the Tenant Profiles model in `zia-08` works the same way), but not explicitly stated. Lab-testable with a few known URLs and the URL Lookup tool.
-
----
-
-### zia-10 — CAC default Allow-All vs explicit Allow for cascading
-
-*Origin: `references/zia/cloud-app-control.md` § Worked example Case B*
-
-The CAC Deployment Guide says "The default policy behavior is Allow All." The URL Filtering Policy article separately says URL Filtering evaluates when "a user requests a Cloud App for which you have not configured a Cloud App Control policy rule." Tension: does a CAC terminal Allow-All default count as an "explicit allow" (triggering URL Filtering bypass unless cascading is on) or as "no rule applied" (URL Filtering always evaluates)?
-
-**Status**: resolved (2026-04-23).
-
-**Answer**: "No matching CAC rule" means URL Filtering evaluates — CAC's Allow-All default is *not* an explicit allow. From *Understanding Policy Enforcement*, p.3-4:
-
-> If a user requests a cloud app for which you have not configured a Cloud App Control policy rule (for example, the user requests eBay.com, and you don't have a Cloud App Control rule for eBay.com), the service still evaluates and applies the URL filtering policy.
-
-Case B in `cloud-app-control.md` stands correct as originally written.
-
----
-
-### zia-11 — Transparent vs explicit forwarding mixed mode
-
-*Origin: `references/zia/ssl-inspection.md` § Mechanics*
-
-Under transparent forwarding, SSL Inspection policies evaluate on both SNI and destination IP; under explicit forwarding, only SNI. Many real deployments mix modes (branch offices via GRE, remote users via Zscaler Client Connector explicit proxy). When a user transitions between these paths within the same session, or when a single tenant has both forwarding types active, are SSL Inspection rules evaluated consistently? Specifically: does a rule like "Do Not Inspect: URL Category = Miscellaneous" produce different results for the same user depending on which path the traffic took?
-
-**Status**: partially resolved (2026-04-23).
-
-**Answer (partial)**: Policy evaluation is **deterministic per traffic path, not per user**. A connection is evaluated based on the forwarding method it used — that much is already captured in `zia-13`. The Leading Practices Guide treats this as a design point to plan around, not a hidden gotcha:
-
-From *ZIA SSL Inspection Leading Practices Guide* (`vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`) p.14:
-
-> You can only use user attributes if the traffic forwarded to Zscaler is from the Zscaler Client Connector (preferred) or if you enable Enforce Surrogate IP and properly work for traffic flowing through GRE or IPSec tunnels to Zscaler. Without Zscaler Client Connector or Surrogate IP, the service cannot identify the user (before inspection) to properly apply user-based policies and determine if inspection is desired. Device Groups (OS Type). You can only identify device groups if the traffic is forwarded to Zscaler via the Zscaler Client Connector.
-
-The recommended pattern (pp.28–30) is to encode path-awareness in rules via **Device Group** (`Client Connector` / `No Client Connector`) or **Location Group** criteria rather than relying on implicit consistency. The worked example on p.29 includes:
-
-> Rule 1: Inspect if Cloud App is OneDrive or SharePoint, Device Group is Android, iOS, Windows, or macOS, and the Location is HQ.
-> ...
-> Rule 4: Exempt if Device Group is No Client Connector for Location HQ.
-
-A single TCP connection is bound to one forwarding path, so "mid-session transitions" don't exist at the evaluation layer. Successive connections by the same user over different paths will evaluate against the same rule set but can produce different matches — which is the recommended way to encode "inspect on-CC devices, exempt everything else."
-
-**Still open** (low priority): whether a tenant whose rules don't use Device Group or Location Group criteria can suffer **silent per-session drift** when a category-based Do-Not-Inspect rule hits the SNI+IP (transparent) vs SNI-only (explicit) evaluation asymmetry. The canonical example is "Do Not Inspect: URL Category = Miscellaneous": under transparent forwarding this can over-exempt via IP-category matching (most public IPs default to Miscellaneous); under explicit forwarding it affects only actual unknown SNIs. See `references/zia/ssl-inspection.md § Transparent vs explicit traffic forwarding — what the SSL rule matches on` for the established mechanics. Whether this is observable as a "same-user-different-session" artifact is still a lab/operator question.
-
----
-
-### zia-12 — SSL bypass interaction with URL filtering default rule
-
-*Origin: `references/zia/ssl-inspection.md` § Open questions*
-
-When an SSL rule fires with "Do Not Inspect + Evaluate Other Policies" and traffic proceeds to URL filtering, if no explicit URL filtering rule matches, does the URL filtering default terminal rule still fire? The docs describe the two-variant behavior (Evaluate vs Bypass) but don't explicitly say whether the implicit URL-filtering default counts as "a rule" for the Evaluate path. This matters for tenants relying on a default-Block URL filtering stance to catch anything that slipped past explicit rules on non-inspected traffic.
-
-**Resolves with**: lab test. **Status**: open. **Low priority** — most deployments use default-Allow URL filtering, making this a corner case.
-
----
-
-### zia-14 — Leading-period wildcard at exactly 5 subdomain levels
-
-*Origin: `references/zia/wildcard-semantics.md` § Worked example*
-
-The *URL Format Guidelines* article says the leading-period wildcard applies "up to 5 subdomain levels deep." Whether a request at exactly 5 subdomain levels (e.g., `serv3.serv2.serv1.atlanta.safemarch.com`, which the article explicitly lists as matching `.safemarch.com`) is inclusive of level 5 or whether 5 is the exclusive cap isn't explicitly stated. The example uses 4 subdomain labels (`serv3.serv2.serv1.atlanta.safemarch.com` is 4 extra segments before `safemarch.com`).
-
-**Resolves with**: lab test. **Status**: open. **Low priority** — 5-level-deep subdomain patterns are uncommon in practice.
-
----
-
-### zia-15 — Console accepts asterisk despite docs marking it invalid
-
-*Origin: `references/zia/wildcard-semantics.md` § Asterisk is not a valid wildcard character*
-
-The *URL Format Guidelines* article states unambiguously that `*.safemarch.com` and `*safemarch.com` are "not permitted". Operator report (2026-04-23) contradicts this: the ZIA admin console does accept `*` in URL entries at save time without rejecting the input. What's ambiguous:
-
-- Whether the console silently rewrites the entry to the leading-period form under the hood.
-- Whether it stores the asterisk literally and treats it as a no-op character (so `*.example.com` matches nothing, or only `example.com` if the `*` and `.` are stripped).
-- Whether it's accepted at save time but then fails a downstream validation before becoming effective.
-- Whether the docs are stale and asterisk wildcards actually function the way operators intuitively expect.
-
-**Why it matters**: a tenant that has `*.example.com` entries in custom URL categories today may think they're wildcarding subdomains when in fact nothing is being matched. A snapshot-driven lookup that trusts the docs will give a confidently wrong answer.
-
-**Resolves with**: lab test (enter `*.example.com`, re-read via API, observe what's stored; then test matching against `example.com` and `www.example.com`) OR support ticket. **Status**: open.
 
 ---
 

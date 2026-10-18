@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.precedence",
+  "title": "Cloud App Control versus URL Filtering: which applies",
+  "aliases": [
+    "cac vs url filtering",
+    "cloud app control precedence",
+    "allow cascading to url filtering",
+    "cascading",
+    "cac allows url filter blocks",
+    "why does cac allow override a url block"
+  ],
+  "binds": ["zia/cloud-app-control"],
+  "related": [
+    { "rel": "interacts-with", "to": "zia.url-filtering.rule-order" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.pipeline" }
+  ],
+  "claims": {
+    "cac-first": {
+      "statement": "Cloud App Control is evaluated before URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["By default, the Cloud App Control policy takes precedence over the URL Filtering policy."] }
+      ]
+    },
+    "cac-allow-skips-url-filtering": {
+      "statement": "By default, when a Cloud App Control rule explicitly allows the transaction, URL Filtering is not applied at all, so a URL Filtering block on the same site does not fire.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "If a user requests a cloud app that you explicitly allow with Cloud App Control policy, the service only applies the Cloud App Control policy and not the URL Filtering policy.",
+            "This is because, by default, the service does not apply the URL Filtering policy if a Cloud App Control policy rule allows the transaction."
+          ] }
+      ]
+    },
+    "cascading-allow-path": {
+      "statement": "Allow Cascading to URL Filtering (Advanced Settings) makes URL Filtering run after a Cloud App Control allow, so a URL Filtering block then wins.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["If you do, the service applies the URL Filtering policy even if it applies a Cloud App Control policy rule allowing the transaction."] }
+      ]
+    },
+    "cac-block-final": {
+      "statement": "A Cloud App Control block is final whether or not cascading is on: cascading only opens the allow path, and URL Filtering can never rescue a CAC-blocked request.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["had a Cloud Control Policy rule that blocked Facebook, while URL Filtering allowed it, Facebook is blocked even if Allow Cascading to URL Filtering was enabled."] }
+      ]
+    },
+    "no-cac-rule-url-filtering-runs": {
+      "statement": "When no Cloud App Control rule matches, URL Filtering evaluates normally: CAC's default Allow All is not an explicit allow and does not skip URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["you don't have a Cloud App Control rule for ebay.com), the service still evaluates and applies the URL Filtering policy."] },
+        { "source": "zscaler-help", "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": ["The default policy behavior is Allow All."] }
+      ]
+    },
+    "cac-rule-order": {
+      "statement": "Within Cloud App Control, rules evaluate top-down in ascending order, and a disabled rule is skipped while keeping its place, the same as URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": ["Rules evaluation proceeds in order from top to bottom."] },
+        { "source": "zscaler-help", "path": "adding-instant-messaging-rule-cloud-app-control.md",
+          "quotes": ["A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."] }
+      ]
+    },
+    "document-cascading": {
+      "statement": "Zscaler advises documenting the cascading setting, because it changes which policy decides every cloud-app transaction.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+          "quotes": ["Document the Allow Cascading to URL Filtering settings to understand the flow of the evaluated"] }
+      ]
+    }
+  },
+  "gaps": {
+    "default-allow-vs-explicit": {
+      "kind": "semantic",
+      "former_ids": ["zia-10"],
+      "title": "Whether CAC's default Allow All counts as an allow for cascading",
+      "status": "resolved",
+      "resolves_with": ["source-read"],
+      "resolution": "It does not: with no matching CAC rule, URL Filtering evaluates normally (claim no-cac-rule-url-filtering-runs)."
+    },
+    "cac-disabled-rules": {
+      "kind": "semantic",
+      "former_ids": ["zia-06"],
+      "title": "Disabled Cloud App Control rule semantics",
+      "status": "resolved",
+      "resolves_with": ["source-read"],
+      "resolution": "Same as URL Filtering: skipped, place kept (claim cac-rule-order)."
+    }
+  },
+  "cases": {
+    "cac-allow-beats-url-block": {
+      "kind": "rule-evaluation",
+      "claims": ["cac-allow-skips-url-filtering"],
+      "config": { "cascading": false, "cac": [{ "app": "FACEBOOK", "action": "ALLOW" }], "url_filtering": [{ "category": "SOCIAL_NETWORKING", "action": "BLOCK" }] },
+      "request": { "app": "FACEBOOK", "url": "https://www.facebook.com/" },
+      "expect": { "verdict": "allow" }
+    },
+    "cascading-lets-url-block-win": {
+      "kind": "rule-evaluation",
+      "claims": ["cascading-allow-path"],
+      "config": { "cascading": true, "cac": [{ "app": "FACEBOOK", "action": "ALLOW" }], "url_filtering": [{ "category": "SOCIAL_NETWORKING", "action": "BLOCK" }] },
+      "request": { "app": "FACEBOOK", "url": "https://www.facebook.com/" },
+      "expect": { "verdict": "block" }
+    },
+    "cac-block-ignores-url-allow": {
+      "kind": "rule-evaluation",
+      "claims": ["cac-block-final"],
+      "config": { "cascading": true, "cac": [{ "app": "FACEBOOK", "action": "BLOCK" }], "url_filtering": [{ "category": "SOCIAL_NETWORKING", "action": "ALLOW" }] },
+      "request": { "app": "FACEBOOK", "url": "https://www.facebook.com/" },
+      "expect": { "verdict": "block" }
+    },
+    "no-cac-match-url-filtering-decides": {
+      "kind": "rule-evaluation",
+      "claims": ["no-cac-rule-url-filtering-runs"],
+      "config": { "cascading": false, "cac": [{ "app": "FACEBOOK", "action": "ALLOW", "departments": ["Marketing"] }], "url_filtering": [{ "category": "SOCIAL_NETWORKING", "action": "BLOCK" }] },
+      "request": { "app": "FACEBOOK", "url": "https://www.facebook.com/", "department": "Engineering" },
+      "expect": { "verdict": "block" },
+      "note": "The CAC allow is scoped to Marketing, so no CAC rule matches and URL Filtering's block applies."
+    }
+  }
+}

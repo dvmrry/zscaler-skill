@@ -70,6 +70,7 @@ from pathlib import Path
 
 import yaml
 
+from kb_prose import is_kb_prose
 from runtime_data import runtime_data_path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -1001,6 +1002,7 @@ def run_all_checks(strict: bool = False) -> list[Finding]:
         [
             p for p in REFS.rglob("*.md")
             if not any(part in SKIP_DIR_NAMES for part in p.relative_to(REFS).parts)
+            and not is_kb_prose(p)  # checked by `node scripts/kb.mjs validate`
         ]
         + [
             p for p in AGENTS.rglob("*.md") if AGENTS.exists()

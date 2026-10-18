@@ -231,7 +231,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 | Existing reference | AI Security touchpoint |
 |---|---|
-| [`../zia/url-filtering.md`](../zia/url-filtering.md) — GenAI URL Filter categories | Navigation target for category-level AI app access questions. |
+| [`zia.url-filtering`](kb:zia.url-filtering) — GenAI URL Filter categories | Navigation target for category-level AI app access questions. |
 | [`../zia/dlp.md`](../zia/dlp.md) — DLP GenAI prompt scanning, HTTP GET query inspection | Navigation target for sensitive-data-in-prompt questions. |
 | [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md) | Navigation target for SSL bypass and decrypt prerequisites that can affect inline inspection. |
 | [`../zbi/policy-integration.md`](../zbi/policy-integration.md) — Isolate action | Navigation target for AI app isolation questions under the Secure Access pillar. |
@@ -274,7 +274,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-secur
 - AI Guard API divergences: [`./api-divergences.md`](./api-divergences.md)
 - AI Security claims ledger: [`./_claims-ledger.md`](./_claims-ledger.md)
 - Portfolio map (where AI Security sits in the Zscaler portfolio): [`../_meta/portfolio-map.md`](../_meta/portfolio-map.md)
-- ZIA URL Filtering routing target: [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- ZIA URL Filtering routing target: [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA DLP routing target: [`../zia/dlp.md`](../zia/dlp.md)
 - SSL inspection routing target for inline inspection prerequisites: [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
 - ZBI routing target: [`../zbi/overview.md`](../zbi/overview.md)

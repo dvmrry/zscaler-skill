@@ -251,7 +251,7 @@ The type, enumeration, and enforcement questions remain tracked as `zia-56` in [
 ## Cross-links
 
 - Location-level enforcement toggle + sublocation burst behavior: [`./locations.md`](./locations.md).
-- Firewall-then-web-module pipeline: [`./firewall.md`](./firewall.md), [`./url-filtering.md`](./url-filtering.md).
+- Firewall-then-web-module pipeline: [`./firewall.md`](./firewall.md), [`zia.url-filtering`](kb:zia.url-filtering).
 - Activation lifecycle: [`../shared/activation.md`](../shared/activation.md).
 - Cloud App categorization (which apps are in which predefined classes): [`./cloud-app-control.md`](./cloud-app-control.md).
-- URL Categories backing bandwidth-class matching: [`./url-filtering.md § URL categories`](./url-filtering.md).
+- URL Categories backing bandwidth-class matching: [`zia.url-filtering`](kb:zia.url-filtering).

@@ -470,7 +470,7 @@ cadence rather than rule activation windows.
 ## 9. Cross-links
 
 - [ZIA Firewall Filtering](./firewall.md) — criterion limits including the 2-time-window cap
-- [ZIA URL Filtering](./url-filtering.md) — Time as a rule criterion in the criteria-logic diagram
+- [ZIA URL Filtering](kb:zia.url-filtering) — Time as a rule criterion in the criteria-logic diagram
 - [ZIA DLP](./dlp.md) — DLP web rules (time windows absent from Python model)
 - [ZIA Bandwidth Control](./bandwidth-control.md) — time-windowed contention rules guidance
 - [ZIA SDK reference](./sdk.md) — `TimeIntervalsAPI` entry; `FirewallNetworkResourcesAPI` for `list_time_windows`

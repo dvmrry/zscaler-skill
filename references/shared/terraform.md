@@ -267,5 +267,5 @@ Some mutual-exclusions live in resource `Create` / `Update` functions rather tha
 
 - ZIA API structure (auth, activation, endpoint catalog) — [`../zia/api.md`](../zia/api.md)
 - ZPA API structure — [`../zpa/api.md`](../zpa/api.md)
-- URL filtering behavior — [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- URL filtering behavior — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZPA app segments — [`../zpa/app-segments.md`](../zpa/app-segments.md)

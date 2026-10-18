@@ -167,7 +167,7 @@ From the source doc:
 
 **Why this matters:** a DNS Control rule that blocks NROD will not catch a brand-new malicious domain during the classification window. There's a gap of up to 36 hours between domain registration and NROD classification. Operators relying solely on NROD-block for C2 detection should layer it with behavioral detection (tunnel detection, query-rate anomalies) rather than treating NROD as real-time coverage.
 
-The same NROD latency applies to URL Filtering — see [`./url-filtering.md § Edge cases`](./url-filtering.md) for the URL Filtering perspective.
+The same NROD latency applies to URL Filtering — see [`zia.url-filtering`](kb:zia.url-filtering) for the URL Filtering perspective.
 
 ## Surprises and gotchas
 
@@ -271,7 +271,7 @@ Behavioral notes drawn from source:
 ## Cross-links
 
 - DNS as a sub-policy inside Firewall Control — [`./firewall.md § DNS Control`](./firewall.md)
-- URL Filtering (parallel domain-based policy, different layer) — [`./url-filtering.md`](./url-filtering.md)
+- URL Filtering (parallel domain-based policy, different layer) — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZPA Resolver predefined rules and full SIPA configuration chain — [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md)
 - Z-Tunnel + DNS interaction (Z-Tunnel 1.0 PAC toggle required for firewall/DNS Control) — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
 - Forwarding Control (ZPA forwarding method — the other side of the SIPA DNS resolver setup) — [`./forwarding-control.md`](./forwarding-control.md)

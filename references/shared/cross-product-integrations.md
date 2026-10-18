@@ -131,7 +131,7 @@ Client-side settings that shape ZIA's visibility.
 
 **ZIdentity Conditional Access underpins both:**
 
-- ZIA URL Filtering's **`Conditional` action** — step-up auth before allowing. Requires ZIdentity + Client Connector forwarding; not supported via Service Edges (per [`../zia/url-filtering.md`](../zia/url-filtering.md)).
+- ZIA URL Filtering's **`Conditional` action** — step-up auth before allowing. Requires ZIdentity + Client Connector forwarding; not supported via Service Edges (per [`zia.url-filtering`](kb:zia.url-filtering)).
 - ZPA Access Policy's **`Require Approval` action** (sometimes shown as Conditional Access) — same step-up pattern, applied before granting access to a private app.
 
 Both actions delegate auth-challenge presentation to ZIdentity. A tenant without ZIdentity configured can't use either action type, regardless of which product owns the rule.
@@ -331,7 +331,7 @@ Routing hints for question patterns that often hit these hooks. Use this section
 | "DLP/Sandbox/Malware aren't catching this" | SSL Inspection bypass for the URL's category | [`../zia/ssl-inspection.md § SSL bypass is a cross-policy gate`](../zia/ssl-inspection.md) |
 | "macOS users see cert errors but Windows doesn't" | `install_ssl_certs` per-platform on Web Policy | [`../zcc/web-policy.md`](../zcc/web-policy.md) |
 | "URL was accessible last week, blocked now, no rule change" | ATP AI/ML recategorized to Botnet or Phishing | [`../zia/malware-and-atp.md § AI/ML-driven recategorization`](../zia/malware-and-atp.md) |
-| "Conditional / Require Approval rule doesn't fire for GRE users" | Step-up auth needs ZCC forwarding, not GRE | [`../zia/url-filtering.md`](../zia/url-filtering.md) and `../zpa/policy-precedence.md` |
+| "Conditional / Require Approval rule doesn't fire for GRE users" | Step-up auth needs ZCC forwarding, not GRE | [`zia.url-filtering`](kb:zia.url-filtering) and `../zpa/policy-precedence.md` |
 | "Activated my ZIA rule, still not working" | Activation gate — `GET /status` — or quota/validation activation failure | [`./activation.md`](./activation.md) |
 | "Changes propagated for ZPA but not ZIA" | Product-specific activation model — not a bug | [`./activation.md`](./activation.md) |
 | "During an outage, ZPA traffic broke but ZIA didn't" | BC Cloud is ZIA-only; ZPA has its own availability model | [`./cloud-architecture.md § Business Continuity Cloud`](./cloud-architecture.md) |
@@ -372,7 +372,7 @@ Three themes show up across the hooks:
 - Policy evaluation meta-model — [`./policy-evaluation.md`](./policy-evaluation.md)
 - Activation mechanics — [`./activation.md`](./activation.md)
 - ZIA SSL inspection — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
-- ZIA URL filtering — [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- ZIA URL filtering — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA CAC — [`../zia/cloud-app-control.md`](../zia/cloud-app-control.md)
 - ZIA Malware Protection / ATP — [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)
 - ZPA app segments — [`../zpa/app-segments.md`](../zpa/app-segments.md)

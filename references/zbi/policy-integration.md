@@ -99,7 +99,7 @@ Profiles are created in the ZIA Admin Portal or ZPA Admin Console according to t
 
 ### ZIA side — URL Filter `Isolate` action
 
-From [`../zia/url-filtering.md`](../zia/url-filtering.md):
+From [`zia.url-filtering`](kb:zia.url-filtering):
 
 > Isolate — Remote browser — Requires Zero Trust Browser
 
@@ -251,7 +251,7 @@ Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `ve
 
 - Overview (architecture + rendering) — [`./overview.md`](./overview.md)
 - Claims ledger for this refresh — [`./_claims-ledger.md`](./_claims-ledger.md)
-- ZIA URL Filtering (`Isolate` action origin) — [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- ZIA URL Filtering (`Isolate` action origin) — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA Malware Protection and ATP (prerequisites for Smart Isolation) — [`../zia/malware-and-atp.md`](../zia/malware-and-atp.md)
 - ZPA policy precedence (Isolation Policy's place in family order) — [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md)
 - SSL Inspection (prerequisite for HTTPS isolation) — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)

@@ -24,10 +24,10 @@ author-status: draft
 
 Read these *before* interpreting any web log. URL filtering precedence has two non-obvious gotchas (specificity beats order; HTTPS gets two evaluation passes) that change the hypothesis space.
 
-- [`references/zia/url-filtering.md § Rule order and first-match semantics`](../../../references/zia/url-filtering.md) — the baseline ordering model.
-- [`references/zia/url-filtering.md § The specificity rule — the non-obvious precedence gotcha`](../../../references/zia/url-filtering.md) — when specificity beats explicit order; the implication for "why does rule A beat rule B."
-- [`references/zia/url-filtering.md § URL filtering evaluates twice on inspected HTTPS traffic`](../../../references/zia/url-filtering.md) — the pre-CONNECT vs post-CONNECT pass.
-- [`references/zia/url-filtering.md § Cloud App Control interaction`](../../../references/zia/url-filtering.md) — when CAC overrides URL filtering and vice versa.
+- [`zia.url-filtering`](kb:zia.url-filtering) — the baseline ordering model.
+- [`zia.url-filtering`](kb:zia.url-filtering) — when specificity beats explicit order; the implication for "why does rule A beat rule B."
+- [`zia.url-filtering`](kb:zia.url-filtering) — the pre-CONNECT vs post-CONNECT pass.
+- [`zia.url-filtering`](kb:zia.url-filtering) — when CAC overrides URL filtering and vice versa.
 
 ## Load docs
 

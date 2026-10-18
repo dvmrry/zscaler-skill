@@ -347,7 +347,7 @@ All five are tracked together as `zia-69` in [`../_meta/clarifications.md`](../_
   [`./locations.md § Predefined dynamic groups`](./locations.md) — explains
   how `Location Type = Workload traffic` auto-populates the dynamic LG that
   Cloud Connector sublocations land in.
-- **URL Filtering rules:** [`./url-filtering.md`](./url-filtering.md) — lists
+- **URL Filtering rules:** [`zia.url-filtering`](kb:zia.url-filtering) — lists
   `workloadGroups` as an SDK-visible criteria field.
 - **Cloud Connector:** [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
   — the product that creates the workload sublocations and populates cloud

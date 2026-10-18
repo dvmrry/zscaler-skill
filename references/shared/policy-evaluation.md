@@ -196,7 +196,7 @@ Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `ven
 - **Cross-product integrations dossier** (hooks between ZIA/ZPA/ZCC — silent-miss catalog) — [`./cross-product-integrations.md`](./cross-product-integrations.md)
 - Cloud architecture (CA, Service Edges, BC Cloud, tunnel model) — [`./cloud-architecture.md`](./cloud-architecture.md)
 - Activation gate (ZIA-only) — [`./activation.md`](./activation.md)
-- ZIA URL filtering precedence — [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- ZIA URL filtering precedence — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA Cloud App Control interaction — [`../zia/cloud-app-control.md`](../zia/cloud-app-control.md)
 - ZIA SSL inspection ordering — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
 - ZPA application segment matching — [`../zpa/app-segments.md`](../zpa/app-segments.md)

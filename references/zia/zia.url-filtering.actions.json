@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.actions",
+  "title": "URL Filtering actions and their prerequisites",
+  "aliases": [
+    "url filtering actions",
+    "allow caution block isolate conditional",
+    "allow override",
+    "block override",
+    "override users not prompted",
+    "ICAP_RESPONSE"
+  ],
+  "binds": [
+    "zia/url-filtering-rules#action",
+    "zia/url-filtering-rules#blockOverride",
+    "zia/url-filtering-rules#overrideUsers",
+    "zia/url-filtering-rules#overrideGroups",
+    "zia/url-filtering-rules#cbiProfile"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.ssl-inspection.pipeline" }
+  ],
+  "claims": {
+    "caution": {
+      "statement": "Caution shows an end-user notification (default or a redirect page) before letting the user through.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#action"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["Caution: Select to display an EUN that cautions users before allowing them access to the site."] }
+      ]
+    },
+    "isolate-needs-zbi": {
+      "statement": "Isolate sends matching traffic through a remote browser using a chosen isolation profile, and exists only when Zero Trust Browser is enabled for the organization.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#action", "zia/url-filtering-rules#cbiProfile"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "Isolate: Select to isolate all the traffic that matches the URL filtering rule through a remote browser.",
+            "This action is available only if Zero Trust Browser is enabled for your organization."
+          ] }
+      ]
+    },
+    "conditional-prereqs": {
+      "statement": "Conditional enforces step-up authentication before access. It needs ZIdentity for end users and Client Connector forwarding; through Private or Virtual Service Edges the category is blocked instead, and it does not apply to isolation traffic.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#action"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "Conditional Access: Allows access to the selected URL categories by enforcing step-up authentication.",
+            "This option is available only if your organization is provisioned with ZIdentity for end users and the traffic forwarding method is Zscaler Client Connector.",
+            "conditional access is not supported and the user access to the URL category is blocked with a notification from the browser.",
+            "Conditional access doesn't apply to isolation traffic."
+          ] }
+      ]
+    },
+    "override-conditions": {
+      "statement": "Override users and groups take effect only when `blockOverride` is true and the action is BLOCK; override users additionally require that no override groups are set. A rule whose action changed away from BLOCK keeps its stale override list silently.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#blockOverride", "zia/url-filtering-rules#overrideUsers", "zia/url-filtering-rules#overrideGroups"],
+      "evidence": [
+        { "source": "sdk-python", "path": "zscaler/zia/url_filtering.py",
+          "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "Only applies if ``block_override`` is True, ``action`` is `BLOCK` and ``override_groups`` is not set.",
+            "Only applies if ``block_override`` is True and ``action`` is `BLOCK`."
+          ] }
+      ]
+    },
+    "override-unrestricted-without-inspection": {
+      "statement": "Traffic matching an Allow Override is permitted without restriction when SSL inspection is off and Show End User Notifications is off in the corresponding SSL inspection rule.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#blockOverride"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["By default, traffic matching the Allow Override rule is permitted without any restrictions if SSL/TLS Inspection is disabled and the Show End User Notifications option is disabled in the SSL/TLS Inspection rule for the corresponding traffic."] }
+      ]
+    },
+    "api-action-values": {
+      "statement": "Through the API, `action` also accepts `ICAP_RESPONSE` (hand-off to an ICAP server) and the sentinels `ANY` and `NONE`, which can appear in tenant data although the console rarely sets them.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#action"],
+      "evidence": [
+        { "source": "sdk-python", "path": "zscaler/zia/url_filtering.py",
+          "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
+          "quotes": ["`ANY`, `NONE`, `BLOCK`, `CAUTION`, `ALLOW` and `ICAP_RESPONSE`"] }
+      ]
+    },
+    "header-insertion-custom-only": {
+      "statement": "HTTP header insertion on an Allow rule works only for custom URL categories.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#httpHeaderActionProfiles"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["The HTTP custom header insertion works only for custom URL categories."] }
+      ]
+    },
+    "quotas": {
+      "statement": "Allow and Isolate rules can carry a daily bandwidth quota (10 to 100,000 MB) and a daily time quota (15 to 600 minutes), after which the sites are blocked.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#sizeQuota", "zia/url-filtering-rules#timeQuota"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "after": "Isolate: Select to isolate all the traffic that matches the URL filtering rule through a remote",
+          "quotes": [
+            "The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.",
+            "The minimum value you can enter is 15 minutes and the maximum value is 600 minutes."
+          ] }
+      ]
+    }
+  }
+}

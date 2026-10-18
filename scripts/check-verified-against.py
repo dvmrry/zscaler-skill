@@ -15,6 +15,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from kb_prose import is_kb_prose, links_blanked
+
 import yaml
 from yaml.nodes import MappingNode, ScalarNode, SequenceNode
 
@@ -379,9 +381,34 @@ def changed_reference_files(
         {
             file
             for file in files
-            if file.startswith("references/") and file.endswith(".md")
+            if file.startswith("references/")
+            and file.endswith(".md")
+            and not is_kb_prose(root / file)  # checked by `node scripts/kb.mjs validate`
+            and not link_only_change(root, base, head, file)
         }
     )
+
+
+def link_only_change(root: Path, base: str, head: str | None, relative_file: str) -> bool:
+    """True when the only edits are Markdown link targets (e.g. retargeting to kb: IDs).
+
+    Retargeting a link is not a content change, so it must not demand
+    re-verification of the document's sources.
+    """
+    before = git(root, "show", f"{base}:{relative_file}")
+    if before.returncode != 0:
+        return False
+    if head is not None:
+        after = git(root, "show", f"{head}:{relative_file}")
+        if after.returncode != 0:
+            return False
+        after_text = after.stdout
+    else:
+        path = root / relative_file
+        if not path.exists():
+            return False
+        after_text = path.read_text(encoding="utf-8", errors="replace")
+    return before.stdout != after_text and links_blanked(before.stdout) == links_blanked(after_text)
 
 
 def show_reference(root: Path, object_name: str, relative_file: str) -> str | None:

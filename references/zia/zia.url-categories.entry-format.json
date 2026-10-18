@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-categories.entry-format",
+  "title": "What a URL category entry may contain, and category limits",
+  "aliases": [
+    "url format guidelines",
+    "invalid url entry",
+    "custom url category limits",
+    "custom category quota",
+    "keyword matching",
+    "regex url category",
+    "tld category"
+  ],
+  "binds": [
+    "zia/url-categories#urls",
+    "zia/url-categories#keywords",
+    "zia/url-categories#regexPatterns",
+    "zia/url-categories#urlType",
+    "zia/url-categories#type"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.entry-matching"
+    }
+  ],
+  "claims": {
+    "format-rules": {
+      "statement": "Entries must be lowercase, ASCII, in `host.domain` form, and must not include a scheme (`http://`).",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.md",
+          "quotes": [
+            "Enter URLs in lowercase letters only.",
+            "The URL must not contain the protocol schema.",
+            "URLs should have the `host.domain` format.",
+            "Only use ASCII characters."
+          ]
+        }
+      ]
+    },
+    "underscore-rules": {
+      "statement": "Underscores are rejected in the TLD and in the second-level domain when a subdomain is present (`www.safe_march.com`), but allowed in subdomains, paths, and in the SLD of a URL with no subdomain (`safe_march.com`); a lone `_` cannot be a subdomain.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.md",
+          "quotes": [
+            "The URL must not contain an underscore (`_`) in the top-level domain (TLD) or the second-level domain (SLD). However, it's allowed in the subdomain or the subdirectories of a URL.",
+            "If a URL doesn't have a subdomain, then underscore (`_`) is allowed in the SLD.",
+            "The underscore (`_`) alone cannot be a subdomain."
+          ]
+        }
+      ]
+    },
+    "no-tld-only": {
+      "statement": "A bare TLD such as `.gov` cannot be added as a URL entry.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.md",
+          "quotes": [
+            "You cannot add a URL that is only a TLD. For example, you cannot add `.gov` as a URL."
+          ]
+        }
+      ]
+    },
+    "length-limits": {
+      "statement": "A URL entry is at most 1,024 characters, its domain at most 255 characters before any colon, and each domain label at most 63 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.md",
+          "quotes": [
+            "The URL length cannot exceed 1,024 characters.",
+            "The domain name before the colon (`:`) cannot exceed 255 characters.",
+            "The domain name between periods (`.`) cannot exceed 63 characters."
+          ]
+        }
+      ]
+    },
+    "bulk-add-all-or-nothing": {
+      "statement": "Adding URLs to a custom category is all-or-nothing: one invalid URL rejects the whole request with an error, so automation must validate every entry first.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#urls"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "url-format-guidelines.md",
+          "quotes": [
+            "When adding URLs to a custom URL category, if a single URL uses an invalid format, the request is rejected and produces an error code."
+          ]
+        }
+      ]
+    },
+    "non-english": {
+      "statement": "URL Filtering does not support non-English characters outside the ISO/IEC 8859-1 character set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "Non-English characters are not supported in URL Filtering, except those from the ISO/IEC 8859-1 character set."
+          ]
+        }
+      ]
+    },
+    "keywords-whole-uri": {
+      "statement": "Custom keywords match anywhere in the whole URI, so a `gambling` keyword also matches a search URL such as `www.google.com/search?q=gambling`.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#keywords"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "About_URL_Categories.txt",
+          "quotes": [
+            "As custom keywords are applicable to the entire URI, if you went to www.google.com and searched for \"gambling\" the search results would also be blocked since the word gambling appears in the URI"
+          ]
+        }
+      ]
+    },
+    "category-quotas": {
+      "statement": "Default limits: 25K custom URLs or TLDs across all categories (more via a Custom URLs subscription), 64 custom categories (1,024 via Support), 256 keywords per category with 2,048 across all categories, and 2,048 keywords retaining their parent category per organization.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.md",
+          "quotes": [
+            "| Custom URLs/TLDs | 25K | Default; +50K via Custom URLs subscription (up to 5 tranches) |",
+            "| Custom Categories/TLD Categories | 64 categories | (→ 1,024 via support) |",
+            "| **Custom Keywords per Category** | **256 keywords** | **Max 2,048 across all categories** |",
+            "| **Total Custom Keywords and Keywords retaining parent category per Organization** | **2,048 keywords** | |"
+          ]
+        }
+      ]
+    },
+    "regex-patterns": {
+      "statement": "Custom categories can match by regex (`urlType: REGEX` with `regexPatterns`) instead of exact entries; patterns are 3 to 255 characters, at most 256 across all categories, and the feature must be enabled by Zscaler Support. The console walkthrough does not show this path, so odd-looking tenant entries may be patterns.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#regexPatterns",
+        "zia/url-categories#urlType"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "quotes": [
+            "For regex, the patterns can be specified using the regexPatterns and regexPatternsRetainingParentCategory fields.",
+            "Note: To enable the Regex feature, contact Zscaler Support.",
+            "Multiple patterns can be added to a category. A pattern must be between 3 and 255 characters, and a maximum of 256 patterns can be added across all categories."
+          ]
+        }
+      ]
+    },
+    "category-type-filter": {
+      "statement": "Custom categories have a `type` (`URL_CATEGORY` or `TLD_CATEGORY`). When listing, no type filter returns predefined plus custom `URL_CATEGORY` categories, and `ALL` returns predefined plus custom categories of every type.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories#type"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "quotes": [
+            "// If categoryType is empty, no type filter is applied (returns predefined + custom URL_CATEGORY)",
+            "// If categoryType is \"ALL\", returns predefined + custom categories of all types"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "tld-category-entries": {
+      "kind": "semantic",
+      "title": "Which field holds TLD entries in a TLD_CATEGORY custom category",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "about": [
+        "zia/url-categories#type",
+        "zia/url-categories#dbCategorizedUrls"
+      ],
+      "detail": "The retired wildcard doc said to put TLD entries in `dbCategorizedUrls` on a `TLD_CATEGORY` category, but its citation only showed that the fields exist, and the Go SDK documents `dbCategorizedUrls` as the retain-parent URL list. Regular entries reject bare TLDs (claim no-tld-only); how TLD categories take their entries is unverified. Upstream terraform-provider-zia#497 (closed in v4.6.4) concerned importing this category type."
+    }
+  }
+}

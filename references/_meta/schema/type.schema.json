@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "type.schema.json",
+  "title": "Object types (config and log)",
+  "description": "Config types are generated into references/_meta/types/<product>.json from zscalerctl and infrawright exports and never hand-edited. Log types are authored, one per file, at references/<scope>/types/<name>.json with evidence per field.",
+  "oneOf": [
+    { "$ref": "#/$defs/generated-file" },
+    { "$ref": "#/$defs/authored-file" }
+  ],
+  "$defs": {
+    "generated-file": {
+      "type": "object",
+      "required": ["schema_version", "generated_by", "inputs", "types"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "generated_by": { "type": "string" },
+        "inputs": { "type": "object", "additionalProperties": { "type": "string" } },
+        "types": { "type": "object", "additionalProperties": { "$ref": "#/$defs/type" } }
+      },
+      "additionalProperties": false
+    },
+    "authored-file": {
+      "type": "object",
+      "required": ["schema_version", "id", "kind", "product", "title", "fields", "evidence"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "id": { "$ref": "common.schema.json#/$defs/type-id" },
+        "kind": { "const": "log" },
+        "product": { "$ref": "common.schema.json#/$defs/segment" },
+        "title": { "type": "string", "minLength": 1 },
+        "names": { "$ref": "#/$defs/names" },
+        "aliases": { "$ref": "common.schema.json#/$defs/aliases" },
+        "fields": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/field" } },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/evidence" } }
+      },
+      "additionalProperties": false
+    },
+    "names": {
+      "type": "object",
+      "properties": {
+        "zscalerctl": { "type": "string" },
+        "terraform": { "type": "string" },
+        "api": { "type": "string" },
+        "nss": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "type": {
+      "type": "object",
+      "required": ["id", "kind", "product", "fields"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/type-id" },
+        "kind": { "enum": ["config", "log"] },
+        "product": { "$ref": "common.schema.json#/$defs/segment" },
+        "title": { "type": "string" },
+        "names": { "$ref": "#/$defs/names" },
+        "aliases": { "$ref": "common.schema.json#/$defs/aliases" },
+        "live": {
+          "type": "object",
+          "required": ["command"],
+          "properties": { "command": { "type": "string", "pattern": "^zscalerctl " } },
+          "additionalProperties": false
+        },
+        "iac": {
+          "type": "object",
+          "properties": {
+            "generate": { "type": "boolean" },
+            "adopt": { "type": "boolean" },
+            "fetch_query": { "type": "object", "additionalProperties": { "type": "string" } },
+            "skip_if": { "type": "array", "items": { "type": "object" } },
+            "unsupported_if": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["provider", "reason"],
+                "oneOf": [
+                  { "required": ["match"] },
+                  { "required": ["match_any_nonempty"] }
+                ],
+                "properties": {
+                  "match": { "description": "Unsupported when the record has these values.", "type": "object" },
+                  "match_any_nonempty": { "description": "Unsupported when any of these fields is non-empty.", "type": "array", "items": { "type": "string" } },
+                  "provider": { "type": "string" },
+                  "reason": { "type": "string" },
+                  "evidence": { "type": "array", "items": { "type": "string" } }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "fields": { "type": "object", "additionalProperties": { "$ref": "#/$defs/field" } }
+      },
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "properties": {
+        "type": { "type": ["string", "null"] },
+        "description": { "type": "string" },
+        "classification": { "type": "string" },
+        "references": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/type-id" }, "uniqueItems": true },
+        "origin": { "enum": ["api", "zscalerctl"] },
+        "terraform": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "enum": ["provider-missing", "adoption-omitted", "conditional"] },
+            "source": { "type": "string" },
+            "reason": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "label": { "type": "string" },
+        "evidence": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidence" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

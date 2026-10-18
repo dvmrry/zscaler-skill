@@ -70,7 +70,7 @@ From *Configuring Traffic Forwarding Rules*, each rule has:
 
 - **Rule Order** — integer. Rules evaluate in ascending numerical order (Rule 1 before Rule 2). **Changing rule order moves the rule in the evaluation sequence** — same semantics as ZIA URL Filter's rule order.
 - **Rule Name** — display name. Auto-generated but editable. Max 31 chars.
-- **Rule Status** — enabled or disabled. **A disabled rule does not lose its place in the rule order** (same pattern as ZIA — see [`../zia/url-filtering.md § Disabled rules`](../zia/url-filtering.md)). The service skips it and moves to the next rule.
+- **Rule Status** — enabled or disabled. **A disabled rule does not lose its place in the rule order** (same pattern as ZIA — see [`zia.url-filtering`](kb:zia.url-filtering)). The service skips it and moves to the next rule.
 - **Admin Rank** — integer rank assigned to the rule (`forwarding_rules.go:41` "Admin rank assigned to the forwarding rule"; exposed in Terraform as `rank`, `ztc_traffic_forwarding_rule.md:203`). Cloud Connector forwarding rules carry a Rank field, the same admin-rank construct ZIA URL Filtering rules use.
 - **Forwarding Method** — ZIA / ZPA / Direct / Drop / Local (console labels; see the console→API enum table in [Summary](#summary)). Mutually exclusive per rule.
 
@@ -233,6 +233,6 @@ Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendo
 
 - Overview (HA, Cloud Connector Groups) — [`./overview.md`](./overview.md)
 - API / Terraform surface — [`./api.md`](./api.md)
-- ZIA URL Filter (adjacent first-match-wins rule pattern) — [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- ZIA URL Filter (adjacent first-match-wins rule pattern) — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZPA Application Segments (destination model for ZPA-forwarded traffic) — [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - ZCC forwarding profile (endpoint-side parallel) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)

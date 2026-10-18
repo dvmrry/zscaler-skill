@@ -22,10 +22,10 @@ Entry point for Zscaler Internet Access (ZIA) questions. Pick the topic that mat
 
 | Topic | File | Status |
 |---|---|---|
-| URL filtering rule precedence — first-match, specificity-wins, admin-rank ordering | [`./url-filtering.md`](./url-filtering.md) | draft |
+| URL filtering rule precedence — first-match, specificity-wins, admin-rank ordering | [`zia.url-filtering`](kb:zia.url-filtering) | draft |
 | Cloud App Control and URL filtering interaction — CAC-wins-on-allow, cascading semantics | [`./cloud-app-control.md`](./cloud-app-control.md) | draft |
 | SSL/TLS inspection — pipeline position, Do-Not-Inspect variants, transparent vs explicit forwarding | [`./ssl-inspection.md`](./ssl-inspection.md) | draft |
-| Wildcard semantics — leading-period `.foo.com` vs exact form, 5-level subdomain depth, implicit right-wildcard | [`./wildcard-semantics.md`](./wildcard-semantics.md) | draft |
+| Wildcard semantics — leading-period `.foo.com` vs exact form, 5-level subdomain depth, implicit right-wildcard | [`zia.url-categories.entry-matching`](kb:zia.url-categories.entry-matching) | draft |
 | Sandbox — Basic vs Advanced tiers, SSL-bypass dependency, quarantine edge cases, block-policy-type discriminator | [`./sandbox.md`](./sandbox.md) | draft |
 | Malware Protection and Advanced Threat Protection — global cybersecurity policies (no rules, no scoping), settings API/SDK, Page Risk score, C2/phishing/XSS/country blocking, Blocked Malicious URLs, and log-based per-transaction diagnosis | [`./malware-and-atp.md`](./malware-and-atp.md) | draft |
 | Data Loss Prevention (DLP) — dictionaries, engines, policy rules, file-size limits, ICAP/Incident-Receiver/C2C forwarding paths, pipeline gate for ZWA incidents | [`./dlp.md`](./dlp.md) | draft |

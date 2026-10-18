@@ -98,6 +98,27 @@ find "$RUNTIME_DATA/iac" -mindepth 1 -type f -print -quit
 
 See [`docs/data-contract/iac.md`](docs/data-contract/iac.md) for the precedence rules and structure.
 
+## Knowledge graph (converted areas)
+
+Some areas are now typed records instead of Markdown docs. For them, resolve
+instead of reading files:
+
+```bash
+node scripts/kb.mjs resolve "<subject ID, old clarification ID, or a few words>"
+```
+
+The output is one JSON bundle: the subject's reasoning with its claims inlined,
+every claim with tier, confidence and quote-anchored citations, open gaps
+(semantic and data), cases, the bound tenant object types (with IaC coverage
+and the `zscalerctl` read command), and any company-overlay facets labelled
+`layer: company`. Text with several matches returns `candidates`; pick one and
+resolve its ID. Cite claim IDs (`zia.url-filtering.rule-order:first-match`)
+in Sources. Old IDs such as `zia-02` resolve to their gap.
+
+Data gaps say which tier can fill them (`iac`, `live`, `operator`). An earlier
+rule that depends on a data gap is undecidable offline and shields every rule
+below it: say so rather than skipping to a later rule.
+
 ## Question routing
 
 Go straight to the reference file that covers the question shape. Treat this
@@ -106,12 +127,12 @@ then stop unless the question genuinely spans multiple products or policies.
 
 | Question shape | Start with |
 |---|---|
-| Is URL X in a category? Is it blocked/allowed? (no CAC mentioned) | `references/zia/url-filtering.md` |
-| Question mentions a Cloud App Control rule (CAC) — e.g. "CAC allows Facebook but URL filter blocks it, what happens?" | **`references/zia/cloud-app-control.md` first**, then `url-filtering.md` for the non-CAC layer. CAC is evaluated before URL Filtering at both the SNI and full-URL passes; start at the layer that fires first. |
-| Why does rule A beat rule B? Why didn't a disabled/higher-order rule fire? | `references/zia/url-filtering.md` — see §Rule order and first-match semantics for disabled-rule-holds-its-slot and admin-rank gates; §The specificity rule for the wildcard-vs-exact gotcha. Check `cloud-app-control.md` if either rule is a CAC rule. |
-| How do wildcards match (`*.foo.com` vs `.foo.com` vs `foo.com`)? | `references/zia/wildcard-semantics.md`. **Asterisks are not a valid Zscaler wildcard** — see §Asterisk is not a valid wildcard character and [clarification `zia-15`](references/_meta/clarifications.md#zia-15-console-accepts-asterisk-despite-docs-marking-it-invalid) for the operator-vs-doc divergence. |
-| Does SSL inspection happen before or after X? | `references/zia/ssl-inspection.md` — URL Filtering evaluates **twice** on inspected HTTPS (pre-decrypt SNI pass and post-decrypt full-URL pass); cite the two-pass model, not a flat "SSL before URL filtering" summary. |
-| Cloud app control vs URL filtering interaction | `references/zia/cloud-app-control.md` |
+| Is URL X in a category? Is it blocked/allowed? (no CAC mentioned) | Resolve `zia.url-filtering` (the four-question walk), then the subject it points to. Predefined-category membership is a data gap: resolvable live only. |
+| Question mentions a Cloud App Control rule (CAC) — e.g. "CAC allows Facebook but URL filter blocks it, what happens?" | Resolve `zia.cloud-app-control.precedence` first: a CAC allow skips URL Filtering unless cascading is on, and a CAC block is final. |
+| Why does rule A beat rule B? Why didn't a disabled/higher-order rule fire? | Resolve `zia.url-categories.membership` (category is decided before rules; specificity and Retain Parent), then `zia.url-filtering.rule-order` (first match, disabled rules hold their slot, admin rank). If either rule is a CAC rule, `zia.cloud-app-control.precedence`. |
+| How do wildcards match (`*.foo.com` vs `.foo.com` vs `foo.com`)? | Resolve `zia.url-categories.entry-matching`. **Asterisks are not a valid Zscaler wildcard**; translate to the leading-period form and say so. |
+| Does SSL inspection happen before or after X? | Resolve `zia.ssl-inspection.pipeline`: URL Filtering evaluates **twice** on inspected HTTPS, with the SSL decision between the passes. Other SSL topics: `references/zia/ssl-inspection.md`. |
+| Cloud app control vs URL filtering interaction | Resolve `zia.cloud-app-control.precedence`. Other CAC topics: `references/zia/cloud-app-control.md`. |
 | Why wasn't this file sandboxed / caught by Sandbox? | `references/zia/sandbox.md` — tier scope, SSL-bypass prerequisite, static-analysis fast-path, and the settings-vs-transaction boundary: Malware Protection and ATP settings have SDK/API coverage, while identifying which engine blocked one transaction still requires Web Insights or equivalent logs. |
 | "Why was this blocked?" and it's NOT URL Filter / CAC / SSL / Firewall — suspect Malware Protection or ATP | `references/zia/malware-and-atp.md` — category shape, Page Risk score, C2/botnet/phishing/XSS/country detections, Blocked Malicious URLs (25K capacity), and the settings APIs. Use `client.zia.atp_policy` / `client.zia.malware_protection_policy` to read or change policy settings; use Security Dashboard + Web Insights `Blocked Policy Type` for **per-transaction** diagnosis because those endpoints do not return transaction verdicts. |
 | DLP / data loss prevention / "why didn't DLP catch this?" / DLP dictionaries / DLP engines / EDM / ICAP / MIP labels / GenAI prompt scanning | `references/zia/dlp.md` — three-layer model (dictionaries → engines → rules; rules reference engines not dictionaries), 400MB/100MB/5-level inspection limits, Evaluate-All-Rules mode, ICAP-is-one-way, Cloud-to-Cloud Incident Forwarding feeds ZWA, HTTP GET query parameter inspection for GenAI URL categories. |
@@ -209,7 +230,7 @@ Return every non-trivial answer in this shape. It keeps answers grounded, makes 
 <why, citing the specific mechanics — rule order, match type, evaluation stage>
 
 ## Sources
-- references/zia/url-filtering.md (§ section you used)
+- zia.url-filtering.rule-order:first-match (claim IDs from a resolved bundle), or references/<file>.md (§ section) for areas not yet converted
 - _data/snapshot/<cloud>/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
 
 ## Confidence

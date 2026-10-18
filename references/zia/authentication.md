@@ -147,6 +147,6 @@ The ZIA authentication policy (cookie/surrogate model) and ZIdentity authenticat
 ## Cross-links
 
 - Location / sublocation auth enforcement toggle: [`./locations.md`](./locations.md)
-- URL category references (for auth exemption by category): [`./url-filtering.md`](./url-filtering.md)
+- URL category references (for auth exemption by category): [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIdentity authentication levels and step-up: [`../zidentity/`](../zidentity/)
 - Policy evaluation order (where auth gate sits relative to other modules): [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)

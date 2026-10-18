@@ -144,7 +144,7 @@ jq '.[] | select((.keywordsRetainingParentCategory | length) > 0 or (.regexPatte
 jq --arg url "example.com" '.[] | select(.urls | index($url) or .dbCategorizedUrls | index($url)) | .configuredName' _data/snapshot/<cloud>/zia/url-categories.json
 ```
 
-Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./wildcard-semantics.md`](./wildcard-semantics.md), [clarification `zia-01`](../_meta/clarifications.md#zia-01-predefined-vs-custom-category-specificity).
+Cross-links: [`zia.url-filtering`](kb:zia.url-filtering), [`zia.url-categories.entry-matching`](kb:zia.url-categories.entry-matching), [clarification `zia-01`](kb:zia.url-categories.membership:predefined-vs-custom).
 
 ## `url-filtering-rules.json`
 
@@ -238,7 +238,7 @@ jq '.[] | select(.blockOverride == true) | {name, overrideUsers: [.overrideUsers
 jq '[.[] | select((.locationGroups | length) > 0)] | .[] | {name, groups: [.locationGroups[].name]}' _data/snapshot/<cloud>/zia/url-filtering-rules.json
 ```
 
-Cross-links: [`./url-filtering.md`](./url-filtering.md), [`./locations.md`](./locations.md).
+Cross-links: [`zia.url-filtering`](kb:zia.url-filtering), [`./locations.md`](./locations.md).
 
 ## `cloud-app-control-rules.json`
 
@@ -418,7 +418,7 @@ jq '.[] | select((.zpaAppSegments | length) > 0) | {name, zpa: [.zpaAppSegments[
 jq '.[] | select(.action.doNotDecryptSubActions.bypassOtherPolicies == true) | .name' _data/snapshot/<cloud>/zia/ssl-inspection-rules.json
 ```
 
-Cross-links: [`./ssl-inspection.md`](./ssl-inspection.md), [`./url-filtering.md § Rule order`](./url-filtering.md), [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) (for `zpaAppSegments`).
+Cross-links: [`./ssl-inspection.md`](./ssl-inspection.md), [`zia.url-filtering`](kb:zia.url-filtering), [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) (for `zpaAppSegments`).
 
 ## `advanced-settings.json`
 
@@ -525,7 +525,7 @@ jq '{office365: .enableOffice365, m365: .enableMsftO365, zoom: .enableZoom, webe
 jq '.cascadeUrlFiltering' _data/snapshot/<cloud>/zia/advanced-settings.json
 ```
 
-Cross-links: [`./url-filtering.md § cascading`](./url-filtering.md), [`./cloud-app-control.md § Microsoft 365 One-Click`](./cloud-app-control.md).
+Cross-links: [`zia.url-filtering`](kb:zia.url-filtering), [`./cloud-app-control.md § Microsoft 365 One-Click`](./cloud-app-control.md).
 
 ## What's NOT yet in the snapshot
 
@@ -632,7 +632,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `
 
 Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
 
-5. **`state: "DISABLED"` rules retain their order slot** — they aren't skipped in numbering. See [`./url-filtering.md`](./url-filtering.md) for evaluation semantics.
+5. **`state: "DISABLED"` rules retain their order slot** — they aren't skipped in numbering. See [`zia.url-filtering`](kb:zia.url-filtering) for evaluation semantics.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zia/models/url_filtering_rules.py`; `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
 
@@ -653,7 +653,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zia/models/ssl_inspection_rules.py`.
 ## Cross-links
 
 - [`./api.md`](./api.md) — endpoint catalog
-- [`./url-filtering.md`](./url-filtering.md) — URL filtering reasoning
+- [`zia.url-filtering`](kb:zia.url-filtering) — URL filtering reasoning
 - [`./cloud-app-control.md`](./cloud-app-control.md) — CAC reasoning
 - [`./ssl-inspection.md`](./ssl-inspection.md) — SSL inspection reasoning
 - [`./locations.md`](./locations.md) — Location / Location Group container types referenced in rules

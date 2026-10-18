@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.advanced-settings",
+  "title": "Advanced URL Filtering settings that change outcomes",
+  "aliases": [
+    "advanced policy settings",
+    "newly registered domains",
+    "NROD",
+    "miscellaneous or unknown",
+    "embedded sites categorization",
+    "translated pages bypass",
+    "AI/ML content categorization",
+    "CIPA compliance",
+    "gen ai prompt capture",
+    "global ssl bypass policy evaluation"
+  ],
+  "binds": [
+    "zia/advanced-settings"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.pipeline"
+    }
+  ],
+  "claims": {
+    "misc-unknown": {
+      "statement": "Miscellaneous or Unknown holds sites Zscaler has not yet classified; blocking it outright also blocks newly encountered legitimate sites.",
+      "tier": "B",
+      "conditions": "The definition is documented; the operational consequence follows from it.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "About_URL_Categories.txt",
+          "quotes": [
+            "Miscellaneous or Unknown: Sites that have not yet been classified by Zscaler."
+          ]
+        }
+      ]
+    },
+    "nrod-definition": {
+      "statement": "Newly Registered and Observed Domains (NROD) is a subset of Miscellaneous: uncategorized domains created in the last 30 days or seen for the first time, found by checking Miscellaneous or Unknown URLs against an NROD database. It can be used only in URL Filtering rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "About_URL_Categories.txt",
+          "quotes": [
+            "Newly Registered and Observed Domains: Sites whose domains were created in the last 30 days and are currently not categorized by Zscaler.",
+            "This category is a subset of the Miscellaneous category.",
+            "your Advanced URL Policy Settings. This category can only be used in URL Filtering rules."
+          ]
+        }
+      ]
+    },
+    "nrod-lookup-prerequisite": {
+      "statement": "Enable Suspicious New Domains Lookup is required to use the NROD and Newly Revived Domains categories in a rule; it identifies such domains within hours of going live.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_Advanced_Policy_Settings.txt",
+          "quotes": [
+            "observed domains that are identified within hours of going live. This feature also identifies newly revived domains.",
+            "This feature is a prerequisite for using the Newly Registered and Observed Domains and Newly Revived Domains URL categories in a policy rule."
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "embedded-sites": {
+      "statement": "Without Embedded Sites Categorization, a page viewed through a translation service is judged by the translator's URL; enabling it enforces URL Filtering on the translated site itself.",
+      "tier": "B",
+      "conditions": "The enabled behavior is documented; the disabled behavior is inferred from the setting existing to change it.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_Advanced_Policy_Settings.txt",
+          "quotes": [
+            "Enable this option to allow the service to enforce the URL filtering policy for sites that are translated using translation service websites."
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "aiml-redirect": {
+      "statement": "With AI/ML content categorization on, a blocked-category site that answers with a redirect (3xx) is allowed and the redirect is followed, and a server error (5xx) is logged as allowed; other responses follow the policy for the identified category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_Advanced_Policy_Settings.txt",
+          "quotes": [
+            "then Zscaler allows the transaction to proceed and follows the redirect.",
+            "error (5xx), then Zscaler logs the transaction as allowed.",
+            "Other response codes: For all other response codes, Zscaler blocks or allows the site based on your configured policy for the identified category."
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "cipa-exclusive": {
+      "statement": "CIPA compliance cannot be enabled together with newly-registered-domain lookup, embedded-site categorization, SafeSearch enforcement, or dynamic content categorization; both SDKs reject that combination before sending it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "EnableCIPACompliance cannot be enabled with the following options: EnableNewlyRegisteredDomains, ConsiderEmbeddedSites, EnforceSafeSearch, EnableDynamicContentCat"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "cannot be True when 'enable_cipa_compliance' is True"
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "go-full-state-write": {
+      "statement": "The Go SDK sends every advanced-settings boolean even when false (except `blockSkype`, and `safeSearchApps` stays optional), so a sparse struct written to toggle one setting turns the others off. Read the current settings, change the field, write the whole value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "// The booleans deliberately omit omitempty: a caller disabling a setting sends",
+            "// The two exceptions are BlockSkype and SafeSearchApps, which the service"
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    },
+    "global-ssl-bypass-evaluation": {
+      "statement": "Policy evaluation for traffic on the global SSL bypass list is a separate switch (`enableEvaluatePolicyOnGlobalSSLBypass`) that defaults to off, so URL Filtering rules may not apply to globally bypassed traffic.",
+      "tier": "B",
+      "binds": [
+        "zia/advanced-settings"
+      ],
+      "conditions": "The field and its default are in the SDKs; its effect on URL Filtering specifically is inferred from the field's description.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/advanced_settings/advanced_settings.go",
+          "quotes": [
+            "// A Boolean value indicating whether policy evaluation for global SSL bypass traffic is enabled or not"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/advanced_settings.py",
+          "quotes": [
+            "config[\"enableEvaluatePolicyOnGlobalSSLBypass\"] if \"enableEvaluatePolicyOnGlobalSSLBypass\" in config else False"
+          ]
+        }
+      ]
+    },
+    "genai-prompts": {
+      "statement": "Gen AI prompt capture covers 14 named applications (ChatGPT, Microsoft Copilot, Gemini, Perplexity, Poe, Meta AI, WRITER, DeepSeek, Grok AI, Claude, Mistral, Grammarly, QuillBot, Google AI). Prompts are logged in Web Insights up to 2 KB each; Copilot prompts are stored only for unauthenticated users, and capture works for Copilot Chat but not Copilot inside Office apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Configuring_Advanced_Policy_Settings.txt",
+          "quotes": [
+            "The prompts for these applications are logged on the Web Insights Logs page.",
+            "The Zscaler service stores prompts up to a maximum of 2 KB in size for these",
+            "Prompts for the Microsoft Copilot application are stored only if the user is not authenticated to it.",
+            "Zscaler's DLP inspection and prompt capture capabilities are currently limited to Microsoft Copilot Chat."
+          ]
+        }
+      ],
+      "gaps": [
+        "settings-not-live-readable"
+      ]
+    }
+  },
+  "gaps": {
+    "nrod-lag": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-04"
+      ],
+      "title": "Upper bound on how quickly a new domain reaches NROD",
+      "status": "partial",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "detail": "Documented only as \"within hours of going live\" (claim nrod-lookup-prerequisite)."
+    },
+    "settings-not-live-readable": {
+      "kind": "data",
+      "title": "Reading a tenant's advanced URL Filtering and Cloud App settings",
+      "status": "open",
+      "detail": "These settings (API advancedUrlFilterAndCloudAppSettings) are carried by IaC as Terraform zia_url_filtering_and_cloud_app_settings but are not read by zscalerctl and not listed in its schema gaps. Check them in IaC; otherwise ask the operator.",
+      "resolvable_by": [
+        "iac",
+        "operator"
+      ]
+    }
+  }
+}

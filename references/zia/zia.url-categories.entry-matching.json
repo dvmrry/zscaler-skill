@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-categories.entry-matching",
+  "title": "How URL category entries match requests (wildcards)",
+  "aliases": [
+    "wildcard matching",
+    "leading period wildcard",
+    "does *.example.com match example.com",
+    "asterisk wildcard",
+    "subdomain matching",
+    "url pattern matching",
+    "trailing slash"
+  ],
+  "binds": ["zia/url-categories#urls", "zia/url-categories#dbCategorizedUrls"],
+  "related": [
+    { "rel": "see-also", "to": "zia.url-categories.membership" },
+    { "rel": "see-also", "to": "zia.url-categories.entry-format" }
+  ],
+  "claims": {
+    "leading-period-wildcard": {
+      "statement": "A leading period makes an entry a wildcard: `.example.com` matches subdomains up to 5 levels deep, the bare domain `example.com` itself, and any path under either.",
+      "tier": "A",
+      "binds": ["zia/url-categories#urls"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "url-format-guidelines.md",
+          "quotes": ["A leading period (`.`) functions as a wildcard to the left of the named URL up to 5 subdomain levels deep (i.e., the same policies are applied to the subdomains, as well) or matches exactly to the named URL or matches to the named URL with any directory or file to its right."] }
+      ]
+    },
+    "exact-form": {
+      "statement": "An entry without a leading period matches only that exact host (plus any path); `example.com` does not match `www.example.com`.",
+      "tier": "A",
+      "binds": ["zia/url-categories#urls"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "url-format-guidelines.md",
+          "quotes": ["To exactly match only with the stated domain or subdomain entry, avoid the leading period. For example, the entry `safemarch.com` applies to `safemarch.com` or `safemarch.com/company/webinars`."] }
+      ]
+    },
+    "asterisk-invalid": {
+      "statement": "Asterisks are not valid wildcards: `*.example.com` and `*example.com` are not permitted; the leading-period form is the only domain wildcard.",
+      "tier": "A",
+      "binds": ["zia/url-categories#urls"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "url-format-guidelines.md",
+          "quotes": ["Do not use an asterisk (`*`) as a wildcard character at the beginning of a domain. For example, `.safemarch.com` is permitted, while `*safemarch.com` and `*.safemarch.com` are not permitted."] }
+      ]
+    },
+    "right-side-implicit": {
+      "statement": "Matching to the right of an entry is implicit: `example.com` also matches any port, path, or query string on that host.",
+      "tier": "A",
+      "binds": ["zia/url-categories#urls"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "url-format-guidelines.md",
+          "quotes": [
+            "Wildcard characters addressing the right side of a stated URL are not explicitly used; they are always assumed.",
+            "- `safemarch.com:10443`"
+          ] }
+      ]
+    },
+    "trailing-slash": {
+      "statement": "For path entries, a trailing slash matches everything under the path (`example.com/resources/`); without it the entry matches only that exact path string.",
+      "tier": "A",
+      "binds": ["zia/url-categories#urls"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "url-format-guidelines.md",
+          "quotes": [
+            "(with no trailing forward slash) matches the exact string.",
+            "(with trailing forward slash) matches any file or directory underneath it."
+          ] }
+      ]
+    },
+    "exact-beats-wildcard": {
+      "statement": "An exact entry is more specific than a wildcard entry: for `atlanta.example.com`, a category holding `atlanta.example.com` outranks one holding `.atlanta.example.com` or `.example.com`.",
+      "tier": "A",
+      "binds": ["zia/url-categories#urls"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "url-format-guidelines.md",
+          "quotes": ["The exact match takes priority over the wildcard matches. For example, when a user requests for `atlanta.safemarch.com`, a category that contains the exact match, `atlanta.safemarch.com` takes priority over another category that contains the wildcard match, `.atlanta.safemarch.com` or `.safemarch.com`."] }
+      ]
+    },
+    "scheme-not-matched": {
+      "statement": "Entries never carry a scheme, so `http://` and `https://` requests to the same host match the same entries.",
+      "tier": "B",
+      "binds": ["zia/url-categories#urls"],
+      "conditions": "Inferred from the format rule that entries must not contain a protocol schema; no source states the match-time behavior directly.",
+      "evidence": [
+        { "source": "zscaler-help", "path": "url-format-guidelines.md",
+          "quotes": ["The URL must not contain the protocol schema."] }
+      ]
+    }
+  },
+  "gaps": {
+    "exactly-five-levels": {
+      "kind": "semantic",
+      "former_ids": ["zia-14"],
+      "title": "Whether a leading-period wildcard covers a subdomain exactly 5 levels deep",
+      "status": "open",
+      "resolves_with": ["lab-test"],
+      "blocks": "deterministic answers for 5-level-deep subdomains under a wildcard",
+      "detail": "\"Up to 5 subdomain levels deep\" does not say whether level 5 is included. The retired wildcard doc answered both ways in different sections."
+    },
+    "console-accepts-asterisk": {
+      "kind": "semantic",
+      "former_ids": ["zia-15"],
+      "title": "What the console stores and matches when an asterisk entry is saved",
+      "status": "open",
+      "resolves_with": ["lab-test", "support-ticket"],
+      "blocks": "explaining tenant entries that use `*` despite the documented rule",
+      "detail": "Operator report (2026-04-23): the admin console accepts `*.example.com` at save time. What is stored and how it matches is unverified. Translate any asterisk entry to the leading-period form when reasoning."
+    },
+    "wildcard-tokenization": {
+      "kind": "semantic",
+      "former_ids": ["zia-03"],
+      "title": "Wildcard tokenization (`.example.com` vs `*.example.com` vs bare)",
+      "status": "resolved",
+      "resolves_with": ["source-read"],
+      "resolution": "Resolved by URL Format Guidelines: leading-period is the only domain wildcard, asterisks are invalid, right-side matching is implicit (claims leading-period-wildcard, asterisk-invalid, right-side-implicit)."
+    }
+  },
+  "cases": {
+    "wildcard-matches-bare-domain": {
+      "kind": "url-match", "claims": ["leading-period-wildcard"],
+      "config": { "entry": ".example.com" }, "request": { "url": "example.com" }, "expect": { "matches": true }
+    },
+    "wildcard-matches-two-levels": {
+      "kind": "url-match", "claims": ["leading-period-wildcard"],
+      "config": { "entry": ".example.com" }, "request": { "url": "foo.bar.example.com" }, "expect": { "matches": true }
+    },
+    "wildcard-matches-four-levels": {
+      "kind": "url-match", "claims": ["leading-period-wildcard"],
+      "config": { "entry": ".example.com" }, "request": { "url": "a.b.c.d.example.com" }, "expect": { "matches": true }
+    },
+    "wildcard-at-five-levels-ambiguous": {
+      "kind": "url-match", "claims": ["leading-period-wildcard"],
+      "config": { "entry": ".example.com" }, "request": { "url": "a.b.c.d.e.example.com" },
+      "expect": { "verdict": "ambiguous", "gap": "exactly-five-levels" }
+    },
+    "wildcard-does-not-match-lookalike": {
+      "kind": "url-match", "claims": ["leading-period-wildcard"],
+      "config": { "entry": ".example.com" }, "request": { "url": "myexample.com" }, "expect": { "matches": false }
+    },
+    "exact-does-not-match-subdomain": {
+      "kind": "url-match", "claims": ["exact-form"],
+      "config": { "entry": "example.com" }, "request": { "url": "www.example.com" }, "expect": { "matches": false }
+    },
+    "exact-matches-path-and-port": {
+      "kind": "url-match", "claims": ["right-side-implicit"],
+      "config": { "entry": "example.com" }, "request": { "url": "example.com:10443/index.htm" }, "expect": { "matches": true }
+    }
+  }
+}

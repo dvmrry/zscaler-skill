@@ -395,7 +395,7 @@ These came up while documenting ZIA SCIM and could not be backed from any vendor
 - ZIA user management SDK methods (users, groups, departments) — [`./sdk.md § user_management`](./sdk.md)
 - ZIA Go SDK SCIM API source — `vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/`
 - ZIA Firewall identity criteria (users/groups/departments, Advanced Firewall requirement) — [`./firewall.md`](./firewall.md)
-- ZIA URL Filtering identity criteria — [`./url-filtering.md`](./url-filtering.md)
+- ZIA URL Filtering identity criteria — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA Forwarding Control identity criteria (users/groups/departments for SIPA scoping) — [`./forwarding-control.md`](./forwarding-control.md)
 - ZIA DLP identity criteria — [`./dlp.md`](./dlp.md)
 - Token revocation for hard access removal — [`../zidentity/api-clients.md`](../zidentity/api-clients.md)

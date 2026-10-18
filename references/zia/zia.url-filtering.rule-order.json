@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-filtering.rule-order",
+  "title": "URL Filtering rule order and first match",
+  "aliases": [
+    "url filtering rule precedence",
+    "why does rule A beat rule B",
+    "first match wins",
+    "disabled rule order",
+    "admin rank rule order"
+  ],
+  "binds": [
+    "zia/url-filtering-rules#order",
+    "zia/url-filtering-rules#state",
+    "zia/url-filtering-rules#rank"
+  ],
+  "related": [
+    { "rel": "depends-on", "to": "zia.url-categories.membership" },
+    { "rel": "interacts-with", "to": "zia.cloud-app-control.precedence" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.pipeline" }
+  ],
+  "claims": {
+    "ascending-order": {
+      "statement": "URL Filtering rules evaluate in ascending `order` (Rule 1 before Rule 2).",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#order"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on)"] }
+      ]
+    },
+    "first-match": {
+      "statement": "Evaluation stops at the first rule whose criteria all match; later rules are not consulted.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#order"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["The evaluation of the policy rules stops at the first match."] }
+      ]
+    },
+    "disabled-holds-slot": {
+      "statement": "A disabled rule is skipped but keeps its position in the order.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#state", "zia/url-filtering-rules#order"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": ["A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."] }
+      ]
+    },
+    "admin-rank-precedes": {
+      "statement": "With Admin Rank enabled, a rule's admin rank (0 is highest, 7 lowest) constrains the order values it can take: a higher-ranked rule always precedes a lower-ranked one, and an admin cannot pick a rank above their own.",
+      "tier": "A",
+      "binds": ["zia/url-filtering-rules#rank", "zia/url-filtering-rules#order"],
+      "evidence": [
+        { "source": "zscaler-help", "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "quotes": [
+            "Admin Rank: Enter a value from 0 to 7 (0 is the highest rank).",
+            "You cannot select a rank that is higher than your own.",
+            "so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
+          ] }
+      ]
+    }
+  },
+  "cases": {
+    "first-match-shadows-later-rule": {
+      "kind": "rule-evaluation",
+      "claims": ["ascending-order", "first-match"],
+      "config": {
+        "rules": [
+          { "id": 1, "order": 1, "state": "ENABLED", "action": "BLOCK", "urlCategories": ["CUSTOM_01"] },
+          { "id": 2, "order": 2, "state": "ENABLED", "action": "ALLOW", "urlCategories": ["CUSTOM_01"] }
+        ],
+        "categories": [{ "id": "CUSTOM_01", "urls": ["www.example.com"] }]
+      },
+      "request": { "url": "https://www.example.com/" },
+      "expect": { "verdict": "block", "rule": 1 }
+    },
+    "disabled-rule-skipped": {
+      "kind": "rule-evaluation",
+      "claims": ["disabled-holds-slot", "first-match"],
+      "config": {
+        "rules": [
+          { "id": 1, "order": 1, "state": "DISABLED", "action": "BLOCK", "urlCategories": ["CUSTOM_01"] },
+          { "id": 2, "order": 2, "state": "ENABLED", "action": "ALLOW", "urlCategories": ["CUSTOM_01"] }
+        ],
+        "categories": [{ "id": "CUSTOM_01", "urls": ["www.example.com"] }]
+      },
+      "request": { "url": "https://www.example.com/" },
+      "expect": { "verdict": "allow", "rule": 2 }
+    }
+  }
+}

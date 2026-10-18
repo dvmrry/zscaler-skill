@@ -47,78 +47,15 @@ author-status: draft
 
 Where SSL/TLS inspection sits relative to URL filtering and Cloud App Control, how Do Not Inspect actions compose with downstream policy, and what happens when inspection is impossible.
 
-## Summary
+## Summary and pipeline position
 
-Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`.
-
-SSL inspection sits in a **two-pass model** documented in *Understanding Policy Enforcement* (pp.11–13):
-
-1. **CONNECT/SNI-level pass** — URL Filtering, Cloud App Control, known-malicious-URL ATP check, and Bandwidth Control evaluate using only the destination domain (from the CONNECT header in explicit mode, from the SNI in transparent mode). A block at this stage ends the connection immediately — 403 for CONNECT blocks, TCP reset for SNI blocks.
-2. **SSL Inspection policy decision** — inspect, do-not-inspect-evaluate-others, or do-not-inspect-bypass-others. Top-down, first-match rule evaluation.
-3. **Full-URL pass** — only if decrypted. The complete web-module pipeline re-evaluates using the full URL + HTTP headers + payload: URL Filtering, CAC, ATP (custom malicious → country blocking → IPS → suspicious content → P2P), Browser Control, plus POST-only layers (Malware, File Type, DLP) and response-only layers (Sandbox, AI/ML categorization).
-
-So URL Filtering effectively evaluates **twice** on inspected HTTPS traffic — once domain-only at the SNI/CONNECT stage, and again full-URL post-decrypt. Cloud App Control likewise. Firewall module runs before any of this for outbound traffic (firewall "allow" does not supersede a web-module block — both layers must pass).
-
-"Does SSL inspection happen before URL filtering?" — URL Filtering evaluates first on the domain, then SSL inspection decides whether to decrypt, then URL Filtering evaluates again on the full URL. The **Do Not Inspect variant** determines what survives:
-
-- **Inspect** → two-pass (domain + full-URL). All decrypt-dependent features run (DLP, sandbox, malware, file-type, IPS against decrypted content).
-- **Do Not Inspect + Evaluate Other Policies** → domain-only pass still runs; URL Filtering can still block on SNI match; decrypt-dependent features don't run.
-- **Do Not Inspect + Bypass Other Policies** → short-circuits the entire policy chain. Traffic passes untouched, no SNI-level URL Filtering, no CAC, no anything. Rarely the right choice.
+The two-pass model (domain-level URL Filtering and Cloud App Control before decryption, the SSL decision, then the full-request pass) and the two Do Not Inspect variants now live in the knowledge graph as [the SSL inspection pipeline](kb:zia.ssl-inspection.pipeline). Resolve it with `node scripts/kb.mjs resolve zia.ssl-inspection.pipeline`.
 
 ## Mechanics
 
-Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt`.
-
-### Pipeline position (the corrected picture)
-
-From *Understanding Policy Enforcement* (pp.1–2):
-
-> All web traffic is first evaluated in the firewall module and only if it passes the firewall module (i.e., if it didn't violate any firewall policies), it's forwarded to the web module where the traffic is evaluated against the web policies.
-
-Full flow for outbound HTTPS:
-
-1. **Firewall module.** If the traffic violates a firewall policy, it blocks the transaction without the web module seeing it. Firewall "allow" does not override web-module block — both layers must independently pass. (Policy Enforcement, p.14, Example 1: firewall allows Box.net + web blocks Box.net → user is blocked.)
-2. **Web module — CONNECT/SNI pass** (domain-only):
-   - Explicit proxy mode: URL Filtering + Cloud App Control evaluated against the first CONNECT request.
-   - Transparent proxy mode: URL Filtering + CAC + ATP + Bandwidth evaluated on the SSL Client Hello SNI.
-   - The policy subset available pre-decrypt (Policy Enforcement p.13): Known Malicious URLs (ATP), Cloud App Control, URL Filtering, Bandwidth Control. Policies requiring URL path, HTTP headers, or request body are deferred to the full-URL pass.
-3. **SSL Inspection policy decision** — evaluated against CONNECT / SNI. Determines whether to decrypt.
-4. **Full-URL pass** (only if Inspect): TLS is intercepted, traffic decrypted. The full web-module pipeline runs. GET request order from Policy Enforcement p.3–5: Custom Malicious URLs → Cloud App Control → URL Filtering → Security Exceptions → Browser Control → Country Blocking → IPS → Suspicious Content → P2P → Bandwidth. POST adds Malware + File Type + DLP. Response adds Sandbox + AI/ML Content Categorization.
-
-**A block at any step halts that pass.** Standard first-violation-wins. Firewall→Web and SNI-pass→Full-URL-pass transitions only happen on not-blocked.
-
-**Decrypt-dependent features**: DLP, sandbox, malware, file-type control, inline CASB, and IPS signature detection against decrypted content all live exclusively in the full-URL pass. If SSL Inspection did not Inspect, they do not fire. (*ZIA SSL Inspection Leading Practices Guide*, p.4.)
-
-### The two "Do Not Inspect" variants — read this carefully
-
-From the *ZIA SSL Inspection Leading Practices Guide*, p.23:
-
-> Avoid Bypass Other Policies for any custom exemption rules. This feature bypasses the SSL inspection engines, the URL Filtering policies, and Cloud App Control policies. Any traffic matching the criteria isn't access controlled later, even if it is policy-dictated.
-
-Reformulating:
-
-| Action | What happens | URL Filtering runs? | CAC runs? | DLP / Sandbox / IPS run? |
-|---|---|---|---|---|
-| Inspect | Decrypt, inspect, continue | Yes (full URL visibility) | Yes (full visibility) | Yes |
-| Do Not Inspect + **Evaluate Other Policies** | Don't decrypt; continue policy chain on pre-decrypt info | Yes (SNI-only, or SNI+IP in transparent mode) | Yes (SNI-only) | No (they need decrypted traffic) |
-| Do Not Inspect + **Bypass Other Policies** | Don't decrypt; short-circuit policy chain | **No** | **No** | No |
-
-"Bypass Other Policies" is an "allow and forget" escape hatch. The Leading Practices guide explicitly recommends against using it for custom exemptions — prefer Evaluate Other Policies.
-
-The predefined **Zscaler Recommended Exemptions** rule uses Evaluate Other Policies by default (*About SSL/TLS Inspection Policy*, p.1; *Leading Practices Guide* p.9 rule 1). The predefined **Microsoft 365 Click-to-Run** rule uses Bypass Other Policies (*Leading Practices Guide* p.10 rule 3) — a documented exception because those URLs would break under URL filtering too.
-
 ### Transparent vs explicit traffic forwarding — what the SSL rule matches on
 
-From *Best Practices for Testing and Rolling Out SSL/TLS Inspection*, p.2:
-
-> In transparent mode, policies on both SNI and IP addresses are evaluated for exemption from SSL/TLS Inspection. Exempting SSL/TLS Inspection for the Miscellaneous or Unknown category exempts almost all traffic from SSL/TLS Inspection as most IP addresses are categorized as miscellaneous or unknown. However, in the case of explicit traffic forwarding, Zscaler evaluates the policies only based on SNI and does not exempt traffic from SSL/TLS Inspection based on IP address categories.
-
-**Practical consequence**: an SSL Do Not Inspect rule that references "Miscellaneous or Unknown" as its category criterion:
-
-- Under **transparent forwarding** (GRE tunnels, IPSec, etc. without explicit proxy): matches on SNI *or* destination IP. Since most public IPs have no URL-category classification and default to Miscellaneous, this pattern silently exempts most traffic from inspection.
-- Under **explicit forwarding** (Zscaler Client Connector PAC file): matches on SNI only. Miscellaneous exemption only affects the handful of actual unknown-SNI destinations.
-
-If an operator adds "Miscellaneous or Unknown" to a do-not-inspect list thinking it means "unknown *SNI*s", they may unintentionally exempt nearly everything under transparent forwarding.
+Moved to [the SSL inspection pipeline](kb:zia.ssl-inspection.pipeline): claim `zia.ssl-inspection.pipeline:transparent-matches-destination-ip`.
 
 ### Per-rule inspection knobs
 
@@ -408,45 +345,14 @@ Source: `vendor/zscaler-help/ranges-limitations-zia.md`; `vendor/zscaler-help/co
 
 ## Worked example (covers eval Q4)
 
-Source: `vendor/zscaler-help/Understanding_Policy_Enforcement.txt`; `vendor/zscaler-help/ZIA_SSL_Inspection_Leading_Practices_Guide.txt`; `vendor/zscaler-help/Best_Practices_for_Testing_and_Rolling_Out_SSL_TLS_Inspection.txt`.
-
-Scenario: a user visits `https://evil.example.com`, which falls into the Miscellaneous Or Unknown category.
-
-**Case A — Inspect All rule is active, Miscellaneous is not exempted:**
-
-1. SSL Inspection policy evaluates. No exemption rule matches `evil.example.com`. The terminal Inspect All rule fires → decrypt.
-2. URL filtering evaluates on the decrypted request. If a URL filtering rule targets Miscellaneous Or Unknown (or otherwise matches), it fires.
-3. If URL filtering blocks, the user sees the block page.
-4. Downstream (DLP, sandbox, malware) all run on the decrypted payload.
-
-**Case B — An SSL exemption rule matches Miscellaneous with Evaluate Other Policies, under explicit forwarding:**
-
-1. SSL Inspection policy evaluates on SNI only (explicit mode). `evil.example.com` is in Miscellaneous → exemption rule fires.
-2. Traffic is not decrypted.
-3. URL filtering evaluates against SNI only. A URL filtering Block rule on Miscellaneous *does* still match (SNI-level is enough) and blocks.
-4. DLP / sandbox / malware do not run — they need decrypted payloads.
-5. **Result: blocked at URL filtering, but no payload-level inspection happened.**
-
-**Case C — Same exemption rule under transparent forwarding:**
-
-1. SSL Inspection policy evaluates on SNI *and* destination IP (transparent mode). The destination IP is almost certainly classified as Miscellaneous → exemption fires even if the SNI is clean.
-2. Identical downstream to Case B.
-3. **Result: a much larger fraction of traffic exempted than the operator may have intended.**
-
-**Case D — Exemption rule uses Bypass Other Policies:**
-
-1. SSL Inspection exemption fires (either mode).
-2. URL filtering does **not** evaluate. CAC does **not** evaluate.
-3. **Result: request passes untouched regardless of downstream policy.** The Block rule on Miscellaneous does not fire. This is the common footgun.
-
-The "before or after" question in Q4 resolves to: **URL Filtering evaluates twice on inspected HTTPS — once pre-decrypt on the SNI/CONNECT domain, once post-decrypt on the full URL — with the SSL Inspection decision in between.** The SSL decision doesn't precede URL Filtering as a whole; it gates the second pass (what URL Filtering can *see*) and, in the Bypass Other Policies variant, gates whether URL Filtering runs at all. Answers that collapse this to "SSL inspection happens before URL filtering" lose the first-pass behavior — which is exactly how an SNI-match Block rule can still fire on a do-not-inspect target.
+Moved with its cases to [the SSL inspection pipeline](kb:zia.ssl-inspection.pipeline).
 
 ## Open questions
 
 - **Is the 255 SSL Inspection rule cap raisable?** The ranges-and-limitations capture (`vendor/zscaler-help/ranges-limitations-zia.md:190`) lists "255 rules (245 custom + 10 predefined)" with no raise annotation, whereas the adjacent 1,024 "All Other Policy Rules" row is explicitly annotated "→ 2,048 via support" (`:191`). Absence of an annotation is not proof the SSL cap is fixed. The doc previously asserted "the cap is NOT raisable" without a source — that assertion is unverified. Needs confirmation from a Zscaler limits source or Support before re-stating as fact. (Tracked as `zia-66` in [`../_meta/clarifications.md`](../_meta/clarifications.md#zia-66-whether-the-255-ssl-inspection-rule-cap-is-raisable).)
 - **What does the console call the SSL-rule `platforms` (OS-scan) criterion?** The captured help docs (`vendor/zscaler-help/configuring-ssl-tls-inspection-policy.md:19`, `vendor/zscaler-help/About_SSL_TLS_Inspection_Policy.txt:94`) list "Device Groups" and "Devices" as their own separate criteria and do not name an OS/platform criterion. The `platforms` field maps to none of them by name, and no captured source states the console label for it. The doc previously asserted the console surfaces `platforms` as "Device Groups" without a source — unverified; needs confirmation from a console-facing help page.
-- Transparent vs explicit forwarding edge cases when a user mixes modes — [clarification `zia-11`](../_meta/clarifications.md#zia-11-transparent-vs-explicit-forwarding-mixed-mode)
-- Exact behavior of SSL decision on the URL filtering default rule — if SSL says "Do Not Inspect + Evaluate Other Policies" and URL filtering has no matching rule, does the default URL-filtering action still fire? — [clarification `zia-12`](../_meta/clarifications.md#zia-12-ssl-bypass-interaction-with-url-filtering-default-rule) (partially resolved by Policy Enforcement doc; edge case still open)
+- Transparent vs explicit forwarding edge cases when a user mixes modes — [clarification `zia-11`](kb:zia.ssl-inspection.pipeline:mixed-forwarding)
+- Exact behavior of SSL decision on the URL filtering default rule — if SSL says "Do Not Inspect + Evaluate Other Policies" and URL filtering has no matching rule, does the default URL-filtering action still fire? — [clarification `zia-12`](kb:zia.ssl-inspection.pipeline:bypass-and-default-rule) (partially resolved by Policy Enforcement doc; edge case still open)
 
 ## Resolved clarifications
 
@@ -456,7 +362,7 @@ Pipeline-order explicit sourcing is resolved in [clarification `zia-13`](../_met
 
 ## Cross-links
 
-- URL filtering rule precedence (the next layer) — [`./url-filtering.md`](./url-filtering.md)
+- URL filtering rule precedence (the next layer) — [`zia.url-filtering`](kb:zia.url-filtering)
 - Cloud App Control (evaluated after SSL in the pipeline) — [`./cloud-app-control.md`](./cloud-app-control.md)
 - Cross-product policy evaluation model — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
 - SPL pattern for observing what SSL decision actually fired — `ssl-inspection-observed` in [`../shared/splunk-queries.md`](../shared/splunk-queries.md)

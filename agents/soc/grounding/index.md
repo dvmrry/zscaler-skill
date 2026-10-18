@@ -85,7 +85,7 @@ When instructions are ambiguous, bias toward:
 
 ### `policy`
 
-- [`references/zia/url-filtering.md`](../../../references/zia/url-filtering.md)
+- [`zia.url-filtering`](kb:zia.url-filtering)
 - [`references/zia/ssl-inspection.md`](../../../references/zia/ssl-inspection.md)
 - [`references/zia/cloud-app-control.md`](../../../references/zia/cloud-app-control.md)
 - [`references/zpa/app-segments.md`](../../../references/zpa/app-segments.md)

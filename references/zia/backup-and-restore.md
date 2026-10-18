@@ -68,5 +68,5 @@ generalize those semantics to an API, SDK, Terraform provider, or MCP surface.
 
 - DLP policy behavior: [`./dlp.md`](./dlp.md)
 - Time-interval rule components: [`./time-intervals.md`](./time-intervals.md)
-- URL-category and rule behavior: [`./url-filtering.md`](./url-filtering.md)
+- URL-category and rule behavior: [`zia.url-filtering`](kb:zia.url-filtering)
 - ZIA reference hub: [`./index.md`](./index.md)

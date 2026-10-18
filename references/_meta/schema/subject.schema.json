@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "subject.schema.json",
+  "title": "Subject file: a subject and all of its items",
+  "description": "One file per subject at references/<scope>/<subject-id>.json; its prose is the sibling <subject-id>.md. Items are objects keyed by local ID so JSON Patch paths stay stable.",
+  "type": "object",
+  "required": ["schema_version", "id", "title"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "$ref": "common.schema.json#/$defs/subject-id" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["active", "split"] },
+    "into": { "type": "array", "minItems": 2, "items": { "$ref": "common.schema.json#/$defs/subject-id" } },
+    "aliases": { "$ref": "common.schema.json#/$defs/aliases" },
+    "former_ids": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "binds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/bind-target" }, "uniqueItems": true },
+    "related": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rel", "to"],
+        "properties": {
+          "rel": { "enum": ["depends-on", "interacts-with", "see-also"] },
+          "to": { "$ref": "common.schema.json#/$defs/subject-id" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "claims": { "$ref": "#/$defs/keyed", "additionalProperties": { "$ref": "#/$defs/claim" } },
+    "cases": { "$ref": "#/$defs/keyed", "additionalProperties": { "$ref": "#/$defs/case" } },
+    "divergences": { "$ref": "#/$defs/keyed", "additionalProperties": { "$ref": "#/$defs/divergence" } },
+    "gaps": { "$ref": "#/$defs/keyed", "additionalProperties": { "$ref": "#/$defs/gap" } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "keyed": {
+      "type": "object",
+      "propertyNames": { "$ref": "common.schema.json#/$defs/segment" }
+    },
+    "claim": {
+      "type": "object",
+      "required": ["statement", "tier", "evidence"],
+      "properties": {
+        "statement": { "type": "string", "minLength": 1 },
+        "tier": { "enum": ["A", "B", "C", "D"] },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/evidence" } },
+        "binds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/bind-target" }, "uniqueItems": true },
+        "conditions": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["active", "superseded", "retracted"] },
+        "superseded_by": { "$ref": "common.schema.json#/$defs/item-ref" },
+        "gaps": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/item-ref" }, "uniqueItems": true },
+        "upstream": {
+          "description": "Vendor issue or filing for a tool-behavior claim (SDK or provider defect).",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["status"],
+            "properties": {
+              "url": { "type": "string", "pattern": "^https://" },
+              "status": { "enum": ["unfiled", "filed", "acknowledged", "fixed", "wontfix", "do-not-file"] },
+              "note": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "confidence_override": {
+          "type": "object",
+          "required": ["value", "reason"],
+          "properties": {
+            "value": { "enum": ["high", "medium", "low"] },
+            "reason": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "case": {
+      "description": "Synthetic input plus expected outcome, tied to the claims it exercises.",
+      "type": "object",
+      "required": ["kind", "claims", "config", "request", "expect"],
+      "properties": {
+        "kind": { "enum": ["rule-evaluation", "url-match"] },
+        "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/item-ref" } },
+        "config": { "type": "object" },
+        "request": { "type": "object", "minProperties": 1 },
+        "expect": {
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "verdict": { "enum": ["allow", "block", "ambiguous", "no-match"] },
+            "rule": { "type": "integer" },
+            "at_rule": { "type": "integer" },
+            "category": { "type": "string" },
+            "matches": { "type": "boolean" },
+            "gap": { "$ref": "common.schema.json#/$defs/item-ref" }
+          },
+          "additionalProperties": false
+        },
+        "note": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "divergence": {
+      "type": "object",
+      "required": ["summary", "positions", "impact"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "positions": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["evidence", "says"],
+            "properties": {
+              "evidence": { "$ref": "common.schema.json#/$defs/evidence" },
+              "says": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "impact": { "type": "string", "minLength": 1 },
+        "resolution": {
+          "description": "How the disagreement is settled. Observed behavior (a Tier-B claim) supersedes documentation and SDK-derived inference in the same scope.",
+          "type": "object",
+          "required": ["by", "rule"],
+          "properties": {
+            "by": { "$ref": "common.schema.json#/$defs/item-ref" },
+            "rule": { "enum": ["observed-supersedes-documentation", "observed-supersedes-sdk-inference", "source-rank"] },
+            "note": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "gap": {
+      "type": "object",
+      "required": ["kind", "title", "status"],
+      "properties": {
+        "kind": { "enum": ["semantic", "data"] },
+        "title": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["open", "investigating", "partial", "resolved", "wontfix"] },
+        "former_ids": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "about": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/node-id" }, "uniqueItems": true },
+        "detail": { "type": "string", "minLength": 1 },
+        "blocks": { "type": "string", "minLength": 1 },
+        "resolves_with": {
+          "type": "array",
+          "items": { "enum": ["lab-test", "tenant-data", "support-ticket", "source-read", "operator-experience", "code-read", "design-decision"] },
+          "uniqueItems": true
+        },
+        "resolvable_by": { "type": "array", "items": { "enum": ["iac", "live", "operator", "none"] }, "uniqueItems": true },
+        "live_command": { "type": "string", "pattern": "^zscalerctl " },
+        "resolution": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidence" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

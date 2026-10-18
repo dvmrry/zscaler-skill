@@ -100,7 +100,7 @@ Not in scope (explicitly deferred):
 
 Source: `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md`; `vendor/zscaler-help/zpa-about-isolation-policy.md`; `vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md`.
 
-- **"URL Filter Isolate action — what happens?"** → [`./policy-integration.md`](./policy-integration.md) for the ZIA side, then cross to [`../zia/url-filtering.md`](../zia/url-filtering.md) for rule evaluation.
+- **"URL Filter Isolate action — what happens?"** → [`./policy-integration.md`](./policy-integration.md) for the ZIA side, then cross to [`zia.url-filtering`](kb:zia.url-filtering) for rule evaluation.
 - **"ZPA Isolation Policy — how does it evaluate?"** → [`./policy-integration.md`](./policy-integration.md), then cross to [`../zpa/policy-precedence.md`](../zpa/policy-precedence.md) for the policy-family evaluation order.
 - **"Why did the Isolate rule fail?"** → likely SSL Inspection gap (Smart Isolation requires decrypt) or Malware Protection inbound/outbound toggles off. Cross-product gate — see [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md).
 - **"Isolated session failed / timed out unexpectedly"** → container idle timeout is 10 minutes. ZPA Isolation timeout is the minimum across all configured ZPA timeout policies. See [`./overview.md`](./overview.md).

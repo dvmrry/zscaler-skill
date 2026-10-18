@@ -48,7 +48,7 @@ Text and status codes displayed inside the ZCC tray/menu UI — for example, "Co
 
 HTML pages served by a ZIA Public Service Edge when a URL filtering or Cloud App Control rule blocks a request. These pages are rendered in the user's browser, not by ZCC, and are not the same as ZCC notifications. The user's browser receives an HTTP 403 response with an HTML body; ZCC is merely the tunnel through which the blocked request traveled. Block page content (logo, text, support links) is configured in ZIA, not in the ZCC Portal.
 
-For ZIA block page configuration and how URL filtering rules trigger them, see [`../zia/url-filtering.md`](../zia/url-filtering.md).
+For ZIA block page configuration and how URL filtering rules trigger them, see [`zia.url-filtering`](kb:zia.url-filtering).
 
 Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
 
@@ -288,7 +288,7 @@ Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-c
 
 ### Block-page text in ZIA is not notification text in ZCC
 
-When a ZIA URL filtering rule blocks a URL, the user's browser receives an HTTP 403 response with an HTML block page rendered by the ZIA Public Service Edge. This block page is distinct from any ZCC notification. Operators who ask "how do I change the text the user sees when a site is blocked?" need to be directed to ZIA block page customization, not to the ZCC End User Notifications tab. See [`../zia/url-filtering.md`](../zia/url-filtering.md).
+When a ZIA URL filtering rule blocks a URL, the user's browser receives an HTTP 403 response with an HTML block page rendered by the ZIA Public Service Edge. This block page is distinct from any ZCC notification. Operators who ask "how do I change the text the user sees when a site is blocked?" need to be directed to ZIA block page customization, not to the ZCC End User Notifications tab. See [`zia.url-filtering`](kb:zia.url-filtering).
 
 ZCC does not generate a pop-up notification for every URL block. URL block events are cloud-side; ZCC is the forwarding agent. The ZIA DLP notification is one exception — DLP events can be forwarded back through ZCC to the endpoint — but URL category blocks are not.
 
@@ -338,7 +338,7 @@ Users can disable ZPA reauthentication notifications from within the ZCC client.
 
 ## 11. Cross-links
 
-- ZIA block page configuration and URL filtering rule actions — [`../zia/url-filtering.md`](../zia/url-filtering.md)
+- ZIA block page configuration and URL filtering rule actions — [`zia.url-filtering`](kb:zia.url-filtering)
 - App Profile / Web Policy (per-platform sub-policies, reactivation periods) — [`./web-policy.md`](./web-policy.md)
 - Forwarding Profile and captive portal grace period (FailOpenPolicy, captivePortalWebSecDisableMinutes) — [`./forwarding-profile.md`](./forwarding-profile.md)
 - Install-time parameters that affect notification behavior (disableCaptivePortalNotification, VDI mode) — [`./install-parameters.md`](./install-parameters.md)
