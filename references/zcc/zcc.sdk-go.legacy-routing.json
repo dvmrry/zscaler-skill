@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "id": "zcc.sdk-go.legacy-routing",
+  "title": "ZCC SDK calls in legacy-client mode routed to the ZIA client",
+  "aliases": [
+    "zcc legacy client",
+    "zcc read fails legacy",
+    "errLegacyClientNotSet zcc",
+    "zcc sdk routes to zia"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.auth-lifecycle"
+    }
+  ],
+  "claims": {
+    "generic-legacy-path-targets-zia": {
+      "statement": "In legacy-client mode, the SDK's generic `Read` and `Delete` hand the call to the ZIA legacy client, not the ZCC one. The ZCC-specific request path does use the ZCC legacy client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {",
+          "quotes": [
+            "return c.oauth2Credentials.LegacyClient.ZiaClient.Read(ctx, removeOneApiEndpointPrefix(endpoint), o)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zccrequests.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "return client.oauth2Credentials.LegacyClient.ZccClient.NewRequestDo(method, removeOneApiEndpointPrefix(endpoint), options, body, v)"
+          ]
+        }
+      ]
+    },
+    "zcc-services-use-generic-path": {
+      "statement": "Several ZCC services read or delete through the generic path: device details, trusted networks (v2), notification templates, ZIA posture, forwarding profiles, and web policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", trustedNetworkEndpointV2, networkID), &trustedNetwork)",
+            "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", trustedNetworkEndpointV2, networkID))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/devices/devices.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := service.Client.Read(ctx, fullEndpoint, &deviceDetails)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "err := service.Client.Delete(ctx, endpoint)"
+          ]
+        }
+      ]
+    },
+    "legacy-zcc-reads-fail-or-misroute": {
+      "statement": "So for a direct SDK caller in legacy mode, these ZCC reads and deletes fail when only a ZCC legacy client is configured, and go to the ZIA legacy client when both are.",
+      "tier": "B",
+      "derived_from": [
+        "generic-legacy-path-targets-zia",
+        "zcc-services-use-generic-path"
+      ],
+      "conditions": "Only in the SDK's legacy-client mode.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Affects direct SDK callers only; the ZCC Terraform provider does not use legacy mode."
+        }
+      ]
+    },
+    "zcc-provider-oneapi-only": {
+      "statement": "The ZCC Terraform provider is built for the OneAPI flow only, so it does not normally inherit this defect. The SDK still reads `ZSCALER_USE_LEGACY_CLIENT` from the environment and the provider does not override it, so setting that variable would switch the provider into legacy mode, where these calls fail.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/client/client.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "quotes": [
+            "The package intentionally only",
+            "supports the V3 OneAPI flow — the legacy ZCC V2 client"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "UseLegacyClient  bool `yaml:\"useLegacyClient\" envconfig:\"ZSCALER_USE_LEGACY_CLIENT\"`"
+          ]
+        }
+      ],
+      "conditions": "The provider's intent is quoted; the environment override is in the SDK configuration."
+    }
+  }
+}

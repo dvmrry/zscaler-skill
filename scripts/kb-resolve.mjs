@@ -134,8 +134,9 @@ function claimView(g, node, ctx) {
     ...(d.conditions ? { conditions: d.conditions } : {}),
     ...(d.binds ? { binds: d.binds } : {}),
     ...(d.gaps ? { gaps: d.gaps.map((x) => qualify(node.subject, x)) } : {}),
+    ...(d.derived_from ? { derived_from: d.derived_from.map((x) => qualify(node.subject, x)) } : {}),
     ...(d.status && d.status !== "active" ? { status: d.status } : {}),
-    citations: citations(g, d.evidence, ctx),
+    citations: citations(g, d.evidence || [], ctx),
   };
 }
 

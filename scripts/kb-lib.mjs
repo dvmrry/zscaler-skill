@@ -392,6 +392,8 @@ export function validateGraph(g, { citations = true } = {}) {
       for (const gp of d.gaps || []) expectKind(node.file, node.id, qualify(node.subject, gp), ["gap"]);
       if (d.superseded_by) expectKind(node.file, node.id, qualify(node.subject, d.superseded_by), ["claim"]);
       if (d.status === "superseded" && !d.superseded_by) err(node.file, `${node.id}: superseded claims need superseded_by`);
+      for (const c of d.derived_from || []) expectKind(node.file, node.id, qualify(node.subject, c), ["claim"]);
+      if (d.tier === "A" && !(d.evidence || []).length) err(node.file, `${node.id}: a Tier A claim needs its own evidence; derived claims are Tier B or lower`);
     } else if (node.kind === "case") {
       for (const c of node.data.claims) expectKind(node.file, node.id, qualify(node.subject, c), ["claim"]);
       if (node.data.expect.gap) expectKind(node.file, node.id, qualify(node.subject, node.data.expect.gap), ["gap"]);
@@ -457,7 +459,7 @@ export function validateGraph(g, { citations = true } = {}) {
 /** Every evidence entry in the graph, with the node it belongs to. */
 export function* allEvidence(g) {
   for (const node of g.nodes.values()) {
-    if (node.kind === "claim") for (const [i, ev] of node.data.evidence.entries()) yield { node, ev, where: `${node.id} evidence[${i}]` };
+    if (node.kind === "claim") for (const [i, ev] of (node.data.evidence || []).entries()) yield { node, ev, where: `${node.id} evidence[${i}]` };
     if (node.kind === "gap") for (const [i, ev] of (node.data.evidence || []).entries()) yield { node, ev, where: `${node.id} evidence[${i}]` };
     if (node.kind === "divergence") for (const [i, p] of node.data.positions.entries()) yield { node, ev: p.evidence, where: `${node.id} positions[${i}]` };
     if (node.kind === "type" && node.authored) for (const [i, ev] of (node.data.evidence || []).entries()) yield { node, ev, where: `${node.id} evidence[${i}]` };

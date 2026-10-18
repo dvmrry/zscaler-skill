@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-go.retries",
+  "title": "How the Go SDK retries requests (and replays writes)",
+  "aliases": [
+    "sdk retries",
+    "duplicate rule created",
+    "retry replays post",
+    "giving up after attempts",
+    "retryablehttp",
+    "api error lost after retries"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    }
+  ],
+  "claims": {
+    "retry-policy-ignores-method": {
+      "statement": "The SDK's OneAPI client decides whether to retry from the response or error only, never from the HTTP method: its policy retries configured status codes and edit-lock conflicts, then defers to the retryablehttp default. From v3.8.43 it also stops retrying a 5xx that carries a deterministic API verdict; before that, every 5xx except 501 was retried.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "retryableClient.CheckRetry = checkRetry",
+            "func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {",
+            "return retryablehttp.DefaultRetryPolicy(ctx, resp, err)"
+          ]
+        }
+      ]
+    },
+    "default-retries-connection-errors": {
+      "statement": "The retryablehttp default retries most transport errors (anything except redirect, scheme, header, and certificate failures), 429, and 500-range responses other than 501.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscalerctl",
+          "path": "vendor/github.com/hashicorp/go-retryablehttp/client.go",
+          "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
+          "quotes": [
+            "// The error is likely recoverable so retry.",
+            "if resp.StatusCode == 0 || (resp.StatusCode >= 500 && resp.StatusCode != http.StatusNotImplemented) {"
+          ]
+        }
+      ]
+    },
+    "body-buffered-for-replay": {
+      "statement": "`ExecuteRequest` reads the request body into memory once. retryablehttp rewinds it for its own retries, so POST and PUT bodies are resent intact by the inner retry loop in every audited SDK version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "requestBodyBytes, err = io.ReadAll(body)"
+          ]
+        }
+      ]
+    },
+    "write-replay-on-lost-response": {
+      "statement": "If the server commits a POST or PUT but the client then sees a transport error or a retryable 5xx, the SDK sends the same write again (through retryablehttp's inner loop in every audited version). A create can therefore be applied twice, or report failure after it succeeded.",
+      "tier": "B",
+      "conditions": "Needs a failure after the server commits, which code cannot show happening.",
+      "gaps": [
+        "replay-outcome"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK retry contract) of the 2026-08 provider audit."
+        }
+      ],
+      "derived_from": [
+        "retry-policy-ignores-method",
+        "default-retries-connection-errors",
+        "body-buffered-for-replay"
+      ]
+    },
+    "exhaustion-hid-api-error-before-3-8-43": {
+      "statement": "Before v3.8.43, when retries ran out the SDK returned retryablehttp's bare \"giving up after N attempt(s)\" error and lost the API's status and error body, and it retried every 5xx including permanent errors. v3.8.43 (#449) hands the final response back and stops retrying deterministic 5xx.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.43",
+            "HEAD"
+          ],
+          "quotes": [
+            "// When the retry budget is exhausted, retryablehttp's default behaviour is to",
+            "// drain the body and return a bare \"giving up after N attempt(s)\" error with a",
+            "// The upstream policy retries every 5xx except 501, which makes a permanent"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in zscaler-sdk-go v3.8.43 (#449)."
+        }
+      ]
+    },
+    "provider-sdk-pins": {
+      "statement": "Which SDK each audited provider build carries decides whether it has the v3.8.43 fix: ZIA provider 4.8.3 uses v3.8.44 (fixed); ZPA 4.4.10 uses v3.8.42, ZCC 0.1.0-beta.1 uses v3.8.37, and ZTC 0.2.0 uses v3.8.40 (all before the fix). ZTC 0.2.0 is still the pinned ZTC release.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "go.mod",
+          "at": [
+            "v4.8.3"
+          ],
+          "quotes": [
+            "github.com/zscaler/zscaler-sdk-go/v3 v3.8.44"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "go.mod",
+          "at": [
+            "v4.4.10"
+          ],
+          "quotes": [
+            "github.com/zscaler/zscaler-sdk-go/v3 v3.8.42"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "go.mod",
+          "at": [
+            "v0.1.0-beta.1"
+          ],
+          "quotes": [
+            "github.com/zscaler/zscaler-sdk-go/v3 v3.8.37"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "go.mod",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "github.com/zscaler/zscaler-sdk-go/v3 v3.8.40"
+          ]
+        }
+      ]
+    },
+    "outer-retry-reused-consumed-body-before-3-8-43": {
+      "statement": "Before v3.8.43, the outer retry loop's rate-limit and 5xx paths resent the already-consumed request without rebuilding it, which for a POST or PUT means an empty body. v3.8.43 rebuilds the request from the buffered body on those paths.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.42"
+          ],
+          "after": "// Handle retryable errors with exponential backoff",
+          "quotes": [
+            "time.Sleep(backoffDelay)",
+            "continue"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.42"
+          ],
+          "after": "// Check if context is still valid before sleeping",
+          "quotes": [
+            "time.Sleep(sleepFor)",
+            "continue"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.43",
+            "HEAD"
+          ],
+          "quotes": [
+            "// 409/412 paths do. The previous attempt consumed req.Body, so",
+            "// reusing it here would resend a POST/PUT with an empty body."
+          ],
+          "after": "// Handle retryable errors with exponential backoff"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in zscaler-sdk-go v3.8.43, with the maintainers' own comment. Affects provider builds on earlier SDKs (ZPA 4.4.10, ZCC 0.1.0-beta.1, ZTC 0.2.0)."
+        }
+      ]
+    },
+    "empty-body-resend-rarely-reached": {
+      "statement": "In practice this was rarely reached before v3.8.43: the inner retry loop runs first, and without the v3.8.43 error handler an exhausted inner loop returns an error, so the outer 5xx path saw mainly responses the inner loop never retries, such as 501. v3.8.43 made the outer paths reachable and fixed the body in the same release.",
+      "tier": "B",
+      "derived_from": [
+        "outer-retry-reused-consumed-body-before-3-8-43",
+        "exhaustion-hid-api-error-before-3-8-43",
+        "default-retries-connection-errors"
+      ]
+    }
+  },
+  "gaps": {
+    "replay-outcome": {
+      "kind": "semantic",
+      "title": "What a replayed create actually produces on each API",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying whether a lost-response replay creates a duplicate or fails",
+      "detail": "Where an object's name must be unique, a replayed create may be rejected as a duplicate rather than creating a second object, and the caller then sees a failure for a write that succeeded. Where names are not unique, a true duplicate is possible. Which applies is per endpoint and is server behavior."
+    }
+  }
+}

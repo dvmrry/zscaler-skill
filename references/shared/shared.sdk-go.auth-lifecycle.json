@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-go.auth-lifecycle",
+  "title": "How the Go SDK obtains and renews OneAPI tokens",
+  "aliases": [
+    "sdk token renewal",
+    "terraform hangs on authentication",
+    "cancel does not stop authentication",
+    "sporadic 401",
+    "token refresh race"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.cache"
+    }
+  ],
+  "claims": {
+    "auth-ignores-caller-context": {
+      "statement": "Authentication and token refresh run under the client's own stored context, a never-cancelled context derived from `context.Background()`, not the caller's request context, so cancelling an operation or hitting its deadline does not cancel authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "Context:       context.Background(), // Set default context",
+            "cfg.Context = ctx"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Pass the context from the Configuration along with the other arguments",
+            "authToken, err := Authenticate(c.oauth2Credentials.Context, c.oauth2Credentials, c.oauth2Credentials.Logger)"
+          ],
+          "after": "func (c *Client) authenticate() error {"
+        }
+      ]
+    },
+    "refresh-fixed-sleep": {
+      "statement": "After refreshing a token because the session was invalidated, the SDK waits a fixed two seconds before retrying, and that wait ignores cancellation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Add a small delay before retrying to avoid overwhelming the server",
+            "time.Sleep(time.Second * 2)"
+          ]
+        }
+      ]
+    },
+    "token-read-unlocked": {
+      "statement": "Requests read the access token for the Authorization header without the client lock, while the renewal goroutine and the session-refresh path replace the token under that lock. Under concurrent requests and renewal this is a data race.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "req.Header.Set(\"Authorization\", fmt.Sprintf(\"Bearer %s\", c.oauth2Credentials.Zscaler.Client.AuthToken.AccessToken))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func (c *Client) startTokenRenewalTicker() {",
+          "quotes": [
+            "c.Lock()",
+            "c.oauth2Credentials.Zscaler.Client.AuthToken = authToken"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "stop-channel-unsynchronized": {
+      "statement": "`Close` closes and clears the renewal goroutine's stop channel under the client lock, but the goroutine reads that channel without the lock, so closing a client concurrently with renewal is not race-free.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "case <-c.stopTicker:",
+            "close(c.stopTicker)",
+            "c.stopTicker = nil"
+          ]
+        }
+      ]
+    },
+    "renewal-can-panic-holding-lock": {
+      "statement": "If a renewed token expires within one minute, the next renewal interval is zero or negative and resetting the ticker panics. The panic happens while the renewal goroutine holds the client lock, which it releases only by a later, non-deferred unlock.",
+      "tier": "B",
+      "conditions": "Needs a token lifetime of one minute or less. Relies on Go's time.Ticker.Reset contract (it panics for a non-positive duration); the Go standard library is not a vendored source.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "renewalInterval = time.Until(authToken.Expiry) - (time.Minute * 1)",
+            "ticker.Reset(renewalInterval)"
+          ]
+        }
+      ]
+    }
+  }
+}

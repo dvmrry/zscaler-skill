@@ -137,6 +137,21 @@ test("only an observed (Tier B) claim can settle a divergence by observation", (
   assert.ok(messages(root).some((m) => /needs an observed \(Tier B\) claim/.test(m)));
 });
 
+test("a derived claim names real claims, and Tier A needs its own evidence", () => {
+  const root = tmpRepo({
+    "vendor/fake/doc.txt": "evaluation stops at the first match.",
+    "references/zia/zia.example.json": subject({
+      claims: {
+        "first-match": { statement: "Rules stop at the first match.", tier: "A", evidence: [{ source: "fake-help", path: "doc.txt", quotes: ["stops at the first match"] }] },
+        chained: { statement: "So later rules are skipped.", tier: "A", derived_from: ["first-match", "missing"] },
+      },
+    }),
+  });
+  const errs = messages(root);
+  assert.ok(errs.some((m) => /a Tier A claim needs its own evidence/.test(m)));
+  assert.ok(errs.some((m) => /unknown ID zia\.example:missing/.test(m)));
+});
+
 test("a subject's file name and directory must match its ID", () => {
   const root = tmpRepo({
     "vendor/fake/doc.txt": "evaluation stops at the first match.",

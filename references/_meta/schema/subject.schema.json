@@ -39,11 +39,17 @@
     },
     "claim": {
       "type": "object",
-      "required": ["statement", "tier", "evidence"],
+      "required": ["statement", "tier"],
+      "anyOf": [{ "required": ["evidence"] }, { "required": ["derived_from"] }],
       "properties": {
         "statement": { "type": "string", "minLength": 1 },
         "tier": { "enum": ["A", "B", "C", "D"] },
         "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/evidence" } },
+        "derived_from": {
+          "description": "Chain of evidence: the claims this one follows from. Each link is listed explicitly, per the verification protocol.",
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "$ref": "common.schema.json#/$defs/item-ref" }
+        },
         "binds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/bind-target" }, "uniqueItems": true },
         "conditions": { "type": "string", "minLength": 1 },
         "status": { "enum": ["active", "superseded", "retracted"] },

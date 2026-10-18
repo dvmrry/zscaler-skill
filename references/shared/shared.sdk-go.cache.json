@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-go.cache",
+  "title": "The Go SDK's response cache and request deduplication",
+  "aliases": [
+    "sdk cache",
+    "stale read after write",
+    "terraform sees old rule order",
+    "in-flight request deduplication",
+    "WithCache"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.list-pagination"
+    }
+  ],
+  "claims": {
+    "zia-provider-enables-cache": {
+      "statement": "The ZIA Terraform provider turns on the SDK's response cache for its OneAPI client, with a 10-minute entry lifetime. The provider's \"idle timeout\" setting is actually the cache's cleanup interval, so an expired entry can survive until the next cleanup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/config.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "zscaler.WithCache(true),",
+            "zia.WithCacheTtl(10 * time.Minute), // Cache entries for 10 minutes",
+            "zia.WithCacheTti(8 * time.Minute),  // Idle timeout of 8 minutes"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "cache/go-cache.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "func NewCache(ttl, cleanWindow time.Duration, maxCacheSizeMB int) (Cache, error) {",
+            "CleanWindow:      cleanWindow,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "HEAD"
+          ],
+          "quotes": [
+            "cche, err := cache.NewCache(time.Duration(c.Zscaler.Client.Cache.DefaultTtl), time.Duration(c.Zscaler.Client.Cache.DefaultTti), int(c.Zscaler.Client.Cache.DefaultCacheMaxSizeMB))"
+          ]
+        }
+      ]
+    },
+    "waiters-ignore-cancellation": {
+      "statement": "When a GET for the same URL is already in flight, later identical GETs wait for it on a plain wait group, so a cancelled or timed-out caller stays blocked until the first request finishes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "existingIfr.wg.Wait() // Wait for the in-flight request to complete"
+          ]
+        }
+      ]
+    },
+    "owner-error-not-shared": {
+      "statement": "If the first in-flight GET fails, waiting callers do not receive its error: the error and response fields they check are never set, so each waiter sends the request again.",
+      "tier": "B",
+      "conditions": "The reads are quoted. That nothing assigns the in-flight record's err, resp, or result was established by searching the file at v3.8.44 and HEAD; absence cannot be quoted.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "if existingIfr.err != nil {",
+            "// If no error but not cached, something went wrong - proceed with normal request"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK cache contract) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "two-owners-possible": {
+      "statement": "Claiming a URL as in flight is a separate check and store rather than one atomic step, so two GETs that miss the cache at the same moment can both send the request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "if inFlight, exists := c.inFlightRequests.Load(key); exists {",
+            "c.inFlightRequests.Store(key, ifr)"
+          ]
+        }
+      ]
+    },
+    "write-invalidates-but-inflight-get-repopulates": {
+      "statement": "A write clears the cached entries for its URL and parent collection before it is sent, and caching a GET response is unconditional. So a GET that started before the write took effect can store the pre-write response after the invalidation, and that response is then served until it expires.",
+      "tier": "B",
+      "conditions": "Needs a GET to start before a write and finish after it. The code allows it; how often it happens depends on timing.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "// For non-GET requests, invalidate cache",
+            "c.oauth2Credentials.CacheManager.Set(key, cache.CopyResponse(resp))"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 1 (SDK cache contract) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "parent-collection-invalidation": {
+      "statement": "A write also clears the parent collection's cached list. The SDK added this because a stale collection read after a child change broke the ZIA provider's rule reordering (SUP-3988).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "// any client logic that mutates and immediately re-reads",
+            "// (e.g. terraform-provider-zia rule reordering — SUP-3988)."
+          ]
+        }
+      ]
+    },
+    "prefix-invalidation-over-broad": {
+      "statement": "Invalidation matches cache keys by raw string prefix, and the parent of a collection path is the product's API root, so one create can clear every cached ZIA read. This costs extra API reads; it never serves wrong data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "cache/go-cache.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "if strings.HasPrefix(e.Key(), prefix) {"
+          ]
+        }
+      ]
+    },
+    "cached-body-read-errors-ignored": {
+      "statement": "When serving from cache, an error reading the cached body is ignored: the caller gets whatever was read, and no error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "// Check cache first",
+          "quotes": [
+            "respData, err := io.ReadAll(cachedResp.Body)",
+            "if err == nil {",
+            "return respData, cachedResp, req, nil"
+          ]
+        }
+      ]
+    }
+  }
+}

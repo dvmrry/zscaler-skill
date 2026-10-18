@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "id": "zia.terraform.activation",
+  "title": "When the ZIA Terraform provider activates configuration",
+  "aliases": [
+    "terraform activation zia",
+    "ZIA_ACTIVATION",
+    "changes went live without activation",
+    "unexpected activation",
+    "auth settings urls activation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-go.write-encoding"
+    }
+  ],
+  "claims": {
+    "activation-env-gate": {
+      "statement": "The ZIA provider activates configuration after a write only when the `ZIA_ACTIVATION` environment variable parses as true; otherwise changes are left staged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "activationEnv, exists := os.LookupEnv(\"ZIA_ACTIVATION\")",
+            "activationBool, err := strconv.ParseBool(activationEnv)"
+          ]
+        }
+      ]
+    },
+    "activation-call-selects-nothing": {
+      "statement": "The provider activates by posting an activation whose only field is a status of `ACTIVE`; the request names no particular change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "req := activation.Activation{Status: \"ACTIVE\"}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/activation/activation.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "Status string `json:\"status\"`"
+          ]
+        }
+      ]
+    },
+    "activation-is-tenant-wide": {
+      "statement": "So a provider activation publishes pending ZIA configuration, not only the change Terraform just wrote. The sources do not say whether pending changes are per admin or tenant-wide.",
+      "tier": "B",
+      "derived_from": [
+        "activation-call-selects-nothing"
+      ],
+      "conditions": "Inferred from the request having no change selection and from ZIA requiring an explicit activation for configuration changes.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.md",
+          "quotes": [
+            "Activation required: For ZIA and Cloud & Branch Connector APIs, configuration changes must be explicitly activated with POST to `/status/activate`"
+          ]
+        }
+      ],
+      "gaps": [
+        "activation-scope"
+      ]
+    },
+    "auth-settings-update-unconditional": {
+      "statement": "`zia_auth_settings_urls` is the one resource that activates implicitly without checking `ZIA_ACTIVATION`: its create honors the variable, its update always activates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_auth_settings_urls.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceAuthSettingsUrlsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if shouldActivate() {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_auth_settings_urls.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func resourceAuthSettingsUrlsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// Trigger activation after creating the rule label",
+            "if activationErr := triggerActivation(ctx, zClient); activationErr != nil {"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (activation contract) of the 2026-08 provider audit. Still present at the pinned v4.8.8."
+        }
+      ]
+    },
+    "only-unguarded-call": {
+      "statement": "Every other implicit activation (`triggerActivation` after a write) is guarded by `ZIA_ACTIVATION`: 220 guarded calls at v4.8.3 and 223 at the pin, with this update the only unguarded one at both. The explicit `zia_activation_status` resource activates unconditionally by design.",
+      "tier": "B",
+      "conditions": "Counted by scanning every resource file at v4.8.3 and HEAD for triggerActivation calls preceded within five lines by shouldActivate(); counts cannot be quoted.",
+      "derived_from": [
+        "auth-settings-update-unconditional"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_activation.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := activation.CreateActivation(ctx, service, req)"
+          ]
+        }
+      ]
+    },
+    "update-publishes-unrelated-changes": {
+      "statement": "Updating `zia_auth_settings_urls` therefore publishes pending ZIA changes beyond its own, even when `ZIA_ACTIVATION` is unset and the operator expects changes to stay staged.",
+      "tier": "B",
+      "derived_from": [
+        "auth-settings-update-unconditional",
+        "activation-is-tenant-wide"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 3 (activation contract) of the 2026-08 provider audit."
+        }
+      ],
+      "gaps": [
+        "activation-scope"
+      ]
+    }
+  },
+  "gaps": {
+    "activation-scope": {
+      "kind": "semantic",
+      "title": "Whether a ZIA activation publishes only the caller's pending changes or every admin's",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying whether an implicit activation can publish another admin's staged work",
+      "detail": "Test with two API clients or admins: stage a change as each, activate as one, and check whether the other's change went live."
+    }
+  }
+}

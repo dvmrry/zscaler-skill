@@ -191,6 +191,18 @@ ID**, not arrays, so JSON Patch paths stay stable for CI-authored patches.
 
 **Confidence is derived from tier and evidence, not stored.** An override needs a stated reason.
 
+**Chains and tool behavior** (added with the provider-defect slice):
+
+- **`derived_from`** lists the claims a chain-of-evidence claim follows from, so each link is
+  explicit. A claim needs `evidence` or `derived_from`; Tier A always needs its own evidence.
+- **Evidence `at`** lists git refs (an audited tag, and `HEAD` for the pin) where the quotes must
+  hold. A bump that removes cited code fails the `HEAD` anchor, which flags a candidate fix.
+- **`upstream`** records a tool defect's vendor status: unfiled, filed, acknowledged, fixed,
+  wontfix, or do-not-file.
+- **Tool claims are about the client, not the product.** SDK and provider code proves what the
+  client sends and how it reacts. A consequence that depends on the server's reply is a gap, or a
+  conditional Tier B claim, never a Tier A fact.
+
 ### Prose
 
 `references/zia/url-filtering.rule-order.md` sits beside its subject file. It holds the
