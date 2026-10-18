@@ -1,8 +1,8 @@
 # Getting Started
 
-This walkthrough is for a private fork or local checkout that will use tenant
-snapshots and local runtime data. Public upstream does not track runtime data;
-create a local runtime-data mount before using snapshot-backed workflows. The
+This walkthrough is for a private fork or local checkout that will use the company
+overlay, IaC, and local runtime data. Public upstream does not track runtime data;
+create a local runtime-data mount before using overlay-backed workflows. The
 default mount path is `_data/`, and local installs may configure a different
 relative mount path in the committed `zscaler-skill-runtime.json`.
 
@@ -76,7 +76,7 @@ Start a Claude Code session and confirm the skill loads with `/skills`.
 
 Credentials are consumed by external tooling — preferably the read-only
 `zscalerctl` companion once it is available, or a private data-repo populator —
-that produces the `_data/snapshot/` dumps this skill reads. No script in this
+that the skill uses for live reads (tier 3). No script in this
 repo connects to Zscaler directly.
 
 Create the API client in ZIdentity. This is a one-time setup and requires
@@ -88,7 +88,7 @@ live OneAPI docs if your tenant UI differs:
    `https://admin.<your-vanity-domain>.zslogin.net` or the gov/ten equivalent.
 2. Find the API client management page, commonly under
    **Integrations -> API Clients -> Add Client**.
-3. Grant the client read scopes for the products whose configuration you snapshot
+3. Grant the client read scopes for the products whose configuration you read
    — typically ZIA (`zia.*`), ZPA (`zpa.*`), and ZCC (`zcc.*`).
 4. On save, copy the **Client ID** and either the **Client Secret** or the
    downloadable private key PEM.
@@ -129,7 +129,7 @@ OneAPI or legacy.
 ## Set Up Runtime Data
 
 `_data/` is the default ignored runtime-data mount. Create it from a private
-data repository or local directory before relying on tenant snapshots, schema
+data repository or local directory before relying on the overlay, IaC, schema
 hints, or case history:
 
 ```bash
@@ -190,20 +190,19 @@ keeps `_data/` ignored. The ignored setup file remains optional and is only
 needed when a workstation wants `setup-data-mount.mjs` to clone or copy from a
 private source.
 
-## Populate the snapshot
+## Configure the overlay
 
-`_data/snapshot/` (or `<configured-mount>/snapshot/`) holds sanitized tenant
-configuration the skill cites when answering tenant-specific questions, in a
-cloud-first layout — `<mount>/snapshot/<cloud>/<product>/*.json` (see
-[`docs/data-contract/`](./data-contract/)).
-
-Populate it out of band: a private runtime-data repository, or a sanitized dump
-from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI.
-The intended pre-release companion model is: `zscalerctl` observes tenant state,
-the runtime-data mount stores its fast local snapshots and diffs, and this
-skill interprets that observed state. Credentialed tenant reads are out of
-scope for this repo.
-Without a snapshot or explicit command output, most tenant-specific answers
+Tenant-specific answers come from three tiers (see `SKILL.md` "Answer tiers"):
+the knowledge graph (`node scripts/kb.mjs resolve <id | text>`, public index plus
+the company overlay's records), the overlay's IaC when its `overlay.json`
+declares `iac`, and live read-only
+[`zscalerctl`](https://github.com/dvmrry/zscalerctl) when it declares `live`.
+The overlay lives at `$ZSCALER_KB_OVERLAY` or `<mount>/overlay/` (see
+[`docs/data-contract/`](./data-contract/)). Live results are never kept as a standing tenant
+cache; a case may save them under its own `evidence/`. The intended pre-release companion model is:
+`zscalerctl` observes tenant state, and this skill interprets that observed
+state. Credentialed tenant reads are out of scope for this repo.
+Without an overlay or explicit command output, most tenant-specific answers
 revert to "I can't verify, here's the general mechanism."
 
 See [`scripts/README.md`](../scripts/README.md) for the full inventory.
@@ -217,4 +216,5 @@ cat references/_meta/evals/evals.json | jq '.evals[] | {id, prompt}'
 Each eval entry includes `assertions`, `must_cite_files`, `must_not_say`, and
 `expected_confidence` so an eval harness can grade structurally, not just on
 prose. Tenant-specific prompts use `tenant_data_required: true` so the harness
-can expect a decline-with-helpful-pointers when `_data/snapshot/` is empty.
+can expect a decline-with-helpful-pointers when no overlay IaC or live
+`zscalerctl` data is available.

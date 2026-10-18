@@ -694,12 +694,29 @@ The coverage diff against the retired docs, with the corrections found, is in
 5. **Field ownership.** `zscalerctl` owns field shape and descriptions; the KB owns behavior.
 6. **Three tiers, strictly.** There is no stored snapshot tier.
 
+## Converting the remaining docs
+
+The provider-defect slice (2026-10-18) converted the four providers' audit into 31 subjects
+(`*.terraform.*`, `*.sdk-go.*`, `shared.*`). The remaining legacy docs convert by kind:
+
+- **Topic and reasoning docs** become subjects, one per question an agent asks, each with a
+  coverage table (moved, corrected, dropped with a reason, or left for another area). An author
+  writes the subject files and proposes the anchor map and ledger mapping; the integration step
+  (the `MOVES` table, `migrate-links`, deleting the doc, the ledger, routing and evals) is done
+  serially by the maintainer, never by parallel authors.
+- **API divergence docs** become divergence records.
+- **Log schema docs** become authored log types, following `zia/types/web-log.json`.
+- **Generated catalogs** (`api-schemas`, `api-postman-schemas`, `sdk`, `terraform`,
+  `legacy-endpoints`, `api`) are replaced by generated type records and a generated SDK and API
+  surface layer, not converted by hand.
+- **`snapshot-schema` docs** are deleted with the snapshot tier itself (saved dumps are dropped; the
+  answer tiers are knowledge, IaC, then live `zscalerctl`). The agent playbooks, data contract,
+  setup skill and docs that still read `_data/snapshot` move to those tiers in the same change.
+- **`index.md` and `overview.md`** are deleted when their area's routing points at the resolver.
+
 ## Deferred
 
 - HTML publishing and the MCP wrapper.
 - Value-vocabulary records.
 - Adjacent systems (path roles, `system` and `evidence-source` records).
 - The help-capture mirror and its sitemap-driven capture script.
-- **Terraform provider defects** — the planned second slice, from the owner's audit of the four
-  providers. Defects become records tied to provider and version, with upstream issue links.
-  Company-specific context never enters the public index.

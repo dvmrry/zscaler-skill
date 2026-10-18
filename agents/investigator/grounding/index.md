@@ -20,7 +20,7 @@ author-status: draft
 # Investigator grounding - troubleshooting discipline and symptom routing
 
 Use this grounding index before `/z-investigator` Step 2 chooses references,
-snapshots, logs, or symptom cards.
+tenant config, logs, or symptom cards.
 
 ## Public troubleshooting anchors
 
@@ -70,7 +70,7 @@ say so and continue from product references plus scoped evidence.
 ## Discipline
 
 - Grounding selects what to read next; it is not evidence by itself.
-- Product references describe possible behavior. Tenant snapshots, logs, API
+- Product references describe possible behavior. Tenant IaC, live `zscalerctl` reads, logs, API
   output, or user-provided evidence establish case-specific truth.
 - If Step 2 loads no grounding card, record `Grounding files loaded: none` so
   skipped grounding is visible.

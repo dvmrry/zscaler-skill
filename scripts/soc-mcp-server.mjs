@@ -256,7 +256,7 @@ const TOOLS = [
         },
         evidence_type: {
           type: "string",
-          enum: ["snapshot", "siem", "api", "log"],
+          enum: ["iac", "siem", "api", "log"],
           description: "Evidence type (default: snapshot).",
         },
       },

@@ -34,9 +34,10 @@ Read these *before* interpreting any web log or transaction record. SSL inspecti
 
 - `references/zia/ssl-inspection.md`
 
-## Inspect snapshot
+## Inspect tenant config
 
-- `_data/snapshot/<cloud>/zia/ssl-inspection-rules.json`
+- The overlay's IaC for `zia/ssl-inspection-rules` (when `overlay.json` declares `iac`)
+- `zscalerctl zia ssl-inspection-rules list` (live, read-only; only when IaC cannot answer or for drift)
 
 ## Use runtime logs only when
 

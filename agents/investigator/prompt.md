@@ -31,7 +31,7 @@ author-status: draft
 
 This is the playbook invoked by the `/z-investigator` slash command (Claude Code and Devin). It establishes investigation mode for a Zscaler troubleshooting task: discovery journal, citation discipline, hypothesis prioritization, anti-fabrication.
 
-Load and follow [`harness.md`](./harness.md) alongside this prompt. The harness owns phase order, output shape, checkpoint halts, journal creation timing, and snapshot-load discipline. This prompt owns investigator reasoning, grounding, source preference, and evidence discipline.
+Load and follow [`harness.md`](./harness.md) alongside this prompt. The harness owns phase order, output shape, checkpoint halts, journal creation timing, and tenant-config load discipline. This prompt owns investigator reasoning, grounding, source preference, and evidence discipline.
 
 ## Mode
 
@@ -43,7 +43,7 @@ Investigation is hypothesis-driven, not doc-driven. For every turn, do these in 
 
 1. **State the active hypothesis** — cite the journal claim by `# H<n>` or short tag.
 2. **Name the signal/evidence needed** to validate or invalidate it. Be specific: which field, which file, which query.
-3. **Fetch (or propose) the cheapest source** that closes the gap. RCA is a mismatch between **expected behavior** (product reference) and **observed reality** (tenant config, runtime signal). Source preference: product reference → `zscalerctl`-generated snapshot/diff in the runtime-data mount (`_data/` by default) → operative-directory evidence → bounded read-only `zscalerctl` command output → script logs → SIEM/runtime logs → portal. One source per turn.
+3. **Fetch (or propose) the cheapest source** that closes the gap. RCA is a mismatch between **expected behavior** (product reference) and **observed reality** (tenant config, runtime signal). Source preference: product reference → the overlay's IaC (when `overlay.json` declares `iac`) → operative-directory evidence → bounded read-only `zscalerctl` command output (when `overlay.json` declares `live`) → script logs → SIEM/runtime logs → portal. One source per turn.
 4. **Update the journal** — move the claim's status based on what the evidence showed. `Open (likely/uncertain)` → `Confirmed (medium/high)` if validated, `Ruled out` if invalidated, `Stale` if the underlying state changed.
 5. **Pick the next hypothesis or evidence source** and surface it in `Next evidence needed` for the journal's top Open claim.
 
@@ -54,7 +54,7 @@ The loop is recursive: every turn after the first journal output follows it. Hal
 Runtime-data path convention: examples use `_data/` as the default mount. If
 `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
 `runtimeData.mountPath`, substitute that configured mount path for `_data` in
-snapshot, case, schema, audit, and SOC-review paths.
+overlay, IaC, case, schema, audit, and SOC-review paths.
 
 During Step 2, after product scope is known, check the matching
 `<mount>/knowledge/<product>/` directory plus `<mount>/knowledge/shared/` for a
@@ -100,13 +100,13 @@ Follow the methodology in [`investigator/methodology.md`](./methodology.md):
 Priority order when multiple gaps exist (ask the highest unresolved one first):
 
 1. Working directory — if unknown. Blocks the journal save.
-2. Tenant cloud — if unspecified. Blocks Step 2 snapshot loading.
+2. Tenant cloud — if unspecified. Blocks Step 2 IaC or live tenant reads.
 3. Scope — if ambiguous (one user / many / all). Shapes hypothesis prioritization.
 4. Pre-collected logs — only after the blocking ones above are resolved. Shapes Step 2 query planning, but isn't blocking; if the user doesn't volunteer this in their framing, it can be folded into Step 1's closing multi-choice as an option rather than asked as a dedicated clarification turn.
 
 ## First response
 
-The phase sequence and literal output shapes are defined in [`harness.md`](./harness.md). Do not compress Step 1, Step 2, and Step 3 into one response. Do not generate hypotheses, load snapshot files, or write the full journal before the harness checkpoint allows it.
+The phase sequence and literal output shapes are defined in [`harness.md`](./harness.md). Do not compress Step 1, Step 2, and Step 3 into one response. Do not generate hypotheses, load tenant-config sources, or write the full journal before the harness checkpoint allows it.
 
 When invoked, do **one** of two things based on whether any blocking unknown exists in the framing:
 
@@ -133,7 +133,7 @@ perceived relevance.**
 
 **b. Use your file-read tool to load the canonical product / feature reference.** If the framing names a Zscaler product or feature, load the relevant reference before forming a hypothesis.
 
-**Symptom grounding — check first.** Before using the keyword-based mapping below, load [`grounding/index.md`](./grounding/index.md) during Step 2 and check for a matching symptom shape. If one matches, load the grounding card and use its `Load docs` + `Inspect snapshot` lists as the grounding plan, and treat its `Expected behavior anchors` as the doc sections to read first (not just the file at the file level). Grounding cards exist because real Zscaler troubleshooting needs *clusters* of refs read together (segment + server-group + connector chain; URL filtering + Cloud App Control; SSL inspection + bypass rules) — a single keyword match isn't usually enough. Available grounding cards:
+**Symptom grounding — check first.** Before using the keyword-based mapping below, load [`grounding/index.md`](./grounding/index.md) during Step 2 and check for a matching symptom shape. If one matches, load the grounding card and use its `Load docs` + `Inspect tenant config` lists as the grounding plan, and treat its `Expected behavior anchors` as the doc sections to read first (not just the file at the file level). Grounding cards exist because real Zscaler troubleshooting needs *clusters* of refs read together (segment + server-group + connector chain; URL filtering + Cloud App Control; SSL inspection + bypass rules) — a single keyword match isn't usually enough. Available grounding cards:
 
 - [`grounding/zpa-connector-assignment.md`](./grounding/zpa-connector-assignment.md) — connector assignment failures, empty `Connector` LSS field, "no connector available."
 - [`grounding/zpa-segment-matching.md`](./grounding/zpa-segment-matching.md) — segment scope, specificity, multi-segment overlap, port-mismatch.
@@ -172,7 +172,7 @@ Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural
 
 - **User-pointed path takes priority.** If the framing contains a path or slug (e.g., `_data/cases/test-foo/`, `2026-04-30-ci-silent-failures`), that directory is the operative artifact — read its `journal.md` (if any) and `evidence/*` first. The user is telling you where the work lives; respect the pointer instead of creating a sibling. This directory is also the save target for Step 6.
 - **Current case's `evidence/` directory** — if `_data/cases/<operative-slug>/evidence/` exists and has files, read them before asking the user what to investigate. The user may have placed CI logs, API dumps, or screenshots there that already carry the answer. The same applies to evidence files attached to the current chat (paste-ins, file uploads).
-- **Tenant API data / config snapshots** — `_data/snapshot/<cloud>/` (e.g., `_data/snapshot/zs1/`, `_data/snapshot/zs2/`) is the canonical location for offline dumps of API-derived tenant config: URL filtering rules, access policies, segments, connector groups. In Step 2, enumerate the cloud snapshot directory first, then load only the harness-approved entry points selected from that enumeration — do not load the whole per-cloud subtree. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Forks may use a slightly different layout (e.g., `_data/<cloud>/` directly without the `snapshot/` prefix); if the canonical cloud path is empty, try that exact `_data/<cloud>/` fallback and show both attempts before assuming no snapshot exists. Do not use the fallback to paper over a missing product subtree: if `_data/snapshot/zs2/` exists but `_data/snapshot/zs2/zpa/` is absent, report that no ZPA snapshot subtree was found for `zs2` and continue from references/evidence instead of inferring tenant ZPA state.
+- **Tenant config (IaC and live)** — `node scripts/kb.mjs resolve <type-id | text>` reports which tiers the company overlay offers. When `overlay.json` declares `iac`, the overlay's IaC files are the source for URL filtering rules, access policies, segments, connector groups; when it declares `live`, read-only `zscalerctl` answers what IaC cannot or checks drift. The overlay lives at `$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`. In Step 2, enumerate the overlay's IaC first, then load only the harness-approved entry points selected from that enumeration — do not load the whole IaC tree. The cloud is inferable from the tenant's API base URL (`zsapi.zscaler.net` ⇒ `zs1`, `zsapi.zscalerthree.net` ⇒ `zs3`, etc. — see [`../shared/cloud-architecture.md`](../../references/shared/cloud-architecture.md) if unfamiliar). Do not paper over a missing product: if the overlay's IaC has no ZPA coverage for `zs2`, report that no ZPA IaC was found and continue from references/evidence (or a drafted read-only `zscalerctl` command) instead of inferring tenant ZPA state.
 - **Script outputs** — `_data/schemas/` holds dumped output from skill scripts (issue-watch, find-asymmetries, hygiene digests). Relevant if the framing involves a recent skill-script run.
 
 **Do not browse sibling case directories.** Unless the user explicitly points at a specific case directory, do not `ls _data/cases/`, do not read any other case's `journal.md`, and do not surface "this looks similar to a prior case" to the user. Cross-pollinating findings between investigations contaminates evidence and produces false confidence; the discipline for safely re-using prior journals isn't refined enough yet. Stay scoped to the operative directory the user named (or a fresh slug if none was named).
@@ -185,7 +185,7 @@ Grounding files loaded:
   - references/shared/source-ip-anchoring.md
   - references/zpa/app-connector.md
   - references/zpa/logs/access-log-schema.md
-  - _data/snapshot/zs2/url-filtering-rules.json
+  - overlay IaC for zia/url-filtering-rules
 ```
 
 If you loaded zero grounding files in Step 2, state explicitly: `Grounding files
@@ -208,14 +208,14 @@ Don't investigate yet. Name the source you'd consult to confirm or rule out each
 
 **Source preference order — per hypothesis, expected-vs-observed first, queries last.** For each hypothesis you generated in Step 3, walk this ladder to pick the cheapest evidence source that can confirm or rule out *that specific hypothesis*. The ladder applies **per-hypothesis** — it is NOT a global stop condition. Finding evidence at one tier for hypothesis #1 does not mean you skip naming sources for hypotheses #2, #3, #4. **Every hypothesis must have a named evidence source.**
 
-RCA is fundamentally **expected vs observed**: the product reference says what *should* happen; the snapshot / log / API says what *is* happening. The gap between them is the finding.
+RCA is fundamentally **expected vs observed**: the product reference says what *should* happen; the IaC / live read / log / API says what *is* happening. The gap between them is the finding.
 
 1. **Product reference** — what's the *expected* behavior? Look at the ZIA / ZPA / ZCC / ZDX / ZIdentity / shared reference doc that covers the framing's product or feature. The framing→file mapping in Step 2b is your routing table for picking the right doc. This tier is first because it grounds *what should be true* before you check what is true. Skipping it produces hypotheses anchored in the wrong product mental model (ZIA allow-by-default vs ZPA deny-by-default; per-app vs per-segment; IdP-claim vs SCIM-claim).
-2. **Tenant snapshot** — `_data/snapshot/<cloud>/` (or fork-specific `_data/<cloud>/`). API-derived config dumps for *this* tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any on-demand read. Snapshots can be stale; if state-drift matters for the question, refresh via the fork’s snapshot process — don't bypass to a one-off raw read.
+2. **Tenant IaC** — the overlay's IaC files, when `overlay.json` declares `iac`. Config for *this* tenant: connector groups, segments, rules, profiles. **This is the canonical source for "what's actually configured"** — use it before any on-demand read. IaC reflects the last backfill and can be stale; if state-drift matters for the question, go to tier 6 (live read-only `zscalerctl`) rather than a one-off raw read.
 3. **Operative directory** — `_data/cases/<operative-slug>/evidence/` (read `MANIFEST.md` first to see what's already captured) and the existing `journal.md` claims. The user may have already provided the answer; reading it costs nothing.
 4. **Script outputs** — `_data/schemas/`. Recent script output (issue-watch digests, find-asymmetries, hygiene digests).
 5. **Runtime logs / SIEM** — Splunk / Sentinel / Elastic / Sumo / Chronicle. Use only when the question is about **runtime / log-flow data** (transactions, sessions, events) rather than configuration. Per-SIEM emission discipline lives in [`../siem-emission-discipline.md`](../siem-emission-discipline.md), a required read for this role — loaded up front as the SIEM/tenant-data safety boundary, so its rules are in hand before any emission.
-6. **On-demand read-only `zscalerctl` read** — only when the snapshot doesn't have the answer and the question requires *now-state* (in-flight session counts, current connector status, etc.). Draft a bounded read-only `zscalerctl --format json` command (`list`/`get`/`show`/`dump`/`diff`); do not fall back to raw APIs or write-lane tests. Save the returned JSON to `evidence/` per the manifest convention so the next investigation can use it from disk.
+6. **On-demand read-only `zscalerctl` read** — only when `overlay.json` declares `live` and IaC does not cover the type, field or value, or the question is drift or requires *now-state* (in-flight session counts, current connector status, etc.). Draft a bounded read-only `zscalerctl --format json` command (`list`/`get`/`show`/`dump`/`diff`); do not fall back to raw APIs or write-lane tests. Save the returned JSON to `_data/cases/<slug>/evidence/` per the manifest convention and cite it in the journal; case evidence is the investigation's record, not a cache. Do not keep live reads as a standing tenant cache outside a case.
 7. **Portal / admin console** — last resort, manual lookup. Cite the navigation path in the source field; if the result is informative enough to keep, screenshot to `evidence/` with a manifest entry.
 
 How to apply, per hypothesis:
@@ -228,7 +228,7 @@ What this rule does NOT do:
 
 - Does not replace Step 2 grounding. Schemas and product references still apply regardless of where evidence ultimately lives.
 - Does not gate hypothesis generation. Generate the full hypothesis set in Step 3 first; THEN walk the ladder per hypothesis.
-- Does not mean "if a snapshot exists, you're done." The snapshot answers some questions; the journal still needs hypotheses, evidence-per-hypothesis, and verification.
+- Does not mean "if IaC covers it, you're done." IaC answers some questions; the journal still needs hypotheses, evidence-per-hypothesis, and verification.
 
 The point of disk-first is **avoiding redundant queries**, not stopping investigation early. Calling out to a SIEM / API / portal when `_data/` has the answer wastes the user's tokens; treating a single on-disk file as the answer to the entire investigation is the opposite failure — confidence without coverage.
 
@@ -236,7 +236,7 @@ Files added to `evidence/` follow the naming and manifest convention in [`../../
 
 ### 5. Output the journal
 
-Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncertain)` claims, plus the proposed next investigation step. Use `Open (likely)` only when loaded tenant snapshot, runtime evidence, or user-provided evidence points toward that hypothesis. If only product references were loaded and no tenant/runtime evidence is available, use `Open (uncertain)` and state that the hypothesis is reference-grounded only.
+Render the discovery journal with hypotheses as `Open (likely)` or `Open (uncertain)` claims, plus the proposed next investigation step. Use `Open (likely)` only when loaded tenant IaC, live-read, runtime evidence, or user-provided evidence points toward that hypothesis. If only product references were loaded and no tenant/runtime evidence is available, use `Open (uncertain)` and state that the hypothesis is reference-grounded only.
 
 ### 6. Save the journal to disk
 
@@ -276,8 +276,8 @@ Emit as plain markdown — never inside a code fence:
 **Next-evidence rule.** Every claim with status `Open (likely)` or `Open (uncertain)` MUST populate `Next evidence needed` with a concrete action — query text, file path + specific field, or API endpoint + filter. Vague entries like *"check logs"* or *"look at config"* are insufficient. Claims with `Confirmed (high)`, `Confirmed (medium)`, `Ruled out`, `Stale`, or `Resolved` may use `-` or a brief revalidation note (e.g., *"re-check after policy update"*). The column is what makes the next turn's action obvious without re-deriving it.
 
 **Evidence-basis rule.** The `Notes` column must explicitly say whether the
-hypothesis is `reference-grounded`, `snapshot-grounded`, `runtime-evidence
-grounded`, or `mixed`. If tenant snapshot or runtime evidence was unavailable,
+hypothesis is `reference-grounded`, `iac-grounded`, `live-read-grounded`, `runtime-evidence
+grounded`, or `mixed`. If tenant IaC, live-read, or runtime evidence was unavailable,
 say so plainly; do not imply tenant-specific ZPA configuration state from
 reference docs alone.
 
@@ -354,7 +354,7 @@ Do not load the diagnostics template during ordinary grounding or first response
 Cross-cutting discipline docs and methodology supplements are listed as `dependencies:` in this prompt's frontmatter and referenced in the runtime adapter. `harness.md` is the exception: load it with this prompt because it is part of the investigator runtime contract. The other files are Level-3 resources in the Anthropic Skills sense — load each only when its trigger condition applies. Always-loaded short summaries are inlined here so the active rules survive even when the full reference isn't loaded.
 
 - [`investigator/methodology.md`](./methodology.md) — discovery journal anti-patterns, handoff format, claim-status guidance, worked examples. **Load when:** investigation is stuck, drifting, preparing a handoff, resolving claim-status ambiguity, or you need anti-pattern examples.
-- [`investigator/harness.md`](./harness.md) — phase order, checkpoint halts, output shapes, early journal creation, snapshot-load discipline. **Load with this prompt**; it is part of the investigator runtime contract.
+- [`investigator/harness.md`](./harness.md) — phase order, checkpoint halts, output shapes, early journal creation, tenant-config load discipline. **Load with this prompt**; it is part of the investigator runtime contract.
 - [`investigator/grounding/index.md`](./grounding/index.md) — troubleshooting discipline and symptom-card map. **Load during Step 2** before selecting grounding cards or product references.
 - [`investigator/diagnostics/template.md`](./diagnostics/template.md) — authoring template for reusable diagnostics. **Load when:** creating or reviewing a verified diagnostic sequence; do not load for ordinary case grounding.
 - [`../siem-emission-discipline.md`](../siem-emission-discipline.md) — agent execution modes, query plumbing, public/private boundary. **Required read** — loaded up front as the SIEM/tenant-data safety boundary, not deferred to emit time.

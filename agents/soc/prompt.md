@@ -52,7 +52,7 @@ A `/z-soc` invocation includes a scope and optionally a threat-model frame and a
 | **Scope** | `ZPA admin RBAC`, `ZIA URL filtering rules`, `telemetry coverage`, `Salesforce app segment`, `the whole tenant` |
 | **Subtype** (optional) | One of: `policy`, `access`, `coverage`, `config`, `activity` (see § Subtypes). If omitted, infer from scope or apply the general posture lens. |
 | **Threat model** (optional) | `external attacker w/ stolen credentials`, `compromised admin account`, `data exfil via cloud apps`, `ransomware lateral movement`, or "general" |
-| **Tenant cloud** (helps) | `zs2`, `zs3`, etc. — lets the agent locate snapshot data |
+| **Tenant cloud** (helps) | `zs2`, `zs3`, etc. — lets the agent locate IaC or live data |
 
 Minimum viable framing: scope + at least one subtype hint, OR scope alone (agent infers subtype). If scope is missing, ask **one** clarifying question.
 
@@ -60,7 +60,7 @@ Minimum viable framing: scope + at least one subtype hint, OR scope alone (agent
 
 Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/index.md), and the audit register format and severity / status enums from [`auditor/methodology.md`](../auditor/methodology.md), with SOC-specific extensions:
 
-- Every finding cites a source: snapshot file, SIEM query result, API response, log evidence, vendor doc citation
+- Every finding cites a source: IaC file, `zscalerctl` command, SIEM query result, API response, log evidence, vendor doc citation
 - Frameworks classify the finding; they do not prove the finding. If a finding
   uses OWASP, NIST, MITRE, CISA, or CWE language, load
   [`grounding/security-taxonomy.md`](./grounding/security-taxonomy.md) and
@@ -70,10 +70,10 @@ Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/inde
 - Status uses the same `Open / Acknowledged / Acceptable / Resolved / Wontfix` lifecycle
 - **High and Critical findings include a Posture context block**: control family, threat model, blast radius, detection coverage, compensating controls
 - Use the lowest applicable severity — inflation drowns real urgency
-- Do not mark findings `Resolved` without verification (re-read the snapshot, re-run the query)
+- Do not mark findings `Resolved` without verification (re-read the IaC, re-run the query)
 - Findings outside scope go in Notes or "Out-of-scope observations," not silently dropped or chased
 
-The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — disk first (`_data/snapshot/<cloud>/`, `_data/cases/<operative>/evidence/`; substitute the configured runtime-data mount if not `_data`), then SIEM, then a read-only `zscalerctl` read, then portal as last resort. See [`investigator/prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
+The discipline around evidence sourcing follows [`investigator/methodology.md`](../investigator/methodology.md) — the overlay's IaC and disk evidence first (`_data/cases/<operative>/evidence/`; substitute the configured runtime-data mount if not `_data`), then SIEM, then a read-only `zscalerctl` read, then portal as last resort. See [`investigator/prompt.md § Step 4`](../investigator/prompt.md) for the full preference ladder.
 
 When asking the user a clarifying question — subtype inference, threat-model selection, scope disambiguation — format the question as a multiple-choice block (per [`agents/clarification-pattern.md`](../clarification-pattern.md)), never plain prose. Example for subtype inference:
 
@@ -104,9 +104,9 @@ Same a/b/c/d as `/z-investigator` (see [`investigator/prompt.md § Step 2`](../i
 - **a.** Read source schemas for any logs / config files you'll analyze
 - **b.** Read the canonical product / feature reference for any Zscaler component in scope
 - **c.** Verify framing claims as `Open (uncertain)` until evidence supports them
-- **d.** Check existing evidence on disk — `_data/cases/<operative-slug>/evidence/`, `_data/snapshot/<cloud>/`, `_data/schemas/`, and any `zscalerctl` dump/diff artifacts in the operative overlay. Substitute the configured runtime-data mount if not `_data`. Read any operative-directory `journal.md` or `posture.md` already in place; do not browse sibling case directories.
+- **d.** Check existing evidence on disk — `_data/cases/<operative-slug>/evidence/`, the overlay's IaC (when `overlay.json` declares `iac`), and `_data/schemas/`. Substitute the configured runtime-data mount if not `_data`. Read any operative-directory `journal.md` or `posture.md` already in place; do not browse sibling case directories.
 
-A SOC review especially leans on **(a)** and **(d)** — schemas tell you what posture controls a given config field actually enables, and a fresh `zscalerctl`-generated snapshot/diff is the preferred read-only evidence for "what's actually configured." If the cache is stale or missing, draft a bounded `zscalerctl --format json ...` command rather than guessing. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests.
+A SOC review especially leans on **(a)** and **(d)** — schemas tell you what posture controls a given config field actually enables, and the overlay's IaC is the preferred evidence for "what's actually configured." If IaC does not cover the type, field or value, is too stale, or the question is drift, draft a bounded `zscalerctl --format json ...` command rather than guessing. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests.
 
 ### 3. Apply the posture lens for each subtype in scope
 
@@ -133,7 +133,7 @@ Extends the audit register with an optional Posture context block for `High` and
 **Threat model:** <as given, or "general posture review">
 **Status:** Initial pass complete
 **Timestamp:** <ISO 8601 UTC>
-**Reviewer:** agent (snapshot ref: `_data/snapshot/<cloud>/`, captured <date>)
+**Reviewer:** agent (IaC ref: <overlay IaC path or `zscalerctl` command>, captured <date>)
 
 **Findings by severity:** Critical: <n> | High: <n> | Medium: <n> | Low: <n> | Info: <n>
 
@@ -151,7 +151,7 @@ Extends the audit register with an optional Posture context block for `High` and
 - Record type: finding
 - Category: <finding family or SOC subtype>
 - Taxonomy: <NIST / CISA / MITRE / OWASP / CWE labels, if applicable>
-- Source: <tenant snapshot path, SIEM query result, API response, log, or user evidence>
+- Source: <tenant IaC path, `zscalerctl` command, SIEM query result, API response, log, or user evidence>
 - Confidence: <high / medium / low / open>
 - Status: <Open / Acknowledged / Acceptable / Resolved / Wontfix>
 
@@ -194,7 +194,7 @@ Each subtype has its own check-set. Multiple subtypes may apply to one review �
 
 Check-set:
 
-- **Default-allow exposure** — rules that match more broadly than intended (over-broad URL categories on Allow, wildcard FQDNs in segments, `Any` source/destination IPs without scope). Source: snapshot policy JSON.
+- **Default-allow exposure** — rules that match more broadly than intended (over-broad URL categories on Allow, wildcard FQDNs in segments, `Any` source/destination IPs without scope). Source: IaC policy files.
 - **SSL inspection bypass scope** — which sites / categories are bypassed and why. Justified bypasses (banking, healthcare per regulation) are `Info`; unjustified bypasses (broad `*.example.com`) are `Medium`+.
 - **Posture profile coverage** — access policy rules that grant access without device-posture gating. High-sensitivity destinations should require posture.
 - **Rule shadowing** — downstream rules unreachable due to upstream broad allow / deny. (Where possible, lint-style — but the *security implication* of shadowing is SOC-shape: a deny that never fires.)
@@ -253,7 +253,7 @@ After the first response, continue the review by:
 
 - **Surfacing Criticals first** — before triaging Medium / High, list any `Critical` findings and ask the user how they'd like to proceed
 - **Triaging findings** — confirm severity, accept some as `Acceptable` (with rationale), defer others as `Acknowledged` (with reason)
-- **Verifying remediations** — when the user reports a fix, re-read the snapshot or re-run the query before marking `Resolved`
+- **Verifying remediations** — when the user reports a fix, re-read the IaC or re-run the query before marking `Resolved`
 - **Adding findings** as new evidence emerges
 - **Closing the cycle** — when all findings are non-`Open`, output the final handoff
 

@@ -110,7 +110,7 @@ Required fields for a passing case intake:
 - `scope`
 
 `tenantCloud` is required only when the proposed loads or framing need tenant
-snapshot access. If unknown, use `unknown` and keep snapshot loads out of Step
+IaC or live access. If unknown, use `unknown` and keep tenant-config loads out of Step
 1 until the user confirms the cloud.
 
 ## Proposed Load Guardrails
@@ -121,8 +121,8 @@ Step 1 proposed loads are docs-only. They must include:
 - `agents/investigator/harness.md`
 
 They may include grounding cards or product references that match the framing.
-They must not include snapshot files, operational-knowledge records, sibling
-case journals, or broad data directories. Snapshot, current-case evidence, and
+They must not include IaC files, live `zscalerctl` output, operational-knowledge records, sibling
+case journals, or broad data directories. IaC, live-read, current-case evidence, and
 matching-product operational-knowledge discovery are bounded Step 2
 runtime-data classes approved by the explicit Checkpoint 1 `Proceed` choice.
 Every proposed load must exist under the repository root; a missing file is a
@@ -171,7 +171,7 @@ parsing freeform prose.
 
 ## Phase Boundary
 
-After `open-case`, stop. Do not load Step 2 files, enumerate snapshots,
+After `open-case`, stop. Do not load Step 2 files, enumerate tenant config,
 generate hypotheses, or render a discovery journal table in the same response.
 
 The load phase begins only after the user confirms continuation. A passing
@@ -181,7 +181,7 @@ repair, not after a passing `open-case`.
 
 Step 2 may load only the proposed loads stored in the verified
 `case-intake.json` plus bounded runtime-data entry points covered by the user's
-Checkpoint 1 `Proceed` choice: selected snapshot files, operative-case
+Checkpoint 1 `Proceed` choice: selected IaC files or read-only `zscalerctl` commands, operative-case
 evidence, and relevant active records from matching product and `shared`
 knowledge directories. Any other addition requires separate user approval. If
 the chat-rendered Step 1 list differs from `case-intake.json`, treat Step 1 as

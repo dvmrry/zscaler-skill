@@ -39,7 +39,7 @@ Classify evidence layers before making recommendations:
 - `Mixed user-handoff`
 - `Pattern-based only`
 
-Do not claim tenant-specific configuration, utilization, or load state unless it is supported by a snapshot, API output, SIEM result, metric source, or user-provided artifact.
+Do not claim tenant-specific configuration, utilization, or load state unless it is supported by IaC, live `zscalerctl` output, API output, SIEM result, metric source, or user-provided artifact.
 
 ## Gate 3 - Config-first gate (audit)
 

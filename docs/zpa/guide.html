@@ -80,7 +80,7 @@
         <dt>Topics</dt><dd>app-segments · access-policy · app-connector · multimatch · provisioning-keys</dd>
         <dt>Source tier</dt><dd>Help-doc verified, SDK / Terraform cross-referenced, MCP-skill annotated</dd>
         <dt>Read first</dt><dd><a href="../readers-guide.html" style="color: var(--accent-ink);">A Reader's Guide to the Zero Trust Exchange</a> &nbsp;— ch. V covers ZPA in narrative form</dd>
-        <dt>Read after</dt><dd><code>references/zpa/snapshot-schema</code> · <code>references/zpa/logs/access-log-schema</code> · <code>references/shared/policy-evaluation</code></dd>
+        <dt>Read after</dt><dd><code>node scripts/kb.mjs resolve zpa/app-segments</code> (field shapes) · <code>references/zpa/logs/access-log-schema</code> · <code>references/shared/policy-evaluation</code></dd>
       </dl>
     </header>
 
@@ -207,7 +207,7 @@
         </div>
 
         <h4>Go-SDK-only fields</h4>
-        <p>These appear on segments in snapshot JSON but the Python SDK doesn't model them. Callers writing wire-level requests (Go SDK or HTTP) can set them; Python callers can only read them.</p>
+        <p>These appear on segments in tenant config JSON but the Python SDK doesn't model them. Callers writing wire-level requests (Go SDK or HTTP) can set them; Python callers can only read them.</p>
         <div class="deflist">
           <div><dt>bypassOnReauth</dt><dd>Whether the segment bypasses ZPA on session re-authentication. Operationally significant — affects hybrid on-net/off-net users who re-auth mid-session.</dd></div>
           <div><dt>extranetEnabled</dt><dd>Extranet access toggle.</dd></div>
@@ -545,7 +545,7 @@
           </div>
           <div>
             <dt><code>devicePostureFailureNotificationEnabled</code></dt>
-            <dd>Controls user notifications on posture-based denials. Wire/snapshot key is camelCase; Python SDK exposes it snake-cased. Operators querying snapshot JSON must use camelCase.</dd>
+            <dd>Controls user notifications on posture-based denials. Wire key is camelCase; Python SDK exposes it snake-cased. Operators querying tenant config JSON must use camelCase.</dd>
           </div>
           <div>
             <dt><code>rule_order</code> vs <code>priority</code></dt>
@@ -866,7 +866,7 @@ notice:Certificate enrollment failed.</code></pre>
   const notes = [
     { anchor: 'glance', label: 'Reading order', html: 'This document reads straight through, but most readers arrive from a search and need only one section. The TOC on the left is the primary navigation; the Triage table at <a href="#ref-questions" style="color:var(--accent-ink)">§4</a> is the secondary entry point.' },
     { anchor: 'evaluation', label: 'The mental shortcut', html: 'Forwarding decides <em>whether</em>. Access decides <em>who</em>. Timeout decides <em>how long</em>. Inspection decides <em>what to look at</em>. In that order.' },
-    { anchor: 'seg-anatomy', label: 'Where to find these', html: 'Most fields live in the admin console under <em>Application Segments → Configure</em>. The SDK-only fields are visible in snapshot JSON exported via <code>scripts/snapshot.py</code>.' },
+    { anchor: 'seg-anatomy', label: 'Where to find these', html: 'Most fields live in the admin console under <em>Application Segments → Configure</em>. The SDK-only fields are visible in tenant config JSON (the overlay's IaC or <code>zscalerctl</code> output).' },
     { anchor: 'seg-specificity', label: 'Why this is the #1 footgun', html: 'The common expectation: &ldquo;wildcard catches everything specific segments don&rsquo;t cover.&rdquo; That is wrong by default. The wildcard is <em>carved out</em> the moment a specific segment exists.' },
     { anchor: 'seg-multimatch', label: 'Why config-time validation matters', html: 'There&rsquo;s no traffic-time reconciliation. ZPA refuses to allow the ambiguous state in the first place — eliminates a class of incident, at the cost of some flexibility.' },
     { anchor: 'pol-criteria', label: 'AND vs OR is the #1 confusion', html: 'A rule with three condition blocks each containing two values is <code>(a OR b) AND (c OR d) AND (e OR f)</code>. Six values, four operators, one decision.' },

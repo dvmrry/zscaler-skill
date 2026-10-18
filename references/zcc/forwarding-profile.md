@@ -22,6 +22,8 @@ sources:
   - "vendor/zscaler-help/choosing-traffic-forwarding-methods.md"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
+verified-against:
+  vendor/zscaler-help: 9daa0464ce66225e931206c8d76e20e8781794d5
 ---
 
 # ZCC forwarding profile — how ZCC decides where to send traffic
@@ -327,5 +329,5 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `ve
 - Where ZIA picks up after ZCC has decided to forward — [`../zia/ssl-inspection.md`](../zia/ssl-inspection.md)
 - ZPA client-side segment matching (runs on ZCC) — [`../zpa/app-segments.md`](../zpa/app-segments.md)
 - Cross-product policy evaluation — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
-- Wire-format schema for `_data/snapshot/<cloud>/zcc/forwarding-profiles.json` (jq queries, profile-ID join to web-policy) — [`./snapshot-schema.md`](./snapshot-schema.md)
+- Field shapes for `zcc/forwarding-profiles` (profile-ID join to web-policy) — `node scripts/kb.mjs resolve zcc/forwarding-profiles`
 - QUIC bypass and Cloud App Control interaction — [`../zia/cloud-app-control.md`](../zia/cloud-app-control.md)

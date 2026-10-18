@@ -43,7 +43,7 @@ Two paths:
 2. **Copy-paste a function** — every pattern below is self-contained in the doc and in the module. Paste into your runtime if the import path isn't available.
 
 Credentialed observation is a separate boundary. When tenant facts are needed,
-use supplied snapshots or command output, or request a bounded read-only
+use the overlay's IaC or supplied command output, or request a bounded read-only
 `zscalerctl --format json` call when the companion is available. Do not add SDK
 clients, credential smoke tests, endpoint reflection, or raw API calls to this
 module. See [`tooling.md`](tooling.md).

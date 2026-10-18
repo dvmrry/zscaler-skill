@@ -56,7 +56,7 @@ paths as part of that fork.
 ## Harness layer
 
 Some workflows need an explicit runtime-neutral harness: checkpoint sequencing,
-halt-and-wait rules, phase output shapes, journal creation order, snapshot load
+halt-and-wait rules, phase output shapes, journal creation order, tenant-config load
 caps, or other state-machine behavior that is more procedural than the role
 prompt itself.
 
@@ -414,7 +414,7 @@ high-severity assertions.
 **Framework-not-evidence guard (SOC-specific)**: a source whose entire value
 is a framework tag — `CWE-\d+`, `OWASP:`, `NIST:`, `MITRE:`, `ATT&CK:`,
 `T\d{4}`, `CISA` — is rejected with the message: _"a framework tag classifies
-a finding; it does not prove it. Cite tenant evidence — a snapshot path,
+a finding; it does not prove it. Cite tenant evidence — an IaC path,
 recorded SIEM/API/log evidence (evidence:<name> via record_evidence), or a
 file:line. Frameworks go in the taxonomy field, not the source."_ The
 `taxonomy` field accepts framework tags freely; they are recorded as metadata,

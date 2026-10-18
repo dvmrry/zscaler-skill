@@ -799,7 +799,8 @@ function boundedRuntimeLoadContext(root, caseSlug, framing, approvedAdditionalPa
 function isApprovedRuntimeAdditional(relativePath, context) {
   if (!context) return false;
   const mount = path.normalize(context.mountPath);
-  if (isPathWithin(relativePath, path.join(mount, "snapshot"))) return true;
+  if (isPathWithin(relativePath, path.join(mount, "overlay"))) return true;
+  if (isPathWithin(relativePath, path.join(mount, "iac"))) return true;
   if (isPathWithin(relativePath, path.join(mount, "cases", context.caseSlug))) return true;
   if (isPathWithin(relativePath, path.join(mount, "knowledge", "shared"))) return true;
   for (const product of context.knowledgeProducts || []) {
@@ -1745,8 +1746,8 @@ function caseIntakeStatus(framing, proposedLoads, root = null) {
   if (!proposedLoads.includes("agents/investigator/harness.md")) {
     issues.push("proposed loads must include agents/investigator/harness.md");
   }
-  if (proposedLoads.some((load) => load.startsWith(`${mountPath}/snapshot/`))) {
-    issues.push("Step 1 proposed loads must not include tenant snapshot files");
+  if (proposedLoads.some((load) => load.startsWith(`${mountPath}/iac/`))) {
+    issues.push("Step 1 proposed loads must not include tenant IaC files");
   }
   if (proposedLoads.some((load) => load.startsWith(`${mountPath}/cases/`))) {
     issues.push("Step 1 proposed loads must not browse case artifacts");

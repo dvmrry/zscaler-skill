@@ -185,7 +185,7 @@ Source: `vendor/terraform-provider-zia/docs/index.md`; `vendor/terraform-provide
 From the feature-parity caveat above, plus direct observation:
 
 - **Log data** (access logs, firewall logs, DNS logs, LSS log streams) — consumed via NSS / LSS runtime, not through Terraform. Use `zia_cloud_nss_feed` / `zpa_lss_config_*` for *configuration* of the streaming, not for reading log data.
-- **Tenant data snapshots** — no Terraform export of the live config state beyond the standard `terraform show` + state file. Use the SDK or direct API for bulk snapshot.
+- **Tenant data exports** — no Terraform export of the live config state beyond the standard `terraform show` + state file. Use the read-only `zscalerctl` CLI or the SDK/API for a bulk read.
 - **Admin audit log viewing** — configuring audit streaming is TF-manageable; reading the stream is not.
 - **Deception policies** (`zpa-07`) — Zscaler Deception module resources are likely in the provider but with limited edit/copy/delete per *About Access Policy* p.6. See vendor docs for current status.
 

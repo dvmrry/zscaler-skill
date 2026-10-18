@@ -13,7 +13,7 @@ The product is **codified behavior**, not API access. An agent with live API key
 - **The behavior LLMs hallucinate** — URL-filter rule order and first-match semantics, the wildcard-vs-exact specificity gotcha, the two-pass SSL inspection model, Cloud App Control ↔ URL Filtering interaction, ZPA app-segment matching, and cross-product policy evaluation.
 - **Honest coverage tiers** — deep operational depth (SDK / Terraform / OneAPI) on ZIA, ZPA, ZCC, ZDX, ZIdentity, and Cloud & Branch Connector; awareness-level on the rest of the portfolio — and it tells you which tier it's standing on before it answers.
 - **Source-graded answers** — every reference carries `confidence`, `source-tier`, and `sources`; a [verification protocol](./references/_meta/verification-protocol.md) gates what earns a place, so unverified claims don't get dressed up as fact.
-- **Tenant-aware, fail-closed** — answers tenant-specific questions ("is `reddit.com` blocked in *our* tenant?") from observed tenant state: mounted runtime-data snapshots/diffs (`_data/` by default, configurable in `zscaler-skill-runtime.json`), explicit command output, or the read-only `zscalerctl` companion when available. It declines rather than guesses when there is no tenant observation.
+- **Tenant-aware, fail-closed** — answers tenant-specific questions ("is `reddit.com` blocked in *our* tenant?") from the knowledge graph plus the company overlay's records, the overlay's IaC when it declares `iac`, or live read-only `zscalerctl` when it declares `live` (runtime-data mount `_data/` by default, configurable in `zscaler-skill-runtime.json`). It declines rather than guesses when there is no tenant observation.
 - **Structured workflows** — repeatable, evidence-based roles for investigation, research, audit, and review when a task needs a defined output, not just a chat answer.
 
 [`SKILL.md`](./SKILL.md) is the routing surface — the question-shape table that sends each query to the right reference. [`references/_meta/portfolio-map.md`](./references/_meta/portfolio-map.md) is the per-product coverage index.
@@ -40,7 +40,7 @@ git submodule update --init --recursive
 ```
 
 Install Node 24.19+ (Node 24 LTS) for the deterministic workflow helpers. Full
-private-fork setup — source checkout, credentials, runtime data, and snapshot
+private-fork setup — source checkout, credentials, runtime data, and overlay
 behavior — is in [docs/getting-started.md](./docs/getting-started.md).
 
 ## Quick start
@@ -52,7 +52,7 @@ Ask grounded questions directly:
 @zscaler does *.example.com cover app.example.com?
 ```
 
-For tenant-specific answers, mount a runtime-data snapshot into `_data/`
+For tenant-specific answers, mount the company overlay (and IaC) into `_data/`
 or the configured work-mirror runtime mount. The committed
 `zscaler-skill-runtime.json` controls the public, non-secret mount layout; the
 ignored `zscaler-skill-setup.json` is only needed when the setup helper should
@@ -67,7 +67,7 @@ node scripts/setup-data-mount.mjs --data-url <git-url-or-path> --data-ref <branc
 node scripts/check-data-contract.mjs
 ```
 
-The snapshot itself is populated out of band — e.g. a private work mirror, a local runtime-data checkout, or a sanitized dump from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI. Pre-release companion model: `zscalerctl` observes tenant state, the runtime-data mount stores fast local snapshots/diffs, and this skill interprets the observed state with policy semantics. Credentialed tenant reads are out of scope for this repo.
+The overlay is provided out of band — e.g. a private work mirror or a local runtime-data checkout; live reads come from the read-only [`zscalerctl`](https://github.com/dvmrry/zscalerctl) CLI. Pre-release companion model: `zscalerctl` observes tenant state (never kept as a standing tenant cache; case evidence is saved only in the case), and this skill interprets the observed state with policy semantics. Credentialed tenant reads are out of scope for this repo.
 
 ## Entry points
 
@@ -98,7 +98,7 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 ## Documentation
 
 **Usage**
-- [docs/getting-started.md](./docs/getting-started.md) — fork setup, credentials, first snapshot, first script run
+- [docs/getting-started.md](./docs/getting-started.md) — fork setup, credentials, overlay setup, first script run
 - [scripts/README.md](./scripts/README.md) — script inventory, support boundary, conventions
 - [docs/maintenance.md](./docs/maintenance.md) — CI, automated weekly upstream refresh, sticky issues, contribution rules
 
@@ -116,7 +116,7 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 
 - Malware Protection and ATP **settings** are queryable/configurable through the SDK/API; diagnosing which engine blocked a specific transaction still requires Web Insights or equivalent transaction logs.
 - Some clarifications stay open pending tenant-specific lab tests (see [PLAN.md](./PLAN.md)).
-- Snapshot schema docs exist for ZIA, ZPA, ZCC, and ZIdentity as medium-confidence, source-derived guides; validate their anticipated shapes against real tenant output before treating them as tenant-confirmed.
+- Field shapes for tenant types come from `node scripts/kb.mjs resolve <type-id>` (for example `zia/url-filtering-rules`); validate them against real tenant output before treating them as tenant-confirmed.
 - Z-Tunnel wire-format internals are not customer-documented.
 - Tier 3 / Tier 4 portfolio areas can be routed and explained, but the skill will not invent SDK, Terraform, or API behavior for them.
 

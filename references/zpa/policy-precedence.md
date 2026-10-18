@@ -126,14 +126,14 @@ The authoritative version is *Configuring Access Policies* p.3:
 
 ### SDK-visible fields not surfaced in help docs
 
-Several first-class fields on access-policy rules are visible via the API/TF/SDK layer but not highlighted in the help articles. Relevant when reading snapshots or writing policy-as-code.
+Several first-class fields on access-policy rules are visible via the API/TF/SDK layer but not highlighted in the help articles. Relevant when reading tenant config (IaC or `zscalerctl` output) or writing policy-as-code.
 
 - **Two distinct reauth fields** (`zscaler/zpa/models/policyset_controller_v2.py:50-51`):
   - `reauth_timeout` — session duration before a full re-authentication is required.
   - `reauth_idle_timeout` — idle duration before re-auth.
   - **Both default to `None`**, meaning the global tenant setting applies when a rule doesn't override. If a user asks "why is this session re-auth-ing sooner than the rule says", check both the rule value and the tenant global.
   - ⚠️ **Both are `ForceNew` at the Terraform/API level** (`terraform-provider-zpa/zpa/common.go:554-562`). **Changing either on an existing rule requires destroy-recreate** — the API refuses in-place updates. Operationally: an admin can't just "bump the timeout" on a running rule; the rule is deleted and re-created, which can shuffle rule order and cause transient policy gaps. Plan changes during maintenance windows.
-- **`devicePostureFailureNotificationEnabled`** (bool — Python SDK calls this `device_posture_failure_notification_enabled`, but the wire/snapshot JSON key is camelCase per Go SDK `policysetcontrollerv2.go:82`) — controls whether users see a notification when device posture causes access denial. Useful context when debugging silent posture-based blocks. Operators querying snapshot JSON must use the camelCase form.
+- **`devicePostureFailureNotificationEnabled`** (bool — Python SDK calls this `device_posture_failure_notification_enabled`, but the wire JSON key is camelCase per Go SDK `policysetcontrollerv2.go:82`) — controls whether users see a notification when device posture causes access denial. Useful context when debugging silent posture-based blocks. Operators querying tenant config JSON must use the camelCase form.
 - **Conditional cross-field dependencies for action-specific profiles** (`zscaler/zpa/models/policyset_controller_v2.py:62-64`):
   - `zpn_isolation_profile_id` — only relevant when `action = ISOLATE`. References a ZPA isolation profile that configures the isolated browser session (Turbo Mode, copy/paste allow, region, etc.). See [`../zbi/policy-integration.md`](../zbi/policy-integration.md) for the isolation-profile surface and [`../zbi/overview.md`](../zbi/overview.md) for the container/rendering model.
   - `zpn_inspection_profile_id` / `zpn_inspection_profile_name` — only relevant when `action = INSPECT`.
@@ -142,7 +142,7 @@ Several first-class fields on access-policy rules are visible via the API/TF/SDK
 - **Operand match forms are mutually exclusive** (`zscaler/zpa/models/policyset_controller_v2.py:268-272`). Each policy criterion in the API is expressed as an `Operand` object with one of two match forms:
   - `values` — list of IDs (`policyset_controller_v2.py:268`; used for most object types: Application Segments, Segment Groups, Locations, etc.).
   - `entry_values` — list of `{lhs, rhs}` pairs (`policyset_controller_v2.py:269-272`; used for SAML / SCIM / SCIM_GROUP attribute matching, where `lhs` is the attribute name and `rhs` is the matched value).
-  - Knowing which form a criterion uses matters when you're constructing policy programmatically or parsing snapshot JSON; mixing forms on a single Operand is invalid.
+  - Knowing which form a criterion uses matters when you're constructing policy programmatically or parsing tenant config JSON; mixing forms on a single Operand is invalid.
   - **`CHROME_POSTURE_PROFILE` and `CHROME_ENTERPRISE` use different operand forms** despite both relating to Chrome. The Terraform provider validates this: `CHROME_POSTURE_PROFILE` requires the `values` (ID-list) form — "a Chrome Posture Profile ID must be provided when object_type = CHROME_POSTURE_PROFILE" (`terraform-provider-zpa/zpa/common.go:1217-1219`). `CHROME_ENTERPRISE` instead requires the `entry_values` form with `lhs = "managed"` and `rhs` of `"true"` or `"false"` (`terraform-provider-zpa/zpa/common.go:1221-1239`). So a Chrome Posture Profile criterion is an ID match; a Chrome Enterprise Browser criterion is a managed-state match.
 
 ### Order and editing constraints
@@ -277,4 +277,4 @@ Resolved while writing this doc:
 - Application segment matching (the stage that runs *before* access policy) — [`./app-segments.md`](./app-segments.md)
 - LSS access log schema — for observational validation of which rule matched — [`./logs/access-log-schema.md`](./logs/access-log-schema.md) — the `Policy` field carries the fired rule name.
 - Cross-product policy evaluation mental model — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
-- Wire-format schema for `_data/snapshot/<cloud>/zpa/access-policy-rules.json` (ruleOrder-as-string, operand tree, and the current TF-validated objectType set, including `CHROME_POSTURE_PROFILE`) — [`./snapshot-schema.md`](./snapshot-schema.md).
+- Field shapes for `zpa/access-policy-rules` (ruleOrder-as-string, operand tree, and the current TF-validated objectType set, including `CHROME_POSTURE_PROFILE`) — `node scripts/kb.mjs resolve zpa/access-policy-rules`.

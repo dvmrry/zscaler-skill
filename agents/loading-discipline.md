@@ -63,7 +63,7 @@ artifact that can answer the current question, then stop.
    worklist) is reference-grade reconciliation data, not raw vendor source —
    search it like `references/**`, not like a vendor tree.
 5. **Treat `_data/` as scoped evidence, not reference background.** Search
-   `_data/snapshot/`, `_data/cases/`, or `_data/iac/` only when the question is
+   the overlay's IaC (`_data/overlay/`, `_data/iac/`), `_data/cases/`, or run a read-only `zscalerctl` command only when the question is
    tenant-specific, case-specific, or deployment-specific. Operational knowledge
    follows the narrower v1 rule below.
 6. **One-pass answer budget.** For ad-hoc Q&A, aim for one primary reference
@@ -109,7 +109,7 @@ Pick the most specific stage that fits. Capitalize only the first word. Backtick
 |--------------------|-----------------------------------------------------------|------------------------------------------------------------------|
 | `locating source`  | Deciding which file/dir to read; pre-load orientation     | `Locating source for ZIA URL filtering precedence.`              |
 | `reading <path>`   | About to load a specific file                              | `Reading references/zia/url-filtering.md.`                       |
-| `searching <dir>`  | About to grep / rglob a directory tree                     | `Searching _data/snapshot/zs2/policies/ for matching rules.`     |
+| `searching <dir>`  | About to grep / rglob a directory tree                     | `Searching _data/iac/zia/ for matching rules.`        |
 | `querying <name>`  | Dispatched a SIEM / API call                              | `Querying Splunk for connector availability metrics.`            |
 | `checking citations` | Verifying claim-to-source pairing after reads complete   | `Checking citations against 3 loaded references.`                |
 | `composing answer` | Synthesis stage after all reads complete                   | `Composing answer from 3 loaded sources.`                        |
@@ -154,7 +154,7 @@ Do not announce before:
 - ✗ `Just a moment please…` — content-free; no signal about what's happening.
 - ✗ `Reading…<long pause>…done` — heartbeat-style; one line, no continuation.
 - ✓ `Reading references/zia/url-filtering.md.`
-- ✓ `Searching _data/snapshot/zs2/policies/ for SSL bypasses.`
+- ✓ `Searching _data/iac/zia/ for SSL bypasses.`
 - ✓ `Querying Splunk for connector_id="abc-123" last 24h.`
 - ✓ `Composing answer from 3 loaded sources.`
 - ✓ `Waiting for user — Checkpoint 2.` (procedural only)

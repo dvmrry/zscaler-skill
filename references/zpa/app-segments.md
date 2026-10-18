@@ -97,13 +97,13 @@ resource "zpa_application_segment" "this" {
 
 ### SDK-visible fields not surfaced in help docs
 
-A few fields live at the API/TF level but are absent from or under-documented in the help articles. Relevant when reading snapshot JSON or writing policy about segments programmatically.
+A few fields live at the API/TF level but are absent from or under-documented in the help articles. Relevant when reading tenant config JSON (IaC or `zscalerctl` output) or writing policy about segments programmatically.
 
 - **`enabled` defaults to `True`** on newly-constructed segment objects (`zscaler/zpa/models/application_segment.py:42`). Help docs don't highlight this; a caller who forgets to set `enabled` ends up with a live segment, not a draft. When auditing "why is this segment active?", don't assume the author explicitly turned it on.
 - **Dual port-range formats coexist:**
   - `tcp_port_ranges` / `udp_port_ranges` — list of strings, e.g. `["80", "8080-8090"]` (the field name the TF provider uses)
   - `tcp_port_range` / `udp_port_range` — list of `{from, to}` dicts
-  - SDK `request_format()` sends both (`zscaler/zpa/models/application_segment.py:229-232`, where `tcpPortRanges`/`udpPortRanges` and `tcpPortRange`/`udpPortRange` are emitted together; the read-side dict parse is `:98-110`). Different endpoints may prefer one or the other; both are tolerated. In snapshot JSON, you may see the same ports emitted twice in two formats.
+  - SDK `request_format()` sends both (`zscaler/zpa/models/application_segment.py:229-232`, where `tcpPortRanges`/`udpPortRanges` and `tcpPortRange`/`udpPortRange` are emitted together; the read-side dict parse is `:98-110`). Different endpoints may prefer one or the other; both are tolerated. In tenant config JSON, you may see the same ports emitted twice in two formats.
 - **`inspect_traffic_with_zia`** (bool, default `False`) — enables ZIA inline inspection for ZPA traffic at the segment level. This is the ZPA-side hook for ZIA+ZPA integration (distinct from ZIA's `zpa_app_segments` on SSL inspection rules, which operates the reverse direction). When a request touches both products, check both toggles.
 - **Governance flags** (server-assigned, appear across ZPA resources):
   - `read_only` — set by Zscaler-managed or microtenant-restricted objects. Cannot be modified by customer admins.
@@ -114,7 +114,7 @@ A few fields live at the API/TF level but are absent from or under-documented in
 - **`bypass_type` has three values, not two**: `ALWAYS`, `NEVER`, `ON_NET` (`resource_zpa_application_segment.go:83-87`). **`ON_NET`** (bypass only for on-network users) is undocumented in most help articles but is a valid API value — useful for hybrid on-network-vs-remote patterns.
 - **`icmp_access_type` enum**: `PING_TRACEROUTING`, `PING`, `NONE` (default `NONE`) — controls ICMP behavior on the segment. Relevant when a question asks "why can I ping this app through ZPA?"
 - **`tcp_keep_alive` is a string enum `"0"` / `"1"`, not boolean** (sent on the wire `:245`). Wire-format quirk: callers writing JSON payloads programmatically must send strings.
-- **Segment fields under-documented in help but present in both SDKs.** These fields live on the segment model in *both* the Python SDK (`zscaler/zpa/models/application_segment.py`) and the Go SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:23-79`), and the Python `request_format()` writes them on the wire — so Python callers can both read and **write** them, not just read them out of snapshot JSON. They are nonetheless thin or absent in the help articles, so they surface mostly when reading snapshot JSON or scripting segments:
+- **Segment fields under-documented in help but present in both SDKs.** These fields live on the segment model in *both* the Python SDK (`zscaler/zpa/models/application_segment.py`) and the Go SDK (`vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go:23-79`), and the Python `request_format()` writes them on the wire — so Python callers can both read and **write** them, not just read them out of tenant config JSON. They are nonetheless thin or absent in the help articles, so they surface mostly when reading tenant config JSON or scripting segments:
   - **`bypass_on_reauth`** (py `:50`, sent on the wire `:241`; go `BypassOnReauth` `:38`) — whether the segment bypasses ZPA on session re-authentication. Operationally significant: affects hybrid on-net/off-net users who re-auth mid-session (session flaps can briefly skip ZPA inspection).
   - **`extranet_enabled`** (py `:68`; go `ExtranetEnabled` `:29`) — extranet access toggle for the segment.
   - **`api_protection_enabled`** (py `:65`) / **`auto_app_protect_enabled`** (py `:64`) / **`adp_enabled`** (py `:63`, sent `:249`) — AppProtection and Application Data Protection-related flags.
@@ -383,4 +383,4 @@ Answers preserved in `_meta/clarifications.md`:
 - ZPA access policy precedence (the next layer — which segment is *allowed*) — [`./policy-precedence.md`](./policy-precedence.md)
 - Cross-product policy evaluation — [`../shared/policy-evaluation.md`](../shared/policy-evaluation.md)
 - LSS access log schema (for observational validation of which segment actually matched) — [`./logs/access-log-schema.md`](./logs/access-log-schema.md)
-- Wire-format schema for `_data/snapshot/<cloud>/zpa/app-segments.json` (camelCase keys, dual port-range formats, jq queries) — [`./snapshot-schema.md`](./snapshot-schema.md)
+- Field shapes for `zpa/app-segments` (camelCase keys, dual port-range formats) — `node scripts/kb.mjs resolve zpa/app-segments`

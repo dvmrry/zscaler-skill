@@ -173,8 +173,8 @@ assertions. The format is intended for a skill-creator-style eval harness: run
 each prompt with and without the skill loaded, then diff the outputs.
 
 For tenant-specific prompts, `tenant_data_required: true` signals that the
-harness should expect a decline-with-helpful-pointers when `_data/snapshot/` is
-empty.
+harness should expect a decline-with-helpful-pointers when no overlay IaC or live
+`zscalerctl` data is available.
 
 ## Known Gaps
 
@@ -185,14 +185,10 @@ empty.
 - **Credentialed live-tenant diagnostics are out of scope.** Tenant reads are
   handled by the read-only `zscalerctl` CLI; the never-validated SDK diagnostic
   scaffolds were removed (2026-06), as were the SDK snapshot / lookup / simulator
-  scripts. Tenant config is mounted into `_data/snapshot/` out of band (private
-  overlay or `zscalerctl` dump); the references reason over it.
+  scripts. Tenant config comes from the overlay's IaC or a live read-only
+  `zscalerctl` read (no saved snapshot tier); the references reason over it.
 - **Several clarifications remain open** because they require tenant-specific
   lab tests. See `PLAN.md`.
-- **Snapshot schema docs are anticipatory, not tenant-validated.** The ZIA,
-  ZPA, ZCC, and ZIdentity schema guides are derived from SDK, Postman, and
-  provider sources at medium confidence; validate them against real tenant
-  output before promoting their wire-shape claims.
 - **Z-Tunnel wire-format internals are not customer-documented.**
   `references/zcc/z-tunnel.md` covers the operational layer. Protocol-level
   questions remain Zscaler Support territory.

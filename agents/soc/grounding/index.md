@@ -103,7 +103,7 @@ When instructions are ambiguous, bias toward:
 - A posture exposure is not proof of exploitation.
 - Severity is based on blast radius, control family, and visibility, not on how ugly the config looks.
 - Missing telemetry is a finding only when the relevant event class should be observable for the stated threat model.
-- Use standards language to classify risk, but cite Zscaler references, snapshots, logs, or user evidence for the actual finding.
+- Use standards language to classify risk, but cite Zscaler references, IaC, logs, or user evidence for the actual finding.
 - Do not use OWASP, NIST, MITRE, CISA, or CWE as a substitute for tenant
   evidence. If a framework is the only source, record a threat-model note rather
   than a finding.

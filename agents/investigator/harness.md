@@ -22,7 +22,7 @@ This is the canonical checkpoint and phase contract for the investigator role.
 The investigator prompt defines the reasoning discipline. This harness defines
 the runtime behavior that makes the investigation safe across turns: phase
 order, halt-and-wait checkpoints, output shapes, journal creation timing,
-snapshot-load discipline, and subsequent-turn cadence.
+tenant-config load discipline, and subsequent-turn cadence.
 
 Runtime adapters may reinforce this harness for weaker models, but they should
 not invent a separate checkpoint contract.
@@ -62,10 +62,11 @@ resume.
 Load tight and expand on demand.
 
 - Load the investigator prompt, this harness, and case-relevant references.
-- Load snapshot files only when the framing and already-loaded references make
-  them relevant.
+- Load tenant-config sources (overlay IaC files, or a read-only `zscalerctl`
+  command) only when the framing and already-loaded references make them
+  relevant.
 - Prefer entry points first; traverse deeper chains on later turns.
-- Do not bulk-load `_data/snapshot/<cloud>/`.
+- Do not bulk-load the overlay's IaC tree or run broad `zscalerctl` dumps.
 - Do not browse sibling case directories unless the user explicitly points to
   one.
 
@@ -83,7 +84,7 @@ Apply these during every step and every subsequent turn.
   loads docs and selected evidence; Step 3 writes the first journal.
 - **The output shape is part of the contract.** Do not add decorative prose,
   extra sections, or summaries outside the per-step shape.
-- **Every journal claim needs a source.** Use loaded references, snapshot files,
+- **Every journal claim needs a source.** Use loaded references, IaC files, live `zscalerctl` output,
   operative evidence, log fields, query outputs, or direct tests.
 - **The journal save is mandatory.** Do not ask permission to write it and do
   not skip it silently.
@@ -91,7 +92,7 @@ Apply these during every step and every subsequent turn.
 Blocking unknown priority:
 
 1. Working directory unknown; blocks journal save.
-2. Tenant cloud unspecified when needed for snapshot loading.
+2. Tenant cloud unspecified when needed for IaC or live tenant reads.
 3. Symptom or scope too vague to form proposed loads.
 
 Other concerns, such as pre-collected logs or optional assumption corrections,
@@ -157,7 +158,7 @@ Template:
 
 **What's next?**
 - Proceed — load the proposed docs and bounded Step 2 runtime-data entry points
-  (matching snapshot, operative evidence, and operational knowledge)
+  (matching IaC or live-read entry points, operative evidence, and operational knowledge)
 - Add or correct framing — specify
 - Add pre-collected evidence path — specify
 - Pause — stop here
@@ -193,8 +194,8 @@ Template:
   - `agents/investigator/prompt.md` — `canonical investigator prompt`
   - `agents/investigator/harness.md` — `canonical checkpoint contract`
   - `<path>` — `<why loaded>`
-- Snapshot:
-  - `<path>` — `<why loaded>`
+- Tenant config (IaC files or `zscalerctl` commands):
+  - `<path or command>` — `<why loaded>`
 - Operational knowledge (omit this category when none is loaded):
   - `<path>` — `<why loaded>`
 - Existing evidence:
@@ -205,7 +206,7 @@ Template:
 - Failed loads:
   - `<path>` — `<error or none>`
 
-**Snapshot enumeration**
+**Tenant-config enumeration**
 - `<path>`
 - `<path>`
 
@@ -216,7 +217,7 @@ Template:
 relevant active record is present)
 - `<matching product/shared path>`
 
-**Selected snapshot/evidence entry points**
+**Selected tenant-config/evidence entry points**
 - `<path>` — `<why selected>`
 
 **User-flagged specific search**
@@ -251,7 +252,7 @@ node scripts/investigator-artifacts.mjs record-loads \
 ```
 
 Pass `--allow-additional` only for the bounded runtime-data classes approved by
-the Checkpoint 1 `Proceed` choice: selected snapshot files, the operative case,
+the Checkpoint 1 `Proceed` choice: selected IaC files or read-only `zscalerctl` commands, the operative case,
 and matching-product/shared operational knowledge. The helper validates those
 prefixes and rejects sibling cases or non-matching product knowledge. For any
 other path the user approves explicitly, pass that exact path with
@@ -618,7 +619,7 @@ them as candidate claims or framing notes, not settled facts.
 The Step 1 proposed load list is docs-only and mapping-driven. Do not choose
 files because they might support a hypothesis you have not grounded yet. Use
 the explicit grounding-card and framing-to-file mappings in the investigator
-prompt, then stop. Snapshot enumeration and selection happen in Step 2 after
+prompt, then stop. Tenant-config enumeration and selection happen in Step 2 after
 docs are loaded.
 
 Always include:
@@ -699,27 +700,24 @@ Step 2 has five sub-steps. Do them in order.
 Use the file-read tool to load every path in Step 1 proposed loads. Do not
 summarize from memory. Do not skip a file because it seems obvious.
 
-### 2B — Enumerate Snapshot, Operational Knowledge, and Existing Evidence
+### 2B — Enumerate Tenant Config, Operational Knowledge, and Existing Evidence
 
-If tenant cloud is specified, enumerate:
+Run `node scripts/kb.mjs resolve <type-id | text>` for the types in play. Its
+`tiers` block says whether the company overlay declares `iac` (tier 2) and
+`live` (tier 3). The overlay is found at `$ZSCALER_KB_OVERLAY`, or else at
+`<runtime-data mount>/overlay/` (`node scripts/runtime-data-path.mjs overlay`).
 
-```text
-_data/snapshot/<cloud>/
-```
+If the overlay declares `iac`, use a recursive file-listing tool on the IaC
+paths the overlay points to (substitute the configured runtime mount path when
+the repo uses one). If a product subtree such as the ZPA IaC is absent, report
+`no ZPA IaC found for <cloud>` and continue from references/evidence, or draft
+the read-only `zscalerctl` command if the overlay declares `live` and IaC cannot
+answer. Do not infer product state from sibling product subtrees, another
+cloud, or broad `_data/`.
 
-Use a recursive file-listing tool. The canonical public path is singular
-`_data/snapshot/<cloud>/`; substitute the configured runtime mount path when
-the repo uses one.
-
-If the fork-specific `_data/<cloud>/` layout exists and the canonical path is
-empty, show both attempts plainly.
-
-The fallback is cloud-level only. If `_data/snapshot/<cloud>/` exists but a
-product subtree such as `_data/snapshot/<cloud>/zpa/` is absent, report `no ZPA
-snapshot subtree found for <cloud>` and continue from references/evidence. Do
-not infer product state from sibling product subtrees, another cloud, broad
-`_data/`, or the fork-specific fallback unless the canonical cloud path itself
-was absent or empty.
+If the overlay declares neither `iac` nor `live`, or there is no overlay, say
+which tenant fact is missing and name the `zscalerctl` command that would answer
+it. Do not invent tenant truth.
 
 Also enumerate existing evidence for the current case:
 
@@ -743,11 +741,11 @@ sibling cases unless the user independently made that case operative.
 
 ### 2C — Select Entry Points
 
-Use the loaded docs and grounding cards to choose snapshot, evidence, and
+Use the loaded docs and grounding cards to choose tenant-config, evidence, and
 operational-knowledge entry points. This selection is mapping-driven: start
-from the grounding card's `Inspect snapshot` list or the product/reference
-mapping, then narrow by the user's literal tokens. Cap initial snapshot loads
-at five files total across products unless the user explicitly directs
+from the grounding card's `Inspect tenant config` list or the product/reference
+mapping, then narrow by the user's literal tokens. Cap initial tenant-config loads
+at five IaC files or `zscalerctl` commands total across products unless the user explicitly directs
 otherwise. Operational-knowledge candidates stay bounded to the matching
 product directories plus `shared/` and must pass the relevance and active-state
 checks above.
@@ -765,20 +763,20 @@ Default entry points by product:
 | SSL inspection or bypass | SSL inspection rules, bypass lists, forwarding profile context |
 | ZCC forwarding or tunnel behavior | forwarding profile, app profile, device/user assignment context |
 | Cloud Connector | cloud connector inventory, workload discovery, forwarding or policy attachment context |
-| Unknown product | product index plus the narrowest snapshot files named by user tokens |
+| Unknown product | product index plus the narrowest IaC files or `zscalerctl` commands named by user tokens |
 
 ### 2D — Load Selected Files
 
-Load selected snapshot, operational-knowledge, and evidence files with the
+Load selected IaC, operational-knowledge, and evidence files with the
 file-read tool. Also read
 `<working-dir>/_data/cases/<slug>/journal.md` as the operative artifact so
 Step 3 updates the same file rather than creating a new one. Do not load
-unselected snapshot files. For files larger than 100 MB, search for
+unselected IaC files. For files larger than 100 MB, search for
 user-flagged specifics first instead of loading blindly. If no search pattern
 can be derived from the framing or loaded context, ask one clarification before
 loading the file.
 
-JSON snapshot files often contain nested arrays and objects. Use structured
+JSON config files often contain nested arrays and objects. Use structured
 queries such as `jq` when walking IDs or relationships; plain text search can
 miss nested structure.
 
@@ -799,11 +797,11 @@ journal. Every hypothesis must cite loaded evidence or explicitly state what
 evidence would resolve it.
 
 Apply the evidence-basis rule from the investigator prompt: the `Notes` column
-must say whether each hypothesis is `reference-grounded`, `snapshot-grounded`,
+must say whether each hypothesis is `reference-grounded`, `iac-grounded`, `live-read-grounded`,
 `runtime-evidence grounded`, or `mixed`. Use `Open (likely)` only when loaded
-tenant snapshot, runtime evidence, or user-provided evidence points toward the
+tenant IaC, live-read, runtime evidence, or user-provided evidence points toward the
 hypothesis. If the loaded set contains only product references, keep the status
-at `Open (uncertain)` and state that no tenant snapshot or runtime evidence was
+at `Open (uncertain)` and state that no tenant IaC, live-read, or runtime evidence was
 available.
 
 Do not identify a root cause in Step 3 unless the loaded evidence directly

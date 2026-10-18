@@ -55,7 +55,7 @@ Zscaler has renamed several core components over time without fully purging the 
 | Cloud Path | (same) | — | ZDX feature: hop-by-hop network-path visualization from endpoint to destination, distinct from generic "cloud path" as a phrase. |
 | Page Fetch Time | (same) | — | ZDX probe metric — top-level document fetch duration. The primary input to the ZDX Score for Web applications. |
 | Telemetry and Policy Gateway (TPG) | — | — | ZDX control-plane component — multi-tenant RESTful gateway routing metrics between ZCC and Microsoft ADX. |
-| Forwarding Profile | ZCC Forwarding Profile, Web Forwarding Profile (in `webForwardingProfile` API path) | `forwardingProfileActions` / `forwardingProfileZpaActions` in snapshot JSON | ZCC policy object: per-network-type rules for where to send traffic (ZIA/ZPA/direct) |
+| Forwarding Profile | ZCC Forwarding Profile, Web Forwarding Profile (in `webForwardingProfile` API path) | `forwardingProfileActions` / `forwardingProfileZpaActions` in tenant config JSON | ZCC policy object: per-network-type rules for where to send traffic (ZIA/ZPA/direct) |
 | Trusted Network | (same) | `trustedNetworkContracts` wrapper in ZCC list responses | Named set of criteria ZCC uses to classify the current network as "trusted" |
 | App Profile (ZCC) | Device Profile, ZCC App Profile | — | Exposed as `client.zcc.application_profiles` (`/application-profiles`, list + get-by-id + PATCH) in both SDKs (Go: `application_profiles.go:296`; Python: `zcc_service.py:129-134`). Also surfaces as `WebPolicy` on the legacy `/web/policy` path. See `clarification zcc-07`. |
 | ZIdentity | — | `ZSCALER_VANITY_DOMAIN` env var points here | Unified identity service; OneAPI OAuth flows run here. See `references/zidentity/`. |

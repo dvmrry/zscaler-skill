@@ -180,7 +180,7 @@ material and is rejected there; keep it in the local setup config or provide
 
 After the contract check, distinguish setup state from live integration state:
 
-- No `<mount>/snapshot` content means snapshot-backed reasoning is unavailable.
+- No `<mount>/overlay` content, or an `overlay.json` that declares neither `iac` nor `live`, means tenant-backed reasoning (tiers 2 and 3) is unavailable; answers come from the knowledge graph only.
 - No `<mount>/schemas` content means tenant schema hints are unavailable.
 - Missing cloud, SIEM, or Zscaler credentials may block live refresh or live
   validation, but they do not mean the `_data` mount contract failed.

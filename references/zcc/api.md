@@ -95,7 +95,7 @@ Implication: when a ZIA admin is added, they don't automatically appear in ZCC's
 
 ## Wire format quirks
 
-- **camelCase on the wire.** All JSON keys are camelCase (`dnsSearchDomains`, `trustedDhcpServers`, etc.). The SDK exposes snake_case Python names and translates; any tooling hitting the JSON directly (e.g., `jq` on snapshot files) must use the camelCase keys.
+- **camelCase on the wire.** All JSON keys are camelCase (`dnsSearchDomains`, `trustedDhcpServers`, etc.). The SDK exposes snake_case Python names and translates; any tooling hitting the JSON directly (e.g., `jq` on IaC or `zscalerctl` JSON output) must use the camelCase keys.
 - **`WebPolicy` mixes cases.** Uniquely among ZCC models, `WebPolicy` keeps certain keys as snake_case on the wire — `device_type`, `pac_url`, `reauth_period`, `install_ssl_certs`, `bypass_mms_apps`, `quota_in_roaming`, `wifi_ssid`, `limit`, `billing_day`, `allowed_apps`, `custom_text`, `bypass_android_apps`, and per-platform password fields. The SDK's `SNAKE_CASE_KEYS` set (`zscaler/zcc/models/webpolicy.py`) is the authoritative list. When writing WebPolicy payloads by hand, do not camelCase these fields.
 - **CSV strings for multi-value fields.** TrustedNetwork criteria (`dnsServers`, `trustedSubnets`, etc.) are comma-separated strings, not JSON arrays. Tooling splits on `,` and trims whitespace.
 - **v1 endpoint paths are verb-suffixed.** `.../listByCompany`, `.../create`, `.../edit`, `.../{id}/delete` — not RESTful resource patterns. Scripts that build URLs manually need to follow the suffix convention per method. This applies to the `/zcc/papi/public/v1` surface; the [v2 family](#v2-endpoints) is RESTful instead.

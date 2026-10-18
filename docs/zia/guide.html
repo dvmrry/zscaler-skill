@@ -130,8 +130,8 @@
             <tr><td>rank</td><td>integer (1–7)</td><td>Admin rank gate — who can create or edit this rule</td><td>Higher rank = constrained to appear earlier in order; <code>enableAdminRankAccess</code> must be on in Advanced Settings</td></tr>
             <tr><td>state</td><td>string enum</td><td><code>ENABLED</code> or <code>DISABLED</code></td><td>Disabled rules skip evaluation but retain their order slot — position is occupied</td></tr>
             <tr><td>action</td><td>string enum</td><td><code>ALLOW</code>, <code>CAUTION</code>, <code>BLOCK</code>, <code>ISOLATE</code>, <code>ICAP_RESPONSE_MODE</code></td><td><code>ISOLATE</code> requires Zero Trust Browser; <code>ICAP_RESPONSE_MODE</code> appears on tenants with ICAP integration</td></tr>
-            <tr><td>urlCategories</td><td>array of strings</td><td>Category codes matched by this rule (e.g. <code>"OTHER_ADULT_MATERIAL"</code>, <code>"CUSTOM_89"</code>)</td><td>Observed as strings in tested tenant snapshots — not <code>{id, name}</code> objects</td></tr>
-            <tr><td>urlCategories2</td><td>array of strings</td><td>AND operator: URL must match both categories simultaneously</td><td>Not observed in tested tenant snapshots; contract/SDK still model it. Treat absence as unused on this tenant, not proof it is removed</td></tr>
+            <tr><td>urlCategories</td><td>array of strings</td><td>Category codes matched by this rule (e.g. <code>"OTHER_ADULT_MATERIAL"</code>, <code>"CUSTOM_89"</code>)</td><td>Observed as strings in tested tenant data — not <code>{id, name}</code> objects</td></tr>
+            <tr><td>urlCategories2</td><td>array of strings</td><td>AND operator: URL must match both categories simultaneously</td><td>Not observed in tested tenant data; contract/SDK still model it. Treat absence as unused on this tenant, not proof it is removed</td></tr>
             <tr><td>protocols</td><td>array of strings</td><td><code>HTTPS_RULE</code>, <code>HTTP_RULE</code>, <code>FTP_RULE</code>, etc.</td><td>Rules using Protocol criterion only evaluate at the post-decrypt (full-URL) pass — silently don't fire if SSL is not inspecting</td></tr>
             <tr><td>requestMethods</td><td>array</td><td>HTTP methods (<code>GET</code>, <code>POST</code>, etc.)</td><td>Post-decrypt only — same silent-no-fire risk as protocols</td></tr>
             <tr><td>blockOverride</td><td>boolean</td><td>Permits user to self-override a Block action</td><td>Silently ignored unless <code>action = BLOCK</code>; most common "why doesn't override work?" root cause</td></tr>
@@ -196,7 +196,7 @@
         <li><strong>Order constraint:</strong> higher-rank rules are constrained to appear before lower-rank rules in the evaluation order. Rank-7 rules must precede rank-5 rules.</li>
       </ol>
       <p>Admin Rank is a tenant-wide toggle: <code>enableAdminRankAccess</code> in <code>advanced-settings.json</code>. When off, rank constraints on ordering are relaxed and the edit gate does not apply.</p>
-      <p>The <code>rank</code> field in snapshot JSON is the rule's stamped rank; <code>order</code> is its evaluation position. These are separate integers — <code>rank</code> does not determine <code>order</code> directly, only constrains the valid range of <code>order</code> values the rule can occupy.</p>
+      <p>The <code>rank</code> field in tenant config JSON is the rule's stamped rank; <code>order</code> is its evaluation position. These are separate integers — <code>rank</code> does not determine <code>order</code> directly, only constrains the valid range of <code>order</code> values the rule can occupy.</p>
 
       <h4>Cascading to URL Filtering</h4>
       <p>Cloud App Control (CAC) evaluates before URL Filtering. A CAC rule that <em>allows</em> a transaction short-circuits URL Filtering by default — URL Filtering never runs. The Cascading flag reverses this for Allow paths:</p>
@@ -492,7 +492,7 @@
             <tr><td>references/zia/ssl-inspection.md</td><td>Layer 1 · doc + SDK</td></tr>
             <tr><td>references/zia/cloud-app-control.md</td><td>Layer 1 · doc</td></tr>
             <tr><td>references/zia/wildcard-semantics.md</td><td>Layer 1 · doc</td></tr>
-            <tr><td>references/zia/snapshot-schema.md § urlFilteringRules, § sslInspectionRules</td><td>Layer 1 · code (SDK + TF)</td></tr>
+            <tr><td><code>node scripts/kb.mjs resolve zia/url-filtering-rules</code>, <code>zia/ssl-inspection-rules</code> (field shapes)</td><td>Layer 1 · code (SDK + TF)</td></tr>
             <tr><td>references/zia/index.md</td><td>Layer 1 · doc</td></tr>
             <tr><td>vendor/zscaler-help/ — Understanding Policy Enforcement</td><td>Layer 1 · doc (Zscaler)</td></tr>
             <tr><td>vendor/zscaler-help/ — Configuring the URL Filtering Policy</td><td>Layer 1 · doc (Zscaler)</td></tr>

@@ -5,6 +5,7 @@ title: "ZCC web policy — on-device policy and per-platform overrides"
 content-type: reference
 last-verified: "2026-07-20"
 verified-against:
+  vendor/zscaler-help: 8c34045056b952b46110bb934580b0e936fa3f05
   vendor/zscaler-sdk-go: c87854fb29ae0e97beccf0345c99fdd49252ea5a
 confidence: medium
 source-tier: mixed
@@ -75,7 +76,7 @@ The Go `WebPolicy` struct is modeled on the ZCC admin UI's form-state, so **many
 - `enforceSplitDNS` / `disableDNSRouteExclusion` / `dropQuicTraffic` — top-level `string` (`web_policy.go:245–248`) vs extension `common.IntOrString` (`web_policy.go:572,578,579`).
 - `useTunnelSDK4_3` — top-level JSON **number** (`int`, `web_policy.go:319`) but a **quoted string** inside the iOS sub-policy (`IosPolicy.UseTunnelSDK43`, `web_policy.go:375`) — the wire shapes diverge intentionally.
 
-A tool that constructs a payload by hand and sets only one of the two copies can silently no-op or fail validation. When auditing snapshot JSON, expect to see both keys.
+A tool that constructs a payload by hand and sets only one of the two copies can silently no-op or fail validation. When auditing tenant config JSON (IaC or `zscalerctl` output), expect to see both keys.
 
 ### Scope and evaluation
 
@@ -190,7 +191,7 @@ If the SSL-cert-install field is `false` on any platform sub-policy, ZCC does no
 
 #### `install_ssl_certs` wire-key matrix
 
-The wire key for the per-OS SSL-cert-install field is **not consistent across platforms**, and the Python and Go SDKs disagree on **two** platforms (Windows *and* macOS) — in **opposite directions**. Tools constructing payloads by hand or auditing snapshot JSON must use the right key per platform AND per SDK, because a payload sent with the wrong key is silently ignored. (The Go MacPolicy carries an explicit comment that camelCase tags caused `{"success":"false","id":0}` on `/edit` until the field was switched to snake_case — `web_policy.go:389–394`.)
+The wire key for the per-OS SSL-cert-install field is **not consistent across platforms**, and the Python and Go SDKs disagree on **two** platforms (Windows *and* macOS) — in **opposite directions**. Tools constructing payloads by hand or auditing tenant config JSON must use the right key per platform AND per SDK, because a payload sent with the wrong key is silently ignored. (The Go MacPolicy carries an explicit comment that camelCase tags caused `{"success":"false","id":0}` on `/edit` until the field was switched to snake_case — `web_policy.go:389–394`.)
 
 | Platform | Python emit key | Go wire key | Status |
 |---|---|---|---|
@@ -348,7 +349,7 @@ User / Device
 
 A user can only have one active Web Policy (first-match-wins by `rule_order`). That Web Policy points to exactly one Forwarding Profile. Changing `forwarding_profile_id` on the Web Policy changes which traffic behavior the user gets — but only on their next ZCC login/restart.
 
-**A Web Policy can reference a Forwarding Profile ID that does not exist** — the relationship is FK-shaped but not enforced at write time. `_data/snapshot/<cloud>/zcc/web-policy.json` joined with `_data/snapshot/<cloud>/zcc/forwarding-profiles.json` via ID is the way to detect orphaned references.
+**A Web Policy can reference a Forwarding Profile ID that does not exist** — the relationship is FK-shaped but not enforced at write time. The overlay's IaC for `zcc/web-policy` joined with `zcc/forwarding-profiles` via ID (or `zscalerctl zcc web-policy list` and `zscalerctl zcc forwarding-profiles list` for a live check) is the way to detect orphaned references.
 
 Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`.
 
@@ -419,4 +420,4 @@ These claims are operationally useful but not backed by the vendor SDK/API sourc
 - Web Privacy (log collection; ZDX location; separate from App Profile) — [`./web-privacy.md`](./web-privacy.md)
 - ZCC API surface — [`./api.md`](./api.md)
 - ZIA device posture (cross-product hook via `zia_posture_config_id`) — not yet written up
-- Wire-format schema for `_data/snapshot/<cloud>/zcc/web-policy.json` — [`./snapshot-schema.md`](./snapshot-schema.md)
+- Field shapes for `zcc/web-policy` — `node scripts/kb.mjs resolve zcc/web-policy`

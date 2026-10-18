@@ -17,6 +17,8 @@ sources:
   - "vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md"
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py"
 author-status: draft
+verified-against:
+  vendor/zscaler-help: 8fb9eadd9f90e3c92ae419985325652f0cfffe1f
 ---
 
 # Z-Tunnel 1.0 vs 2.0 — architecture, deployment, and bypass semantics
@@ -76,7 +78,7 @@ In the forwarding profile's per-network-type action (see [`./forwarding-profile.
 - **Network-type action**: Tunnel.
 - **Tunnel Version**: explicit selection of 1.0 or 2.0.
 
-These map to the SDK's `ForwardingProfileActions` object: `primary_transport` controls the transport preference (ZTUNNEL = 2.0, others likely DTLS / TLS markers for 1.0), `enable_packet_tunnel` toggles the packet-tunnel capability, and `tunnel2_fallback_type` (wire key `tunnel2FallbackType`, `forwardingprofile.py:128`/`forwardingprofile.py:209`) configures the fallback behavior when 2.0 fails. See [`clarification zcc-04`](../_meta/clarifications.md#zcc-04-forwardingprofile-primary_transport-enum) for the enum string specifics — first tenant snapshot will surface the observed values.
+These map to the SDK's `ForwardingProfileActions` object: `primary_transport` controls the transport preference (ZTUNNEL = 2.0, others likely DTLS / TLS markers for 1.0), `enable_packet_tunnel` toggles the packet-tunnel capability, and `tunnel2_fallback_type` (wire key `tunnel2FallbackType`, `forwardingprofile.py:128`/`forwardingprofile.py:209`) configures the fallback behavior when 2.0 fails. See [`clarification zcc-04`](../_meta/clarifications.md#zcc-04-forwardingprofile-primary_transport-enum) for the enum string specifics — the first tenant read (IaC or `zscalerctl`) will surface the observed values.
 
 The typical best-practice config (from the 5-phase deployment guide): set all three network-type branches (On-Trusted Network, VPN-Trusted Network, Off-Trusted Network) to "Same as On-Trusted Network" during initial testing; diversify per branch only after a 1-2 week observation window.
 

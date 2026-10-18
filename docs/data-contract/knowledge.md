@@ -146,7 +146,7 @@ When an allowed workflow uses a record:
 If a record conflicts with public references, surface both with their source,
 scope, and confidence. Never resolve the disagreement silently. Operational
 knowledge records describe behavior, not current tenant configuration; tenant
-state belongs in `<mount>/snapshot/`.
+state belongs in the overlay's IaC (`<mount>/iac/`) or a live read-only `zscalerctl` read.
 
 Malformed records are skipped rather than trusted. Their presence is not the
 same as silent absence: the contract checker reports them for repair.

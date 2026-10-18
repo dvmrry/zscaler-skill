@@ -31,21 +31,22 @@ Before reviewing, identify:
 - Scope
 - Subtype: `policy`, `access`, `coverage`, `config`, `activity`, or a stated combination
 - Threat model, or `general posture review`
-- Tenant cloud if snapshot data is expected
+- Tenant cloud if IaC or live data is expected
 
 If scope is missing or subtype cannot be inferred, ask one multiple-choice clarification and stop.
 
 ## Gate 2 - Grounding gate (audit)
 
-Before findings, load the relevant product reference, schema, or snapshot/index path needed for the subtype.
+Before findings, load the relevant product reference, schema, or IaC/index path needed for the subtype.
 
 Evidence preference:
 
-1. `_data/snapshot/<cloud>/`
+1. The overlay's IaC (when `overlay.json` declares `iac`)
 2. `_data/cases/<slug>/evidence/`
 3. `_data/schemas/`
 4. SIEM output or user-provided query result
-5. Vendor reference
+5. Live read-only `zscalerctl` (when `overlay.json` declares `live`; only when IaC cannot answer or for drift; cite the command; not kept as a standing tenant cache)
+6. Vendor reference
 
 Do not browse sibling case contents. Directory names are allowed only for disambiguation.
 

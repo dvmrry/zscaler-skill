@@ -112,7 +112,7 @@ index=$INDEX_ZIA_WEB (url=$URL OR host=$HOSTNAME) earliest=-7d
 | sort -count
 ```
 
-Pair with config: the rule-list from `_data/snapshot/<cloud>/zia/url-filtering-rules.json` gives the ordered evaluation list. The Splunk output shows which one *actually* fired — divergence from expected-first-match is the signal.
+Pair with config: the rule-list from the overlay's IaC for `zia/url-filtering-rules` (or `zscalerctl zia url-filtering-rules list`) gives the ordered evaluation list. The Splunk output shows which one *actually* fired — divergence from expected-first-match is the signal.
 
 ### `ssl-inspection-observed`
 
@@ -177,10 +177,10 @@ If `$HOSTNAME` doesn't appear at all, combine with local packet capture or clien
 
 **Purpose:** Detect when configured policy doesn't match observed behavior. Classic example: a rule configured as Allow but logging Block action (or vice versa).
 
-Requires joining a snapshot export against live logs. Candidate approach (requires a `snapshot_rules.csv` export from the snapshot):
+Requires joining a config export (from the overlay's IaC or a live `zscalerctl` read) against live logs. Candidate approach (requires a `config_rules.csv` export of the rules):
 
 ```spl
-| inputlookup snapshot_rules.csv
+| inputlookup config_rules.csv
 | rename rule_name as urlfilterrulelabel expected_action as expected
 | join urlfilterrulelabel
     [search index=$INDEX_ZIA_WEB earliest=-7d

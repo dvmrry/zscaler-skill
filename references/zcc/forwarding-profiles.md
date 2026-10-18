@@ -13,6 +13,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py"
 author-status: draft
+verified-against:
+  vendor/zscaler-help: 8c34045056b952b46110bb934580b0e936fa3f05
 ---
 
 # ZCC forwarding profiles — portal configuration, network environments, and app profile assignment
@@ -132,7 +134,7 @@ Source: `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-conn
 
 An **App Profile** (also called a Web Policy in the SDK/API) is the entity that assigns a forwarding profile to a user or device. The App Profile references the forwarding profile by ID. A user's active App Profile determines their active forwarding profile (Tier A — vendor/zscaler-help/about-forwarding-profiles.md).
 
-The join is directly SDK-backed: the App Profile object carries a `forwardingProfileId` field — `ApplicationProfile.forwarding_profile_id` maps the wire key `forwardingProfileId` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:69`). This is the authoritative field that points an App Profile at a Forwarding Profile. The App Profile object is read and updated through the `client.zcc.application_profiles` surface (`vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py:129`), which is REST-backed by `GET /zcc/papi/public/v1/application-profiles` (list) and `GET` / `PATCH /zcc/papi/public/v1/application-profiles/{profile_id}` (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:77-81`, `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:123-127`, `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:218-222`). When [`./snapshot-schema.md`](./snapshot-schema.md) joins App Profiles to Forwarding Profiles by ID, `forwardingProfileId` is the field it joins on.
+The join is directly SDK-backed: the App Profile object carries a `forwardingProfileId` field — `ApplicationProfile.forwarding_profile_id` maps the wire key `forwardingProfileId` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:69`). This is the authoritative field that points an App Profile at a Forwarding Profile. The App Profile object is read and updated through the `client.zcc.application_profiles` surface (`vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py:129`), which is REST-backed by `GET /zcc/papi/public/v1/application-profiles` (list) and `GET` / `PATCH /zcc/papi/public/v1/application-profiles/{profile_id}` (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:77-81`, `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:123-127`, `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:218-222`). When tenant config (IaC or `zscalerctl` output) joins App Profiles to Forwarding Profiles by ID, `forwardingProfileId` is the field it joins on.
 
 ```
 User / Device

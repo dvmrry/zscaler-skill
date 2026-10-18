@@ -32,7 +32,7 @@ Load and follow `agents/zscaler/prompt.md` first. Load files listed in
 `optional-reads` only when their trigger applies.
 
 Use this workflow for conversational, citation-backed Zscaler Q&A. Read only the
-specific references or tenant snapshot files needed for the current question.
+specific references, IaC files, or read-only `zscalerctl` commands needed for the current question.
 If the question becomes procedural, offer the relevant `/z-*` handoff instead of
 silently switching modes.
 

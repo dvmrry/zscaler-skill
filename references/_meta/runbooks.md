@@ -135,17 +135,17 @@ See [`../shared/oneapi.md § Authentication mechanisms`](../shared/oneapi.md) fo
    - `ZIA_USERNAME` + `ZIA_API_KEY` + `ZIA_CLOUD` → ZIA legacy
    - `ZPA_CLIENT_ID` + `ZPA_CUSTOMER_ID` → ZPA legacy
 
-### Diagnostic 4 — Is my snapshot data current?
+### Diagnostic 4 — Is my tenant data current?
 
-**Why you need this:** scripts derive answers from `_data/snapshot/` JSON. If snapshot is stale or empty, answers can be wrong.
+**Why you need this:** tenant answers derive from the overlay's IaC (tier 2) or a live `zscalerctl` read (tier 3). If IaC is stale or absent, answers can be wrong.
 
 **Procedure:**
 
-1. `find _data/snapshot/<cloud> -mindepth 2 -type f -print -quit` — if it prints nothing, no snapshot exists for that cloud.
-2. `cat _data/snapshot/_manifest.json` — inspect timestamps. Fields older than the last tenant config change are stale.
-3. Re-populate `_data/snapshot/` to update.
+1. `node scripts/kb.mjs resolve <type-id>` — read the bundle's `tiers` block; if neither `iac` nor `live` is available, no tenant data exists.
+2. Check the IaC backfill date. IaC older than the last tenant config change is stale for that question.
+3. For stale or uncovered types, or drift, run the named read-only `zscalerctl` command (`type.live.command`) and, for a case, save the output to the case's `evidence/` and cite it; do not keep it as a standing tenant cache.
 
-If snapshot is empty (upstream skill default), the skill should DECLINE tenant-specific questions per the SKILL.md "When to decline" rules. This is a feature, not a bug — it prevents the skill from confabulating tenant data.
+If no overlay IaC or live read is available (upstream skill default), the skill should DECLINE tenant-specific questions per the SKILL.md "When to decline" rules. This is a feature, not a bug — it prevents the skill from confabulating tenant data.
 
 ---
 
@@ -206,7 +206,7 @@ Start
 │           See references/zia/sandbox.md if dealing with sandbox rules.
 │
 ├─ Is the URL falling into a different category than expected?
-│  └─ Verify the URL’s category resolution against the snapshot or logs.
+│  └─ Verify the URL’s category resolution against the overlay's IaC, a live `zscalerctl` read, or logs.
 │           Specificity-wins-across-custom-categories may route the request to a different rule.
 │
 └─ Still not behaving → Check Web Insights logs for "Blocked Policy Type"; the answer is in the data.
@@ -417,7 +417,7 @@ Reversibility differs sharply by product. Pick the right pattern for the product
 ZIA's activation gate provides a bounded rollback window, not an indefinite one. Pending changes autoactivate when the API/admin session ends; the API-session timeout is 5–20 minutes and defaults to 5 (`vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70`). Revert within the same live session, and raise the timeout to 20 before a large planned apply.
 
 ```python
-# 1. Snapshot _data/snapshot/ before the change so you have a known-good baseline
+# 1. Capture the current config (read-only `zscalerctl` output, kept in your change ticket, not as a skill cache) before the change so you have a known-good baseline
 import json
 
 # 2. Confirm activation status is clean before starting
@@ -493,7 +493,7 @@ Some changes can't be rolled back even with the patterns above:
 
 ### Operational guidance
 
-- **Always snapshot before risky changes.** Capturing `_data/snapshot/` pre-change is cheap and gives you a known-good baseline.
+- **Always snapshot before risky changes.** Capturing the current config pre-change (for example read-only `zscalerctl` output kept with the change ticket) is cheap and gives you a known-good baseline.
 - **Use ZIA's activation gate deliberately.** Stage all related changes together, then activate as one atomic step. Don't activate one change at a time when they're related.
 - **Coordinate concurrent admins.** ZIA's edit lock + activation gate mean concurrent automation can step on each other — see `EDIT_LOCK_NOT_AVAILABLE` in [§ Troubleshooting flows § TS-4](#ts-4-activation-is-stuck-or-returning-409).
 - **Test on a non-production tenant first if available.** A dev / sandbox tenant lets you exercise the activation gate without production-impact risk.

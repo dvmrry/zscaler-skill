@@ -36,13 +36,12 @@ Read these *before* interpreting any policy log. Segment matching has a non-obvi
 - `references/zpa/segment-server-groups.md`
 - `references/zpa/policy-precedence.md`
 
-## Inspect snapshot
+## Inspect tenant config
 
-- `_data/snapshot/<cloud>/zpa/app-segments.json`
-- `_data/snapshot/<cloud>/zpa/segment-groups.json`
-- `_data/snapshot/<cloud>/zpa/access-policy-rules.json`
+- The overlay's IaC (when `overlay.json` declares `iac`) for `zpa/app-segments`, `zpa/segment-groups`, and `zpa/access-policy-rules`
+- Live, read-only, only when IaC cannot answer or for drift: `zscalerctl zpa app-segments list`, `zscalerctl zpa segment-groups list`, `zscalerctl zpa access-policy-rules list`
 
 ## Use runtime logs only when
 
-- Snapshot shows two segments that could plausibly match, and a runtime record is needed to confirm which actually fired.
+- Tenant config shows two segments that could plausibly match, and a runtime record is needed to confirm which actually fired.
 - IdP attribute drift is suspected (segment scope depends on a SAML/SCIM attribute and the value at request time may not match the configured value).

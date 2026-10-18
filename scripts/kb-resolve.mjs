@@ -10,6 +10,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { validate } from "./kb-schema.mjs";
+import { runtimeDataMountSettings } from "./lib.mjs";
 import {
   ID, META, allEvidence, anchorEvidence, gitlink, idKind, normalizeText, qualify, resolvePointer, sha256File,
 } from "./kb-lib.mjs";
@@ -479,8 +480,14 @@ function sha256String(s) {
 
 // ---------------------------------------------------------------- CLI glue
 
+/** The company overlay at `<runtime-data mount>/overlay`, when that directory has an overlay.json. */
+function defaultOverlay(root) {
+  const dir = path.resolve(root, runtimeDataMountSettings(root).mountPath, "overlay");
+  return fs.existsSync(path.join(dir, "overlay.json")) ? dir : null;
+}
+
 export async function runCommand(root, g, cmd, args, { option, usage }) {
-  const overlayDir = option(args, "--overlay") ?? process.env.ZSCALER_KB_OVERLAY;
+  const overlayDir = args.includes("--no-overlay") ? null : option(args, "--overlay") ?? process.env.ZSCALER_KB_OVERLAY ?? defaultOverlay(root);
   const ov = overlayDir ? loadOverlay(g, overlayDir) : null;
   if (ov) {
     const errors = validateOverlay(g, ov);

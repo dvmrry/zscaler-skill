@@ -47,18 +47,18 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 **What it is:** how a specific tenant has Zscaler configured. Different per fork; never committed upstream.
 
 **Where it lives:**
-- `_data/snapshot/<cloud>/zia/*.json`, `_data/snapshot/<cloud>/zpa/*.json`, `_data/snapshot/<cloud>/zcc/*.json` — config dumps from the API.
-- `_data/snapshot/_manifest.json` — timestamps and per-resource counts.
+- The overlay's IaC (answer tier 2), when `overlay.json` declares `iac` — config as of the last backfill.
+- Live read-only `zscalerctl` (answer tier 3), when `overlay.json` declares `live` — results are never kept as a standing tenant cache (a case may save them under its own `evidence/`).
 - (Future) per-tenant log-schema decompositions and query skeletons in `_data/schemas/` (gitignored).
 
-**Authority pattern:** sourced from real tenant API. Authoritative for "what does this tenant actually have configured." Stale within hours-to-days depending on tenant change rate.
+**Authority pattern:** sourced from real tenant API. Authoritative for "what does this tenant actually have configured." IaC is as stale as its last backfill; live reads are current as of the read.
 
 **Examples:**
 - "Rule 47 in this tenant's URL Filtering blocks Social Networking for the Engineering department."
 - "This tenant has 3 ZPA App Connector groups, each with 2 connectors at version 22.146.1."
 - "URL category `Custom_Engineering` includes the FQDNs `slack.company.example.com` and `confluence.company.example.com`."
 
-**Update cadence:** per-fork. Re-populate `_data/snapshot/` when needed; cron weekly is reasonable for stable tenants. Log queries are on-demand.
+**Update cadence:** per-fork. IaC is refreshed by the IaC backfill; live `zscalerctl` reads and log queries are on-demand.
 
 **Critical property:** **never committed to the public upstream.** Tenant data lives in private runtime-data mounts or forks. Public upstream ignores `_data/` and documents the expected shape in `docs/data-contract/`.
 
@@ -96,7 +96,7 @@ When answering a question, the skill should combine layers explicitly:
 ```
 Layer 1 (general)
    ↓
-Layer 2 (tenant config) — applied IF _data/snapshot/ is populated
+Layer 2 (tenant config) — applied IF the overlay declares `iac` or `live`
    ↓
 Layer 3 (operational knowledge) — applied IF a relevant active record or SME input exists
    ↓
@@ -108,7 +108,7 @@ Cited sources in the answer should attribute by layer:
 ```
 ## Sources
 - references/zia/url-filtering.md § Rule precedence (Layer 1: general)
-- _data/snapshot/<cloud>/zia/url-filtering-rules.json rule 47 (Layer 2: this tenant)
+- overlay IaC for zia/url-filtering-rules, rule 47 (Layer 2: this tenant)
 - _data/knowledge/zia/gre-mtu-flap.md (Layer 3: local operational knowledge)
 ```
 
@@ -116,7 +116,7 @@ Cited sources in the answer should attribute by layer:
 
 | Scenario | Skill behavior |
 |---|---|
-| Layer 1 only (no snapshot, no SME input) | General answer with appropriate confidence. Note the limitation: "I can describe how this works in Zscaler generally; for your tenant specifically, populate `_data/snapshot/` and re-ask." |
+| Layer 1 only (no overlay IaC or live read, no SME input) | General answer with appropriate confidence. Note the limitation: "I can describe how this works in Zscaler generally; for your tenant specifically, configure the overlay's `iac` or `live` tier (or run `zscalerctl zia url-filtering-rules list`) and re-ask." |
 | Layer 1 + Layer 2 | Combined answer. Distinguish "Zscaler does X" from "your tenant has Y configured." |
 | Layer 1 + Layer 3 | Combined answer. Tribal knowledge typically refines or extends Layer 1. |
 | Layer 2 + Layer 3 without Layer 1 | Rare — usually means a question that's purely tenant-specific. Still answer but note no general framing. |
@@ -126,20 +126,20 @@ Cited sources in the answer should attribute by layer:
 
 - **Treating Layer 2 inferences as Layer 1 facts.** "This tenant doesn't have Multimatch enabled" is a Layer 2 fact. "Zscaler doesn't support Multimatch" is a Layer 1 falsehood derived from over-generalizing.
 - **Treating Layer 3 as Layer 1.** "Our team has never seen X happen" is Layer 3 (absence of tribal evidence). "Zscaler doesn't do X" is a Layer 1 claim that requires Zscaler documentation. They're not the same.
-- **Citing Layer 1 when Layer 2 is required.** "ZIA blocks Social Networking by default" is wrong as a Layer 1 claim. Default policy varies; your tenant's default is in `_data/snapshot/<cloud>/zia/url-filtering-rules.json`, not in the help docs.
+- **Citing Layer 1 when Layer 2 is required.** "ZIA blocks Social Networking by default" is wrong as a Layer 1 claim. Default policy varies; your tenant's default is in the overlay's IaC for `zia/url-filtering-rules` (or `zscalerctl zia url-filtering-rules list`), not in the help docs.
 - **Letting Layer 3 quietly override Layer 1.** If operational knowledge
   contradicts Zscaler docs, surface both claims with their scope, confidence,
   and source layer. Never resolve the disagreement silently.
 
 ## Where tenant-data layering will eventually intersect the skill
 
-Currently Layer 2 is a known gap because the public skill ships an empty `_data/snapshot/`. When a fork populates real tenant data:
+Currently Layer 2 is a known gap because the public skill has no tenant: tiers 2 and 3 exist only company-side. When a fork configures an overlay with `iac` or `live`:
 
-1. The skill should **read `_data/snapshot/` first** for any tenant-specific
-   question. The canonical ad-hoc prompt's tenant-observation section already
-   makes local snapshot evidence the preferred first source.
-2. Reasoning docs cite `_data/snapshot/<cloud>/<product>/<resource>.json` paths inline (we do this today as aspirational citations; they become real once the file populates).
-3. **Schema docs** (`references/zia/snapshot-schema.md`, `references/zpa/snapshot-schema.md`, `references/zcc/snapshot-schema.md`, `references/zidentity/snapshot-schema.md`) are **written** (drafted from Postman collection + SDK + TF provider; confidence: medium). Validate and bump to `high` after a real fork-admin run produces tenant output. The resource-level reasoning docs now cross-link to them.
+1. The skill should **start from `node scripts/kb.mjs resolve`, then the overlay's IaC** for any tenant-specific
+   question, using live `zscalerctl` only when IaC cannot answer or for drift. The canonical ad-hoc prompt's
+   tenant-observation section already encodes this order.
+2. Reasoning docs cite the overlay's IaC path or the `zscalerctl` command inline for tenant claims.
+3. **Field shapes** come from `node scripts/kb.mjs resolve <type-id>` (for example `zia/url-filtering-rules`); the former `snapshot-schema.md` docs are retired.
 
 ## Where SME knowledge intersects
 
@@ -173,5 +173,5 @@ When training data flows from this skill into a fine-tuned model on RockAI:
   be stated without citing private overlay evidence.
 - `docs/data-contract/knowledge.md` — structured private Layer 3 records and
   their loading and promotion boundary.
-- `PLAN.md § 4. Snapshot schema docs` — historical Layer 2 schema-design rationale; the source-derived schema guides now exist, while tenant-output validation remains pending.
+- `PLAN.md § 4. Snapshot schema docs` — historical Layer 2 schema-design rationale; the snapshot-schema guides are retired in favor of `node scripts/kb.mjs resolve <type-id>`.
 - `README.md § Fork-admin first-run walkthrough` — how a fork-team operationalizes Layer 2 in their environment.

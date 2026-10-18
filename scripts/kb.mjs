@@ -2,7 +2,8 @@
 // scripts/kb.mjs — the knowledge-graph CLI.
 //
 //   validate [--no-citations]        schema + reference + prose + citation checks
-//   resolve <id | text> [--overlay <dir>] [--evidence] [--cases] [--pretty]
+//   resolve <id | text> [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]
+//     The overlay defaults to $ZSCALER_KB_OVERLAY, then <runtime-data mount>/overlay if it has overlay.json.
 //                                    one layer-labelled bundle (JSON on stdout)
 //   render <subject-id>              the subject as Markdown (deterministic)
 //   manifest                         record capture-manifest entries for cited captures

@@ -691,8 +691,8 @@ function checkDataContract(root, mountPath = DEFAULT_DATA_MOUNT, options = {}) {
     }
   }
 
-  if (warnings.some((warning) => warning.includes(`${mount}/snapshot/`))) {
-    warnings.push(`no ${mount}/snapshot content: snapshot-backed reasoning unavailable`);
+  if (!fs.existsSync(path.join(root, mount, "overlay", "overlay.json"))) {
+    warnings.push(`no ${mount}/overlay/overlay.json: company knowledge, IaC and live tiers unavailable`);
   }
   if (warnings.some((warning) => warning.includes(`${mount}/schemas/`))) {
     warnings.push(`no ${mount}/schemas content: tenant schema hints unavailable`);

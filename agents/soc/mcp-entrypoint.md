@@ -38,7 +38,7 @@ Execute these steps in order. Each gate must pass before the next begins.
 3. **record_evidence** (as needed) — Before recording a finding that cites
    tenant-captured evidence, store it with record_evidence so it can be
    referenced as `evidence:<name>`. This is required for findings citing SIEM
-   output, API responses, or snapshot excerpts not reachable as a file:line.
+   output, API responses, or IaC excerpts not reachable as a file:line.
 4. **record_finding** — Record each posture finding with a resolving source.
    Repeat for each finding. See the evidence-source and framework-not-evidence
    rules below.

@@ -18,6 +18,8 @@ sources:
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"
 author-status: draft
+verified-against:
+  vendor/zscaler-help: 8c34045056b952b46110bb934580b0e936fa3f05
 ---
 
 # Segment Groups and Server Groups — ZPA's two grouping primitives
@@ -110,7 +112,7 @@ From `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py` and `segmen
 | `applications` | `applications` | List of `{id, name}` dicts. Managed bidirectionally with App Segment's `segment_group_id`. |
 | `policy_migrated` | `policyMigrated` | Internal migration flag. Read-only. |
 | `config_space` | `configSpace` | Configuration space (e.g. `DEFAULT`/`SIEM`). |
-| `tcp_keep_alive_enabled` | `tcpKeepAliveEnabled` | String-as-bool on the wire (`"0"`/`"1"`), not a JSON boolean — see [snapshot-schema § Wire-format gotchas](./snapshot-schema.md#wire-format-gotchas). |
+| `tcp_keep_alive_enabled` | `tcpKeepAliveEnabled` | String-as-bool on the wire (`"0"`/`"1"`), not a JSON boolean — see `node scripts/kb.mjs resolve zpa/segment-groups` for field shapes. |
 | `microtenant_id` | `microtenantId` | Microtenant scoping; also accepted as a query param on every method. |
 | `microtenant_name` | `microtenantName` | Microtenant display name (read side). |
 | `skip_detailed_app_info` | `skipDetailedAppInfo` | Controls whether the response inflates full App Segment detail under `applications`. |
@@ -219,53 +221,53 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/
 
 `add_segment` accepts `server_group_ids` as a list, transformed to `serverGroups: [{id: ...}, ...]`. Multiple Server Groups on one App Segment enables weighted load balancing — each group can carry a `weight` and `passive` flag via `update_weighted_lb_config`. Without explicit weighted LB config, behavior across multiple Server Groups is unspecified in source code (Tier D: likely round-robin or first-match, but unconfirmed).
 
-## Verifying the segment → server group → connector chain (snapshot recipe)
+## Verifying the segment → server group → connector chain (tenant-config recipe)
 
 Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/servers.py`.
 
-A common investigation hypothesis: *"The App Segment exists and is correctly configured, but the Server Group → App Connector Group association is broken or empty."* Use this recipe to verify against snapshot JSON dumps without needing live API access.
+A common investigation hypothesis: *"The App Segment exists and is correctly configured, but the Server Group → App Connector Group association is broken or empty."* Use this recipe to verify against the overlay's IaC (when `overlay.json` declares `iac`) or, when IaC cannot answer, live read-only `zscalerctl` output piped into the session (for a case, save it under the case's `evidence/`; never a standing cache).
 
 ### What to check, in order
 
-The chain has four hops, each verifiable against snapshot data. Walk them in order — a break at any hop ends traffic delivery for the segment, so finding one explains the symptom and rules out hops further down.
+The chain has four hops, each verifiable against tenant config (IaC or live `zscalerctl`). Walk them in order — a break at any hop ends traffic delivery for the segment, so finding one explains the symptom and rules out hops further down.
 
-| # | Check | Snapshot file (typical) | JSON path to inspect |
+| # | Check | Type (IaC or `zscalerctl`) | JSON path to inspect |
 |---|---|---|---|
-| 1 | App Segment exists and matches the destination | `_data/snapshot/<cloud>/zpa/application-segments.json` | `[*]` where `domainNames[]` includes `<destination>` AND `tcpPortRanges[]` covers `<port>` |
+| 1 | App Segment exists and matches the destination | `zpa/app-segments` (`zscalerctl zpa app-segments list`) | `[*]` where `domainNames[]` includes `<destination>` AND `tcpPortRanges[]` covers `<port>` |
 | 2 | App Segment references at least one Server Group | same file as 1 | `[*].serverGroups[].id` is non-empty |
-| 3 | Each referenced Server Group has at least one App Connector Group | `_data/snapshot/<cloud>/zpa/server-groups.json` | for each id from hop 2: `appConnectorGroups[]` is non-empty |
-| 4 | Each referenced App Connector Group has at least one CONNECTED connector | `_data/snapshot/<cloud>/zpa/app-connectors.json` (or per-connector status feed) | filter `appConnectorGroupId == <id from hop 3>` AND `connectionStatus == "CONNECTED"`, count > 0 |
+| 3 | Each referenced Server Group has at least one App Connector Group | `zpa/server-groups` (`zscalerctl zpa server-groups list`) | for each id from hop 2: `appConnectorGroups[]` is non-empty |
+| 4 | Each referenced App Connector Group has at least one CONNECTED connector | `zpa/app-connectors` (`zscalerctl zpa app-connectors list`; connector status is live state, not in IaC) | filter `appConnectorGroupId == <id from hop 3>` AND `connectionStatus == "CONNECTED"`, count > 0 |
 
 ### Mapping findings to hypothesis status
 
-- **Hop 1 fails** (segment doesn't match destination/port) → hypothesis "segment doesn't exist or is misconfigured" is `Confirmed (high)` if snapshot is current.
+- **Hop 1 fails** (segment doesn't match destination/port) → hypothesis "segment doesn't exist or is misconfigured" is `Confirmed (high)` if the IaC is current (or the config was read live).
 - **Hop 2 fails** (segment has empty `serverGroups[]`) → "segment has no server group assigned" is `Confirmed (high)`. Usually a config error during creation.
 - **Hop 3 fails** (server group has empty `appConnectorGroups[]`) → "server group has no connector group" is `Confirmed (high)`. The ZPA API rejects this on creation, but it can occur after a connector group is deleted out from under the server group (see "Removing a Connector Group from a Server Group" above).
-- **Hop 4 fails** (connector group has zero `CONNECTED` connectors) → "all connectors disconnected for serving group" is `Confirmed (medium)` from snapshot alone. Snapshots may be stale; cross-reference live connector health (LSS App Connector Status, or live API) before promoting to `Confirmed (high)`.
+- **Hop 4 fails** (connector group has zero `CONNECTED` connectors) → "all connectors disconnected for serving group" is `Confirmed (medium)` from IaC alone. IaC may be stale and does not carry connector status; cross-reference live connector health (LSS App Connector Status, or live API) before promoting to `Confirmed (high)`.
 - **All four hops pass** → the chain is correctly configured. Move to runtime hypotheses (target reachability per [`./logs/app-connector-metrics.md`](./logs/app-connector-metrics.md) `AliveTargetCount`, policy evaluation per [`./policy-precedence.md`](./policy-precedence.md), ZPA Service Edge selection).
 
 ### Worked example
 
 Hypothesis: *"SIPA app segment exists but Server Group → App Connector Group association is missing or incorrect."*
 
-Snapshot files referenced: `_data/snapshot/zs2/zpa/application-segments.json` and `_data/snapshot/zs2/zpa/server-groups.json`.
+Sources referenced: the overlay's IaC for `zpa/app-segments` and `zpa/server-groups`, with live `zscalerctl zpa app-connectors list` output for hop 4. The `jq` filters below read JSON from stdin; pipe either the IaC file or the `zscalerctl --format json` output into them.
 
 ```bash
 # Hop 1+2: find the segment for ssh.dev.azure.com:22 and list its server groups
 jq '.[] | select(.domainNames | index("ssh.dev.azure.com")) |
        {name, serverGroups: [.serverGroups[].id]}' \
-  _data/snapshot/zs2/zpa/application-segments.json
+  < zpa-app-segments.json   # IaC file or `zscalerctl zpa app-segments list --format json`
 
 # Hop 3: for each server group ID returned above, list appConnectorGroups
 jq --arg id "<server-group-id>" '.[] | select(.id == $id) |
        {name, appConnectorGroups: [.appConnectorGroups[].id]}' \
-  _data/snapshot/zs2/zpa/server-groups.json
+  < zpa-server-groups.json   # IaC file or `zscalerctl zpa server-groups list --format json`
 
 # Hop 4: for each connector group ID, count CONNECTED connectors
 jq --arg gid "<connector-group-id>" '
   [.[] | select(.appConnectorGroupId == $gid and .connectionStatus == "CONNECTED")]
    | length' \
-  _data/snapshot/zs2/zpa/app-connectors.json
+  < zpa-app-connectors.json   # `zscalerctl zpa app-connectors list --format json`
 ```
 
 If any hop returns an empty list or zero, that's the broken hop and the corresponding hypothesis is `Confirmed`.
@@ -276,14 +278,14 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/
 
 - **Multiple Server Groups on one segment.** A segment can carry multiple `serverGroups[]`. Each is independent — at least one must satisfy hops 3 and 4 for the segment to deliver traffic. If one is healthy and another is broken, weighted load balancing decides which connectors are tried first. See [Multiple Server Groups on one App Segment](#multiple-server-groups-on-one-app-segment) above.
 - **Connector group fronting an unreachable target.** Hops 3 and 4 can pass while traffic still fails. That's a runtime hypothesis (target reachability), not a chain hypothesis — see [`./logs/app-connector-metrics.md`](./logs/app-connector-metrics.md) for `AliveTargetCount` semantics and [`./app-connector.md § How sessions are assigned to App Connectors`](./app-connector.md#how-sessions-are-assigned-to-app-connectors) for the eligibility-then-selection model.
-- **Snapshot freshness.** The chain's hop 4 reflects connector state at snapshot time. A connector that was `CONNECTED` then may have flipped `DISCONNECTED` since. Always note the snapshot timestamp in the journal when citing this evidence; cross-reference live status if available.
-- **Microtenant scoping.** If the tenant uses microtenants, the snapshot may be scoped per microtenant. A segment in microtenant A with a server group in microtenant B is a config error worth flagging.
+- **Freshness.** IaC reflects the last backfill, and a live `zscalerctl` read reflects connector state at read time. A connector that was `CONNECTED` then may have flipped `DISCONNECTED` since. Always note the backfill date or read time in the journal when citing this evidence.
+- **Microtenant scoping.** If the tenant uses microtenants, the IaC or live read may be scoped per microtenant. A segment in microtenant A with a server group in microtenant B is a config error worth flagging.
 
 ## Open questions
 
 - **`update_group_v2` semantics vs v1.** The Segment Group SDK exposes both `update_group` (`/mgmtconfig/v1`) and `update_group_v2` (`/mgmtconfig/v2`) (`vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py:206,267`). Both bodies are built identically (`body = {}; body.update(kwargs)`), so the source does not reveal what the v2 endpoint changes behaviorally (field handling, app-association write semantics, validation). Needs a vendor doc or changelog reference before the doc can state when to prefer v2. (Tracked as [`zpa-69`](../_meta/clarifications.md#zpa-69-segment-group-update_group_v2-vs-v1-behavioral-difference).)
 - **`skip_detailed_app_info` effect on writes.** The field is present on the model (`models/segment_group.py:41`) and round-tripped by `request_format()`, but the service layer does no special handling, so whether it is a request-side toggle (suppress detailed app inflation in the response) or a stored attribute is not determinable from the SDK source alone. (Tracked as [`zpa-70`](../_meta/clarifications.md#zpa-70-segment-group-skip_detailed_app_info-effect-on-writes).)
-- **Segment Group `tcpKeepAliveEnabled` admin/runtime effect.** The wire field is confirmed (string-as-bool) and cross-linked to snapshot-schema, but what enabling TCP keep-alive at the Segment Group level actually changes for brokered sessions is not described in the SDK/model source. A help capture or admin-guide reference is needed. (Tracked as [`zpa-71`](../_meta/clarifications.md#zpa-71-segment-group-tcpkeepaliveenabled-adminruntime-effect).)
+- **Segment Group `tcpKeepAliveEnabled` admin/runtime effect.** The wire field is confirmed (string-as-bool) and cross-linked to the field-shape resolver, but what enabling TCP keep-alive at the Segment Group level actually changes for brokered sessions is not described in the SDK/model source. A help capture or admin-guide reference is needed. (Tracked as [`zpa-71`](../_meta/clarifications.md#zpa-71-segment-group-tcpkeepaliveenabled-adminruntime-effect).)
 - **`config_space` accepted values on Segment Group.** The Server Group `add_group` docstring enumerates `DEFAULT`/`SIEM` for its `config_space` (`server_groups.py:164`), but the Segment Group model exposes `config_space` without an equivalent enumeration in source. Whether the same value set applies is unconfirmed. (Tracked as [`zpa-72`](../_meta/clarifications.md#zpa-72-segment-group-config_space-accepted-values).)
 
 ## Cross-links

@@ -130,8 +130,8 @@ test("checkDataContract accepts an empty runtime mount with warnings", () => {
 
   const report = checkDataContract(root);
   assert.deepEqual(report.errors, []);
-  assert.ok(report.warnings.some((warning) => warning.includes("_data/snapshot/ contains only skeleton files")));
-  assert.ok(report.warnings.some((warning) => warning.includes("snapshot-backed reasoning unavailable")));
+  assert.ok(report.warnings.some((warning) => warning.includes("_data/overlay/ contains only skeleton files")));
+  assert.ok(report.warnings.some((warning) => warning.includes("no _data/overlay/overlay.json")));
   assert.ok(report.info.some((line) => line.includes("ordinary directory")));
 });
 
@@ -141,8 +141,8 @@ test("checkDataContract accepts a configured runtime mount path", () => {
 
   const report = checkDataContract(root, "tenant-data");
   assert.deepEqual(report.errors, []);
-  assert.ok(report.warnings.some((warning) => warning.includes("tenant-data/snapshot/ contains only skeleton files")));
-  assert.ok(report.warnings.some((warning) => warning.includes("no tenant-data/snapshot content")));
+  assert.ok(report.warnings.some((warning) => warning.includes("tenant-data/overlay/ contains only skeleton files")));
+  assert.ok(report.warnings.some((warning) => warning.includes("no tenant-data/overlay/overlay.json")));
   assert.ok(report.info.some((line) => line.includes("tenant-data appears to be an ordinary directory")));
 });
 
@@ -277,12 +277,12 @@ test("checkDataContract errors when required directories are missing", () => {
 test("checkDataContract treats populated directories as available", () => {
   const root = tempRepo();
   makeDataSkeleton(root);
-  fs.mkdirSync(path.join(root, "_data", "snapshot", "zs2"), { recursive: true });
+  fs.writeFileSync(path.join(root, "_data", "overlay", "overlay.json"), '{ "schema_version": 1 }\n', "utf8");
   fs.writeFileSync(path.join(root, "_data", "schemas", "fields.json"), "{}\n", "utf8");
 
   const report = checkDataContract(root);
   assert.deepEqual(report.errors, []);
-  assert.ok(!report.warnings.some((warning) => warning.includes("snapshot-backed reasoning unavailable")));
+  assert.ok(!report.warnings.some((warning) => warning.includes("overlay/overlay.json")));
   assert.ok(!report.warnings.some((warning) => warning.includes("tenant schema hints unavailable")));
 });
 

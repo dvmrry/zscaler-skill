@@ -20,7 +20,7 @@ author-status: draft
 
 Use this taxonomy after tenant evidence exists. Standards classify a finding;
 they do not prove it. A SOC finding starts with tenant configuration, logs,
-snapshot data, SIEM output, API response, or user-provided evidence. Framework
+IaC, live `zscalerctl` output, SIEM output, API response, or user-provided evidence. Framework
 tags are added only after the evidence shows the exposure.
 
 ## Output discipline
@@ -35,7 +35,7 @@ metadata for the human reader; it is not a separate scan artifact.
 - Record type: finding
 - Category: <finding family or SOC subtype>
 - Taxonomy: <CWE / OWASP / NIST / CISA / MITRE labels, if applicable>
-- Source: <tenant snapshot path, SIEM query result, API response, log, or user evidence>
+- Source: <tenant IaC path, `zscalerctl` command, SIEM query result, API response, log, or user evidence>
 - Confidence: <high / medium / low / open>
 - Status: <Open / Acknowledged / Acceptable / Resolved / Wontfix>
 
@@ -70,7 +70,7 @@ a finding.
 
 | Finding family | Use when | Do not use when | Framework tags | Evidence required | Example analog |
 |---|---|---|---|---|---|
-| Secret exposure | Provisioning keys, API credentials, VPN secrets, IdP secrets, or private keys are stored in retrievable snapshots, comments, exports, code, tickets, or logs. | A document merely mentions that a secret exists, or the value is already redacted and no exposure path is shown. | CWE-798; OWASP A02 Cryptographic Failures; NIST CSF Protect; CISA Zero Trust Data / Identity | Exact field or artifact path, redaction status, exposure audience, rotation state, and whether the secret is still valid. | ZPA provisioning keys or VPN credentials present in exported tenant snapshots. |
+| Secret exposure | Provisioning keys, API credentials, VPN secrets, IdP secrets, or private keys are stored in retrievable exports, comments, exports, code, tickets, or logs. | A document merely mentions that a secret exists, or the value is already redacted and no exposure path is shown. | CWE-798; OWASP A02 Cryptographic Failures; NIST CSF Protect; CISA Zero Trust Data / Identity | Exact field or artifact path, redaction status, exposure audience, rotation state, and whether the secret is still valid. | ZPA provisioning keys or VPN credentials present in exported tenant config. |
 | Overbroad access / authorization | A rule, role, group, segment, client, or policy grants more access than the stated business scope requires. | The access is broad but explicitly approved, time-bounded, and covered by compensating controls. | CWE-284; CWE-266; OWASP A01 Broken Access Control; NIST CSF Protect; CISA Zero Trust Identity / Application | Principal or scope, granted capability, intended scope, affected resources, last-use or activity evidence if available. | Emergency Access role grants full admin rights without narrower justification. |
 | Missing or bypassed enforcement | A control expected to inspect, block, isolate, sandbox, posture-check, or require MFA can be bypassed or is disabled for the relevant path. | The control is intentionally out of path and another equivalent control is documented for the same threat. | CWE-693; OWASP A05 Security Misconfiguration; NIST CSF Protect / Detect; MITRE ATT&CK defense evasion mapping when a concrete technique fits. | Control path, bypass condition, policy order or forwarding evidence, affected traffic/users/apps, and compensating controls. | Sandbox allow bypass permits uninspected risky file types. |
 | Telemetry blind spot | Events needed to detect or investigate the threat model are not generated, exported, retained, or queryable. | Logs exist but no alert has been written yet; missing detection logic alone is weaker than missing source telemetry. | NIST CSF Detect; CISA Zero Trust Visibility and Analytics; MITRE ATT&CK data source mapping when applicable. | Expected event class, configured feed/export state, SIEM sourcetype/index evidence, retention, field coverage, and sample query result. | ZPA policy changes are not present in audit log export or SIEM for the reviewed period. |

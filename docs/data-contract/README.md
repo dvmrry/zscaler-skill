@@ -2,7 +2,7 @@
 
 Single home for everything that becomes per-fork or per-tenant. The
 skill-internal docs (methodologies, playbooks, registers) live under
-`references/_meta/`; runtime data (tenant snapshots, script outputs,
+`references/_meta/`; runtime data (company overlay, script outputs,
 fork-specific IaC) lives here.
 
 Public upstream does not track `_data/`; it tracks this contract and the
@@ -42,7 +42,7 @@ Expected top-level directories:
 
 - `_data/cases/`
 - `_data/schemas/`
-- `_data/snapshot/`
+- `_data/overlay/`
 - `_data/iac/`
 - `_data/audits/`
 - `_data/soc-reviews/`
@@ -65,7 +65,7 @@ node scripts/check-data-contract.mjs --mount-path <runtime-data-path>
 ```
 
 The checker verifies the directory shape, reports whether `_data` appears to be
-a submodule, and warns when runtime data is missing enough that snapshot-backed
+a submodule, and warns when runtime data is missing enough that overlay-backed (IaC or live)
 or tenant-schema-backed reasoning will be unavailable.
 
 The `_data/README.md` marker is recommended because it makes accidental runtime
@@ -171,38 +171,23 @@ Issue-watch output lives under `_data/logs/`:
 - `_data/logs/issues-new.md` — `scripts/issue-watch.py` weekly digest output
 - `_data/logs/issue-watch-state.json` — `scripts/issue-watch.py` cursor state
 
-### `_data/snapshot/`
+### `_data/overlay/`
 
-**Tenant config dumps for offline analysis.** Ignored in the public repo.
-The public scripts use a cloud-first layout:
+**The company overlay: company knowledge records plus the pointers to tenant
+sources.** Ignored in the public repo. `overlay.json` declares which answer
+tiers exist beyond the public knowledge graph: `iac` (the IaC repo; see
+`_data/iac/` and [`./iac.md`](./iac.md)) and `live` (the read-only `zscalerctl`
+tool). `node scripts/kb.mjs resolve <id | text>` reads it and reports the
+available tiers in the bundle's `tiers` block. The overlay is found at
+`$ZSCALER_KB_OVERLAY`, or else at `<runtime-data mount>/overlay/` when it has an
+`overlay.json` (`node scripts/runtime-data-path.mjs overlay`).
 
-```
-_data/snapshot/
-└── <cloud>/
-    ├── zia/
-    │   ├── url-categories.json
-    │   ├── url-filtering-rules.json
-    │   └── ...
-    ├── zpa/
-    │   ├── app-segments.json
-    │   ├── server-groups.json
-    │   └── ...
-    ├── zcc/
-    │   ├── forwarding-profiles.json
-    │   └── ...
-    └── _manifest.json
-```
-
-The snapshot uses `--cloud`, `ZSCALER_CLOUD`, or `default` as the `<cloud>`
-slug, recorded in `_manifest.json`.
-
-Whatever populates the snapshot (a private work mirror, a local runtime-data
-checkout, or a `zscalerctl` dump) writes here; config-replay tooling reads from
-here.
-
-**Multi-tenant / multi-cloud forks** should keep one directory per tenant cloud
-or tenant slug under `_data/snapshot/`. Do not mix multiple clouds into a
-product-first directory.
+There is no saved tenant-snapshot directory. Tenant facts come from three answer
+tiers: the knowledge graph (public index plus the overlay's records), the
+overlay's IaC, then live read-only `zscalerctl` (only when IaC cannot answer or
+for drift; results are never kept as a standing tenant cache; a case may save them under its own `evidence/`). For field
+shapes of a type, run `node scripts/kb.mjs resolve <type-id>` (for example
+`zia/url-filtering-rules`).
 
 ### `_data/cases/`
 
@@ -255,7 +240,7 @@ dirs are created on demand; the `soc-reviews/` parent is part of the contract.
 Everything under `_data/` is gitignored by default in the public template.
 Forks that want to commit `iac/`, `schemas`, or case content do so deliberately
 by either adjusting `.gitignore` or using a separate mount with
-`runtimeData.tracking: "tracked"` in the private work mirror. **Tenant snapshots
+`runtimeData.tracking: "tracked"` in the private work mirror. **Raw tenant exports
 and raw operational logs should generally not be committed**, even to private
 forks, unless the org has explicit guidance otherwise (see `iac.md` §
 Sanitization).

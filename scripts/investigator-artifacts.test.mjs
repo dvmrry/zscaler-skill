@@ -2112,7 +2112,8 @@ test("recordLoads allows only the three bounded Step 2 runtime-data classes", ()
   });
   makeRepoFiles(root, [
     "references/cloud-connector/index.md",
-    "_data/snapshot/zs2/zpa/application-segments.json",
+    "_data/overlay/knowledge/zpa/segment-records.json",
+    "_data/iac/zpa/application-segments.tf",
     "_data/knowledge/zpa/segment-behavior.md",
     "_data/knowledge/cloud-connector/workload-behavior.md",
     "_data/knowledge/shared/activation-lock.md",
@@ -2120,7 +2121,8 @@ test("recordLoads allows only the three bounded Step 2 runtime-data classes", ()
 
   const boundedLoads = [
     `_data/cases/${caseSlug}/journal.md`,
-    "_data/snapshot/zs2/zpa/application-segments.json",
+    "_data/overlay/knowledge/zpa/segment-records.json",
+    "_data/iac/zpa/application-segments.tf",
     "_data/knowledge/zpa/segment-behavior.md",
     "_data/knowledge/cloud-connector/workload-behavior.md",
     "_data/knowledge/shared/activation-lock.md",

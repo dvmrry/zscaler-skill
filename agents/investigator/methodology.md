@@ -155,7 +155,7 @@ Product defaults and architectural assumptions (deny-by-default vs. allow-by-def
 User: "/z-investigator connector flap in _data/cases/test-flap/"
 Agent: "Let me hypothesize causes and propose investigation steps..."
 (no read of _data/cases/test-flap/evidence/, no check of
-_data/snapshot/<cloud>/ for the relevant tenant config dump,
+the overlay's IaC (or a read-only zscalerctl read) for the relevant tenant config,
 no read of an existing journal.md the user may already have
 seeded in that directory)
 Better:
@@ -163,15 +163,15 @@ Agent first reads:
   _data/cases/test-flap/evidence/  — finds connector-status.json
   _data/cases/test-flap/journal.md — finds existing claims
                                          (or none, if fresh)
-  _data/snapshot/<cloud>/                — finds connector-groups.json
+  overlay IaC for zpa/connector-groups  — finds the connector group
 
 Hypothesis 1: Connector group reachability
-  Source: _data/snapshot/<cloud>/connector-groups.json line 47 —
+  Source: overlay IaC for zpa/connector-groups, line 47 —
           group's last-seen timestamp is 14h old.
   Status: Confirmed (medium)
 
 Hypothesis 2: ...
-The operative directory is wherever the user pointed `/z-investigator`. Read its `evidence/` and `journal.md` first; the user may have already provided the answer or seeded prior claims that are the starting state of the investigation. Then read tenant config from `_data/snapshot/<cloud>/`. Do not browse sibling case directories — that's a separate discipline that isn't refined enough yet.
+The operative directory is wherever the user pointed `/z-investigator`. Read its `evidence/` and `journal.md` first; the user may have already provided the answer or seeded prior claims that are the starting state of the investigation. Then read tenant config from the overlay's IaC (or, when IaC cannot answer, a read-only `zscalerctl` command). Do not browse sibling case directories — that's a separate discipline that isn't refined enough yet.
 
 ### ❌ Carrying user framing claims unverified into hypotheses
 

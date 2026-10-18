@@ -62,41 +62,44 @@ This skill encodes **how Zscaler actually behaves** — rule precedence, wildcar
 Two kinds of question this skill handles:
 
 - **General behavior** — "how do wildcards match?", "what happens when URL filtering and cloud app control both apply?". Answerable anywhere, sourced from `references/`.
-- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". Requires observed tenant state: either a configured runtime-data snapshot (`_data/snapshot/` by default), explicit user-provided command output, or — when available — read-only `zscalerctl` output. Public upstream does not track runtime data; tenant snapshots live only in private runtime-data mounts or forks.
+- **Tenant-specific lookups** — "is `reddit.com` in a URL category in *our* tenant?". These need tenant state, which comes only from a company overlay: its IaC repo, or a live read-only `zscalerctl` call. Public upstream has no tenant and stores no tenant data.
 
 Structured troubleshooting with a symptom, affected scope, and timeframe should
 use the portable `zscaler-investigator` skill or the `/z-investigator` runtime
 adapter. This broad `zscaler` entrypoint is for ad-hoc Q&A and lightweight
 lookups, not discovery-journal investigations.
 
-## Check tenant observation first
+## Answer tiers
 
-Before answering tenant-specific questions, resolve the configured mount and
-check whether its `snapshot/` directory has any runtime data:
+Every answer starts from the knowledge graph. `node scripts/kb.mjs resolve <id | text>` returns
+one bundle: the subjects, claims and gaps for the question, and, for a configured company overlay,
+what the other two tiers can add. The overlay is found at `$ZSCALER_KB_OVERLAY`, or else at
+`<runtime-data mount>/overlay/` when it has an `overlay.json` (`node scripts/runtime-data-path.mjs overlay`).
 
-```bash
-RUNTIME_DATA="$(node scripts/runtime-data-path.mjs)"
-find "$RUNTIME_DATA/snapshot" -mindepth 1 -type f -print -quit
-```
+| Tier | Source | Use it for |
+|---|---|---|
+| 1 | Knowledge: public index plus the overlay's company records | How Zscaler behaves; how *we* do things |
+| 2 | IaC, when `overlay.json` declares `iac` | What our configuration is, as of the last backfill |
+| 3 | Live `zscalerctl`, when `overlay.json` declares `live` | What is true now, and drift from IaC |
 
-If populated, read the relevant JSON (`<mount>/snapshot/<cloud>/zia/url-categories.json`, `<mount>/snapshot/<cloud>/zia/url-filtering-rules.json`, `<mount>/snapshot/<cloud>/zpa/app-segments.json`, etc.) and cite the specific rule IDs you used. If the overlay records that the snapshot or diff was produced by `zscalerctl`, treat it as the fast local cache of read-only tenant observation.
+The bundle's `tiers` block says which of 2 and 3 are available. For a type, `type.iac` says whether
+the IaC repo covers it (and which values it cannot represent), and `type.live.command` names the
+read-only `zscalerctl` command.
 
-If `<mount>/snapshot/` is empty or stale and the question is tenant-specific, do **not** invent tenant truth. When the optional `@zscalerctl` companion is available, hand off or draft a bounded read-only command (`zscalerctl --format json ...`) for the operator to run, then apply this skill's policy semantics to the returned JSON. Until `zscalerctl` is officially adopted, use soft language: "if installed", "when available", or "I can draft the read-only command." See [`references/_meta/tooling.md`](references/_meta/tooling.md).
+- **Use tier 2 before tier 3.** Read the IaC files the overlay points to and cite them.
+- **Use tier 3 only** when IaC does not cover the type, field or value, is too stale for the
+  question, or the question is about drift. Run or draft the named read-only command and use its JSON in
+  this session; when working a case, save it to the case's `evidence/` and cite it. Never keep live
+  reads as a standing tenant cache. Until `zscalerctl` is adopted where you are,
+  use soft language: "if installed", "I can draft the read-only command." See
+  [`references/_meta/tooling.md`](references/_meta/tooling.md).
+- **With no overlay**, do not invent tenant truth. Answer the general case from the knowledge graph,
+  say which tenant fact is missing, and name the `zscalerctl` command that would answer it.
 
-`<mount>/schemas/` is a separate cache for log-schema decompositions, query skeletons, and script-generated reports (gitignored in the default public layout; populated by scripts such as `splunk-query.sh`, `issue-watch.py`, and `find-asymmetries.py`). Raw logs are a validation layer, not a primary source — see **When to consult logs** below.
-
-## Vendor source vs production IaC
-
-The skill ships with Zscaler Terraform provider source under `vendor/terraform-provider-{zia,zpa,zcc,ztc}/`. Those repositories are useful for resource schemas, validation rules, provider coverage, and field-level shapes. Deployment examples or modules, when vendored, live separately under `vendor/terraform-*-modules/`. Provider source and example modules are reference material, not production truth.
-
-If a fork has populated `<mount>/iac/` (empty in upstream), treat that as **production truth** for "how is X actually deployed in our environment" questions. The source under `vendor/` remains useful for "what's possible" / "what fields exist" / "what defaults Zscaler ships." Where the two diverge for a specific deployment, prefer the configured runtime IaC for env-specific answers and cite the reference for context.
-
-```bash
-RUNTIME_DATA="$(node scripts/runtime-data-path.mjs)"
-find "$RUNTIME_DATA/iac" -mindepth 1 -type f -print -quit
-```
-
-See [`docs/data-contract/iac.md`](docs/data-contract/iac.md) for the precedence rules and structure.
+Provider source under `vendor/terraform-provider-*` is reference material for what a provider can
+express, never what *we* deployed; provider behavior and defects are in the `*.terraform.*`
+subjects. `<mount>/schemas/` remains a cache for log-schema decompositions and query skeletons
+produced by scripts; raw logs are a validation layer (see **When to consult logs**).
 
 ## Knowledge graph (converted areas)
 
@@ -206,7 +209,7 @@ If the question shape isn't here, start with `references/shared/policy-evaluatio
 
 **For meta-questions about the skill itself** ("where does general Zscaler knowledge end and tenant-specific data begin?", "how should this skill combine doc knowledge with what we know operationally?"), see [`references/_meta/layering-model.md`](references/_meta/layering-model.md) — the three-layer framing (general / tenant / SME tribal) with anti-patterns and operational implications for fine-tune training. For the pre-release `zscalerctl` companion boundary, see [`references/_meta/tooling.md`](references/_meta/tooling.md): `zscalerctl` observes tenant state; this skill reasons over it.
 
-**If you are an AI agent**, prefer [`references/_meta/agent-patterns.md`](references/_meta/agent-patterns.md) over the prose runbooks below. It contains pure typed Python functions for cloud classification, auth-framework detection, and error interpretation: `detect_cloud()`, `is_gov_cloud()`, `detect_auth_framework()`, and `interpret_error()`. The canonical implementation lives at `scripts/agent_patterns.py`. It performs no tenant or SDK calls; use snapshots, supplied command output, or the read-only `zscalerctl` companion for observation.
+**If you are an AI agent**, prefer [`references/_meta/agent-patterns.md`](references/_meta/agent-patterns.md) over the prose runbooks below. It contains pure typed Python functions for cloud classification, auth-framework detection, and error interpretation: `detect_cloud()`, `is_gov_cloud()`, `detect_auth_framework()`, and `interpret_error()`. The canonical implementation lives at `scripts/agent_patterns.py`. It performs no tenant or SDK calls; use the overlay's IaC, supplied command output, or the read-only `zscalerctl` companion for observation.
 
 **For actionable / procedural questions** — "which auth path should I use?", "how do I detect if this is a gov cloud?", "I'm getting 401 / rule isn't applying / 429 rate-limited / EDIT_LOCK / activation stuck — what do I do?", "how do I rotate credentials safely?", "how do I round-trip a config without hitting the read/write asymmetry?" — start at [`references/_meta/runbooks.md`](references/_meta/runbooks.md). The runbook contains: (1) authentication selection decision tree with concrete diagnostic checks, (2) diagnostic procedures for cloud detection / OneAPI-vs-legacy detection / migration status, (3) troubleshooting flows for the six most common failure modes, (4) credential lifecycle patterns including rotation, fallback, OneAPI ↔ legacy coexistence, gov-cloud forced-legacy. **This is the home for "what should I DO?" questions** — the rest of the skill is reference (how things work); the runbook is procedural (what steps to take). Each product `api.md` cross-links here, and each api.md also has a "Common SDK patterns" subsection with inline code so you don't have to switch docs to find the call signature you need.
 
@@ -231,7 +234,7 @@ Return every non-trivial answer in this shape. It keeps answers grounded, makes 
 
 ## Sources
 - zia.url-filtering.rule-order:first-match (claim IDs from a resolved bundle), or references/<file>.md (§ section) for areas not yet converted
-- _data/snapshot/<cloud>/zia/url-filtering-rules.json (rule IDs 42, 47 — only if snapshot was consulted)
+- <overlay IaC path>/zia/url-filtering-rules (rule IDs 42, 47 — only if tier 2 was read), or the `zscalerctl` command run (tier 3)
 
 ## Confidence
 high | medium | low — <one-line reason; e.g. "stub reference, inferred from Zscaler KB">
@@ -254,7 +257,7 @@ A claim derived by **inference** — extrapolating a stated rule beyond its docu
 
 ## When to consult logs
 
-Default: answer from config (`_data/snapshot/`) and reference docs. Logs are the **validation layer**, not the first stop — they add latency and cost.
+Default: answer from the knowledge graph and, for tenant facts, the overlay's IaC or a live `zscalerctl` read (see **Answer tiers**). Logs are the **validation layer**, not the first stop — they add latency and cost.
 
 Consult logs when **any** of:
 
@@ -269,7 +272,7 @@ When you do query, cite the SPL pattern by name from [`references/shared/splunk-
 
 ## When to decline
 
-- **Tenant state needed, no observation available** — say so directly, and still answer the general case if there is one. If `@zscalerctl` is available, offer or draft a bounded read-only command; otherwise ask for a snapshot or sanitized command output.
+- **Tenant state needed, no observation available** — say so directly, and still answer the general case if there is one. Name the read-only `zscalerctl` command from the resolved bundle; if `@zscalerctl` is available, offer to run it, otherwise ask for sanitized command output.
 - **Relevant reference is still a stub** (`author-status: stub`, no body yet) — say the skill hasn't written this down yet, describe what you know from the file's TODO headings, and mark **Confidence: low**.
 - **Question maps to a known open clarification** — if a reference doc cross-links an entry in [`references/_meta/clarifications.md`](references/_meta/clarifications.md) that covers the user's question, cite the clarification ID (e.g. "this hits `zia-03` — wildcard tokenization is unresolved in our public material"), answer what you can, and flag the gap rather than hallucinating the rest.
 - **T1 — operational deep-dive (SDK / TF / API + multi-component coverage)** — ZIA, ZPA (including AppProtection inline WAF/IPS sub-component and Browser Access), ZCC (forwarding profiles, trusted networks, fail-open), ZIdentity (unified identity, OneAPI auth, step-up authentication), Cloud & Branch Connector (ZTW/ZTC — Cloud Connector VM architecture, traffic forwarding rules, SDK/TF surface), and ZDX (score, probes, diagnostic sessions, alerts — **T1 borderline: observability layer rather than enforcement, per 2026-05-04 verification gate**). Answer with full confidence and cite specific reference sections including API endpoints, rule semantics, and policy evaluation order.
@@ -291,9 +294,9 @@ Before answering with high confidence, check the relevant reference doc's frontm
 | `source-tier: code` | Sourced from SDK / TF only (help-portal page broken or non-existent) | Answer to the SDK shape; note that runtime behavior may differ; recommend tenant verification |
 | `author-status: stub` | TODO headings only, no body | Don't answer from the doc; use the headings to describe what would be covered and decline the substantive answer |
 | Doc cross-links a clarification ID (`zia-03`, `zpa-04`, etc.) | Known unresolved gap | Cite the ID and answer within the gap's bounds |
-| Doc opens with a "tenant access required" note | Lab test or live-API verification needed | Answer general case; refuse tenant-specific without `_data/snapshot/` |
+| Doc opens with a "tenant access required" note | Lab test or live-API verification needed | Answer the general case; answer tenant-specific only from the overlay's IaC or a live read |
 
-**Topics this skill cannot answer without tenant access** (load-bearing list — when asked about these without `_data/snapshot/` populated, decline with a pointer rather than guess):
+**Topics this skill cannot answer without tenant access** (load-bearing list — when asked about these without a configured overlay, decline with a pointer rather than guess):
 
 - The `tz` / `country` write-side current behavior on ZIA Location Management (read returns unprefixed; write accepted-form is unverified post-API change)
 - Whether VMSS upgrade window behavior on Cloud Connector matches the documented Sunday-midnight-local pattern in *your* deployment

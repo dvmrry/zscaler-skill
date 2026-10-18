@@ -31,6 +31,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
   - "vendor/terraform-provider-zpa/docs/index.md"
 author-status: draft
+verified-against:
+  vendor/zscaler-help: 8c34045056b952b46110bb934580b0e936fa3f05
 ---
 
 # Legacy Zscaler APIs — auth, session management, rate limits, and error codes
@@ -412,7 +414,7 @@ every government tenant.
 ## Cross-links
 
 - OneAPI (the replacement auth layer) — [`./oneapi.md`](./oneapi.md)
-- ZIA API reference (SDK surface, asymmetries, snapshot schema) — [`../zia/api.md`](../zia/api.md)
+- ZIA API reference (SDK surface, asymmetries) — [`../zia/api.md`](../zia/api.md)
 - ZPA API reference — [`../zpa/api.md`](../zpa/api.md)
 - ZCC API reference — [`../zcc/api.md`](../zcc/api.md)
 - ZIA AD integration (`directorySyncMigrateToScimEnabled` flag context) — [`../zia/ad-integration.md`](../zia/ad-integration.md)

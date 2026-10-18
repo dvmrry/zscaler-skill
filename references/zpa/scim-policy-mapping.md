@@ -26,6 +26,8 @@ sources:
   - "references/shared/scim-provisioning.md"
   - "references/zpa/policy-precedence.md"
 author-status: draft
+verified-against:
+  vendor/zscaler-help: ab36ebbcb31c53a67972037693ad04f69437c1ce
 ---
 
 # ZPA SCIM groups in policy — IDP attribute to access decision
@@ -103,7 +105,7 @@ This `lhs`/`rhs` encoding is the v1 API form. The v2 API uses `entry_values` blo
 When a user authenticates, ZPA resolves their current SCIM group memberships from the `userconfig` store and evaluates each `SCIM_GROUP` operand as a membership check against that snapshot.
 
 **What can break here:**
-- The policy rule stores the Zscaler group `id`, not the group name. If an admin looks at the rule in a UI or API snapshot, they see a numeric ID that requires a separate lookup to resolve to a human-readable group name.
+- The policy rule stores the Zscaler group `id`, not the group name. If an admin looks at the rule in a UI or API response, they see a numeric ID that requires a separate lookup to resolve to a human-readable group name.
 - The group `id` in the rule is a reference to a snapshot-in-time object. If the group is deleted in the IdP and the IdP sends a `DELETE /Groups/{id}` to ZPA, the group object is removed from `userconfig`. The policy rule still contains the now-dangling reference; ZPA evaluates `SCIM_GROUP` membership against a group that no longer exists, which means no user will ever match that operand. The rule does not error — it silently never matches.
 - `enable_scim_based_policy` must be `true` on the IdP controller for ZPA to evaluate SCIM-based conditions for users from that IdP. If it is `false`, SCIM group criteria are ignored for those users even if SCIM sync is active.
 
@@ -220,7 +222,7 @@ The Python SDK exposes an `all_entries` query param on both `list_scim_groups` (
 
 ### Group ID vs. group name in policy
 
-Policy rules store the Zscaler numeric `id` of the SCIM group, not the display name. The API and policy snapshots show the numeric ID. When reading a policy snapshot (e.g., `_data/snapshot/<cloud>/zpa/access-policy-rules.json`), resolving group IDs to display names requires a separate call to the SCIM group API. Automation that reads policy rules and reports on them in human-readable form must implement this join.
+Policy rules store the Zscaler numeric `id` of the SCIM group, not the display name. The API and IaC show the numeric ID. When reading policy config (e.g., the overlay's IaC for `zpa/access-policy-rules`), resolving group IDs to display names requires a separate call to the SCIM group API. Automation that reads policy rules and reports on them in human-readable form must implement this join.
 
 ### SCIM policy requires `enable_scim_based_policy`
 
@@ -393,5 +395,5 @@ Clarification status: unresolved source gaps in this document should be promoted
 - SCIM provisioning lifecycle (user/group sync, ZIA/ZPA differences, Okta gotchas) — [`../shared/scim-provisioning.md`](../shared/scim-provisioning.md)
 - Policy evaluation order, first-match semantics, AND/OR condition model — [`./policy-precedence.md`](./policy-precedence.md)
 - Microtenant resource scoping — [`./microtenants.md`](./microtenants.md)
-- Snapshot schema (how policy operands appear in JSON snapshots) — [`./snapshot-schema.md`](./snapshot-schema.md)
+- Field shapes (how policy operands appear in JSON) — `node scripts/kb.mjs resolve zpa/access-policy-rules`
 - Source IP Anchoring cross-product interaction — [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md)

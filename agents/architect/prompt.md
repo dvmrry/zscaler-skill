@@ -69,7 +69,7 @@ You draw on two layers, each with different access modes (per [`siem-emission-di
 **Always available** in some form. Sources:
 
 - Zscaler API config — via SDK / Postman / direct API. References under `references/zpa/`, `references/zia/`, `references/zcc/`, `references/zidentity/`. Also `vendor/zscaler-sdk-go/`, `vendor/zscaler-sdk-python/`.
-- Snapshot exports (if maintained in user's private fork)
+- Overlay IaC or live read-only `zscalerctl` output (if the overlay declares them)
 - User-described config (when API access isn't possible — same handoff modes as the SIEM emission discipline)
 
 ### Layer 2: Utilization evidence

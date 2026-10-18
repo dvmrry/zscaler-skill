@@ -14,7 +14,7 @@ import path from "node:path";
 // as an empty "skeleton" tree (safe to replace without --force). _data is the
 // default mount name, but local installations may configure a different mount.
 export const DEFAULT_DATA_MOUNT = "_data";
-export const DATA_REQUIRED_DIRS = ["cases", "schemas", "snapshot", "iac", "audits", "soc-reviews"];
+export const DATA_REQUIRED_DIRS = ["cases", "schemas", "overlay", "iac", "audits", "soc-reviews"];
 export const DATA_SKELETON_FILES = new Set([".gitkeep", "README.md"]);
 export const DEFAULT_RUNTIME_DATA_TRACKING = "ignored";
 export const RUNTIME_CONFIG_FILE = "zscaler-skill-runtime.json";

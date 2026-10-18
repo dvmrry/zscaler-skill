@@ -63,23 +63,22 @@ Fast triage:
 | ZPA connector | segment allowed but app not reached; empty `Connector`; no connector eligible | `references/zpa/app-connector.md`, `references/zpa/segment-server-groups.md` | `grounding/zpa-connector-assignment.md` |
 | Egress/response | destination allowlist/source-IP issue; SIPA; post-CONNECT surprise | `references/shared/source-ip-anchoring.md`, `references/zia/ssl-inspection.md` | depends on path |
 
-## Inspect snapshot
+## Inspect tenant config
 
-Load only the cloud and product path for the stage being tested:
+Load only the product and types for the stage being tested. Use the overlay's
+IaC when `overlay.json` declares `iac`; use live read-only `zscalerctl` only when
+IaC cannot answer or for drift:
 
-- ZIA: `_data/snapshot/<cloud>/zia/`
-- ZPA: `_data/snapshot/<cloud>/zpa/`
-- ZCC: `_data/snapshot/<cloud>/zcc/`
+- ZIA: the overlay's IaC for the relevant `zia/<type-id>`, or `zscalerctl zia <type-id> list`
+- ZPA: the overlay's IaC for the relevant `zpa/<type-id>`, or `zscalerctl zpa <type-id> list`
+- ZCC: the overlay's IaC for the relevant `zcc/<type-id>`, or `zscalerctl zcc <type-id> list`
 
-Examples: `_data/snapshot/zs1/zia/`, `_data/snapshot/zs2/zpa/`,
-`_data/snapshot/beta/zcc/`.
-
-If a fork also has a product-first export from older scripts, treat it only as
-user-pointed scratch evidence. Do not treat it as canonical tenant truth, and
-do not collapse multi-cloud tenant state into that layout.
+Examples: `zia/url-filtering-rules`, `zpa/app-segments`,
+`zcc/forwarding-profiles`. Use `node scripts/kb.mjs resolve <type-id>` for field
+shapes. Do not collapse multi-cloud tenant state into one view.
 
 ## Use runtime logs only when
 
-- The snapshot explains what is configured but not what happened for this request.
+- The tenant config explains what is configured but not what happened for this request.
 - The symptom is time-bound, session-bound, or user-bound.
 - You need to prove the request entered a specific stage or path.

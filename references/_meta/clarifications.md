@@ -60,7 +60,7 @@ IDs are stable forever. If an entry is resolved, it stays here with its answer �
 **Resolves with** — what kind of evidence would close this:
 
 - `lab test` — controlled test tenant required
-- `tenant snapshot` — the internal fork's live config would reveal it
+- `tenant read` — the company's IaC or a live read-only `zscalerctl` read of the tenant would reveal it
 - `support ticket` — Zscaler support needs to confirm
 - `zscaler doc not yet read` — should be in public docs somewhere, haven't found it
 - `operator experience` — someone running this in production can confirm
@@ -109,7 +109,7 @@ Skim this before reading the full entries. Summary refreshed 2026-08-14:
 The three exact memberships below are checked against every detailed entry's
 explicit `Status`; range notation is inclusive and is expanded by the checker.
 Most open entries require lab tests,
-tenant snapshots, operator experience, or vendor confirmation rather than more
+tenant reads, operator experience, or vendor confirmation rather than more
 public-doc reading.
 
 Entries migrated to the knowledge graph are no longer listed here; they are gaps
@@ -288,16 +288,16 @@ The vendor-MCP scrape (2026-06-14) added these open behavior questions — each 
 
 | ID | Title | Resolves with |
 |---|---|---|
-| [`zia-47`](#zia-47-dns-control-block_response_code-accepted-values) | DNS Control `block_response_code` accepted-value set | lab test / tenant snapshot |
+| [`zia-47`](#zia-47-dns-control-block_response_code-accepted-values) | DNS Control `block_response_code` accepted-value set | lab test / tenant read |
 | [`zia-48`](#zia-48-dns-control-redirect_ip-action-binding) | DNS Control `redirect_ip` action-binding (all `REDIR_*` vs `REDIR_RES` only) | lab test |
 | [`zia-49`](#zia-49-cac-per-app-action-validity) | CAC per-app action validity (which actions a given app accepts) | code read completed; live completeness test remains |
-| [`zpa-20`](#zpa-20-zpn_status_pending-as-a-real-runtime-status) | Whether `ZPN_STATUS_PENDING` is a real App Connector runtime status | tenant snapshot / lab test |
+| [`zpa-20`](#zpa-20-zpn_status_pending-as-a-real-runtime-status) | Whether `ZPN_STATUS_PENDING` is a real App Connector runtime status | tenant read / lab test |
 | [`zcc-76`](#zcc-76-otp-expiry-ttl-server-behavior) | Whether ZCC one-time passwords expire server-side (TTL) | lab test / zscaler doc not yet read |
 | [`zdx-01`](#zdx-01-probe-id-non-portability-server-behavior) | ZDX probe-ID non-portability — server behavior on a cross-pair probe ID | lab test |
 | [`zdx-02`](#zdx-02-concurrent-deeptrace-session-limits) | ZDX concurrent deeptrace session limits per tenant / per device | lab test / zscaler doc not yet read |
 | [`zms-01`](#zms-01-fetchall-beyond-policyrules) | Whether ZMS `fetchAll` exists server-side beyond `policyRules` | SDK re-check / lab test |
-| [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant snapshot / zscaler doc not yet read |
-| [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant snapshot / zscaler doc not yet read |
+| [`easm-01`](#easm-01-finding-scan_type-allowed-values) | EASM finding `scan_type` allowed-value set | tenant read / zscaler doc not yet read |
+| [`easm-02`](#easm-02-finding-risk-field-value-semantics) | EASM finding risk-field semantics (`risk_level` / `cisa_likelihood` / `epss_likelihood`) | tenant read / zscaler doc not yet read |
 
 The 2026-06-16 ZWA refresh registered these open Workflow Automation behavior/source questions — each links to its detailed entry below:
 
@@ -305,7 +305,7 @@ The 2026-06-16 ZWA refresh registered these open Workflow Automation behavior/so
 |---|---|---|
 | [`zwa-01`](#zwa-01-workflow-configuration-programmability) | Workflow configuration programmability | vendor API documentation / SDK-provider source / lab test |
 | [`zwa-02`](#zwa-02-dlp-incident-delete-semantics) | DLP incident delete semantics | lab test / vendor documentation |
-| [`zwa-03`](#zwa-03-zwa-audit-log-retention-and-streaming) | ZWA audit-log retention and streaming | vendor documentation / support ticket / tenant snapshot |
+| [`zwa-03`](#zwa-03-zwa-audit-log-retention-and-streaming) | ZWA audit-log retention and streaming | vendor documentation / support ticket / tenant read |
 | [`zwa-04`](#zwa-04-current-vs-legacy-auth-boundary) | Current-vs-legacy auth boundary | vendor documentation / lab test |
 | [`zwa-05`](#zwa-05-trigger-context-query-param-sdk-coverage) | Trigger context query-param SDK coverage | SDK source update / lab test |
 
@@ -318,7 +318,7 @@ The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions s
 | [`zia-52`](#zia-52-ipssignaturerules-import-wire-behavior-and-multipart-field-name) | `ipsSignatureRules` import wire behavior and multipart field name | lab test |
 | [`zia-53`](#zia-53-cac-atomic-validation-contract-and-representative-app-action-quirk) | CAC atomic-validation contract and representative-app action quirk | lab test |
 | [`zia-54`](#zia-54-python-cloudappriskprofile-list-vs-single-shape) | Python `cloudAppRiskProfile` list-vs-single code shape | code read / lab test |
-| [`zia-55`](#zia-55-admin-audit-report-pagination-and-targetorgid-semantics) | Admin audit report pagination and `targetOrgId` MSP semantics | lab test / tenant snapshot |
+| [`zia-55`](#zia-55-admin-audit-report-pagination-and-targetorgid-semantics) | Admin audit report pagination and `targetOrgId` MSP semantics | lab test / tenant read |
 | [`zia-56`](#zia-56-bandwidth-class-type-enum-vs-ui-predefined-classes-and-cap-enforcement) | Bandwidth class `type` enum vs UI predefined classes, and cap enforcement | zscaler doc not yet read / lab test |
 | [`zia-57`](#zia-57-ftp-and-file-type-control-field-dependency-and-enum-surfaces) | FTP and File Type Control field-dependency and enum surfaces | lab test / zscaler doc not yet read |
 | [`zia-58`](#zia-58-dlp-web-rule-actionseverity-enums-parentsub-rule-composition-externaldlp-behavior) | DLP web rule action/severity enums, parent/sub-rule composition, EXTERNALDLP behavior | lab test / zscaler doc not yet read |
@@ -328,7 +328,7 @@ The 2026-06-15 ZIA refresh registered these open ZIA behavior/source questions s
 | [`zia-62`](#zia-62-pse-shared-nat-rejection-zia-only-health-monitoring-hardware-pse-api) | PSE shared-NAT rejection, ZIA-only health monitoring, hardware-PSE API | zscaler doc not yet read / support ticket / code read |
 | [`zia-63`](#zia-63-sandbox-md5-blocklist-quota-help-portal-enum-and-the-mpatp-diagnosis-api-gap) | Sandbox MD5 blocklist quota, help-portal enum, and the MP/ATP diagnosis API gap | lab test / zscaler doc not yet read |
 | [`zia-64`](#zia-64-scim-department-matching-attribute-length-activefalse-session-kill-and-caps) | SCIM department matching, attribute length, `active=false` session-kill, and caps | lab test / zscaler doc not yet read |
-| [`zia-65`](#zia-65-ucaas-one-click-toggle-field-location) | UCaaS One-Click toggle field location | tenant snapshot / zscaler doc not yet read |
+| [`zia-65`](#zia-65-ucaas-one-click-toggle-field-location) | UCaaS One-Click toggle field location | tenant read / zscaler doc not yet read |
 | [`zia-66`](#zia-66-whether-the-255-ssl-inspection-rule-cap-is-raisable) | Whether the 255 SSL Inspection rule cap is raisable | zscaler doc not yet read / support ticket |
 | [`zia-67`](#zia-67-tenant-profile-per-app-wire-mechanic-and-v1v2-protocol-semantics) | Tenant Profile per-app wire mechanic and v1/v2 protocol semantics | zscaler doc not yet read / lab test |
 | [`zia-68`](#zia-68-terraform-url_categories_predefined-ea-gating-sandbox-v1v2-endpoint-static-ip-throttle) | Terraform `url_categories_predefined` EA gating, sandbox v1/v2 endpoint, static-IP throttle | primary API rate-limit table / lab test |
@@ -342,7 +342,7 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 |---|---|---|
 | [`zpa-21`](#zpa-21-praapplicationapplicationprotocol-full-enum-citation-scope) | `PRAApplication.applicationProtocol` full enum citation scope in Postman | code read |
 | [`zpa-22`](#zpa-22-privatecloudcontroller-canonical-restart-path) | PrivateCloudController canonical restart path (Go vs Python SDK divergence) | lab test |
-| [`zpa-23`](#zpa-23-credential-sensitive-fields-in-get-response) | Whether `password` / `private_key` are returned on a Credential GET | tenant snapshot / lab test |
+| [`zpa-23`](#zpa-23-credential-sensitive-fields-in-get-response) | Whether `password` / `private_key` are returned on a Credential GET | tenant read / lab test |
 | [`zpa-24`](#zpa-24-nla-as-a-valid-connectionsecurity-value-for-pra-sub-apps) | `NLA` as a valid PRA sub-app `connectionSecurity` value | lab test |
 | [`zpa-25`](#zpa-25-bacertificate-update_certificate-validity-as-an-api-operation) | BaCertificate `update_certificate` (PUT) validity as an API operation | lab test |
 | [`zpa-26`](#zpa-26-zpn_client_type_browser_isolation-in-lss-policy-conditions) | `zpn_client_type_browser_isolation` validity in LSS policy conditions | lab test |
@@ -353,7 +353,7 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-31`](#zpa-31-whether-the-zpa-api-requires-an-enrollment-cert-for-connector-type-provisioning-keys) | Whether the API requires an enrollment cert for connector-type keys | lab test |
 | [`zpa-32`](#zpa-32-zpn_audit_log-lss-field-schema) | `zpn_audit_log` LSS field schema | zscaler doc not yet read |
 | [`zpa-33`](#zpa-33-siem_policy-purpose-relative-to-audit-log-streaming) | `SIEM_POLICY` purpose relative to audit-log streaming | zscaler doc not yet read / lab test |
-| [`zpa-34`](#zpa-34-microtenant-audit-log-scoping) | Microtenant audit-log scoping (isolated vs parent-visible) | tenant snapshot / lab test |
+| [`zpa-34`](#zpa-34-microtenant-audit-log-scoping) | Microtenant audit-log scoping (isolated vs parent-visible) | tenant read / lab test |
 | [`zpa-35`](#zpa-35-lssconfigfilter-valid-expressions-for-zpn_audit_log) | `LSSConfig.filter` valid expressions for `zpn_audit_log` | zscaler doc not yet read |
 | [`zpa-36`](#zpa-36-runtime-semantics-of-trust_untrusted_cert-and-allow_options) | Runtime semantics of `trust_untrusted_cert` / `allow_options` | zscaler doc not yet read / lab test |
 | [`zpa-37`](#zpa-37-get-stepupauthlevel-response-shape-and-write-verb-support) | `GET /stepupauthlevel` response shape and write-verb support | lab test |
@@ -361,10 +361,10 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-39`](#zpa-39-assistantschedule-legacy-endpoint-still-served-vs-retired-alias) | `/assistantSchedule` legacy endpoint — still served vs retired alias | lab test |
 | [`zpa-40`](#zpa-40-zpn_auth_log_1id-human-facing-label) | `zpn_auth_log_1id` human-facing label | zscaler doc not yet read |
 | [`zpa-41`](#zpa-41-format-only-log-type-codes-acceptance-on-a-receivers-sourcelogtype) | Format-only log-type codes' acceptance on a receiver's `sourceLogType` | lab test |
-| [`zpa-42`](#zpa-42-console-path-for-the-global-enable-zpa-machine-tunnel-for-all-toggle) | Console path for the global "Enable ZPA Machine Tunnel for All" toggle | tenant snapshot / operator experience |
+| [`zpa-42`](#zpa-42-console-path-for-the-global-enable-zpa-machine-tunnel-for-all-toggle) | Console path for the global "Enable ZPA Machine Tunnel for All" toggle | tenant read / operator experience |
 | [`zpa-43`](#zpa-43-machine-tunnel-behavior-during-user-session-transitions) | Machine tunnel behavior during user session transitions | lab test / operator experience |
 | [`zpa-44`](#zpa-44-macos-mdm-enrollment-effect-on-machine-tunnel-provisioning) | macOS MDM (Jamf/Intune) effect on machine-tunnel provisioning | zscaler doc not yet read / lab test |
-| [`zpa-45`](#zpa-45-machine-tunnel-provisioning-key-mechanism) | Machine-tunnel provisioning key mechanism | zscaler doc not yet read / tenant snapshot |
+| [`zpa-45`](#zpa-45-machine-tunnel-provisioning-key-mechanism) | Machine-tunnel provisioning key mechanism | zscaler doc not yet read / tenant read |
 | [`zpa-46`](#zpa-46-api-enforcement-of-the-chrome_posture_profile-vs-chrome_enterprise-operand-form-split) | API enforcement of the CHROME_POSTURE_PROFILE vs CHROME_ENTERPRISE operand-form split | lab test |
 | [`zpa-47`](#zpa-47-private-service-edge-vm-sizing-and-per-instance-session-limits) | PSE VM sizing and per-instance session limits | zscaler doc not yet read |
 | [`zpa-49`](#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses) | Supported hypervisor / cloud-image formats for ZPA PSEs | zscaler doc not yet read / Marketplace capture |
@@ -382,7 +382,7 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-61`](#zpa-61-authoritative-zpa-saml-attribute-limit) | Authoritative ZPA SAML attribute limit (is it exactly 100?) | zscaler doc not yet read / lab test |
 | [`zpa-62`](#zpa-62-userattribute-and-delta-saml-attribute-field-semantics) | `userAttribute` and `delta` SAML-attribute field semantics | zscaler doc not yet read / lab test |
 | [`zpa-63`](#zpa-63-behavior-when-a-scim_group-operand-references-a-deleted-group) | Behavior when a `SCIM_GROUP` operand references a deleted group | lab test |
-| [`zpa-64`](#zpa-64-scim-group-internal_id-field-semantics) | SCIM group `internal_id` field semantics | zscaler doc not yet read / tenant snapshot |
+| [`zpa-64`](#zpa-64-scim-group-internal_id-field-semantics) | SCIM group `internal_id` field semantics | zscaler doc not yet read / tenant read |
 | [`zpa-65`](#zpa-65-enable_scim_based_policy-false-fallback-behavior) | `enable_scim_based_policy` false fallback behavior | lab test |
 | [`zpa-66`](#zpa-66-scim-attribute-value-matching-case-sensitivity) | SCIM attribute value matching case sensitivity | lab test |
 | [`zpa-67`](#zpa-67-scim-group-membership-resolution-timing-session-vs-per-evaluation) | SCIM group membership resolution timing (session vs per-evaluation) | lab test |
@@ -392,8 +392,8 @@ The ZPA reference re-verification pass (2026-06-15) registered the remaining `##
 | [`zpa-71`](#zpa-71-segment-group-tcpkeepaliveenabled-adminruntime-effect) | Segment Group `tcpKeepAliveEnabled` admin/runtime effect | zscaler doc not yet read |
 | [`zpa-72`](#zpa-72-segment-group-config_space-accepted-values) | Segment Group `config_space` accepted values | lab test / zscaler doc not yet read |
 | [`zpa-73`](#zpa-73-objecttype-zpn_internal_internet_protocol-and-user-wire-validity) | `objectType` `ZPN_INTERNAL_INTERNET_PROTOCOL` / `USER` wire validity | lab test |
-| [`zpa-74`](#zpa-74-tcpkeepalive-literal-wire-token-quoted-string-vs-bare-integer) | `tcpKeepAlive` literal wire token (quoted string vs bare integer) | tenant snapshot |
-| [`zpa-75`](#zpa-75-configspace-at-the-segment-top-level) | `configSpace` valid at the segment top level | tenant snapshot |
+| [`zpa-74`](#zpa-74-tcpkeepalive-literal-wire-token-quoted-string-vs-bare-integer) | `tcpKeepAlive` literal wire token (quoted string vs bare integer) | tenant read |
+| [`zpa-75`](#zpa-75-configspace-at-the-segment-top-level) | `configSpace` valid at the segment top level | tenant read |
 | [`zpa-76`](#zpa-76-which-lss-source_log_type-values-require-a-policy_rule_resource-block) | Which LSS `source_log_type` values require a `policy_rule_resource` block | zscaler doc not yet read / lab test |
 | [`zpa-77`](#zpa-77-tag-tag-group-membership-referenced-in-policy-rule-conditions) | Tag / tag-group membership referenced in policy rule conditions (Early Access) | zscaler doc not yet read / lab test |
 | [`zpa-78`](#zpa-78-trusted_network-rhs-false-runtime-semantics) | `TRUSTED_NETWORK` `rhs = "false"` runtime semantics | lab test |
@@ -411,17 +411,17 @@ The ZCC deep-dive refresh (2026-06-15) registered these open behavior questions 
 | [`zcc-78`](#zcc-78-webpolicy-devicetype-vs-device_type-write-precedence) | WebPolicy `DeviceTypeAlt` (int, wire `deviceType`) vs `DeviceType` (int, wire `device_type`) precedence on write | lab test |
 | [`zcc-79`](#zcc-79-webpolicy-selected-form-state-fields-required-on-write) | Which WebPolicy `*Selected` / `*SelectedOption` form-state fields are required on write | lab test |
 | [`zcc-80`](#zcc-80-zcc-v1-vs-v2-endpoint-coexistence) | ZCC v1 vs v2 endpoint coexistence / supersession | zscaler doc not yet read / lab test |
-| [`zcc-81`](#zcc-81-device-zd-vs-zdp-field-prefix-meanings) | Device `zd*` vs `zdp*` field-prefix service meanings | zscaler doc not yet read / tenant snapshot |
-| [`zcc-82`](#zcc-82-device-registration_state-vs-state-distinction) | Device `registration_state` vs `state` distinction | tenant snapshot / zscaler doc not yet read |
-| [`zcc-83`](#zcc-83-devicedetailsstate-type-wire-type-per-endpoint) | `DeviceDetails.state` / `type` wire type (int on list vs string on detail) | tenant snapshot |
+| [`zcc-81`](#zcc-81-device-zd-vs-zdp-field-prefix-meanings) | Device `zd*` vs `zdp*` field-prefix service meanings | zscaler doc not yet read / tenant read |
+| [`zcc-82`](#zcc-82-device-registration_state-vs-state-distinction) | Device `registration_state` vs `state` distinction | tenant read / zscaler doc not yet read |
+| [`zcc-83`](#zcc-83-devicedetailsstate-type-wire-type-per-endpoint) | `DeviceDetails.state` / `type` wire type (int on list vs string on detail) | tenant read |
 | [`zcc-84`](#zcc-84-unified-tunnel-operational-semantics) | Unified Tunnel operational semantics vs two separate Z-Tunnels | zscaler doc not yet read / lab test |
 | [`zcc-85`](#zcc-85-app-profile-fail-close-vs-tenant-failopenpolicy-precedence) | App-Profile fail-close vs tenant-global `FailOpenPolicy` precedence | lab test |
 | [`zcc-86`](#zcc-86-get_web_privacy-returns-none-on-error) | `get_web_privacy` returns `None` on error rather than a result tuple | code read (resolved) |
 | [`zcc-87`](#zcc-87-zcc-rate-limit-header-behavior-on-the-oneapi-path) | ZCC rate-limit header behavior on the OneAPI path | zscaler doc not yet read / lab test |
-| [`zcc-88`](#zcc-88-webpolicy-read-shape-macpolicy-vs-macospolicy-key) | WebPolicy read-shape macOS sub-policy key (`macPolicy` vs `macosPolicy`) | tenant snapshot |
-| [`zcc-89`](#zcc-89-webpolicy-groups-users-devicegroups-wire-shape) | WebPolicy `groups` / `users` / `deviceGroups` wire shape on `listByCompany` | tenant snapshot |
-| [`zcc-90`](#zcc-90-webpolicy-companion-devicetype-string-presence-on-reads) | WebPolicy companion `deviceType` string presence on reads | tenant snapshot |
-| [`zcc-91`](#zcc-91-app-supportability-toggle-tenant-defaults) | App Supportability toggle tenant-default values | tenant snapshot / zscaler doc not yet read |
+| [`zcc-88`](#zcc-88-webpolicy-read-shape-macpolicy-vs-macospolicy-key) | WebPolicy read-shape macOS sub-policy key (`macPolicy` vs `macosPolicy`) | tenant read |
+| [`zcc-89`](#zcc-89-webpolicy-groups-users-devicegroups-wire-shape) | WebPolicy `groups` / `users` / `deviceGroups` wire shape on `listByCompany` | tenant read |
+| [`zcc-90`](#zcc-90-webpolicy-companion-devicetype-string-presence-on-reads) | WebPolicy companion `deviceType` string presence on reads | tenant read |
+| [`zcc-91`](#zcc-91-app-supportability-toggle-tenant-defaults) | App Supportability toggle tenant-default values | tenant read / zscaler doc not yet read |
 | [`zcc-92`](#zcc-92-per-product-disable-password-authority-webpolicy-vs-manage_pass) | Per-product disable-password authority (`WebPolicy` vs `manage_pass`) and key mapping | lab test / zscaler doc not yet read |
 | [`zcc-93`](#zcc-93-macos-password-read-key-vs-write-key-api-behavior) | macOS password read-key vs write-key (camelCase vs snake_case) API behavior | lab test |
 | [`zcc-94`](#zcc-94-per-platform-password-gate-ui-surface-per-os) | Which per-platform password gates render as user-facing UI per OS | operator experience / zscaler doc not yet read |
@@ -446,7 +446,7 @@ The ZDX deep-dive refresh (2026-06-15) registered these open ZDX-behavior questi
 | [`zdx-09`](#zdx-09-org-list-time-filter-semantics) | Time-filter semantics on department/location org lists | lab test / zscaler doc not yet read |
 | [`zdx-10`](#zdx-10-q-vs-search-matching-on-getlocationsfilters) | `Q` vs `Search` matching behavior on `GetLocationsFilters` | lab test / zscaler doc not yet read |
 | [`zdx-11`](#zdx-11-exhaustive-metric_name-value-set) | Exhaustive `metric_name` value set for app metrics | zscaler doc not yet read / lab test |
-| [`zdx-12`](#zdx-12-tenant-level-application-inventory) | Whether the app list returns apps with no recent probe data | tenant snapshot / zscaler doc not yet read |
+| [`zdx-12`](#zdx-12-tenant-level-application-inventory) | Whether the app list returns apps with no recent probe data | tenant read / zscaler doc not yet read |
 | [`zdx-13`](#zdx-13-probe-metadata-per-application) | Which probes are attached to a given application ID | zscaler doc not yet read / operator experience |
 | [`zdx-14`](#zdx-14-application-auto-detection-vs-manual-config) | Whether ZDX auto-discovers apps or requires manual config | zscaler doc not yet read / operator experience |
 | [`zdx-15`](#zdx-15-zdx-ca-topology) | ZDX Central Authority topology (active-passive vs active-active) | zscaler doc not yet read / support ticket |
@@ -475,7 +475,7 @@ The ZDX deep-dive refresh (2026-06-15) registered these open ZDX-behavior questi
 | [`zdx-38`](#zdx-38-which-metrics-feed-the-composite-score) | Which retrievable metrics actually feed the composite score | zscaler doc not yet read / lab test |
 | [`zdx-39`](#zdx-39-score-recalculation-lag-for-new-users-or-devices) | Score-appearance lag for new users/devices | zscaler doc not yet read / operator experience |
 | [`zdx-40`](#zdx-40-device-level-vs-user-level-score-aggregation) | Whether score is per (user, device) or rolled up per user | zscaler doc not yet read / lab test |
-| [`zdx-41`](#zdx-41-probe-result-retention-and-aging-granularity) | Probe-result retention period and aging granularity | zscaler doc not yet read / tenant snapshot |
+| [`zdx-41`](#zdx-41-probe-result-retention-and-aging-granularity) | Probe-result retention period and aging granularity | zscaler doc not yet read / tenant read |
 | [`zdx-42`](#zdx-42-adaptive-mode-scoring-comparability) | Whether Adaptive Mode keeps scores comparable across cadences | zscaler doc not yet read / lab test |
 | [`zdx-43`](#zdx-43-inventory-time-range-filter-server-support) | Whether the inventory endpoint honors the time-range filter server-side | lab test / zscaler doc not yet read |
 | [`zdx-44`](#zdx-44-snapshot-endpoint-base-path-in-the-automate-contract) | Snapshot endpoint base path in the Automate contract | live API trace / vendor spec |
@@ -484,8 +484,8 @@ The ZIdentity refresh (2026-06-15) registered these open behavior questions from
 
 | ID | Title | Resolves with |
 |---|---|---|
-| [`zid-01`](#zid-01-admin-permission-level-enum-restricted-full-restrictive-view) | Admin permission-level enum (Restricted Full / Restrictive View vs Full / View Only / Restricted / None) | zscaler doc not yet read / tenant snapshot |
-| [`zid-02`](#zid-02-zidentity-role-to-per-product-scope-inheritance) | ZIdentity role to per-product (ZIA/ZPA) scope inheritance | tenant snapshot / zscaler doc not yet read |
+| [`zid-01`](#zid-01-admin-permission-level-enum-restricted-full-restrictive-view) | Admin permission-level enum (Restricted Full / Restrictive View vs Full / View Only / Restricted / None) | zscaler doc not yet read / tenant read |
+| [`zid-02`](#zid-02-zidentity-role-to-per-product-scope-inheritance) | ZIdentity role to per-product (ZIA/ZPA) scope inheritance | tenant read / zscaler doc not yet read |
 | [`zid-03`](#zid-03-role-management-apis-absent-from-the-sdk-surface) | Role-management APIs absent from the SDK surface | zscaler doc not yet read / live API trace |
 | [`zid-04`](#zid-04-admin-role-assignment-audit-trail) | Admin role-assignment audit trail | zscaler doc not yet read / live API trace |
 | [`zid-05`](#zid-05-scope-field-semantics-and-value-enum) | Entitlement `scope` field semantics and value enum (`Global` / `Limited` / `AllResources`) | vendor documentation / tenant-side check |
@@ -497,7 +497,7 @@ The ZIdentity refresh (2026-06-15) registered these open behavior questions from
 | [`zid-11`](#zid-11-access_token_life_time-field-semantics) | `access_token_life_time` field semantics (TTL vs active-flag docstring contradiction) | lab test / vendor documentation |
 | [`zid-12`](#zid-12-token-revocation-via-sdk-api) | Token revocation via SDK / API and propagation window | zscaler doc not yet read / lab test |
 | [`zid-13`](#zid-13-add_api_client_secret-expires_at-behavior) | `add_api_client_secret` `expires_at` behavior (omitted / past / range) | lab test |
-| [`zid-14`](#zid-14-jwks-authtype-request-body-unobserved-in-vendored-sources) | JWKS `authType` request body unobserved in vendored sources | tenant snapshot / zscaler doc not yet read |
+| [`zid-14`](#zid-14-jwks-authtype-request-body-unobserved-in-vendored-sources) | JWKS `authType` request body unobserved in vendored sources | tenant read / zscaler doc not yet read |
 | [`zid-15`](#zid-15-bare-adminapiv1-prefix-acceptance-on-the-apizsapinet-host) | Bare `/admin/api/v1` prefix acceptance on the `api.zsapi.net` host | live API trace |
 | [`zid-16`](#zid-16-which-wire-host-a-live-tenant-actually-serves) | Which wire host a live tenant actually serves | live API trace |
 | [`zid-17`](#zid-17-group-dual-flag-semantics-isdynamicgroup-vs-dynamicgroup) | Group dual-flag semantics (`isDynamicGroup` vs `dynamicGroup`) | API spec review / lab test |
@@ -505,7 +505,7 @@ The ZIdentity refresh (2026-06-15) registered these open behavior questions from
 | [`zid-19`](#zid-19-user-deduplication-in-bulk-add) | User deduplication in bulk add | lab test |
 | [`zid-20`](#zid-20-scim-sourced-group-mutation-semantics) | SCIM-sourced group mutation semantics | lab test / vendor documentation |
 | [`zid-21`](#zid-21-group-source-value-enum-completeness) | Group `source` value enum completeness | vendor documentation / live API enumeration |
-| [`zid-22`](#zid-22-group-enableddisabled-flag-on-the-wire) | Group enabled/disabled flag on the wire | tenant snapshot / vendor documentation |
+| [`zid-22`](#zid-22-group-enableddisabled-flag-on-the-wire) | Group enabled/disabled flag on the wire | tenant read / vendor documentation |
 | [`zid-23`](#zid-23-empty-servicescopes-array-semantics) | Empty `serviceScopes` array semantics | tenant-side check / vendor documentation |
 | [`zid-24`](#zid-24-defaultapi-flag-behavior) | `defaultApi` flag behavior | vendor documentation / lab test |
 | [`zid-25`](#zid-25-resource-server-enumerability-hidden-internal-entries) | Resource-server enumerability (hidden internal entries) | tenant-side check / vendor documentation |
@@ -549,7 +549,7 @@ The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these op
 | [`cloud-connector-19`](#cloud-connector-19-ztw-sdk-method-convention-anomalies-and-oneapi-fedramp-behavior) | ZTW SDK method-convention anomalies + OneAPI FedRAMP behavior | code read / release note / lab test |
 | [`cloud-connector-20`](#cloud-connector-20-nss-va-for-cbc-feed-coverage-sizing-certs-ha-and-rule-match-semantics) | NSS VA for CBC: feed coverage / sizing / certs / HA / rule-match | zscaler doc not yet read / lab test |
 | [`cloud-connector-21`](#cloud-connector-21-insightstunnel-insights-aggregation-and-byte-count-parity-with-nss-feeds) | Insights/Tunnel-Insights aggregation + byte-count parity with NSS feeds | lab test / zscaler doc not yet read |
-| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: standard deployment / sovereign clouds / WDS-vs-ZTG parity | tenant snapshot / support ticket / cloud Marketplace checks |
+| [`cloud-connector-22`](#cloud-connector-22-cc-region-coverage-govcloud-china-gcp-deployment-and-wds-vs-ztg-region-set-parity) | CC region coverage: standard deployment / sovereign clouds / WDS-vs-ZTG parity | tenant read / support ticket / cloud Marketplace checks |
 | [`cloud-connector-23`](#cloud-connector-23-dest_workload_groups_ids-binding-to-local_switch-local) | `dest_workload_groups_ids` binding to `LOCAL_SWITCH` / "Local" | lab test |
 | [`cloud-connector-24`](#cloud-connector-24-field-character-limit-enforcement-on-dns-and-log-and-control-rules) | Field character-limit enforcement on DNS / Log-and-Control rules | lab test / zscaler doc not yet read |
 | [`cloud-connector-25`](#cloud-connector-25-zcloudconnector-default-response-success-schema-semantics) | ZCloudConnector default-response success schema semantics | vendor spec / live response |
@@ -966,7 +966,7 @@ ZIA explicitly documents that a disabled URL filtering rule retains its order po
 
 *Origin: `references/shared/splunk-queries.md`*
 
-Our SPL patterns parameterize on `$INDEX_ZIA_WEB` / `$INDEX_ZPA` etc. Where those values come from in practice — env var, config file, pulled from snapshot metadata — is undecided. Affects how we make SPL patterns tenant-portable when index naming varies between customers.
+Our SPL patterns parameterize on `$INDEX_ZIA_WEB` / `$INDEX_ZPA` etc. Where those values come from in practice — env var, config file, pulled from overlay or IaC metadata — is undecided. Affects how we make SPL patterns tenant-portable when index naming varies between customers.
 
 **Status**: resolved (2026-04-24).
 
@@ -993,7 +993,7 @@ We've said logs are a "validation layer" but haven't set an SLO: at what point d
 
 **Answer**: **The skill does not auto-query logs.** All log-validation is an explicit operator action, surfaced as a ready-to-run SPL snippet the user can paste. The skill's default loop is:
 
-1. Answer the question from `references/` + `_data/snapshot/` (config-derived reasoning).
+1. Answer the question from `references/` + the overlay's IaC or live `zscalerctl` read (config-derived reasoning).
 2. Note where logs would validate or contradict the config-level answer, and emit the SPL query that would do so.
 3. Only if the user explicitly asks ("run it", "what do the logs show?") does a script invocation happen — and even then it's the operator running `scripts/splunk-query.sh`, not the skill auto-executing.
 
@@ -1019,7 +1019,7 @@ Real implementations of the refresh / lookup / splunk-query scripts would need a
 **Answer**: Python via `uv run --script` shebang, using the vendored `zscaler-sdk-python`. Implemented:
 
 - A URL-lookup helper mirrored the `investigate-url` workflow from `vendor/zscaler-mcp-server/commands/investigate-url.md`.
-- A snapshot-refresh helper dumped ZIA + ZPA config under `_data/snapshot/<cloud>/<product>/`. (Both SDK helpers were later removed; tenant reads now go through the read-only zscalerctl CLI.)
+- A snapshot-refresh helper dumped ZIA + ZPA config under a saved snapshot directory. (Both SDK helpers were later removed, and the saved snapshot tier is retired; tenant reads now go through the overlay's IaC or the read-only zscalerctl CLI.)
 - `scripts/splunk-query.sh` — kept as bash stub (Splunk SDK is Python but the Splunk path is not the critical one and the bash stub matches the legacy pattern).
 
 ---
@@ -1040,7 +1040,7 @@ Rationale for env vars over alternatives:
 - **No bundled secrets-manager integration** — 1Password (`op read "op://..."`), Vault, AWS Secrets Manager, etc. are fine upstream of the shell. The scripts only consume env vars; how those get populated is the operator's choice. Example pattern for a fork: `eval "$(op read 'op://private/zscaler/.envrc')"` upstream of whatever populates the snapshot.
 - **Env vars are what the SDK already expects** — the `zscaler-sdk-python` OneAPI path reads these by default. Forcing a custom config layer would duplicate SDK conventions.
 
-Affects: `.gitignore` correctly excludes `_data/snapshot/`, `_data/schemas/`, and local-scratch paths but not `.env` (no `.env` is ever created by the skill). Script headers document the 4 required env vars in block comments. No onboarding-doc change needed beyond what's already in README step 4.
+Affects: `.gitignore` correctly excludes `_data/`, and local-scratch paths but not `.env` (no `.env` is ever created by the skill). Script headers document the 4 required env vars in block comments. No onboarding-doc change needed beyond what's already in README step 4.
 
 ---
 
@@ -1052,14 +1052,14 @@ Raw JSON dumps from the API are cheap to produce and `jq`-friendly but noisy for
 
 **Status**: resolved (2026-04-24).
 
-**Answer**: **Raw JSON** — one file per resource under `_data/snapshot/<cloud>/<product>/<resource>.json`, plus a per-cloud `_manifest.json` capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
+**Answer** (historical; the saved snapshot tier is retired, tenant config now comes from the overlay's IaC or a live read-only `zscalerctl` read): **Raw JSON** — one file per resource, plus a per-cloud manifest capturing timestamp + per-resource counts. Wire format (camelCase for ZIA, mixed for ZPA) is preserved as-is; no paraphrasing pass.
 
 Rationale:
 
 - **Faithfulness over friendliness.** Paraphrased markdown risks going stale against API changes or drifting from the SDK's model. Raw JSON is source-of-truth; any transformation is downstream.
-- **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")' _data/snapshot/<cloud>/zia/url-categories.json`) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
-- **Model consumption concerns are real but bounded.** Consumers should be selective — extract only the fields relevant to the question rather than passing the full JSON blob to the model. Reasoning docs under `references/` carry the narrative; snapshot answers "what does this tenant actually have configured" in raw form.
-- **Source-derived `snapshot-schema.md` docs now exist** for [ZIA](../zia/snapshot-schema.md), [ZPA](../zpa/snapshot-schema.md), [ZCC](../zcc/snapshot-schema.md), and [ZIdentity](../zidentity/snapshot-schema.md), with key tables and jq examples where applicable. They remain medium-confidence/anticipatory until a fork-admin run validates them against real tenant output (historical rationale in PLAN.md § 4).
+- **`jq`-first access.** Skill answers that need tenant data read JSON directly (`jq '.[] | select(.name == "X")'` over the read-only `zscalerctl` output) or via small Python helpers in the scripts. Claude handles JSON well enough that noisy fields aren't a blocker.
+- **Model consumption concerns are real but bounded.** Consumers should be selective — extract only the fields relevant to the question rather than passing the full JSON blob to the model. Reasoning docs under `references/` carry the narrative; IaC and live reads answer "what does this tenant actually have configured" in raw form.
+- **Field shapes** come from `node scripts/kb.mjs resolve <type-id>` (for example `zia/url-filtering-rules`); the former `snapshot-schema.md` docs are retired (historical rationale in PLAN.md § 4).
 
 A paraphrased-markdown post-processing step remains an option for the future if a fork team wants it, but no current skill answer requires one.
 
@@ -1456,7 +1456,7 @@ Each item in `forwardingProfileActions` is keyed by `networkType` specifying whi
 
 **Type confirmed (2026-04-24)**: Go SDK (`forwarding_profile.go:48`) types the field as `int`. Earlier speculation that values might be `TRUSTED` / `UNTRUSTED` strings was wrong — integer codes. Likely 0/1/2/... mapping to Trusted / Untrusted / VPN-Trusted / etc., but the order-to-meaning mapping is unconfirmed.
 
-**Resolves with**: tenant snapshot of a tenant with multiple branches OR lab test. **Status**: partially resolved — type known (`int`), semantic mapping still open.
+**Resolves with**: tenant read of a tenant with multiple branches OR lab test. **Status**: partially resolved — type known (`int`), semantic mapping still open.
 
 ---
 
@@ -1468,7 +1468,7 @@ The `actionType` field on each network-type action block decides what happens to
 
 **Type confirmed (2026-04-24)**: Go SDK (`forwarding_profile.go:49`, `:99`) types the field as `int`. Earlier speculation that values might be string literals like `NONE` / `TUNNEL` / `PAC` was wrong — integer codes. Note: in `UnifiedTunnel` sub-objects, the field is split into `actionTypeZIA` (int) and `actionTypeZPA` (int), indicating ZIA and ZPA traffic can have independent action selections within a shared unified tunnel.
 
-**Resolves with**: tenant snapshot covering multiple profile variants OR zscaler doc not yet read. **Status**: partially resolved — type known (`int`), semantic mapping still open.
+**Resolves with**: tenant read covering multiple profile variants OR zscaler doc not yet read. **Status**: partially resolved — type known (`int`), semantic mapping still open.
 
 ---
 
@@ -1480,7 +1480,7 @@ The `primaryTransport` field on both ZIA and ZPA actions specifies the transport
 
 **Type confirmed (2026-04-24)**: Go SDK (`forwarding_profile.go:53`, `:100`, plus `UnifiedTunnel.primaryTransport:122` and `PartnerInfo.primaryTransport:115`) types the field as `int`. Earlier speculation that values might be strings like `ZTUNNEL` / `DTLS` / `TLS` was wrong — integer codes. The integer-to-protocol mapping is likely stable across the 5 instances of this field (consistent semantic across contexts) but the specific mapping is still unconfirmed.
 
-**Resolves with**: tenant snapshot OR zscaler doc. **Status**: partially resolved — type known (`int`), semantic mapping still open.
+**Resolves with**: tenant read OR zscaler doc. **Status**: partially resolved — type known (`int`), semantic mapping still open.
 
 ---
 
@@ -1687,7 +1687,7 @@ Whether `endTime < startTime` is accepted by the API to represent windows that c
 Whether fixed predefined time interval objects (analogous to the `/timeWindows` catalog's "Work hours" and "Weekends" entries) also exist in the `/timeIntervals` endpoint, or whether `/timeIntervals` is entirely user-managed.
 
 **Status**: open
-**Resolves with**: tenant snapshot (list `/timeIntervals` on a fresh or known-clean tenant)
+**Resolves with**: tenant read (list `/timeIntervals` on a fresh or known-clean tenant)
 
 ---
 
@@ -1698,7 +1698,7 @@ Whether fixed predefined time interval objects (analogous to the `/timeWindows` 
 Whether label names appear in ZIA admin audit log entries for rule create/update operations. Vendor help and SDK sources describe labels as UI/API metadata only; no audit log schema including label names was found in reviewed sources.
 
 **Status**: open
-**Resolves with**: tenant snapshot (inspect audit log entries for a rule update that adds a label)
+**Resolves with**: tenant read (inspect audit log entries for a rule update that adds a label)
 
 ---
 
@@ -1808,7 +1808,7 @@ Whether removing a VM from an active VSE cluster gracefully drains in-flight con
 Whether NSS/Admin Console analytics log entries for VSE cluster traffic carry a VM-level identifier, a cluster-level identifier, or both. Not addressed in the VSE cluster or VSE VM vendor docs.
 
 **Status**: open
-**Resolves with**: tenant snapshot (inspect NSS log entries for traffic routed through a VSE cluster) OR operator experience
+**Resolves with**: tenant read (inspect NSS log entries for traffic routed through a VSE cluster) OR operator experience
 
 ---
 
@@ -2840,7 +2840,7 @@ Whether ZCC emits a ZCC-level OS toast or only a macOS/Windows system-level cert
 Whether "notification shown," "user dismissed," or "AUP acknowledged" events appear in any Zscaler cloud log feed (ZIA analytics, ZPA analytics, ZCC audit, NSS). Not addressed in any reviewed vendor source.
 
 **Status**: open
-**Resolves with**: tenant snapshot (inspect available log feeds for notification events) OR operator experience
+**Resolves with**: tenant read (inspect available log feeds for notification events) OR operator experience
 
 ---
 
@@ -2895,7 +2895,7 @@ The underlying API endpoint path and request schema for the four App Supportabil
 Whether "Enable Support Access" and "Hide Logging Control" are on or off for a newly provisioned tenant. The vendor doc describes configuration steps, not explicit default values; defaults were inferred but not confirmed.
 
 **Status**: open
-**Resolves with**: tenant snapshot (new tenant or factory-reset App Supportability config) OR operator experience
+**Resolves with**: tenant read (new tenant or factory-reset App Supportability config) OR operator experience
 
 ---
 
@@ -2940,7 +2940,7 @@ Whether ZCC stages the diagnostic bundle to a predictable local temp directory b
 Whether ZCC logs the time, device, and user when a Report an Issue form is submitted in any admin-side audit log, separately from the email delivery receipt. No admin-side submission log found in reviewed sources.
 
 **Status**: open
-**Resolves with**: tenant snapshot (inspect ZCC portal audit log after a Report an Issue submission)
+**Resolves with**: tenant read (inspect ZCC portal audit log after a Report an Issue submission)
 
 ---
 
@@ -3083,7 +3083,7 @@ Whether the AUP Settings tab is suppressed when the tenant uses Notification Tem
 Whether ZCC logs individual user AUP accept/decline events in the ZCC portal audit log, ZIA NSS streams, or elsewhere. Not described in the AUP vendor source or shared audit-logs reference.
 
 **Status**: open
-**Resolves with**: tenant snapshot (inspect available log feeds for AUP acknowledgment events) OR operator experience
+**Resolves with**: tenant read (inspect available log feeds for AUP acknowledgment events) OR operator experience
 
 ---
 
@@ -3138,7 +3138,7 @@ Whether changes to AUP frequency or message content take effect immediately on t
 The out-of-box default log mode (Info, Warn, or another level) when a new App Profile is created in the ZCC Portal. The vendor help doc describes available log modes but does not state the factory default; the SDK model carries the field without a default annotation.
 
 **Status**: open
-**Resolves with**: tenant snapshot (create a fresh App Profile; inspect `logMode` value) OR operator experience
+**Resolves with**: tenant read (create a fresh App Profile; inspect `logMode` value) OR operator experience
 
 ---
 
@@ -3358,7 +3358,7 @@ Whether a macOS user denial of the ZCC Network Extension (in System Settings →
 A DNS Control rule model carries a `block_response_code` field, but no vendored source enumerates which DNS response codes it accepts (NXDOMAIN, REFUSED, specific rcodes, etc.). The Python and Go SDK sources describe it only as a DNS response-code string (`vendor/zscaler-sdk-python/zscaler/zia/cloud_firewall_dns.py:190`; `vendor/zscaler-sdk-go/zscaler/zia/services/firewalldnscontrolpolicies/firewalldnscontrolpolicies.go:47-48`); MCP v0.15.0 no longer documents the field. Until the accepted set is known, the skill cannot say what a given response-blocking rule actually returns to the client resolver.
 
 **Status**: open
-**Resolves with**: lab test (configure a BLOCK rule, observe accepted values in the console / API) OR tenant snapshot
+**Resolves with**: lab test (configure a BLOCK rule, observe accepted values in the console / API) OR tenant read
 
 ---
 
@@ -3410,7 +3410,7 @@ both paths: app A, app B, `[A,B]`, and `[B,A]`.
 `ZPN_STATUS_PENDING` appears only in a single SKILL.md status table (`vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md:102`); it is absent from the `troubleshoot-connector` command doc, all SDK source, and the zscaler-help status-log-field docs. Its existence as a real App Connector runtime status — and the wire-level value (`controlChannelStatus` / `runtime_status`) that would distinguish it from `ZPN_STATUS_NOT_ENROLLED` — is not confirmed beyond that one table. The full `ZPN_STATUS_*` enum can't be enumerated from SDK source because LSS status codes are fetched dynamically at runtime (`vendor/zscaler-sdk-python/zscaler/zpa/lss.py:609`).
 
 **Status**: open
-**Resolves with**: tenant snapshot (observe a connector in the pending state via API) OR lab test
+**Resolves with**: tenant read (observe a connector in the pending state via API) OR lab test
 
 ---
 
@@ -3454,7 +3454,7 @@ The two SDKs build different restart paths for a Private Cloud Controller. The G
 The Python `Credential` model excludes `password` and `private_key` from its response field handling, but the Postman collection shows them present in GET list example bodies. Whether the ZPA API actually returns these sensitive fields on a read, or whether the Postman bodies are placeholder/echo artifacts, is unresolved.
 
 **Status**: open
-**Resolves with**: tenant snapshot / lab test (GET a credential object and inspect whether secret fields are returned)
+**Resolves with**: tenant read / lab test (GET a credential object and inspect whether secret fields are returned)
 
 ---
 
@@ -3575,7 +3575,7 @@ The `siem` key maps to `SIEM_POLICY` in the policy `POLICY_MAP` (`vendor/zscaler
 Whether audit logs generated within a microtenant are isolated to that microtenant's LSS configurations, or are also visible to the parent tenant, is not confirmed from available sources.
 
 **Status**: open
-**Resolves with**: tenant snapshot / lab test (compare audit-log visibility across a parent/microtenant boundary)
+**Resolves with**: tenant read / lab test (compare audit-log visibility across a parent/microtenant boundary)
 
 ---
 
@@ -3663,7 +3663,7 @@ Eight codes present in the TF format-lookup set are absent from the Python `sour
 The help article `configuring-zpa-machine-tunnel-all` has moved or been removed, so the exact ZPA Admin Portal navigation path for the global machine-tunnel-for-all toggle is not confirmed. Expected location is somewhere within App Profile or ZPA Global Settings.
 
 **Status**: open
-**Resolves with**: tenant snapshot / operator experience (confirm the console location)
+**Resolves with**: tenant read / operator experience (confirm the console location)
 
 ---
 
@@ -3696,7 +3696,7 @@ Jamf and Intune are listed as posture types for macOS. Whether they affect the m
 The `zpa_provisioning_key` TF resource supports `CONNECTOR_GRP` and `SERVICE_EDGE_GRP` association types. Whether machine-tunnel provisioning uses a different mechanism (an app-profile-embedded key rather than a standard ZPA provisioning-key resource) is not clear from sources.
 
 **Status**: open
-**Resolves with**: zscaler doc not yet read / tenant snapshot
+**Resolves with**: zscaler doc not yet read / tenant read
 
 ---
 
@@ -3918,7 +3918,7 @@ A `SCIM_GROUP` operand referencing a deleted group is expected to never match, b
 `internal_id` is present on both the Go (`ScimGroup.InternalID` — `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go:27`) and Python SCIM-group models, but is undocumented. Its relationship to `id` and `idp_group_id` is unclear.
 
 **Status**: open
-**Resolves with**: zscaler doc not yet read / tenant snapshot (compare the three ID fields on a real SCIM group)
+**Resolves with**: zscaler doc not yet read / tenant read (compare the three ID fields on a real SCIM group)
 
 ---
 
@@ -3992,7 +3992,7 @@ The field is present on the model (`vendor/zscaler-sdk-python/zscaler/zpa/models
 
 *Origin: `references/zpa/segment-server-groups.md` § Open questions*
 
-The wire field is confirmed (string-as-bool) and cross-linked to snapshot-schema, but what enabling TCP keep-alive at the Segment Group level actually changes for brokered sessions is not described in the SDK/model source.
+The wire field is confirmed (string-as-bool) and cross-linked to the field-shape resolver, but what enabling TCP keep-alive at the Segment Group level actually changes for brokered sessions is not described in the SDK/model source.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read (a help capture or admin-guide reference)
@@ -4012,7 +4012,7 @@ The Server Group `add_group` docstring enumerates `DEFAULT` / `SIEM` for its `co
 
 ### zpa-73 — `objectType: ZPN_INTERNAL_INTERNET_PROTOCOL` and `USER` wire validity
 
-*Origin: `references/zpa/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zpa/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
 An earlier draft of the operand enum listed `ZPN_INTERNAL_INTERNET_PROTOCOL` and `USER`. Neither is recognized by the current Terraform provider operand validators (`vendor/terraform-provider-zpa/zpa/common.go` — confirmed absent), nor found in the SDK Python/Go policy-operand source, nor in the Postman collection. They may be wire-only API enums the TF provider and SDK don't model, or they may be stale.
 
@@ -4023,23 +4023,23 @@ An earlier draft of the operand enum listed `ZPN_INTERNAL_INTERNET_PROTOCOL` and
 
 ### zpa-74 — `tcpKeepAlive` literal wire token (quoted string vs bare integer)
 
-*Origin: `references/zpa/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zpa/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
 SDK and TF both treat `tcpKeepAlive` as a string-as-bool `"0"`/`"1"`, but the Postman `<integer>` type hint leaves open whether the GET response returns the quoted string `"0"` or a bare integer `0`.
 
 **Status**: open
-**Resolves with**: tenant snapshot (`jq '.list[0].tcpKeepAlive' _data/snapshot/<cloud>/zpa/app-segments.json`)
+**Resolves with**: tenant read (`jq '.list[0].tcpKeepAlive'` over `zscalerctl zpa app-segments list` output)
 
 ---
 
 ### zpa-75 — `configSpace` at the segment top level
 
-*Origin: `references/zpa/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zpa/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
 Whether `SIEM` is valid for `configSpace` at the application-segment top level, or only in embedded `serverGroups` / `appResource` objects, is unconfirmed.
 
 **Status**: open
-**Resolves with**: tenant snapshot (inspect `configSpace` on a real segment object)
+**Resolves with**: tenant read (inspect `configSpace` on a real segment object)
 
 ---
 
@@ -4234,7 +4234,7 @@ ZMS `fetchAll` (Python `fetch_all`) is implemented only on `policyRules` (`vendo
 EASM finding `scan_type` is present as a model attribute (`vendor/zscaler-sdk-python/zscaler/zeasm/models/findings.py:84`) but the source gives no enumeration, validator, or docstring describing its possible values — the model passes through whatever the API returns. The concrete value set is unverified, so the skill cannot map a `scan_type` value to a finding-source meaning.
 
 **Status**: open
-**Resolves with**: tenant snapshot (read live findings and collect observed `scan_type` values) OR zscaler doc not yet read
+**Resolves with**: tenant read (read live findings and collect observed `scan_type` values) OR zscaler doc not yet read
 
 ---
 
@@ -4245,7 +4245,7 @@ EASM finding `scan_type` is present as a model attribute (`vendor/zscaler-sdk-py
 EASM finding risk fields — `risk_level` / `severity_score` / `status` (`vendor/zscaler-sdk-python/zscaler/zeasm/models/findings.py:82-86`), `cisa_likelihood` (`:70`), and `epss_likelihood` (`:73`) — carry no value enumerations, validators, or docstrings in the SDK model. The CISA-KEV reading of `cisa_likelihood` and the EPSS-probability reading of `epss_likelihood` (0–1?) are not stated in source. The actual value sets and units are unverified, so the skill cannot interpret a finding's risk posture from these fields alone.
 
 **Status**: open
-**Resolves with**: tenant snapshot (collect observed values across live findings) OR zscaler doc not yet read
+**Resolves with**: tenant read (collect observed values across live findings) OR zscaler doc not yet read
 
 ---
 
@@ -4317,7 +4317,7 @@ In the Python SDK the CAC rule model decodes `cloudAppRiskProfile` as a *list* (
 Two open items on the ZIA admin audit log report endpoint. First, pagination: the request schema carries `page` / `pageSize` (`vendor/zscaler-sdk-go/zscaler/zia/services/eventlogentryreport/eventlogentryreport.go:36-37`), but the admin audit report uses an async request model (POST to queue → poll status → GET download) rather than a direct paginated list, and whether the downloaded CSV itself is paginated or returned in full is not confirmed. Second, `targetOrgId`: the admin-audit-log Go struct includes `TargetOrgId` (`vendor/zscaler-sdk-go/zscaler/zia/services/adminauditlogs/adminauditlogs.go:34`), suggesting MSP/partner-mode audit access across managed organizations, but the full semantics are not confirmed from available sources.
 
 **Status**: open
-**Resolves with**: lab test (run an admin audit report export, inspect whether the CSV is full or paged) OR tenant snapshot (MSP-mode tenant to confirm `targetOrgId` behavior)
+**Resolves with**: lab test (run an admin audit report export, inspect whether the CSV is full or paged) OR tenant read (MSP-mode tenant to confirm `targetOrgId` behavior)
 
 ---
 
@@ -4443,12 +4443,12 @@ Five ZIA SCIM behaviors are not backed by any mined vendor file. (1) Department 
 
 ### zia-65 — UCaaS One-Click toggle field location
 
-*Origin: `references/zia/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zia/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
-The snapshot doc's "Check One-Click bypass states" jq query probes `enableMsftO365`, `enableZoom`, `enableWebex` under `advanced-settings.json`, but those exact UCaaS One-Click toggles are listed as absent from the Z2 tenant snapshot and are not present in the current SDK advanced-settings model (a grep of `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py` returns no such attributes). The query returns `null` for those keys on a real snapshot. Whether these toggles live on a separate endpoint (e.g. a dedicated SaaS / One-Click app-control settings resource) or are tier-gated is unresolved — needs a tenant where they are enabled to confirm the correct field names / location.
+The snapshot doc's "Check One-Click bypass states" jq query probes `enableMsftO365`, `enableZoom`, `enableWebex` under `advanced-settings.json`, but those exact UCaaS One-Click toggles are listed as absent from the Z2 tenant read and are not present in the current SDK advanced-settings model (a grep of `vendor/zscaler-sdk-python/zscaler/zia/models/advanced_settings.py` returns no such attributes). The query returns `null` for those keys on a real snapshot. Whether these toggles live on a separate endpoint (e.g. a dedicated SaaS / One-Click app-control settings resource) or are tier-gated is unresolved — needs a tenant where they are enabled to confirm the correct field names / location.
 
 **Status**: open
-**Resolves with**: tenant snapshot (a tenant with the UCaaS One-Click apps enabled, to locate the real field names/endpoint) OR zscaler doc not yet read
+**Resolves with**: tenant read (a tenant with the UCaaS One-Click apps enabled, to locate the real field names/endpoint) OR zscaler doc not yet read
 
 ---
 
@@ -4886,7 +4886,7 @@ Consumption regional-gap list. None of the confirmed GCP facts establishes
 parity among WDS, ZTG, and standard-CC deployment regions.
 
 **Status**: partially resolved — last updated 2026-08-04
-**Resolves with**: tenant snapshot (query supported WDS regions and compare with
+**Resolves with**: tenant read (query supported WDS regions and compare with
 the ZTG table), cloud Marketplace checks, or vendor confirmation for standard
 CC, sovereign-cloud, VM-size, and Azure Flex regional availability
 
@@ -5071,7 +5071,7 @@ the other.
 The Python `DeviceDetails` model carries both a `zd*` set (`zd_enabled` `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py:335`, `zd_health` `:340`, `zd_last_seen_time` `:344`) and a `zdp*` set (`zdp_version` `:330`, `zdp_enabled` `:336`, `zdp_health` `:341`, `zdp_last_seen_time` `:345`). The SDK source never expands either acronym, so what service each prefix names — and how `zd` differs from `zdp` — is not backed by current sources.
 
 **Status**: open
-**Resolves with**: zscaler doc not yet read (help-portal Device Details capture) OR tenant snapshot (read a live device response and correlate the prefixes to enabled services)
+**Resolves with**: zscaler doc not yet read (help-portal Device Details capture) OR tenant read (read a live device response and correlate the prefixes to enabled services)
 
 ---
 
@@ -5082,7 +5082,7 @@ The Python `DeviceDetails` model carries both a `zd*` set (`zd_enabled` `vendor/
 Both `registration_state` (`vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py:49`) and `state` (`:51`) exist on the `Device` list model, but the finer-grained distinction between them — what each tracks and how their value sets differ — is not documented in the vendored SDK source.
 
 **Status**: open
-**Resolves with**: tenant snapshot (read live device records and compare the two field value sets) OR zscaler doc not yet read
+**Resolves with**: tenant read (read live device records and compare the two field value sets) OR zscaler doc not yet read
 
 ---
 
@@ -5093,7 +5093,7 @@ Both `registration_state` (`vendor/zscaler-sdk-python/zscaler/zcc/models/devices
 The Go SDK declares `state` / `type` as `int` on the list endpoint (`vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go:40,42`) but as `string` on the detail endpoint (`devices.go:80,82`). Which type the wire actually returns per endpoint — and whether a caller must handle both forms for the same logical field — is unverified against a live tenant.
 
 **Status**: open
-**Resolves with**: tenant snapshot (capture both the list and detail responses, compare the wire type of `state` / `type`)
+**Resolves with**: tenant read (capture both the list and detail responses, compare the wire type of `state` / `type`)
 
 ---
 
@@ -5145,34 +5145,34 @@ The shared request executor's behavior is statically confirmed by resolved clari
 
 ### zcc-88 — WebPolicy read-shape `macPolicy` vs `macosPolicy` key
 
-*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zcc/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
 The Python WebPolicy serializer reads and writes the macOS sub-policy under `macPolicy` (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:190,302`), but the documented snapshot example block and the `has_mac` jq query use `macosPolicy`. Whether the `listByCompany` read JSON returns `macPolicy`, `macosPolicy`, or both keys is not confirmed from a captured snapshot.
 
 **Status**: open
-**Resolves with**: tenant snapshot (capture `web/policy/listByCompany` JSON and check which macOS sub-policy key appears)
+**Resolves with**: tenant read (capture `web/policy/listByCompany` JSON and check which macOS sub-policy key appears)
 
 ---
 
 ### zcc-89 — WebPolicy `groups` / `users` / `deviceGroups` wire shape
 
-*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zcc/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
 The Python model splits scope into `groupIds`/`groupNames`, `userIds`/`userNames`, `deviceGroupIds`/`deviceGroupNames` and additionally parses `groups`/`users` into typed objects (`vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py:118-148`). Which of these keys actually appear in the `listByCompany` wire response — and whether `groups`/`users` arrive id-only or as full `{id, loginName, ...}` objects — is not confirmed from a snapshot.
 
 **Status**: open
-**Resolves with**: tenant snapshot (capture a `listByCompany` response and record which scope keys appear and their element shape)
+**Resolves with**: tenant read (capture a `listByCompany` response and record which scope keys appear and their element shape)
 
 ---
 
 ### zcc-90 — WebPolicy companion `deviceType` string presence on reads
 
-*Origin: `references/zcc/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zcc/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
 The Go SDK comment asserts the API returns a companion `deviceType` string such as `"DEVICE_TYPE_MAC"` alongside the integer `device_type` on reads (`vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go:65-69`), but the field is intentionally not modelled, so its wire presence is inferred from a comment rather than confirmed from a captured response.
 
 **Status**: open
-**Resolves with**: tenant snapshot (capture real `web/policy/listByCompany` JSON and confirm whether the `deviceType` string is actually present)
+**Resolves with**: tenant read (capture real `web/policy/listByCompany` JSON and confirm whether the `deviceType` string is actually present)
 
 ---
 
@@ -5183,7 +5183,7 @@ The Go SDK comment asserts the API returns a companion `deviceType` string such 
 The `CompanyInfo` model declares the App Supportability toggles — `supportEnabled` (`vendor/zscaler-sdk-python/zscaler/zcc/models/company_info.py:65`), `supportAdminEmail` (`:64`), `supportTicketEnabled` (`:71`), `disableLoggingControls` (`:74`), and `fetchLogsForAdminsEnabled` (`:67`) — but the SDK does not assert their out-of-box default values. The "Default-on vs default-off" column in the doc is inferred from the help doc's configuration steps, not from source.
 
 **Status**: open
-**Resolves with**: tenant snapshot (read `CompanyInfo` on a freshly provisioned tenant) OR zscaler doc not yet read
+**Resolves with**: tenant read (read `CompanyInfo` on a freshly provisioned tenant) OR zscaler doc not yet read
 
 ---
 
@@ -5403,7 +5403,7 @@ The valid `metric_name` values for application metric retrieval are documented o
 It is unverified whether the SDK application-list surface can return applications that have no recent probe data — i.e. configured-but-inactive or unconfigured apps — or whether the list is limited to apps with telemetry in the requested window. The list methods (`vendor/zscaler-sdk-python/zscaler/zdx/apps.py`) do not state inactive-app behavior.
 
 **Status**: open
-**Resolves with**: tenant snapshot (compare configured apps against the list response) OR zscaler doc not yet read
+**Resolves with**: tenant read (compare configured apps against the list response) OR zscaler doc not yet read
 
 ---
 
@@ -5722,7 +5722,7 @@ The source mentions scores over "all users, their devices, and their locations" 
 Whether probe results are retained indefinitely or aged out, and at what time granularity older results are down-sampled, is not documented in the vendored help captures.
 
 **Status**: open
-**Resolves with**: zscaler doc not yet read OR tenant snapshot
+**Resolves with**: zscaler doc not yet read OR tenant read
 
 ---
 
@@ -5766,7 +5766,7 @@ The reconstructed Automate contract publishes alert and user snapshot creation a
 The ZIdentity admin-RBAC capture lists four permission levels — Full / View Only / Restricted / None (`vendor/zscaler-help/admin-rbac-captures.md:124`) — but the extraction report notes shared docs elsewhere reference "Restricted Full" and "Restrictive View" as additional or alternate level names. Which enum is authoritative for ZIdentity admin roles is unresolved from the captured source.
 
 **Status**: open
-**Resolves with**: zscaler doc not yet read (re-capture the live Admin Roles & Permissions article — see `zid-35`) OR tenant snapshot
+**Resolves with**: zscaler doc not yet read (re-capture the live Admin Roles & Permissions article — see `zid-35`) OR tenant read
 
 ---
 
@@ -5777,7 +5777,7 @@ The ZIdentity admin-RBAC capture lists four permission levels — Full / View On
 It is unclear whether a ZIdentity "User Admin" role combined with Full Administrative Entitlements automatically inherits any ZIA/ZPA admin scope, or whether per-product admin scope must be configured separately in each product console. The captured admin-RBAC source (`vendor/zscaler-help/admin-rbac-captures.md`) describes ZIdentity-side role assignment but does not state how (or whether) it propagates into per-product feature/scope flags.
 
 **Status**: open
-**Resolves with**: tenant snapshot (compare a ZIdentity admin's role against the scope they actually receive in ZIA/ZPA) OR zscaler doc not yet read
+**Resolves with**: tenant read (compare a ZIdentity admin's role against the scope they actually receive in ZIA/ZPA) OR zscaler doc not yet read
 
 ---
 
@@ -5909,7 +5909,7 @@ The Python SDK exposes API-client and secret CRUD (`vendor/zscaler-sdk-python/zs
 The `JWKS` `authType` value is documented in the Python SDK docstring (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:167`, alongside `SECRET` and `PUBKEYCERT`), but the captured Postman samples exercise only `SECRET` and `PUBKEYCERT` bodies. No live `JWKS`-configured client body was observed in the vendored sources, so the exact required fields for a JWKS client (e.g. `clientJWKsUrl` vs `publicKeys[]`) are inferred from the model, not seen on the wire.
 
 **Status**: open
-**Resolves with**: tenant snapshot (capture a JWKS-configured API client body) OR zscaler doc not yet read
+**Resolves with**: tenant read (capture a JWKS-configured API client body) OR zscaler doc not yet read
 
 ---
 
@@ -5992,12 +5992,12 @@ For *users*, the `source` enum is fully documented — `UI`, `API`, `SCIM`, `JIT
 
 ### zid-22 — Group enabled/disabled flag on the wire
 
-*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zidentity/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
 User records expose `status` as a boolean (active/disabled), but the group model carries no `status` field in either SDK. Whether groups have an equivalent enabled/disabled flag that the captured models simply omit, or whether groups have no such concept, is not confirmed from the vendored sources.
 
 **Status**: open
-**Resolves with**: tenant snapshot (read a live group record, check for a status field) OR vendor documentation
+**Resolves with**: tenant read (read a live group record, check for a status field) OR vendor documentation
 
 ---
 
@@ -6036,7 +6036,7 @@ Whether `list_resource_servers` enumerates *all* resource servers in a tenant, o
 
 ### zid-26 — ZIdentity snapshot writer output shape
 
-*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zidentity/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
 Whether a future ZIdentity snapshot stores the raw list body (so jq uses `.records[]`) or wraps pages in an array (so jq uses `.[0].records[]`) is a writer decision not yet made — ZIdentity is not currently snapshotted. The doc's jq examples assume the raw single-object body, matching the SDK list models (`vendor/zscaler-sdk-python/zscaler/zid/models/users.py:36-67`); confirm and re-document once the writer exists.
 
@@ -6047,9 +6047,9 @@ Whether a future ZIdentity snapshot stores the raw list body (so jq uses `.recor
 
 ### zid-27 — Secrets snapshot file layout
 
-*Origin: `references/zidentity/snapshot-schema.md` § Open questions*
+*Origin: retired `references/zidentity/snapshot-schema.md` § Open questions (see git history; field shapes now come from `node scripts/kb.mjs resolve <type-id>`)*
 
-If API-client secrets are dumped to a snapshot, the per-client file/key naming convention (e.g. `api-client-secrets.json` keyed by client id) is undefined. More fundamentally, whether a live `GET /api-clients/{id}/secrets` returns the real secret `value` is unverified: the response **shape** carries a `value` field (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:287-318`, mapped at `:305`) and the Postman sample includes one, but that sample value is a synthetic placeholder and the portal documents the secret as not retrievable after creation. Treat `value` as sensitive and consider excluding it from the snapshot entirely rather than making a layout decision.
+If API-client secrets are dumped to a saved export, the per-client file/key naming convention (e.g. `api-client-secrets.json` keyed by client id) is undefined. More fundamentally, whether a live `GET /api-clients/{id}/secrets` returns the real secret `value` is unverified: the response **shape** carries a `value` field (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:287-318`, mapped at `:305`) and the Postman sample includes one, but that sample value is a synthetic placeholder and the portal documents the secret as not retrievable after creation. Treat `value` as sensitive and consider excluding it from the export entirely rather than making a layout decision.
 
 **Status**: open
 **Resolves with**: a live `GET .../secrets` capture to confirm whether `value` is populated post-creation, plus the snapshot-writer design decision
@@ -6263,7 +6263,7 @@ Risk360 help captures describe dashboard, factors, asset-level risk, Monte Carlo
 The captured sources establish that Risk360 uses four attack-stage categories, weighted factors, industry-peer comparison, and a moving factor count (`vendor/zscaler-help/what-risk360.md:8-22`, `vendor/zscaler-help/risk360-about-dashboard.md:8-16`, `vendor/zscaler-help/risk360-about-factors.md:8-20`, `vendor/zscaler-help/risk360-product-marketing.md:18-24`). They do not enumerate the full current factor catalog, disclose per-factor weights, or explain the peer-benchmark cohort methodology.
 
 **Status**: open
-**Resolves with**: captured Factors-page export, vendor methodology documentation, tenant snapshot, or support confirmation
+**Resolves with**: captured Factors-page export, vendor methodology documentation, tenant read, or support confirmation
 
 ---
 
@@ -6401,7 +6401,7 @@ The Go SDK exposes `DeleteDLPIncident(ctx, service, dlpIncidentID)` as `DELETE /
 Python and Go expose a pull customer-audit API (`POST /customer/audit` / `/dlp/v1/customer/audit`) with field/time filters (`vendor/zscaler-sdk-python/zscaler/zwa/audit_logs.py:33-135`, `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:12-47`). The inspected ZWA-specific sources do not document the retention period, supported module/action value sets, or whether ZWA audit logs can be pushed/streamed to a SIEM rather than polled. Cross-product ZIA/ZPA audit-log behavior should not be imported without a ZWA-specific source.
 
 **Status**: open
-**Resolves with**: vendor ZWA audit-log documentation, support confirmation, or tenant snapshot/operator evidence showing retention and any configured streaming destination
+**Resolves with**: vendor ZWA audit-log documentation, support confirmation, or tenant read/operator evidence showing retention and any configured streaming destination
 
 ---
 
