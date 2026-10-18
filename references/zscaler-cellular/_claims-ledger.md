@@ -17,13 +17,13 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
+  - "vendor/zscaler-help/cellular-what-zscaler-cellular.json"
   - "vendor/zscaler-help/zscaler-cellular-help-index.md"
-  - "vendor/zscaler-help/cellular-about-sims.md"
-  - "vendor/zscaler-help/cellular-understanding-anomaly-detection.md"
-  - "vendor/zscaler-help/cellular-configuring-deployment-credentials.md"
-  - "vendor/zscaler-help/cellular-about-network-events.md"
-  - "vendor/zscaler-help/cellular-about-audit-logs.md"
+  - "vendor/zscaler-help/cellular-about-sims.json"
+  - "vendor/zscaler-help/cellular-understanding-anomaly-detection.json"
+  - "vendor/zscaler-help/cellular-configuring-deployment-credentials.json"
+  - "vendor/zscaler-help/cellular-about-network-events.json"
+  - "vendor/zscaler-help/cellular-about-audit-logs.json"
   - "vendor/zscaler-help/zscaler-cellular-marketing.md"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
@@ -65,19 +65,19 @@ author-status: draft
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| Zscaler Cellular is a zero trust connectivity solution for IoT/mobile devices and includes Zscaler SIM plus Zscaler Cellular Edge. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:8` |
-| The current public ZCell Help index exposes 21 articles; seven bodies are captured, so 14 remain a body-level coverage gap. | `index.md`, `overview.md` | `vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; What Is and Architecture capture at `vendor/zscaler-help/cellular-what-zscaler-cellular.md:1-67`; captured operational-body boundaries at `vendor/zscaler-help/cellular-about-sims.md:1-27`, `vendor/zscaler-help/cellular-understanding-anomaly-detection.md:1-19`, `vendor/zscaler-help/cellular-configuring-deployment-credentials.md:1-24`, `vendor/zscaler-help/cellular-about-network-events.md:1-25`, and `vendor/zscaler-help/cellular-about-audit-logs.md:1-24`; `ARTICLE-BODY GAP -> references/zscaler-cellular/index.md#scope-boundary` |
-| Zscaler SIM devices connect to 4G/5G, traffic routes to Cellular Edge, and Cellular Edge forwards to ZTE for inspection and policy enforcement. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:10-15` |
-| Policy enforcement can use IP address, IMEI, or IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:26-29` |
-| Zscaler SIM is a data-only SIM for IoT devices where agents are not feasible, and can enforce policy via ZIA/ZPA based on IP/IMEI/IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:45-53` |
-| Cellular Edge forwards traffic from or to a Zscaler SIM to the ZTE and provides traffic aggregation, bidirectional control, HA, and telemetry insights. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:56-63` |
-| Cellular Admin Portal capabilities include SIM management, eSIM assignment/activation, network events, anomaly detection, SIM location groups, geofence policies, and Cellular Edge deployment/monitoring. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67` |
+| Zscaler Cellular is a zero trust connectivity solution for IoT/mobile devices and includes Zscaler SIM plus Zscaler Cellular Edge. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:8` |
+| The current public ZCell Help index exposes 21 articles; seven bodies are captured, so 14 remain a body-level coverage gap. | `index.md`, `overview.md` | `vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; What Is and Architecture capture at `vendor/zscaler-help/cellular-what-zscaler-cellular.json:1-67`; captured operational-body boundaries at `vendor/zscaler-help/cellular-about-sims.json:1-27`, `vendor/zscaler-help/cellular-understanding-anomaly-detection.json:1-19`, `vendor/zscaler-help/cellular-configuring-deployment-credentials.json:1-24`, `vendor/zscaler-help/cellular-about-network-events.json:1-25`, and `vendor/zscaler-help/cellular-about-audit-logs.json:1-24`; `ARTICLE-BODY GAP -> references/zscaler-cellular/index.md#scope-boundary` |
+| Zscaler SIM devices connect to 4G/5G, traffic routes to Cellular Edge, and Cellular Edge forwards to ZTE for inspection and policy enforcement. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:10-15` |
+| Policy enforcement can use IP address, IMEI, or IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:26-29` |
+| Zscaler SIM is a data-only SIM for IoT devices where agents are not feasible, and can enforce policy via ZIA/ZPA based on IP/IMEI/IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:45-53` |
+| Cellular Edge forwards traffic from or to a Zscaler SIM to the ZTE and provides traffic aggregation, bidirectional control, HA, and telemetry insights. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:56-63` |
+| Cellular Admin Portal capabilities include SIM management, eSIM assignment/activation, network events, anomaly detection, SIM location groups, geofence policies, and Cellular Edge deployment/monitoring. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:65-67` |
 | Marketing capture lists Zscaler Cellular Service and Zscaler Cellular Partner Service as two service motions. | `overview.md` | `vendor/zscaler-help/zscaler-cellular-marketing.md:26-27` |
-| SIM administrative status is Active or Inactive, while connection state is Online, Offline, or Inventory. Inventory applies only to eSIMs, and a returned eSIM can show stale connection state until its detail view refreshes it. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-sims.md:19-24` |
-| The captured Cellular deployment procedure uses Cloud & Branch Connector super-admin credentials plus a legacy API key; stale super-admin credentials can disrupt cellular-device connectivity. The article does not establish a OneAPI replacement or non-super-admin deployment role. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-configuring-deployment-credentials.md:8-24` |
-| Network Events exposes ICCID, EID, IMSI, timestamp, country, operator, and session/status/authorization categories. The captured article states no retention period and does not establish export or streaming behavior. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-network-events.md:8-25` |
-| Cellular anomaly detection is documented around geofences, tracked devices, SIM Location Groups, enabled policies, and out-of-boundary violations; the captured article does not describe non-geofence anomaly types. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-understanding-anomaly-detection.md:8-19` |
-| Cellular audit logs expose principal, action, resource, identifier, and change-detail fields. The captured article does not state retention, export, or streaming behavior. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-audit-logs.md:8-24` |
+| SIM administrative status is Active or Inactive, while connection state is Online, Offline, or Inventory. Inventory applies only to eSIMs, and a returned eSIM can show stale connection state until its detail view refreshes it. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-sims.json:19-24` |
+| The captured Cellular deployment procedure uses Cloud & Branch Connector super-admin credentials plus a legacy API key; stale super-admin credentials can disrupt cellular-device connectivity. The article does not establish a OneAPI replacement or non-super-admin deployment role. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-configuring-deployment-credentials.json:8-24` |
+| Network Events exposes ICCID, EID, IMSI, timestamp, country, operator, and session/status/authorization categories. The captured article states no retention period and does not establish export or streaming behavior. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-network-events.json:8-25` |
+| Cellular anomaly detection is documented around geofences, tracked devices, SIM Location Groups, enabled policies, and out-of-boundary violations; the captured article does not describe non-geofence anomaly types. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-understanding-anomaly-detection.json:8-19` |
+| Cellular audit logs expose principal, action, resource, identifier, and change-detail fields. The captured article does not state retention, export, or streaming behavior. | `index.md`, `overview.md` | `vendor/zscaler-help/cellular-about-audit-logs.json:8-24` |
 | ZCell has a current 36-operation Automate publication across nine families; the current composition adds tower-location history and does not list the former audit-metadata route. | `index.md`, `overview.md`, `api.md` | Current [tower-history operation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/sim-management/sim-resource-get-tower-location-history) and [audit-log search](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcell/audit-logs/audit-resource-get-audit-log); current count at `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:16` and refreshed normalized snapshot at `vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json:2-6949`; 2026-08-12 composition is historical baseline commit `3174c9a`. |
 | Python SDK exposes `client.zcell` as a OneAPI-only service with nine subclients. | `index.md`, `overview.md`, `api.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:279-285`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-106` |
 | ZCell API calls are customer-scoped with `zcellCustomerId` / `ZCELL_CUSTOMER_ID`, separate from ZPA `customerId`. | `api.md` | `vendor/zscaler-sdk-python/zscaler/config/config_setter.py:23-28`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:156-171`; `vendor/zscaler-sdk-python/README.md:385-402` |

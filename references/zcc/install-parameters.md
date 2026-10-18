@@ -7,10 +7,10 @@ last-verified: "2026-04-26"
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md"
-  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md"
-  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.md"
-  - "vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.md"
+  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json"
+  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json"
+  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.json"
+  - "vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.json"
 author-status: draft
 ---
 
@@ -18,7 +18,7 @@ author-status: draft
 
 ## What install parameters are (and aren't)
 
-Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.md`; `vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.md`.
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.json`; `vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.json`.
 
 Install parameters are values baked into ZCC at deployment time — passed via MSI properties, plist keys pushed by MDM, or managed-app-config dictionaries. They control behavior that either must be present before the agent can enroll, or that the agent cannot safely change after first boot without a reinstall.
 
@@ -43,7 +43,7 @@ They are **not** the same as:
 
 ## Parameter categories
 
-Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.md`; `vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.md`.
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.json`; `vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.json`.
 
 ### Identity / enrollment
 
@@ -209,7 +209,7 @@ Both keys must be set together. Neither works alone.
 
 ## Gotchas
 
-Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.md`; `vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.md`.
+Source: `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-ios.json`; `vendor/zscaler-help/parameters-guide-zscaler-client-connector-android-and-android-chromeos.json`.
 
 ### POLICYTOKEN + STRICTENFORCEMENT = fail-close if misconfigured
 

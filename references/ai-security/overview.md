@@ -14,25 +14,25 @@ verified-against:
   vendor/zguard-ai-integrations: 71cbab024f369eb50748c9c4a74ec0158c084839
 sources:
   - "https://help.zscaler.com/ai-guard/what-ai-guard"
-  - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-guard-what-is.json"
   - "vendor/zscaler-help/ai-guard-help-index.md"
   - "vendor/zscaler-help/ai-guard-users-help-index.md"
-  - "vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md"
-  - "vendor/zscaler-help/ai-guard-users-and-user-groups.md"
-  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
+  - "vendor/zscaler-help/ai-guard-configuring-custom-block-messages.json"
+  - "vendor/zscaler-help/ai-guard-users-and-user-groups.json"
+  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json"
   - "vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md"
-  - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md"
+  - "vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.json"
   - "vendor/zscaler-help/ai-guard-api-user-guide.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
-  - "vendor/zscaler-help/ai-guard-dashboard.md"
-  - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.md"
-  - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.md"
-  - "vendor/zscaler-help/ai-guard-managing-tenant-settings.md"
-  - "vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md"
-  - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md"
-  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md"
-  - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md"
+  - "vendor/zscaler-help/ai-guard-dashboard.json"
+  - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.json"
+  - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.json"
+  - "vendor/zscaler-help/ai-guard-managing-tenant-settings.json"
+  - "vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.json"
+  - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.json"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.json"
+  - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.json"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py"
@@ -75,15 +75,15 @@ author-status: draft
 
 # AI Security family — AI Guard, AI Guardrails, AI Red Teaming, governance
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 Zscaler's AI Security stack is **a family, not a single product**. Marketing groups four pillars under "AI Security"; current first-party surfaces name AI Access Security, AI Guard, AI Guardrails, and AI Red Teaming within that family. This page maps the family so the skill can route a user's question to the right component before claiming depth; publication of a named product page is not by itself evidence of GA, entitlement, or tenant enablement (`vendor/zscaler-help/ai-access-security-marketing.md:8-31`).
 
-**Confidence is high for the captured AI Guard runtime API, the Python configuration surface introduced in 1.9.39 and retained in current v1.9.44, the current AI Guard Automate admin contract, the current structured AI Security contract, and the legacy May Help tree.** The six Python resources and their method inventories are exposed at `vendor/zscaler-sdk-python/CHANGELOG.md:141-206`, current version at `vendor/zscaler-sdk-python/pyproject.toml:3`, `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`, `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`, `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`, and `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`. The current AI Guard for Users tree contains 25 indexed articles—six Getting Started, eight Configuration, two Best Practices, seven Monitoring, and two Troubleshooting—and now has current bodies captured for custom block messages and user/group synchronization; several other newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-48`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.md:8-24`; `vendor/zscaler-help/ai-guard-users-and-user-groups.md:8-24`). The current 2026-09-07 Automate capture decoded all 1,322 route blobs with zero failures and reports no retained publication absences. It publishes 114 `ai-security` operations—17 AI Security inventory/findings operations plus 97 AI Red Teaming operations—and 47 AI Guard operations across 29 paths; the comparison matches all 47 AI Guard operations with zero schema-changed operations and records eight colon-action route corrections (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:3`, `:9-21`, `:27-28`, `:47-48`, `:119-126`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; current operation counts and service URLs at `vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json:18-34`, `:49186-49202`; representative current routes at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`). The earlier [2026-08-12](https://github.com/dvmrry/zscaler-skill/blob/3174c9ac8901b019bc96de5f60af77677f52841d/vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md#L3-L64) no-AI-Guard observation remains dated historical context only; it is not a current publication absence, endpoint-retirement, backend-availability, or live-acceptance conclusion. **Confidence remains medium for the current Help operating model and broader AI Security family**: Red Teaming tenant entitlement, authentication scopes, live acceptance, and its interlock with AI Guard remain unresolved; Python also lacks eight operations from the current AI Guard contract, and other client wrappers remain gaps.
+**Confidence is high for the captured AI Guard runtime API, the Python configuration surface introduced in 1.9.39 and retained in current v1.9.44, the current AI Guard Automate admin contract, the current structured AI Security contract, and the legacy May Help tree.** The six Python resources and their method inventories are exposed at `vendor/zscaler-sdk-python/CHANGELOG.md:141-206`, current version at `vendor/zscaler-sdk-python/pyproject.toml:3`, `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`, `vendor/zscaler-sdk-python/zscaler/aiguard/policies.py:37-357`, `vendor/zscaler-sdk-python/zscaler/aiguard/policy_match_rules.py:37-338`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:37-457`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:37-362`, `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:37-363`, and `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:37-412`. The current AI Guard for Users tree contains 25 indexed articles—six Getting Started, eight Configuration, two Best Practices, seven Monitoring, and two Troubleshooting—and now has current bodies captured for custom block messages and user/group synchronization; several other newly listed article bodies remain unmined (`vendor/zscaler-help/ai-guard-users-help-index.md:8-48`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.json:8-24`; `vendor/zscaler-help/ai-guard-users-and-user-groups.json:8-24`). The current 2026-09-07 Automate capture decoded all 1,322 route blobs with zero failures and reports no retained publication absences. It publishes 114 `ai-security` operations—17 AI Security inventory/findings operations plus 97 AI Red Teaming operations—and 47 AI Guard operations across 29 paths; the comparison matches all 47 AI Guard operations with zero schema-changed operations and records eight colon-action route corrections (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:3`, `:9-21`, `:27-28`, `:47-48`, `:119-126`; `vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; current operation counts and service URLs at `vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json:18-34`, `:49186-49202`; representative current routes at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`). The earlier [2026-08-12](https://github.com/dvmrry/zscaler-skill/blob/3174c9ac8901b019bc96de5f60af77677f52841d/vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md#L3-L64) no-AI-Guard observation remains dated historical context only; it is not a current publication absence, endpoint-retirement, backend-availability, or live-acceptance conclusion. **Confidence remains medium for the current Help operating model and broader AI Security family**: Red Teaming tenant entitlement, authentication scopes, live acceptance, and its interlock with AI Guard remain unresolved; Python also lacks eight operations from the current AI Guard contract, and other client wrappers remain gaps.
 
 ## The four pillars
 
-Source: `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 From the AI Security product page, Zscaler's framing covers the full enterprise-AI lifecycle:
 
@@ -104,7 +104,7 @@ The current public Automate operation pages enumerate **17 `GET` operations** un
 
 ## AI Guard — runtime guardrails
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`.
 
 The flagship sub-product. **Inline content inspection for prompts and responses** to and from LLMs.
 
@@ -134,7 +134,7 @@ These are **intent-based detectors** — not pattern matches. The categories com
 
 ### Deployment modes
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 Three modes, with sharply different traffic patterns:
 
@@ -169,7 +169,7 @@ For exact implementation caveats, see [`./api-divergences.md`](./api-divergences
 
 ### How it integrates with the existing ZIA stack
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.json`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 AI Guard chains into ZIA in **proxy mode**. The AI Guard proxy-chain article covers the AI Guard-specific forwarding/proxy-chain requirements: AI Guard proxy-chain certificate, proxy gateway, `forward.zseclipse.net:9443` endpoint, fail-close behavior, QUIC block/drop, wildcard destination groups, and Forwarding Control rules for supported AI-provider domains.
 
@@ -177,7 +177,7 @@ AI Guard adds a **content-aware LLM inspection** layer for prompts and responses
 
 ### Operational pre-reqs
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.json`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 - **Inline mode requires SSL inspection** — prompt/response payloads are HTTPS to LLM providers, so SSL bypass on LLM domains can prevent AI Guard inline inspection. Cross-link to [`zia.ssl-inspection`](kb:zia.ssl-inspection) for operational SSL-bypass diagnosis.
 - **ZIA proxy-chain mode requires forwarding hygiene** — the guide calls for the AI Guard proxy-chain certificate, proxy gateway, `forward.zseclipse.net:9443` endpoint, fail-close behavior, QUIC block/drop, wildcard destination groups, and Forwarding Control rules for supported AI-provider domains.
@@ -186,7 +186,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 ### Admin and observability model
 
-Source: `vendor/zscaler-help/ai-guard-dashboard.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.md`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.md`; `vendor/zscaler-help/ai-guard-managing-tenant-settings.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.md`; `vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.md`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.md`.
+Source: `vendor/zscaler-help/ai-guard-dashboard.json`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.json`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.json`; `vendor/zscaler-help/ai-guard-managing-tenant-settings.json`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.json`; `vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.json`; `vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.json`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.json`.
 
 AI Guard's Help docs now expose enough admin detail to treat the product as Tier 2+ rather than awareness-only:
 
@@ -199,7 +199,7 @@ The configuration surface introduced in Python SDK 1.9.39 remains present in cur
 
 ## AI Guardrails — marketing umbrella
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 "AI Guardrails" appears on the product website but the help-portal doc that explains it is `what-ai-guard`. AI Guardrails appears to be the marketing/runtime-guardrails surface for AI Guard; no separate technical Help surface is captured. The Guardrails marketing emphasis adds:
 
@@ -227,7 +227,7 @@ This is now **structured contract coverage**, not only a Postman request invento
 
 ## Where AI Security fits relative to existing skill content
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-access-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 | Existing reference | AI Security touchpoint |
 |---|---|
@@ -239,7 +239,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 ## Edge cases / gotchas
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 1. **"AI Guard" vs "AI Guardrails" is a naming inconsistency in captured sources, not a verified technical split.** Operators will use either name. Skill should route both to this family reference while noting that no separate AI Guardrails Help/admin surface is captured.
 2. **AI Guard has a substantial but incomplete Python SDK surface.** The canonical `client.aiguard` accessor exposes six OneAPI configuration resources; `client.zguard` is only a deprecated alias, and runtime detection stays on `LegacyAIGuardClient(...).aiguard.policy_detection` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`). Python has 39 callable configuration methods versus 47 operations in the current public Automate operation set. The current comparison matches all 47 operations with zero schema-changed operations and records eight colon-action route corrections; the eight-operation wrapper gap remains open (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:27-28`, `:47-48`, `:119-126`; current route examples at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`, `:4021-4033`). The earlier [2026-08-12](https://github.com/dvmrry/zscaler-skill/blob/3174c9ac8901b019bc96de5f60af77677f52841d/vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md#L3-L64) route table's no-AI-Guard observation is historical context only; the current capture reports no retained publication absences. Do not present either the wrapper gap or a publication change as proof of tenant entitlement, endpoint retirement, backend unavailability, or Terraform coverage. Representative current pages include [disable detection policy](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/aiguard/detection-policies/detections-policy-resource-disable-detections-policy), [enable detection policy](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/aiguard/detection-policies/detections-policy-resource-enable-detections-policy), and [regenerate application credential](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/aiguard/llm-application-credentials/llm-application-credentials-resource-regenerate-llm-application-credentials).
@@ -255,7 +255,7 @@ Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-guard
 
 ## Open questions
 
-Source: `vendor/zscaler-help/ai-guard-what-is.md`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-security-marketing.md`; `vendor/zscaler-help/ai-guardrails-marketing.md`.
 
 - **Token / call accounting** — AI Guard inline mode adds GPU inference per request; how is that billed? Per-call, per-token, flat-rate per seat? Not in captures.
 - **Latency budget** — what does a typical inline-mode prompt round-trip look like added to LLM provider latency? No data.

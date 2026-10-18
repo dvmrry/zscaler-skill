@@ -8,9 +8,9 @@ verified-against:
   vendor/zscaler-help: 21dff098eac2abffb7f8dfdebd43a968971d6490
 confidence: high
 sources:
-  - "vendor/zscaler-help/zia-about-backup-and-restore.md"
-  - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md"
-  - "vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md"
+  - "vendor/zscaler-help/zia-about-backup-and-restore.json"
+  - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json"
+  - "vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.json"
 author-status: reviewed
 ---
 
@@ -70,19 +70,19 @@ For SPL patterns scoped to Zscaler questions, see [`../shared/splunk-queries.md`
 The July 17 release added **Select All** and **Hide Deleted** to the Users,
 Departments, and Locations filters on the Web, Firewall, DNS, Tunnel, SaaS
 Security, Endpoint DLP, and Email DLP Insights pages and on applicable NSS feed
-filters (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:19-28`).
+filters (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json:19-28`).
 This is documented as an Admin Console and feed-configuration change; the
 release does not state that raw log schemas or API filter parameters changed
-(`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:30-31`).
+(`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json:30-31`).
 
 ## Recent deployment and isolation additions
 
 - Canada is now listed as a Zero Trust Browser isolation-profile region for
   ZIA. The release does not publish a region identifier or API enum
-  (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:12-17`).
+  (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json:12-17`).
 - The July 13 release adds Virtual Service Edge configuration on Nutanix and
   says the Nutanix VM image is downloadable from the Virtual Service Edges page
-  (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:33-38`). This
+  (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json:33-38`). This
   establishes platform/image availability, not Nutanix cluster topology or
   sizing; see [`zia.private-service-edge`](kb:zia.private-service-edge) and
   [`zia.virtual-service-edge.clusters`](kb:zia.virtual-service-edge.clusters).

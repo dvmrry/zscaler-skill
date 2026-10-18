@@ -11,10 +11,10 @@ verified-against:
   vendor/zscaler-help: f25ce272f7a62b45afbbabb6cf475cd325700201
 sources:
   - "github.com/zscaler/terraform-azurerm-cloud-connector-modules"
-  - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
-  - "vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md"
-  - "vendor/zscaler-help/cbc-about-cloud-connector-groups.md"
-  - "vendor/zscaler-help/what-zscaler-cloud-connector.md"
+  - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.json"
+  - "vendor/zscaler-help/cbc-understanding-high-availability-and-failover.json"
+  - "vendor/zscaler-help/cbc-about-cloud-connector-groups.json"
+  - "vendor/zscaler-help/what-zscaler-cloud-connector.json"
   - "https://help.zscaler.com/cloud-branch-connector/deploying-zscaler-cloud-connector-microsoft-azure (URL only — JS-gated)"
   - "https://azuremarketplace.microsoft.com/en/marketplace/apps/zscaler1579058425289.zia_cloud_connector (publisher + offer ID confirmed)"
   - "vendor/terraform-azurerm-cloud-connector-modules/modules/terraform-zscc-ccvm-azure/variables.tf"

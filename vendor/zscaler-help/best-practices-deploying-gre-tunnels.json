@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practices for Deploying GRE Tunnels",
+  "source": {
+    "url": "https://help.zscaler.com/zia/best-practices-deploying-gre-tunnels",
+    "node": "1399746",
+    "revision": "3212151"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Zscaler recommends that organizations use a combination of GRE tunneling, PAC files, Surrogate IP, and Zscaler Client Connector to forward traffic to the Zscaler service. This article provides best practices for deploying GRE tunnels."
+    },
+    {
+      "text": "Ensure to alter the sample configuration values provided in this article to suit your deployment needs."
+    },
+    {
+      "heading": "Deploying GRE Tunnels",
+      "level": 1
+    },
+    {
+      "text": "The following are the best practices for deploying GRE:"
+    },
+    {
+      "item": "Zscaler recommends that you configure two GRE tunnels from an internal router behind the firewall to the Public Service Edges for Internet & SaaS (ZIA). To learn more, see Understanding the Zscaler Cloud Architecture for Internet & SaaS and GRE Deployment Scenarios.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler requires building primary and backup GRE tunnels from every internet egress location and, if applicable, from each internet service provider.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends using one of the following methods to provision a GRE tunnel to your account:",
+      "depth": 0
+    },
+    {
+      "item": "Submit a Zscaler Support ticket or contact Zscaler Support to receive the GRE tunneling configuration.",
+      "depth": 1
+    },
+    {
+      "item": "Self-provision a GRE tunnel using the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "When you provision GRE tunnels, regional surcharge and premium data centers are excluded from the picker due to possible additional costs or specialized usage restrictions.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you calculate the maximum transmission unit (MTU) and maximum segment size (MSS) values on the GRE tunnel based on the MTU and MSS configuration of the WAN interface. An incorrectly configured MTU results in higher fragmentation, leading to performance degradation.",
+      "depth": 0
+    },
+    {
+      "item": "See an example calculation.",
+      "depth": 1
+    },
+    {
+      "item": "In this example, the tunnel MTU and MSS values are calculated for a WAN interface that is 1,500 bytes.",
+      "depth": 1
+    },
+    {
+      "item": "WAN Interface MTU = 1,500",
+      "depth": 1
+    },
+    {
+      "item": "WAN Interface MSS = MTU (1,500) – IP (20) – TCP (20) = 1,460 (40 bytes TCP+IP Header)",
+      "depth": 1
+    },
+    {
+      "item": "GRE = 4 bytes header",
+      "depth": 1
+    },
+    {
+      "item": "GRE MTU = MTU (1,500) – IP (20) – GRE (4) = 1,476",
+      "depth": 1
+    },
+    {
+      "item": "GRE MSS = GRE MTU (1,476) – IP (20) – TCP (20) = 1,436",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, refer to the Cisco documentation.",
+      "depth": 1
+    },
+    {
+      "heading": "Supported Bandwidth for GRE Tunnels",
+      "level": 1
+    },
+    {
+      "text": "Zscaler supports a maximum bandwidth of 1 Gbps for each GRE tunnel if its internal IP addresses aren't behind NAT. Zscaler uses the internal IP addresses to load balance the GRE traffic over multiple servers. If the internal subnet is behind NAT, Zscaler can only support up to 250 Mbps of traffic for each tunnel. If your organization wants to forward more than 1 Gbps of traffic, Zscaler recommends configuring more GRE tunnels with different public source IP addresses. For example, if your organization forwards 2 Gbps of traffic, you can configure two primary GRE tunnels and two backup GRE tunnels. If your organization forwards 3 Gbps of traffic, you can configure three primary GRE tunnels and three backup GRE tunnels. When configuring multiple GRE tunnels, you should maintain client persistence to avoid issues because a server with persistence checking refuses connection to different egress IP addresses. You can use a Load Balancer (LB), ECMP, or other means to maintain persistence."
+    },
+    {
+      "text": "Zscaler recommends 1 Gbps per GRE tunnel because:"
+    },
+    {
+      "item": "A significant part of the internet infrastructure uses network links that are 1 Gbps. Multilink technologies such as Link Aggregation Control Protocol (LACP) still rely on aggregating multiple 1 Gbps interfaces. More than 1 Gbps of traffic from a single source IP address can result in a bottleneck.",
+      "depth": 0
+    },
+    {
+      "item": "Internet peering is not 100% reliable, and managing traffic flows over 1 Gbps is difficult during any crisis or unforeseen issues.",
+      "depth": 0
+    },
+    {
+      "heading": "Monitoring GRE Tunnels",
+      "level": 1
+    },
+    {
+      "text": "Zscaler requires you to monitor your GRE tunnels so that failover between the primary and the backup tunnels is triggered if a tunnel goes down. GRE tunneling interfaces do not have a built-in mechanism for detecting when a tunnel fails. Therefore, configure GRE keepalives on the physical or on the logical interface to detect tunnel failures. However, the GRE keepalives monitor the interface, not the service beyond the interface."
+    },
+    {
+      "heading": "Health Checks",
+      "level": 2
+    },
+    {
+      "text": "To perform service monitoring, deploy Layer 7 health checks if your vendor supports it. If your vendor does not support Layer 7 health checks, deploy Layer 4 health checks, such as ICMP and PAC-based failover. The majority of Cisco devices support Layer 7 health checks using IPSLA and some Juniper devices support health checks using RPM (real-time performance monitoring)."
+    },
+    {
+      "text": "Do not perform Layer 7 health checks on commonly visited websites like www.google.com. This may cause Google to place Zscaler's IP addresses on their denylist and enforce the Google CAPTCHA on all users coming from those IP addresses."
+    },
+    {
+      "text": "For health check, send an HTTP raw request to the following URL: http://gateway.<Zscaler cloud>.net/vpntest."
+    },
+    {
+      "item": "See sample IPSLA configuration for a Cisco router.",
+      "depth": 0
+    },
+    {
+      "item": "This example includes only a single test. You can configure multiple tests for your deployment if required.",
+      "depth": 1
+    },
+    {
+      "item": "Configure latency thresholds based on the response time observed between a client location and the Zscaler data center. In the following example, 500 is the threshold Round Trip Time.",
+      "depth": 1
+    },
+    {
+      "item": "The delay down command prevents frequent failovers due to short-lived flaps in the connection. This command ensures that the failover happens only when multiple connection drops are observed consecutively. The HTTP SLA probes are generated once in 60 seconds. In the following example, the delay time to mark an IP SLA test as down is configured as 120 seconds. The delay time to mark an object as up is configured as 180 seconds. The router generates an HTTP SLA probe once every 60 seconds. This means that the router waits for two consecutive failures before marking the connection as down, and it waits for three consecutive successes before marking the connection as up.",
+      "depth": 1
+    },
+    {
+      "item": "track 1 ip sla 1 delay down 120 up 180 ip sla 1 http raw http://<Primary Global Public Service Edge IP>​​​​​ timeout 5000 threshold 500 http-raw-request GET http://gateway.<Zscaler cloud>.net/vpntest HTTP/1.0\\r\\n User-Agent: Cisco IP SLA\\r\\n end\\r\\n \\r\\n exit ip sla schedule 1 life forever start-time now track 2 ip sla 2 delay down 120 up 180 ip sla 2 http raw http://<Secondary Global Public Service Edge IP> timeout 5000 threshold 500 http-raw-request GET http://gateway.<Zscaler cloud>.net/vpntest HTTP/1.0\\r\\n User-Agent: Cisco IP SLA\\r\\n end\\r\\n \\r\\n exit ip sla schedule 2 life forever start-time now",
+      "depth": 0
+    },
+    {
+      "item": "Replace <Zscaler cloud> with your cloud name. To learn how to find your cloud name, see Understanding Zscaler Cloud Names.",
+      "depth": 1
+    },
+    {
+      "item": "Replace <Primary Global Public Service Edge IP>​​​​​ and <Secondary Global Public Service Edge IP> with Global Public Service Edge IP addresses. To learn more, see About Global Public Service Edges for Internet & SaaS.",
+      "depth": 1
+    },
+    {
+      "heading": "Configuring GRE Tunnel Failover",
+      "level": 1
+    },
+    {
+      "text": "Zscaler requires you to connect tunnel monitoring to tunnel failover. When service monitoring is down, the primary tunnel should fail over to the backup tunnel, and when monitoring is available, switch back to the primary tunnel."
+    },
+    {
+      "item": "See sample tunnel failover configuration for a Cisco router.",
+      "depth": 0
+    },
+    {
+      "item": "route-map ZS-NET-PORT permit 10 match ip address ZS-NET-PORT set ip next-hop verify-availability 172.18.56.162 1 track 1 set ip next-hop verify-availability 172.18.56.166 2 track 2",
+      "depth": 0
+    },
+    {
+      "text": "The following table provides the failover model configuration versions that you can choose as per your requirements:"
+    },
+    {
+      "text": "You can configure SLA/Probe to match the fast failover or conservative failover."
+    },
+    {
+      "table": [
+        [
+          "Parameter",
+          "Fast Failover",
+          "Conservative Failover"
+        ],
+        [
+          "GRE Keepalive",
+          "Keepalive 10 3 (30 seconds failure)",
+          "Keepalive 30 4 (120 seconds failure)"
+        ],
+        [
+          "IP SLA Type",
+          "ICMP Echo",
+          "HTTP Raw"
+        ],
+        [
+          "IP SLA Frequency",
+          "10 seconds",
+          "60 seconds"
+        ],
+        [
+          "IP SLA Timeout",
+          "2000ms",
+          "5000ms"
+        ],
+        [
+          "Track Delay Down",
+          "30 seconds",
+          "120 seconds"
+        ],
+        [
+          "Track Delay Up",
+          "45 seconds",
+          "180 seconds"
+        ],
+        [
+          "Best-Case Failover",
+          "30–32 seconds",
+          "120–125 seconds"
+        ],
+        [
+          "Worst-Case Failover",
+          "40–42 seconds",
+          "180–185 seconds"
+        ],
+        [
+          "False Positive Risk",
+          "Higher",
+          "Lower"
+        ],
+        [
+          "CPU/Resource Usage",
+          "Higher",
+          "Lower"
+        ],
+        [
+          "Application Layer Test",
+          "No (Layer 3 only)",
+          "Yes (HTTP service)"
+        ]
+      ]
+    }
+  ]
+}

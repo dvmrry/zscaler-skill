@@ -16,15 +16,15 @@ verified-against:
   vendor/zscaler-mcp-server: 809f68d6c921e0829fb2e07e9b797e7e70cf720b
 sources:
   - "https://help.zscaler.com/zpa/about-connectors"
-  - "vendor/zscaler-help/about-app-connectors.md"
+  - "vendor/zscaler-help/about-app-connectors.json"
   - "https://help.zscaler.com/zpa/about-connector-provisioning-keys"
-  - "vendor/zscaler-help/about-connector-provisioning-keys.md"
+  - "vendor/zscaler-help/about-connector-provisioning-keys.json"
   - "https://help.zscaler.com/zpa/understanding-connector-software-updates"
-  - "vendor/zscaler-help/understanding-connector-software-updates.md"
+  - "vendor/zscaler-help/understanding-connector-software-updates.json"
   - "https://help.zscaler.com/zpa/about-connector-groups"
-  - "vendor/zscaler-help/zpa-about-connector-groups.md"
+  - "vendor/zscaler-help/zpa-about-connector-groups.json"
   - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
-  - "vendor/zscaler-help/understanding-private-access-architecture.md"
+  - "vendor/zscaler-help/understanding-private-access-architecture.json"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_connector_groups.py"
@@ -68,11 +68,11 @@ sources:
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/lss.py"
   - "vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md"
   - "vendor/zscaler-mcp-server/commands/troubleshoot-connector.md"
-  - "vendor/zscaler-help/app-connector-status-log-fields.md"
-  - "vendor/zscaler-help/private-service-edge-status-log-fields.md"
-  - "vendor/zscaler-help/private-cloud-controller-status-log-fields.md"
-  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
-  - "vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md"
+  - "vendor/zscaler-help/app-connector-status-log-fields.json"
+  - "vendor/zscaler-help/private-service-edge-status-log-fields.json"
+  - "vendor/zscaler-help/private-cloud-controller-status-log-fields.json"
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json"
+  - "vendor/zscaler-help/zpa-updating-host-os-and-software-packages.json"
 author-status: draft
 ---
 
@@ -84,7 +84,7 @@ Separate from ZCC's [Cloud Connector](../cloud-connector/overview.md), which is 
 
 ## Summary
 
-Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/zscaler-help/zpa-about-connector-groups.json`; `vendor/zscaler-help/understanding-private-access-architecture.json`.
 
 - **Outbound-only** — does not require inbound firewall rules. This is the architectural property that makes ZPA safe to deploy against internal apps without exposing them to the internet.
 - **Typically deployed in the DMZ** or on a network segment that can reach both the internal applications AND the ZPA cloud.
@@ -97,9 +97,9 @@ Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/abou
 
 ### Placement and scaling
 
-Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/understanding-private-access-architecture.json`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
 
-From *About App Connectors* (`vendor/zscaler-help/about-app-connectors.md`) and *Understanding the Private Access Architecture*:
+From *About App Connectors* (`vendor/zscaler-help/about-app-connectors.json`) and *Understanding the Private Access Architecture*:
 
 - Deploy in locations where internal applications reside (data center, cloud VPC, branch office with on-prem apps), OR in any location with connectivity to the applications.
 - **N+1 redundancy** recommended (N = enough to carry the app load, +1 for failover). Sizing is per-group; adding connectors to a group increases capacity.
@@ -113,7 +113,7 @@ From *About App Connectors* (`vendor/zscaler-help/about-app-connectors.md`) and 
 
 ### App Connector Groups
 
-Source: `vendor/zscaler-help/zpa-about-connector-groups.md`; `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`.
+Source: `vendor/zscaler-help/zpa-about-connector-groups.json`; `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-app-connector-group/variables.tf`.
 
 App Connector Groups are the policy, upgrade, and capacity unit. Per *About App Connector Groups*:
 
@@ -132,13 +132,13 @@ App Connector Groups are the policy, upgrade, and capacity unit. Per *About App 
 - **Group editing from application-serving context** became available on July
   16, 2026: App Connector groups can be edited from the "Where are my apps being
   served from?" view to resolve unknown hosting or location details
-  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:79-82`).
+  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:79-82`).
 
 Groups are the unit at which upgrades are orchestrated: when a new App Connector version is available, ZPA picks one connector in the group at random, upgrades it (restart + re-enroll), picks the next, and so on. The group stays available throughout because only one connector is down at a time.
 
 ### Provisioning Keys
 
-Source: `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf`.
+Source: `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/terraform-aws-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf`; `vendor/terraform-azurerm-zpa-app-connector-modules/modules/terraform-zpa-provisioning-key/variables.tf`.
 
 From *About App Connector Provisioning Keys*: a long base64-ish text string that functions as the shared-secret credential for App Connector enrollment.
 
@@ -290,7 +290,7 @@ The `runtime_status` name and the `ZPN_STATUS_*` enum table appear **only in MCP
 - The `troubleshoot-connector` command doc lists only `AUTHENTICATED`/`DISCONNECTED`/`NOT_ENROLLED` and omits `PENDING` (`vendor/zscaler-mcp-server/commands/troubleshoot-connector.md:28-32`).
 - `ZPN_STATUS_NOT_ENROLLED` is the enrollment-failure status; the SKILL.md remediation lists it under "Enrollment Failure" with provisioning-key, DNS, and connectivity causes (`vendor/zscaler-mcp-server/skills/zpa/troubleshoot-app-connector/SKILL.md:195-209`).
 
-**The LSS `SessionStatus` codes are a distinct family.** The App Connector status log `SessionStatus` field defines a three-value set — `ZPN_STATUS_AUTHENTICATED`, `ZPN_STATUS_AUTH_FAILED`, `ZPN_STATUS_DISCONNECTED` (`vendor/zscaler-help/app-connector-status-log-fields.md:16`) — and the same trio is defined for Private Service Edge status logs (`vendor/zscaler-help/private-service-edge-status-log-fields.md:16`) and Private Cloud Controller status logs (`vendor/zscaler-help/private-cloud-controller-status-log-fields.md:16`). `ZPN_STATUS_AUTH_FAILED` ("failed to authenticate") appears in the LSS `SessionStatus` set but not in the connector `runtime_status` enum, confirming the two sets are different families. The MCP LSS tool exposes the dynamically fetched `get_status_codes` result as an LSS session-status catalog (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/lss.py:178-192`). The SDK fetches LSS status codes dynamically from the API at runtime rather than hardcoding them (`vendor/zscaler-sdk-python/zscaler/zpa/lss.py:609`).
+**The LSS `SessionStatus` codes are a distinct family.** The App Connector status log `SessionStatus` field defines a three-value set — `ZPN_STATUS_AUTHENTICATED`, `ZPN_STATUS_AUTH_FAILED`, `ZPN_STATUS_DISCONNECTED` (`vendor/zscaler-help/app-connector-status-log-fields.json:16`) — and the same trio is defined for Private Service Edge status logs (`vendor/zscaler-help/private-service-edge-status-log-fields.json:16`) and Private Cloud Controller status logs (`vendor/zscaler-help/private-cloud-controller-status-log-fields.json:16`). `ZPN_STATUS_AUTH_FAILED` ("failed to authenticate") appears in the LSS `SessionStatus` set but not in the connector `runtime_status` enum, confirming the two sets are different families. The MCP LSS tool exposes the dynamically fetched `get_status_codes` result as an LSS session-status catalog (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/lss.py:178-192`). The SDK fetches LSS status codes dynamically from the API at runtime rather than hardcoding them (`vendor/zscaler-sdk-python/zscaler/zpa/lss.py:609`).
 
 #### Deleting a Service Edge requires re-enrollment
 
@@ -355,15 +355,15 @@ fleet, and re-check this caveat when upgrading the module.
 
 The July 13, 2026 release added a **Get Network Interfaces** command that
 collects the network-interface inventory used by an App Connector
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:90-93`). The same
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:90-93`). The same
 release introduced limited-availability remote App Connector network settings
 that can enable SSH on the operating system and update software-interface
 settings on ZPA virtual machines in AWS, Azure, and GCP
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:94-96`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:94-96`).
 
 ### Software updates
 
-Source: `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`.
+Source: `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/zscaler-help/zpa-about-connector-groups.json`.
 
 From *Understanding App Connector Software Updates*:
 
@@ -379,13 +379,13 @@ separate release entries with different scopes:
   and Azure, plus App Connector images for Nutanix AHV and VMware. It also moves
   the App Connector Docker image to high ciphers for `microdnf` calls, and says
   the image set includes a 4 GB boot partition for seamless OS updates
-  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-50`).
+  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:37-50`).
 - The August 4 release identifies Manager software version `26.56.1` and App
   Connector RPM packages for RHEL 8.x and 9.x, downloadable from the Zscaler
   repository
-  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-23`). That
+  (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:12-23`). That
   entry is RPM-specific and does not establish a new Docker, VM, hypervisor, or
-  cloud-marketplace image (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:25-28`).
+  cloud-marketplace image (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:25-28`).
 
 **Update statuses** (visible in the App Connector list):
 
@@ -407,20 +407,20 @@ procedure covers updating RHEL 9.4 or 9.5 to RHEL 9.6 and later. Zscaler
 recommends OS updates at least every five weeks; validate connectivity to the
 update servers. Prebuilt-image components must be provisioned to a Private
 Access tenant to receive software updates through the OS package manager
-(`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md:9-19`).
+(`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.json:9-19`).
 
 Local policy determines the update schedule. Warn users about possible rolling
 reconnections; the source estimates **20 minutes of downtime per component**.
 Do not update every App Connector or Private Service Edge in a group at once.
 Concurrent updates are allowed only when enough remaining components are
 running to carry the traffic load
-(`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md:23-29`).
+(`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.json:23-29`).
 For the corresponding PSE guidance, see [Private Service Edges — host OS and
 package maintenance](./private-service-edges.md#host-os-and-package-maintenance).
 
 ### Certificate enrollment and trust
 
-Source: `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`.
+Source: `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-private-access-architecture.json`.
 
 From *Understanding the Private Access Architecture* (captured earlier, see [`../shared/cloud-architecture.md § Certificate and PKI model`](../shared/cloud-architecture.md)):
 
@@ -431,7 +431,7 @@ From *Understanding the Private Access Architecture* (captured earlier, see [`..
 
 ### Health reporting and metrics
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/about-app-connectors.md`.
+Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/about-app-connectors.json`.
 
 App Connectors surface health metrics that the ZPA admin console displays and that streaming log fields (per `Understanding_App_Connector_Metrics_Log_Fields.txt`) carry. Relevant:
 
@@ -444,7 +444,7 @@ App Connectors surface health metrics that the ZPA admin console displays and th
 
 ### How sessions are assigned to App Connectors
 
-Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/zpa-about-connector-groups.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 Connector **health and target reachability gate eligibility** for session assignment. ZPA's connector-selection step happens in two phases — eligibility filtering, then latency-based selection — and the metrics surfaced above are the inputs to the eligibility phase.
 
@@ -490,7 +490,7 @@ The SDK does **not** expose:
 
 ## Cross-product context
 
-Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/understanding-private-access-architecture.json`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
 
 | Relationship | Details |
 |---|---|
@@ -502,7 +502,7 @@ Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/unde
 
 ## Common question shapes
 
-Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 | Question | Likely cause | Start |
 |---|---|---|
@@ -517,7 +517,7 @@ Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/abou
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/understanding-connector-software-updates.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 - **4-hour upgrade window is not extendable.** Groups with too many connectors to finish in 4 hours get staggered across multiple nights. Pick upgrade nights carefully for large groups.
 - **Upgraded connector re-enrollment is transparent** — the connector resumes service on the new version without a new provisioning key. The client-cert chain survives the upgrade.
@@ -525,7 +525,7 @@ Source: `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zsca
 - **Provisioning keys copied from the portal UI** can silently include trailing whitespace. Operators pasting the key into a deployment template should trim whitespace; the `notice:Login request failed - http status(401)` error in the error log is the giveaway.
 - **Nearest-App-Connector selection** uses app-to-connector latency from Zscaler's continuous measurements, not static geography. A connector that's geographically far but has a fast link to the app can be preferred. Can be counter-intuitive for operators expecting pure geo-based routing.
 - **App Connector VM sizing** depends on concurrent-user count, app throughput, and inspection feature set (Double Encryption, AppProtection add overhead). Zscaler publishes sizing guidance in their reference architecture PDFs; not captured in depth here.
-Source: `vendor/zscaler-help/zpa-about-connector-groups.md`.
+Source: `vendor/zscaler-help/zpa-about-connector-groups.json`.
 
 - **App Connector Group must associate with both a Server Group AND a provisioning key** to serve any traffic. A group with no Server Group association silently fails to route traffic — the admin console doesn't flag the partial config as invalid. The same applies to network reachability: only associate Connector Groups with applications the connectors can actually reach.
 
@@ -549,7 +549,7 @@ The same pattern likely applies to App Connector Groups when an `app_connector_g
 
 ## Logging — LSS retransmit window is shorter than NSS
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 ZPA's Log Streaming Service (LSS) is the equivalent of ZIA's NSS for Private Access logs, but with **stricter retransmit semantics** that catch operators off-guard:
 
@@ -562,7 +562,7 @@ See also [`../shared/nss-architecture.md § Surprises`](../shared/nss-architectu
 
 ## Open questions
 
-Source: `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/about-connector-provisioning-keys.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 - **Exact App Connector-to-app latency probe cadence** — how frequently ZPA re-measures connector-to-app RTT. Not documented publicly; relevant for "our network path changed, how long until ZPA notices" questions. (Tracked as [`zpa-27`](../_meta/clarifications.md#zpa-27-app-connector-to-app-latency-probe-cadence).)
 - **Certificate validity window** — exactly how long an App Connector cert is valid before re-enrollment is required. Not captured. (Tracked as [`zpa-28`](../_meta/clarifications.md#zpa-28-app-connector-certificate-validity-window-before-re-enrollment).)

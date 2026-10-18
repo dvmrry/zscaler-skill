@@ -17,11 +17,11 @@ verified-against:
 confidence: high
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/what-is-zero-trust-browser.md"
-  - "vendor/zscaler-help/understanding-turbo-mode-isolation.md"
-  - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.md"
-  - "vendor/zscaler-help/zpa-about-isolation-policy.md"
-  - "vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md"
+  - "vendor/zscaler-help/what-is-zero-trust-browser.json"
+  - "vendor/zscaler-help/understanding-turbo-mode-isolation.json"
+  - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.json"
+  - "vendor/zscaler-help/zpa-about-isolation-policy.json"
+  - "vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.json"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py"
@@ -71,23 +71,23 @@ This ledger covers the Zero Trust Browser / Cloud Browser Isolation claims chang
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| Zero Trust Browser loads the requested page on a remote browser in Zscaler data centers and streams rendered content to the user's native browser. | `index.md`, `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.md:14` |
-| HTML, CSS, JavaScript, and other active content do not reach the user's machine or corporate network in the isolation model. | `index.md`, `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.md:18` |
-| Zero Trust Browser is integrated with ZIA and ZPA; traffic egressing the isolation browser is passed through Public Service Edges before reaching the internet page. | `index.md`, `overview.md`, `policy-integration.md` | `vendor/zscaler-help/what-is-zero-trust-browser.md:22` |
-| A ZIA URL Filtering policy with `Isolate` redirects the HTTP/HTTPS request to the isolation profile URL with the original URL in the query string. | `overview.md`, `policy-integration.md` | `vendor/zscaler-help/what-is-zero-trust-browser.md:28` |
-| After redirect, Zero Trust Browser assigns a temporary remote browser; the remote browser connects to the original URL through the nearest Public Service Edges and is evaluated against Internet & SaaS policies. | `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.md:30` |
-| Default profiles are automatically created for organizations with Zero Trust Browser, and admins can manually create multiple profiles for both Internet & SaaS and Private Access. | `index.md`, `policy-integration.md` | `vendor/zscaler-help/what-is-zero-trust-browser.md:32` |
-| Each redirected user receives an endpoint container; subsequent requests hitting the same profile use the same container, and containers are destroyed on manual logout or after the default 10-minute idle timeout. | `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.md:38` |
-| Turbo Mode transfers rendered information as an instruction set rather than pixel streaming, with web content processed on Isolation containers and no code executed locally. | `overview.md` | `vendor/zscaler-help/understanding-turbo-mode-isolation.md:15`, `:17` |
-| Turbo Mode requires hardware acceleration with WebGL/WebGL2 and is not supported for Internet Explorer 11. | `overview.md` | `vendor/zscaler-help/understanding-turbo-mode-isolation.md:19`, `:27` |
-| Smart Browser Isolation automatically isolates suspicious websites using AI/ML models, decrypts them using SSL/TLS Inspection, and presents a remote-browser rendition using Zero Trust Browser. | `policy-integration.md`, `overview.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:16` |
-| Smart Isolation requires Malware Protection Inspect Inbound and Inspect Outbound toggles. | `policy-integration.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:18` |
-| Enabling Smart Isolation creates an editable SSL/TLS Inspection rule; the policy also requires an available Browser Isolation Profile. | `policy-integration.md`, `overview.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:24`, `:32`, `:34` |
-| ZPA Isolation Policy requires Isolation enabled and an isolation profile before creating a rule; an access policy is also required for the application to be accessible from within the isolation environment. | `policy-integration.md` | `vendor/zscaler-help/zpa-about-isolation-policy.md:16`, `:26` |
-| ZPA Isolation Policy timeout uses the minimum timeout across configured timeout policies. | `overview.md`, `policy-integration.md` | `vendor/zscaler-help/zpa-about-isolation-policy.md:24` |
-| ZPA Isolation Policy criteria require all conditions in the rule, use only AND/OR operators, and the default rule cannot be edited. | `policy-integration.md` | `vendor/zscaler-help/zpa-about-isolation-policy.md:32`, `:33`, `:43` |
-| The Miscellaneous & Unknown subscription may only allow isolating that URL category; it creates a distinct preconfigured profile and auto-created URL filtering rule with different default-enabled behavior for new vs existing tenants. | `policy-integration.md` | `vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md:15`, `:17` |
-| The Miscellaneous & Unknown preconfigured profile has fixed and editable settings, including Turbo Mode enabled, copy/paste/file transfer/print disabled, read-only enabled, and editable Turbo Mode, Debug Mode, Root Certificate, Read-Only Isolation, and Region Selection. | `policy-integration.md` | `vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.md:19`, `:21-48` |
+| Zero Trust Browser loads the requested page on a remote browser in Zscaler data centers and streams rendered content to the user's native browser. | `index.md`, `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:14` |
+| HTML, CSS, JavaScript, and other active content do not reach the user's machine or corporate network in the isolation model. | `index.md`, `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:18` |
+| Zero Trust Browser is integrated with ZIA and ZPA; traffic egressing the isolation browser is passed through Public Service Edges before reaching the internet page. | `index.md`, `overview.md`, `policy-integration.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:22` |
+| A ZIA URL Filtering policy with `Isolate` redirects the HTTP/HTTPS request to the isolation profile URL with the original URL in the query string. | `overview.md`, `policy-integration.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:28` |
+| After redirect, Zero Trust Browser assigns a temporary remote browser; the remote browser connects to the original URL through the nearest Public Service Edges and is evaluated against Internet & SaaS policies. | `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:30` |
+| Default profiles are automatically created for organizations with Zero Trust Browser, and admins can manually create multiple profiles for both Internet & SaaS and Private Access. | `index.md`, `policy-integration.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:32` |
+| Each redirected user receives an endpoint container; subsequent requests hitting the same profile use the same container, and containers are destroyed on manual logout or after the default 10-minute idle timeout. | `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:38` |
+| Turbo Mode transfers rendered information as an instruction set rather than pixel streaming, with web content processed on Isolation containers and no code executed locally. | `overview.md` | `vendor/zscaler-help/understanding-turbo-mode-isolation.json:15`, `:17` |
+| Turbo Mode requires hardware acceleration with WebGL/WebGL2 and is not supported for Internet Explorer 11. | `overview.md` | `vendor/zscaler-help/understanding-turbo-mode-isolation.json:19`, `:27` |
+| Smart Browser Isolation automatically isolates suspicious websites using AI/ML models, decrypts them using SSL/TLS Inspection, and presents a remote-browser rendition using Zero Trust Browser. | `policy-integration.md`, `overview.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:16` |
+| Smart Isolation requires Malware Protection Inspect Inbound and Inspect Outbound toggles. | `policy-integration.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:18` |
+| Enabling Smart Isolation creates an editable SSL/TLS Inspection rule; the policy also requires an available Browser Isolation Profile. | `policy-integration.md`, `overview.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:24`, `:32`, `:34` |
+| ZPA Isolation Policy requires Isolation enabled and an isolation profile before creating a rule; an access policy is also required for the application to be accessible from within the isolation environment. | `policy-integration.md` | `vendor/zscaler-help/zpa-about-isolation-policy.json:16`, `:26` |
+| ZPA Isolation Policy timeout uses the minimum timeout across configured timeout policies. | `overview.md`, `policy-integration.md` | `vendor/zscaler-help/zpa-about-isolation-policy.json:24` |
+| ZPA Isolation Policy criteria require all conditions in the rule, use only AND/OR operators, and the default rule cannot be edited. | `policy-integration.md` | `vendor/zscaler-help/zpa-about-isolation-policy.json:32`, `:33`, `:43` |
+| The Miscellaneous & Unknown subscription may only allow isolating that URL category; it creates a distinct preconfigured profile and auto-created URL filtering rule with different default-enabled behavior for new vs existing tenants. | `policy-integration.md` | `vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.json:15`, `:17` |
+| The Miscellaneous & Unknown preconfigured profile has fixed and editable settings, including Turbo Mode enabled, copy/paste/file transfer/print disabled, read-only enabled, and editable Turbo Mode, Debug Mode, Root Certificate, Read-Only Isolation, and Region Selection. | `policy-integration.md` | `vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.json:19`, `:21-48` |
 | Python `client.zbi` is Zscaler Business Insights, not Zero Trust Browser / Cloud Browser Isolation. | `index.md`, `overview.md`, `api.md`, `policy-integration.md` | `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-51`, `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:331-335` |
 | The Business Insights `client.zbi.custom_apps` surface uses `/bi/api/v1/customapps`, confirming it is not a browser-isolation policy/profile endpoint. | `api.md`, `policy-integration.md` | `vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:28-34`, `:70-74`, `:169-173`, `:222-227` |
 | ZIA Cloud Browser Isolation profile lookup exists in both Python and Go and is read-only in the inspected SDK functions. | `api.md`, `overview.md`, `policy-integration.md` | `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py:37-60`, `vendor/zscaler-sdk-python/zscaler/zia/models/cloud_browser_isolation.py:29-39`, `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:13`, `:30-48` |

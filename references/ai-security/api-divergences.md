@@ -14,10 +14,10 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-guard-what-is.json"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
   - "vendor/zscaler-help/ai-guard-users-help-index.md"
-  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md"
+  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json"
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/pyproject.toml"
@@ -77,9 +77,9 @@ sources:
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
   - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
   - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
-  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md"
-  - "vendor/zscaler-help/understanding-workflows-workflow-automation.md"
-  - "vendor/zscaler-help/what-workflow-automation.md"
+  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json"
+  - "vendor/zscaler-help/understanding-workflows-workflow-automation.json"
+  - "vendor/zscaler-help/what-workflow-automation.json"
 author-status: draft
 ---
 
@@ -120,7 +120,7 @@ The DAS Help page states `policyId` is required for the explicit-policy option (
 
 ## Detector taxonomy divergence
 
-Use the Help article as the canonical public capability list for product summaries. It presents 15 named AI Guard capability categories in the capture, including the combined **Prompt Injection & Jailbreak Protection** category and **Visibility & Access Control** (`vendor/zscaler-help/ai-guard-what-is.md:18`, `:20`, `:22`, `:24`, `:26`, `:28`, `:30`, `:32`, `:34`, `:36`, `:38`, `:40`, `:42`, `:44`, `:46`).
+Use the Help article as the canonical public capability list for product summaries. It presents 15 named AI Guard capability categories in the capture, including the combined **Prompt Injection & Jailbreak Protection** category and **Visibility & Access Control** (`vendor/zscaler-help/ai-guard-what-is.json:18`, `:20`, `:22`, `:24`, `:26`, `:28`, `:30`, `:32`, `:34`, `:36`, `:38`, `:40`, `:42`, `:44`, `:46`).
 
 The public integration skill carries a richer direction-specific detector reference: it says there are 19 prompt detectors and 21 response detectors, with prompt detectors under `Direction: IN` and response detectors under `Direction: OUT` (`vendor/zguard-ai-integrations/Anthropic/claude-code-skill/README.md:21`, `vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md:7`, `vendor/zguard-ai-integrations/Anthropic/claude-code-skill/references/threat-categories.md:146`). Treat that reference as integration taxonomy unless a future Help capture confirms the same count and names in the product console. See [clarification ai-security-03](../_meta/clarifications.md#ai-security-03-ai-guard-detector-taxonomy-source-of-truth).
 
@@ -259,7 +259,7 @@ The current LLM Application create/update/read schemas do not expose `defaultPol
 
 ## Help provider labels vs Automate provider types
 
-The 2026 Help chronology names supported applications/providers that do not all appear in the current 23-value Automate `type` enum. Examples include GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`; current Automate enum at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). These may represent User-mode application labels, built-in providers that are not customer-created admin objects, or documentation/API timing differences. Static sources do not establish a one-to-one mapping; track the boundary under [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
+The 2026 Help chronology names supported applications/providers that do not all appear in the current 23-value Automate `type` enum. Examples include GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json:14-50`; current Automate enum at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). These may represent User-mode application labels, built-in providers that are not customer-created admin objects, or documentation/API timing differences. Static sources do not establish a one-to-one mapping; track the boundary under [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 
 ## Cross-links
 

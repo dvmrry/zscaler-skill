@@ -193,11 +193,11 @@ The generated tool catalog carries one more migration artifact: its contributor 
 
 ## Failure modes
 
-Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/legacy-activation.md`; `vendor/zscaler-help/ranges-limitations-zia.md`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
+Source: `vendor/zscaler-help/automate-zscaler/getting-started.md`; `vendor/zscaler-help/legacy-activation.md`; `vendor/zscaler-help/ranges-limitations-zia.json`; `vendor/zscaler-sdk-python/zscaler/zia/activate.py`.
 
 - **Silent staleness.** Pending changes show up in the admin console (sometimes with a banner) but the active policy is still the pre-change version. Support cases often start here.
 - **Partial activation.** Multiple admins making concurrent changes can interleave pending state. Activating applies *all* pending changes in one atomic push — there's no selective activation of a subset.
-- **Activation failure from quota or validation.** If a pending change exceeds a ranges-and-limitations ceiling (see `vendor/zscaler-help/ranges-limitations-zia.md`) or fails server-side validation, activation may fail with a specific error. The config remains staged; fix the offending resource and re-activate.
+- **Activation failure from quota or validation.** If a pending change exceeds a ranges-and-limitations ceiling (see `vendor/zscaler-help/ranges-limitations-zia.json`) or fails server-side validation, activation may fail with a specific error. The config remains staged; fix the offending resource and re-activate.
 
 ## ZPA / ZDX / ZIdentity / ZCC / BI contrast
 

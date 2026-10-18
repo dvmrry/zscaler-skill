@@ -453,14 +453,28 @@ This replaces the manual reverify cycle.
 
 ### Capture format and pointer rules (2026-10-18)
 
-- **Help captures** are written only by `scripts/help_capture.py`. It fetches the article payload
-  from the help site's content endpoint over plain HTTP (no browser or credentials, so it runs in CI)
-  and renders canonical text: nested `- ` lists, Markdown table rows, `**bold**` kept, no link syntax.
-  Bold stays because some tables mark the recommended value only by bold; quote matching against
-  capture sources ignores `**`, so a quote never has to reproduce it. `help_capture.py check` refetches committed
-  captures and prints a diff on drift; `--replace` rewrites them in place, after which
-  `kb.mjs validate` lists exactly the quotes the change broke. Older captures (Playwright innerText,
-  PDF text) stay until they are recaptured.
+- **Help captures** are written only by `scripts/help_capture.py`, and are JSON (2026-10-18; they were
+  Markdown text before). It fetches the article payload from the help site's content endpoint over
+  plain HTTP (no browser or credentials, so it runs in CI) and writes `vendor/zscaler-help/<slug>.json`:
+  `kind: "help-article"`, `title`, `source` (`url`, the site's `node` and `revision` IDs),
+  `captured_at`, and `blocks`, one per heading (`heading`, `level`), paragraph (`text`), list item
+  (`item`, `depth`) or table (`table`, rows of cells). Text is plain; bold, which some tables use to
+  mark the recommended value, is kept as character ranges in `strong`.
+  - **Quotes anchor in one fixed serialization of the blocks** (`text_of` in `help_capture.py`,
+    `captureText` in `kb-lib.mjs`; a test compares the two over every capture): a heading is `#` x
+    level, an item is indented two spaces per depth and starts `- `, a table is one `| a | b |` row
+    per line. That keeps a table row quotable and kept every existing quote valid through the move.
+  - **The move was proven lossless.** `help_capture.py migrate` converted each Markdown capture only if
+    the JSON's anchoring text equalled the old body, and took the block structure from the live article
+    when it was still at the captured revision (all 487 were).
+  - **Change detection is one request.** `check` compares the live revision ID first; an unchanged
+    revision is unchanged content. A new revision is re-rendered and diffed; `--replace` rewrites the
+    capture, after which `kb.mjs validate` lists exactly the quotes the change broke. A different
+    rendering of an unchanged revision can only come from the renderer, so vendor changes and tool
+    changes never mix.
+  - Older text captures (Playwright innerText, PDF text, CSV tables) stay until they are recaptured or
+    converted; `scripts/check-verified-against.py` treats a pin at which `X.md` existed as covering
+    the migrated `X.json`.
 - **JSON pointers are keyed.** A step into an array by index is rejected because it shifts when the
   source is regenerated. `[member=value]` selects the one element whose member matches. API facts
   cite the OpenAPI document, not the flattened field list. Every pointer carries `expect`.

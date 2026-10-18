@@ -8,9 +8,9 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zdx/understanding-zdx-cloud-architecture"
-  - "vendor/zscaler-help/understanding-zdx-cloud-architecture.md"
+  - "vendor/zscaler-help/understanding-zdx-cloud-architecture.json"
   - "https://help.zscaler.com/zdx/about-zdx-score"
-  - "vendor/zscaler-help/about-zdx-score.md"
+  - "vendor/zscaler-help/about-zdx-score.json"
 author-status: draft
 ---
 

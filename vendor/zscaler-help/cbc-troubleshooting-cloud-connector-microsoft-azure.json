@@ -1,0 +1,2069 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Troubleshooting Cloud Connector with Microsoft Azure",
+  "source": {
+    "url": "https://help.zscaler.com/cloud-branch-connector/troubleshooting-cloud-connector-microsoft-azure",
+    "node": "1420786",
+    "revision": "3218385"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This article provides troubleshooting information and guidelines about Cloud Connector deployment in Microsoft Azure. You can learn about different issues, potential causes, and corresponding solutions for the deployed Cloud Connector."
+    },
+    {
+      "item": "Deployed Cloud Connector is not displayed in the Zscaler Admin Console",
+      "depth": 0
+    },
+    {
+      "item": "The following tables list provisioning and deployment issues and their corresponding troubleshooting actions.",
+      "depth": 0
+    },
+    {
+      "heading": "Provisioning Issues",
+      "level": 1
+    },
+    {
+      "table": [
+        [
+          "Potential Causes",
+          "Troubleshooting Actions"
+        ],
+        [
+          "Deployed Cloud Connector is not displayed in the Zscaler Admin Console",
+          "Check whether user data is missing or is provided in an incorrect format. You can verify this by reviewing the Azure Key Vault entries, or by reviewing the User Data file located on the appliance here: /etc/cloud/cloud.cfg.d/userdata.cfgVerify the API Key (api-key).Verify login credentials (username, password).Verify that the provisioning URL is in the correct format and there are no spaces.From the Zscaler Admin Console, verify that the Provisioning Template type is correct.Check whether Cloud Connector has sufficient privileges to the Azure Key Vault. Ensure that the Get and List roles are assigned to that the User Managed Identity that the Cloud Connector is using.Check whether Cloud Connector has sufficient privileges to enumerate network interfaces. Ensure that the Network Contributor role or Microsoft.Network/networkInterfaces/read permission is assigned to the User Managed Identity that the Cloud Connector is using. Also ensure that the Managed Identity has a sufficient scope that includes the Cloud Connector appliance.Verify network security groups to ensure that Cloud Connectors can reach the Zscaler cloud.Check whether the Cloud Connector could reach the package repository when using certificate authority. Verify that you can do a package update to confirm that the package repository is reachable and certificates are valid. Run the sudo pkg update command.Verify DNS resolution."
+        ],
+        [
+          "Terraform script fails to create a VNet in a greenfield deployment.",
+          "Check whether the user has surpassed the VNet creation limit for that region."
+        ]
+      ]
+    },
+    {
+      "heading": "Deployment Issues",
+      "level": 1
+    },
+    {
+      "table": [
+        [
+          "Potential Causes",
+          "Troubleshooting Actions"
+        ],
+        [
+          "Cloud Connector is in the wrong geolocation in the Zscaler Admin Console.",
+          "Verify that the outbound NAT and routing take the appropriate egress path. In the Zscaler Admin Console, confirm the Public IP address.If the Public IP address is correct, contact Zscaler Support."
+        ],
+        [
+          "Cloud Connector is in an inactive state.",
+          "Verify the following:The registration and policy fetch are correct. To check, contact Zscaler Support.Cloud Connector instance is up and running within the Azure Management Console.The Zscaler Admin Console can be reached from your VNet/subnet.Azure Key Vault has the correct secret credentials in case of a secrets rotation.The network is connected. Verify the route tables, NAT gateway, and DNS.The network security group is not blocking the Cloud Connector TCP/UDP 443 traffic.You cannot validate these conditions from the Command Line Interface (CLI) because the CLI uses the management interface for the deployment operation."
+        ],
+        [
+          "In the Zscaler Admin Console, the Internet & SaaS (ZIA) gateway IP address is not populated.",
+          "From the Zscaler Admin Console, check the Internet & SaaS gateway configuration. If the gateway configuration is not set correctly, contact Zscaler Support."
+        ]
+      ]
+    },
+    {
+      "item": "Unable to log in to the Zscaler Admin Console",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Potential Causes",
+          "Troubleshooting Action"
+        ],
+        [
+          "Account not created.",
+          "Contact Zscaler Support."
+        ],
+        [
+          "Cloud Connector SKUs not enabled.",
+          "Contact Zscaler Support."
+        ],
+        [
+          "Authentication failed.",
+          "Verify that the username and all credentials are valid. Confirm that the admin exists in the Zscaler Admin Console."
+        ],
+        [
+          "User could not access single sign-on (SSO) from the Zscaler Admin Console.",
+          "Contact Zscaler Support."
+        ]
+      ]
+    },
+    {
+      "item": "Workloads unable to access internet applications",
+      "depth": 0
+    },
+    {
+      "item": "The traffic from the deployed Cloud Connector might not be able to reach internet applications.",
+      "depth": 0
+    },
+    {
+      "item": "Check the following areas to isolate and identify what is preventing the traffic connection:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Potential Causes",
+          "Troubleshooting Action"
+        ],
+        [
+          "The firewall policy attached to the Cloud Connector.",
+          "Verify that the Internet & SaaS firewall policy is not blocking any outbound traffic."
+        ],
+        [
+          "The connectivity from the Cloud Connector to Internet & SaaS.",
+          "Verify the following:In the Zscaler Admin Console, the Internet Access Gateway is populated.Session logs display the Cloud Connector self-traffic.The Zscaler Admin Console displays your tunnel insights."
+        ],
+        [
+          "The ingress routing to the Cloud Connector.",
+          "Verify the following:The routing of the workload subnet.The network security group on the workload subnet.The security group for workloads."
+        ],
+        [
+          "The egress path from the Cloud Connector.",
+          "Verify the following:The gateway configuration.The forwarding policy in the Zscaler Admin Console.The network security group and other services on egress."
+        ],
+        [
+          "The status of the Cloud Connector.",
+          "Verify the following:The virtual machine (VM) status of the Cloud Connector.The service status of the Cloud Connector."
+        ],
+        [
+          "Connectivity issues between Cloud Connectors within a group or cluster.",
+          "Verify the following:Within a given connector group or cluster, all Cloud Connectors communicate with each other via their service interface(s) to share information such as FQDN or wildcard FQDN synchronization.No firewall or security groups are blocking network communications between Cloud Connectors within a given VPC/VNet and their availability zones."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          16
+        ],
+        [
+          0,
+          1,
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Workloads unable to access private applications",
+      "depth": 0
+    },
+    {
+      "item": "If your workloads are unable to access private applications, verify the following:",
+      "depth": 0
+    },
+    {
+      "item": "The destination can be reached via Zscaler Client Connector.",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connector can resolve Private Access (ZPA) destinations by sending a DNS request for a Private Access destination from a workload directly to the IP address of a Cloud Connector service interface. The response should be an IP address from the IP pool defined in the Cloud Connector DNS policy. If that fails, check Private Access access and forwarding policies.",
+      "depth": 1
+    },
+    {
+      "item": "The workload can resolve Private Access destinations by sending a regular DNS request for a Private Access destination. If that fails, check the Azure or workload DNS settings.",
+      "depth": 1
+    },
+    {
+      "item": "The IP addresses and ranges that Private Access uses are routed through the Cloud Connector service interfaces.",
+      "depth": 1
+    },
+    {
+      "item": "The Cloud Connector DNS and forwarding logs are operational.",
+      "depth": 1
+    },
+    {
+      "item": "The Private Access events are operational.",
+      "depth": 1
+    },
+    {
+      "item": "If FQDN-based Private Access App Segments are in use, Cloud Connector is able to resolve Private Access destinations by sending a DNS request for a Private Access destination from a workload directly to the IP address of a Cloud Connector service interface.",
+      "depth": 1
+    },
+    {
+      "item": "Unable to monitor the traffic in the Zscaler Admin Console",
+      "depth": 0
+    },
+    {
+      "item": "If you are unable to monitor traffic in the Zscaler Admin Console, verify the following:",
+      "depth": 0
+    },
+    {
+      "item": "The Cloud Connector location created in the Zscaler Admin Console is registered in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, the tunnel logs are showing traffic to Internet & SaaS.",
+      "depth": 1
+    },
+    {
+      "item": "When you filter traffic in the Zscaler Admin Console, you use the Internet & SaaS filter.",
+      "depth": 1
+    },
+    {
+      "item": "On the Zscaler Admin Console's Traffic Forwarding Rules page, the traffic forwarding method is Internet & SaaS.",
+      "depth": 1
+    },
+    {
+      "item": "Unable to monitor the traffic in the Zscaler Admin Console",
+      "depth": 0
+    },
+    {
+      "item": "If you are unable to monitor traffic in the Zscaler Admin Console, verify the following:",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector is registered in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, the forwarding filter is Private Access.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, policy configuration is correct. Ensure that access policies and client forwarding policies are working.",
+      "depth": 1
+    },
+    {
+      "item": "Traffic not restored after Cloud Connector failure",
+      "depth": 0
+    },
+    {
+      "item": "If your traffic is not restored after Cloud Connector connection failure, verify the following:",
+      "depth": 0
+    },
+    {
+      "item": "The Cloud Connector backup instance is in good health with the high-availability model.",
+      "depth": 1
+    },
+    {
+      "item": "In the Azure Load Balancer, the Cloud Connector instance is healthy.",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connector experiencing connectivity disruptions",
+      "depth": 0
+    },
+    {
+      "item": "To avoid connectivity disruptions and/or unreachable destinations, IP forwarding must be enabled on the Cloud Connector service interface. This setting is enabled by default, but it could be inadvertently disabled manually or via automation.",
+      "depth": 0
+    },
+    {
+      "item": "To verify the IP forwarding setting:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "Click Network interfaces.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Select the interface and then select Settings > IP configurations.",
+      "depth": 1,
+      "strong": [
+        [
+          37,
+          45
+        ],
+        [
+          48,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "In the IP Settings section, select Enable IP forwarding.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          35,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "text": "Occasionally, you might need to access the Cloud Connector appliance’s command line interface (CLI) for troubleshooting or monitoring purposes."
+    },
+    {
+      "text": "Network operations, such as ping, use the management interface. The CLI only provides limited insights to the service interface and no options to directly test its connectivity."
+    },
+    {
+      "text": "You can access the CLI via the following methods:"
+    },
+    {
+      "item": "Bastion Host",
+      "depth": 0
+    },
+    {
+      "item": "A bastion host is a lightweight VM instance installed within the same subnet as the Cloud Connector service interface. This option leverages Secure Socket Shell (SSH) as the connection protocol. Hence, you must have access to the SSH key pair used when instantiating the appliances.",
+      "depth": 0
+    },
+    {
+      "item": "To access the appliance management interface remotely:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure portal.",
+      "depth": 1
+    },
+    {
+      "item": "On the Azure dashboard, navigate to the Search resources, service, and docs (G+/) field.",
+      "depth": 1,
+      "strong": [
+        [
+          40,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search resources, service, and docs (G+/) field, enter Public IP addresses. Then, under Services, select Public IP addresses. The Public IP addresses page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          95,
+          103
+        ],
+        [
+          112,
+          131
+        ],
+        [
+          137,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Public IP addresses page, click Create. The Create public IP address page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          45
+        ],
+        [
+          51,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Create public IP address page, on the Basics tab, under Project details, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          45,
+          51
+        ],
+        [
+          63,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select your desired subscription.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select your desired resource group to apply policies to the public IP address.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Under Instance details, select a region for the public IP address.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Under Configuration details, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the public IP address.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "IP Version: Select IPv4.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "SKU: Select Standard or Basic.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Availability zone: Select your desired availability zone.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Tier: Select Regional or Global.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          21
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "IP address assignment: Select Static.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Routing preference: Select Microsoft network or Internet, depending on your preference.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          44
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Idle timeout (minutes): The default idle timeout is set to 4 minutes.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "DNS name label: (Optional) Choose a DNS name label.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next : Tags >.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "On the Tags tab, assign your desired name/value pairs, and then click Review + create.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          70,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + create tab, click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Public IP addresses page, navigate to the public IP address you created, and then click the name.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On your public IP address's Overview page, click Associate. The Associate public IP address window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          28,
+          36
+        ],
+        [
+          49,
+          58
+        ],
+        [
+          64,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Associate public IP address window, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Resource type: Select Network interface.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Network interface: Select the network interface of your Bastion host.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click OK to confirm the association.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search resources, service, and docs (G+/) field, enter Route tables. Then, under Services, select Route tables. The Route tables page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          88,
+          96
+        ],
+        [
+          105,
+          117
+        ],
+        [
+          123,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Before creating or configuring your route table, identify your public IP Address. This is the address that your SSH management traffic comes from.",
+      "depth": 1
+    },
+    {
+      "item": "On the Route tables page, select the name of the route table associated with your Bastion host.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "On your route table's Overview page, in the left-side navigation, under Settings, select Routes.",
+      "depth": 1,
+      "strong": [
+        [
+          22,
+          30
+        ],
+        [
+          72,
+          80
+        ],
+        [
+          89,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Routes page, click Add.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          26,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "In the Add route window, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Route name: Enter a name for your route.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Destination type: Select IP Addresses.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP addresses/CIDR ranges: Enter your public IP address.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Next hop type: Select Internet.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Next hop address: Leave as default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click Add to confirm the route.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search resources, service, and docs (G+/) field, enter Network security groups. Then, under Services, select Network security groups. The Network security groups page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          99,
+          107
+        ],
+        [
+          116,
+          139
+        ],
+        [
+          145,
+          168
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Network security groups page, select the name of the network security group associated with your Bastion host.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "On your network security group's Overview page, in the left-side navigation, under Settings, select Inbound security rules.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          83,
+          91
+        ],
+        [
+          100,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "On the Inbound security rules page, click Add.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          42,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the Add inbound security rule window, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Source: Select IP Addresses.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Source IP addresses/CIDR ranges: Enter your source IP addresses/CIDR ranges.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Source port ranges: Enter your source port ranges.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Select IP Addresses.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Service: Select SSH.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Destination port ranges: This field is automatically set to 22.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          60,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: This field is automatically set to TCP.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          45,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Action: Select Allow.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter a number to designate the priority of this rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for this rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description of the rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Click Add to confirm the inbound security rule configuration.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Using your preferred SSH client, SSH from the management host to the Cloud Connector. The administrative login for the appliance is zsroot. The administrative login for the Bastion host varies depending on the operating system (OS) selected. For Linux terminal SSH clients using a Linux (Ubuntu) Bastion host, the command is ssh -i mySshKey.pem zsroot@10.0.50.106 -o \"proxycommand ssh -W %h:%p -i mySshKey.pem ubuntu@100.64.0.1.",
+      "depth": 1
+    },
+    {
+      "item": "Management Interface Public IP Address",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector appliances have a dedicated management interface installed, by default, in the same subnet as the Service Interface. This option leverages SSH as the connection protocol. Hence, you must have access to the SSH key pair used when instantiating the appliances.",
+      "depth": 0
+    },
+    {
+      "item": "To access the appliance management interface remotely:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure portal.",
+      "depth": 1
+    },
+    {
+      "item": "On the Azure dashboard, navigate to the Search resources, service, and docs (G+/) field.",
+      "depth": 1,
+      "strong": [
+        [
+          40,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search resources, service, and docs (G+/) field, enter Public IP addresses. Then, under Services, select Public IP addresses. The Public IP addresses page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          95,
+          103
+        ],
+        [
+          112,
+          131
+        ],
+        [
+          137,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Public IP addresses page, click Create. The Create public IP address page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          45
+        ],
+        [
+          51,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Create public IP address page, on the Basics tab, under Project details, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          45,
+          51
+        ],
+        [
+          63,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select your desired subscription.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select your desired resource group to apply policies to the public IP address.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Under Instance details, select a region for the public IP address.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Under Configuration details, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the public IP address.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "IP Version: Select IPv4.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "SKU: Select Standard or Basic.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Availability zone: Select your desired availability zone.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Tier: Select Regional or Global.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          21
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "IP address assignment: Select Static.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Routing preference: Select Microsoft network or Internet, depending on your preference.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          44
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Idle timeout (minutes): The default idle timeout is set to 4 minutes.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "DNS name label: Choose a DNS name label.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next : Tags >.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "On the Tags tab, assign your desired name/value pairs, and then click Review + create.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          70,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + create tab, click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Public IP addresses page, navigate to the public IP address you created, and then click the name.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On your public IP address's Overview page, click Associate. The Associate public IP address window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          28,
+          36
+        ],
+        [
+          49,
+          58
+        ],
+        [
+          64,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Associate public IP address window, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Resource type: Select Network interface.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Network interface: Select the network interface of your management interface.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click OK to confirm the association.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search resources, service, and docs (G+/) field, enter Route tables. Then, under Services, select Route tables. The Route tables page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          88,
+          96
+        ],
+        [
+          105,
+          117
+        ],
+        [
+          123,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Before creating or configuring your route table, identify your public IP address. This is the address that your SSH management traffic comes from.",
+      "depth": 1
+    },
+    {
+      "item": "On the Route tables page, select the name of the route table associated with your management interface.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "On your route table's Overview page, in the left-side navigation, under Settings, select Routes.",
+      "depth": 1,
+      "strong": [
+        [
+          22,
+          30
+        ],
+        [
+          72,
+          80
+        ],
+        [
+          89,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Routes page, click Add.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          26,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "In the Add route window, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Route name: Enter a name for your route.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Destination type: Select IP Addresses.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP addresses/CIDR ranges: Enter your public IP address.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Next hop type: Select Internet.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Next hop address: Leave as default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click Add to confirm the route.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search resources, service, and docs (G+/) field, enter Network security groups. Then, under Services, select Network security groups (classic). The Network security groups page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          99,
+          107
+        ],
+        [
+          116,
+          149
+        ],
+        [
+          155,
+          178
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Network security groups page, select the name of the network security group associated with your management interface.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "On your network security group's Overview page, in the left-side navigation, under Settings, select Inbound security rules.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          83,
+          91
+        ],
+        [
+          100,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "On the Inbound security rules page, click Add.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          42,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the Add inbound security rule window, configure the following settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Source: Select IP Addresses.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Source IP addresses/CIDR ranges: Enter your source IP addresses/CIDR ranges.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Source port ranges: Enter your source port ranges.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Select IP Addresses.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Service: Select SSH.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Destination port ranges: This field is automatically set to 22.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          60,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: This field is automatically set to TCP.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          45,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Action: Select Allow.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter a number to designate the priority of this rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for this rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description of the rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Click Add to confirm the inbound security rule configuration.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Using your preferred SSH client, SSH from the management host to the Cloud Connector. The administrative login for the appliance is zsroot. For Linux terminal SSH clients, the command is ssh -i mySshKey.pem zsroot@100.64.0.1.",
+      "depth": 1
+    },
+    {
+      "item": "Bastion Subnet",
+      "depth": 0
+    },
+    {
+      "item": "Microsoft Azure offers a feature known as a Bastion subnet. This feature allocates a small percentage of available IP addresses in a subnet to the Bastion service and provides an entry point into your cloud network for management purposes.",
+      "depth": 0
+    },
+    {
+      "item": "To access the CLI via the Bastion subnet:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "On the Azure dashboard, navigate to the Search resources, service, and docs (G+/) field.",
+      "depth": 1,
+      "strong": [
+        [
+          40,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search resources, service, and docs (G+/) field, enter Virtual machines. Then, under Services, select Virtual machines. The Virtual machines page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          92,
+          100
+        ],
+        [
+          109,
+          125
+        ],
+        [
+          131,
+          147
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Virtual machines page, select your desired Cloud Connector appliance.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Connector appliance Overview page, click Connect.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          54,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select Bastion, then click Use Bastion.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the service is created within the VNet and Management subnet of your appliance so the appropriate connectivity exists.",
+      "depth": 1
+    },
+    {
+      "item": "Under Create Bastion, click Deploy Bastion.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          28,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After your Bastion has deployed, return to your Cloud Connector appliance Overview page.",
+      "depth": 1,
+      "strong": [
+        [
+          74,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "On the Overview page, under Operations, select Bastion.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          38
+        ],
+        [
+          47,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Bastion window, configure the following settings:",
+      "depth": 1
+    },
+    {
+      "item": "Username: Enter zsroot.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Type: Select SSH Private Key from Local File.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Local File: Navigate to and select your SSH Key.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Connect.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    }
+  ]
+}

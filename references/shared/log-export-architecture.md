@@ -7,8 +7,8 @@ last-verified: "2026-04-28"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
-  - "vendor/zscaler-help/about-cloud-nss-feeds.md"
+  - "vendor/zscaler-help/understanding-nanolog-streaming-service.json"
+  - "vendor/zscaler-help/about-cloud-nss-feeds.json"
   - "vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt"
   - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
   - "references/shared/nss-architecture.md"
@@ -29,7 +29,7 @@ For the detailed NSS pipeline mechanics (buffer behavior, replay windows, feed-c
 
 ## Log export mechanisms by product
 
-Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `vendor/zscaler-help/about-cloud-nss-feeds.json`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
 
 | Product | Log type | Export mechanism | Format options | Retention at source | Notes |
 |---|---|---|---|---|---|
@@ -50,7 +50,7 @@ Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendo
 
 ## ZIA — NSS (VM-based)
 
-Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`.
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`.
 
 ### Architecture
 
@@ -106,7 +106,7 @@ For deployment: ZIA Admin Console > Administration > Nanolog Streaming Service.
 
 ## ZIA — Cloud NSS
 
-Source: `vendor/zscaler-help/about-cloud-nss-feeds.md`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`.
+Source: `vendor/zscaler-help/about-cloud-nss-feeds.json`; `vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt`.
 
 Cloud NSS is the SaaS alternative to deploying an NSS VM. Zscaler's cloud directly POSTs batches of logs to an HTTPS endpoint at the customer's SIEM — no on-prem appliance required.
 
@@ -243,7 +243,7 @@ ZCC device identity surfaces indirectly in ZIA NSS web logs via `deviceowner` (d
 
 ## Cloud Connector — NSS Firewall + Insights UI
 
-Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `vendor/zscaler-help/about-cloud-nss-feeds.json`.
 
 Cloud Connector (CC, the workload proxy product — distinct from ZPA App Connectors) produces logs through two paths:
 
@@ -319,7 +319,7 @@ Fields that operators commonly search for and which log stream carries them. NSS
 
 ## Where to find each log type
 
-Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `vendor/zscaler-help/about-cloud-nss-feeds.json`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
 
 | "I need logs for..." | Log source | Export path |
 |---|---|---|

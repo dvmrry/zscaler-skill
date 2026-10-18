@@ -457,14 +457,20 @@ export function updateManifest(g) {
     if (!fs.existsSync(full)) continue;
     const sha = sha256File(full);
     const prev = files[file];
-    const head = fs.readFileSync(full, "utf8").slice(0, 600);
+    // A help capture carries its own provenance; older text captures name it in a header.
+    const doc = file.endsWith(".json") ? readJson(full) : null;
+    const head = doc ? "" : fs.readFileSync(full, "utf8").slice(0, 600);
     const url =
+      (doc?.kind === "help-article" ? doc.source.url : null) ||
       head.match(/^URL:\s*(\S+)/m)?.[1] ||
       head.match(/^\*{0,2}Source:\*{0,2}\s*(https?:\/\/\S+)/m)?.[1] ||
       prev?.captured_from ||
       null;
     if (prev?.sha256 === sha && prev.captured_from === url) continue;
-    const captured = head.match(/Captured:\*{0,2}\s*(\d{4}-\d{2}-\d{2})/)?.[1] || gitDate(g.root, file);
+    const captured =
+      (doc?.kind === "help-article" ? doc.captured_at : null) ||
+      head.match(/Captured:\*{0,2}\s*(\d{4}-\d{2}-\d{2})/)?.[1] ||
+      gitDate(g.root, file);
     files[file] = { captured_from: url, captured_at: captured, sha256: sha };
     changed++;
   }

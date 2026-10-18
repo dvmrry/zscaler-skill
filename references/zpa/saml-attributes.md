@@ -7,7 +7,7 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/about-saml-attributes.md"
+  - "vendor/zscaler-help/about-saml-attributes.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/saml_attributes.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/saml_attributes.py"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
@@ -19,7 +19,7 @@ author-status: draft
 
 ## What ZPA SAML attributes are
 
-SAML attributes in ZPA are the IdP-asserted user and device properties that the ZPA policy engine uses as criteria in access policy rules. They are distinct from ZIA SAML attributes: in ZPA, the SAML assertion can carry any arbitrary user attribute from the IdP, not just identity, group, and department (Tier A — vendor/zscaler-help/about-saml-attributes.md).
+SAML attributes in ZPA are the IdP-asserted user and device properties that the ZPA policy engine uses as criteria in access policy rules. They are distinct from ZIA SAML attributes: in ZPA, the SAML assertion can carry any arbitrary user attribute from the IdP, not just identity, group, and department (Tier A — vendor/zscaler-help/about-saml-attributes.json).
 
 When a user authenticates to ZPA via ZCC, the IdP issues a SAML assertion to ZCC. That assertion is encrypted and stored locally by ZCC. On each application access attempt, ZCC presents the assertion (or derived claims) to ZPA for policy evaluation. SAML attributes defined in the ZPA Admin Console map the IdP assertion fields to named attribute objects that policy rules can reference.
 
@@ -35,13 +35,13 @@ When an organization subscribes to **ZIdentity for users**, the SAML Attributes 
 - The Add, Edit, and Delete buttons on the attribute management page are hidden
 - The IdP-specific filter (to view attributes per IdP) is hidden
 
-The underlying policy function is the same — attributes are used as criteria in access policy rules — but the attribute lifecycle and page UI differ. If an operator reports that they cannot add or edit SAML attributes in the ZPA console, check whether the tenant is subscribed to ZIdentity for users (Tier A — vendor/zscaler-help/about-saml-attributes.md).
+The underlying policy function is the same — attributes are used as criteria in access policy rules — but the attribute lifecycle and page UI differ. If an operator reports that they cannot add or edit SAML attributes in the ZPA console, check whether the tenant is subscribed to ZIdentity for users (Tier A — vendor/zscaler-help/about-saml-attributes.json).
 
 ---
 
 ## Configuration methods
 
-SAML attributes can be added to ZPA in two ways (Tier A — vendor/zscaler-help/about-saml-attributes.md):
+SAML attributes can be added to ZPA in two ways (Tier A — vendor/zscaler-help/about-saml-attributes.json):
 
 ### Import from IdP
 
@@ -59,7 +59,7 @@ Add individual attributes one at a time. Each attribute record requires:
 
 ## SAML attribute fields
 
-Each attribute record in the ZPA Admin Console has the following columns (Tier A — vendor/zscaler-help/about-saml-attributes.md):
+Each attribute record in the ZPA Admin Console has the following columns (Tier A — vendor/zscaler-help/about-saml-attributes.json):
 
 | Field | Description |
 |---|---|
@@ -88,7 +88,7 @@ Attribute-based criteria can be combined with other policy criteria (posture pro
 
 ## SAML attributes as log streaming criteria
 
-In addition to access policy, SAML attributes can be used to define streaming criteria when configuring a log receiver (LSS). This allows tenants to stream logs only for users matching a specific attribute value (e.g., stream only logs for users in a specific department to a dedicated SIEM destination) (Tier A — vendor/zscaler-help/about-saml-attributes.md).
+In addition to access policy, SAML attributes can be used to define streaming criteria when configuring a log receiver (LSS). This allows tenants to stream logs only for users matching a specific attribute value (e.g., stream only logs for users in a specific department to a dedicated SIEM destination) (Tier A — vendor/zscaler-help/about-saml-attributes.json).
 
 ---
 
@@ -96,7 +96,7 @@ In addition to access policy, SAML attributes can be used to define streaming cr
 
 From the ZSDK ranges document (directly comparable to ZPA):
 
-- **SAML Attributes**: 100 per organization (Tier A — vendor/zscaler-help/zsdk-ranges-limitations.md)
+- **SAML Attributes**: 100 per organization (Tier A — vendor/zscaler-help/zsdk-ranges-limitations.json)
 
 The ZPA-specific limit is not stated in the captured ZPA vendor sources; the ZSDK figure is noted here as a reference point. Verify with Zscaler Support for the authoritative ZPA SAML attribute limit.
 
@@ -104,7 +104,7 @@ The ZPA-specific limit is not stated in the captured ZPA vendor sources; the ZSD
 
 ## SAML attributes in the ZPA API and SDK
 
-ZPA's SAML attributes are a named resource in the ZPA management API. From the API feature list (Tier A — vendor/zscaler-help/legacy-understanding-zpa-api.md), SAML Attributes appear as a folder in the OneAPI Postman collection.
+ZPA's SAML attributes are a named resource in the ZPA management API. From the API feature list (Tier A — vendor/zscaler-help/legacy-understanding-zpa-api.json), SAML Attributes appear as a folder in the OneAPI Postman collection.
 
 ### SDK methods (full CRUD)
 
@@ -197,7 +197,7 @@ Organizations with multiple IdP configurations (e.g., primary IdP for employees,
 
 ## Open questions
 
-- **Authoritative ZPA SAML attribute limit.** The 100-attribute limit is taken from the ZSDK ranges document (Tier A — vendor/zscaler-help/zsdk-ranges-limitations.md:64). No captured ZPA-specific vendor source restates this figure for ZPA, and the SDK service layer does not encode a cap (vendor/zscaler-sdk-python/zscaler/zpa/saml_attributes.py exposes pagination but no count limit). Whether ZPA enforces exactly 100 — or a different value — is unconfirmed against a ZPA-specific source. (Tracked as [`zpa-61`](../_meta/clarifications.md#zpa-61-authoritative-zpa-saml-attribute-limit).)
+- **Authoritative ZPA SAML attribute limit.** The 100-attribute limit is taken from the ZSDK ranges document (Tier A — vendor/zscaler-help/zsdk-ranges-limitations.json:64). No captured ZPA-specific vendor source restates this figure for ZPA, and the SDK service layer does not encode a cap (vendor/zscaler-sdk-python/zscaler/zpa/saml_attributes.py exposes pagination but no count limit). Whether ZPA enforces exactly 100 — or a different value — is unconfirmed against a ZPA-specific source. (Tracked as [`zpa-61`](../_meta/clarifications.md#zpa-61-authoritative-zpa-saml-attribute-limit).)
 - **`userAttribute` and `delta` semantics.** The model carries `userAttribute` (bool) and `delta` fields (vendor/zscaler-sdk-python/zscaler/zpa/models/saml_attributes.py:36,40), but neither the SDK docstrings nor the captured help docs define what `userAttribute=true` toggles in policy behavior, nor what `delta` tracks. The `add`/`update` docstrings describe `saml_name` as "Whether to enable the cloud browser isolation banner" (vendor/zscaler-sdk-python/zscaler/zpa/saml_attributes.py:203), which is a copy-paste error in the SDK docs, not the field's real meaning — the real meaning of `samlName` is the IdP assertion attribute name. Field semantics need a non-docstring source. (Tracked as [`zpa-62`](../_meta/clarifications.md#zpa-62-userattribute-and-delta-saml-attribute-field-semantics).)
 
 ---

@@ -11,7 +11,7 @@ verified-against:
 confidence: high
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/admin-rbac-captures.md"
+  - "vendor/zscaler-help/admin-rbac-captures.json"
   - "vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py"
   - "vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py"
   - "vendor/zscaler-sdk-python/zscaler/zid/users.py"
@@ -25,39 +25,39 @@ author-status: draft
 
 ## Role model overview
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`.
 
 ZIdentity provides a unified, module-based admin role system distinct from per-product RBAC (ZIA rank-based, ZPA feature-flag). ZIdentity roles are system-defined only (not custom-definable) and are assigned through the **Zscaler Admin Console**, not within ZIdentity itself.
 
 Key facts:
 
-- ZIdentity admin roles are part of the cross-product federation story — identity and assignment are centralized in ZIdentity, while per-product authorization still applies at the product level (`vendor/zscaler-help/admin-rbac-captures.md:107-128`)
-- For ZIdentity-enabled tenants, admin roles **must be assigned in the Zscaler Admin Console**, not in ZIdentity (`vendor/zscaler-help/admin-rbac-captures.md:118`)
-- Users and user groups must be added to ZIdentity before admin roles can be assigned (`vendor/zscaler-help/admin-rbac-captures.md:116`)
-- At least View Only permission on Users and User Groups modules is required to submit a Zscaler Support ticket for migrated tenants (`vendor/zscaler-help/admin-rbac-captures.md:120`)
+- ZIdentity admin roles are part of the cross-product federation story — identity and assignment are centralized in ZIdentity, while per-product authorization still applies at the product level (`vendor/zscaler-help/admin-rbac-captures.json:107-128`)
+- For ZIdentity-enabled tenants, admin roles **must be assigned in the Zscaler Admin Console**, not in ZIdentity (`vendor/zscaler-help/admin-rbac-captures.json:118`)
+- Users and user groups must be added to ZIdentity before admin roles can be assigned (`vendor/zscaler-help/admin-rbac-captures.json:116`)
+- At least View Only permission on Users and User Groups modules is required to submit a Zscaler Support ticket for migrated tenants (`vendor/zscaler-help/admin-rbac-captures.json:120`)
 
 ## Built-in roles
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`.
 
-Four predefined system roles; no custom roles are documented. (`vendor/zscaler-help/admin-rbac-captures.md:109-114`)
+Four predefined system roles; no custom roles are documented. (`vendor/zscaler-help/admin-rbac-captures.json:109-114`)
 
 | Role name | Description |
 |---|---|
-| Super Admin | System role, full permissions across all modules (`vendor/zscaler-help/admin-rbac-captures.md:111`) |
-| View Only Admin | System role, view-only access across all modules (`vendor/zscaler-help/admin-rbac-captures.md:112`) |
-| User Admin | System role, user-management permission only (`vendor/zscaler-help/admin-rbac-captures.md:113`) |
-| CXO Insight User | System role, CXO insight permission only (`vendor/zscaler-help/admin-rbac-captures.md:114`) |
+| Super Admin | System role, full permissions across all modules (`vendor/zscaler-help/admin-rbac-captures.json:111`) |
+| View Only Admin | System role, view-only access across all modules (`vendor/zscaler-help/admin-rbac-captures.json:112`) |
+| User Admin | System role, user-management permission only (`vendor/zscaler-help/admin-rbac-captures.json:113`) |
+| CXO Insight User | System role, CXO insight permission only (`vendor/zscaler-help/admin-rbac-captures.json:114`) |
 
 ## Permission categories and scopes
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`.
 
-ZIdentity permissions are granular per-module with four permission levels: Full / View Only / Restricted / None. (`vendor/zscaler-help/admin-rbac-captures.md:124`)
+ZIdentity permissions are granular per-module with four permission levels: Full / View Only / Restricted / None. (`vendor/zscaler-help/admin-rbac-captures.json:124`)
 
-The permission matrix covers 25+ modules. The full matrix is authoritative only from the live Zscaler Help portal; the vendor doc capture is summary-level (`vendor/zscaler-help/admin-rbac-captures.md:128`).
+The permission matrix covers 25+ modules. The full matrix is authoritative only from the live Zscaler Help portal; the vendor doc capture is summary-level (`vendor/zscaler-help/admin-rbac-captures.json:128`).
 
-Documented module list (`vendor/zscaler-help/admin-rbac-captures.md:126`):
+Documented module list (`vendor/zscaler-help/admin-rbac-captures.json:126`):
 
 - Admin Sign on Policy
 - Authentication Methods
@@ -80,18 +80,18 @@ Documented module list (`vendor/zscaler-help/admin-rbac-captures.md:126`):
 
 ## Role assignment workflow
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`.
 
-1. Create the user or user group in ZIdentity (Users API or group provisioning) (`vendor/zscaler-help/admin-rbac-captures.md:116`)
-2. Assign the admin role through the **Zscaler Admin Console** (not ZIdentity UI) (`vendor/zscaler-help/admin-rbac-captures.md:118`)
+1. Create the user or user group in ZIdentity (Users API or group provisioning) (`vendor/zscaler-help/admin-rbac-captures.json:116`)
+2. Assign the admin role through the **Zscaler Admin Console** (not ZIdentity UI) (`vendor/zscaler-help/admin-rbac-captures.json:118`)
 3. Assignment grants module-level permissions per the role definition
-4. For federated tenants, the single admin identity grants access across ZIA and ZPA; per-product scope and feature flags still apply at the product level (`vendor/zscaler-help/admin-rbac-captures.md:107-121`)
+4. For federated tenants, the single admin identity grants access across ZIA and ZPA; per-product scope and feature flags still apply at the product level (`vendor/zscaler-help/admin-rbac-captures.json:107-121`)
 
 ## Custom roles
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`.
 
-Not supported. ZIdentity provides only the four system-defined roles documented above. No custom-role feature is documented for ZIdentity, in contrast with ZPA (which allows custom roles with equal-or-lower privileges) and ZIA (which allows custom permission combinations). (`vendor/zscaler-help/admin-rbac-captures.md:109`)
+Not supported. ZIdentity provides only the four system-defined roles documented above. No custom-role feature is documented for ZIdentity, in contrast with ZPA (which allows custom roles with equal-or-lower privileges) and ZIA (which allows custom permission combinations). (`vendor/zscaler-help/admin-rbac-captures.json:109`)
 
 ## API surface — entitlements
 
@@ -126,7 +126,7 @@ The Python SDK `Entitlement` model represents the role payload returned by both 
 
 ## Comparison: ZIdentity vs product-specific admin RBAC
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`.
 
 | Aspect | ZIdentity | ZIA | ZPA |
 |---|---|---|---|
@@ -141,31 +141,31 @@ Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python
 
 **Legacy (pre-ZIdentity):** ZIA admin and ZPA admin are separate accounts with independent role-assignment paths.
 
-**Modern (with ZIdentity):** A single admin identity lives in ZIdentity. The **Administrative Entitlements** module grants access to ZIA and/or ZPA. Per-product scope and feature flags still apply at the product level. (`vendor/zscaler-help/admin-rbac-captures.md:107-128`)
+**Modern (with ZIdentity):** A single admin identity lives in ZIdentity. The **Administrative Entitlements** module grants access to ZIA and/or ZPA. Per-product scope and feature flags still apply at the product level. (`vendor/zscaler-help/admin-rbac-captures.json:107-128`)
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`.
 
-1. **Support ticket submission requires View Only on Users + User Groups** — for ZIdentity tenants migrated to the Zscaler Admin Console, the submitting admin must hold at least View Only permission on both the Users and User Groups modules. (`vendor/zscaler-help/admin-rbac-captures.md:120`)
+1. **Support ticket submission requires View Only on Users + User Groups** — for ZIdentity tenants migrated to the Zscaler Admin Console, the submitting admin must hold at least View Only permission on both the Users and User Groups modules. (`vendor/zscaler-help/admin-rbac-captures.json:120`)
 
-2. **Role assignment is not via ZIdentity UI** — despite ZIdentity being the central identity source, admin roles are assigned through the Zscaler Admin Console, not within ZIdentity itself. (`vendor/zscaler-help/admin-rbac-captures.md:118`)
+2. **Role assignment is not via ZIdentity UI** — despite ZIdentity being the central identity source, admin roles are assigned through the Zscaler Admin Console, not within ZIdentity itself. (`vendor/zscaler-help/admin-rbac-captures.json:118`)
 
-3. **Users and groups must exist before role assignment** — provisioning order matters; populate ZIdentity users or groups before attempting role assignment. (`vendor/zscaler-help/admin-rbac-captures.md:116`)
+3. **Users and groups must exist before role assignment** — provisioning order matters; populate ZIdentity users or groups before attempting role assignment. (`vendor/zscaler-help/admin-rbac-captures.json:116`)
 
 4. **Entitlement API response carries roles as id/name/displayName only** — the `Entitlement.roles` field in the Python SDK model is a list of `CommonIDNameDisplayName` tuples; no per-module permission levels are included. (`vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py:38-40`)
 
 ## Open questions
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`.
 
-- **Full permission matrix (25+ modules × 4 levels) not captured** — the vendor doc capture explicitly defers to the live help portal for the authoritative matrix. (`vendor/zscaler-help/admin-rbac-captures.md:128`) — *requires re-capture of live article* — see [clarification `zid-35`](../_meta/clarifications.md#zid-35-admin-roles-permissions-module-level-matrix-uncaptured)
+- **Full permission matrix (25+ modules × 4 levels) not captured** — the vendor doc capture explicitly defers to the live help portal for the authoritative matrix. (`vendor/zscaler-help/admin-rbac-captures.json:128`) — *requires re-capture of live article* — see [clarification `zid-35`](../_meta/clarifications.md#zid-35-admin-roles-permissions-module-level-matrix-uncaptured)
 
 - **Role management APIs not exposed in SDKs** — no endpoint to list role definitions, create custom roles, assign roles, or query the permission matrix at runtime. Confirmed absent from the SDK surface by extraction report; no workaround documented. — see [clarification `zid-03`](../_meta/clarifications.md#zid-03-role-management-apis-absent-from-the-sdk-surface)
 
 - **Relationship between ZIdentity roles and per-product scope/feature flags** — it is unclear whether a ZIdentity "User Admin" role combined with Full Administrative Entitlements automatically inherits any ZIA admin scope, or whether that must be configured separately. — *unverified, requires tenant-side check or Zscaler documentation* — see [clarification `zid-02`](../_meta/clarifications.md#zid-02-zidentity-role-to-per-product-scope-inheritance)
 
-- **"Restricted Full" and "Restrictive View" permission levels** — the extraction report notes that shared docs reference four permission levels but the vendor capture at `vendor/zscaler-help/admin-rbac-captures.md:124` lists only Full / View Only / Restricted / None. Authoritative enum unclear. — *unverified, requires live help article re-capture* — see [clarification `zid-01`](../_meta/clarifications.md#zid-01-admin-permission-level-enum-restricted-full-restrictive-view)
+- **"Restricted Full" and "Restrictive View" permission levels** — the extraction report notes that shared docs reference four permission levels but the vendor capture at `vendor/zscaler-help/admin-rbac-captures.json:124` lists only Full / View Only / Restricted / None. Authoritative enum unclear. — *unverified, requires live help article re-capture* — see [clarification `zid-01`](../_meta/clarifications.md#zid-01-admin-permission-level-enum-restricted-full-restrictive-view)
 
 - **Admin role assignment audit trail** — no audit endpoint is documented in the SDK for ZIdentity role-assignment changes. — *requires live API or vendor doc check* — see [clarification `zid-04`](../_meta/clarifications.md#zid-04-admin-role-assignment-audit-trail)
 

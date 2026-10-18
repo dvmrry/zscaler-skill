@@ -17,7 +17,7 @@ verified-against:
 confidence: high
 source-tier: code
 sources:
-  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md"
+  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json"
   - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
   - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
@@ -50,7 +50,7 @@ ZWA has a real SDK surface, but it is narrow: DLP incident lifecycle operations 
 
 ## Auth and client naming
 
-Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`.
 
 **Python current client.** The general OneAPI `Client` reads `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN`; it obtains an OAuth token and updates the default authorization header (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:241-252`). In that mode, `client.zwa` is the current `ZWAService` wrapper (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:287-293`).
 
@@ -58,7 +58,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sd
 
 **Go SDK.** The Go ZWA package is also API-key based: config fields and environment variables are `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, and `ZWA_CLOUD`; the base URL is `https://api.<cloud>.zsworkflow.net`; authentication posts `key_id` and `key_secret` to `/v1/auth/api-key/token` and parses `token`, `token_type`, and `expires_in` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`).
 
-**Legacy help.** The captured Workflow Automation API getting-started/auth pages match the API-key flow: API management is enabled with a Workflow Automation subscription, authentication uses API key ID + key secret, and `POST /v1/auth/api-key/token` returns a bearer token with expiration (`vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md:8-17`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`). Because Python current-client, Python legacy, Go, and the legacy help pages do not express the same migration boundary, keep the exact boundary open in [clarification zwa-04](../_meta/clarifications.md#zwa-04-current-vs-legacy-auth-boundary).
+**Legacy help.** The captured Workflow Automation API getting-started/auth pages match the API-key flow: API management is enabled with a Workflow Automation subscription, authentication uses API key ID + key secret, and `POST /v1/auth/api-key/token` returns a bearer token with expiration (`vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json:8-17`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`). Because Python current-client, Python legacy, Go, and the legacy help pages do not express the same migration boundary, keep the exact boundary open in [clarification zwa-04](../_meta/clarifications.md#zwa-04-current-vs-legacy-auth-boundary).
 
 ## DLP incidents - Python
 

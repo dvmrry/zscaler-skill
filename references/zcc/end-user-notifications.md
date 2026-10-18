@@ -8,8 +8,8 @@ confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go"
-  - "vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md"
-  - "vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md"
+  - "vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json"
+  - "vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.json"
   - "references/zcc/forwarding-profile.md"
   - "references/zcc/install-parameters.md"
   - "references/zcc/web-policy.md"
@@ -36,7 +36,7 @@ Native OS notifications (toasts on Windows, alerts in macOS Notification Center,
 - Service Disaster Relief (DR) mode detected
 - App update available
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 ZCC-emitted notifications are configured under **Administration > Client Connector Notifications > End User Notifications** in the ZCC Portal.
 
@@ -50,19 +50,19 @@ HTML pages served by a ZIA Public Service Edge when a URL filtering or Cloud App
 
 For ZIA block page configuration and how URL filtering rules trigger them, see [`zia.url-filtering`](kb:zia.url-filtering).
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.json`.
 
 ---
 
 ## 2. What admins can configure
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
-Configuration lives at **Administration > Client Connector Notifications** in the ZCC Portal. Two tabs exist: **End User Notifications** and **Acceptable Use Policy (AUP) Settings**. A third path — **Notification Templates** — is used instead of the End User Notifications tab when templates are in use: the vendor help states that "if you use notification templates, this tab does not display, and you must configure the end user notification settings on the Notification Templates tab" (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md:20`).
+Configuration lives at **Administration > Client Connector Notifications** in the ZCC Portal. Two tabs exist: **End User Notifications** and **Acceptable Use Policy (AUP) Settings**. A third path — **Notification Templates** — is used instead of the End User Notifications tab when templates are in use: the vendor help states that "if you use notification templates, this tab does not display, and you must configure the end user notification settings on the Notification Templates tab" (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json:20`).
 
 ### 2.1 End User Notifications tab
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 The following toggles are available:
 
@@ -75,11 +75,11 @@ The following toggles are available:
 | Enable Notifications for ZPA Reauthentication | Prompts users for ZPA re-authentication when required. | Yes |
 | Show ZPA Reauthentication Notifications Every (In Minutes) | Interval in minutes for repeating ZPA reauth prompts (range: 2–1440). Enabled by default. | No |
 
-> The vendor help text for the Service Status toggle reads literally "Disaster Relief (DR) mode" (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md:28`). The "DR" abbreviation is conventionally read as Disaster Recovery; this doc uses Zscaler's verbatim "Disaster Relief" wording to match the UI string.
+> The vendor help text for the Service Status toggle reads literally "Disaster Relief (DR) mode" (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json:28`). The "DR" abbreviation is conventionally read as Disaster Recovery; this doc uses Zscaler's verbatim "Disaster Relief" wording to match the UI string.
 
 ### 2.2 Zscaler Notification Framework (Windows and macOS only)
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 Requires ZCC 4.2 or later on both Windows and macOS.
 
@@ -91,7 +91,7 @@ Requires ZCC 4.2 or later on both Windows and macOS.
 
 ### 2.3 Acceptable Use Policy (AUP) Settings tab
 
-Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
+Source: `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.json`.
 
 AUP is a full-screen in-app overlay that ZCC displays before allowing users to connect. It is not a web page block; it is rendered by ZCC itself.
 
@@ -105,9 +105,9 @@ Configuring branding (logo, corporate colors) within the AUP message body is pos
 
 ### 2.4 Notification Templates tab
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md` (portal tab-replacement behavior, line 20); `vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go` (field model).
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json` (portal tab-replacement behavior, line 20); `vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go` (field model).
 
-When notification templates are enabled, the standard End User Notifications tab does not display and notification settings must be configured on the Notification Templates tab instead (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md:20`). That is the full extent of the portal-UX behavior the vendor help captures — the help text gives a single sentence and defers the rest to a separate "Configuring Notification Templates for Zscaler Client Connector" article that is **not** in available vendor sources (`configuring-end-user-notifications-zscaler-client-connector.md:20`, `:50`). The field-level model below is reconstructed from the SDK, not from that portal article.
+When notification templates are enabled, the standard End User Notifications tab does not display and notification settings must be configured on the Notification Templates tab instead (`vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json:20`). That is the full extent of the portal-UX behavior the vendor help captures — the help text gives a single sentence and defers the rest to a separate "Configuring Notification Templates for Zscaler Client Connector" article that is **not** in available vendor sources (`configuring-end-user-notifications-zscaler-client-connector.md:20`, `:50`). The field-level model below is reconstructed from the SDK, not from that portal article.
 
 Implied by the SDK schema (not confirmed from a portal/admin-UX source): templates carry a `name` and an `isDefaultTemplate` flag (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:28-29`), and the list endpoint returns a collection (`GetAll` → `[]NotificationTemplate`, `notification_template.go:154,159`) — so the data shape supports multiple named templates with one marked default. Whether the portal surfaces them exactly that way is not established by reviewed sources.
 
@@ -163,7 +163,7 @@ The Go service (`notification_template.go`) provides: `Create` (POST), `Get` (GE
 
 ## 3. Notification triggers
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 The following events surface ZCC-emitted notifications when the corresponding toggle is enabled. For captive-portal forwarding behavior, see [`./forwarding-profile.md`](./forwarding-profile.md).
 
@@ -192,7 +192,7 @@ Notes on specific triggers:
 
 ## 4. Per-platform support matrix
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 The notification subsystem behaviors differ across platforms. For install-parameter context, see [`./install-parameters.md`](./install-parameters.md).
 
@@ -220,7 +220,7 @@ Notes:
 
 ## 5. Configuration via App Profiles
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 The End User Notifications settings described in Section 2 are global to the ZCC tenant (not per-App-Profile) when configured under **Administration > Client Connector Notifications**. However, some notification-adjacent behaviors are per-App-Profile:
 
@@ -235,7 +235,7 @@ Notification configuration **is** exposed as a discrete SDK service, contrary to
 
 ## 6. Localization
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.json`.
 
 The Zscaler Notification Framework supports English by default. The notification-template object that backs the Notification Templates tab (Section 2.4) carries no language or locale field in the SDK model — its toggles are boolean enable/persist switches plus duration, with no per-locale text or language-selection attribute (`vendor/zscaler-sdk-go/zscaler/zcc/services/notification_template/notification_template.go:26-58`). So the template API surface does not, on its own, establish a multi-language mechanism. Whether localized notification text is supported through some other path, and what language ZCC falls back to when no locale matches, are not confirmed from reviewed sources. See Open questions.
 
@@ -249,7 +249,7 @@ Admins may want a silent client — for kiosk deployments, server-side VDI sessi
 
 **How to silence:**
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 - Set **Enable Notifications by Default** to off in the End User Notifications tab. Users enrolled after this change will not receive notifications by default.
 - Disable each category toggle (App Updates, Service Status, ZIA Notifications, ZPA Reauthentication) individually.
@@ -269,7 +269,7 @@ Silent-client configurations should document which notification categories are d
 
 ## 8. Logging
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`; `vendor/zscaler-help/configuring-acceptable-use-policy-zscaler-app.json`.
 
 ZCC notification events are not represented as distinct entries in the ZIA admin audit log or the ZPA audit log, based on reviewed sources. The following logging surfaces apply:
 
@@ -284,7 +284,7 @@ Whether ZCC notification delivery events (specifically: "notification shown", "u
 
 ## 9. Common operator confusions
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 ### Block-page text in ZIA is not notification text in ZCC
 
@@ -308,7 +308,7 @@ Operators who enable Persistent Notifications and Custom Timer settings expectin
 
 ## 10. Operational gotchas
 
-Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json`.
 
 ### OS notification permission denials
 

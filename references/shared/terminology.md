@@ -10,18 +10,18 @@ confidence: high
 source-tier: doc
 sources:
   - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt"
-  - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.md"
-  - "vendor/zscaler-help/understanding-private-service-edge-internet-saas.md"
-  - "vendor/zscaler-help/about-virtual-service-edges-internet-saas.md"
-  - "vendor/zscaler-help/about-app-connectors.md"
-  - "vendor/zscaler-help/what-is-zscaler-client-connector.md"
+  - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.json"
+  - "vendor/zscaler-help/understanding-private-service-edge-internet-saas.json"
+  - "vendor/zscaler-help/about-virtual-service-edges-internet-saas.json"
+  - "vendor/zscaler-help/about-app-connectors.json"
+  - "vendor/zscaler-help/what-is-zscaler-client-connector.json"
   - "references/ai-security/ai-guard.md"
-  - "vendor/zscaler-help/ai-guard-what-is.md"
+  - "vendor/zscaler-help/ai-guard-what-is.json"
   - "vendor/zscaler-help/ai-guard-users-help-index.md"
-  - "vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md"
-  - "vendor/zscaler-help/understanding-source-ip-anchoring.md"
-  - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md"
-  - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md"
+  - "vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.json"
+  - "vendor/zscaler-help/understanding-source-ip-anchoring.json"
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.json"
+  - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json"
   - "vendor/zscaler-help/ai-access-security-marketing.md"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py"
@@ -66,7 +66,7 @@ Zscaler has renamed several core components over time without fully purging the 
 | Resource Server | API Resource | — | OneAPI term for a Zscaler service accessible via the gateway (ZIA, ZPA, ZDX each = one resource server). API client scopes reference resource servers. |
 | Cloud Connector | CC, Cloud Connector VM, Zscaler for Workloads | Help URL: `cloud-branch-connector`; SDK: `ztw`; TF: `ztc` | VM-based traffic forwarder deployed in AWS/Azure/GCP to extend ZIA and ZPA to cloud workloads. See `references/cloud-connector/`. |
 | Branch Connector | BC | Same SDK / TF path as Cloud Connector | Physical / virtual appliance for branch offices. Same backend as Cloud Connector; different form factor. |
-| Zero Trust Gateway (ZTG) | — | Admin console surfaces include `Zero Trust Gateway -- AWS` and `Zero Trust Gateway -- GCP` | Zscaler-managed, cloud-native gateway service distinct from the customer-deployed Cloud Connector VM. Current cloud-specific Help documents AWS and GCP as Limited Availability and Support-enabled; exact Azure deployment availability remains unresolved (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`; see `references/cloud-connector/overview.md`). |
+| Zero Trust Gateway (ZTG) | — | Admin console surfaces include `Zero Trust Gateway -- AWS` and `Zero Trust Gateway -- GCP` | Zscaler-managed, cloud-native gateway service distinct from the customer-deployed Cloud Connector VM. Current cloud-specific Help documents AWS and GCP as Limited Availability and Support-enabled; exact Azure deployment availability remains unresolved (`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.json:8-21`; `vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json:8-17`; see `references/cloud-connector/overview.md`). |
 | Zero Trust Workload (ZTW) | — | Go SDK module name | Go SDK naming convention for the Cloud Connector product surface. |
 | Zero Trust Cloud (ZTC) | — | Terraform provider name | Terraform provider name for the Cloud Connector product surface. Inconsistent with Go SDK's `ztw`. |
 | Cloud Connector Group | Edge Connector Group | Go SDK: `ecgroup` service | Logical cluster of Cloud Connector VMs. Unit of policy application and upgrade orchestration. Autoscaling group = ASG (AWS) / VMSS (Azure) / MIG (GCP). |
@@ -76,7 +76,7 @@ Zscaler has renamed several core components over time without fully purging the 
 | Workflow Template | — | — | Zscaler-provided pattern for automated incident remediation (Auto Close / Auto Notify / Auto Escalate / Auto Create Tickets + variants). 9 predefined; custom workflows also supported. |
 | Workflow Mapping | — | — | Link between incident attributes and a workflow. "When incident has attributes X, Y → fire workflow A." |
 | Source IP Anchoring (SIPA) | Customer-Managed Dedicated IP, SIPA | `source_ip_anchor` flag on ZPA App Segment; admin console under ZIA `Policy > Forwarding Control > Dedicated IP` | Cross-product feature (ZIA+ZPA): ZIA-inspected traffic is forwarded via a ZPA App Connector so the destination sees a customer-controlled IP. See `references/shared/source-ip-anchoring.md`. |
-| Bring Your Own IP (BYOIP) | Customer-owned Dedicated IP | ZIA Dedicated IP | Support-assisted use of a customer-owned, ROA-authorized prefix in Zscaler's Dedicated IP service. Requires at least a `/24` for each requested Zscaler data center. It is distinct from SIPA, which uses a ZPA App Connector as the observed source address (`vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.md:8-49`; `vendor/zscaler-help/understanding-source-ip-anchoring.md:18-28`). |
+| Bring Your Own IP (BYOIP) | Customer-owned Dedicated IP | ZIA Dedicated IP | Support-assisted use of a customer-owned, ROA-authorized prefix in Zscaler's Dedicated IP service. Requires at least a `/24` for each requested Zscaler data center. It is distinct from SIPA, which uses a ZPA App Connector as the observed source address (`vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.json:8-49`; `vendor/zscaler-help/understanding-source-ip-anchoring.json:18-28`). |
 | SIPA Direct | Source IP Anchoring Direct | — | Disaster-recovery variant of SIPA for when ZIA is impaired. Client Forwarding Policy rules flip so ZCC clients forward to ZPA directly. Manual revert required post-DR. |
 | ZPA Gateway | SIPA Gateway | ZIA Admin > Administration > ZPA Gateway | Named reference to a ZPA tenant used by ZIA Forwarding Control rules to route SIPA traffic. |
 | ZIA Service Edge client type | ZIA Service Edge, Source IP Anchoring client | ZPA Client Forwarding Policy / Access Policy "Client Type" value | The client-type identity ZIA uses when it initiates SIPA forwarding into ZPA. Distinct from Zscaler Client Connector as a client type. |

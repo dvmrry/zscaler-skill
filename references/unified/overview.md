@@ -17,9 +17,9 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/unified-what-zscaler-experience-center.md"
-  - "vendor/zscaler-help/unified-about-zagent.md"
-  - "vendor/zscaler-help/understanding-zscaler-cloud-names.md"
+  - "vendor/zscaler-help/unified-what-zscaler-experience-center.json"
+  - "vendor/zscaler-help/unified-about-zagent.json"
+  - "vendor/zscaler-help/understanding-zscaler-cloud-names.json"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
   - "vendor/zscaler-mcp-server/docsrc/skills/index.rst"
   - "vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md"
@@ -28,7 +28,7 @@ author-status: draft
 
 # Zscaler Experience Center - unified administration console
 
-Zscaler Experience Center is described as a unified, AI-powered administrative and operations console for managing, configuring, and monitoring the Zscaler Zero Trust Exchange from one interface (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`). The capture names Internet & SaaS (ZIA), Private Access (ZPA), ZDX, and Zscaler Client Connector as examples of services available through that central hub (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`).
+Zscaler Experience Center is described as a unified, AI-powered administrative and operations console for managing, configuring, and monitoring the Zscaler Zero Trust Exchange from one interface (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:8`). The capture names Internet & SaaS (ZIA), Private Access (ZPA), ZDX, and Zscaler Client Connector as examples of services available through that central hub (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:8`).
 
 ## ZAgent (Limited Availability)
 
@@ -37,28 +37,28 @@ Zscaler Support for enablement. It provides conversational assistance and
 predefined agents for administrative configuration, monitoring,
 troubleshooting, and optimization across the Zscaler SASE platform. The article
 says it is included with specified subscriptions without enumerating every
-eligible subscription (`vendor/zscaler-help/unified-about-zagent.md:9-13`).
+eligible subscription (`vendor/zscaler-help/unified-about-zagent.json:9-13`).
 
 In the Admin Console, the Wand icon opens the ZAgent drawer. Administrators can
 create a chat, review history, enter prompts, and select an agent and a skill;
 use `@` for agent selection and `/` for skill selection. Prompts and responses
 are retained as session history for a rolling **14 days**
-(`vendor/zscaler-help/unified-about-zagent.md:17-24`).
+(`vendor/zscaler-help/unified-about-zagent.json:17-24`).
 
 This capture describes an Admin Console feature only. It does not specify a
 public API, MCP compatibility, agent permission scopes, or the complete
-subscription entitlement list (`vendor/zscaler-help/unified-about-zagent.md:26-30`).
+subscription entitlement list (`vendor/zscaler-help/unified-about-zagent.json:26-30`).
 
 ## What It Consolidates
 
-The captured help frames Experience Center as an orchestration layer over shared platform components, not as a replacement for each product's data plane. It names a unified identity layer, simplified integrated navigation, a common policy framework, Zscaler Copilot interactions, and unified data/analytics as the core mechanisms (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:10-18`).
+The captured help frames Experience Center as an orchestration layer over shared platform components, not as a replacement for each product's data plane. It names a unified identity layer, simplified integrated navigation, a common policy framework, Zscaler Copilot interactions, and unified data/analytics as the core mechanisms (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:10-18`).
 
 Key source-backed feature themes:
 
-- Centralized management for Zscaler offerings and consistency across traffic types (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:20-22`).
-- Guided point-and-click workflows for onboarding, traffic forwarding, and security policy deployment (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:23`).
-- Zscaler generative AI Copilot for operations assistance and natural-language troubleshooting (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:17`, `:24`).
-- Persona-focused visibility for executive summaries and practitioner deep dives (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:25`).
+- Centralized management for Zscaler offerings and consistency across traffic types (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:20-22`).
+- Guided point-and-click workflows for onboarding, traffic forwarding, and security policy deployment (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:23`).
+- Zscaler generative AI Copilot for operations assistance and natural-language troubleshooting (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:17`, `:24`).
+- Persona-focused visibility for executive summaries and practitioner deep dives (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:25`).
 
 ## Source-Family Audit
 
@@ -70,7 +70,7 @@ Key source-backed feature themes:
 | Ansible | No standalone Experience Center / unified-console module found in this audit pass. |
 | MCP | No standalone Experience Center / unified-console tool found in this audit pass. The bundled cross-product workflow composes ZCC, ZDX, ZPA, and ZIA tools rather than exposing an Experience Center administration API (`vendor/zscaler-mcp-server/docsrc/skills/index.rst:181-191`; `vendor/zscaler-mcp-server/skills/cross-product/troubleshoot-user-connectivity/SKILL.md:1-3`). |
 | Postman | No standalone Experience Center / unified-console endpoint family found in the audited Postman collection. |
-| Help captures | The Experience Center product framing and top-level unified-console capabilities are captured (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`, `:12-18`, `:22-25`, `:27-29`). |
+| Help captures | The Experience Center product framing and top-level unified-console capabilities are captured (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:8`, `:12-18`, `:22-25`, `:27-29`). |
 
 ## API Surface
 
@@ -78,13 +78,13 @@ This refresh did not find a separate Experience Center API in the audited SDK, T
 
 ## Help Path Nuance
 
-The `/unified` help path maps to top-level "Getting Started with Zscaler" documentation, including onboarding flows, Experience Center, cloud naming, data privacy, user import, URL filtering, SSL inspection, threat protection, and data-protection policies (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:27-29`). Do not assume every `/unified` help article describes the Experience Center product itself; some pages are shared getting-started material.
+The `/unified` help path maps to top-level "Getting Started with Zscaler" documentation, including onboarding flows, Experience Center, cloud naming, data privacy, user import, URL filtering, SSL inspection, threat protection, and data-protection policies (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:27-29`). Do not assume every `/unified` help article describes the Experience Center product itself; some pages are shared getting-started material.
 
-The current **Understanding Zscaler Cloud Names** article is one such shared page. It publishes the public production cloud-name map for ZIA, ZPA, ZDX, Client Connector, Cloud & Branch Connector, Zero Trust Branch, Zscaler Cellular, Risk360, and the Authentication Service (`vendor/zscaler-help/understanding-zscaler-cloud-names.md:16-30`). The canonical operational map and its government-cloud/endpoint-selection guardrails live in [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md#public-production-cloud-name-map); its presence under `/unified` does not make those cloud names Experience Center features.
+The current **Understanding Zscaler Cloud Names** article is one such shared page. It publishes the public production cloud-name map for ZIA, ZPA, ZDX, Client Connector, Cloud & Branch Connector, Zero Trust Branch, Zscaler Cellular, Risk360, and the Authentication Service (`vendor/zscaler-help/understanding-zscaler-cloud-names.json:16-30`). The canonical operational map and its government-cloud/endpoint-selection guardrails live in [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md#public-production-cloud-name-map); its presence under `/unified` does not make those cloud names Experience Center features.
 
 ## What Experience Center Is Not
 
-- It is not evidenced as a separate packet-processing cloud or proxy in this capture; it is described as an administrative and operations console (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8`).
+- It is not evidenced as a separate packet-processing cloud or proxy in this capture; it is described as an administrative and operations console (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:8`).
 - It is not evidenced as a separate public API product in the audited source families.
 - It should not be treated as a substitute name for ZIA, ZPA, ZDX, or ZCC APIs. Those products retain their own automation surfaces.
 

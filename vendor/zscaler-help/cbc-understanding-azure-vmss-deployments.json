@@ -1,0 +1,831 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Cloud Connector Deployments with Azure Virtual Machine Scale Sets",
+  "source": {
+    "url": "https://help.zscaler.com/cloud-branch-connector/understanding-cloud-connector-deployments-azure-virtual-machine-scale-sets",
+    "node": "1528441",
+    "revision": "3221897"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "An Azure Virtual Machine Scale Sets (VMSS) deployment dynamically adds Cloud Connector virtual machines (VMs) to a scale set to meet the current load when it increases, and it removes Cloud Connector VMs from the scale set when the load decreases. For example, consider an Azure Virtual Desktop deployment, where users log in to their own virtual workstations at the beginning of the work day and log out at the end of the day. This causes fluctuations in the number of users and the amount of traffic flow during these periods."
+    },
+    {
+      "text": "VMSS also constantly monitors the health of each VM in the scale set. It removes unhealthy VMs from the scale set and replaces them with healthy ones. If someone manually terminates a VM that is part of a scale set from the Azure portal, the VMSS likewise replaces the VM."
+    },
+    {
+      "text": "Stopping or rebooting a VM that is part of a scale set from the Azure portal could cause the VM to be terminated."
+    },
+    {
+      "text": "VMSS provides the following benefits:"
+    },
+    {
+      "item": "Dynamically scales the number of VMs in the scale set to match demand.",
+      "depth": 0
+    },
+    {
+      "item": "Automatically removes unhealthy VMs and replaces them with healthy ones.",
+      "depth": 0
+    },
+    {
+      "item": "Deploys VMs across availability zones for high availability. The Internal Load Balancer (ILB) distributes traffic among the VMs.",
+      "depth": 0
+    },
+    {
+      "text": "This article describes VMSS and how it works in a Cloud Connector deployment. The deployment template prompts you to configure certain VMSS settings mentioned in this article. For information about the deployment template and the deployment steps, see Deployment Templates for Zscaler Cloud Connector and Deploying Zscaler Cloud Connector with Microsoft Azure. For comprehensive VMSS information, refer to the Azure product documentation."
+    },
+    {
+      "heading": "Topology",
+      "level": 1
+    },
+    {
+      "text": "The following sections provide a diagram depicting the topology of a VMSS deployment and a description of its components and flow."
+    },
+    {
+      "item": "Topology diagram",
+      "depth": 0
+    },
+    {
+      "item": "Topology details",
+      "depth": 0
+    },
+    {
+      "item": "The security stack is deployed into its own Security Resource Group to simplify the management of resources. Zscaler recommends that you deploy the security stack into its own Security VNet and that you peer Workload VNets with it. After the security stack is deployed, route tables in the Workload VNets should have a user-defined route steering traffic to the ILB in front of the Cloud Connectors.",
+      "depth": 1
+    },
+    {
+      "item": "An Internal Load Balancer (ILB) is deployed in front of the Cloud Connectors and is the entry point for the security stack.",
+      "depth": 1
+    },
+    {
+      "item": "A VMSS is created in each configured zone to provide high availability across zones.",
+      "depth": 1
+    },
+    {
+      "item": "A NAT Gateway (NATGW) used for outbound traffic from the Cloud Connectors is deployed in each configured zone and has a dedicated IP address associated with it.",
+      "depth": 1
+    },
+    {
+      "item": "There are two Azure functions:",
+      "depth": 1
+    },
+    {
+      "item": "Health Monitoring: Uses the custom metrics published by each Cloud Connector to determine whether there are any unhealthy Cloud Connectors that need to be replaced. The function terminates an unhealthy instance and immediately replaces it with a new one. This function runs at one-minute intervals.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Resource Sync: Ensures that the VMs in a Cloud Connector Group on the Zscaler Admin Console match the VMs in your VMSS. If the function finds a Cloud Connector in the Cloud Connector Group that is not in the VMSS, it cleans up that instance in the Cloud Connector Group to ensure that the two entities are in sync. This function runs at 30-minute intervals.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "The Azure Functions communicate with the Cloud Connector API server via REST APIs. Azure Functions do not communicate directly with Cloud Connectors.",
+      "depth": 1
+    },
+    {
+      "item": "The Azure Functions app contains Azure Functions and runs a ZIP file to start them. It finds the ZIP file in a new storage account that is created at runtime or from an existing storage account that you specify during deployment.",
+      "depth": 1
+    },
+    {
+      "heading": "Scale-Out and Scale-In",
+      "level": 1
+    },
+    {
+      "text": "Each Cloud Connector independently reports custom CPU utilization metrics to the Azure Monitor Service at one-minute intervals to advertise the load it is handling. VMSS uses the aggregate CPU utilization of all VMs in the scale set to determine when to trigger scale-out and scale-in events and how aggressively to do so."
+    },
+    {
+      "text": "Custom CPU metrics provide more detailed information about CPU usage, so Cloud Connector publishes them instead of VM-level metrics."
+    },
+    {
+      "item": "Scaling Rules",
+      "depth": 0
+    },
+    {
+      "item": "Scaling rules define the parameters for triggering scale-out and scale-in events. Zscaler recommends the following default thresholds and values:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Parameter",
+          "Description",
+          "Scale-Out Rule",
+          "Scale-In Rule"
+        ],
+        [
+          "CPU utilization threshold",
+          "The aggregate percentage of CPU utilization for the VMs in the scale set.",
+          "70%",
+          "50%"
+        ],
+        [
+          "Duration",
+          "The number of consecutive minutes after the threshold is crossed before a scale-out or scale-in event is triggered.",
+          "10",
+          "10"
+        ],
+        [
+          "Cooldown",
+          "The number of minutes to wait before triggering another scale-out or scale-in event. Metrics continue to be monitored and reported during the cooldown period. This gives the VMSS time to stabilize and determine how the updated number of VMs impacts the CPU utilization.",
+          "15",
+          "15"
+        ],
+        [
+          "Instance count",
+          "The number of VMs to remove or add for a single scale-out or scale-in event.",
+          "1",
+          "1"
+        ]
+      ]
+    },
+    {
+      "item": "Examples:",
+      "depth": 0
+    },
+    {
+      "item": "There are 4 VMs in a scale set. The VMs report CPU utilization of 80%, 60%, 75%, and 90%, so the aggregated CPU utilization for the scale set is 76.25%. The CPU utilization remains higher than the scale-out threshold for 10 consecutive minutes, so a scale-out event adds one VM to the scale set, bringing the number of VMs to 5.",
+      "depth": 1
+    },
+    {
+      "item": "There are three VMs in a scale set. The VMs report CPU utilization of 50%, 40%, and 35%, so the aggregated CPU utilization for the scale set is 41.7%. The aggregate CPU utilization remains lower than the scale-in threshold for 10 consecutive minutes, so a scale-in event removes one VM from the scale set, bringing the number to two. During the cooldown period, a traffic spike brings the aggregated CPU utilization to 83%, so when the cooldown period ends, a scale-out event adds one VM to the scale set, bringing the number of VMs back to three.",
+      "depth": 1
+    },
+    {
+      "item": "There are two VMs in a scale set. The VMs report CPU utilization of 65% and 55%, so the aggregated CPU utilization for the VMSS is 60%. No scale-out or scale-in event is triggered because the aggregated CPU utilization remains within the scale-out and scale-in thresholds for 10 consecutive minutes.",
+      "depth": 1
+    },
+    {
+      "item": "In logs and reports, the CPU utilization metric is displayed as smedge_cpu_utilization.",
+      "depth": 0
+    },
+    {
+      "item": "Scheduled Scaling",
+      "depth": 0
+    },
+    {
+      "item": "If you have predictable load patterns, you can define a schedule for scale-out and scale-in events. This ensures that enough VMs are provisioned before the predicted spike. For example, if a batch job runs every Saturday at 6:00 PM, you could preemptively schedule a scale-out event for 5:45 PM. You can define the following parameters during deployment:",
+      "depth": 0
+    },
+    {
+      "item": "Minimum instances: The minimum number of VMs in the scaling set during the scheduled scaling event.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Days of week: The days of the week when the schedule takes effect.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Start time: The time in hours and minutes to start the scheduled scaling event.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "End time: The time in hours and minutes to end the scheduled scaling event.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "heading": "Cloud Connector Health Monitoring",
+      "level": 1
+    },
+    {
+      "text": "Health monitoring includes the following entities:"
+    },
+    {
+      "item": "Custom Metric Publishing: Each Cloud Connector publishes a VM-level custom health metric at one-minute intervals. This metric value is 0 for an unhealthy VM or 100 for a healthy VM.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Health Monitoring: The Health Monitoring function consumes the health metric at one-minute intervals and initiates the termination of a VM that it determines is unhealthy.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "text": "In logs and reports, the health metric is displayed as cloud_connector_aggr_health."
+    },
+    {
+      "item": "Grace Period",
+      "depth": 0
+    },
+    {
+      "item": "A grace period allows a Cloud Connector to boot up before its health is evaluated, and it is potentially terminated. The grace period lasts until one of the following events occurs:",
+      "depth": 0
+    },
+    {
+      "item": "The VM has been alive for more than 30 minutes.",
+      "depth": 1
+    },
+    {
+      "item": "The VM reports at least one healthy metric.",
+      "depth": 1
+    },
+    {
+      "item": "After the grace period ends, a Cloud Connector is considered unhealthy if the custom health metric is reported as either:",
+      "depth": 0
+    },
+    {
+      "item": "None or 0 for 7 out of the last 10 samples, starting with the first healthy sample",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          8,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "None or 0 for 5 consecutive samples, starting with the first healthy sample",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          8,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Terminating Unhealthy VMs",
+      "depth": 0
+    },
+    {
+      "item": "The Health Monitoring function determines whether a VM is unhealthy. This function terminates an unhealthy VM after the grace period ends and the unhealthy criteria are met. The VM is replaced immediately.",
+      "depth": 0
+    },
+    {
+      "item": "Unhealthy instances are terminated in iterations. In a single iteration, a VMSS can terminate 20% of the instances, or one instance, whichever is greater. The instance to terminate is based on which instance has the most healthy statuses over a 10-sample stretch. If multiple instances have the same number of unhealthy statuses, the instances to terminate are chosen randomly.",
+      "depth": 0
+    },
+    {
+      "heading": "Viewing Metrics and Logs",
+      "level": 1
+    },
+    {
+      "text": "You can view the following metrics and logs in the Azure portal."
+    },
+    {
+      "item": "Metrics",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector Metrics",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connectors publish health metrics at one-minute intervals and are managed by Application Insights.",
+      "depth": 1
+    },
+    {
+      "item": "To display the metrics:",
+      "depth": 1
+    },
+    {
+      "item": "Navigate to Resource Groups > <Resource Group> > <VMSS> > <VM> > Monitoring > Metrics.",
+      "depth": 2,
+      "strong": [
+        [
+          12,
+          27
+        ],
+        [
+          65,
+          75
+        ],
+        [
+          78,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "On the Metrics page, click Add metric.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select the following parameters:",
+      "depth": 2
+    },
+    {
+      "item": "Scope: <VM name>",
+      "depth": 3
+    },
+    {
+      "item": "Metric Namespace: zscaler/cloudconnectors",
+      "depth": 3,
+      "strong": [
+        [
+          18,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Metric: cloud_connector_aggr_health",
+      "depth": 3,
+      "strong": [
+        [
+          8,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Aggregation: Avg (average)",
+      "depth": 3,
+      "strong": [
+        [
+          13,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "VMSS Metrics",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connectors in a scale set publish scaling metrics to the Health Monitoring function at one-minute intervals. VMSS consumes metrics from Azure Monitor for scaling decisions. The scaling metrics include smedge_cpu_utilization, smedge_mem_utilization, smedge_bytes_in, and smedge_bytes_out. The scaling rules compare the smedge_cpu_utilization value with the defined threshold.",
+      "depth": 1
+    },
+    {
+      "item": "To display the VMSS metrics:",
+      "depth": 1
+    },
+    {
+      "item": "Navigate to Resource groups > <Resource Group> > <VMSS> > <VM> > Monitoring > Metrics.",
+      "depth": 2,
+      "strong": [
+        [
+          12,
+          27
+        ],
+        [
+          65,
+          75
+        ],
+        [
+          78,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "On the Metrics page, click Add metric.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select the following parameters:",
+      "depth": 2
+    },
+    {
+      "item": "Scope: VMSS name",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Metric Namespace: zscaler/cloudconnectors",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          18,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Metric: smedge_metrics",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          8,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Aggregation: Avg (average)",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          13,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click Add filter.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Select the following parameters:",
+      "depth": 2
+    },
+    {
+      "item": "Property: metric_name",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          10,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Operator: =",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          10,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Values: smedge_cpu_utilization",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          8,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Functions App Logs",
+      "depth": 0
+    },
+    {
+      "item": "Recent Invocations",
+      "depth": 1
+    },
+    {
+      "item": "An Azure invocation is logged each time an Azure function is executed.",
+      "depth": 1
+    },
+    {
+      "item": "To view recent invocations:",
+      "depth": 1
+    },
+    {
+      "item": "Go to Resource groups > <Resource Group>. The Resource group page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          46,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "In the Name column on the Resource tab, find the Functions App and click it. The Functions App page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          26,
+          34
+        ],
+        [
+          81,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "On the Functions tab, click the function in the Name column. The details page for the Functions app appears.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Click the Invocations tab and then click the invocation in the Date column.",
+      "depth": 2,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          63,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Log Streaming in Real Time",
+      "depth": 1
+    },
+    {
+      "item": "You can view logs in real time for functions that are executing.",
+      "depth": 1
+    },
+    {
+      "item": "To view real-time logs:",
+      "depth": 1
+    },
+    {
+      "item": "Go to Resource groups > <Resource Group>. The Resource group page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          46,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "In the Name column on the Resources tab, find the Functions App and click it in the Name column. The Functions App page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          26,
+          35
+        ],
+        [
+          84,
+          88
+        ],
+        [
+          101,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "On the Functions tab, click the function in the Name column. The details page for the Functions app appears.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Click the Logs tab.",
+      "depth": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Application Insights",
+      "depth": 1
+    },
+    {
+      "item": "The Application Insights feature allows you to perform queries to view specific log messages, executions, time frames, and so on. For example, you can view Health Monitoring function logs that report that the VMSS found no instances to terminate. A specific message is defined when querying the logs, which allows you to refine your search instead of manually going through each invocation or continuously watching the real-time streaming of logs.",
+      "depth": 1
+    },
+    {
+      "item": "To view logs through Application Insights:",
+      "depth": 1
+    },
+    {
+      "item": "Go to Resource groups > <Resource Group>.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "On the Application Insights page, click Logs.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          40,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Enter a query and then click Run.",
+      "depth": 2,
+      "strong": [
+        [
+          29,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "For example, the following query would show you when there are no instances to terminate.",
+      "depth": 2
+    },
+    {
+      "item": "union traces | union exceptions | where timestamp > ago(1d) | where customDimensions['Category'] == 'Function.healthMonitor.User' or customDimensions['Category'] == 'Function.healthMonitor' | where message contains \"No instances to terminate on this iteration.\" | order by timestamp asc | project timestamp, message = iff(message != '', message, iff(innermostMessage != '', innermostMessage, customDimensions.['prop__{OriginalFormat}']))",
+      "depth": 2
+    },
+    {
+      "heading": "Access to Azure Resources",
+      "level": 1
+    },
+    {
+      "text": "Managed identities provide granular access control for Azure resources, which eliminates the need to explicitly store secret credentials within the Azure environment."
+    },
+    {
+      "text": "Azure Key Vault securely manages credentials for external services such as the Zscaler Admin Console."
+    },
+    {
+      "text": "Two user-assigned managed identities are required to perform Azure operations:"
+    },
+    {
+      "item": "Cloud Connector",
+      "depth": 0
+    },
+    {
+      "item": "This managed identity allows Cloud Connectors to perform Azure operations such as network interface discovery and metric publishing. It needs the following roles:",
+      "depth": 0
+    },
+    {
+      "item": "Network Contributor",
+      "depth": 1
+    },
+    {
+      "item": "Monitoring Metrics Publisher",
+      "depth": 1
+    },
+    {
+      "item": "Storage Queue Data Contributor",
+      "depth": 1
+    },
+    {
+      "item": "Functions App",
+      "depth": 0
+    },
+    {
+      "item": "This managed identity allows the Azure Functions App to make API calls to perform operations such as instance termination, instance replacement, and metric reading. It needs the following roles:",
+      "depth": 0
+    },
+    {
+      "item": "Network Contributor",
+      "depth": 1
+    },
+    {
+      "item": "Virtual Machine Contributor",
+      "depth": 1
+    },
+    {
+      "item": "Monitoring Contributor",
+      "depth": 1
+    },
+    {
+      "item": "Managed Identity Operator",
+      "depth": 1
+    },
+    {
+      "item": "Storage Blob Data Reader",
+      "depth": 1
+    },
+    {
+      "text": "User-assigned managed identities allow access to different entities in a VMSS deployment. Ensure that Cloud Connector is not assigned an Azure System-Assigned Managed Identity, because that identity overrides the deployment requirements."
+    },
+    {
+      "text": "For information about creating managed identities and assigning roles, see Deploying Zscaler Cloud Connector with Microsoft Azure."
+    }
+  ]
+}

@@ -13,7 +13,7 @@ sources:
   - "vendor/zscaler-help/About_Policies.txt"
   - "https://help.zscaler.com/zpa/about-access-policy"
   - "vendor/zscaler-help/About_Access_Policy.txt"
-  - "vendor/zscaler-help/zpa-access-policy-20260909.md"
+  - "vendor/zscaler-help/zpa-access-policy-20260909.json"
   - "https://help.zscaler.com/zpa/configuring-access-policies"
   - "vendor/zscaler-help/Configuring_Access_Policies.txt"
   - "https://help.zscaler.com/zpa/access-policy-configuration-examples"
@@ -54,7 +54,7 @@ Criteria available on an access policy rule, from *About Access Policy* pp.1–3
 
 | Criterion | Meaning |
 |---|---|
-| Adaptive Access Profiles | Profiles defined by user and device context signals from the Adaptive Access Engine (`vendor/zscaler-help/zpa-access-policy-20260909.md:52-54`) |
+| Adaptive Access Profiles | Profiles defined by user and device context signals from the Adaptive Access Engine (`vendor/zscaler-help/zpa-access-policy-20260909.json:52-54`) |
 | Application Segments | Specific application segments the rule applies to |
 | Segment Groups | Groups of segments the rule applies to |
 | Branch Connector Groups | Branch Connector groups |
@@ -66,7 +66,7 @@ Criteria available on an access policy rule, from *About Access Policy* pp.1–3
 | Cloud Connector Groups | Cloud Connector groups |
 | Country Codes | Country of the user's IP. **Special handling for Cloud Connectors / Source IP Anchoring / multi-hop: policy uses the *last NATed layer-3 public IP*, not the user's original IP.** (*About Access Policy* p.2.) |
 | Extranet | Extranet resources (locations or sublocations) |
-| Federated Applications | Application segments created, owned, and managed by the host partner and shared with guest partners (`vendor/zscaler-help/zpa-access-policy-20260909.md:64`) |
+| Federated Applications | Application segments created, owned, and managed by the host partner and shared with guest partners (`vendor/zscaler-help/zpa-access-policy-20260909.json:64`) |
 | Locations | Branch Connector, Cloud Connector, or other locations and sublocations |
 | Machine Groups | Configured machine groups |
 | Platforms | `Windows`, `macOS`, `Linux`, `Android` |
@@ -74,19 +74,19 @@ Criteria available on an access policy rule, from *About Access Policy* pp.1–3
 | SAML Attributes | User attributes from the IdP's SAML assertion |
 | SCIM Attributes | User attributes learned via SCIM |
 | SCIM Groups | SCIM groups learned via SCIM |
-| Tag Groups | Tags associated with the tag group defined within the application segment (`vendor/zscaler-help/zpa-access-policy-20260909.md:82-84`) |
-| Tag Value | Values associated with configured application segments (`vendor/zscaler-help/zpa-access-policy-20260909.md:82-84`) |
+| Tag Groups | Tags associated with the tag group defined within the application segment (`vendor/zscaler-help/zpa-access-policy-20260909.json:82-84`) |
+| Tag Value | Values associated with configured application segments (`vendor/zscaler-help/zpa-access-policy-20260909.json:82-84`) |
 | Workload Groups | Workload groups from cloud workloads |
 
 #### Guest-partner federated policy criteria
 
 For federated applications, the current Help article restricts the criteria
 available to the guest partner. **Client Type** has only one supported value:
-`Client Connector` (`vendor/zscaler-help/zpa-access-policy-20260909.md:64-66`).
+`Client Connector` (`vendor/zscaler-help/zpa-access-policy-20260909.json:64-66`).
 The other listed guest-partner criteria are **Client Connector Posture
 Profiles**, **Country Codes**, **Locations**, **Machine Groups**, **Platforms**,
 **Risk Scores**, **SAML and SCIM Attributes**, and **Trusted Networks**
-(`vendor/zscaler-help/zpa-access-policy-20260909.md:66-74`). This is Help
+(`vendor/zscaler-help/zpa-access-policy-20260909.json:66-74`). This is Help
 UI/behavior coverage; it does not add SDK operand types or assert an API schema
 change.
 
@@ -212,7 +212,7 @@ From *Access Policy Configuration Examples*, common patterns (p.1–18). Summary
 
 - **SCIM sync timing.** Per *Access Policy Deployment and Operations Guide* p.3: "After you enable SCIM, Zscaler checks if a user is present in the SCIM database. Based on this information, Zscaler decides if the user is allowed or blocked access to ZPA. Ensure the SCIM user sync is complete before enabling SCIM policies for these users. If not, the ZPA service evaluates policies on the users it does not recognize. After SCIM sync is enabled, Zscaler recommends waiting for a minimum of 48 hours (sometimes up to a week) before enabling SCIM policies." Effectively: SCIM criteria on a policy against a mid-sync user will likely deny by default.
 - **Cloud Connector / SIPA / multi-hop country coding.** Per *About Access Policy* p.2: country criterion uses the last NATed layer-3 public IP. For Source IP Anchoring traffic, this means the country is the ZIA Public Service Edge's country, not the user's. A country-scoped ZPA rule will misfire for SIPA users. See [`../shared/source-ip-anchoring.md`](../shared/source-ip-anchoring.md) for the full SIPA cross-product flow.
-- **Deception policy ordering.** Regular rules must have order greater than Deception rules. Copy/edit/delete disabled on Deception-configured rules. Deception is a separate Zscaler product that deploys decoy infrastructure inside ZPA to detect lateral-movement attackers; rules must fire first to route attacker traffic to decoys before real-resource rules match. See [`zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction). (*About Access Policy* p.6; `vendor/zscaler-help/what-is-zscaler-deception.md`.)
+- **Deception policy ordering.** Regular rules must have order greater than Deception rules. Copy/edit/delete disabled on Deception-configured rules. Deception is a separate Zscaler product that deploys decoy infrastructure inside ZPA to detect lateral-movement attackers; rules must fire first to route attacker traffic to decoys before real-resource rules match. See [`zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction). (*About Access Policy* p.6; `vendor/zscaler-help/what-is-zscaler-deception.json`.)
 - **Default block.** No matching rule = blocked. Per *Access Policy Configuration Examples* p.11: "until you configure policy rules for applications, users are blocked from accessing any applications or segment groups."
 - **`rule_order` must be sequential and account for ALL pre-existing rules — including invisible Deception rules.** From upstream `zscaler/terraform-provider-zpa` issue #166 (closed, fixed in v2.3.1): a TF tenant setting `rule_order = 1, 3, 4, ...` (gap at 2) saw rules silently fail to land in the requested order. Two findings from the maintainer thread: (a) **gaps in `rule_order` cause Terraform to reorder unpredictably** because the API treats absent slots as fillable; (b) **if Zscaler Deception is enabled in the tenant, an immutable Deception rule occupies `rule_order = 1`** automatically — TF-managed rules must start at 2 (or later) and stay sequential. Operators with Deception don't see the rule in the ZPA admin console as editable, but the API includes it in the order calculation. Cross-link to [`zpa-07`](../_meta/clarifications.md#zpa-07-deception-policy-order-interaction) and the Deception bullet immediately above.
 - **`rule_order` vs `priority` are different fields.** TF resource `zpa_policy_access_rule` exposes both: `rule_order` controls evaluation position (1 = first; influences first-match-wins outcome); `priority` is a separate metadata field (sometimes used by the admin console for display grouping). Setting them inconsistently doesn't error but confuses readers — keep them aligned (e.g., `rule_order = N, priority = N`) for clarity.

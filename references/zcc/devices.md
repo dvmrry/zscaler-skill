@@ -15,9 +15,9 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/devices/devices.go"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/download_devices/download_devices.go"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/remove_devices/zcc_remove_devices.go"
-  - "vendor/zscaler-help/configuring-automated-device-cleanup.md"
-  - "vendor/zscaler-help/configuring-zscaler-client-connector-collect-hostnames.md"
-  - "vendor/zscaler-help/configuring-zscaler-client-connector-collect-device-owner-information.md"
+  - "vendor/zscaler-help/configuring-automated-device-cleanup.json"
+  - "vendor/zscaler-help/configuring-zscaler-client-connector-collect-hostnames.json"
+  - "vendor/zscaler-help/configuring-zscaler-client-connector-collect-device-owner-information.json"
 author-status: draft
 ---
 
@@ -54,7 +54,7 @@ Installation + first login
 
 **Important**: Removing a device record from the portal does NOT uninstall ZCC from the endpoint. If ZCC is still installed and comes online, it will re-register — creating a fresh record (new `udid`) and losing the history. To prevent re-registration, also revoke the user's entitlement or change group membership. See [`./entitlements.md`](./entitlements.md).
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.json`.
 
 ---
 
@@ -194,13 +194,13 @@ Privacy implications: machine hostnames can reveal device naming conventions (as
 
 See [`./web-privacy.md`](./web-privacy.md) for the full field-level reference on both settings.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-help/configuring-zscaler-client-connector-collect-hostnames.md`; `vendor/zscaler-help/configuring-zscaler-client-connector-collect-device-owner-information.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-help/configuring-zscaler-client-connector-collect-hostnames.json`; `vendor/zscaler-help/configuring-zscaler-client-connector-collect-device-owner-information.json`.
 
 ---
 
 ## Automated device cleanup
 
-Configuration navigation: ZCC Portal > Administration > Client Connector Support > Device Cleanup tab (Tier A — vendor/zscaler-help/configuring-automated-device-cleanup.md).
+Configuration navigation: ZCC Portal > Administration > Client Connector Support > Device Cleanup tab (Tier A — vendor/zscaler-help/configuring-automated-device-cleanup.json).
 
 ### SDK model — `SetDeviceCleanupInfo` / `DeviceCleanup`
 
@@ -220,17 +220,17 @@ From `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py` (Tier B — SDK/T
 
 ### Cleanup behavior
 
-**Inactivity-based removal** (`auto_removal_days`): The portal explicitly states that a device becomes inactive when the most recent KeepAlive Timestamp is older than the defined period. This is the `keepAliveTime` field on the Device record. After `auto_removal_days` of no keepAlive contact, ZCC force-removes the device from the portal. The device does not receive a notification; the removal is automatic (Tier A — vendor/zscaler-help/configuring-automated-device-cleanup.md).
+**Inactivity-based removal** (`auto_removal_days`): The portal explicitly states that a device becomes inactive when the most recent KeepAlive Timestamp is older than the defined period. This is the `keepAliveTime` field on the Device record. After `auto_removal_days` of no keepAlive contact, ZCC force-removes the device from the portal. The device does not receive a notification; the removal is automatic (Tier A — vendor/zscaler-help/configuring-automated-device-cleanup.json).
 
 **Permanent purge** (`auto_purge_days`): After a device has been in Removed or Unregistered state for `auto_purge_days`, the record is permanently deleted. Uses `deregistrationTimestamp`. Once purged, there is no recovery of the historical record.
 
-**Per-user device limit** (`device_exceed_limit`): When a user attempts to enroll beyond the threshold, the oldest device by registration time is force-removed. Minimum threshold can be 1 (contact Zscaler Support to set); maximum is 16 (Tier A — vendor/zscaler-help/configuring-automated-device-cleanup.md).
+**Per-user device limit** (`device_exceed_limit`): When a user attempts to enroll beyond the threshold, the oldest device by registration time is force-removed. Minimum threshold can be 1 (contact Zscaler Support to set); maximum is 16 (Tier A — vendor/zscaler-help/configuring-automated-device-cleanup.json).
 
-**Portal update lag**: After modifying cleanup settings, it can take up to a week for Enrolled Devices to reflect changes. Do not expect immediate effect (Tier A — vendor/zscaler-help/configuring-automated-device-cleanup.md).
+**Portal update lag**: After modifying cleanup settings, it can take up to a week for Enrolled Devices to reflect changes. Do not expect immediate effect (Tier A — vendor/zscaler-help/configuring-automated-device-cleanup.json).
 
 **Cleanup affects inventory only**: Automated cleanup removes device records from the ZCC portal. It does not uninstall ZCC from the endpoint. If the machine comes back online with ZCC still installed, it will re-register — creating a new record (new `udid`).
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.json`.
 
 ---
 
@@ -356,7 +356,7 @@ These are also integer-encoded via `zcc_param_map["reg_type"]` (`devices.py:88�
 - **`device_exceed_limit` default is 16-max / no auto-removal** — the default setting allows up to 16 devices but does not auto-remove. An organization that wants to enforce single-device-per-user must contact Zscaler Support to set the minimum to 1 and then enable force-removal on exceed.
 - **`autoPurgeDays` purge is irreversible** — permanently deleted device records cannot be recovered. The purge window should be long enough for audit purposes. Set conservatively (180 days) for regulated environments.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/devices.py`; `vendor/zscaler-sdk-python/zscaler/zcc/devices.py`; `vendor/zscaler-help/configuring-automated-device-cleanup.json`.
 
 ---
 

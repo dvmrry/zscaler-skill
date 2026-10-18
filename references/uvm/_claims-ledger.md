@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/uvm-anysource-connector.md"
+  - "vendor/zscaler-help/uvm-anysource-connector.json"
   - "vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md"
 author-status: draft
 ---
@@ -28,13 +28,13 @@ This ledger covers the Tier 3 thin-stub refresh for Unified Vulnerability Manage
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| UVM is captured as a single platform for managing vulnerabilities and simplifying identification/remediation of security risks. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.md:73-78` |
+| UVM is captured as a single platform for managing vulnerabilities and simplifying identification/remediation of security risks. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.json:73-78` |
 | UVM marketing frames the product as risk prioritization with contextual insights into risk factors and mitigating controls. | `overview.md` | `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:8-19` |
-| UVM data sources can use dedicated vendor connectors or AnySource, and AnySource allows file uploads directly to the platform. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.md:8` |
-| Captured AnySource methods are Upload File, AWS S3, GCP, Webhook, and Upload File API. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.md:10-16` |
-| The captured vendor connector list is partial and includes examples such as Veracode, Apiiro, Aqua, Armis, AWS, Azure, CrowdStrike, GitHub Advanced Security, Mandiant ASM, Microsoft Defender, Prisma Cloud, and Tenable. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.md:18-45` |
+| UVM data sources can use dedicated vendor connectors or AnySource, and AnySource allows file uploads directly to the platform. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.json:8` |
+| Captured AnySource methods are Upload File, AWS S3, GCP, Webhook, and Upload File API. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.json:10-16` |
+| The captured vendor connector list is partial and includes examples such as Veracode, Apiiro, Aqua, Armis, AWS, Azure, CrowdStrike, GitHub Advanced Security, Mandiant ASM, Microsoft Defender, Prisma Cloud, and Tenable. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.json:18-45` |
 | Marketing claims 150+ prebuilt integrations, AnySource for flat files/webhooks, and AnyTarget for downstream outputs. | `overview.md` | `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-24` |
-| Recommended AnySource fields are split between asset fields and finding/vulnerability fields. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.md:47-71` |
+| Recommended AnySource fields are split between asset fields and finding/vulnerability fields. | `overview.md` | `vendor/zscaler-help/uvm-anysource-connector.json:47-71` |
 | Marketing describes dashboards, reports, dynamically updated feeds, custom workflows, two-way ticketing integration, and exception management. | `overview.md` | `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:26-35` |
 | UVM is marketed as powered by Data Fabric for Security and correlating findings across identity, assets, user behavior, mitigating controls, business processes, and organizational hierarchy. | `overview.md` | `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:37-47` |
 | Go SDK has no product-specific UVM service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no UVM service found in `vendor/zscaler-sdk-go` during the 2026-06-16 surface sweep. |

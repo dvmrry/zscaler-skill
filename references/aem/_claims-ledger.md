@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/aem-what-zscaler-security-operations.md"
+  - "vendor/zscaler-help/aem-what-zscaler-security-operations.json"
   - "vendor/zscaler-help/asset-exposure-management-caasm-marketing.md"
 author-status: draft
 ---
@@ -26,12 +26,12 @@ author-status: draft
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| AEM is one of the SecOps applications and supports asset collection, inventory/coverage tracking, attack-surface understanding, policies, violation tracking, and remediation. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.md:10-13` |
-| SecOps centralizes and enriches data from Zscaler telemetry and third-party tools through a data fabric. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.md:17-19` |
-| AEM data-source setup includes Details, Retrieval, Scheduling, Remediation Detection Settings, and Suppression Rules. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.md:30-37` |
-| AnySource can upload or extract files from storage platforms such as GCP and AWS S3. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.md:39-41` |
-| Captured AEM/SOC Workbench connectors include Azure Blob, Azure Cloud Assets, CrowdStrike, Microsoft Defender, Microsoft Entra ID, SentinelOne, Snyk, Wiz, ZCC Devices, ZIA Devices and Users, and AnySource. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.md:43-57` |
-| Captured outegrations include Jira, ServiceNow, and Azure DevOps with webhooks. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.md:59-63` |
+| AEM is one of the SecOps applications and supports asset collection, inventory/coverage tracking, attack-surface understanding, policies, violation tracking, and remediation. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.json:10-13` |
+| SecOps centralizes and enriches data from Zscaler telemetry and third-party tools through a data fabric. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.json:17-19` |
+| AEM data-source setup includes Details, Retrieval, Scheduling, Remediation Detection Settings, and Suppression Rules. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.json:30-37` |
+| AnySource can upload or extract files from storage platforms such as GCP and AWS S3. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.json:39-41` |
+| Captured AEM/SOC Workbench connectors include Azure Blob, Azure Cloud Assets, CrowdStrike, Microsoft Defender, Microsoft Entra ID, SentinelOne, Snyk, Wiz, ZCC Devices, ZIA Devices and Users, and AnySource. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.json:43-57` |
+| Captured outegrations include Jira, ServiceNow, and Azure DevOps with webhooks. | `overview.md` | `vendor/zscaler-help/aem-what-zscaler-security-operations.json:59-63` |
 | AEM marketing positions the product around a unified asset "golden record", coverage-gap analysis, CMDB health, remediation actions, and reporting/analytics. | `overview.md` | `vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:20-49` |
 | AEM informs Risk360 and UVM by improving asset context and risk quantification. | `overview.md` | `vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:55-59` |
 | No product-specific AEM Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across the Go/Python SDK, Terraform, Ansible, and Postman families; MCP portion rechecked 2026-07-30 against v0.15.0 for AEM / Asset Exposure Management / CAASM. |

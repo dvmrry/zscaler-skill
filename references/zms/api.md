@@ -28,11 +28,11 @@ sources:
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/app_catalog.py"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/nonces.py"
   - "vendor/zscaler-mcp-server/skills/zms/audit-microsegmentation-posture/SKILL.md"
-  - "vendor/zscaler-help/about-application-catalog-microsegmentation.md"
-  - "vendor/zscaler-help/about-ml-tag-recommendations-page.md"
-  - "vendor/zscaler-help/about-tags.md"
-  - "vendor/zscaler-help/about-agent-provisioning-keys.md"
-  - "vendor/zscaler-help/editing-agent-provisioning-keys.md"
+  - "vendor/zscaler-help/about-application-catalog-microsegmentation.json"
+  - "vendor/zscaler-help/about-ml-tag-recommendations-page.json"
+  - "vendor/zscaler-help/about-tags.json"
+  - "vendor/zscaler-help/about-agent-provisioning-keys.json"
+  - "vendor/zscaler-help/editing-agent-provisioning-keys.json"
 author-status: draft
 ---
 
@@ -60,9 +60,9 @@ surface is **read-only — queries only, no mutations**
 not a whole-service claim: current Help documents portal write actions for ML
 tag recommendations, tags, and provisioning keys without publishing their
 GraphQL operations or payloads
-(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:27-43`,
-`vendor/zscaler-help/about-tags.md:16-33`,
-`vendor/zscaler-help/editing-agent-provisioning-keys.md:15-29`). The implemented
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.json:27-43`,
+`vendor/zscaler-help/about-tags.json:16-33`,
+`vendor/zscaler-help/editing-agent-provisioning-keys.json:15-29`). The implemented
 surface remains **9 domains / 20 read tools**
 (`vendor/zscaler-mcp-server/CLAUDE.md:186-198`, matched by the SDK property set
 in `vendor/zscaler-sdk-python/zscaler/zms/zms_service.py:36-105`).
@@ -137,14 +137,14 @@ the SDK query it invokes selects neither field
 `vendor/zscaler-sdk-python/zscaler/zms/nonces.py:73-105`). Current Help confirms
 that the portal can display a signing certificate and copy, edit, or delete a
 group-scoped key, but it likewise does not establish SDK `status` or `expiry`
-fields (`vendor/zscaler-help/about-agent-provisioning-keys.md:10-35`). Treat
+fields (`vendor/zscaler-help/about-agent-provisioning-keys.json:10-35`). Treat
 those two promised MCP fields as unsupported until the selection set or an
 independent contract adds them.
 
 Portal editing covers the key name, maximum reuse from 1 through 1,000, and the
 signing certificate. The article does not publish a mutation or establish
 whether the agent group is editable
-(`vendor/zscaler-help/editing-agent-provisioning-keys.md:10-29`). Those actions
+(`vendor/zscaler-help/editing-agent-provisioning-keys.json:10-29`). Those actions
 are not part of the implemented read-only SDK/MCP surface.
 
 ### Resources
@@ -179,7 +179,7 @@ The portal can filter by application name, category, process, protocol, and
 port, but the SDK's `AppCatalogQueryFilter` exposes only `id`, `name`, and
 `category`. Do not promote the wider portal filter set into the GraphQL client
 contract
-(`vendor/zscaler-help/about-application-catalog-microsegmentation.md:19-46`;
+(`vendor/zscaler-help/about-application-catalog-microsegmentation.json:19-46`;
 `vendor/zscaler-sdk-python/zscaler/zms/models/inputs.py:323-351`).
 
 The MCP adapter has an implementation defect on the two filters it does expose:
@@ -193,7 +193,7 @@ Current Help separately exposes ML tag recommendations derived from catalog
 detections. Operators can accept, edit, ignore, revisit, or delete a
 recommendation and see prior/next run timing, but the article publishes no
 GraphQL operation, enum, pagination contract, or payload for those actions
-(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:10-43`).
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.json:10-43`).
 
 ### Tags (namespace → key → value hierarchy)
 
@@ -206,7 +206,7 @@ Node selections: `tagNamespaces` → `id, name, description, origin`; `tagKeys` 
 The portal can add namespaces and tags and edit or delete a tag, whereas the
 implemented SDK/MCP family above exposes reads only. Help confirms those portal
 actions but does not publish corresponding GraphQL types, operations, or SDK
-fields (`vendor/zscaler-help/about-tags.md:10-33`).
+fields (`vendor/zscaler-help/about-tags.json:10-33`).
 
 ## Enums
 
@@ -289,9 +289,9 @@ The following could not be cleanly backed from in-scope vendor source and are fl
   (`vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc:8`,
   `vendor/zscaler-mcp-server/CLAUDE.md:175-177`), while current Help confirms that
   portal writes exist for ML recommendations, tags, and provisioning keys
-  (`vendor/zscaler-help/about-ml-tag-recommendations-page.md:27-43`,
-  `vendor/zscaler-help/about-tags.md:16-33`,
-  `vendor/zscaler-help/editing-agent-provisioning-keys.md:15-29`). A separate
+  (`vendor/zscaler-help/about-ml-tag-recommendations-page.json:27-43`,
+  `vendor/zscaler-help/about-tags.json:16-33`,
+  `vendor/zscaler-help/editing-agent-provisioning-keys.json:15-29`). A separate
   skill names `managedResourceGroupCreate/Update`,
   `unmanagedResourceGroupCreate/Update`, and
   `managedRecommendedResourceGroupUpdate` plus a `recommendedResourceGroups`
@@ -305,7 +305,7 @@ The following could not be cleanly backed from in-scope vendor source and are fl
   `MLRunStatus`, `MLRunType` —
   `vendor/zscaler-sdk-python/zscaler/zms/models/enums.py:207-223`,
   `models/enums.py:294-307`) and Help confirms an ML recommendation workflow
-  (`vendor/zscaler-help/about-ml-tag-recommendations-page.md:10-43`), but no
+  (`vendor/zscaler-help/about-ml-tag-recommendations-page.json:10-43`), but no
   query method consumes those enums in the Python SDK ZMS layer. Their query
   names and shapes remain unverified. The `ResourceGroupsAPI` docstring also
   lists "Get recommended resource groups (ML-based)"

@@ -1,0 +1,992 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Getting Started",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/getting-started-zpa-api",
+    "node": "1484896",
+    "revision": "3160689"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Your organization must meet the following prerequisites before you can access and use the ZPA API:"
+    },
+    {
+      "item": "Add an API key. Only admins with full access to the API Key Management role can create keys.",
+      "depth": 0
+    },
+    {
+      "item": "Use an API management tool, or use the Zscaler Help Portal. If you choose to use the API management tool Postman, Zscaler does not officially provide a Postman collection. However, the option to create the collection is still possible. To learn more, see Configuring the Postman REST API Client.",
+      "depth": 0
+    },
+    {
+      "text": "If you need to obtain API keys, authenticate into, and make calls using Zscaler OneAPI endpoints, see API Client Authentication in ZIdentity and Getting Started with OneAPI."
+    },
+    {
+      "text": "The request URLs and references to config.private.zscaler.com within this article differ depending on your organization’s assigned cloud. To learn more, see What Is My Cloud Name for ZPA?"
+    },
+    {
+      "text": "After these prerequisites are met, you can:"
+    },
+    {
+      "item": "Locate your base URI",
+      "depth": 0
+    },
+    {
+      "item": "The base URI for the API is /mgmtconfig/v1 and /mgmtconfig/v2. The base URI is /userconfig/v1 for the following:",
+      "depth": 0
+    },
+    {
+      "item": "The endpoint to get all SCIM attribute values.",
+      "depth": 1
+    },
+    {
+      "item": "The endpoints to get SCIM group details.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see ZPA API Reference.",
+      "depth": 0
+    },
+    {
+      "item": "Authenticate and create an API session",
+      "depth": 0
+    },
+    {
+      "item": "Before making any API calls, you must retrieve your authorization token (Bearer <access_token>). The authorization token is passed onto subsequent calls for authentication.",
+      "depth": 0
+    },
+    {
+      "item": "To authenticate via the API, use the following Python script to sign in and get the Bearer <access_token>. The client ID and client secret are highlighted to indicate the client ID and secret that must be entered.",
+      "depth": 0
+    },
+    {
+      "item": "import requests url = \"https://config.private.zscaler.com/signin\" payload={'client_id':{client_id},'client_secret':{client_secret}} headers = { 'Content-Type': 'application/x-www-form-urlencoded' } response = requests.request(\"POST\", url, headers=headers, data=payload) print(response.text)",
+      "depth": 0
+    },
+    {
+      "item": "Example POST request for sign in using a Python script:",
+      "depth": 0
+    },
+    {
+      "item": "import requests url = \"https://config.private.zscaler.com/signin\" payload={'client_id':NzIwNzY1NDAyMTI0MTI1NjAtZWQ2Mz,'client_secret':O2k:0vs#,x,0N9} headers = { 'Content-Type': 'application/x-www-form-urlencoded' } response = requests.request(\"POST\", url, headers=headers, data=payload) print(response.text)",
+      "depth": 0
+    },
+    {
+      "item": "The client secret is only accessible in the ZPA Admin Portal when the API key is created for the first time. Make sure to copy your client secret to your clipboard when you first create your API key. The authentication token expiry time is set to 3,600 seconds (one hour) by default.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 1
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"token_type\" : \"Bearer\",",
+      "depth": 0
+    },
+    {
+      "item": "\"access_token\" : \"eyJraWQiOiI0bzZFS1k4STFqS1kwN2tQdjlqWV9\",",
+      "depth": 0
+    },
+    {
+      "item": "\"expires_in\" : \"3600\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "To authenticate via the API and create a new session using an API management tool, you must first create the sign in request. To learn more, see Configuring the Postman REST API Client.",
+      "depth": 0
+    },
+    {
+      "item": "Make an API call",
+      "depth": 0
+    },
+    {
+      "item": "After you have your authorization token, you can make an API call.",
+      "depth": 0
+    },
+    {
+      "item": "To get the list of all application segments, send a GET request to the endpoint /mgmtconfig/v1/admin/customers/{customerId}/application?page=1&pagesize=20&search= and include the customerId parameter, the ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following Python script to get a list of all application segments. The customerId parameter is highlighted to indicate where the ZPA tenant ID must be entered.",
+      "depth": 0
+    },
+    {
+      "item": "import requests",
+      "depth": 0
+    },
+    {
+      "item": "url = \"https://config.private.zscaler.com/mgmtconfig/v1/admin/customers/{customerId}/application?page=1&pagesize=20&search=\"",
+      "depth": 0
+    },
+    {
+      "item": "payload={} headers = { 'Authorization': 'Bearer eyJraWQiOiI0bzZFS1k4STFqS1kwN2tQdjlqWV9' }",
+      "depth": 0
+    },
+    {
+      "item": "response = requests.request(\"GET\", url, headers=headers, data=payload)",
+      "depth": 0
+    },
+    {
+      "item": "print(response.text)",
+      "depth": 0
+    },
+    {
+      "item": "Example GET request using a Python script:",
+      "depth": 0
+    },
+    {
+      "item": "import requests url = \"https://config.private.zscaler.com/mgmtconfig/v1/admin/customers/7207654021241/application?page=1&pagesize=20&search=\" payload={} headers = { 'Authorization': 'Bearer eyJraWQiOiI0bzZFS1k4STFqS1kwN2tQdjlqWV9' } response = requests.request(\"GET\", url, headers=headers, data=payload) print(response.text)",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 1
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1617135729\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"example.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"example\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1617134731\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"SIPA\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dynamicDiscovery\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"443\",",
+      "depth": 0
+    },
+    {
+      "item": "\"443\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"SIPA\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1617135436\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1613673797\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"www.example.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"example\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1613673769\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ZPA\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dynamicDiscovery\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"80\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"ZPA\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1617134731\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"docs.example.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"docs.example.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1617134731\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"SIPA\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dynamicDiscovery\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"54\",",
+      "depth": 0
+    },
+    {
+      "item": "\"65535\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"SIPA\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1613762719\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"www.example.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"example\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1613673769\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ZPA\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dynamicDiscovery\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"443\",",
+      "depth": 0
+    },
+    {
+      "item": "\"443\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"ZPA\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1616516461\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"domainNames\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"*.example.com\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"test-wildcard\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"&#x2a;&#x2e;example&#x2e;com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serverGroups\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1613673769\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ZPA\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dynamicDiscovery\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"passiveHealthEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"tcpPortRanges\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"443\",",
+      "depth": 0
+    },
+    {
+      "item": "\"443\",",
+      "depth": 0
+    },
+    {
+      "item": "\"80\",",
+      "depth": 0
+    },
+    {
+      "item": "\"80\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"doubleEncrypt\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"configSpace\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"bypassType\":\"NEVER\",",
+      "depth": 0
+    },
+    {
+      "item": "\"healthCheckType\":\"DEFAULT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"isCnameEnabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"ipAnchored\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"healthReporting\":\"ON_ACCESS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupId\":\"7207654021241\",",
+      "depth": 0
+    },
+    {
+      "item": "\"segmentGroupName\":\"ZPA\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "The following conditions apply when passing microtenantId, the unique identifier of the Microtenant, in a request:",
+      "depth": 0
+    },
+    {
+      "item": "If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant.",
+      "depth": 1
+    },
+    {
+      "item": "If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant.",
+      "depth": 1
+    },
+    {
+      "item": "Pass microtenantId as null to retrieve data from all customers associated with the tenant.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see About Microtenants and Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "item": "To get a list of all application segments within a Microtenant, send a GET request to the endpoint /mgmtconfig/v1/admin/customers/{customerId}/application?microtenantId={microtenantId} and include the customerId and microtenantId parameters.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following Python script to get a list of all application segments within a Microtenant. The customerId and microtenantId parameters are highlighted to indicate where the parameters must be entered.",
+      "depth": 0
+    },
+    {
+      "item": "import requests url = \"https://config.private.zscaler.com/mgmtconfig/v1/admin/customers/{customerId}/application?microtenantId={microtenantId}\" payload={} headers = { 'Authorization': 'Bearer eyJraWQiOiI0bzZFS1k4STFqS1kwN2tQdjlqWV9' } response = requests.request(\"GET\", url, headers=headers, data=payload) print(response.text)",
+      "depth": 0
+    },
+    {
+      "item": "Example GET request using a Python script:",
+      "depth": 0
+    },
+    {
+      "item": "import requests url = \"https://config.private.zscaler.com/mgmtconfig/v1/admin/customers/72057594037927936/application?microtenantId=72057594038647050\" payload={} headers = { 'Authorization': 'Bearer eyJraWQiOiI0bzZFS1k4STFqS1kwN2tQdjlqWV9' } response = requests.request(\"GET\", url, headers=headers, data=payload) print(response.text)",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 1
+    },
+    {
+      "item": "{ \"totalPages\": \"526\", \"totalCount\": \"0\", \"list\": [ { \"modifiedTime\": \"1706698881\", \"creationTime\": \"1679251696\", \"modifiedBy\": \"72057594038640698\", \"id\": \"72057594038642786\", \"domainNames\": [ \"es10.com\" ], \"name\": \"10002ADPDemo21\", \"description\": \"example description\", \"serverGroups\": [ { \"id\": \"72057594037988579\", \"modifiedTime\": \"1698311146\", \"creationTime\": \"1612438082\", \"modifiedBy\": \"72057594038620086\", \"name\": \"123\", \"enabled\": true, \"description\": \"/><img src=x onerror=alert(document.cookie)>\", \"configSpace\": \"DEFAULT\", \"dynamicDiscovery\": true } ], \"enabled\": true, \"passiveHealthEnabled\": true, \"doubleEncrypt\": false, \"configSpace\": \"DEFAULT\", \"bypassType\": \"ALWAYS\", \"healthCheckType\": \"NONE\", \"icmpAccessType\": \"NONE\", \"isCnameEnabled\": false, \"ipAnchored\": false, \"bypassOnReauth\": false, \"inspectTrafficWithZia\": false, \"healthReporting\": \"NONE\", \"useInDrMode\": false, \"tcpKeepAlive\": \"1\", \"selectConnectorCloseToApp\": false, \"isIncompleteDRConfig\": false, \"adpEnabled\": false, \"microtenantName\": \"Default\", \"segmentGroupId\": \"72057594038634881\", \"segmentGroupName\": \"1SEG-GRP\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "To learn about making calls in the ZPA API Portal, follow the relevant use cases. To learn more, see the ZPA API Developer & Reference Guide.",
+      "depth": 0
+    },
+    {
+      "item": "Log out of the API",
+      "depth": 0
+    },
+    {
+      "item": "To log out of the API, send a POST request to the endpoint /signout with the following parameters:",
+      "depth": 0
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "In the following Python script to log out of the API, the <access_token> is highlighted to indicate the authorization token you must enter:",
+      "depth": 0
+    },
+    {
+      "item": "import requests",
+      "depth": 0
+    },
+    {
+      "item": "url = \"https://config.private.zscaler.com/signout\"",
+      "depth": 0
+    },
+    {
+      "item": "payload={} headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer <access_token>' }",
+      "depth": 0
+    },
+    {
+      "item": "response = requests.request(\"POST\", url, headers=headers, data=payload)",
+      "depth": 0
+    },
+    {
+      "item": "print(response.text)",
+      "depth": 0
+    },
+    {
+      "item": "To log out of the ZPA API Portal, enter the following URL into your browser: https://config.private.zscaler.com/logout.",
+      "depth": 0
+    },
+    {
+      "text": "To learn more about rate limiting and HTTP status codes, see About Rate Limiting and About Error Codes. If you encounter any issues with the API, contact Zscaler Support."
+    }
+  ]
+}

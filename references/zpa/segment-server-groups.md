@@ -7,7 +7,7 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/about-segment-groups.md"
+  - "vendor/zscaler-help/about-segment-groups.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/servers.py"
@@ -24,11 +24,11 @@ verified-against:
 
 # Segment Groups and Server Groups — ZPA's two grouping primitives
 
-Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
+Source: `vendor/zscaler-help/about-segment-groups.json`; `vendor/zscaler-sdk-python/zscaler/zpa/server_groups.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_server_group.go`.
 
 ZPA has two different grouping objects with similar-sounding names that serve completely different purposes. Confusing them is one of the most common sources of misconfiguration.
 
-**Segment Group** — a policy-scoping container for App Segments. It does not affect traffic routing. Its role is to give policy rules a stable, named handle to target a set of applications — "apply this access rule to the HR apps." (Tier A — vendor/zscaler-help/about-segment-groups.md: "This allows you to configure user access policies based on segment groups.") A Segment Group holds a list of App Segments (`applications` array in the API/model). Policy rules reference Segment Groups via the `APP_GROUP` object type in their condition operands.
+**Segment Group** — a policy-scoping container for App Segments. It does not affect traffic routing. Its role is to give policy rules a stable, named handle to target a set of applications — "apply this access rule to the HR apps." (Tier A — vendor/zscaler-help/about-segment-groups.json: "This allows you to configure user access policies based on segment groups.") A Segment Group holds a list of App Segments (`applications` array in the API/model). Policy rules reference Segment Groups via the `APP_GROUP` object type in their condition operands.
 
 **Server Group** — a traffic-delivery container for backend servers. It binds a list of App Connector Groups (`appConnectorGroups`) to a set of backend endpoints (either an explicit server list or dynamically discovered servers). When ZPA brokers a connection, it selects a connector from one of the Connector Groups associated with the segment's Server Group and routes traffic to the backend servers in that group. (Tier A — vendor/zscaler-sdk-python: `server_groups.py` `add_group` docstring; `resource_zpa_server_group.go` `expandServerGroup`.)
 
@@ -67,7 +67,7 @@ The App Segment is the junction point: it carries both the Segment Group referen
 
 ## Why the distinction between Segment Groups and Server Groups matters for policy scoping
 
-Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+Source: `vendor/zscaler-help/about-segment-groups.json`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 When an access policy rule is evaluated, ZPA checks whether the user's requested application belongs to a Segment Group referenced in the rule's conditions (objectType `APP_GROUP`). The Server Group is not consulted during access policy evaluation — it is only consulted during connection brokering (connector selection, backend IP determination).
 
@@ -79,13 +79,13 @@ The "all apps in group" vs individual segment targeting question: access policy 
 
 ## Segment Group mechanics
 
-Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+Source: `vendor/zscaler-help/about-segment-groups.json`; `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
-A Segment Group is a lightweight wrapper: `id`, `name`, `description`, `enabled`, and an `applications` list. The `applications` list is bidirectionally maintained — App Segments carry `segment_group_id` and the Segment Group carries `applications[]` listing those same App Segments. (Tier A — vendor/zscaler-help/about-segment-groups.md: "you cannot assign an application segment to multiple segment groups.")
+A Segment Group is a lightweight wrapper: `id`, `name`, `description`, `enabled`, and an `applications` list. The `applications` list is bidirectionally maintained — App Segments carry `segment_group_id` and the Segment Group carries `applications[]` listing those same App Segments. (Tier A — vendor/zscaler-help/about-segment-groups.json: "you cannot assign an application segment to multiple segment groups.")
 
-**One segment per group constraint.** Each App Segment belongs to exactly one Segment Group. (Tier A — vendor/zscaler-help/about-segment-groups.md: "if you place Salesforce in the 'Sales Applications Group,' you cannot add Salesforce to another group.") This is a hard API constraint. TF enforces it at plan time; attempts to assign the same App Segment to two Segment Groups will fail.
+**One segment per group constraint.** Each App Segment belongs to exactly one Segment Group. (Tier A — vendor/zscaler-help/about-segment-groups.json: "if you place Salesforce in the 'Sales Applications Group,' you cannot add Salesforce to another group.") This is a hard API constraint. TF enforces it at plan time; attempts to assign the same App Segment to two Segment Groups will fail.
 
-**DNS search domains.** The Segment Group admin page (Resource Management > Application Management > Segment Groups) exposes a DNS search domains field. (Tier A — vendor/zscaler-help/about-segment-groups.md.) This affects how ZCC resolves short hostnames for apps in the group — adding a search domain here appends it when short names are used.
+**DNS search domains.** The Segment Group admin page (Resource Management > Application Management > Segment Groups) exposes a DNS search domains field. (Tier A — vendor/zscaler-help/about-segment-groups.json.) This affects how ZCC resolves short hostnames for apps in the group — adding a search domain here appends it when short names are used.
 
 **How policy rules use it:** ZPA access rules (ACCESS_POLICY, TIMEOUT_POLICY, CLIENT_FORWARDING_POLICY, INSPECTION_POLICY) scope application targeting through conditions with `objectType = APP_GROUP`. The condition's operand value is the Segment Group ID.
 
@@ -95,7 +95,7 @@ The Terraform provider's `detachSegmentGroupFromAllPolicyRules` scans all five p
 
 **The `enabled` toggle.** Disabling a Segment Group prevents policy rules scoped to it from matching, making all its App Segments effectively unreachable via those rules. (Tier D inference — not confirmed from source code alone, but consistent with the enabled/disabled semantics of all other ZPA objects.)
 
-**Deception integration.** If a Segment Group is configured using Zscaler Deception, the edit and delete options are unavailable in the Admin Console. (Tier A — vendor/zscaler-help/about-segment-groups.md.)
+**Deception integration.** If a Segment Group is configured using Zscaler Deception, the edit and delete options are unavailable in the Admin Console. (Tier A — vendor/zscaler-help/about-segment-groups.json.)
 
 ## SDK fields — Segment Group
 

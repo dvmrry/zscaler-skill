@@ -17,23 +17,23 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/bp-what-zscaler-breach-predictor.md"
+  - "vendor/zscaler-help/bp-what-zscaler-breach-predictor.json"
 author-status: draft
 ---
 
 # Breach Predictor - predictive threat context and audit-scoped API surface
 
-Breach Predictor is positioned as a proactive SecOps product that anticipates threats, provides context, and helps prevent threat actors from accessing sensitive data (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:8`). The captured benefits are Enhanced Attack Visibility, Proactive Breach Risk Reduction, and Improved Security Posture (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:10-16`).
+Breach Predictor is positioned as a proactive SecOps product that anticipates threats, provides context, and helps prevent threat actors from accessing sensitive data (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:8`). The captured benefits are Enhanced Attack Visibility, Proactive Breach Risk Reduction, and Improved Security Posture (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:10-16`).
 
 ## Operating Model
 
-The captured help says Breach Predictor shifts from reactive alerts to predictability of attacks and is designed to supplement, not replace, reactive security tools (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:25`). It uses predictive intelligence to identify policy problems before threats move to the next stage, and it provides context about the policies that enabled observed activity (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:27-29`).
+The captured help says Breach Predictor shifts from reactive alerts to predictability of attacks and is designed to supplement, not replace, reactive security tools (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:25`). It uses predictive intelligence to identify policy problems before threats move to the next stage, and it provides context about the policies that enabled observed activity (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:27-29`).
 
-The documented high-level workflow is intentionally broad: track substantial data from multiple sources, use generative AI to analyze it, then draw conclusions that provide visibility and guidance (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:31-37`). Do not expand that into a specific connector list from this source alone.
+The documented high-level workflow is intentionally broad: track substantial data from multiple sources, use generative AI to analyze it, then draw conclusions that provide visibility and guidance (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:31-37`). Do not expand that into a specific connector list from this source alone.
 
 ## UI Concepts
 
-The help capture names several product concepts: Overall Breach Probability score, Sankey charts, MITRE ATT&CK findings tables, AI Assist Dashboard, Dashboard, Findings, Events, Threat Landscape, Tickets, Profiles, and Alerts & Remediation (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:39-48`).
+The help capture names several product concepts: Overall Breach Probability score, Sankey charts, MITRE ATT&CK findings tables, AI Assist Dashboard, Dashboard, Findings, Events, Threat Landscape, Tickets, Profiles, and Alerts & Remediation (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:39-48`).
 
 ## Source-Family Audit
 
@@ -45,7 +45,7 @@ The help capture names several product concepts: Overall Breach Probability scor
 | Ansible | No product-specific Breach Predictor module found in this audit pass. |
 | MCP | No product-specific Breach Predictor tool found in this audit pass. |
 | Postman | No Breach Predictor endpoint family found in the audited Postman collection. |
-| Help captures | Product overview, operating model, workflow, and UI concepts are captured (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:8-48`). |
+| Help captures | Product overview, operating model, workflow, and UI concepts are captured (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:8-48`). |
 
 ## API Surface
 
@@ -53,9 +53,9 @@ Do not claim a Breach Predictor public API from the current captures. The help s
 
 ## What Breach Predictor Is Not
 
-- It is not evidenced as a SIEM replacement; the help explicitly says it supplements reactive security tools (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:25`).
+- It is not evidenced as a SIEM replacement; the help explicitly says it supplements reactive security tools (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:25`).
 - It is not evidenced as a vulnerability scanner or policy-enforcement engine in this capture.
-- It is not safe to enumerate exact ingestion sources from the current help capture; the source only says "multiple sources" (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:31`).
+- It is not safe to enumerate exact ingestion sources from the current help capture; the source only says "multiple sources" (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:31`).
 
 ## Open Questions
 

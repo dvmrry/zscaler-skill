@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/ztb-what-zero-trust-branch.md"
+  - "vendor/zscaler-help/ztb-what-zero-trust-branch.json"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py"
   - "vendor/zscaler-sdk-python/zscaler/ztb/legacy.py"
@@ -51,15 +51,15 @@ Zero Trust Branch is the one misc-cluster product with a real SDK surface in thi
 | Ansible | No ZTB product modules found in the audited ZIA or ZPA collections. |
 | MCP | No ZTB product tools found in the audited MCP server. MCP's `ztw` tools call `client.ztw`; the module/docsrc describe network-resource tooling under the Cloud & Branch Connector name, while the generated catalog labels the same family "Workload Segmentation." Neither is a `client.ztb` or `/ztb/...` product surface (`vendor/zscaler-mcp-server/docsrc/tools/ztw/index.rst:1-5`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:372-396`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/ztw/network_services.py:42-62`). |
 | Postman | No ZTB product endpoint family found in the audited OneAPI collection. |
-| Help | ZTB is covered by the Zero Trust Branch Help capture, including product positioning, ZTE forwarding, device segmentation, key features, and deployment form factors (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:8-24`, `:33-47`). |
+| Help | ZTB is covered by the Zero Trust Branch Help capture, including product positioning, ZTE forwarding, device segmentation, key features, and deployment form factors (`vendor/zscaler-help/ztb-what-zero-trust-branch.json:8-24`, `:33-47`). |
 
 ## Product shape
 
-The Help capture says Zero Trust Branch combines SD-WAN capabilities with device segmentation for branches, factories, and data centers (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:8`). It says ZTB appliances terminate ISP connections, forward branch and cloud traffic to the Zero Trust Exchange, and apply ZIA or ZPA policies based on traffic destination and user identity (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:10`).
+The Help capture says Zero Trust Branch combines SD-WAN capabilities with device segmentation for branches, factories, and data centers (`vendor/zscaler-help/ztb-what-zero-trust-branch.json:8`). It says ZTB appliances terminate ISP connections, forward branch and cloud traffic to the Zero Trust Exchange, and apply ZIA or ZPA policies based on traffic destination and user identity (`vendor/zscaler-help/ztb-what-zero-trust-branch.json:10`).
 
-The "network-of-one" model automatically discovers, classifies, and isolates devices including IoT, OT, IoMT, headless devices, and legacy systems (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:12`). The feature list includes automatic device classification, clientless browser-based SSH/RDP/VNC access to OT assets, ZIA/ZPA forwarding policies, Zero Touch Provisioning, and a gateway mode that auto-provisions each endpoint with a `/32` subnet mask (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:16-24`).
+The "network-of-one" model automatically discovers, classifies, and isolates devices including IoT, OT, IoMT, headless devices, and legacy systems (`vendor/zscaler-help/ztb-what-zero-trust-branch.json:12`). The feature list includes automatic device classification, clientless browser-based SSH/RDP/VNC access to OT assets, ZIA/ZPA forwarding policies, Zero Touch Provisioning, and a gateway mode that auto-provisions each endpoint with a `/32` subnet mask (`vendor/zscaler-help/ztb-what-zero-trust-branch.json:16-24`).
 
-Deployment uses Zero Trust Branch appliances plus the Zscaler Admin Console; captured options include Zero Touch Provisioning, VMware ESXi, and ZT800 hardware (`vendor/zscaler-help/ztb-what-zero-trust-branch.md:33-47`).
+Deployment uses Zero Trust Branch appliances plus the Zscaler Admin Console; captured options include Zero Touch Provisioning, VMware ESXi, and ZT800 hardware (`vendor/zscaler-help/ztb-what-zero-trust-branch.json:33-47`).
 
 ## Python SDK surface
 

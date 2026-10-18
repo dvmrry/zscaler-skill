@@ -10,8 +10,8 @@ verified-against:
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/about-microtenants.md"
-  - "vendor/zscaler-help/configuring-microtenants.md"
+  - "vendor/zscaler-help/about-microtenants.json"
+  - "vendor/zscaler-help/configuring-microtenants.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/microtenants.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/microtenants.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py"

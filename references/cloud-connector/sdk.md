@@ -25,7 +25,7 @@ sources:
   - vendor/terraform-provider-ztc/docs/index.md
   - vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md
   - vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md
-  - vendor/zscaler-help/cbc-release-upgrade-summary-2026.md
+  - vendor/zscaler-help/cbc-release-upgrade-summary-2026.json
   - vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json
 author-status: draft
 ---
@@ -538,7 +538,7 @@ Manages AWS/Azure/GCP account registration for workload discovery.
 
 TF resource: `ztc_public_cloud_info`
 
-Current Help documents a separate Azure REST family under `/publicCloudTenant` and `/discoveryService/azure/...`, including Azure account CRUD, supported-region and group reads, subscription synchronization, permission checks, resource-group/storage-account reads, and topic synchronization (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:44-64`). The current top-level Go partner-integration implementation remains limited to `/publicCloudInfo` region/template operations and AWS-shaped discovery permissions (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:13-90`); GCP public discovery REST coverage remains unconfirmed.
+Current Help documents a separate Azure REST family under `/publicCloudTenant` and `/discoveryService/azure/...`, including Azure account CRUD, supported-region and group reads, subscription synchronization, permission checks, resource-group/storage-account reads, and topic synchronization (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:44-64`). The current top-level Go partner-integration implementation remains limited to `/publicCloudInfo` region/template operations and AWS-shaped discovery permissions (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:13-90`); GCP public discovery REST coverage remains unconfirmed.
 
 #### account_groups
 

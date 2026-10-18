@@ -12,8 +12,8 @@ confidence: high
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/zidentity/understanding-zidentity-apis"
-  - "vendor/zscaler-help/understanding-zidentity-apis.md"
-  - "vendor/zscaler-help/zidentity-about-api-clients.md"
+  - "vendor/zscaler-help/understanding-zidentity-apis.json"
+  - "vendor/zscaler-help/zidentity-about-api-clients.json"
   - "vendor/zscaler-sdk-python/zscaler/zid/"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
@@ -37,7 +37,7 @@ ZIdentity API calls now use the OneAPI path in both current SDKs. The service pa
 
 The current Go OneAPI client recognizes `ziam` before `zia` when routing a `/ziam/...` request (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:385-410`) and resolves production API traffic through `https://api.zsapi.net` (government and non-production mappings are separate cases in `GetAPIBaseURL`, `vendor/zscaler-sdk-go/zscaler/oneapiclient.go:441-455`). Its request builder treats ZIAM like the other OneAPI services (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:408-449`). Thus the current SDK source supports the same logical OneAPI host+prefix pairing as Python/Postman; do not retain the prior Go-only vanity-admin URL as current behavior.
 
-Source: `vendor/zscaler-help/understanding-zidentity-apis.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go`; `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
+Source: `vendor/zscaler-help/understanding-zidentity-apis.json`; `vendor/zscaler-help/zidentity-about-api-clients.json`; `vendor/zscaler-sdk-python/zscaler/zid/zid_service.py`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-python/zscaler/zid/users.py`; `vendor/zscaler-sdk-python/zscaler/zid/groups.py`; `vendor/zscaler-sdk-python/zscaler/zid/resource_servers.py`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/groups/groups.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/resource_servers/resource_servers.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/oneapiclient.go`; `vendor/zscaler-sdk-go/zscaler/oneapiconfig.go`; `vendor/zscaler-sdk-python/zscaler/request_executor.py`.
 
 ---
 
@@ -71,7 +71,7 @@ Each category has a corresponding `/ziam/admin/api/v1` base path in the current 
 
 ## 2. Authentication flow for ZIdentity API access
 
-Source: `vendor/zscaler-help/understanding-zidentity-apis.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/`.
+Source: `vendor/zscaler-help/understanding-zidentity-apis.json`; `vendor/zscaler-help/zidentity-about-api-clients.json`; `vendor/zscaler-sdk-python/zscaler/zid/`.
 
 ### 2.1 How it differs from ZIA/ZPA OneAPI
 
@@ -116,7 +116,7 @@ The issued access token is a Bearer token, passed as `Authorization: Bearer <tok
 
 - `access_token_life_time` is an SDK-accepted integer field at API client creation (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:164`, `:195`). Its semantics are unresolved: the field name implies a per-client token-TTL override (seconds), but the field's docstring reads "Whether the client is active" — an active-flag description that contradicts the name. Whether it actually controls token lifetime is not determinable from SDK source alone — see [clarification `zid-11`](../_meta/clarifications.md#zid-11-access_token_life_time-field-semantics).
 - No refresh token flow is documented for the client credentials grant in available SDK source.
-- Token revocation: a "Revoking Access Tokens" capability is referenced in the related-articles list of the captured API-clients help page (`vendor/zscaler-help/zidentity-about-api-clients.md:47`), but that page itself is **not captured** in `vendor/zscaler-help/` — treat revocation behavior as an uncaptured reference, not confirmed source. No SDK-level revocation endpoint exists in the `api_client` service (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py` — methods are limited to client + secret CRUD).
+- Token revocation: a "Revoking Access Tokens" capability is referenced in the related-articles list of the captured API-clients help page (`vendor/zscaler-help/zidentity-about-api-clients.json:47`), but that page itself is **not captured** in `vendor/zscaler-help/` — treat revocation behavior as an uncaptured reference, not confirmed source. No SDK-level revocation endpoint exists in the `api_client` service (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py` — methods are limited to client + secret CRUD).
 - Secrets (`client_secret`) are managed via the `api_client` SDK service — Python exposes `get_api_client_secret`, `add_api_client_secret`, and `delete_api_client_secret`, while refreshed Go exposes `GetSecrets`, `AddSecret`, and `DeleteSecret` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:312-385`). The secret model carries `id`, `expires_at` (Unix epoch string), `created_at`, and `value` (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:301-310`); Go models the timestamps as `int64` epochs (`vendor/zscaler-sdk-go/zscaler/ziam/services/api_clients/api_clients.go:140-177`). Whether `value` is populated only on creation versus also on read is an API-server behavior not determinable from SDK source — see Open questions.
 
 ---
@@ -129,8 +129,8 @@ An API client is an application or service identity registered in ZIdentity that
 
 Key features:
 - One API client can be granted access to multiple products simultaneously by including multiple resource servers in `client_resources` (`vendor/zscaler-sdk-python/zscaler/zid/api_client.py:199-228` — example with ZIA, ZCC, Cloud Connector, ZIdentity, ZDX, and ZPA scopes in one request).
-- Access is controlled by ZIdentity's authorization layer; the API client must have explicit scope grants for each product API it calls (`vendor/zscaler-help/zidentity-about-api-clients.md:16`).
-- An **API Client Access Policy** is referenced in the related-articles list of the captured API-clients help page (`vendor/zscaler-help/zidentity-about-api-clients.md:48-49`: "About the API Client Access Policy", "Adding API Client Access Policy Rule"), but those pages are **not captured** in `vendor/zscaler-help/` — treat the access-policy mechanism as an uncaptured reference, not confirmed source.
+- Access is controlled by ZIdentity's authorization layer; the API client must have explicit scope grants for each product API it calls (`vendor/zscaler-help/zidentity-about-api-clients.json:16`).
+- An **API Client Access Policy** is referenced in the related-articles list of the captured API-clients help page (`vendor/zscaler-help/zidentity-about-api-clients.json:48-49`: "About the API Client Access Policy", "Adding API Client Access Policy Rule"), but those pages are **not captured** in `vendor/zscaler-help/` — treat the access-policy mechanism as an uncaptured reference, not confirmed source.
 
 ### 3.2 API client configuration fields
 
@@ -174,7 +174,7 @@ The ZIA/ZCC/Cloud Connector/ZDX shape is `zs:config:<product-cloud>:<org-id>:con
 
 ### 3.4 Admin portal management
 
-Source: `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`.
+Source: `vendor/zscaler-help/zidentity-about-api-clients.json`; `vendor/zscaler-sdk-python/zscaler/zid/api_client.py`.
 
 API client **creation** is available via the admin portal (Administration > API Configuration > OneAPI > API Clients) and also via the Python SDK `add_api_client`. On the admin portal page, each client shows: Name, Client ID, Status. Enabling, disabling, editing, and deleting are all supported from the portal. (Tier A — vendor doc, `zidentity-about-api-clients.md`).
 
@@ -326,7 +326,7 @@ For API client creation in the context of setting up OneAPI credentials for ZPA 
 - Whether `list_resource_servers` returns all resource servers including Zscaler-internal ones, or only tenant-visible ones.
 - Acceptable range for `add_api_client_secret` `expires_at` parameter; behavior when omitted.
 - Whether the API client secret `value` is returned only at creation versus also on `get_api_client_secret`. The SDK secret model deserializes `value` whenever it is present in the response (`vendor/zscaler-sdk-python/zscaler/zid/models/api_client.py:305`), so this is a server-side behavior the SDK does not constrain; needs live confirmation.
-- Token revocation mechanics and the API Client Access Policy rule model are referenced in the captured API-clients help page's related-articles list (`vendor/zscaler-help/zidentity-about-api-clients.md:47-49`) but the underlying help pages are not captured — capture "About Access Tokens", "Revoking Access Tokens", "About the API Client Access Policy", and "Adding API Client Access Policy Rule" to back these claims.
+- Token revocation mechanics and the API Client Access Policy rule model are referenced in the captured API-clients help page's related-articles list (`vendor/zscaler-help/zidentity-about-api-clients.json:47-49`) but the underlying help pages are not captured — capture "About Access Tokens", "Revoking Access Tokens", "About the API Client Access Policy", and "Adding API Client Access Policy Rule" to back these claims.
 - Whether a tenant accepts legacy Go releases that still emit the bare `/admin/api/v1` vanity-admin URL is a migration/compatibility question. The refreshed Go source targets `/ziam/admin/api/v1` through OneAPI (`vendor/zscaler-sdk-go/zscaler/oneapiconfig.go:408-449`; `vendor/zscaler-sdk-go/zscaler/ziam/services/users/users.go:18-20`); SDK declarations do not establish which legacy URL aliases remain live.
 
 ---

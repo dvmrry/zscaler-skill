@@ -8,11 +8,11 @@ verified-against:
   vendor/zscaler-mcp-server: 080d175246f48d04f0f6b1b2cdacd1c646ffc37b
 confidence: medium
 sources:
-  - "vendor/zscaler-help/about-application-catalog-microsegmentation.md"
-  - "vendor/zscaler-help/about-ml-tag-recommendations-page.md"
-  - "vendor/zscaler-help/about-tags.md"
-  - "vendor/zscaler-help/about-agent-provisioning-keys.md"
-  - "vendor/zscaler-help/editing-agent-provisioning-keys.md"
+  - "vendor/zscaler-help/about-application-catalog-microsegmentation.json"
+  - "vendor/zscaler-help/about-ml-tag-recommendations-page.json"
+  - "vendor/zscaler-help/about-tags.json"
+  - "vendor/zscaler-help/about-agent-provisioning-keys.json"
+  - "vendor/zscaler-help/editing-agent-provisioning-keys.json"
   - "vendor/zscaler-sdk-python/zscaler/zms/**"
   - "vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zms/**"
 author-status: reviewed
@@ -30,9 +30,9 @@ implemented Python SDK and MCP surfaces expose read-only ZMS GraphQL queries
 documents write workflows, but those Help articles do not publish the
 underlying mutation names or payloads; do not turn a client-coverage boundary
 into a claim that no server-side write API exists
-(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:27-43`,
-`vendor/zscaler-help/about-tags.md:16-32`,
-`vendor/zscaler-help/editing-agent-provisioning-keys.md:10-29`).
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.json:27-43`,
+`vendor/zscaler-help/about-tags.json:16-32`,
+`vendor/zscaler-help/editing-agent-provisioning-keys.json:10-29`).
 
 ## Topics
 

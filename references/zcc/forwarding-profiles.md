@@ -7,8 +7,8 @@ last-verified: "2026-06-15"
 confidence: high
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md"
-  - "vendor/zscaler-help/about-forwarding-profiles.md"
+  - "vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json"
+  - "vendor/zscaler-help/about-forwarding-profiles.json"
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py"
@@ -19,7 +19,7 @@ verified-against:
 
 # ZCC forwarding profiles — portal configuration, network environments, and app profile assignment
 
-Source: `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md`; `vendor/zscaler-help/about-forwarding-profiles.md`.
+Source: `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json`; `vendor/zscaler-help/about-forwarding-profiles.json`.
 
 This document covers the **portal-side view** of forwarding profiles: what they are, how network environments are classified, what the key configuration sections control, and how profiles are assigned to users via app profiles. For the full SDK and wire-format detail (field-level types, integer enum values, ForwardingProfileActions structure), see [`./forwarding-profile.md`](./forwarding-profile.md).
 
@@ -30,15 +30,15 @@ A forwarding profile tells Zscaler Client Connector how to treat traffic from a 
 - **Internet & SaaS traffic** (ZIA) — where to send it (Z-Tunnel, PAC, or direct)
 - **Private Access traffic** (ZPA) — whether to tunnel, bypass, or follow a specific path
 
-Each ZCC-enrolled device has exactly one active forwarding profile at a time, determined by the App Profile (Web Policy) assigned to the user or device. A single tenant can have many forwarding profiles to match different network topologies (multiple offices, home workers, contractors, etc.) (Tier A — vendor/zscaler-help/about-forwarding-profiles.md).
+Each ZCC-enrolled device has exactly one active forwarding profile at a time, determined by the App Profile (Web Policy) assigned to the user or device. A single tenant can have many forwarding profiles to match different network topologies (multiple offices, home workers, contractors, etc.) (Tier A — vendor/zscaler-help/about-forwarding-profiles.json).
 
-Source: `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/about-forwarding-profiles.json`; `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json`.
 
 ---
 
 ## Network environments ZCC recognizes
 
-ZCC continuously evaluates the device's current network and classifies it into one of the following types. The active classification determines which branch of the forwarding profile is applied (Tier A — vendor/zscaler-help/about-forwarding-profiles.md):
+ZCC continuously evaluates the device's current network and classifies it into one of the following types. The active classification determines which branch of the forwarding profile is applied (Tier A — vendor/zscaler-help/about-forwarding-profiles.json):
 
 | Network Type | Definition |
 |---|---|
@@ -61,17 +61,17 @@ The current network type is displayed to the user in the ZCC app on both the Int
 
 These four classifications are not just portal-UI prose — they are named, structured branches in the SDK. When an App Profile sets `enableLocationPolicyOverride` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:422`), it carries a `LocationRulesetPolicies` object whose fields are exactly the four network types: `trusted`, `offTrusted`, `vpnTrusted`, and `splitVpnTrusted` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:711`). Each is its own `LocationPolicy` sub-object, confirming that On-Trusted / Off-Trusted / VPN-Trusted / Split VPN-Trusted are real, independently-configurable branches rather than display labels.
 
-Source: `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py`.
+Source: `vendor/zscaler-help/about-forwarding-profiles.json`; `vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py`.
 
 ---
 
 ## Configuration sections
 
-Source: `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md`; `vendor/zscaler-help/about-forwarding-profiles.md`.
+Source: `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json`; `vendor/zscaler-help/about-forwarding-profiles.json`.
 
 Navigation: **Infrastructure > Connectors > Client > Forwarding Profile for Platforms > Add Forwarding Profile**
 
-The portal UI organizes the forwarding profile into the following sections (Tier A — vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md):
+The portal UI organizes the forwarding profile into the following sections (Tier A — vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json):
 
 ### Profile Definition
 
@@ -126,13 +126,13 @@ This pattern is common for offices with on-prem internet gateways but no on-prem
 
 Notable ZPA action setting: **Send Trusted Network Result to ZPA** — controls whether ZCC reports its current trusted-network evaluation state to the ZPA policy engine. ZPA access policies can include a TRUSTED_NETWORK condition; that condition will never match if this toggle is off, regardless of the device's actual network.
 
-Source: `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md`; `vendor/zscaler-help/about-forwarding-profiles.md`.
+Source: `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json`; `vendor/zscaler-help/about-forwarding-profiles.json`.
 
 ---
 
 ## Relationship between forwarding profiles and app profiles
 
-An **App Profile** (also called a Web Policy in the SDK/API) is the entity that assigns a forwarding profile to a user or device. The App Profile references the forwarding profile by ID. A user's active App Profile determines their active forwarding profile (Tier A — vendor/zscaler-help/about-forwarding-profiles.md).
+An **App Profile** (also called a Web Policy in the SDK/API) is the entity that assigns a forwarding profile to a user or device. The App Profile references the forwarding profile by ID. A user's active App Profile determines their active forwarding profile (Tier A — vendor/zscaler-help/about-forwarding-profiles.json).
 
 The join is directly SDK-backed: the App Profile object carries a `forwardingProfileId` field — `ApplicationProfile.forwarding_profile_id` maps the wire key `forwardingProfileId` (`vendor/zscaler-sdk-python/zscaler/zcc/models/application_profiles.py:69`). This is the authoritative field that points an App Profile at a Forwarding Profile. The App Profile object is read and updated through the `client.zcc.application_profiles` surface (`vendor/zscaler-sdk-python/zscaler/zcc/zcc_service.py:129`), which is REST-backed by `GET /zcc/papi/public/v1/application-profiles` (list) and `GET` / `PATCH /zcc/papi/public/v1/application-profiles/{profile_id}` (`vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:77-81`, `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:123-127`, `vendor/zscaler-sdk-python/zscaler/zcc/application_profiles.py:218-222`). When tenant config (IaC or `zscalerctl` output) joins App Profiles to Forwarding Profiles by ID, `forwardingProfileId` is the field it joins on.
 
@@ -152,15 +152,15 @@ One tenant can have many App Profiles and many Forwarding Profiles. For example:
 - "HQ Users" App Profile → "Corporate LAN" Forwarding Profile (bypass on trusted, Z-Tunnel off-trusted)
 - "Contractors" App Profile → "Contractor" Forwarding Profile (Z-Tunnel always, no ZPA)
 
-**App profile changes propagate only on user logout/restart.** ZCC downloads updated App Profile settings only when the user logs out and back in, or restarts the computer. Pushing a critical forwarding profile change does not take effect on currently-connected devices until their next ZCC restart cycle (Tier A — vendor/zscaler-help/about-forwarding-profiles.md).
+**App profile changes propagate only on user logout/restart.** ZCC downloads updated App Profile settings only when the user logs out and back in, or restarts the computer. Pushing a critical forwarding profile change does not take effect on currently-connected devices until their next ZCC restart cycle (Tier A — vendor/zscaler-help/about-forwarding-profiles.json).
 
-Source: `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/about-forwarding-profiles.json`; `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json`.
 
 ---
 
 ## Portal operations
 
-From the Forwarding Profile page (Infrastructure > Connectors > Client > Forwarding Profile for Platforms), admins can (Tier A — vendor/zscaler-help/about-forwarding-profiles.md):
+From the Forwarding Profile page (Infrastructure > Connectors > Client > Forwarding Profile for Platforms), admins can (Tier A — vendor/zscaler-help/about-forwarding-profiles.json):
 
 - Add a forwarding profile
 - Search for a profile by name
@@ -172,7 +172,7 @@ From the Forwarding Profile page (Infrastructure > Connectors > Client > Forward
 
 A profile that is referenced by an active App Profile cannot be deleted without first updating the App Profile to reference a different profile.
 
-Source: `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/about-forwarding-profiles.json`; `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json`.
 
 ---
 
@@ -197,7 +197,7 @@ The App-Profile → Forwarding-Profile assignment is its own SDK surface, distin
 
 ## Common configuration patterns and gotchas
 
-Source: `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/about-forwarding-profiles.json`; `vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json`.
 
 ### "All traffic bypassing ZIA on corporate LAN"
 

@@ -13,9 +13,9 @@ confidence: high
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/zdx/understanding-diagnostics-session-status"
-  - "vendor/zscaler-help/understanding-diagnostics-session-status.md"
+  - "vendor/zscaler-help/understanding-diagnostics-session-status.json"
   - "https://help.zscaler.com/zdx/understanding-alert-status"
-  - "vendor/zscaler-help/understanding-alert-status.md"
+  - "vendor/zscaler-help/understanding-alert-status.json"
   - "vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/alerts.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py"
@@ -53,14 +53,14 @@ The two operator-facing workflows in ZDX beyond the dashboards: **Diagnostics Se
 
 ## Summary
 
-Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.json`; `vendor/zscaler-help/understanding-alert-status.json`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
 
 - **Diagnostics Session** — admin starts an on-demand probe campaign targeted at one device. ZCC runs intensified probes for a configured window, streams 1-minute-resolution data back to ZDX, and produces a detailed forensic report. Used for "this one user is reporting an issue and I need detail now." **The SDK/MCP term is "deeptrace"** — same thing, different vocabulary.
 - **Alerts** — rule-based notifications when configured metrics cross thresholds. Surface in ZDX dashboard, can webhook out. Alert status lifecycle captures rule changes in the audit trail.
 
 ## Mechanics
 
-Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.json`; `vendor/zscaler-help/understanding-alert-status.json`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
 
 ### Diagnostics Session status lifecycle
 
@@ -252,7 +252,7 @@ The response record carries `id`, `name`, `alert_id`, `expiry` (in Unix epoch), 
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.json`; `vendor/zscaler-help/understanding-alert-status.json`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`.
 
 - **Session started on a newly-enrolled device**: initial probes may have no baseline to compare against. Score during the session shows raw metrics rather than a useful 0-100 number.
 - **Session across a network transition** (user disconnects from Wi-Fi, switches to LTE mid-session): data stream may show a gap. Events endpoint (`get_deeptrace_events`) correlates the gap with the network-interface change.
@@ -268,7 +268,7 @@ The prompt also says to pass every ID as a string, but `zdx_start_deeptrace` req
 
 ## Open questions
 
-Source: `vendor/zscaler-help/understanding-diagnostics-session-status.md`; `vendor/zscaler-help/understanding-alert-status.md`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go`; `vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py`.
+Source: `vendor/zscaler-help/understanding-diagnostics-session-status.json`; `vendor/zscaler-help/understanding-alert-status.json`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/alerts.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go`; `vendor/zscaler-sdk-python/zscaler/zdx/models/troubleshooting.py`; `vendor/zscaler-sdk-python/zscaler/zdx/snapshot.py`.
 
 - ~~What the documented session duration set is~~ — **resolved** from SDK and MCP documentation: `session_length_minutes` defaults to 5 and supports 5, 15, 30, or 60 minutes (`vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zdx/deeptrace_manage.py:49-52`; `vendor/zscaler-sdk-python/zscaler/zdx/troubleshooting.py:155-156`). The current MCP field documents but does not runtime-constrain that set. See the start-payload section above.
 - Per-probe cadence during a session — is it still 5 minutes, or does the session intensify to faster cadence? (Not stated in any of the cited source files.) See [clarification zdx-30](../_meta/clarifications.md#zdx-30-per-probe-cadence-during-a-diagnostics-session).

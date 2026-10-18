@@ -1,0 +1,2487 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Zscaler Cloud Connector with Microsoft Azure",
+  "source": {
+    "url": "https://help.zscaler.com/cloud-branch-connector/deploying-zscaler-cloud-connector-microsoft-azure",
+    "node": "1420751",
+    "revision": "3244997"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "When deploying a Cloud Connector, only deploy an autoscaling group (ASG) with an ASG template or a non-ASG with a non-ASG template. Additionally, do not run both Virtual Machine Scale Sets (VMSS) and non-VMSS deployments within the same virtual network (VNet)."
+    },
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy Zscaler Cloud Connector as a virtual machine (VM) in Microsoft Azure, and post-deployment configurations."
+    },
+    {
+      "text": "The Azure Routing Intent and Routing Policies feature for secured virtual Wide Area Network (WAN) hubs is incompatible with Cloud Connector."
+    },
+    {
+      "text": "This procedure describes two methods for deploying Cloud Connector:"
+    },
+    {
+      "item": "Zscaler Cloud Connector Application in the Azure Marketplace: This method is available for static deployment of Cloud Connector.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "The Zscaler Cloud Connector Application in the Azure Marketplace is available in all regions except China. If you are deploying Cloud Connector from the China region, you must use Terraform.",
+      "depth": 0
+    },
+    {
+      "item": "Terraform: This method provides support for a richer set of functions, including the option to deploy using VMSS. To learn more about the resources created when deploying Cloud Connector using a Terraform script, see Deployment Templates for Zscaler Cloud Connector. To learn more about VMSS, see Understanding Cloud Connector Deployments with Azure Virtual Machine Sets.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "VMSS is the name of the feature in the Azure Marketplace and the Terraform templates. Auto Scaling is the name of the same feature in the Cloud Provisioning template.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure the following prerequisites are met."
+    },
+    {
+      "text": "If you have already created a dedicated admin role and role-based administrator for Cloud Connector deployment, you can skip the first two steps."
+    },
+    {
+      "item": "1. Configure a new admin role.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends creating a dedicated admin role for Cloud Connector deployment.",
+      "depth": 0
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Cloud & Branch Connector are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 0
+    },
+    {
+      "item": "To configure a new admin role:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console as a super admin.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Administration > Role Management > Branch and Cloud Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          38
+        ],
+        [
+          41,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Admin Role.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Admin Role window:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a unique name for the admin role (e.g., CloudConnector-Deployment-Role).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Permissions: Ensure that the admin has full access to API Key Management, Location Management, and Cloud Connector Provisioning. Set all other permissions to None. To learn more, see About Role Management.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          54,
+          72
+        ],
+        [
+          74,
+          93
+        ],
+        [
+          99,
+          127
+        ],
+        [
+          158,
+          162
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you have the User Access Administrator, Contributor, and Key Vault Administrator roles assigned to your Azure subscription.",
+      "depth": 0,
+      "strong": [
+        [
+          25,
+          50
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          69,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "2. Configure a new role-based administrator.",
+      "depth": 0
+    },
+    {
+      "item": "In Zscaler Cloud Connector",
+      "depth": 1
+    },
+    {
+      "item": "After configuring the admin role, create a new role-based administrator dedicated to Cloud Connector deployment.",
+      "depth": 1
+    },
+    {
+      "item": "In Authentication Service",
+      "depth": 1
+    },
+    {
+      "item": "For a Cloud Connector tenant linked to a Authentication Service service, after configuring the admin role in the Zscaler Admin Console, create administrators. You must create and manage the Cloud Connector admin account within the Zscaler Admin Console for these tenants.",
+      "depth": 1
+    },
+    {
+      "item": "3. Retrieve the API key.",
+      "depth": 0
+    },
+    {
+      "item": "To retrieve the API key:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Administration > API > Cloud & Branch Connector API.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          26
+        ],
+        [
+          29,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "From the API Key Management page, copy the API key and store it in a secure location. Cloud Connector uses the API key to authenticate and register the VM with the Zscaler service.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If the API is not available, click Add Cloud Service API Key to add an API key. To learn more, see Managing Organization API Keys.",
+      "depth": 0,
+      "strong": [
+        [
+          35,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "4. Add a location template.",
+      "depth": 0
+    },
+    {
+      "item": "Locations identify the various networks from which your organization sends its traffic. To configure a location template, see Configuring a Location Template.",
+      "depth": 0
+    },
+    {
+      "item": "5. Configure a cloud provisioning template.",
+      "depth": 0
+    },
+    {
+      "item": "Configure a cloud provisioning template and copy the cloud provisioning URL to deploy Cloud Connector as a virtual machine (VM) in Azure.",
+      "depth": 0
+    },
+    {
+      "item": "6. Review the specifications and sizing requirements.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you have enough address space for the virtual network. The minimum IPv4 address space for the VNet is 24 (/24). The minimum IPv4 address space for the subnet (zsccSubnet) into which Cloud Connectors are deployed is 28 (/28).",
+      "depth": 0
+    },
+    {
+      "item": "7. Review the firewall requirements.",
+      "depth": 0
+    },
+    {
+      "item": "The Cloud Connector instance requires only outbound connections to the Zscaler cloud. It does not require any inbound connections to your network from the Zscaler cloud. To view the outbound access requirements for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector.",
+      "depth": 0
+    },
+    {
+      "item": "You can find the <Zscaler Cloud Name> in the URL you use to log in to the Zscaler Admin Console. For example, if you log in to connector.zscaler.net, then go to https://config.zscaler.com/zscaler.net/cloud-branch-connector. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "8. Create user-assigned managed identities.",
+      "depth": 0
+    },
+    {
+      "item": "User-assigned managed identities are required for deploying Cloud Connector. Ensure that Cloud Connector is not assigned an Azure System Managed Identity because that identity overrides the deployment requirements.",
+      "depth": 0
+    },
+    {
+      "item": "There are two user-assigned managed identities:",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector: Managed identity associated with Cloud Connectors to perform Azure operations such as network interface discovery and metric publishing.",
+      "depth": 1
+    },
+    {
+      "item": "Function App (VMSS only): Managed identity associated with an Azure Function app. Azure Functions make API calls to perform operations such as instance termination, instance replacement, and metric reading.",
+      "depth": 1
+    },
+    {
+      "item": "Deployments without VMSS require only the Cloud Connector managed identity and the Network Contributor role.",
+      "depth": 0
+    },
+    {
+      "item": "Deployments with VMSS require both managed identities and the following roles:",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector",
+      "depth": 1
+    },
+    {
+      "item": "Network Contributor",
+      "depth": 2
+    },
+    {
+      "item": "Monitoring Metrics Publisher (VMSS only)",
+      "depth": 2
+    },
+    {
+      "item": "Storage Queue Data Contributor",
+      "depth": 2
+    },
+    {
+      "item": "Storage Account Contributor (Workload discovery service only)",
+      "depth": 2
+    },
+    {
+      "item": "Event Grid Contributor (Workload discovery service only)",
+      "depth": 2
+    },
+    {
+      "item": "Function App (VMSS only)",
+      "depth": 1
+    },
+    {
+      "item": "Network Contributor",
+      "depth": 2
+    },
+    {
+      "item": "Virtual Machine Contributor",
+      "depth": 2
+    },
+    {
+      "item": "Monitoring Contributor",
+      "depth": 2
+    },
+    {
+      "item": "Managed Identity Operator",
+      "depth": 2
+    },
+    {
+      "item": "Storage Blob Data Reader",
+      "depth": 2
+    },
+    {
+      "item": "To create managed identities and assign roles:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "Under Services, search for Managed Identities.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Create User Assigned Managed Identity page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select the subscription with user access administrator permission to manage deployed resources.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Click Create new and enter a name for the resource group. A resource group is a collection of resources that share the same lifecycle, permissions, and policies.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          22,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the desired region for your deployment.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your user-assigned managed identity.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next: Tags >.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Tags tab, configure tags to categorize resources, then click Next: Review + create >.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          68,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + create tab, review your managed identity configuration, and then click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          87,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "After your managed identity has been created, go to Managed Identities and select your managed identity.",
+      "depth": 1,
+      "strong": [
+        [
+          52,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "From the left-side navigation, click Azure role assignments, then click Add role assignment (Preview).",
+      "depth": 1,
+      "strong": [
+        [
+          37,
+          59
+        ],
+        [
+          72,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "In the Add role assignment (Preview) window:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Scope: From the drop-down menu, select Subscription.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          39,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select your subscription.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Role: From the drop-down menu, select the role or roles specified above, one at a time.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "(Scale Set deployments only) Repeat this procedure for the second managed identity.",
+      "depth": 1
+    },
+    {
+      "item": "9. Create an Azure key vault.",
+      "depth": 0
+    },
+    {
+      "item": "To create an Azure key vault to securely store and access your secrets:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Key vaults, then click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          16
+        ],
+        [
+          29,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "The Create a key vault page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select the subscription with user access administrator permission to manage deployed resources.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the resource group in which you want to create the key vault.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Key vault name: Enter a name for your key vault.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the desired region for your deployment.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Pricing tier: Select either Standard or Premium (includes support for HSM backed keys).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          28,
+          36
+        ],
+        [
+          40,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Soft-delete: This setting is automatically enabled on this key vault. Soft-delete allows you to recover or permanently delete a key vault and secrets.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Days to retain deleted vaults: Enter the desired period for retaining deleted vaults.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Purge protection: Select either Disable purge protection (allow key vault and objects to be purged during retention period) or Enable purge protection (enforce a mandatory retention period for deleted vaults and vault objects).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          32,
+          123
+        ],
+        [
+          127,
+          226
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Perform one of the following procedures to configure the key vault permission model.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler strongly recommends the Azure Role-Based Access Control method, because it provides a clear delineation between security operations and administrative tasks. For example, with this method, only the Owner and User Access Administrator roles can grant access to keys, secrets, and certificates.",
+      "depth": 1
+    },
+    {
+      "item": "Azure Role-Based Access Control (recommended)",
+      "depth": 2
+    },
+    {
+      "item": "On the Access configuration tab:",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Permission model: Select Azure role-based access control (recommended).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Resource access: Select Azure Resource Manager for template deployment.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Networking tab, select Enable public access, and then select All networks.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          30,
+          50
+        ],
+        [
+          68,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Tags tab, configure tags to categorize resources.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + Create and then click Create.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          37,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "The key vault Overview page shows the status of the deployment.",
+      "depth": 3,
+      "strong": [
+        [
+          14,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "After the deployment is complete, click Go to resource.",
+      "depth": 3,
+      "strong": [
+        [
+          40,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the key vault page, in the left navigation, select Access control (IAM). On the Access control (IAM) page, click Role assignments > Add > Add role assignment.",
+      "depth": 3,
+      "strong": [
+        [
+          54,
+          74
+        ],
+        [
+          83,
+          103
+        ],
+        [
+          116,
+          132
+        ],
+        [
+          135,
+          138
+        ],
+        [
+          141,
+          160
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Add role assignment page, on the Job function roles tab, search for and select the Key Vault Secrets User role. Click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          40,
+          58
+        ],
+        [
+          90,
+          112
+        ],
+        [
+          125,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Members tab, for Assign access to, select Managed identity.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          49,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Click Select members.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Select managed identities window that opens, filter by your subscription name or ID.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Search for and select the Cloud Connector managed identity you created earlier, click Select, and then click Review + assign.",
+      "depth": 3,
+      "strong": [
+        [
+          86,
+          92
+        ],
+        [
+          109,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Role assignments tab of the Access control (IAM) page, click Role Assignments, enter Key Vault Secrets in the search bar, and confirm the managed identity account that is being assigned to Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          35,
+          55
+        ],
+        [
+          68,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Vault Access Policy",
+      "depth": 2
+    },
+    {
+      "item": "Access configuration: Select Vault access policy as the permission model.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Resource access: Select Azure Resource Manager for template deployment.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Under Access policies, click Create.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          29,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "In the Create an access policy window:",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Secret permissions: On the Permissions tab, under Secret permissions, select Get and List, then click Next.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ],
+        [
+          50,
+          68
+        ],
+        [
+          77,
+          80
+        ],
+        [
+          85,
+          89
+        ],
+        [
+          102,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Principal: On the Principal tab, select your recently created managed identity, then click Next.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          27
+        ],
+        [
+          91,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Create.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Networking tab, select Enable public access, and then select All networks. Click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          30,
+          50
+        ],
+        [
+          68,
+          80
+        ],
+        [
+          88,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "On the Tags tab, configure tags to categorize resources. Click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          63,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + Create tab, review the summary of your configurations and click Create.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          80,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "10. Create secrets.",
+      "depth": 0
+    },
+    {
+      "item": "To create secrets to add to your Azure key vault:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Key vaults, then select your newly created key vault.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Secrets, then click Generate/Import.",
+      "depth": 1,
+      "strong": [
+        [
+          35,
+          42
+        ],
+        [
+          55,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "The Create a secret page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Add the following secrets:",
+      "depth": 1
+    },
+    {
+      "item": "api-key: For the name of your secret, enter api-key. For the corresponding value, enter the value from the API Key Management page on the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          17,
+          21
+        ],
+        [
+          75,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "password: For the name of your secret, enter password. For the corresponding value, enter your Zscaler Admin Console password.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          18,
+          22
+        ],
+        [
+          77,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "username: For the name of your secret, enter username. For the corresponding value, enter your Zscaler Admin Console username.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          18,
+          22
+        ],
+        [
+          77,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "11. Create an SSH key pair.",
+      "depth": 0
+    },
+    {
+      "item": "To create an SSH key pair:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "Go to SSH keys, then click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          27,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "The Create an SSH key page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select the subscription with user access administrator permission to manage deployed resources.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource Group: Select the resource group in which you want to create the SSH key pair or click Create new to create a new resource group.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          96,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select the desired region in which to deploy the newly created resource group. If you do not select a region, the SSH key region will be in the same region as the existing resource group selected above.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Key pair name: Enter a name for your key pair.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "SSH public key source: From the drop-down menu, select Generate new key pair.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          55,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next: Tags >.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Tags tab, configure tags to categorize resources, then click Next: Review + create >.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          68,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + create tab, review your SSH key configurations, and then click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          79,
+          85
+        ]
+      ]
+    },
+    {
+      "heading": "Deploying the Cloud Connector",
+      "level": 1
+    },
+    {
+      "text": "If you want to configure your own virtual network and subnets, you must do so before launching the Zscaler Cloud Connector Application. When you deploy Cloud Connector in the Azure Marketplace, accelerated networking is enabled by default. To learn more about accelerated networking, refer to the Azure documentation."
+    },
+    {
+      "text": "After you have met all the prerequisites, perform the following procedures to deploy your Cloud Connector:"
+    },
+    {
+      "item": "1. Deploy the Zscaler Cloud Connector Application.",
+      "depth": 0
+    },
+    {
+      "item": "Use one of the following methods to deploy your Cloud Connector:",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Cloud Connector Application in the Azure Marketplace",
+      "depth": 1
+    },
+    {
+      "item": "Terraform (Required for VMSS and deployment in China)",
+      "depth": 1
+    },
+    {
+      "item": "To deploy your Cloud Connector using Azure Marketplace:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "Under Marketplace, search for Zscaler Cloud Connector Application.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Create and then select Zscaler Cloud Connector Application.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          29,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "The Zscaler Cloud Connector Application page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select the subscription with user access administrator permission to manage deployed resources.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Click Create new to create a new resource group or select an existing resource group to deploy the Zscaler Cloud Connector Application.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          22,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the desired region for your deployment.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Zscaler Settings tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Provisioning Template URL: Paste your Cloud Connector provisioning template URL.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Connectors Instance Type: The Cloud Connector instance type is set to Small by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          76,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector VM Size for small CC Instance Types: The VM size is set automatically to 1x Standard D2ds v5. To change the VM size, click Change size.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          59
+        ],
+        [
+          97,
+          116
+        ],
+        [
+          147,
+          158
+        ]
+      ]
+    },
+    {
+      "item": "Enable Encryption At Host: Select the checkbox to enable end-to-end encryption using encryption at host. The subscription's account admin must enable this feature. To learn more about host encryption, refer to the Azure product documentation.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector VM Public Key Source: Select Azure Key Pair to select an existing SSH key pair or SSH Public Key to paste your SSH key directly.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          44
+        ],
+        [
+          53,
+          67
+        ],
+        [
+          106,
+          120
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector VM SSH Keys: From the drop-down menu, select your SSH key.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector Key Vault Source: Select the source that your key vault belongs to.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Credentials Key Vault: Select the key vault where your Zscaler cloud credentials are stored.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "User assigned managed identity: Click Add to add the user-managed identity with access to the key vault and network contributor role. You must select a user-assigned managed identity before you can move to the next step.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          38,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Load Balancer Settings tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Opt out from configuring a Load Balancer: Select this setting to opt out from configuring a load balancer. Only select this setting when deploying in a non-production environment.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Choose an existing load balancer: Select this setting to choose a load balancer that is already operating in this environment.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Number of Cloud Connectors: Select the number of Cloud Connectors.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "HTTP Probe Port for Load Balancer: Enter the HTTP Probe Port 80 or 1024 to 65535. If selecting an existing load balancer, ensure that the ports match.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Availability Sets and Availability Zones: Select either Availability Sets or Availability Zones.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          40
+        ],
+        [
+          56,
+          73
+        ],
+        [
+          77,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Network Settings tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Availability Zones: Select up to three availability zones. This option is only displayed if you selected Availability Zones on the Load Balancer Settings tab.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          105,
+          123
+        ],
+        [
+          131,
+          153
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Virtual Network: The virtual network in the resource group into which the Cloud Connector is deployed. By default, a new virtual network is automatically created. Alternatively, you can select another virtual network from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "zsccSubnet1: The subnet in the resource group and virtual network into which the Cloud Connector is deployed. By default, a new subnet is automatically created. Alternatively, you can select another subnet from the drop-down menu. The subnet options that appear in the drop-down menu depend on the number of availability zones you select. There can be one subnet per availability zone.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Tags tab, configure tags to categorize resources. To opt out of Microsoft Azure Network Adapter (MANA)-enabled hardware, enable LegacyVMNVA. Then click Next. To learn more, refer to the Microsoft documentation.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          135,
+          146
+        ],
+        [
+          159,
+          163
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + Create tab, review the summary of your configurations, then click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          82,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Connector with VMSS deployment requires using the Terraform Deployment Template with Virtual Machine Scale Sets (VMSS) and a new Cloud Provisioning Template with Auto Scaling set to Enabled. To enable autoscaling, contact Zscaler Support.",
+      "depth": 0,
+      "strong": [
+        [
+          168,
+          180
+        ],
+        [
+          188,
+          195
+        ]
+      ]
+    },
+    {
+      "item": "To deploy your Cloud Connector using Terraform:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the Azure on GitHub repository.",
+      "depth": 1
+    },
+    {
+      "item": "On GitHub, click Code > Download Zip to download the Terraform zip file.",
+      "depth": 1,
+      "strong": [
+        [
+          17,
+          21
+        ],
+        [
+          24,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "In the upper-right corner, click the Cloud Shell icon.",
+      "depth": 1,
+      "strong": [
+        [
+          37,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Select Manage Files > Upload to upload the ZIP file you downloaded from GitHub.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          22,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Upload again to upload the service account JSON file created.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Unzip the Terraform ZIP file by running the following command:",
+      "depth": 1
+    },
+    {
+      "item": "unzip terraform-azure-cloud-connector-modules-main.zip",
+      "depth": 1
+    },
+    {
+      "item": "Identify the full path of the Terraform folder and JSON file.",
+      "depth": 1
+    },
+    {
+      "item": "Navigate to the examples directory by entering cd terraform-azure-cloud-connector-modules-main/examples.",
+      "depth": 1
+    },
+    {
+      "item": "Enter ./zsec up to initate the deployment wizard. The deployment wizard automatically downloads, installs, and initiates the Terraform JSON file.",
+      "depth": 1
+    },
+    {
+      "item": "2. Send traffic to your load balancer.",
+      "depth": 0
+    },
+    {
+      "item": "After you complete your deployment from the Azure Portal, you must create a routing table and a workload subnet to redirect traffic to your load balancer.",
+      "depth": 0
+    },
+    {
+      "item": "To send traffic to your load balancer:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Virtual networks, then select the virtual network into which your Cloud Connector is deployed.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Subnets, then click + Subnet.",
+      "depth": 1,
+      "strong": [
+        [
+          35,
+          42
+        ],
+        [
+          55,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "In the Add subnet window that appears, add a Name and a Subnet address range for the workload subnet.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          45,
+          49
+        ],
+        [
+          56,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Go to Route tables.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Create Route table page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select the subscription with user access administrator permission to manage deployed resources.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource Group: Select the resource group in which you want to create the workload route table.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select the desired region for your deployment.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your workload route table.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Propagate gateway routes: Select Yes to propagate gateway routes, or No to prevent the propagation of routes to the network interfaces in associated subnets.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          33,
+          36
+        ],
+        [
+          69,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next: Tags >.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Tags tab, configure tags to categorize resources, then click Next: Review + create >.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          68,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + create tab, review the summary of your configurations, and then click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          86,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Select your newly created workload route table and click Routes.",
+      "depth": 1,
+      "strong": [
+        [
+          57,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "On the Add route page, enter the following information:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Route name: Enter a name for the workload route.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Address prefix destination: From the drop-down menu, select IP Addresses.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          60,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP addresses/CIDR ranges: Enter 0.0.0.0/0.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Next hop type: From the drop-down menu, select Virtual appliance.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          47,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Next hop address: Enter the front-end IP address of your load balancer. To find the IP address, locate your deployed load balancer and select Frontend IP configuration.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          142,
+          167
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Subnets, then click Associate.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          26,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "In the Associate subnet window, from the drop-down menu, select your Virtual network and workload Subnet.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          69,
+          84
+        ],
+        [
+          98,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "3. Disable disk network access.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends manually disabling network access to the managed disks attached to your deployed Cloud Connector.",
+      "depth": 0
+    },
+    {
+      "item": "To disable network access:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Resource groups, then locate the Cloud Connector resource group and click the deployed Cloud Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the left-side navigation, click Disks. Under OS Disk, select the Disk name.",
+      "depth": 1,
+      "strong": [
+        [
+          35,
+          40
+        ],
+        [
+          48,
+          55
+        ],
+        [
+          68,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the left-side navigation, click Networking.",
+      "depth": 1,
+      "strong": [
+        [
+          35,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Under Network access, select Disable public and private access.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          29,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Managing the Cloud Connector",
+      "level": 1
+    },
+    {
+      "text": "After your VM is fully deployed, you can manage the Cloud Connector from the Zscaler Admin Console. A deployed Cloud Connector is displayed on the dashboard. The Cloud & Branch Connector Monitoring page provides information on the name, group, location, geolocation (shown below), and status of your Cloud Connector VMs deployed in your cloud account."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "After verifying deployment, you can configure the following policies:"
+    },
+    {
+      "item": "Internet & SaaS Gateways",
+      "depth": 0
+    },
+    {
+      "item": "Traffic Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "Log and Control Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "DNS Control",
+      "depth": 0
+    },
+    {
+      "text": "If you are deploying Cloud Connector in China, Zscaler recommends creating a custom gateway with Zscaler China data centers and traffic forwarding policies referencing your China location and custom gateway. To learn more, see China Premium Internet Access and Deploying Zscaler Internet Access in China."
+    }
+  ]
+}

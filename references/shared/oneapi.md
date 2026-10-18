@@ -25,13 +25,13 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md"
   - "vendor/zscaler-help/legacy-api-authentication.md"
-  - "vendor/zscaler-help/legacy-getting-started-zia-api.md"
-  - "vendor/zscaler-help/legacy-getting-started-zpa-api.md"
-  - "vendor/zscaler-help/legacy-managing-cloud-service-api-key.md"
-  - "vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.md"
-  - "vendor/zscaler-help/legacy-understanding-zia-api.md"
-  - "vendor/zscaler-help/legacy-understanding-zpa-api.md"
-  - "vendor/zscaler-help/legacy-api-rate-limit-summary.md"
+  - "vendor/zscaler-help/legacy-getting-started-zia-api.json"
+  - "vendor/zscaler-help/legacy-getting-started-zpa-api.json"
+  - "vendor/zscaler-help/legacy-managing-cloud-service-api-key.json"
+  - "vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.json"
+  - "vendor/zscaler-help/legacy-understanding-zia-api.json"
+  - "vendor/zscaler-help/legacy-understanding-zpa-api.json"
+  - "vendor/zscaler-help/legacy-api-rate-limit-summary.json"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_oauth_client.py"
@@ -296,7 +296,7 @@ Single host, per-product paths:
 
 ## Rate limits — different model per product
 
-Source: `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/legacy-api-rate-limit-summary.md`.
+Source: `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md`; `vendor/zscaler-help/legacy-api-rate-limit-summary.json`.
 
 Rate limits are NOT unified across products. Each product has its own model, response-header naming, and failure-payload shape. Plan multi-product automation accordingly.
 
@@ -662,11 +662,11 @@ Successful response returns `JSESSIONID` in a Set-Cookie header and a JSON body:
 
 The `JSESSIONID` cookie must be included in all subsequent ZIA legacy API calls. Sessions expire after the configured tenant timeout; each new session requires a fresh obfuscation calculation (the obfuscated key is single-use per timestamp).
 
-**ZIA API key management:** An organization has exactly one cloud service API key. Keys are provisioned by Zscaler, displayed in the ZIA Admin Console at Administration > API Key Management. The key can be regenerated (which invalidates all sessions using the old key) but not rotated without human action. A key disabled by Zscaler (due to over-quota or ToS violation) cannot be re-enabled without contacting Support (Tier A — vendor/zscaler-help/legacy-managing-cloud-service-api-key.md).
+**ZIA API key management:** An organization has exactly one cloud service API key. Keys are provisioned by Zscaler, displayed in the ZIA Admin Console at Administration > API Key Management. The key can be regenerated (which invalidates all sessions using the old key) but not rotated without human action. A key disabled by Zscaler (due to over-quota or ToS violation) cannot be re-enabled without contacting Support (Tier A — vendor/zscaler-help/legacy-managing-cloud-service-api-key.json).
 
-**ZIA APIs covered by legacy auth:** The cloud service API exposes the full ZIA feature set programmatically: URL Filtering, SSL Inspection, Firewall Policy, DLP, DNS Control, Location Management, Admin & Role Management, NSS (Cloud Nanolog Streaming), and approximately 40 other feature areas. Availability requires an API subscription (contact Zscaler Support to enable) (Tier A — vendor/zscaler-help/legacy-understanding-zia-api.md).
+**ZIA APIs covered by legacy auth:** The cloud service API exposes the full ZIA feature set programmatically: URL Filtering, SSL Inspection, Firewall Policy, DLP, DNS Control, Location Management, Admin & Role Management, NSS (Cloud Nanolog Streaming), and approximately 40 other feature areas. Availability requires an API subscription (contact Zscaler Support to enable) (Tier A — vendor/zscaler-help/legacy-understanding-zia-api.json).
 
-A separate **Sandbox Submission API** uses a different credential (API token, not API key) and supports up to 100 files/day for behavioral analysis (400 MB max per file). A **3rd-Party App Governance API** uses its own API key issued by Zscaler account team. Neither of these uses `JSESSIONID` (Tier A — vendor/zscaler-help/legacy-getting-started-zia-api.md).
+A separate **Sandbox Submission API** uses a different credential (API token, not API key) and supports up to 100 files/day for behavioral analysis (400 MB max per file). A **3rd-Party App Governance API** uses its own API key issued by Zscaler account team. Neither of these uses `JSESSIONID` (Tier A — vendor/zscaler-help/legacy-getting-started-zia-api.json).
 
 ### ZIA legacy — OAuth 2.0 integration (external IdP, not ZIdentity)
 
@@ -677,19 +677,19 @@ ZIA supports a legacy OAuth 2.0 path via **external** identity providers (PingFe
 - API Roles (not admin roles) are created in the ZIA Admin Console and assigned to client applications via the external OAuth provider.
 - API operations authenticated via this path generate an auto-created Admin ID in audit logs: `oauth-<rolename>$@<orgid>.<cloud_domain>`.
 
-This path offers granular access control (API roles scope permissions to specific endpoint categories) and avoids embedding admin credentials in client applications (Tier A — vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.md).
+This path offers granular access control (API roles scope permissions to specific endpoint categories) and avoids embedding admin credentials in client applications (Tier A — vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.json).
 
 Zscaler recommends the OneAPI OAuth 2.0 path (via ZIdentity) for new integrations. The legacy OAuth 2.0 path via external IdP predates ZIdentity and requires the external IdP to be configured separately.
 
 ### ZPA legacy — Client ID + Secret + customer ID
 
-ZPA's pre-ZIdentity auth uses client credentials issued in the ZPA Admin Portal (Administration > API Key Management). Only admins with the API Key Management role can create keys (Tier A — vendor/zscaler-help/legacy-getting-started-zpa-api.md).
+ZPA's pre-ZIdentity auth uses client credentials issued in the ZPA Admin Portal (Administration > API Key Management). Only admins with the API Key Management role can create keys (Tier A — vendor/zscaler-help/legacy-getting-started-zpa-api.json).
 
 Auth endpoint and base URL vary by ZPA cloud. The customer ID (numeric ZPA tenant identifier, visible in the admin console URL) is embedded in all subsequent API call paths: `/mgmtconfig/v1/admin/customers/{customerId}/...`.
 
 ZPA legacy returns a Bearer token with approximately 1-hour TTL. Unlike ZIA, there is no session cookie — the token is sent as `Authorization: Bearer <token>` on subsequent calls.
 
-**ZPA legacy APIs covered:** The ZPA API gives programmatic access to the full ZPA feature set: Application Segments, Segment Groups, App Connectors, Access Policies, SAML Attributes, SCIM, LSS, Microtenants, Privileged Remote Access, Posture Profiles, Trusted Networks, Enrollment Certificates, Isolation Profiles, and approximately 40 other feature areas (Tier A — vendor/zscaler-help/legacy-understanding-zpa-api.md).
+**ZPA legacy APIs covered:** The ZPA API gives programmatic access to the full ZPA feature set: Application Segments, Segment Groups, App Connectors, Access Policies, SAML Attributes, SCIM, LSS, Microtenants, Privileged Remote Access, Posture Profiles, Trusted Networks, Enrollment Certificates, Isolation Profiles, and approximately 40 other feature areas (Tier A — vendor/zscaler-help/legacy-understanding-zpa-api.json).
 
 Note: ZPA's legacy API documentation is not published on help.zscaler.com. The
 Postman collection in `vendor/zscaler-api-specs/oneapi-postman-collection.json`
@@ -711,7 +711,7 @@ reconstructed Automate ZPA contract described above.
 
 ### ZIA legacy rate limits
 
-The ZIA legacy API uses the same weight-based rate limit model as OneAPI ZIA. Per the rate limit summary (Tier A — vendor/zscaler-help/legacy-api-rate-limit-summary.md):
+The ZIA legacy API uses the same weight-based rate limit model as OneAPI ZIA. Per the rate limit summary (Tier A — vendor/zscaler-help/legacy-api-rate-limit-summary.json):
 
 - **GET (Light)**: 2 req/sec and 1,000 req/hr
 - **POST/PUT (Medium)**: 1 req/sec and 400 req/hr
@@ -719,7 +719,7 @@ The ZIA legacy API uses the same weight-based rate limit model as OneAPI ZIA. Pe
 
 The `/authenticatedSession` endpoint itself has GET/POST at 2/sec and 1,000/hr, and DELETE at 2/sec and 1,000/hr. Rate limit headers on ZIA legacy responses: `x-ratelimit-limit`, `x-ratelimit-remaining`, `x-ratelimit-reset`.
 
-A downloadable ZIA Cloud Service Postman collection is available from Zscaler's help portal (not vendored here; see vendor/zscaler-help/legacy-api-rate-limit-summary.md for the download path).
+A downloadable ZIA Cloud Service Postman collection is available from Zscaler's help portal (not vendored here; see vendor/zscaler-help/legacy-api-rate-limit-summary.json for the download path).
 
 ### Migration path to OneAPI
 

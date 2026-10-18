@@ -10,8 +10,8 @@ verified-against:
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/about-emergency-access-users.md"
-  - "vendor/zscaler-help/configuring-emergency-access.md"
+  - "vendor/zscaler-help/about-emergency-access-users.json"
+  - "vendor/zscaler-help/configuring-emergency-access.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/emergency_access.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/emergency_access.py"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_emergency_access.go"
@@ -22,7 +22,7 @@ author-status: draft
 
 Emergency Access is a ZPA feature for provisioning third-party users — contractors, vendors, incident responders — into **time-bounded Privileged Remote Access** without onboarding them through the tenant's primary SSO or SCIM flow. Users are created and managed in an Okta IdP; ZPA does not store the users itself. Access is scoped through Privileged Approvals.
 
-**Limited Availability** — must be enabled by Zscaler Support before the Emergency Access page appears in the Admin Console. (Tier A — vendor/zscaler-help/configuring-emergency-access.md: "This feature and its procedures are in limited availability.")
+**Limited Availability** — must be enabled by Zscaler Support before the Emergency Access page appears in the Admin Console. (Tier A — vendor/zscaler-help/configuring-emergency-access.json: "This feature and its procedures are in limited availability.")
 
 ## What ZPA emergency access is
 
@@ -39,10 +39,10 @@ Emergency Access is not a bypass of ZPA policy enforcement — it operates throu
 
 ## Trust model
 
-- **Okta is the authoritative store.** Emergency access users live in Okta, not in ZPA. The Emergency Access Users page reads from Okta in real time via the IdP API Token. (Tier A — vendor/zscaler-help/configuring-emergency-access.md: "Users are not stored in Private Access. All users listed on the Emergency Access Users page come directly from Okta via the Okta API.")
-- **Email OTP authentication.** Users authenticate via the Okta email authenticator — no password required if the Okta authentication policy is configured for Email OTP. The activation email is sent by Okta, not Zscaler. Branding, reply-to addresses, and email customization are the operator's responsibility. (Tier A — vendor/zscaler-help/configuring-emergency-access.md.)
-- **Okta-only.** No other IdP is supported. The IdP must have **Use with Arbitrary Domains** enabled. (Tier A — vendor/zscaler-help/configuring-emergency-access.md, Prerequisites.)
-- **Access is scoped to Privileged Approvals.** Emergency access does not create a general ZPA user; it creates a user that can be referenced in a privileged approval for a specific PRA App Segment. Emergency access is only supported for Privileged Remote Access. (Tier A — vendor/zscaler-help/configuring-emergency-access.md.)
+- **Okta is the authoritative store.** Emergency access users live in Okta, not in ZPA. The Emergency Access Users page reads from Okta in real time via the IdP API Token. (Tier A — vendor/zscaler-help/configuring-emergency-access.json: "Users are not stored in Private Access. All users listed on the Emergency Access Users page come directly from Okta via the Okta API.")
+- **Email OTP authentication.** Users authenticate via the Okta email authenticator — no password required if the Okta authentication policy is configured for Email OTP. The activation email is sent by Okta, not Zscaler. Branding, reply-to addresses, and email customization are the operator's responsibility. (Tier A — vendor/zscaler-help/configuring-emergency-access.json.)
+- **Okta-only.** No other IdP is supported. The IdP must have **Use with Arbitrary Domains** enabled. (Tier A — vendor/zscaler-help/configuring-emergency-access.json, Prerequisites.)
+- **Access is scoped to Privileged Approvals.** Emergency access does not create a general ZPA user; it creates a user that can be referenced in a privileged approval for a specific PRA App Segment. Emergency access is only supported for Privileged Remote Access. (Tier A — vendor/zscaler-help/configuring-emergency-access.json.)
 
 ## When to use
 
@@ -60,7 +60,7 @@ Emergency Access is Limited Availability. File a support request to have it enab
 In Okta, create a group for emergency access users and configure:
 - Group administrator privileges for the service account that will hold the API token.
 - The email authenticator.
-- Authentication policies allowing Email OTP. If the authentication policy utilizes Email OTPs, the invited user can authenticate without a password by providing the OTP sent to the registered email address. (Tier A — vendor/zscaler-help/configuring-emergency-access.md.)
+- Authentication policies allowing Email OTP. If the authentication policy utilizes Email OTPs, the invited user can authenticate without a password by providing the OTP sent to the registered email address. (Tier A — vendor/zscaler-help/configuring-emergency-access.json.)
 
 **Step 3 — Configure the Emergency Access page.**
 Admin Console: Administration > Identity > Private Access > Emergency Access.
@@ -77,7 +77,7 @@ Users are added via the Emergency Access Users page (Administration > Identity >
 
 ## User lifecycle and status
 
-User status comes from Okta and reflects the Okta lifecycle. (Tier A — vendor/zscaler-help/about-emergency-access-users.md.)
+User status comes from Okta and reflects the Okta lifecycle. (Tier A — vendor/zscaler-help/about-emergency-access-users.json.)
 
 | Status | Meaning |
 |---|---|
@@ -89,7 +89,7 @@ User status comes from Okta and reflects the Okta lifecycle. (Tier A — vendor/
 
 Additional Okta-side statuses (Password Expired, Locked Out, Recovery) may appear; consult the Okta Help Center for those.
 
-The Emergency Access Users page also shows **Activation Date** (when admin activated the user) and **Last Login Date**. (Tier A — vendor/zscaler-help/about-emergency-access-users.md.)
+The Emergency Access Users page also shows **Activation Date** (when admin activated the user) and **Last Login Date**. (Tier A — vendor/zscaler-help/about-emergency-access-users.json.)
 
 ## SDK and API surface
 
@@ -148,9 +148,9 @@ Note the list path is plural (`/users`) while single-resource operations are sin
 
 ## Microtenant interaction
 
-The Emergency Access and Emergency Access Users pages are hidden for Microtenants with Privileged Approvals disabled. This is not a permission error — the pages are simply not surfaced in the UI for that scope. (Tier A — vendor/zscaler-help/about-emergency-access-users.md and vendor/zscaler-help/configuring-emergency-access.md.)
+The Emergency Access and Emergency Access Users pages are hidden for Microtenants with Privileged Approvals disabled. This is not a permission error — the pages are simply not surfaced in the UI for that scope. (Tier A — vendor/zscaler-help/about-emergency-access-users.json and vendor/zscaler-help/configuring-emergency-access.json.)
 
-Microtenant constraints (Tier A — vendor/zscaler-help/configuring-emergency-access.md):
+Microtenant constraints (Tier A — vendor/zscaler-help/configuring-emergency-access.json):
 - Only the **Default Microtenant** can configure Emergency Access settings.
 - Microtenants with Privileged Approvals disabled can still create or edit emergency access users, but the Emergency Access Users page is not visible to them.
 - To expose Emergency Access within a Microtenant, Privileged Approvals must be enabled on that Microtenant object.
@@ -164,16 +164,16 @@ The feature gate must be opened before any configuration is possible. The Emerge
 Tenants without an Okta IdP configured in ZPA cannot use Emergency Access. There is no workaround; the feature is architecturally coupled to Okta's user lifecycle and email authenticator.
 
 **3. Over-permissive API token exposes extra users.**
-If the Okta API Token has permissions over multiple groups, all users from those groups appear on the Emergency Access Users page and can be activated or deactivated, regardless of whether they are in the designated emergency access group. (Tier A — vendor/zscaler-help/configuring-emergency-access.md: "If the specified IdP API Token is more permissive, additional users might be displayed.") Scope the token to the designated group only.
+If the Okta API Token has permissions over multiple groups, all users from those groups appear on the Emergency Access Users page and can be activated or deactivated, regardless of whether they are in the designated emergency access group. (Tier A — vendor/zscaler-help/configuring-emergency-access.json: "If the specified IdP API Token is more permissive, additional users might be displayed.") Scope the token to the designated group only.
 
 **4. Removing an authentication domain does not revoke existing approvals.**
-Privileged approvals created with a domain that is subsequently removed from the Emergency Authentication Domains field remain active. Expiry or manual deactivation is the only removal path. (Tier A — vendor/zscaler-help/configuring-emergency-access.md.)
+Privileged approvals created with a domain that is subsequently removed from the Emergency Authentication Domains field remain active. Expiry or manual deactivation is the only removal path. (Tier A — vendor/zscaler-help/configuring-emergency-access.json.)
 
 **5. Deleted group still shows users.**
-If the Okta group designated for emergency access is deleted, users not part of the group are still shown on the Emergency Access Users page as long as the settings are configured. If the credentials have permission over multiple groups, Private Access continues to show users of those groups even after the designated group is deleted. (Tier A — vendor/zscaler-help/configuring-emergency-access.md.)
+If the Okta group designated for emergency access is deleted, users not part of the group are still shown on the Emergency Access Users page as long as the settings are configured. If the credentials have permission over multiple groups, Private Access continues to show users of those groups even after the designated group is deleted. (Tier A — vendor/zscaler-help/configuring-emergency-access.json.)
 
 **6. Special characters in email addresses.**
-A `+` in the email address (e.g., `user+emergency@example.com`) renders as a blank space in the username field on the Okta login page when a login hint is used. Depending on Okta login rules, this may prevent login. (Tier A — vendor/zscaler-help/configuring-emergency-access.md.) Avoid `+` addressing for emergency access users.
+A `+` in the email address (e.g., `user+emergency@example.com`) renders as a blank space in the username field on the Okta login page when a login hint is used. Depending on Okta login rules, this may prevent login. (Tier A — vendor/zscaler-help/configuring-emergency-access.json.) Avoid `+` addressing for emergency access users.
 
 **7. `activate_now=False` in SDK.**
 The `add_user` method's `activate_now` parameter defaults to `True`, triggering immediate activation and sending the email. Set `activate_now=False` to create the user in Staged state and activate later. (Tier A — `emergency_access.py` docstring.)

@@ -7,12 +7,12 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md"
-  - "vendor/zscaler-help/cbc-about-log-and-control-forwarding.md"
-  - "vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md"
-  - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
-  - "vendor/zscaler-help/about-nss-servers.md"
-  - "vendor/zscaler-help/about-cloud-nss-feeds.md"
+  - "vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json"
+  - "vendor/zscaler-help/cbc-about-log-and-control-forwarding.json"
+  - "vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json"
+  - "vendor/zscaler-help/understanding-nanolog-streaming-service.json"
+  - "vendor/zscaler-help/about-nss-servers.json"
+  - "vendor/zscaler-help/about-cloud-nss-feeds.json"
 author-status: draft
 ---
 
@@ -22,7 +22,7 @@ This document covers the CBC-specific angle of NSS: what log data Cloud Connecto
 
 ## Overview
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-nss-servers.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json`; `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `vendor/zscaler-help/about-nss-servers.json`; `vendor/zscaler-help/about-cloud-nss-feeds.json`.
 
 ### What an NSS VA is in the CBC context
 
@@ -51,7 +51,7 @@ Cloud NSS is the lower-friction path when the SIEM exposes a publicly routable H
 
 ## Deployment model
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-nss-servers.md`.
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json`; `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `vendor/zscaler-help/about-nss-servers.json`.
 
 ### Form factor and subscription
 
@@ -88,7 +88,7 @@ Operators with high availability requirements should consider running two NSS VA
 
 ## Configuration
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/about-nss-servers.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json`; `vendor/zscaler-help/about-nss-servers.json`; `vendor/zscaler-help/about-cloud-nss-feeds.json`.
 
 ### Registering the NSS VA with the CBC tenant
 
@@ -104,7 +104,7 @@ The NSS server type for CBC is **NSS for Firewall**. Selecting the wrong type (N
 
 NSS feeds define what log data the VA extracts from the Nanolog stream and how it formats and delivers that data to the SIEM. For CBC:
 
-- **Use Firewall-type feeds only.** Web feeds are not applicable (CBC-specific constraint — `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md:24`).
+- **Use Firewall-type feeds only.** Web feeds are not applicable (CBC-specific constraint — `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json:24`).
 - The per-server feed ceiling (up to 8 Firewall feeds; 16 total per server split 8 Web + 8 Firewall) is a cross-product NSS limit, not CBC-specific — see [`../shared/nss-architecture.md § Feed-count limits`](../shared/nss-architecture.md). In the CBC context the Web slots are simply unused because Cloud Connector emits no Web-type records.
 - Per feed, configure: log type filter criteria, output format (CSV, JSON, or custom template), destination TCP address:port for the SIEM receiver.
 
@@ -132,7 +132,7 @@ If the SIEM is cloud-native and only exposes HTTPS ingestion, **Cloud NSS is the
 
 ## CBC log-and-control forwarding rules
 
-Source: `vendor/zscaler-help/cbc-about-log-and-control-forwarding.md`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-about-log-and-control-forwarding.json`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json`.
 
 ### What they are
 
@@ -147,13 +147,13 @@ A **default Log and Control Forwarding Rule** is automatically created for every
 
 Each Log and Control Forwarding Rule has:
 
-- **Rule Order** — ascending integer; rules evaluate in ascending numerical order (Rule 1 before Rule 2), and the Rule Order reflects the rule's place in that order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34`). Whether evaluation stops at the first matching rule (first-match-wins) is not stated in captured CBC source — see Open questions.
-- **Rule Name** — display name, max 31 characters (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:35`).
-- **Rule Status** — Enabled or Disabled. A disabled rule **retains its position** in the rule order and is skipped at evaluation time; it does not disappear from the sequence (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:36`).
-- **Location** — up to 8 locations, or Any (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:38`).
-- **Cloud & Branch Connector Groups** — specific groups, or Any (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:39`). The field is SDK-backed as `ECTrafficLogRules.ECGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go:59`), the name-ID set of Cloud Connector groups the rule applies to.
-- **Gateway** — the Log and Control Gateway used to forward control-plane traffic (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:40`).
-- **Description** — notes, max 10,240 characters (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:42`).
+- **Rule Order** — ascending integer; rules evaluate in ascending numerical order (Rule 1 before Rule 2), and the Rule Order reflects the rule's place in that order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:34`). Whether evaluation stops at the first matching rule (first-match-wins) is not stated in captured CBC source — see Open questions.
+- **Rule Name** — display name, max 31 characters (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:35`).
+- **Rule Status** — Enabled or Disabled. A disabled rule **retains its position** in the rule order and is skipped at evaluation time; it does not disappear from the sequence (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:36`).
+- **Location** — up to 8 locations, or Any (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:38`).
+- **Cloud & Branch Connector Groups** — specific groups, or Any (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:39`). The field is SDK-backed as `ECTrafficLogRules.ECGroups` (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go:59`), the name-ID set of Cloud Connector groups the rule applies to.
+- **Gateway** — the Log and Control Gateway used to forward control-plane traffic (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:40`).
+- **Description** — notes, max 10,240 characters (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:42`).
 
 ### What log-and-control rules apply to
 
@@ -171,13 +171,13 @@ They do **not** apply to:
 
 ### Rule-precedence semantics
 
-Rules evaluate in ascending numerical order — Rule 1 before Rule 2 — and the Rule Order reflects each rule's place in that order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34`). A default Log and Control Forwarding rule with a default-gateway action is created automatically for every tenant, and it cannot be duplicated or deleted (`vendor/zscaler-help/cbc-about-log-and-control-forwarding.md:18,41`). Disabling a rule does not remove it from the sequence — the service skips the disabled rule and moves to the next one, and the rule retains its place in the Rule Order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:36`).
+Rules evaluate in ascending numerical order — Rule 1 before Rule 2 — and the Rule Order reflects each rule's place in that order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:34`). A default Log and Control Forwarding rule with a default-gateway action is created automatically for every tenant, and it cannot be duplicated or deleted (`vendor/zscaler-help/cbc-about-log-and-control-forwarding.json:18,41`). Disabling a rule does not remove it from the sequence — the service skips the disabled rule and moves to the next one, and the rule retains its place in the Rule Order (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:36`).
 
 Whether evaluation stops at the first matching rule (first-match-wins) and whether the default rule occupies the terminal catch-all position are not stated in captured CBC source material; see Open questions. For the documented evaluation pattern of traffic forwarding rules, see [`./forwarding.md`](./forwarding.md).
 
 ## Common gotchas
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/cbc-about-log-and-control-forwarding.md`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-nss-servers.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json`; `vendor/zscaler-help/cbc-about-log-and-control-forwarding.json`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json`; `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `vendor/zscaler-help/about-nss-servers.json`; `vendor/zscaler-help/about-cloud-nss-feeds.json`.
 
 ### Clock sync (NTP)
 
@@ -216,7 +216,7 @@ If the SIEM is a cloud SaaS product with an HTTPS ingestion API, Cloud NSS (not 
 
 ## Open questions register
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/cbc-about-log-and-control-forwarding.md`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md`; `vendor/zscaler-help/understanding-nanolog-streaming-service.md`; `vendor/zscaler-help/about-nss-servers.md`; `vendor/zscaler-help/about-cloud-nss-feeds.md`.
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json`; `vendor/zscaler-help/cbc-about-log-and-control-forwarding.json`; `vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json`; `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `vendor/zscaler-help/about-nss-servers.json`; `vendor/zscaler-help/about-cloud-nss-feeds.json`.
 
 - **DNS log type in CBC**: Does CBC DNS (from the DNS Forwarding Gateway / DNS policy) appear under the Firewall log type in NSS, or is it a separate log type? Zscaler's generic NSS docs list DNS as a separate type, but CBC's NSS guidance only references Firewall. Need to confirm whether an NSS Firewall feed covers DNS events from Cloud Connector, or whether a separate feed (if available under the CBC subscription) is needed.
 - **NSS VA sizing numbers for CBC**: No CBC-specific sizing table is captured. The deployment guides reference Zscaler's sizing tool, but what the tool outputs for typical CC fleet sizes (50 CCs, 500 CCs) is unknown. Operators should use the deployment guide's interactive sizing before provisioning.
@@ -224,7 +224,7 @@ Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/z
 - **HA / active-active NSS VA support**: Whether two NSS VAs can consume from the same Nanolog partition simultaneously (for redundancy) or whether the Nanolog streams to exactly one VA at a time is not confirmed. If active-active is supported, this is the natural HA pattern; if not, a standby VA must wait for the primary to drop before connecting.
 - **Log and Control Forwarding vs NSS VA interaction**: Whether the Log and Control Forwarding gateway selection affects the path that CC VMs take to upload logs to the Nanolog — and therefore whether a misconfigured log/control rule could starve the Nanolog of CC-generated logs before the NSS VA can pull them — is not confirmed.
 - **Feed output format recommendations for CBC Firewall logs**: The shared NSS doc notes Zscaler recommends JSON for Cloud NSS. For VM-based NSS in the CBC context, whether JSON is supported as a Firewall feed output format (or whether CSV is the only tested format) is not captured.
-- **Log and Control Forwarding rule match behavior**: Captured CBC source confirms rules evaluate in ascending numerical order and that a disabled rule is skipped while keeping its place (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34,36`), but does not state whether evaluation stops at the first matching rule (first-match-wins) or whether the auto-created default rule occupies the terminal catch-all position. The earlier comparison to traffic forwarding rules and the ZIA URL Filter was an inference, not a sourced fact — needs confirmation against tenant behavior or a source that explicitly establishes the stop-on-first-match semantics.
+- **Log and Control Forwarding rule match behavior**: Captured CBC source confirms rules evaluate in ascending numerical order and that a disabled rule is skipped while keeping its place (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:34,36`), but does not state whether evaluation stops at the first matching rule (first-match-wins) or whether the auto-created default rule occupies the terminal catch-all position. The earlier comparison to traffic forwarding rules and the ZIA URL Filter was an inference, not a sourced fact — needs confirmation against tenant behavior or a source that explicitly establishes the stop-on-first-match semantics.
 
 All seven items above are filed together as [clarification `cloud-connector-20`](../_meta/clarifications.md#cloud-connector-20-nss-va-for-cbc-feed-coverage-sizing-certs-ha-and-rule-match-semantics).
 

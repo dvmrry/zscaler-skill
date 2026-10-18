@@ -7,18 +7,18 @@ last-verified: "2026-07-06"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/cbc-about-insights.md"
-  - "vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md"
-  - "vendor/zscaler-help/cbc-analyzing-branch-connector-details.md"
-  - "vendor/zscaler-help/cbc-analyzing-amazon-web-services-account-details.md"
-  - "vendor/zscaler-help/cbc-about-cloud-connector-groups.md"
-  - "vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md"
-  - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.md"
-  - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md"
-  - "vendor/zscaler-help/cbc-managing-cloud-branch-connector-upgrades.md"
+  - "vendor/zscaler-help/cbc-about-insights.json"
+  - "vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.json"
+  - "vendor/zscaler-help/cbc-analyzing-branch-connector-details.json"
+  - "vendor/zscaler-help/cbc-analyzing-amazon-web-services-account-details.json"
+  - "vendor/zscaler-help/cbc-about-cloud-connector-groups.json"
+  - "vendor/zscaler-help/cbc-understanding-high-availability-and-failover.json"
+  - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.json"
+  - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.json"
+  - "vendor/zscaler-help/cbc-managing-cloud-branch-connector-upgrades.json"
   - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
-  - "vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md"
-  - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
+  - "vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json"
+  - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go"
@@ -40,7 +40,7 @@ How to observe the health, traffic, and operational state of deployed Cloud Conn
 
 ## 1. Overview
 
-Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`.
+Source: `vendor/zscaler-help/cbc-about-insights.json`; `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.json`.
 
 Cloud & Branch Connector exposes monitoring through two separate surface areas:
 
@@ -57,7 +57,7 @@ No dedicated CBC alerting surface (SNMP traps, email notifications, webhooks) wa
 
 ## 2. Dashboard surfaces
 
-Source: `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`; `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.md`.
+Source: `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.json`; `vendor/zscaler-help/cbc-analyzing-branch-connector-details.json`; `vendor/zscaler-help/cbc-about-cloud-connector-groups.json`.
 
 ### 2.1 Cloud & Branch Connector Monitoring page
 
@@ -202,7 +202,7 @@ Groups can be filtered by Cloud (AWS/Azure/GCP), Group Type (Cloud Connector or 
 
 ## 3. Available metrics
 
-Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md`.
+Source: `vendor/zscaler-help/cbc-about-insights.json`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.json`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.json`.
 
 ### 3.1 Per-VM health metrics (Monitoring table / CC Details)
 
@@ -223,7 +223,7 @@ Available at the individual CC or BC VM level:
 | Upgrade status | Integer code | SDK `ecVMs[].upgradeStatus` |
 | Upgrade day of week | Integer (day index) | SDK `ecVMs[].upgradeDayOfWeek` (`common.go:116` / Python `ec_group_vm.py:53`) |
 
-**VM Size is a console-only field.** It appears in the Monitoring table (`vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md:63`, "The size of the virtual machine (i.e., Small or Medium)") but has **no equivalent in the SDK object model**: the Go `ECVMs` struct (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:101-119`) and the Python `ECGroupVM` model (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:39-53`) expose `formFactor` (a string) rather than a size enum. There are only two documented sizes — Small and Medium; there is no "Large." For programmatic size/shape inference, `formFactor` is the closest SDK field.
+**VM Size is a console-only field.** It appears in the Monitoring table (`vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.json:63`, "The size of the virtual machine (i.e., Small or Medium)") but has **no equivalent in the SDK object model**: the Go `ECVMs` struct (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:101-119`) and the Python `ECGroupVM` model (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:39-53`) expose `formFactor` (a string) rather than a size enum. There are only two documented sizes — Small and Medium; there is no "Large." For programmatic size/shape inference, `formFactor` is the closest SDK field.
 
 The SDK `ECVMs` struct (`vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:101-119`) and the Python `ECGroupVM` model (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:39-53`) surface the per-VM state fields programmatically — see section 4.
 
@@ -274,13 +274,13 @@ This is monitoring of the workload-discovery integration, not CC traffic — but
 
 ## 4. API/SDK access
 
-Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
+Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json`; `vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
 
 The current SDKs do not expose a general Insights time-series wrapper. The raw
 group API does expose `GET /ecgroup/vmUpgradeMetrics`, which returns aggregate
 release-channel and scheduled-upgrade telemetry with platform, release-channel,
 location, name, and upgrade-status filters
-(`vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md:24-28`;
+(`vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json:24-28`;
 `vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:33-48`). That
 operation does not establish a general Session, DNS, or Tunnel Insights
 time-series API. The remaining monitoring-adjacent programmatic reads are:
@@ -419,7 +419,7 @@ The Session, DNS, and Tunnel Insights pages are UI-only in captured sources. No 
 
 ## 5. Alerting and integration
 
-Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.md`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md`.
+Source: `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.json`; `vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.json`.
 
 ### 5.1 No native CC alert surface confirmed
 
@@ -456,7 +456,7 @@ ZDX (Zscaler Digital Experience) is cited in the product overview (Real-Time Vis
 
 ## 6. Common gotchas
 
-Source: `vendor/zscaler-help/cbc-about-insights.md`; `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.md`; `vendor/zscaler-help/cbc-analyzing-branch-connector-details.md`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`.
+Source: `vendor/zscaler-help/cbc-about-insights.json`; `vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.json`; `vendor/zscaler-help/cbc-analyzing-branch-connector-details.json`; `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json`.
 
 Note: This section summarizes the cited monitoring and API material above.
 

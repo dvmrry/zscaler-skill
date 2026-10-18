@@ -17,9 +17,9 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/what-risk360.md"
-  - "vendor/zscaler-help/risk360-about-dashboard.md"
-  - "vendor/zscaler-help/risk360-about-factors.md"
+  - "vendor/zscaler-help/what-risk360.json"
+  - "vendor/zscaler-help/risk360-about-dashboard.json"
+  - "vendor/zscaler-help/risk360-about-factors.json"
   - "vendor/zscaler-help/risk360-monte-carlo.md"
   - "vendor/zscaler-help/risk360-product-marketing.md"
   - "vendor/zscaler-sdk-python/tests/integration/zid/cassettes/TestResourceServers.yaml"
@@ -28,7 +28,7 @@ author-status: draft
 
 # Risk360 reference hub
 
-Risk360 is the Zscaler risk-quantification reference area. Start with [`./overview.md`](./overview.md) for the current audit-scoped summary of its risk model, dashboard, factors, Monte Carlo financial modeling, and source-family coverage. The product-help capture says Risk360 provides real-time risk metrics at the organization level and across four attack stages (`vendor/zscaler-help/what-risk360.md:8-13`), while the marketing capture emphasizes cyber risk posture, actionable insights, and financial exposure framing (`vendor/zscaler-help/risk360-product-marketing.md:8-24`).
+Risk360 is the Zscaler risk-quantification reference area. Start with [`./overview.md`](./overview.md) for the current audit-scoped summary of its risk model, dashboard, factors, Monte Carlo financial modeling, and source-family coverage. The product-help capture says Risk360 provides real-time risk metrics at the organization level and across four attack stages (`vendor/zscaler-help/what-risk360.json:8-13`), while the marketing capture emphasizes cyber risk posture, actionable insights, and financial exposure framing (`vendor/zscaler-help/risk360-product-marketing.md:8-24`).
 
 ## Topics
 
@@ -39,8 +39,8 @@ Risk360 is the Zscaler risk-quantification reference area. Start with [`./overvi
 
 ## Use This Reference For
 
-- Explaining the four Risk360 attack-stage categories: External Attack Surface, Compromise, Lateral Propagation, and Data Loss (`vendor/zscaler-help/what-risk360.md:8-13`).
-- Answering dashboard questions about organization risk score, peer average, severity ranges, and Top 10 Factors (`vendor/zscaler-help/risk360-about-dashboard.md:8-48`).
+- Explaining the four Risk360 attack-stage categories: External Attack Surface, Compromise, Lateral Propagation, and Data Loss (`vendor/zscaler-help/what-risk360.json:8-13`).
+- Answering dashboard questions about organization risk score, peer average, severity ranges, and Top 10 Factors (`vendor/zscaler-help/risk360-about-dashboard.json:8-48`).
 - Explaining Monte Carlo output: yearly average loss and loss exceedance curves across four scenarios (`vendor/zscaler-help/risk360-monte-carlo.md:12-34`).
 - Guarding against API over-claims: the audited sources do not show a Risk360 management API, only an incidental ZIdentity role fixture for Risk360 entitlements (`vendor/zscaler-sdk-python/tests/integration/zid/cassettes/TestResourceServers.yaml:25-28`, `:132-135`).
 

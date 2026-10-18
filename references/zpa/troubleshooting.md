@@ -7,18 +7,18 @@ last-verified: "2026-07-22"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
-  - "vendor/zscaler-help/understanding-private-access-architecture.md"
-  - "vendor/zscaler-help/about-app-connectors.md"
-  - "vendor/zscaler-help/zpa-about-connector-groups.md"
-  - "vendor/zscaler-help/about-log-streaming-service.md"
-  - "vendor/zscaler-help/about-scim-zpa.md"
-  - "vendor/zscaler-help/zsdk-about-segment-groups.md"
-  - "vendor/zscaler-help/about-browser-access.md"
-  - "vendor/zscaler-help/using-wildcard-certificates-browser-access-applications.md"
-  - "vendor/zscaler-help/understanding-connector-software-updates.md"
-  - "vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md"
-  - "vendor/zscaler-help/verifying-access-to-applications.md"
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json"
+  - "vendor/zscaler-help/understanding-private-access-architecture.json"
+  - "vendor/zscaler-help/about-app-connectors.json"
+  - "vendor/zscaler-help/zpa-about-connector-groups.json"
+  - "vendor/zscaler-help/about-log-streaming-service.json"
+  - "vendor/zscaler-help/about-scim-zpa.json"
+  - "vendor/zscaler-help/zsdk-about-segment-groups.json"
+  - "vendor/zscaler-help/about-browser-access.json"
+  - "vendor/zscaler-help/using-wildcard-certificates-browser-access-applications.json"
+  - "vendor/zscaler-help/understanding-connector-software-updates.json"
+  - "vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.json"
+  - "vendor/zscaler-help/verifying-access-to-applications.json"
   - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt"
   - "vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt"
   - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
@@ -49,7 +49,7 @@ This document does not cover ZIA-side issues except where ZIA cross-product inte
 
 ## 1. Decision tree — symptom to first signal
 
-Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/verifying-access-to-applications.json`; `vendor/zscaler-help/understanding-private-access-architecture.json`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
 
 ### Symptom: "Can't reach app at all"
 
@@ -91,7 +91,7 @@ Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscal
 
 ## 2. Signal sources
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`.
 
 ### 2.1 ZPA admin console
 
@@ -111,7 +111,7 @@ The admin console retains User Activity, User Status, and App Connector log info
 - **Z-Tunnel state**: ZCC must be in an active tunnel state for Private Access traffic interception. A user-accessible tunnel state indicator is available in the ZCC application. Z-Tunnel 2.0 (DTLS or TLS) supports all ports and protocols; Z-Tunnel 1.0 (CONNECT proxy) handles only proxy-aware traffic and ports 80/443, depending on the forwarding profile.
 - **Posture report**: ZCC reports device posture on a configurable cadence (default 15 minutes). If a posture check profile referenced in a ZPA policy has not been evaluated, the profile result is absent from the tunnel's posture report. Absent results are distinct from a failed result — see [`./posture-profiles.md § Gotchas`](./posture-profiles.md).
 - **Step-up verification prompt**: ZCC 4.6+/4.7+ displays a "Verify Now" prompt when a Conditional Access policy matches. If the prompt appears unexpectedly, a policy rule is matching the user to a step-up condition that the user should not be subject to.
-- **Error codes from ZCC**: ZCC exposes local error codes on connection failure. These are ZCC-level diagnostics and are outside the ZPA admin console view. Consult the legacy error-codes article (`vendor/zscaler-help/legacy-about-error-codes-zcc.md`) for the current code catalog.
+- **Error codes from ZCC**: ZCC exposes local error codes on connection failure. These are ZCC-level diagnostics and are outside the ZPA admin console view. Consult the legacy error-codes article (`vendor/zscaler-help/legacy-about-error-codes-zcc.json`) for the current code catalog.
 
 ### 2.3 App Connector logs
 
@@ -128,16 +128,16 @@ LSS App Connector Status and App Connector Metrics log types stream connector he
 Remote troubleshooting supports `journalctl` collection of either service logs
 or full-system logs from App Connectors, Private Service Edges, Private Cloud
 Controllers, and Network Connectors
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:84-88`). For App
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:84-88`). For App
 Connectors, the **Get Network Interfaces** command collects the
 network-interface inventory used by the connector
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:90-93`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:90-93`).
 
 ---
 
 ## 3. Architecture path summary
 
-Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/zpa-about-connector-groups.md`.
+Source: `vendor/zscaler-help/understanding-private-access-architecture.json`; `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/zpa-about-connector-groups.json`.
 
 Every ZPA access request traverses the following path. Failures can occur at each hop.
 
@@ -162,7 +162,7 @@ A failure or misconfiguration at any layer produces a distinct evidence pattern.
 
 ## 4. Specific verification steps
 
-Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go`.
+Source: `vendor/zscaler-help/verifying-access-to-applications.json`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py`; `vendor/zscaler-sdk-python/zscaler/zpa/application_segment.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go`.
 
 ### 4.1 Application segment — domain and port match
 
@@ -301,7 +301,7 @@ Certificate trust failures produce different errors depending on the access meth
 
 - Browser Access requires a TLS certificate for the external-facing hostname (the CNAME that users resolve).
 - If the external hostname and internal hostname differ, the internal application server's certificate may not match the external hostname. This is expected behavior and produces a server-certificate warning visible to the end user. It does not block ZPA policy evaluation.
-- Wildcard certificates cover only one level of subdomain. A `*.example.com` certificate covers `app.example.com` but not `app.sub.example.com`. If the application hostname has more levels, a separate application segment with a matching certificate is required. Per `vendor/zscaler-help/using-wildcard-certificates-browser-access-applications.md`.
+- Wildcard certificates cover only one level of subdomain. A `*.example.com` certificate covers `app.example.com` but not `app.sub.example.com`. If the application hostname has more levels, a separate application segment with a matching certificate is required. Per `vendor/zscaler-help/using-wildcard-certificates-browser-access-applications.json`.
 
 **Double Encryption:**
 
@@ -317,7 +317,7 @@ Certificate trust failures produce different errors depending on the access meth
 
 ## 5. Common failure modes
 
-Source: `vendor/zscaler-help/verifying-access-to-applications.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/verifying-access-to-applications.json`; `vendor/zscaler-help/understanding-private-access-architecture.json`; `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
 
 Note: This section summarizes the cited ZPA access, connector, segment, posture, and log-field sources.
 

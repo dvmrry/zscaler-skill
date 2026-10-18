@@ -7,7 +7,7 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/about-scim-zpa.md"
+  - "vendor/zscaler-help/about-scim-zpa.json"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_group.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_attribute.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_saml.md"
@@ -40,7 +40,7 @@ For the general SCIM provisioning lifecycle (user/group create, update, delete, 
 
 ## Overview
 
-Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`.
+Source: `vendor/zscaler-help/about-scim-zpa.json`; `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`.
 
 SCIM groups in ZPA serve a different function than in most identity systems. In ZPA, a SCIM group is not a container that grants entitlements directly — it is a **read-only label** that ZPA mirrors from an IdP and makes available as a matching criterion in policy rules. The ZPA policy engine compares a user's current group memberships (as known to ZPA from SCIM sync) against the groups referenced in a rule's conditions, then allows or denies access accordingly.
 
@@ -72,7 +72,7 @@ SCIM sync cadence is controlled by the IdP, not by ZPA. The ZPA API exposes `cre
 
 ## The chain: IDP to policy decision
 
-Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_attribute.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`.
+Source: `vendor/zscaler-help/about-scim-zpa.json`; `vendor/zscaler-sdk-python/zscaler/zpa/scim_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/scimgroup/zpa_scim_group.go`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_attribute.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`.
 
 ### Step 1 — IdP SCIM push to ZPA SCIM endpoint
 
@@ -166,7 +166,7 @@ For `SCIM` (flat attribute) operands, the `rhs` value must exactly match one of 
 
 ## Multiple-IDP scenarios
 
-Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/zscaler-sdk-go/zscaler/zpa/services/idpcontroller/zpa_idp_controller.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_scim_groups.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_scim_attribute_header.md`.
+Source: `vendor/zscaler-help/about-scim-zpa.json`; `vendor/zscaler-sdk-go/zscaler/zpa/services/idpcontroller/zpa_idp_controller.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_scim_groups.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_scim_attribute_header.md`.
 
 ### Per-IDP SCIM endpoints and group namespaces
 
@@ -204,7 +204,7 @@ This also applies to `SCIM` flat attribute operands: the attribute header is sco
 
 ## Common gotchas
 
-Source: `vendor/zscaler-help/about-scim-zpa.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_attribute.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`.
+Source: `vendor/zscaler-help/about-scim-zpa.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_group.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_scim_attribute.md`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_idp_controller.md`.
 
 Note: This section summarizes the cited SCIM, IdP, policy, and Terraform provider sources.
 
@@ -246,7 +246,7 @@ A user who authenticates before their SCIM record has arrived in ZPA will not ma
 
 ### Source IP Anchoring interaction
 
-From `vendor/zscaler-help/configuring-source-ip-anchoring.md`: "If Source IP Anchoring traffic is restricted to certain users in the ZIA Admin Portal, do not add user-based SAML/SCIM criteria when configuring the access policy in the ZPA Admin Portal." For SIPA traffic, ZPA's country-based criteria use the ZIA PSE's IP rather than the user's IP; SCIM/SAML criteria remain user-bound, but the combination can produce unexpected results when SIPA restricts access at the ZIA layer.
+From `vendor/zscaler-help/configuring-source-ip-anchoring.json`: "If Source IP Anchoring traffic is restricted to certain users in the ZIA Admin Portal, do not add user-based SAML/SCIM criteria when configuring the access policy in the ZPA Admin Portal." For SIPA traffic, ZPA's country-based criteria use the ZIA PSE's IP rather than the user's IP; SCIM/SAML criteria remain user-bound, but the combination can produce unexpected results when SIPA restricts access at the ZIA layer.
 
 ---
 

@@ -7,14 +7,14 @@ last-verified: "2026-07-22"
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/understanding-nanolog-streaming-service.md"
+  - "vendor/zscaler-help/understanding-nanolog-streaming-service.json"
   - "vendor/zscaler-help/General_Guidelines_for_NSS_Feeds_and_Feed_Formats.txt"
   - "vendor/zscaler-help/nss-web-logs.csv"
   - "vendor/zscaler-help/nss-firewall-logs.csv"
   - "vendor/zscaler-help/nss-dns-logs.csv"
-  - "vendor/zscaler-help/about-nss-feeds.md"
-  - "vendor/zscaler-help/about-nss-servers.md"
-  - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md"
+  - "vendor/zscaler-help/about-nss-feeds.json"
+  - "vendor/zscaler-help/about-nss-servers.json"
+  - "vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json"
 author-status: draft
 ---
@@ -160,15 +160,15 @@ An NSS feed is the configuration object that specifies **which data** from the N
 | **MCAS feed** | Microsoft Cloud App Security integration feed | VM-based NSS |
 | **Real-time alert feed** | Alerts for NSS connectivity monitoring | VM-based NSS |
 
-The July 2026 Help capture adds NSS and Cloud NSS feed support for 3rd-Party App Governance and Posture Management logs and states that both log types require an Advanced SaaS Security Posture Management subscription (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:42-47`). For the Cloud NSS `/nssFeeds` model, Help names new `nssLogType` values `POSTURE_CONTROL` and `APP_GOVERNANCE` (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:53-56`).
+The July 2026 Help capture adds NSS and Cloud NSS feed support for 3rd-Party App Governance and Posture Management logs and states that both log types require an Advanced SaaS Security Posture Management subscription (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json:42-47`). For the Cloud NSS `/nssFeeds` model, Help names new `nssLogType` values `POSTURE_CONTROL` and `APP_GOVERNANCE` (`vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json:53-56`).
 
-Source boundary: the current Automate `/nssFeeds` request model enumerates log types through `EMAIL_DLP` and contains neither `POSTURE_CONTROL` nor `APP_GOVERNANCE` (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:52622-52650`). The capture contains `APP_GOVERNANCE` elsewhere only in a SaaS-application feature enum, so that unrelated occurrence is not independent proof of the new NSS log type (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:387802-387818`; `vendor/zscaler-help/zia-release-upgrade-summary-2026-july.md:53-56`).
+Source boundary: the current Automate `/nssFeeds` request model enumerates log types through `EMAIL_DLP` and contains neither `POSTURE_CONTROL` nor `APP_GOVERNANCE` (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:52622-52650`). The capture contains `APP_GOVERNANCE` elsewhere only in a SaaS-application feature enum, so that unrelated occurrence is not independent proof of the new NSS log type (`vendor/zscaler-api-specs/automate-zscaler/zia-api-reference.json:387802-387818`; `vendor/zscaler-help/zia-release-upgrade-summary-2026-july.json:53-56`).
 
-DNS and tunnel logs flow through the Firewall NSS subscription on VM-based NSS. The Cloud NSS "Firewall" subscription covers all firewall-module records including DNS (Tier A — vendor/zscaler-help/about-nss-feeds.md).
+DNS and tunnel logs flow through the Firewall NSS subscription on VM-based NSS. The Cloud NSS "Firewall" subscription covers all firewall-module records including DNS (Tier A — vendor/zscaler-help/about-nss-feeds.json).
 
 ### Feed configuration objects
 
-Each NSS feed configures (Tier A — vendor/zscaler-help/about-nss-feeds.md):
+Each NSS feed configures (Tier A — vendor/zscaler-help/about-nss-feeds.json):
 
 | Component | Description |
 |---|---|
@@ -205,7 +205,7 @@ The specific output fields available per log type are documented in the feed for
 
 ### NSS servers — portal representation
 
-An NSS server in the ZIA Admin Console is the configuration record for a deployed NSS VM. After creating the record, Zscaler issues a client TLS certificate and private key for installation on the NSS VM; the certificate authenticates the VM to the Nanolog stream (Tier A — vendor/zscaler-help/about-nss-servers.md).
+An NSS server in the ZIA Admin Console is the configuration record for a deployed NSS VM. After creating the record, Zscaler issues a client TLS certificate and private key for installation on the NSS VM; the certificate authenticates the VM to the Nanolog stream (Tier A — vendor/zscaler-help/about-nss-servers.json).
 
 Navigation: **Administration > Nanolog Streaming Service** (NSS Servers page)
 
@@ -215,7 +215,7 @@ Per-server operations:
 - Download MIB files (for SNMP monitoring of NSS health)
 - View server name, type, status, health state, SSL certificate download
 
-Per-server feed limits: **16 feeds per NSS server**, split as **8 Web feeds** and **8 Firewall feeds** maximum. This limit is a performance ceiling, not an arbitrary policy — feeding more than 8 of either type per server is unsupported (Tier A — vendor/zscaler-help/about-nss-feeds.md, vendor/zscaler-help/about-nss-servers.md).
+Per-server feed limits: **16 feeds per NSS server**, split as **8 Web feeds** and **8 Firewall feeds** maximum. This limit is a performance ceiling, not an arbitrary policy — feeding more than 8 of either type per server is unsupported (Tier A — vendor/zscaler-help/about-nss-feeds.json, vendor/zscaler-help/about-nss-servers.json).
 
 ### Cloud NSS feeds
 
@@ -275,11 +275,11 @@ See terminology: [`./terminology.md § NSS vs LSS`](./terminology.md) (add if no
 
 7. **Cloud NSS recommends JSON over CSV.** CSV works but loses type information. JSON gives SIEM parsers a schema they can map to CIM (Common Information Model) fields more reliably. Tenants standardizing on CIM mapping in Splunk or similar should default to JSON.
 
-Source: `vendor/zscaler-help/ranges-limitations-zia.md`.
+Source: `vendor/zscaler-help/ranges-limitations-zia.json`.
 
 8. **Throughput ceiling: 1 billion web transactions per Nanolog cluster.** Each NSS VM connects to exactly **one** Nanolog cluster. So a high-volume tenant exceeding 1B web transactions needs additional Nanolog clusters AND additional NSS VMs (one per cluster). Filter caps stack on top: per-feed filters on Users / Departments / Locations / Clients / Threat Names cap at 1,024 entries each.
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
 9. **ZPA LSS retransmit window is 15 minutes — not 60 like NSS.** When connectivity drops between Private Access and an App Connector, LSS can retransmit at most the last 15 minutes of log data after restoration, and **delivery is not guaranteed**. Logs generated during the gap between App Connector and SIEM are NOT retransmitted at all (audit logs are the exception). Operators familiar with NSS's 60-minute opt-in recovery often assume LSS matches; it doesn't. A 30-minute App Connector outage = ~15 minutes of permanent ZPA log gap.
 

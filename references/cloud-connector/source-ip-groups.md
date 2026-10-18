@@ -7,8 +7,8 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/cbc-about-source-ip-groups.md"
-  - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md"
+  - "vendor/zscaler-help/cbc-about-source-ip-groups.json"
+  - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json"
   - "vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md"
   - "vendor/terraform-provider-ztc/docs/data-sources/ztc_ip_source_groups.md"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go"
@@ -21,7 +21,7 @@ author-status: draft
 
 # Cloud Connector Source IP Groups — primitives and policy use
 
-Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
+Source: `vendor/zscaler-help/cbc-about-source-ip-groups.json`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
 
 Source IP Groups (also rendered as "IP Source Groups" in API/provider naming) are named,
 reusable sets of IP addresses that identify workload sources in Cloud Connector forwarding
@@ -30,7 +30,7 @@ distinct from IP Pool Groups (which are used as ZPA redirect targets in DNS rule
 
 ## Overview
 
-Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-about-source-ip-groups.json`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`.
 
 Source IP Groups let operators:
 
@@ -55,7 +55,7 @@ Cross-links:
 
 ## Object model
 
-Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
+Source: `vendor/zscaler-help/cbc-about-source-ip-groups.json`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/terraform-provider-ztc/ztc/resource_ztc_ip_source_groups.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
 
 ### Fields
 
@@ -118,7 +118,7 @@ referencing is possible but requires using the ZIA provider's data source to res
 
 ## Policy interaction
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/terraform-provider-ztc/examples/ztc_traffic_forwarding_rule/basic_forward_method_zia.tf`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `vendor/terraform-provider-ztc/examples/ztc_traffic_forwarding_rule/basic_forward_method_zia.tf`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
 
 ### Rule types that accept Source IP Groups as a criterion
 
@@ -444,7 +444,7 @@ activated. The provider's `ztc_activation_status` resource handles this in-plan,
 
 ## Open questions register
 
-Source: `vendor/zscaler-help/cbc-about-source-ip-groups.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
+Source: `vendor/zscaler-help/cbc-about-source-ip-groups.json`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `vendor/terraform-provider-ztc/docs/resources/ztc_ip_source_groups.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policyresources/ipsourcegroups/ipsourcegroups.go`.
 
 1. **Per-group member limit**: No documented upper bound on entries per group. Confirm with
    Zscaler support whether there is a platform limit. Filed with the per-tenant count question

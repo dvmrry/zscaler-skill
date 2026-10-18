@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/bi-what-zscaler-business-insights.md"
+  - "vendor/zscaler-help/bi-what-zscaler-business-insights.json"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
@@ -32,13 +32,13 @@ author-status: draft
 
 # Business Insights - SaaS usage analytics, workplace utilization, and ZBI API scope
 
-Business Insights provides visibility into SaaS application usage, application spend, and workplace metrics (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:8`). The help capture splits the product into SaaS Application Management and Office Workplace & Workforce Management: SaaS features include discovery, engagement data, Shadow IT, overlap visibility, and cost control, while workplace features include office-utilization trends, cost-saving models, and workforce metrics (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:10-20`, `:22-31`).
+Business Insights provides visibility into SaaS application usage, application spend, and workplace metrics (`vendor/zscaler-help/bi-what-zscaler-business-insights.json:8`). The help capture splits the product into SaaS Application Management and Office Workplace & Workforce Management: SaaS features include discovery, engagement data, Shadow IT, overlap visibility, and cost control, while workplace features include office-utilization trends, cost-saving models, and workforce metrics (`vendor/zscaler-help/bi-what-zscaler-business-insights.json:10-20`, `:22-31`).
 
 ## Dependencies And Data Sources
 
-Business Insights receives data from four source classes: ZIA, IdPs such as Okta and Entra ID, SaaS application connector integrations, and custom application signatures (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:40-45`). The captured prerequisites are also explicit: SaaS app insights require ZIA, while workplace insights require both ZIA and Zscaler Client Connector on relevant endpoints (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:47-50`).
+Business Insights receives data from four source classes: ZIA, IdPs such as Okta and Entra ID, SaaS application connector integrations, and custom application signatures (`vendor/zscaler-help/bi-what-zscaler-business-insights.json:40-45`). The captured prerequisites are also explicit: SaaS app insights require ZIA, while workplace insights require both ZIA and Zscaler Client Connector on relevant endpoints (`vendor/zscaler-help/bi-what-zscaler-business-insights.json:47-50`).
 
-The capture says Zscaler can discover usage of more than 30K apps and then show a business-relevant subset in the portal (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:52-54`). Treat that as a discovery/analytics claim, not as proof that every discovered app has a programmable Business Insights object.
+The capture says Zscaler can discover usage of more than 30K apps and then show a business-relevant subset in the portal (`vendor/zscaler-help/bi-what-zscaler-business-insights.json:52-54`). Treat that as a discovery/analytics claim, not as proof that every discovered app has a programmable Business Insights object.
 
 ## Programmable Surface
 
@@ -50,7 +50,7 @@ The capture says Zscaler can discover usage of more than 30K apps and then show 
 | Ansible | No product-specific Business Insights module found in this audit pass. |
 | MCP | MCP exposes read-only Z-Insights analytics tools that refer to Z-Insights / Business Insights licensing; this is separate from the `client.zbi` REST custom-app/report-config surface (`vendor/zscaler-mcp-server/integrations/kiro/steering/zins.md:1`, `:18`, `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zins/_common.py:277-282`). |
 | Postman | The OneAPI Postman collection has a "Zscaler Business Insights" folder with custom-app and report-configuration endpoints under `{{ZBIBaseUrl}}/api/v1/...` (`vendor/zscaler-api-specs/oneapi-postman-collection.json:134314-134343`, `:134506-134535`, `:134807-134837`, `:134999-135015`, `:135164-135176`, `:136039-136056`). |
-| Help captures | Product overview, architecture/data-source, prerequisites, and discovery-scale claims are captured in `bi-what-zscaler-business-insights.md` (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:8`, `:40-58`). |
+| Help captures | Product overview, architecture/data-source, prerequisites, and discovery-scale claims are captured in `bi-what-zscaler-business-insights.md` (`vendor/zscaler-help/bi-what-zscaler-business-insights.json:8`, `:40-58`). |
 
 ## Python `client.zbi` REST Scope
 
@@ -66,7 +66,7 @@ The Python SDK also exposes `client.zins` / `client.zinsights` as a separate Z-I
 
 ## What Business Insights Is Not
 
-- It is not ZIA reporting by another name; the captured Business Insights product description adds application-spend and workplace-utilization context on top of Zscaler telemetry (`vendor/zscaler-help/bi-what-zscaler-business-insights.md:8`, `:16-31`).
+- It is not ZIA reporting by another name; the captured Business Insights product description adds application-spend and workplace-utilization context on top of Zscaler telemetry (`vendor/zscaler-help/bi-what-zscaler-business-insights.json:8`, `:16-31`).
 - It is not Zero Trust Browser; the same abbreviation `ZBI` appears in Python SDK code for Business Insights (`vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24`).
 - It is not fully proven to be portal-only. The audited sources show REST APIs for custom apps, report configs, report listing, and report download; additional API coverage remains unresolved.
 

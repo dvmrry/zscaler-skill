@@ -17,9 +17,9 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/dspm-what-data-security-posture-management.md"
+  - "vendor/zscaler-help/dspm-what-data-security-posture-management.json"
   - "vendor/zscaler-help/dspm-marketing.md"
-  - "vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md"
+  - "vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.json"
 author-status: draft
 ---
 
@@ -29,17 +29,17 @@ This ledger covers the Tier 3 thin-stub refresh for Data Security Posture Manage
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| DSPM is an AI-powered solution for stored cloud/on-premises data, continuously scanning for misconfigurations, vulnerabilities, and permissions issues. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:8` |
-| DSPM identifies sensitive data location, classifies data, detects duplicates/misconfigurations, contextualizes posture, prioritizes risk, provides remediation guidance, and supports near-real-time alerts. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:8-18` |
-| DSPM works with minimal access to AWS, Azure, GCP, and on-premises resources and uses agentless deep scanning. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:20-25` |
-| Supported onboarding scopes include AWS Organization/Standalone Account, Azure Tenant/Management Group, GCP Organization, and on-premises databases. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:34-40` |
-| Supported datastore categories include managed cloud data stores, managed AI services, unmanaged databases/Snowflake/Databricks, on-premises data stores, and MIP labels. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:64-70` |
-| Authentication mechanisms include cloud-native roles/principals/service accounts, credential-based access, and certificate-based mTLS. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:57-62` |
-| DSPM classifies data with Zscaler DLP engines/dictionaries using full, incremental, historical, or sampling scans. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:53-55` |
-| DSPM supports OCR for image files and images embedded in PDF or Microsoft Office documents. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:72-74` |
-| DSPM supports in-region scanning for certain regions, with metadata sent to the Zscaler Admin Console. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.md:76-78` |
+| DSPM is an AI-powered solution for stored cloud/on-premises data, continuously scanning for misconfigurations, vulnerabilities, and permissions issues. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:8` |
+| DSPM identifies sensitive data location, classifies data, detects duplicates/misconfigurations, contextualizes posture, prioritizes risk, provides remediation guidance, and supports near-real-time alerts. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:8-18` |
+| DSPM works with minimal access to AWS, Azure, GCP, and on-premises resources and uses agentless deep scanning. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:20-25` |
+| Supported onboarding scopes include AWS Organization/Standalone Account, Azure Tenant/Management Group, GCP Organization, and on-premises databases. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:34-40` |
+| Supported datastore categories include managed cloud data stores, managed AI services, unmanaged databases/Snowflake/Databricks, on-premises data stores, and MIP labels. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:64-70` |
+| Authentication mechanisms include cloud-native roles/principals/service accounts, credential-based access, and certificate-based mTLS. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:57-62` |
+| DSPM classifies data with Zscaler DLP engines/dictionaries using full, incremental, historical, or sampling scans. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:53-55` |
+| DSPM supports OCR for image files and images embedded in PDF or Microsoft Office documents. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:72-74` |
+| DSPM supports in-region scanning for certain regions, with metadata sent to the Zscaler Admin Console. | `overview.md` | `vendor/zscaler-help/dspm-what-data-security-posture-management.json:76-78` |
 | Marketing frames DSPM as data-at-rest posture that complements in-flight DLP across cloud, SaaS, on-premises, endpoints, AI/GenAI, and hybrid environments. | `overview.md` | `vendor/zscaler-help/dspm-marketing.md:46-63` |
-| A ZIA DLP content-inspection help capture contains an admin-portal SSO navigation reference for DSPM. | `overview.md` | `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.md:224` |
+| A ZIA DLP content-inspection help capture contains an admin-portal SSO navigation reference for DSPM. | `overview.md` | `vendor/zscaler-help/configuring-dlp-policy-rules-content-inspection.json:224` |
 | Go SDK has no product-specific DSPM service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no DSPM service found in `vendor/zscaler-sdk-go` during the 2026-06-16 surface sweep. |
 | Python SDK has no product-specific DSPM service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no DSPM service found in `vendor/zscaler-sdk-python` during the 2026-06-16 surface sweep. |
 | Terraform has no product-specific DSPM resource or data source in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no DSPM resource/data-source surface found in `vendor/terraform-provider-zia` or `vendor/terraform-provider-zpa` during the 2026-06-16 surface sweep. |

@@ -1,0 +1,1117 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing the QUIC Protocol",
+  "source": {
+    "url": "https://help.zscaler.com/zia/managing-quic-protocol",
+    "node": "1401086",
+    "revision": "3233262"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Google developed the QUIC protocol to increase the performance of HTTPS and HTTP (TCP 443 and TCP 80) connections. Chrome browsers have had experimental support for it since 2014, and it's also used in Chromium and Android devices."
+    },
+    {
+      "text": "QUIC connections do not require TCP handshakes. However, SSL/TLS Inspection requires TCP session information. Because of this, Zscaler cannot examine QUIC sessions when users have SSL/TLS Inspection enabled. When using QUIC, users might also experience certificate errors."
+    },
+    {
+      "text": "Zscaler best practice is to block QUIC. When it's blocked, QUIC has a failsafe to fall back to TCP. This enables SSL/TLS Inspection without negatively impacting user experience."
+    },
+    {
+      "heading": "Blocking QUIC",
+      "level": 1
+    },
+    {
+      "text": "Choose how to block QUIC based on how you are forwarding your traffic to Zscaler."
+    },
+    {
+      "heading": "GRE or IPSec Tunnel and Zscaler Client Connector (Z-Tunnel 2.0)",
+      "level": 2
+    },
+    {
+      "text": "If you are sending your outbound internet traffic to Zscaler through a GRE or IPSec tunnel, or Zscaler Client Connector using Zscaler Tunnel (Z-Tunnel) 2.0, you can effectively block QUIC by creating a Firewall Filtering rule. This blocks QUIC UDP flows and forces the browser to default to TCP 80/443."
+    },
+    {
+      "text": "Normally, the default Firewall Filtering Rule (the lowest rank rule) blocks QUIC unless specifically allowed. However, admins often create more general connectivity rules or groups of rules (e.g., User X or Source IP Address Y to Destination Group IP Address Y is allowed) that are overly permissive and do not explicitly exclude the use of QUIC. For this reason, one or more QUIC block rules might be needed to precede admin-defined allow rules."
+    },
+    {
+      "text": "As configured in the following steps, the Firewall Filtering rule blocks QUIC at the network service level. Network services configured in Zscaler are identified at the first packet using port and protocol, leading to immediate policy action. When packets match the configured rule, the Zscaler service drops all packets that match the rule and sends the client an ICMP error message of Type 3 (Destination Unreachable) and Code 13 (Communication Administratively Prohibited)."
+    },
+    {
+      "text": "Block QUIC with a Firewall Filtering Rule"
+    },
+    {
+      "item": "In the Zscaler Admin Console, go to Policies > Access Control > Firewall > Firewall Filtering Policy.",
+      "depth": 0,
+      "strong": [
+        [
+          36,
+          72
+        ],
+        [
+          75,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Rule.",
+      "depth": 0,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Add Rule page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the Add Rule page, configure the following:",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Criteria",
+      "depth": 1
+    },
+    {
+      "item": "Click the Services tab and select QUIC under Network Services.",
+      "depth": 2,
+      "strong": [
+        [
+          10,
+          18
+        ],
+        [
+          34,
+          38
+        ],
+        [
+          45,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure Any is selected for Users, Groups, Departments, Locations, and Location Groups under Criteria.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          27,
+          32
+        ],
+        [
+          34,
+          40
+        ],
+        [
+          42,
+          53
+        ],
+        [
+          55,
+          64
+        ],
+        [
+          70,
+          85
+        ],
+        [
+          92,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Ensure Always is selected for Time under Criteria.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          30,
+          34
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Actions",
+      "depth": 1
+    },
+    {
+      "item": "Select Block/ICMP under Network Traffic.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          24,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Firewall Filtering Rule",
+      "depth": 1
+    },
+    {
+      "item": "Set the Rule Order to the highest possible rank, according to your organization's desired policies.",
+      "depth": 2,
+      "strong": [
+        [
+          8,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends that you rank rules for network services higher than rules for network applications to prevent packets from being allowed unnecessarily from traffic that would otherwise be blocked by rules using first-packet identification.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure the Rule Status is Enabled.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          22
+        ],
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate your changes.",
+      "depth": 0,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "In addition to UDP destination port 443, QUIC can use UDP destination port 80. To include port 80 in the network service definition of QUIC, you can modify the predefined network service or configure a custom network service. To learn more, see Modifying Predefined Network Services and Configuring Network Services."
+    },
+    {
+      "text": "Additionally, you can manage QUIC using the DNS Control policy by blocking the HTTPS DNS resource record type. HTTPS records contain information about specific services and protocols hosted on a domain including preferred protocols such as HTTP/3 over QUIC. HTTPS records are increasingly used by web browsers and applications to leverage the use of HTTP/3 with QUIC, which the Zscaler web proxy currently does not support. Zscaler recommends configuring your DNS Control policy to block HTTPS resource records to suppress the use of HTTP/3 over QUIC, as shown in the following example rule."
+    },
+    {
+      "text": "Block QUIC with a DNS Control Rule"
+    },
+    {
+      "item": "In the Zscaler Admin Console, go to Policies > Access Control > Firewall > DNS Control.",
+      "depth": 0,
+      "strong": [
+        [
+          36,
+          44
+        ],
+        [
+          47,
+          61
+        ],
+        [
+          64,
+          72
+        ],
+        [
+          75,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Rule.",
+      "depth": 0,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Add Rule page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the Add Rule page, configure the following:",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Criteria",
+      "depth": 1
+    },
+    {
+      "item": "Select HTTPS for the DNS Request Type condition under DNS Application.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          21,
+          37
+        ],
+        [
+          54,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "The other rule criteria can remain non-specific with values selected as Any, Always, or None, or left blank, whichever is contextually applicable.",
+      "depth": 2,
+      "strong": [
+        [
+          72,
+          75
+        ],
+        [
+          77,
+          83
+        ],
+        [
+          88,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Actions",
+      "depth": 1
+    },
+    {
+      "item": "Network Traffic: Select Block with Response Code.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Response Code: Select 2 - Server Failure.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "This rule configuration blocks HTTPS resource records and sends a Server Failure response (i.e., ServFail DNS response code per RFC 6895) to the client.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Details",
+      "depth": 1
+    },
+    {
+      "item": "Set the Rule Order to the highest possible order (using a higher admin rank), according to your organization's desired policies.",
+      "depth": 2,
+      "strong": [
+        [
+          8,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Ensure the Rule Status is Enabled.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          22
+        ],
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate your changes.",
+      "depth": 0,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "To learn more about recommendations for using DNS Control, see Best Practices for DNS Control Rules."
+    },
+    {
+      "heading": "Zscaler Client Connector (Z-Tunnel 1.0)",
+      "level": 2
+    },
+    {
+      "text": "If you are only sending Zscaler Client Connector traffic that uses Z-Tunnel 1.0 to Zscaler (or leveraging remote users), create a block rule on your device firewall to block UDP 80 and 443. This is typically done by an IT admin and is different for every organization."
+    },
+    {
+      "heading": "TCP 80/443 Only",
+      "level": 2
+    },
+    {
+      "text": "If you are only sending TCP 80/443 over a tunnel to Zscaler, block QUIC on your branch firewall."
+    },
+    {
+      "item": "Block QUIC with a FortiGate Firewall",
+      "depth": 0
+    },
+    {
+      "item": "If you are using FortiGate firewall, you need to create a new service and then create a top-level policy to block the newly created service.",
+      "depth": 0
+    },
+    {
+      "item": "To create a service:",
+      "depth": 0
+    },
+    {
+      "item": "In the FortiGate portal, go to Policy and Objects > Services.",
+      "depth": 1,
+      "strong": [
+        [
+          31,
+          49
+        ],
+        [
+          52,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click Create new Service.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Complete the following:",
+      "depth": 1
+    },
+    {
+      "item": "Name: Enter QUIC.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Protocol Type: Select TCP/UDP/SCTP.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Destination Port: To configure the destination ports:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Destination Port: Select UDP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Low: Enter 443.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "High: Leave blank.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Click the Add icon to include an additional destination port.",
+      "depth": 3,
+      "strong": [
+        [
+          10,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Destination Port: Select UDP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Low: Enter 80.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "High: Leave blank.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Other fields should be left with their default values.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK to save your service.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "To create a policy:",
+      "depth": 0
+    },
+    {
+      "item": "In the FortiGate portal, go to Policy and Objects > IPv4 Policy.",
+      "depth": 1,
+      "strong": [
+        [
+          31,
+          49
+        ],
+        [
+          52,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Click Create New.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Complete the following:",
+      "depth": 1
+    },
+    {
+      "item": "Name: Enter a name for this policy (e.g., ServiceDeny).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Incoming Interface: Select Internal.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Outgoing Interface: Select wan.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Source: Select all.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Select all.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Schedule: Select always.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Service: Select the QUIC service you created.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          20,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Action: Select DENY.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Log Violation Traffic: Enable this option.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Enable this policy: Enable this option.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK to save your policy.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Block QUIC with a Palo Alto Networks Firewall",
+      "depth": 0
+    },
+    {
+      "item": "To block QUIC with Palo Alto Networks firewall, you need to create a new security policy.",
+      "depth": 0
+    },
+    {
+      "item": "To create a security policy:",
+      "depth": 0
+    },
+    {
+      "item": "In the Palo Alto Networks portal, go to Policies > Security.",
+      "depth": 1,
+      "strong": [
+        [
+          40,
+          48
+        ],
+        [
+          51,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "On the General tab, enter a Name for the rule.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          28,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Source tab, select the Source Zone for your rule.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          30,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the User tab, select any as the value for users.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          24,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Destination tab, select either Untrust or your internet facing as the Destination Zone.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          38,
+          45
+        ],
+        [
+          77,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Application tab:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Select Add.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Enter quic in the search bar.",
+      "depth": 2
+    },
+    {
+      "item": "Select the quic application.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Service/URL Category tab, leave all fields with their default values.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Actions tab, select Drop as the action and configure other fields as desired.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK to save the policy.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "text": "If your firewall is not listed, refer to your manufacturer's documentation for details on how to block QUIC."
+    },
+    {
+      "heading": "Alternatives",
+      "level": 2
+    },
+    {
+      "text": "As an alternate measure, you can also block QUIC in Chrome itself."
+    },
+    {
+      "item": "Block QUIC in Google Chrome",
+      "depth": 0
+    },
+    {
+      "item": "If you have administrator access to Google Apps, you can create a policy to block Chrome for all users. To learn more, refer to the Google Chrome Enterprise Help. If you do not, you can still disable QUIC on individual machines.",
+      "depth": 0
+    },
+    {
+      "item": "To disable QUIC on individual machines:",
+      "depth": 0
+    },
+    {
+      "item": "Open Chrome.",
+      "depth": 1
+    },
+    {
+      "item": "Enter chrome://flags in the address bar.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter quic in the search bar.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click the drop-down menu and select Disabled.",
+      "depth": 1,
+      "strong": [
+        [
+          36,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "When Default is selected, Chrome attempts to use QUIC.",
+      "depth": 1,
+      "strong": [
+        [
+          5,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "When prompted, click Relaunch Now to restart Chrome and apply your changes.",
+      "depth": 1,
+      "strong": [
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Block QUIC in Microsoft Edge",
+      "depth": 0
+    },
+    {
+      "item": "If you have administrator access to Microsoft services, you can create a policy to block Microsoft Edge for all users. To learn more, refer to the Microsoft Edge documentation. If you do not, you can still block QUIC in Microsoft Edge to prevent QUIC-enabled traffic across the browser.",
+      "depth": 0
+    },
+    {
+      "item": "To disable QUIC on individual machines:",
+      "depth": 0
+    },
+    {
+      "item": "Open Microsoft Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Enter edge://flags in the address bar.",
+      "depth": 1
+    },
+    {
+      "item": "See Image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter quic in the search bar.",
+      "depth": 1
+    },
+    {
+      "item": "See Image.",
+      "depth": 1
+    },
+    {
+      "item": "Click the drop-down menu and select Disabled.",
+      "depth": 1,
+      "strong": [
+        [
+          36,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See Image.",
+      "depth": 1
+    },
+    {
+      "item": "When Default is selected, Edge attempts to use QUIC.",
+      "depth": 1,
+      "strong": [
+        [
+          5,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "When prompted, click Restart to relaunch Edge and apply your changes.",
+      "depth": 1,
+      "strong": [
+        [
+          21,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See Image.",
+      "depth": 1
+    }
+  ]
+}

@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { anchorEvidence, buildGraph, idKind, loadPublic, parseProse, validateGraph } from "./kb-lib.mjs";
+import { anchorEvidence, buildGraph, captureText, idKind, loadPublic, parseProse, validateGraph } from "./kb-lib.mjs";
 import { loadOverlay, renderSubject, resolve, validateOverlay } from "./kb-resolve.mjs";
 import { loadSchemas, validate } from "./kb-schema.mjs";
 import { snakeToCamel } from "./kb-types.mjs";
@@ -183,6 +184,25 @@ test("capture quotes ignore the vendor's emphasis; other sources keep **", () =>
   assert.deepEqual(anchorEvidence(graphOf(capture), { source: "fake-help", path: "doc.txt", quotes }).errors, []);
   const code = tmpRepo({ "vendor/fake/doc.txt": body });
   assert.equal(anchorEvidence(graphOf(code), { source: "fake-help", path: "doc.txt", quotes }).errors.length, 2);
+});
+
+test("every help capture's anchoring text is the same in JavaScript and in help_capture.py", () => {
+  const dir = path.join(ROOT, "vendor/zscaler-help");
+  const py = [
+    "import hashlib, json, sys",
+    `sys.path.insert(0, ${JSON.stringify(path.join(ROOT, "scripts"))})`,
+    "from help_capture import read, text_of",
+    "from pathlib import Path",
+    `out = {p.name: hashlib.sha256(text_of(d["blocks"]).encode()).hexdigest() for p in sorted(Path(${JSON.stringify(dir)}).glob("*.json")) if (d := read(p))}`,
+    "print(json.dumps(out))",
+  ].join("\n");
+  const expected = JSON.parse(execFileSync("python3", ["-c", py], { encoding: "utf8", maxBuffer: 16 << 20 }));
+  assert.ok(Object.keys(expected).length > 0);
+  for (const [name, sha] of Object.entries(expected)) {
+    const doc = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8"));
+    const got = crypto.createHash("sha256").update(captureText(doc.blocks)).digest("hex");
+    assert.equal(got, sha, name);
+  }
 });
 
 test("references must resolve to the right kind of node", () => {

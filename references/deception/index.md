@@ -14,12 +14,12 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/what-is-zscaler-deception.md"
-  - "vendor/zscaler-help/about-deception-strategy.md"
+  - "vendor/zscaler-help/what-is-zscaler-deception.json"
+  - "vendor/zscaler-help/about-deception-strategy.json"
   - "vendor/zscaler-help/About_Access_Policy.txt"
-  - "vendor/zscaler-help/supported-mcp-server-decoy-applications-and-tools.md"
-  - "vendor/zscaler-help/configuring-services-network-decoy.md"
-  - "vendor/zscaler-help/deception-ranges-and-limitations.md"
+  - "vendor/zscaler-help/supported-mcp-server-decoy-applications-and-tools.json"
+  - "vendor/zscaler-help/configuring-services-network-decoy.json"
+  - "vendor/zscaler-help/deception-ranges-and-limitations.json"
 author-status: reviewed
 ---
 
@@ -35,12 +35,12 @@ Entry point for Zscaler Deception questions. The refreshed source-backed summary
 
 ## Scope boundary
 
-Deception is a separate active-defense product, not a ZPA feature. Its Help capture says it uses decoys and lures to detect and disrupt threats such as reconnaissance, lateral movement, ransomware, and ICS/SCADA attacks (`vendor/zscaler-help/what-is-zscaler-deception.md:8`). It integrates with ZPA for Zero Trust Network decoys without extra network components (`vendor/zscaler-help/what-is-zscaler-deception.md:45-47`), and ZPA access-policy docs describe Deception-configured policy rules as constrained for rule-order changes and copy/edit/delete options (`vendor/zscaler-help/About_Access_Policy.txt:169-177`, `:185-190`).
+Deception is a separate active-defense product, not a ZPA feature. Its Help capture says it uses decoys and lures to detect and disrupt threats such as reconnaissance, lateral movement, ransomware, and ICS/SCADA attacks (`vendor/zscaler-help/what-is-zscaler-deception.json:8`). It integrates with ZPA for Zero Trust Network decoys without extra network components (`vendor/zscaler-help/what-is-zscaler-deception.json:45-47`), and ZPA access-policy docs describe Deception-configured policy rules as constrained for rule-order changes and copy/edit/delete options (`vendor/zscaler-help/About_Access_Policy.txt:169-177`, `:185-190`).
 
 The audited public SDK/provider/management-MCP/Postman surface does not expose
 Deception product CRUD. Current Help does document an attacker-facing network
 decoy that speaks MCP to AI applications and serves fabricated tool responses
-(`vendor/zscaler-help/supported-mcp-server-decoy-applications-and-tools.md:12-17`,
+(`vendor/zscaler-help/supported-mcp-server-decoy-applications-and-tools.json:12-17`,
 `:37-42`). That protocol decoy is not an administrative MCP integration. The
 distinction and adjacent programmable surfaces are documented in
 [`./overview.md`](./overview.md#mcp-server-decoys-attacker-facing) and the claims

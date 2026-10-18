@@ -11,9 +11,9 @@ sources:
   - "https://help.zscaler.com/downloads/zscaler-technology-partners/cloud/zscaler-and-azure-traffic-forwarding-deployment-guide/Zscaler-Azure-Traffic-Forwarding-Deployment-Guide-FINAL.pdf"
   - "vendor/zscaler-help/Zscaler_Azure_Traffic_Forwarding_Deployment_Guide.txt"
   - "https://learn.microsoft.com/en-us/azure/virtual-desktop/azurecommunicationips"
-  - "vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md"
-  - "vendor/zscaler-help/about-machine-tunnels.md"
-  - "vendor/zscaler-help/about-machine-groups.md"
+  - "vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.json"
+  - "vendor/zscaler-help/about-machine-tunnels.json"
+  - "vendor/zscaler-help/about-machine-groups.json"
 author-status: draft
 ---
 
@@ -97,11 +97,11 @@ A machine tunnel allows a Windows or macOS device to establish a ZPA connection 
 - Internal DNS servers
 - Internal management endpoints
 
-Without machine tunnel, a VM joining an Azure AD-joined or hybrid-joined environment may not be able to reach domain controllers during the Windows boot/login phase because ZPA is not yet up (no user is logged in yet) (Tier A — vendor/zscaler-help/about-machine-tunnels.md).
+Without machine tunnel, a VM joining an Azure AD-joined or hybrid-joined environment may not be able to reach domain controllers during the Windows boot/login phase because ZPA is not yet up (no user is logged in yet) (Tier A — vendor/zscaler-help/about-machine-tunnels.json).
 
 ### Platform support
 
-Machine tunnels support **Windows and macOS only**. They are not supported on iOS, Linux, Android, or Android on ChromeOS (Tier A — vendor/zscaler-help/about-machine-tunnels.md).
+Machine tunnels support **Windows and macOS only**. They are not supported on iOS, Linux, Android, or Android on ChromeOS (Tier A — vendor/zscaler-help/about-machine-tunnels.json).
 
 ### Machine tunnel authentication
 
@@ -109,11 +109,11 @@ Machine tunnels use device-level authentication — the machine authenticates to
 
 - No user credential is required or used.
 - ZPA Machine Authentication (IdP-based) can optionally be enabled in App Profiles to require users to authenticate against their IdP before the machine tunnel starts. WebView2 authentication is not supported for Machine Tunnels.
-- macOS machine tunnel support requires contacting Zscaler Support to enable the feature (Tier A — vendor/zscaler-help/about-machine-tunnels.md).
+- macOS machine tunnel support requires contacting Zscaler Support to enable the feature (Tier A — vendor/zscaler-help/about-machine-tunnels.json).
 
 ### Machine tunnel states
 
-The Machine Tunnel page (ZCC Portal > Enrolled Devices > Machine Tunnel) shows machines with the following statuses (Tier A — vendor/zscaler-help/about-machine-tunnels.md):
+The Machine Tunnel page (ZCC Portal > Enrolled Devices > Machine Tunnel) shows machines with the following statuses (Tier A — vendor/zscaler-help/about-machine-tunnels.json):
 
 | Status | Meaning |
 |---|---|
@@ -128,12 +128,12 @@ The Machine Tunnel page (ZCC Portal > Enrolled Devices > Machine Tunnel) shows m
 
 ### What machine groups are
 
-A machine group is a named set of an organization's internal machines (local/Azure VM devices) that need to connect to ZPA Private Access. Machine groups are managed in the ZPA Admin Portal at Administration > Identity > Private Access > Machine Groups (Tier A — vendor/zscaler-help/about-machine-groups.md).
+A machine group is a named set of an organization's internal machines (local/Azure VM devices) that need to connect to ZPA Private Access. Machine groups are managed in the ZPA Admin Portal at Administration > Identity > Private Access > Machine Groups (Tier A — vendor/zscaler-help/about-machine-groups.json).
 
 Machine groups provide two key capabilities:
 
 1. **Associate ZCC with a machine group** — the machine provisioning key (generated per machine group) is embedded in the ZCC App Profile rule, enrolling devices into that group.
-2. **Enable Machine Tunnels for Pre-Windows Login** — devices in a machine group can use machine tunnels to reach internal applications even when ZCC's user tunnel is not connected (Tier A — vendor/zscaler-help/about-machine-groups.md).
+2. **Enable Machine Tunnels for Pre-Windows Login** — devices in a machine group can use machine tunnels to reach internal applications even when ZCC's user tunnel is not connected (Tier A — vendor/zscaler-help/about-machine-groups.json).
 
 ### Machine group design principles
 

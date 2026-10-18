@@ -14,8 +14,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/failopen_policy/failopen_policy.go"
-  - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
-  - "vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md"
+  - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json"
+  - "vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.json"
 author-status: draft
 ---
 
@@ -25,7 +25,7 @@ The ZCC **Web Policy** object (called **App Profile** in the ZCC admin portal UI
 
 **Naming note**: `WebPolicy` is the SDK/API name (wire path: `/zcc/papi/public/v1/web/policy/...` — note the slash between `web` and `policy`, confirmed in `web_policy.py:76` and the Go const `baseWebPolicyEndpoint = "/zcc/papi/public/v1/web/policy"` at `web_policy.go:17`). **App Profile** is the admin-portal UI name for the same object. When an admin says "the user's App Profile" or "edit the Windows app profile rule," they mean a Web Policy entry scoped to those users/that platform. See [`clarification zcc-07`](../_meta/clarifications.md#zcc-07-forwarding-profile-assignment-to-usersdevices).
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-python/zscaler/zcc/web_policy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`.
 
 ---
 
@@ -42,7 +42,7 @@ A Web Policy / App Profile is the central configuration object that decides what
 
 Multiple Web Policies can exist per tenant, scoped by user/group/device-group. They evaluate in rule order (first-match-wins) — the same pattern as ZIA and ZPA policies.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`.
 
 ---
 
@@ -154,7 +154,7 @@ The policy also carries an **`endToEndDiagnostics`** block keyed per network con
 
 Each platform has its own sub-policy block within the Web Policy. The five platforms are: `windowsPolicy`, `macPolicy`, `linuxPolicy`, `iosPolicy`, `androidPolicy`. A null sub-policy means "no platform-specific policy defined" — not "inherit defaults." Devices on an unscoped platform fall through to the tenant's default Web Policy.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.json`.
 
 Common fields across platforms (the wire keys vary by platform — see [§ install_ssl_certs wire-key matrix](#install_ssl_certs-wire-key-matrix) below):
 
@@ -329,7 +329,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zsc
 
 An operator who pushes a critical forwarding or password policy change expecting it to take effect immediately on currently-connected devices will be surprised — those devices keep using the cached App Profile until their next ZCC restart/login event.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/web_policy/web_policy.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`.
 
 ---
 

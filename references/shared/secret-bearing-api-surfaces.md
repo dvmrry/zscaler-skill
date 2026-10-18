@@ -29,7 +29,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcc-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/zid.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json"
-  - "vendor/zscaler-help/legacy-managing-cloud-service-api-key.md"
+  - "vendor/zscaler-help/legacy-managing-cloud-service-api-key.json"
 ---
 
 # Secret-bearing API read surfaces — which GETs reveal secrets vs protect them
@@ -123,7 +123,7 @@ There is no GET endpoint that returns the sandbox submission token. It is a clie
 
 ### Protects — ZIA Cloud Service API key (portal-managed, no value GET)
 
-The legacy ZIA Cloud Service API key has no value-bearing API read. The only API-visible field is a read-only boolean `obfuscateApiKey` ("Whether API key was obfuscated or not") on the auth/login schema (`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json` — `obfuscateApiKey`, `readOnly: true`), not a value-bearing key resource. In the SDK the key is a client-supplied legacy credential that is obfuscated against a timestamp for login, never fetched (`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:139` `obfuscateAPIKey`). Lifecycle (add/edit/regenerate/delete) is a portal action, not an API read (`vendor/zscaler-help/legacy-managing-cloud-service-api-key.md`). See [`legacy-api.md`](legacy-api.md).
+The legacy ZIA Cloud Service API key has no value-bearing API read. The only API-visible field is a read-only boolean `obfuscateApiKey` ("Whether API key was obfuscated or not") on the auth/login schema (`vendor/zscaler-api-specs/automate-zscaler/openapi/zia.openapi.json` — `obfuscateApiKey`, `readOnly: true`), not a value-bearing key resource. In the SDK the key is a client-supplied legacy credential that is obfuscated against a timestamp for login, never fetched (`vendor/zscaler-sdk-go/zscaler/zia/v2_client.go:139` `obfuscateAPIKey`). Lifecycle (add/edit/regenerate/delete) is a portal action, not an API read (`vendor/zscaler-help/legacy-managing-cloud-service-api-key.json`). See [`legacy-api.md`](legacy-api.md).
 
 ### Protects — ZIdentity OAuth client secret (masked on GET, full only on create)
 

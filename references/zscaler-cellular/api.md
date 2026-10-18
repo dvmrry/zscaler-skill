@@ -22,7 +22,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/zcell-api-reference.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/zcell.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/rosetta.md"
-  - "vendor/zscaler-help/cellular-what-zscaler-cellular.md"
+  - "vendor/zscaler-help/cellular-what-zscaler-cellular.json"
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
@@ -218,7 +218,7 @@ The ZCell surface landed in MCP v0.13.0 and remains present in the pinned v0.15 
 | SIM location groups | 2 | Create, update, and delete (`vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:131-268`); geofence create and Python-style update kwargs have the wrapper defects documented above. |
 | Tags | 1 | Create tag (`vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:91-121`) |
 
-That is a **20-operation read/search subset of the 36-operation captured contract**, leaving 16 mutation/export operations at the SDK/API layer (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:16`; `vendor/zscaler-mcp-server/tests/test_docgen.py:120-124`; omitted SDK operations at `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:117-241`, `:311-347`, `vendor/zscaler-sdk-python/zscaler/zcell/customer_data_handling.py:74-108`, `vendor/zscaler-sdk-python/zscaler/zcell/customer_region_handling.py:85-116`, `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:96-284`, `:328-454`, `vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:131-268`, and `vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:91-121`). The Help portal's management scope—status changes, IMEI association, tags, eSIM assignment/activation, anomaly policies, and location groups—is therefore broader than the current MCP surface (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:65-67`).
+That is a **20-operation read/search subset of the 36-operation captured contract**, leaving 16 mutation/export operations at the SDK/API layer (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:16`; `vendor/zscaler-mcp-server/tests/test_docgen.py:120-124`; omitted SDK operations at `vendor/zscaler-sdk-python/zscaler/zcell/anomaly_policy.py:117-241`, `:311-347`, `vendor/zscaler-sdk-python/zscaler/zcell/customer_data_handling.py:74-108`, `vendor/zscaler-sdk-python/zscaler/zcell/customer_region_handling.py:85-116`, `vendor/zscaler-sdk-python/zscaler/zcell/sim_handling.py:96-284`, `:328-454`, `vendor/zscaler-sdk-python/zscaler/zcell/sim_location_groups.py:131-268`, and `vendor/zscaler-sdk-python/zscaler/zcell/tag_handling.py:91-121`). The Help portal's management scope—status changes, IMEI association, tags, eSIM assignment/activation, anomaly policies, and location groups—is therefore broader than the current MCP surface (`vendor/zscaler-help/cellular-what-zscaler-cellular.json:65-67`).
 
 ### Input and output contract
 

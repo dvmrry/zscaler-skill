@@ -7,15 +7,15 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/legacy-about-error-codes-zcc.md"
-  - "vendor/zscaler-help/legacy-api-response-codes-and-error-messages.md"
-  - "vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.md"
-  - "vendor/zscaler-help/configuring-fail-open-settings-zscaler-client-connector.md"
-  - "vendor/zscaler-help/about-device-posture-profiles.md"
-  - "vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md"
-  - "vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md"
-  - "vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.md"
-  - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
+  - "vendor/zscaler-help/legacy-about-error-codes-zcc.json"
+  - "vendor/zscaler-help/legacy-api-response-codes-and-error-messages.json"
+  - "vendor/zscaler-help/legacy-understanding-rate-limiting-zcc.json"
+  - "vendor/zscaler-help/configuring-fail-open-settings-zscaler-client-connector.json"
+  - "vendor/zscaler-help/about-device-posture-profiles.json"
+  - "vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json"
+  - "vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.json"
+  - "vendor/zscaler-help/configuring-end-user-notifications-zscaler-client-connector.json"
+  - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json"
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py"
   - "references/zcc/forwarding-profile.md"
   - "references/zcc/z-tunnel.md"
@@ -50,7 +50,7 @@ This document covers:
 
 The ZCC portal API (`/zcc/papi/public/v1`) returns standard HTTP status codes. The following table enumerates every code documented in the vendor source.
 
-Source: `vendor/zscaler-help/legacy-about-error-codes-zcc.md`.
+Source: `vendor/zscaler-help/legacy-about-error-codes-zcc.json`.
 
 | HTTP Code | Surface area | Short message | Root cause | Primary remediation | Escalation criteria |
 |---|---|---|---|---|---|
@@ -65,7 +65,7 @@ Source: `vendor/zscaler-help/legacy-about-error-codes-zcc.md`.
 
 ### Additional HTTP codes documented in the legacy ZIA/ZPA API reference
 
-The ZCC portal API shares HTTP semantics with the broader Zscaler API platform. The following codes are documented in `vendor/zscaler-help/legacy-api-response-codes-and-error-messages.md` and apply when the ZCC API behaves as part of the broader platform:
+The ZCC portal API shares HTTP semantics with the broader Zscaler API platform. The following codes are documented in `vendor/zscaler-help/legacy-api-response-codes-and-error-messages.json` and apply when the ZCC API behaves as part of the broader platform:
 
 | HTTP Code | Short message | Notes |
 |---|---|---|
@@ -249,7 +249,7 @@ What tunnel mode is active on this device?
 
 ### 5.1 ZCC log bundle (all platforms)
 
-Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.md`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md`.
+Source: `vendor/zscaler-help/configuring-user-access-support-options-zscaler-client-connector.json`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json`.
 
 The primary support artifact is the encrypted log bundle sent via "Report an Issue" within ZCC.
 
@@ -349,10 +349,10 @@ The following version-specific behavior differences are documented in vendor sou
 
 | Platform | Version | Behavior change | Source |
 |---|---|---|---|
-| Windows | 4.4+ | Device posture evaluation cadence is configurable (default: 15 min); earlier versions have a fixed 15-minute cadence | `vendor/zscaler-help/about-device-posture-profiles.md` |
-| Windows | 4.5+ | Captive portal detection moved from tenant-global App Fail-Open to per-App-Profile configuration; global setting still applies to older ZCC versions | `vendor/zscaler-help/configuring-fail-open-settings-zscaler-client-connector.md` |
+| Windows | 4.4+ | Device posture evaluation cadence is configurable (default: 15 min); earlier versions have a fixed 15-minute cadence | `vendor/zscaler-help/about-device-posture-profiles.json` |
+| Windows | 4.5+ | Captive portal detection moved from tenant-global App Fail-Open to per-App-Profile configuration; global setting still applies to older ZCC versions | `vendor/zscaler-help/configuring-fail-open-settings-zscaler-client-connector.json` |
 | Windows | 4.5+ | Additional fail-close enforcement options exposed for STRICT ENFORCEMENT mode | `references/zcc/forwarding-profile.md` |
-| Windows | 4.6+ | SE Fail Close feature available: `IMPORTSEFAILCLOSECONFIG` + `SEFAILCLOSECONFIGTHUMBPRINT` install parameters; fail-open settings configurable per App Profile (take precedence over global) | `references/zcc/install-parameters.md`; `vendor/zscaler-help/configuring-fail-open-settings-zscaler-client-connector.md` |
+| Windows | 4.6+ | SE Fail Close feature available: `IMPORTSEFAILCLOSECONFIG` + `SEFAILCLOSECONFIGTHUMBPRINT` install parameters; fail-open settings configurable per App Profile (take precedence over global) | `references/zcc/install-parameters.md`; `vendor/zscaler-help/configuring-fail-open-settings-zscaler-client-connector.json` |
 | Windows | 4.6+ | Business Continuity Planning (BCP) parameters available: `BCPCONFIGFILEPATH` + `BCPMAPUBKEYHASH` for ZPA BCP | `references/zcc/install-parameters.md` |
 | Windows | 4.2.1+ | Silent uninstall (`UNINSTALLPASSWORDCMDLINE`) and silent revert (`REVERTPASSWORDCMDLINE`) support added | `references/zcc/install-parameters.md` |
 | macOS | 4.6+ | Captive portal detection improvements; per-App-Profile captive portal overrides | `references/zcc/forwarding-profile.md` |

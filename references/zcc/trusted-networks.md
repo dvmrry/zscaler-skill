@@ -13,7 +13,7 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go"
-  - "vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md"
+  - "vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json"
   - "vendor/terraform-provider-zcc/internal/framework/tnbackend/tnbackend.go"
   - "vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v1.go"
   - "vendor/terraform-provider-zcc/internal/framework/tnbackend/backend_v2.go"
@@ -25,7 +25,7 @@ author-status: draft
 
 # ZCC trusted networks — detection criteria and evaluation
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vendor/zscaler-sdk-python/zscaler/zcc/trusted_networks.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json`.
 
 A **TrustedNetwork** is a named set of criteria ZCC uses to answer the question "am I on a known corporate-trusted network right now?" The answer flows directly into the active Forwarding Profile's TRUSTED vs UNTRUSTED action branch, which in turn determines whether traffic is sent to ZIA via Z-Tunnel, bypassed, or handled via PAC.
 
@@ -39,7 +39,7 @@ Trusted networks are conditions under which ZCC changes its forwarding behavior.
 
 **Trusted network detection is continuous.** ZCC re-evaluates when network conditions change — adapter up/down, DHCP renewal, SSID switch, or manual trigger. A user who moves between networks (office → coffee shop → home) flips TRUSTED ↔ UNTRUSTED multiple times per day.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json`.
 
 ---
 
@@ -116,7 +116,7 @@ The provider's v1 lifecycle adapter has no GET-by-ID, requires a name for create
 
 ## How trusted network status affects forwarding mode
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json`.
 
 Trusted network evaluation feeds directly into the Forwarding Profile action branches. The full evaluation chain:
 
@@ -141,7 +141,7 @@ When ZCC's Forwarding Profile has `actionType = NONE` (bypass ZIA) on the On-Tru
 
 ## Z-Tunnel 2.0 deployment and trusted networks
 
-From the Z-Tunnel 2.0 best practices vendor source (Tier A — vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md):
+From the Z-Tunnel 2.0 best practices vendor source (Tier A — vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json):
 
 Z-Tunnel 2.0 best practices prescribe creating a dedicated Forwarding Profile for Z-Tunnel 2.0 testing with:
 
@@ -162,7 +162,7 @@ This is a common operational pattern: a tenant that has corporate offices with G
 
 ## Common trusted network patterns
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/trustednetworks.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/trusted_network/trusted_network.go`; `vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json`.
 
 ### Corporate LAN (strongest)
 

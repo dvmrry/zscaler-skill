@@ -14,8 +14,8 @@ verified-against:
 confidence: high
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/about-browser-access.md"
-  - "vendor/zscaler-help/using-wildcard-certificates-browser-access-applications.md"
+  - "vendor/zscaler-help/about-browser-access.json"
+  - "vendor/zscaler-help/using-wildcard-certificates-browser-access-applications.json"
   - "vendor/terraform-provider-zpa/CHANGELOG.md"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment_browser_access.go"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_application_segment.go"

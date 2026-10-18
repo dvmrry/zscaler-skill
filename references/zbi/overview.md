@@ -14,11 +14,11 @@ confidence: high
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/zero-trust-browser/what-is-zero-trust-browser"
-  - "vendor/zscaler-help/what-is-zero-trust-browser.md"
+  - "vendor/zscaler-help/what-is-zero-trust-browser.json"
   - "https://help.zscaler.com/zero-trust-browser/understanding-turbo-mode-isolation"
-  - "vendor/zscaler-help/understanding-turbo-mode-isolation.md"
-  - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.md"
-  - "vendor/zscaler-help/zpa-about-isolation-policy.md"
+  - "vendor/zscaler-help/understanding-turbo-mode-isolation.json"
+  - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.json"
+  - "vendor/zscaler-help/zpa-about-isolation-policy.json"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py"
   - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
@@ -32,13 +32,13 @@ author-status: draft
 
 # ZBI overview — architecture, traffic flow, rendering modes
 
-What Zero Trust Browser actually does: render a web page on a Zscaler-hosted browser instance, then stream the rendering to the user's local browser. The user interacts with pixels (or with remotely-generated rendering instructions in Turbo Mode); the real HTML, CSS, and JavaScript never reach the endpoint (`vendor/zscaler-help/what-is-zero-trust-browser.md:14`, `:18`, `vendor/zscaler-help/understanding-turbo-mode-isolation.md:15`, `:17`).
+What Zero Trust Browser actually does: render a web page on a Zscaler-hosted browser instance, then stream the rendering to the user's local browser. The user interacts with pixels (or with remotely-generated rendering instructions in Turbo Mode); the real HTML, CSS, and JavaScript never reach the endpoint (`vendor/zscaler-help/what-is-zero-trust-browser.json:14`, `:18`, `vendor/zscaler-help/understanding-turbo-mode-isolation.json:15`, `:17`).
 
 ## Summary
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
 
-**The isolation container is ephemeral and cloud-resident.** Each user gets an endpoint container allocated at first isolation request; subsequent requests hitting the same isolation profile reuse it; the container is destroyed when the user logs out manually or after **10 minutes of idle time** (`vendor/zscaler-help/what-is-zero-trust-browser.md:38`).
+**The isolation container is ephemeral and cloud-resident.** Each user gets an endpoint container allocated at first isolation request; subsequent requests hitting the same isolation profile reuse it; the container is destroyed when the user logs out manually or after **10 minutes of idle time** (`vendor/zscaler-help/what-is-zero-trust-browser.json:38`).
 
 **Traffic passes through Zscaler Public Service Edges twice** on the way to the destination:
 
@@ -47,11 +47,11 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-hel
 3. Cloud browser → PSE (second traversal!) → destination web page
 4. Cloud browser renders page → ZBI experience engine streams pixels (or Turbo Mode instructions) → user's browser
 
-Because the cloud browser's egress traffic hits a Public Service Edge too, the remote browser's request to the destination is also evaluated by the user's Internet & SaaS policies (`vendor/zscaler-help/what-is-zero-trust-browser.md:22`, `:30`). Treat this as a separate egress-inspection leg, not as proof that every policy family produces duplicate log events.
+Because the cloud browser's egress traffic hits a Public Service Edge too, the remote browser's request to the destination is also evaluated by the user's Internet & SaaS policies (`vendor/zscaler-help/what-is-zero-trust-browser.json:22`, `:30`). Treat this as a separate egress-inspection leg, not as proof that every policy family produces duplicate log events.
 
 ## Mechanics
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
 
 ### Components
 
@@ -93,7 +93,7 @@ Cloud browser ──egress──▶ Public Service Edge ──▶ Destination
 User browser ──HTTPS stream──────── Isolation profile URL
 ```
 
-**The second Public Service Edge traversal is why isolated egress is still inspected.** This isn't a bug; it's the designed security model. If an operator asks whether ZIA policy still applies to isolated traffic, the source-backed answer is: the user's original request must hit a ZIA policy that redirects it to the isolation profile URL, and the cloud browser's outbound request to the original destination is also routed through the nearest Public Service Edges and evaluated against Internet & SaaS policies (`vendor/zscaler-help/what-is-zero-trust-browser.md:28`, `:30`).
+**The second Public Service Edge traversal is why isolated egress is still inspected.** This isn't a bug; it's the designed security model. If an operator asks whether ZIA policy still applies to isolated traffic, the source-backed answer is: the user's original request must hit a ZIA policy that redirects it to the isolation profile URL, and the cloud browser's outbound request to the original destination is also routed through the nearest Public Service Edges and evaluated against Internet & SaaS policies (`vendor/zscaler-help/what-is-zero-trust-browser.json:28`, `:30`).
 
 ### Rendering modes — pixel streaming vs Turbo Mode
 
@@ -149,7 +149,7 @@ Zero Trust Browser does not appear in the captured sources as a standalone polic
 
 ## Use cases
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`.
 
 Common ZIA-triggered isolation patterns (URL Filter `Isolate` action):
 
@@ -162,7 +162,7 @@ Common ZIA-triggered isolation patterns (URL Filter `Isolate` action):
 
 ## What ZBI is not
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`.
 
 Boundary disclaimers that come up in scoping conversations:
 
@@ -185,7 +185,7 @@ The honest answer to "is this programmable?" depends on the object. ZIA isolatio
 
 ## Light mentions (one-line each)
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
 
 Features captured in vendor docs but not deep-dived here. Skill should recognize the names and route to vendor docs / TAM for depth:
 
@@ -198,11 +198,11 @@ Features captured in vendor docs but not deep-dived here. Skill should recognize
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
 
-- **Smart Browser Isolation explicitly depends on SSL/TLS Inspection.** The Smart Isolation help page says suspicious websites are decrypted using SSL/TLS Inspection and enabling the feature creates an editable SSL/TLS Inspection rule (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:16`, `:24`). Whether every manual URL Filtering `Isolate` rule has identical decrypt behavior is not established by the captured source; track that as an open question rather than stating it as a hard failure mode.
+- **Smart Browser Isolation explicitly depends on SSL/TLS Inspection.** The Smart Isolation help page says suspicious websites are decrypted using SSL/TLS Inspection and enabling the feature creates an editable SSL/TLS Inspection rule (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:16`, `:24`). Whether every manual URL Filtering `Isolate` rule has identical decrypt behavior is not established by the captured source; track that as an open question rather than stating it as a hard failure mode.
 - **During ZPA maintenance windows, Isolation may be unavailable.** From the ZPA Isolation help article: "If ZPA is undergoing a maintenance period, Isolation might not be available." Operator-visible failure mode.
-- **Isolated egress still traverses Internet & SaaS policy on the second PSE pass.** The source says the remote browser's request to the original web page is routed through the nearest Public Service Edges and evaluated against all policies defined for the user (`vendor/zscaler-help/what-is-zero-trust-browser.md:30`). Specific log shapes and user-visible failure modes for second-leg blocks need tenant evidence.
+- **Isolated egress still traverses Internet & SaaS policy on the second PSE pass.** The source says the remote browser's request to the original web page is routed through the nearest Public Service Edges and evaluated against all policies defined for the user (`vendor/zscaler-help/what-is-zero-trust-browser.json:30`). Specific log shapes and user-visible failure modes for second-leg blocks need tenant evidence.
 - **Smart Browser Isolation auto-creates an SSL Inspection rule.** When you enable Smart Isolation, ZIA silently adds a decrypt rule for suspicious websites. Operators auditing SSL Inspection rule count are often surprised. See [`./policy-integration.md`](./policy-integration.md).
 - **Isolation containers run in specific Zscaler data centers.** Region selection on the isolation profile controls which region hosts the container. Data-residency reviewers should know containers can be confined to specific regions; the default is "All."
 - **The cloud browser's egress is a Zscaler-owned IP, not the user's egress IP.** Destinations that geolocate by source IP see the user as being "wherever the container is," not where the user is. This is occasionally user-visible ("why am I seeing the US homepage when I'm in Germany?") and is inherent to the architecture.
@@ -211,7 +211,7 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-hel
 
 ## Open questions
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.md`; `vendor/zscaler-help/understanding-turbo-mode-isolation.md`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
 
 - **Exact container-destroy latency** after the 10-minute idle threshold — is it 10:00 hard, or 10:00 + some grace? Not documented numerically.
 - **Container resource limits** (memory, CPU) — not surfaced in the customer-facing docs.

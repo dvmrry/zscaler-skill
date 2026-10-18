@@ -7,8 +7,8 @@ last-verified: "2026-06-16"
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/understanding-subclouds.md"
-  - "vendor/zscaler-help/understanding-sublocations.md"
+  - "vendor/zscaler-help/understanding-subclouds.json"
+  - "vendor/zscaler-help/understanding-sublocations.json"
 author-status: draft
 ---
 
@@ -29,7 +29,7 @@ These two terms appear in the same domain but refer to different things in diffe
 
 Sublocations do not affect which PSE handles traffic — they affect how ZIA classifies traffic after it arrives at a PSE. A sublocation under a GRE-tunnel location says "IP range 10.10.20.0/24 is the Guest subnet" — ZIA applies a different policy to that subnet. The PSE serving the tunnel is the same; only the ZIA policy classification differs.
 
-**Sublocations in detail** (Tier A — vendor/zscaler-help/understanding-sublocations.md):
+**Sublocations in detail** (Tier A — vendor/zscaler-help/understanding-sublocations.json):
 
 - Enable an organization to create new locations that reference IP addresses encapsulated within a GRE or IPSec tunnel, or passed via X-Forwarded-For (XFF) headers.
 - One parent location can have multiple sublocations — e.g., one for corporate network and one for guest network, even if their traffic goes through the same GRE tunnel.
@@ -117,7 +117,7 @@ Useful for tenants that want US-only egress without the full subcloud setup proc
 
 ## Propagation timing — the stale-PAC trap
 
-Subcloud edits (adding/removing data centers) don't take effect immediately. Propagation cascade: (Tier A — vendor/zscaler-help/understanding-subclouds.md.)
+Subcloud edits (adding/removing data centers) don't take effect immediately. Propagation cascade: (Tier A — vendor/zscaler-help/understanding-subclouds.json.)
 
 | Layer | Refresh interval | Effect |
 |---|---|---|
@@ -159,7 +159,7 @@ There is no `GET /subclouds` endpoint. The subcloud list is visible only in the 
 
 5. **Subclouds gate the PSE pool but not the Central Authority.** Policy evaluation still flows through the tenant's CA; only the data-plane PSEs are restricted. CA-level config propagation isn't subcloud-aware.
 
-6. **Business Continuity Cloud uses a separate fallback path.** The BC Cloud docs describe dedicated private cloud infrastructure and support only Z-Tunnel 1.0, PAC files, and GRE (`vendor/zscaler-help/understanding-business-continuity-cloud-components.md:16`, `:18`). This pass did not find a source stating how BC mode interacts with subcloud selection, so verify tenant BC design before claiming subcloud guarantees during a BC event.
+6. **Business Continuity Cloud uses a separate fallback path.** The BC Cloud docs describe dedicated private cloud infrastructure and support only Z-Tunnel 1.0, PAC files, and GRE (`vendor/zscaler-help/understanding-business-continuity-cloud-components.json:16`, `:18`). This pass did not find a source stating how BC mode interacts with subcloud selection, so verify tenant BC design before claiming subcloud guarantees during a BC event.
 
 7. **Sublocations are independent of subclouds.** Sublocations are a ZIA location config tool for per-IP-range policy within a site. A sublocation change does not affect which PSE handles traffic — only the subcloud does. Don't confuse the two when troubleshooting traffic routing vs policy classification issues.
 

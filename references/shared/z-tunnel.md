@@ -8,13 +8,13 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zscaler-client-connector/about-z-tunnel-1.0-z-tunnel-2.0"
-  - "vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md"
+  - "vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.json"
   - "https://help.zscaler.com/zscaler-client-connector/migrating-z-tunnel-1.0-z-tunnel-2.0"
-  - "vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md"
+  - "vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.json"
   - "https://help.zscaler.com/zscaler-client-connector/best-practices-deploying-z-tunnel-2.0"
-  - "vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md"
+  - "vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json"
   - "https://help.zscaler.com/zscaler-client-connector/best-practices-adding-bypasses-z-tunnel-2.0"
-  - "vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md"
+  - "vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json"
 author-status: draft
 ---
 
@@ -39,7 +39,7 @@ The ZCC-specific depth on forwarding profile configuration and SDK fields is in 
 
 ### Z-Tunnel 1.0 architecture
 
-Z-Tunnel 1.0 forwards traffic to the Zscaler cloud via CONNECT requests, functioning like a traditional proxy. It sends proxy-aware traffic, or port 80/443 traffic, depending on the forwarding profile configuration (Tier A — vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md).
+Z-Tunnel 1.0 forwards traffic to the Zscaler cloud via CONNECT requests, functioning like a traditional proxy. It sends proxy-aware traffic, or port 80/443 traffic, depending on the forwarding profile configuration (Tier A — vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.json).
 
 Consequences:
 - UDP, non-web TCP, ICMP, and non-standard-port traffic are **not forwarded**. They either go direct or are blocked depending on the local firewall policy.
@@ -48,27 +48,27 @@ Consequences:
 
 ### Z-Tunnel 2.0 architecture
 
-Z-Tunnel 2.0 uses DTLS or TLS to send packets to the Zscaler service. Because of this, Z-Tunnel 2.0 carries **all ports and protocols** (Tier A — vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md).
+Z-Tunnel 2.0 uses DTLS or TLS to send packets to the Zscaler service. Because of this, Z-Tunnel 2.0 carries **all ports and protocols** (Tier A — vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.json).
 
-Critical NAT requirement: the NAT device in the data path must use **a single IP for all connections from a single device**. If connections from the same device egress through different NAT IPs, Z-Tunnel 2.0's control and data connections land on different Public Service Edges. Z-Tunnel 2.0 fails to establish and falls back to Z-Tunnel 1.0 silently. This is the most common reason a tenant reports "we enabled Z-Tunnel 2.0 but devices are still using 1.0" (Tier A — vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.md).
+Critical NAT requirement: the NAT device in the data path must use **a single IP for all connections from a single device**. If connections from the same device egress through different NAT IPs, Z-Tunnel 2.0's control and data connections land on different Public Service Edges. Z-Tunnel 2.0 fails to establish and falls back to Z-Tunnel 1.0 silently. This is the most common reason a tenant reports "we enabled Z-Tunnel 2.0 but devices are still using 1.0" (Tier A — vendor/zscaler-help/about-z-tunnel-1.0-z-tunnel-2.0.json).
 
 ## When to stay on Z-Tunnel 1.0
 
 ### Business Continuity Cloud constraint
 
-**Business Continuity (BC) Cloud only supports Z-Tunnel 1.0.** This is a hard architectural constraint, not a configuration choice. Tenants or user populations that rely on BC mode for ZIA continuity during primary cloud outages must remain on Z-Tunnel 1.0 (at least for the BC cloud path). You can run Z-Tunnel 2.0 for normal operation and fall back to 1.0 when BC conditions are triggered — but the BC cloud itself will not establish a Z-Tunnel 2.0 session (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md, "About Business Continuity" related article).
+**Business Continuity (BC) Cloud only supports Z-Tunnel 1.0.** This is a hard architectural constraint, not a configuration choice. Tenants or user populations that rely on BC mode for ZIA continuity during primary cloud outages must remain on Z-Tunnel 1.0 (at least for the BC cloud path). You can run Z-Tunnel 2.0 for normal operation and fall back to 1.0 when BC conditions are triggered — but the BC cloud itself will not establish a Z-Tunnel 2.0 session (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json, "About Business Continuity" related article).
 
 ### GRE-deployed offices
 
-Offices with existing GRE tunnel infrastructure should stay on Z-Tunnel 1.0 for on-LAN users, or add a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE path. Double-encapsulating Z-Tunnel 2.0 DTLS/TLS traffic inside a GRE tunnel causes overhead and fragmentation that degrades performance (Tier A — vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md). See [`./gre-tunnels.md § Z-Tunnel 2.0 incompatibility`](./gre-tunnels.md).
+Offices with existing GRE tunnel infrastructure should stay on Z-Tunnel 1.0 for on-LAN users, or add a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE path. Double-encapsulating Z-Tunnel 2.0 DTLS/TLS traffic inside a GRE tunnel causes overhead and fragmentation that degrades performance (Tier A — vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json). See [`./gre-tunnels.md § Z-Tunnel 2.0 incompatibility`](./gre-tunnels.md).
 
 ### Mixed-OS fleets without platform parity
 
-Z-Tunnel 2.0 port-based bypasses (Destination Exclusions with port syntax) are **only supported on Windows and macOS**. Linux, iOS, and Android do not support port-based bypass entries. Tenants with significant Linux, iOS, or Android populations need a fallback plan for those devices before fully committing to Z-Tunnel 2.0 bypass semantics (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md).
+Z-Tunnel 2.0 port-based bypasses (Destination Exclusions with port syntax) are **only supported on Windows and macOS**. Linux, iOS, and Android do not support port-based bypass entries. Tenants with significant Linux, iOS, or Android populations need a fallback plan for those devices before fully committing to Z-Tunnel 2.0 bypass semantics (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json).
 
 ## Migration path from Z-Tunnel 1.0 to 2.0
 
-The vendor-documented migration consists of six phases. Run them sequentially; do not skip the observation window (Tier A — vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md):
+The vendor-documented migration consists of six phases. Run them sequentially; do not skip the observation window (Tier A — vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.json):
 
 | Phase | Key steps |
 |---|---|
@@ -79,18 +79,18 @@ The vendor-documented migration consists of six phases. Run them sequentially; d
 | **5 — Test** | Verify top business applications work for the test group. Collect user feedback. |
 | **6 — Batch rollout** | Roll out in batches of 100–200 users, verifying business applications after each batch. |
 
-**Do not migrate by copying 1.0 PAC bypasses directly.** Z-Tunnel 1.0 network bypasses live in the PAC file; Z-Tunnel 2.0 network bypasses must go into `Destination Exclusions` or `VPN Gateway Bypasses`. Copying PAC-based network bypasses to a 2.0 profile has no effect on 2.0 traffic (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md).
+**Do not migrate by copying 1.0 PAC bypasses directly.** Z-Tunnel 1.0 network bypasses live in the PAC file; Z-Tunnel 2.0 network bypasses must go into `Destination Exclusions` or `VPN Gateway Bypasses`. Copying PAC-based network bypasses to a 2.0 profile has no effect on 2.0 traffic (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json).
 
 ### GRE coexistence during migration
 
-If the site has GRE tunnels, implement one of these during migration to prevent Z-Tunnel 2.0 traffic from double-encapsulating through GRE (Tier A — vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md):
+If the site has GRE tunnels, implement one of these during migration to prevent Z-Tunnel 2.0 traffic from double-encapsulating through GRE (Tier A — vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.json):
 
 - Configure the ZCC forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met (on-LAN users stay on 1.0).
 - Configure a policy-based route on the upstream router to exclude Z-Tunnel 2.0 traffic from the GRE tunnel.
 
 ## Z-Tunnel 2.0 bypass configuration
 
-Z-Tunnel 2.0 uses a different bypass architecture than Z-Tunnel 1.0. Network bypasses are not configured in the PAC file for Z-Tunnel 2.0 (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md).
+Z-Tunnel 2.0 uses a different bypass architecture than Z-Tunnel 1.0. Network bypasses are not configured in the PAC file for Z-Tunnel 2.0 (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json).
 
 ### Bypass type hierarchy
 
@@ -105,7 +105,7 @@ Bypasses are evaluated in the following precedence order:
 
 ### VPN Gateway Bypasses
 
-The highest-priority bypass type. Configures a kernel-level filter that ignores matching traffic before ZCC even processes it. Accepts IPs, subnets, or FQDNs. FQDN entries are DNS-resolved by ZCC at bypass evaluation time — volatile FQDN-to-IP mappings (CDN-backed, CGN) cause ongoing DNS churn. Use IP/subnet when possible (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md).
+The highest-priority bypass type. Configures a kernel-level filter that ignores matching traffic before ZCC even processes it. Accepts IPs, subnets, or FQDNs. FQDN entries are DNS-resolved by ZCC at bypass evaluation time — volatile FQDN-to-IP mappings (CDN-backed, CGN) cause ongoing DNS churn. Use IP/subnet when possible (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json).
 
 ### Destination Exclusions and Inclusions
 
@@ -114,7 +114,7 @@ Configure using one of two patterns:
 - **Allowlist mode**: add `0.0.0.0/0` to Destination Exclusions, add specific subnets to Destination Inclusions. Only listed subnets go through Z-Tunnel 2.0; everything else is direct.
 - **Denylist mode**: add `0.0.0.0/0` to Destination Inclusions, add specific subnets to Destination Exclusions. All traffic goes through Z-Tunnel 2.0 except the excluded subnets.
 
-**Conflict resolution rules** (deterministic, applied in order) (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md):
+**Conflict resolution rules** (deterministic, applied in order) (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json):
 
 1. More-specific netmask wins: `10.0.0.0/24` beats `10.0.0.0/16`.
 2. Same netmask → more fields win: `10.0.0.0/8:443:tcp` beats `10.0.0.0/8:443` beats `10.0.0.0/8`.
@@ -122,7 +122,7 @@ Configure using one of two patterns:
 
 ### Port-based bypasses
 
-Syntax: append port or port range to a Destination Exclusions entry (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md):
+Syntax: append port or port range to a Destination Exclusions entry (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json):
 
 ```
 192.168.1.0/24:80        # bypass port 80 for subnet
@@ -135,7 +135,7 @@ Syntax: append port or port range to a Destination Exclusions entry (Tier A — 
 
 Required for destinations that cannot be expressed as a stable IP subnet (CDN-fronted SaaS, etc.). The mechanism differs by ZCC version:
 
-**ZCC 3.7 and earlier (Windows) — dual PAC** (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md):
+**ZCC 3.7 and earlier (Windows) — dual PAC** (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json):
 
 Forwarding profile PAC (routes to the bypass path):
 ```javascript
@@ -155,7 +155,7 @@ function FindProxyForURL(url, host) {
 }
 ```
 
-**ZCC 3.8 and later (Windows) — forwarding profile options** (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md):
+**ZCC 3.8 and later (Windows) — forwarding profile options** (Tier A — vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json):
 
 | `Redirect Web Traffic to ZCC Listening Proxy` | `Use Z-Tunnel 2.0 for Proxied Web Traffic` | Web traffic | Non-web traffic |
 |---|---|---|---|
@@ -167,7 +167,7 @@ The `Use Z-Tunnel 2.0 for Proxied Web Traffic` flag applies only to connections 
 
 ## Relationship to ZCC forwarding profiles
 
-Z-Tunnel selection is configured per-forwarding-profile, per-network-type action. The same user can use different tunnel versions in different network contexts (Tier A — vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.md):
+Z-Tunnel selection is configured per-forwarding-profile, per-network-type action. The same user can use different tunnel versions in different network contexts (Tier A — vendor/zscaler-help/migrating-z-tunnel-1.0-z-tunnel-2.0.json):
 
 - **On-Trusted Network action** — controls tunnel version on the corporate LAN.
 - **VPN-Trusted Network action** — controls tunnel version when connected via corporate VPN.
@@ -175,7 +175,7 @@ Z-Tunnel selection is configured per-forwarding-profile, per-network-type action
 
 These are independent. The recommended migration approach sets all three to "Same as On-Trusted Network" during initial testing, then differentiates per-branch after observation.
 
-Required forwarding profile settings to enable Z-Tunnel 2.0 (Tier A — vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md):
+Required forwarding profile settings to enable Z-Tunnel 2.0 (Tier A — vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json):
 - `Tunnel Driver Type`: Packet Filter-Based
 - `On-Trusted Network`: Tunnel
 - `Tunnel version selection`: Z-Tunnel 2.0

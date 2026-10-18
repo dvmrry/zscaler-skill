@@ -8,10 +8,10 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zidentity/what-zidentity"
-  - "vendor/zscaler-help/what-zidentity.md"
-  - "vendor/zscaler-help/understanding-zidentity-apis.md"
-  - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.md"
-  - "vendor/zscaler-help/understanding-step-up-authentication.md"
+  - "vendor/zscaler-help/what-zidentity.json"
+  - "vendor/zscaler-help/understanding-zidentity-apis.json"
+  - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.json"
+  - "vendor/zscaler-help/understanding-step-up-authentication.json"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"
   - "vendor/terraform-provider-zpa/docs/index.md"

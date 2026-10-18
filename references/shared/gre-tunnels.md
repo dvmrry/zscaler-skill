@@ -8,11 +8,11 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/understanding-generic-routing-encapsulation-gre"
-  - "vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md"
+  - "vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.json"
   - "https://help.zscaler.com/zia/gre-deployment-scenarios"
-  - "vendor/zscaler-help/gre-deployment-scenarios.md"
+  - "vendor/zscaler-help/gre-deployment-scenarios.json"
   - "https://help.zscaler.com/zia/best-practices-deploying-gre-tunnels"
-  - "vendor/zscaler-help/best-practices-deploying-gre-tunnels.md"
+  - "vendor/zscaler-help/best-practices-deploying-gre-tunnels.json"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
@@ -25,13 +25,13 @@ For the forwarding method decision tree (GRE vs IPsec vs PAC vs ZCC), see [`zia.
 
 ## What GRE is in the Zscaler context
 
-GRE (Generic Routing Encapsulation, RFC 2784) encapsulates IP packets inside another IP packet with a 4-byte GRE header. A GRE-capable router encapsulates internet-bound traffic and sends it to Zscaler's Public Service Edge VIP. GRE has **no built-in encryption** — it functions like a VPN from a topology standpoint but without the IPsec overhead (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md).
+GRE (Generic Routing Encapsulation, RFC 2784) encapsulates IP packets inside another IP packet with a 4-byte GRE header. A GRE-capable router encapsulates internet-bound traffic and sends it to Zscaler's Public Service Edge VIP. GRE has **no built-in encryption** — it functions like a VPN from a topology standpoint but without the IPsec overhead (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.json).
 
 Key properties that make GRE appropriate for ZIA:
 
 - **Static forwarding**: the router sends all matched traffic to Zscaler; no per-request proxy negotiation.
-- **No ZCC required**: users on the corporate network cannot bypass the service — all internet-bound traffic is unconditionally encapsulated regardless of browser or application (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md).
-- **Internal IP visibility**: GRE preserves the client's internal IP address. Zscaler uses the inner source IP for policy enforcement, sublocation matching, and logging. Without GRE, NATed traffic shows only the site's public IP (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md).
+- **No ZCC required**: users on the corporate network cannot bypass the service — all internet-bound traffic is unconditionally encapsulated regardless of browser or application (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.json).
+- **Internal IP visibility**: GRE preserves the client's internal IP address. Zscaler uses the inner source IP for policy enforcement, sublocation matching, and logging. Without GRE, NATed traffic shows only the site's public IP (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.json).
 - **Static public IP required**: Zscaler identifies the location by the tunnel's source IP. A dynamic IP breaks the location binding when the IP changes.
 
 ## GRE vs IPsec vs Z-Tunnel decision matrix
@@ -47,13 +47,13 @@ Key properties that make GRE appropriate for ZIA:
 | ZIA identity enforcement | Source IP + Surrogate IP | Source IP + Surrogate IP | Per-user (ZCC handles auth) |
 | GRE coexistence | Native | Separate tunnels | Avoid routing ZT2 through GRE |
 
-Choose GRE when: the site has a router that supports GRE, the public egress IP is static, throughput needs are ≥500 Mbps, and in-flight encryption is not a compliance requirement. Choose IPsec when the path traverses untrusted networks or the site has a dynamic IP. Use ZCC for users who leave the corporate network (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md; `kb:zia.traffic-forwarding.gre`).
+Choose GRE when: the site has a router that supports GRE, the public egress IP is static, throughput needs are ≥500 Mbps, and in-flight encryption is not a compliance requirement. Choose IPsec when the path traverses untrusted networks or the site has a dynamic IP. Use ZCC for users who leave the corporate network (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.json; `kb:zia.traffic-forwarding.gre`).
 
 ## Deployment scenarios
 
 ### Scenario 1: Internal router to Public Service Edges (preferred)
 
-Configure two GRE tunnels from a **router behind the firewall** (not the border router) to two Public Service Edges in different data centers (Tier A — vendor/zscaler-help/gre-deployment-scenarios.md):
+Configure two GRE tunnels from a **router behind the firewall** (not the border router) to two Public Service Edges in different data centers (Tier A — vendor/zscaler-help/gre-deployment-scenarios.json):
 
 - Primary tunnel → PSE in data center A.
 - Secondary tunnel → PSE in data center B (different city).
@@ -64,11 +64,11 @@ This placement provides inner IP visibility to Zscaler — the encapsulated traf
 
 ### Scenario 2: Border router to Public Service Edges (fallback)
 
-Use when internal-router GRE is not feasible. The border router sends internet-bound traffic directly to the PSE. **NAT must be disabled on the firewall** to preserve inner IP visibility. If NAT cannot be disabled, inner IPs are masked and Zscaler sees only the border router's IP — sublocations and per-user logging are degraded (Tier A — vendor/zscaler-help/gre-deployment-scenarios.md).
+Use when internal-router GRE is not feasible. The border router sends internet-bound traffic directly to the PSE. **NAT must be disabled on the firewall** to preserve inner IP visibility. If NAT cannot be disabled, inner IPs are masked and Zscaler sees only the border router's IP — sublocations and per-user logging are degraded (Tier A — vendor/zscaler-help/gre-deployment-scenarios.json).
 
 ### Scenario 3: Explicit proxy via GRE (no-default-route environments)
 
-Sites that have no default internet route can use GRE in explicit proxy mode by targeting Zscaler's Global Public Service Edge IPs directly (Tier A — vendor/zscaler-help/gre-deployment-scenarios.md):
+Sites that have no default internet route can use GRE in explicit proxy mode by targeting Zscaler's Global Public Service Edge IPs directly (Tier A — vendor/zscaler-help/gre-deployment-scenarios.json):
 
 ```
 185.46.212.88 – 185.46.212.93
@@ -79,13 +79,13 @@ See Zscaler's *About Global Public Service Edges* documentation for the full lis
 
 ### Scenario 4: Virtual Service Edge
 
-GRE tunnels configured against Virtual Service Edges are **dynamically established with no internal IP addresses** — equivalent to unnumbered GRE tunnels. See *About Virtual Service Edges* documentation for provisioning requirements (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md).
+GRE tunnels configured against Virtual Service Edges are **dynamically established with no internal IP addresses** — equivalent to unnumbered GRE tunnels. See *About Virtual Service Edges* documentation for provisioning requirements (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.json).
 
 ## Key constraints
 
 ### MTU and MSS
 
-GRE adds a **4-byte header** to each packet. Mismatched MTU causes IP fragmentation, which degrades throughput and breaks large-file transfers. Correct calculation for a 1,500-byte WAN interface (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.md):
+GRE adds a **4-byte header** to each packet. Mismatched MTU causes IP fragmentation, which degrades throughput and breaks large-file transfers. Correct calculation for a 1,500-byte WAN interface (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.json):
 
 ```
 WAN Interface MTU  = 1,500
@@ -108,13 +108,13 @@ The tunnel source IP must be **static** and **publicly routable**. Zscaler maps 
 | Inner endpoint IPs **not NATed** | **1 Gbps** |
 | Inner endpoint IPs **NATed** | **250 Mbps** |
 
-The limit arises from Zscaler's load-balancing mechanism: the inner source IP is used to distribute traffic across backend servers. When the inner IP is NATed, all traffic appears to originate from the same IP and cannot be distributed effectively (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md).
+The limit arises from Zscaler's load-balancing mechanism: the inner source IP is used to distribute traffic across backend servers. When the inner IP is NATed, all traffic appears to originate from the same IP and cannot be distributed effectively (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.json).
 
-**Scaling beyond 1 Gbps**: configure additional GRE tunnels with **different public source IPs**. Each additional pair (primary + backup) adds up to 1 Gbps. For 2 Gbps, use 2 primary + 2 backup tunnels from two distinct public IPs. When using multiple source IPs, maintain **client session persistence** at the load-balancer or ECMP layer — a server tracking session state rejects connections arriving from a different egress IP mid-session (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.md).
+**Scaling beyond 1 Gbps**: configure additional GRE tunnels with **different public source IPs**. Each additional pair (primary + backup) adds up to 1 Gbps. For 2 Gbps, use 2 primary + 2 backup tunnels from two distinct public IPs. When using multiple source IPs, maintain **client session persistence** at the load-balancer or ECMP layer — a server tracking session state rejects connections arriving from a different egress IP mid-session (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.json).
 
 ### Health probes
 
-GRE interfaces have **no built-in failure detection**. Two monitoring layers are required (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.md):
+GRE interfaces have **no built-in failure detection**. Two monitoring layers are required (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.json):
 
 1. **GRE keepalives** on the tunnel interface — detect tunnel-level failure (interface down, far-end unreachable).
 2. **Layer 7 health checks** (Cisco IP SLA, Juniper RPM, or equivalent) — detect service failure beyond the tunnel interface.
@@ -124,7 +124,7 @@ Health check target URL:
 http://gateway.<Zscaler-cloud-name>.net/vpntest
 ```
 
-**Do not use `www.google.com` or other public sites as health check targets.** Google rate-limits or CAPTCHA-blocks source IPs that repeatedly probe from the same address, affecting all users egressing through that ZIA IP (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.md).
+**Do not use `www.google.com` or other public sites as health check targets.** Google rate-limits or CAPTCHA-blocks source IPs that repeatedly probe from the same address, affecting all users egressing through that ZIA IP (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.json).
 
 ### Data center selection constraints
 
@@ -132,19 +132,19 @@ Zscaler's provisioning UI excludes **premium and surcharge data centers** from t
 
 ### Z-Tunnel 2.0 incompatibility
 
-**Do not route Z-Tunnel 2.0 traffic through GRE tunnels.** Z-Tunnel 2.0 requires a single-IP NAT device; GRE tunnels with ECMP or multiple egress IPs cause Z-Tunnel 2.0's control and data connections to land on different Service Edges, causing 2.0 to fail and fall back to 1.0. For offices with existing GRE, either configure the ZCC forwarding profile to use Z-Tunnel 1.0 when Trusted Network Criteria are met (on-LAN → 1.0), or add a policy-based route that excludes Z-Tunnel 2.0 traffic from the GRE tunnel path (Tier A — vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.md). See [`./z-tunnel.md § GRE + Z-Tunnel 2.0`](./z-tunnel.md).
+**Do not route Z-Tunnel 2.0 traffic through GRE tunnels.** Z-Tunnel 2.0 requires a single-IP NAT device; GRE tunnels with ECMP or multiple egress IPs cause Z-Tunnel 2.0's control and data connections to land on different Service Edges, causing 2.0 to fail and fall back to 1.0. For offices with existing GRE, either configure the ZCC forwarding profile to use Z-Tunnel 1.0 when Trusted Network Criteria are met (on-LAN → 1.0), or add a policy-based route that excludes Z-Tunnel 2.0 traffic from the GRE tunnel path (Tier A — vendor/zscaler-help/best-practices-deploying-z-tunnel-2.0.json). See [`./z-tunnel.md § GRE + Z-Tunnel 2.0`](./z-tunnel.md).
 
 ## Best practices
 
 ### Tunnel provisioning
 
 - Configure **two GRE tunnels per egress location** — one to DC-A, one to DC-B (different city).
-- Build primary and backup tunnels from **every internet egress location** and from each ISP in redundant-ISP setups (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.md).
+- Build primary and backup tunnels from **every internet egress location** and from each ISP in redundant-ISP setups (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.json).
 - Self-provision via the ZIA Admin Console or submit a Zscaler Support ticket.
 
 ### Failover configuration
 
-The failover timing decision is a tradeoff between detection speed and false-positive risk (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.md):
+The failover timing decision is a tradeoff between detection speed and false-positive risk (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.json):
 
 | Parameter | Fast Failover | Conservative Failover |
 |---|---|---|
@@ -180,11 +180,11 @@ track 1 ip sla 1
  delay down 120 up 180
 ```
 
-Tie failover to the track object via policy-based routing or a route-map with `set ip next-hop verify-availability` (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.md).
+Tie failover to the track object via policy-based routing or a route-map with `set ip next-hop verify-availability` (Tier A — vendor/zscaler-help/best-practices-deploying-gre-tunnels.json).
 
 ### Recommended full-coverage combination
 
-Zscaler's recommended enterprise model is: **GRE + PAC files + Surrogate IP + ZCC**. GRE covers on-network users; PAC + ZCC covers off-network users. Surrogate IP enables identity-based policies for GRE-forwarded traffic (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.md).
+Zscaler's recommended enterprise model is: **GRE + PAC files + Surrogate IP + ZCC**. GRE covers on-network users; PAC + ZCC covers off-network users. Surrogate IP enables identity-based policies for GRE-forwarded traffic (Tier A — vendor/zscaler-help/understanding-generic-routing-encapsulation-gre.json).
 
 ## API and SDK surface
 

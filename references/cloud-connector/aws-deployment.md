@@ -11,11 +11,11 @@ verified-against:
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md"
-  - "vendor/zscaler-help/cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.md"
-  - "vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.md"
-  - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.md"
-  - "vendor/zscaler-help/cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.md"
+  - "vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.json"
+  - "vendor/zscaler-help/cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.json"
+  - "vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json"
+  - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.json"
+  - "vendor/zscaler-help/cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.json"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_provisioning_url.go (cloud_provider_type enum)"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_public_cloud_info.go (AWS account integration schema)"
   - "vendor/terraform-aws-cloud-connector-modules/modules/terraform-zscc-ccvm-aws/ (instance + ENI model)"

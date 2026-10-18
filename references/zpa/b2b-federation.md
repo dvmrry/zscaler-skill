@@ -11,14 +11,14 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
-  - "vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.md"
-  - "vendor/zscaler-help/zpa-configuring-business-business-federation.md"
-  - "vendor/zscaler-help/zpa-about-pending-requests-partners.md"
-  - "vendor/zscaler-help/zpa-about-federated-partners.md"
-  - "vendor/zscaler-help/zpa-federating-defined-application-segments.md"
-  - "vendor/zscaler-help/zpa-about-access-policies-defined-partners.md"
-  - "vendor/zscaler-help/zpa-access-policy-20260909.md"
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json"
+  - "vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.json"
+  - "vendor/zscaler-help/zpa-configuring-business-business-federation.json"
+  - "vendor/zscaler-help/zpa-about-pending-requests-partners.json"
+  - "vendor/zscaler-help/zpa-about-federated-partners.json"
+  - "vendor/zscaler-help/zpa-federating-defined-application-segments.json"
+  - "vendor/zscaler-help/zpa-about-access-policies-defined-partners.json"
+  - "vendor/zscaler-help/zpa-access-policy-20260909.json"
   - "vendor/zscaler-sdk-go/CHANGELOG.md"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegment/zpa_application_segment.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go"
@@ -62,118 +62,118 @@ author-status: draft
 
 # ZPA Business-to-Business Federation
 
-Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md`; `vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.md`.
+Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json`; `vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.json`.
 
 Business-to-Business Federation is a limited-availability ZPA feature announced
 on July 20, 2026 that establishes trusted relationships between business
-partners (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:55-59`).
+partners (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:55-59`).
 
 ## Partner trust lifecycle
 
-Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md`; `vendor/zscaler-help/zpa-about-pending-requests-partners.md`; `vendor/zscaler-help/zpa-about-federated-partners.md`; `vendor/zscaler-help/zpa-federating-defined-application-segments.md`.
+Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json`; `vendor/zscaler-help/zpa-about-pending-requests-partners.json`; `vendor/zscaler-help/zpa-about-federated-partners.json`; `vendor/zscaler-help/zpa-federating-defined-application-segments.json`.
 
 Administrators can create partner-federation requests, manage incoming and
 outgoing requests, and manage trusted federated partners
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:60-61`). Once
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:60-61`). Once
 trust is established, an application segment can be federated to a partner with
 granular controls for the shared resources and users
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:62-63`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:62-63`).
 
 ## B2B prerequisites and roles
 
-Source: `vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.md:12-35`.
+Source: `vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.json:12-35`.
 
 The current Help page marks B2B Federation as **limited availability** and
 requires a ZPA Federation license. Both partners need a ZPA tenant, must
 complete administrator migration to Authentication Service, and must have
 Zscaler Experience Center enabled. Both partners need an active Private Access
 license, but only the host partner needs the Federation license to share
-applications (`vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.md:12-23`).
+applications (`vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.json:12-23`).
 
 The host tenant owns the private application and the guest tenant represents
 the user organization. Both administrator roles need the **Partner** permission;
 the host administrator also needs **Federate Application**. Both partners must
-originate from the same cloud (`vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.md:16-27`).
+originate from the same cloud (`vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.json:16-27`).
 
 The Help prerequisites require App Connectors or Private Service Edges at
 version `24.298.1` or later and list these minimum Zscaler Client Connector
 versions: Windows `4.7.0.88` or `4.6.0.282`, macOS `4.5.2.98`, iOS `4.4.1` with
 Use Tunnel SDK Version `4.3` or above enabled, Android `3.10`, and Linux `4.2`
-(`vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.md:25-35`).
+(`vendor/zscaler-help/zpa-understanding-business-business-b2b-federation.json:25-35`).
 
 ## Host/guest token and approval workflow
 
-Source: `vendor/zscaler-help/zpa-configuring-business-business-federation.md:16-39`; `vendor/zscaler-help/zpa-about-pending-requests-partners.md:12-17`.
+Source: `vendor/zscaler-help/zpa-configuring-business-business-federation.json:16-39`; `vendor/zscaler-help/zpa-about-pending-requests-partners.json:12-17`.
 
 Before configuration, both the host and guest administrators should be
 available during the configured **Token Validity (In Hours)** period, and either
-partner can initiate the process (`vendor/zscaler-help/zpa-configuring-business-business-federation.md:16-18`).
+partner can initiate the process (`vendor/zscaler-help/zpa-configuring-business-business-federation.json:16-18`).
 The public console workflow has three steps: generate and share an access
 token, verify the token and send an approval request, then approve the
-federation request (`vendor/zscaler-help/zpa-configuring-business-business-federation.md:20-26`).
+federation request (`vendor/zscaler-help/zpa-configuring-business-business-federation.json:20-26`).
 
 The generating administrator opens **Add Partner**, selects **Generate Access
 Token**, confirms **My Tenant**, optionally adds notes, chooses token validity,
 and generates the token. The token is shown once, is valid only for the
 selected period, and is then shared with the partner
-(`vendor/zscaler-help/zpa-configuring-business-business-federation.md:28-32`).
+(`vendor/zscaler-help/zpa-configuring-business-business-federation.json:28-32`).
 The partner selects **Verify Access Token**, pastes the token, and clicks
 **Verify**; after validation, **Send Approval Request** sends the request to the
 partner administrator and places it on Pending Requests. A token is single-use,
 invalid after use or expiration, and separate tokens are required for each
-partner (`vendor/zscaler-help/zpa-configuring-business-business-federation.md:34-39`).
+partner (`vendor/zscaler-help/zpa-configuring-business-business-federation.json:34-39`).
 
 The Pending Requests capture clarifies the cross-tenant gate: the guest submits
 the request and token details, the host reviews and validates them, and after
 token verification both the host and guest partner must approve or deny the
 pending request. After approval, it appears on Federated Partners
-(`vendor/zscaler-help/zpa-about-pending-requests-partners.md:12-17`).
+(`vendor/zscaler-help/zpa-about-pending-requests-partners.json:12-17`).
 
 ## Pending, federated, and defined application states
 
-Source: `vendor/zscaler-help/zpa-about-pending-requests-partners.md:19-27`; `vendor/zscaler-help/zpa-about-federated-partners.md:12-24`; `vendor/zscaler-help/zpa-federating-defined-application-segments.md:12-20`.
+Source: `vendor/zscaler-help/zpa-about-pending-requests-partners.json:19-27`; `vendor/zscaler-help/zpa-about-federated-partners.json:12-24`; `vendor/zscaler-help/zpa-federating-defined-application-segments.json:12-20`.
 
 **Pending Requests** is the intermediate request state. Its documented request
 statuses are **Token Verified**, **Pending Approval**, and **Pending
 Verification**; the page describes this state as an auditable step before
 controlled cross-tenant resource and user access
-(`vendor/zscaler-help/zpa-about-pending-requests-partners.md:19-27`).
+(`vendor/zscaler-help/zpa-about-pending-requests-partners.json:19-27`).
 
 **Federated Partners** represents established trust: the host and guest
 administrators' B2B request has been approved by both partners. The page lists
 **Active**, **Pause**, and **Terminate** as partner status values/actions and
 allows administrators to view federated applications and navigate back to
-Pending Requests (`vendor/zscaler-help/zpa-about-federated-partners.md:12-24`).
+Pending Requests (`vendor/zscaler-help/zpa-about-federated-partners.json:12-24`).
 
 The application-segment federation workflow starts on the host's **Defined
 Application Segments** page: the administrator uses **Federate Application**,
 selects one or more trusted partners, and saves the selection
-(`vendor/zscaler-help/zpa-federating-defined-application-segments.md:12-17`).
+(`vendor/zscaler-help/zpa-federating-defined-application-segments.json:12-17`).
 If a partner is deselected and the change is saved, guest partner end users
 immediately lose access to all applications
-(`vendor/zscaler-help/zpa-federating-defined-application-segments.md:19-20`).
+(`vendor/zscaler-help/zpa-federating-defined-application-segments.json:19-20`).
 
 ## Federating defined application segments
 
-Source: `vendor/zscaler-help/zpa-federating-defined-application-segments.md:12-33`.
+Source: `vendor/zscaler-help/zpa-federating-defined-application-segments.json:12-33`.
 
 Applications using IP addresses cannot be federated because of possible IP
 overlap and routing conflicts in the guest partner's network. Before federation,
 the application segment must have **Source IP Anchor**, **Double Encryption**,
 **Bypass**, **Bypass during Reauthentication**, **ZIA Inspection**, and
-**AppProtection** disabled (`vendor/zscaler-help/zpa-federating-defined-application-segments.md:22-33`).
+**AppProtection** disabled (`vendor/zscaler-help/zpa-federating-defined-application-segments.json:22-33`).
 
 ## Access policies for shared applications
 
-Source: `vendor/zscaler-help/zpa-about-access-policies-defined-partners.md:12-24`.
+Source: `vendor/zscaler-help/zpa-about-access-policies-defined-partners.json:12-24`.
 
 The **Defined by Partners** access-policy page lists rules created by the guest
 partner for the host partner's applications. **Defined by My Tenant** lists
 rules defined by the host for its internal applications and users
-(`vendor/zscaler-help/zpa-about-access-policies-defined-partners.md:12-16`).
+(`vendor/zscaler-help/zpa-about-access-policies-defined-partners.json:12-16`).
 Each policy row exposes its name and rule action; documented actions are
 **Allow Access**, **Block Access**, and **Require Approval**
-(`vendor/zscaler-help/zpa-about-access-policies-defined-partners.md:18-24`).
+(`vendor/zscaler-help/zpa-about-access-policies-defined-partners.json:18-24`).
 
 For federated applications, the current Help article describes the application
 segments as created, owned, and managed by the host partner and shared with
@@ -181,22 +181,22 @@ guest partners. It limits guest-partner federated access-policy criteria to
 **Client Type** = `Client Connector`, plus **Client Connector Posture Profiles**,
 **Country Codes**, **Locations**, **Machine Groups**, **Platforms**, **Risk
 Scores**, **SAML and SCIM Attributes**, and **Trusted Networks**
-(`vendor/zscaler-help/zpa-access-policy-20260909.md:64-74`). This is Help-
+(`vendor/zscaler-help/zpa-access-policy-20260909.json:64-74`). This is Help-
 documented UI/behavior coverage; it does not assert new SDK operand types or an
 API schema change.
 
 ## ZPA cloud service API
 
-Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md`; `vendor/zscaler-sdk-go/zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go`; `vendor/zscaler-sdk-python/zscaler/zpa/b2b_policy.py`.
+Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json`; `vendor/zscaler-sdk-go/zscaler/zpa/services/b2b_policy_controller/b2b_policy_controller.go`; `vendor/zscaler-sdk-python/zscaler/zpa/b2b_policy.py`.
 
 The release summary states that the same federation functionality is supported
 through the ZPA cloud service API
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:64-65`). The
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:64-65`). The
 Help and release capture identifies linked topics for partner and pending-request
 management, federating partners and applications, and retrieving access-policy
 details for federated applications, but it does not contain endpoint paths,
 HTTP methods, or request and response bodies
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:66-68`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:66-68`).
 
 The current public Automate operation pages expose the following twelve-route
 contract for application federation, tenant-federation provisioning, and
@@ -223,7 +223,7 @@ The Help release summary remains the source for the feature's limited-
 availability and trust-lifecycle framing: administrators create and manage
 incoming/outgoing partner-federation requests and trusted partners, then
 federate application segments with granular controls after trust is
-established (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:55-68`).
+established (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:55-68`).
 
 The SDKs now provide client-declared endpoint evidence for part of that gap.
 The comparison below is intentionally about wrapper behavior only: an SDK

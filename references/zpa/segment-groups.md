@@ -7,10 +7,10 @@ last-verified: "2026-04-27"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/about-segment-groups.md"
-  - "vendor/zscaler-help/zsdk-about-segment-groups.md"
-  - "vendor/zscaler-help/zsdk-about-access-policy.md"
-  - "vendor/zscaler-help/about-microtenants.md"
+  - "vendor/zscaler-help/about-segment-groups.json"
+  - "vendor/zscaler-help/zsdk-about-segment-groups.json"
+  - "vendor/zscaler-help/zsdk-about-access-policy.json"
+  - "vendor/zscaler-help/about-microtenants.json"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md"
   - "vendor/terraform-provider-zpa/docs/data-sources/zpa_segment_group.md"
   - "vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go"
@@ -26,7 +26,7 @@ A Segment Group is a **policy-scoping and administrative-grouping container for 
 
 The existing [`./segment-server-groups.md`](./segment-server-groups.md) compares Segment Groups and Server Groups side-by-side at a high level. This document provides the full reference treatment for Segment Groups specifically.
 
-Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`.
+Source: `vendor/zscaler-help/about-segment-groups.json`; `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`.
 
 ---
 
@@ -45,7 +45,7 @@ Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/zscaler-sdk-pytho
 - A **Connector Group** or **Server Group**. Segment Groups have no knowledge of connectors, servers, or network topology.
 - An enforcement point. Disabling a Segment Group's `enabled` flag does not re-route or drop traffic at the connector level. Its effect is policy-layer only: an access rule whose `APP_GROUP` condition points to a disabled Segment Group's semantics at the connector level are not confirmed by source code (Tier-D: likely the rule stops matching, making the group's App Segments unreachable via that rule; this is inference, not documented API contract).
 
-Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/zscaler-help/zsdk-about-segment-groups.md`; `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`.
+Source: `vendor/zscaler-help/about-segment-groups.json`; `vendor/zscaler-help/zsdk-about-segment-groups.json`; `vendor/zscaler-sdk-go/zscaler/zpa/services/segmentgroup/zpa_segment_group.go`.
 
 ---
 
@@ -81,7 +81,7 @@ When you add an App Segment to a Segment Group, both the App Segment's `segment_
 
 A Segment Group with zero App Segments is valid and can be created without any `applications[]` entries. Empty groups referenced in policy rules contribute no matching scope — effectively making the rule a no-op for the `APP_GROUP` dimension.
 
-Source: `vendor/zscaler-help/about-segment-groups.md`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`; `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`.
+Source: `vendor/zscaler-help/about-segment-groups.json`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`; `vendor/zscaler-sdk-python/zscaler/zpa/models/segment_group.py`.
 
 ---
 
@@ -144,7 +144,7 @@ Individual App Segment targeting in a rule is appropriate when:
 
 Segment Groups participate in normal ZPA policy evaluation: first-match-wins, top-down, after segment selection has already occurred client-side. Full mechanics in [`./policy-precedence.md`](./policy-precedence.md).
 
-Source: `vendor/zscaler-help/zsdk-about-access-policy.md`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
+Source: `vendor/zscaler-help/zsdk-about-access-policy.json`; `vendor/terraform-provider-zpa/zpa/resource_zpa_segment_group.go`.
 
 ---
 
@@ -281,7 +281,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/segment_groups.py`.
 
 **Resource Management > Application Management > Segment Groups**
 
-Source: `vendor/zscaler-help/about-segment-groups.md`.
+Source: `vendor/zscaler-help/about-segment-groups.json`.
 
 From the page you can view, add, filter, edit, delete, expand rows to see member App Segments, and view a configuration graph of connected objects. The "Incomplete Configuration" icon appears next to a group with missing required fields.
 
@@ -313,7 +313,7 @@ The API model carries `enabled` as a meaningful boolean. The Zscaler help docs s
 
 ### 5.6 Segment Group + microtenant scoping
 
-Source: `vendor/zscaler-help/about-microtenants.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`.
+Source: `vendor/zscaler-help/about-microtenants.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_segment_group.md`.
 
 Segment Groups are microtenant-scoped when created with a `microtenant_id`. A group created in Microtenant A is not visible to Microtenant B's admin — and cannot be referenced in Microtenant B's policy rules. The default microtenant admin can see and manage all microtenant Segment Groups. The `about-microtenants.md` help article lists "segment groups" as one of the objects that can be independently managed per microtenant.
 

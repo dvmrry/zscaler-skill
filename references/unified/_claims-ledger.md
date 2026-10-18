@@ -17,8 +17,8 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/unified-what-zscaler-experience-center.md"
-  - "vendor/zscaler-help/understanding-zscaler-cloud-names.md"
+  - "vendor/zscaler-help/unified-what-zscaler-experience-center.json"
+  - "vendor/zscaler-help/understanding-zscaler-cloud-names.json"
 author-status: draft
 ---
 
@@ -28,13 +28,13 @@ This ledger covers the Tier 3 thin-stub refresh for the `unified` / Zscaler Expe
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| Zscaler Experience Center is a unified, AI-powered administrative and operations console for the Zero Trust Exchange. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:8` |
-| The captured examples of services available through Experience Center include ZIA, ZPA, ZDX, and Zscaler Client Connector. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:8` |
-| Experience Center acts as an orchestration layer over shared data and identity architecture. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:10-12` |
-| Experience Center mechanisms include unified identity, integrated navigation, common policy framework, Copilot interactions, and unified data/analytics. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:14-18` |
-| Feature themes include centralized management, guided workflows, AI-powered operations, and persona-focused insights. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:20-25` |
-| The `/unified` help path maps to "Getting Started with Zscaler" documentation, not only Experience Center product pages. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.md:27-29` |
-| The `/unified` cloud-name article publishes a cross-service public production name map, but its Help location does not make those cloud names Experience Center features. | `overview.md`, `references/shared/cloud-architecture.md` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:16-30` |
+| Zscaler Experience Center is a unified, AI-powered administrative and operations console for the Zero Trust Exchange. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.json:8` |
+| The captured examples of services available through Experience Center include ZIA, ZPA, ZDX, and Zscaler Client Connector. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.json:8` |
+| Experience Center acts as an orchestration layer over shared data and identity architecture. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.json:10-12` |
+| Experience Center mechanisms include unified identity, integrated navigation, common policy framework, Copilot interactions, and unified data/analytics. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.json:14-18` |
+| Feature themes include centralized management, guided workflows, AI-powered operations, and persona-focused insights. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.json:20-25` |
+| The `/unified` help path maps to "Getting Started with Zscaler" documentation, not only Experience Center product pages. | `overview.md` | `vendor/zscaler-help/unified-what-zscaler-experience-center.json:27-29` |
+| The `/unified` cloud-name article publishes a cross-service public production name map, but its Help location does not make those cloud names Experience Center features. | `overview.md`, `references/shared/cloud-architecture.md` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:16-30` |
 | Go SDK has no standalone Experience Center / unified-console service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Experience Center or unified-console service found in `vendor/zscaler-sdk-go` during the 2026-06-16 surface sweep. |
 | Python SDK has no standalone Experience Center / unified-console service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Experience Center or unified-console service found in `vendor/zscaler-sdk-python` during the 2026-06-16 surface sweep. |
 | Terraform has no standalone Experience Center / unified-console resource or data source in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Experience Center or unified-console resource/data-source surface found in `vendor/terraform-provider-zia` or `vendor/terraform-provider-zpa` during the 2026-06-16 surface sweep. |

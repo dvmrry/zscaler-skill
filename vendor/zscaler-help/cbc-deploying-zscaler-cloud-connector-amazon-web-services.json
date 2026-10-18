@@ -1,0 +1,3304 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Zscaler Cloud Connector with Amazon Web Services",
+  "source": {
+    "url": "https://help.zscaler.com/cloud-branch-connector/deploying-zscaler-cloud-connector-amazon-web-services",
+    "node": "1420746",
+    "revision": "3239027"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy Zscaler Cloud Connector as an Amazon Machine Image (AMI) on Amazon Web Services (AWS), and post-deployment configurations."
+    },
+    {
+      "text": "When deploying a Cloud Connector, only deploy an autoscaling group (ASG) with an ASG template or a non-ASG with a non-ASG template. Additionally, do not run both ASG and non-ASG deployments within the same Virtual Private Cloud (VPC)."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure the following prerequisites are met."
+    },
+    {
+      "text": "If you have already created a dedicated admin role and role-based administrator for Cloud Connector deployment, you can skip the first two steps."
+    },
+    {
+      "item": "1. Configure a new admin role.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends creating a dedicated admin role for Cloud Connector deployment.",
+      "depth": 0
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Cloud & Branch Connector are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 0
+    },
+    {
+      "item": "To configure a new admin role:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console as a super admin.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Administration > Role Management> Branch and Cloud Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          38
+        ],
+        [
+          40,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Admin Role.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Admin Role window:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a unique name for the admin role (e.g., CloudConnector-Deployment-Role).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Permissions: Ensure that the admin has full access to Location Management and Cloud Connector Provisioning. Set all other permissions to None.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          54,
+          73
+        ],
+        [
+          78,
+          106
+        ],
+        [
+          137,
+          141
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "2. Configure a new role-based administrator.",
+      "depth": 0
+    },
+    {
+      "item": "In Zscaler Cloud Connector",
+      "depth": 1
+    },
+    {
+      "item": "After configuring the admin role, create a new role-based administrator dedicated to Cloud Connector deployment.",
+      "depth": 1
+    },
+    {
+      "item": "In Authentication Service",
+      "depth": 1
+    },
+    {
+      "item": "For a Cloud Connector tenant linked to Authentication Service, after configuring the admin role in the Zscaler Admin Console, create administrators from the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "3. Retrieve the API key.",
+      "depth": 0
+    },
+    {
+      "item": "To retrieve the API key:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Administration > API > Cloud & Branch Connector API.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          26
+        ],
+        [
+          29,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "From the API Key Management page, copy the API key and store it in a secure location. Cloud Connector uses the API key to authenticate and register the AMI with Zscaler.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If the API is not available, click Add Cloud Service API Key to add an API key. To learn more, see Managing Organization API Keys.",
+      "depth": 0,
+      "strong": [
+        [
+          35,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "4. (Optional) Add a location template.",
+      "depth": 0
+    },
+    {
+      "item": "You do not need to configure location templates because locations are created automatically when you deploy Cloud Connector to a cloud provider such as AWS. Optionally, you can configure your own location template:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Infrastructure > Location Management > Location Templates.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          42
+        ],
+        [
+          45,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Location Template. The Add Location Template window opens.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          33,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "In the Name field, enter a name for the location template.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) In the Template Prefix field, enter a prefix for the location template. All locations created using this location template contain this prefix.",
+      "depth": 1,
+      "strong": [
+        [
+          18,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Gateway Options section:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Enable XFF Forwarding: Enable this setting if you want the Zscaler service to use the X-Forwarded-For (XFF) headers that your on-premises proxy server inserts in outbound HTTP requests.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Enforce Authentication: Enable this setting to require users from this location to authenticate to the service.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Enable Caution: Enable this setting to display an end user notification for unauthenticated traffic. If you do not enable this setting, the action is treated as an allow policy.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Enable AUP: Enable this setting to display an Acceptable Use Policy (AUP) for unauthenticated traffic and require users to accept it. If you enable this setting, the Custom AUP Frequency (Days) field appears. Enter in days how frequently the AUP is displayed to users.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          21
+        ],
+        [
+          177,
+          204
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Firewall Control: Enable this setting to enable the service's firewall controls. If you enable this setting, the Enable IPS Control setting appears. Select this setting to enable Intrusion Prevention System (IPS) controls for the location template. To enable IPS controls, you must be subscribed to the advanced firewall SKU.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          121,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Enforce Bandwidth Control: Enable this setting to enter the maximum bandwidth limits for Download (Mbps) and Upload (Mbps).",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "5. Configure a cloud provisioning template.",
+      "depth": 0
+    },
+    {
+      "item": "Configure a cloud provisioning template and copy the cloud provisioning URL to deploy Cloud Connector on AWS. To configure a cloud provisioning template:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Zero Trust Cloud > Cloud Connector > Provisioning Templates.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          25,
+          40
+        ],
+        [
+          43,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Cloud Connector Provisioning Template.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Provisioning Template page:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the cloud provisioning template.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description of the cloud provisioning template.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Provider: Select AWS as the cloud provider.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Location Creation: This field is set to Automatic.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          40,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Location Template: From the drop-down menu, select the Default Location Template or another template.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          55,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Connector Group Creation: This field is set to Automatic.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          53,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "VM Size: Select from Small, Medium, or Large for your VM size. Small is set by default when autoscaling is enabled.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          21,
+          26
+        ],
+        [
+          28,
+          34
+        ],
+        [
+          39,
+          44
+        ],
+        [
+          63,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends selecting the VM Size as Small.",
+      "depth": 2,
+      "strong": [
+        [
+          33,
+          40
+        ],
+        [
+          44,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling: Enable or disable autoscaling.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Connector with autoscaling requires a new provisioning template with autoscaling set to Enabled. To enable autoscaling, contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "From the Cloud Provisioning Template page, in the Template Name column, click the Expand icon and copy the cloud provisioning URL. Store the cloud provisioning URL in a secure location.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "6. Review the specifications and sizing requirements.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy Zscaler Cloud Connector on AWS, ensure the following:",
+      "depth": 0
+    },
+    {
+      "item": "You have a subscription to Zscaler Cloud Connector in the AWS Marketplace.",
+      "depth": 1
+    },
+    {
+      "item": "Commercial AWS Marketplace",
+      "depth": 2
+    },
+    {
+      "item": "China AWS Marketplace",
+      "depth": 2
+    },
+    {
+      "item": "Your AMI is configured with the latest software version. To learn about identifying the Cloud Connector version in AWS, see Identifying the Zscaler Cloud Connector Version.",
+      "depth": 1
+    },
+    {
+      "item": "You have a valid AWS account with Administrator permissions.",
+      "depth": 1
+    },
+    {
+      "item": "Your VM meets the following specifications:",
+      "depth": 1
+    },
+    {
+      "item": "Small VM: Requires one of the following Elastic Compute Cloud (EC2) instances: m5n.large, c5a.large, m6i.large (recommended), or c6i.large. These VMs deploy with two network interfaces.",
+      "depth": 2
+    },
+    {
+      "item": "Medium VM (deprecated): Requires one of the following EC2 instances: m5n.4xlarge, m6i.4xlarge (recommended), or c6i.4xlarge. These VMs deploy with 5 network interfaces.",
+      "depth": 2
+    },
+    {
+      "item": "Large VM (deprecated): Requires one of the following EC2 instances: m5n.4xlarge, m6i.4xlarge (recommended), or c6i.4xlarge. These VMs deploy with 6 network interfaces.",
+      "depth": 2
+    },
+    {
+      "item": "For details about these instances, refer to the AWS specifications.",
+      "depth": 2
+    },
+    {
+      "item": "AWS Marketplace restricts instances to those that Zscaler validated. Zscaler periodically reviews and updates this list. Zscaler cannot guarantee that VMs deployed on unsupported instances will function properly. For the best performance and security, always deploy the latest available AMI and the recommended m6i instance.",
+      "depth": 1
+    },
+    {
+      "item": "Your Cloud Connector instance size selection of small, medium (deprecated), or large (deprecated) must match the selected VM size of the configured cloud provisioning template. If the sizing demonstrated in the cloud provisioning URL and the deployment template do not match, Cloud Connector deployment is unsuccessful.",
+      "depth": 1
+    },
+    {
+      "item": "The Amazon EC2 M5 and C5 instance families are no longer available from the AWS Marketplace or Zscaler deployment templates. If you have any existing Cloud Connector deployments based on M5 or C5 instances (such as m5.large or c5.large), redeploy and migrate them to one of the supported instances listed above.",
+      "depth": 1
+    },
+    {
+      "item": "7. Review the firewall requirements.",
+      "depth": 0
+    },
+    {
+      "item": "The Cloud Connector instance requires only outbound connections to the Zscaler cloud and does not require any inbound connections to your network from the Zscaler cloud. To view the outbound access requirements for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler Cloud Name>/cloud-branch-connector.",
+      "depth": 0
+    },
+    {
+      "item": "You can find the <Zscaler Cloud Name> in the URL you use to log in to the Zscaler Admin Console. For example, if you log in to connector.zscaler.net, then go to https://config.zscaler.com/zscaler.net/cloud-branch-connector. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0,
+      "strong": [
+        [
+          188,
+          199
+        ]
+      ]
+    },
+    {
+      "item": "8. Download the deployment templates.",
+      "depth": 0
+    },
+    {
+      "item": "Infrastructure as Code (IaC) deployment templates are available for download on GitHub to help you deploy Cloud Connector in AWS. Use the AWS CloudFormation repository to download and create the deployment resources to deploy and operate Cloud Connector in an existing VPC. There are several different deployment methods depending on the deployment template you select.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about the resources created when you deploy the AWS CloudFormation templates, see Deployment Templates for Zscaler Cloud Connector.",
+      "depth": 0
+    },
+    {
+      "item": "9. Create an EC2 instance access key pair.",
+      "depth": 0
+    },
+    {
+      "item": "Key pairs are used to connect to your Cloud Connector Instance. To create a key pair:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Amazon EC2 console.",
+      "depth": 1
+    },
+    {
+      "item": "From the left-side navigation, select Key Pairs.",
+      "depth": 1,
+      "strong": [
+        [
+          38,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Select Create key pair.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the Key pair page:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your key pair.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Key pair type: Select RSA.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Private key file format: Select .pem to save the private key in a format that can be used with SSH.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create key pair.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "10. Store your credentials in AWS Secrets Manager.",
+      "depth": 0
+    },
+    {
+      "item": "AWS Secrets Manager helps you manage and retrieve your secret credentials. To create and store your secrets from the AWS Secrets Manager console:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the AWS Secrets Manager console.",
+      "depth": 1
+    },
+    {
+      "item": "On the Service Introduction page or the Secrets List page, select Store a new secret.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          40,
+          52
+        ],
+        [
+          66,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "On the Choose Secret type page, set the secret type to Other type of secrets.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          55,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "On the Secret key/value tab, enter the following secrets:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "api_key: Enter api_key for the name of your secret key. For the corresponding value, enter the value copied from the API Key Management page in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          83,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "username: Enter username for the name of your secret key. For the corresponding value, enter your dedicated deployment Zscaler Admin Console username.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          85,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "password: Enter password for the name of your secret key. For the corresponding value, enter your dedicated deployment Zscaler Admin Console password.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          85,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Encryption key, select aws/secrets manager. You can use this encryption key, which is the AWS Key Management Service (KMS) key that AWS Secrets Manager creates by default, or select Add new key to create a custom-managed key in the AWS KMS.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          29,
+          48
+        ],
+        [
+          188,
+          199
+        ]
+      ]
+    },
+    {
+      "item": "If you create a custom AWS KMS key, the IAM user or role must have permissions set to kms:decrypt.",
+      "depth": 1,
+      "strong": [
+        [
+          86,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure secret page, enter the following information:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Secret name: Enter a descriptive name to help you find your secrets.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description of the secrets.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Tags - optional: Enter tags (key and value) associated with your secrets. You can add up to 50 tags.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Resource permissions - optional: Enter a resource policy to access secrets across AWS.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Replicate secret - optional: Replicate your secrets as read-only in other regions.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure rotation - optional page, configure the following information:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Automatic rotation: Enable this setting to configure AWS Secrets Manager to rotate secrets automatically.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Rotation Schedule: Select either Schedule expression builder or Schedule expression. For Schedule expression, you can enter a fixed rate in days for rotating your secret. For the Schedule expression builder, you can define your rotating schedule using cron expressions with a string of 6 inputs.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          33,
+          60
+        ],
+        [
+          64,
+          83
+        ],
+        [
+          89,
+          108
+        ],
+        [
+          179,
+          206
+        ]
+      ]
+    },
+    {
+      "item": "Rotation function: Select a Lambda function to rotate your secrets. The rotation function updates your credentials in AWS Secrets Manager and updates the secrets to match.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Review page, review your secret information.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Store to save your changes.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "11. Configure your VPC.",
+      "depth": 0
+    },
+    {
+      "item": "For AWS, you must deploy Cloud Connector in your Virtual Private Clouds (VPCs). A VPC is a region-specific, isolated virtual network used to launch resources, including your EC2 Cloud Connector instances. You can configure your VPC with your Cloud Connector instance in either a public or private subnet. When deploying in a public subnet, the subnet's traffic is routed through the internet gateway and can reach the public internet. When deploying in a private subnet, the subnet's traffic is not routed to an internet gateway and is instead routed through the NAT gateway, which has an elastic IP address. Zscaler recommends configuring your VPC with Cloud Connector in a private subnet.",
+      "depth": 0
+    },
+    {
+      "item": "This procedure assumes that you have already created an Amazon VPC. To learn more, refer to the AWS product documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Configure your VPC with Cloud Connector in a private subnet.",
+      "depth": 1
+    },
+    {
+      "item": "Configure your VPC with Cloud Connector in a public subnet.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Amazon VPC console.",
+      "depth": 1
+    },
+    {
+      "item": "After your VPC is created, select Subnets in the left-side navigation.",
+      "depth": 1,
+      "strong": [
+        [
+          34,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "On the Subnets page, click Create subnet and configure the following Subnet settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          40
+        ],
+        [
+          69,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "VPC ID: From the drop-down menu, select the VPC.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Subnet name: Enter a name for your subnet. A subnet is a range of IP addresses in your VPC. Create the following subnets:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Private-cloudconnector-subnet: The subnet where the Cloud Connector AMI is deployed.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Private-workload-subnet: The subnet where the workloads send internet traffic to Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Public-nat-subnet: The subnet where the NAT gateway is deployed. Cloud Connector routes this NAT gateway to establish outbound internet connectivity.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Availability Zone: From the drop-down menu, select the zone where your subnet resides. A VPC spans all of the availability zones in that specified region.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "IPv4 CIDR block: Enter the specified IPv4 address range for your subnet. This is the primary Classless Inter-Domain Routing (CIDR) block for your VPC.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Tags: (Optional) Enter tags (key and value) associated with your subnet. You can add up to 50 tags.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "The allowed block size is between a /16 netmask (65,536 IP addresses) and /28 netmask (16 IP addresses). To learn more about VPC and subnet sizing, refer to the AWS product documentation.",
+      "depth": 0
+    },
+    {
+      "item": "After creating your subnets, select Internet Gateways in the navigation pane, then select Create internet gateway.",
+      "depth": 1,
+      "strong": [
+        [
+          36,
+          53
+        ],
+        [
+          90,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "On the Create internet gateway page, enter the Name Tag (key and value) and additional Tags (optional).",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          47,
+          55
+        ],
+        [
+          87,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Click Create internet gateway.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the created internet gateway. Then, from the Actions drop-down menu, select Attach to VPC.",
+      "depth": 1,
+      "strong": [
+        [
+          52,
+          59
+        ],
+        [
+          83,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Select your VPC from the list and click Attach internet gateway.",
+      "depth": 1,
+      "strong": [
+        [
+          12,
+          15
+        ],
+        [
+          40,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "After the internet gateway is attached to your VPC, select NAT Gateways in the navigation pane, then select Create NAT Gateway.",
+      "depth": 1,
+      "strong": [
+        [
+          59,
+          71
+        ],
+        [
+          108,
+          126
+        ]
+      ]
+    },
+    {
+      "item": "On the Create NAT gateway page, enter the following NAT gateway settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          52,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Subnet: From the drop-down menu, select a subnet in which to create the NAT gateway.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Elastic IP allocation ID: From the drop-down menu, select an elastic IP address to assign to the NAT gateway.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Select Create a NAT Gateway. After the status of the NAT gateway changes from Pending to Available, it is ready for use.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          78,
+          85
+        ],
+        [
+          89,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "From the navigation pane, select Route Tables, then click Create route table to set up where network traffic from your subnet or gateway is directed. To learn more, refer to the AWS product documentation.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          58,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "On the Create route table page, enter the following Route table settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          52,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your route table. Create corresponding route tables and associate them with the corresponding subnets:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Private-cloudconnector-routing: Associate the private-cloudconnector-subnet to the route table and add a default route destination CIDR (0.0.0.0/0)to the target NAT gateway.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          46,
+          75
+        ],
+        [
+          119,
+          130
+        ],
+        [
+          154,
+          160
+        ]
+      ]
+    },
+    {
+      "item": "Private-workload-routing: Associate the private-workload-subnet to point the route table to Cloud Connector's traffic. After Cloud Connector has deployed, edit the route to redirect traffic to the elastic network interface (ENI) as described under Managing the Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          40,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Public-nat-routing: Associate the public-nat-subnet to the route table and add a default route destination CIDR (0.0.0.0/0)to the target internet gateway.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          34,
+          51
+        ],
+        [
+          95,
+          106
+        ],
+        [
+          130,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "VPC: From the drop-down menu, select the VPC for the specified route table.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Tags: Enter tags (key and value) associated with your route table.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Click Create route table.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Log in to the Amazon VPC console.",
+      "depth": 1
+    },
+    {
+      "item": "After your VPC is created, select Subnets in the navigation pane.",
+      "depth": 1,
+      "strong": [
+        [
+          34,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "On the Subnets page, click Create subnet and configure the following Subnet settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          40
+        ],
+        [
+          69,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "VPC ID: From the drop-down menu, select the VPC.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Subnet name: Enter a name for your subnet. Create the following subnets:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Public-cloudconnector-subnet: The subnet where the Cloud Connector AMI is deployed.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Private-workload-subnet: The subnet where the workloads send internet traffic to Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Availability Zone: From the drop-down menu, select the zone where your subnet resides.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "IPv4 CIDR block: Enter the IPv4 address range for your subnet.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Tags: (Optional) Enter tags (key and value) associated with your subnet. You can add up to 50 tags.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "After creating your subnets, select Internet Gateways in the navigation pane, then select Create internet gateway.",
+      "depth": 1,
+      "strong": [
+        [
+          36,
+          53
+        ],
+        [
+          90,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "On the Create internet gateway page, enter the Name Tag (key and value) and additional Tags (optional).",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          47,
+          55
+        ],
+        [
+          87,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Click Create internet gateway.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the created internet gateway. Then, from the Actions drop-down menu, select Attach to VPC.",
+      "depth": 1,
+      "strong": [
+        [
+          52,
+          59
+        ],
+        [
+          83,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Select your VPC from the list and click Attach internet gateway.",
+      "depth": 1,
+      "strong": [
+        [
+          12,
+          15
+        ],
+        [
+          40,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "From the navigation pane, select Route Tables, then click Create route table to set up where the Zscaler service directs network traffic from your subnet or gateway. To learn more, refer to the AWS product documentation.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          58,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "On the Create route table page, enter the following Route table settings:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          52,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your route table. Create route tables and associate them with the corresponding subnets:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Public-cloudconnector-routing: Associate the public-cloudconnector-subnet to the route table and add a default route destination CIDR (0.0.0.0/0)to the target internet gateway.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          29
+        ],
+        [
+          45,
+          73
+        ],
+        [
+          117,
+          128
+        ],
+        [
+          152,
+          158
+        ]
+      ]
+    },
+    {
+      "item": "Private-workload-routing: Associate the private-workload-subnet to point the route table to the Cloud Connector's traffic. After the Cloud Connector has deployed, edit the route to redirect traffic to the elastic network interface (ENI) as described under Managing the Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          40,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "VPC: From the drop-down menu, select the VPC for the specified route table.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Tags: Enter tags (key and value) associated with your route table.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Click Create route table.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "12. Create an Amazon S3 bucket for autoscaling (advanced deployment).",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector with autoscaling requires a new provisioning template with autoscaling set to Enabled. To enable autoscaling, contact Zscaler Support. To learn more about autoscaling, see Understanding Cloud Connector Deployments with Amazon Web Services Autoscaling Groups.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy Cloud Connectors with autoscaling, you must first create a new Amazon Simple Storage Service (S3) bucket and store your Lambda ZIP file. To learn more about Amazon S3, refer to the AWS product documentation.",
+      "depth": 0
+    },
+    {
+      "item": "To create an Amazon S3 bucket:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the AWS Management Console.",
+      "depth": 1
+    },
+    {
+      "item": "Click S3.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "On the Amazon S3 page, click Create bucket.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          29,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the Create bucket page:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Bucket name: Enter a unique name for your bucket. Copy the name to a secure location.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "AWS Region: From the drop-down menu, select the AWS region where you are deploying the Cloud Connectors with autoscaling.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Object Ownership: To ensure that your account owns all objects in the S3 bucket, select ACLs disabled (recommended). Policies specify access to the bucket and its objects.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          88,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Block Public Access settings for this bucket: To ensure that public access to the S3 bucket and its objects is blocked, select Block all public access.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          44
+        ],
+        [
+          127,
+          150
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Versioning: Disable is set by default. To preserve, retrieve, and restore every version of every object stored in your S3 bucket, select Enable.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          19,
+          26
+        ],
+        [
+          144,
+          150
+        ]
+      ]
+    },
+    {
+      "item": "Encryption type: Select Server-side encryption with Amazon S3 managed keys (SSE-S3).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Key: Select Disable for the default server-side encryption of the bucket key.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Object Lock: Disable is set by default. To permanently allow objects in your bucket to be locked, select Enable.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          13,
+          20
+        ],
+        [
+          105,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "Click Create bucket.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click your newly created S3 bucket.",
+      "depth": 1
+    },
+    {
+      "item": "On the Objects tab, click Upload.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          26,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In another web browser, navigate to GitHub and download the Zscaler Cloud Connector Lambda ZIP file.",
+      "depth": 1
+    },
+    {
+      "item": "Drag and drop the entire ZIP file from the Downloads folder on your computer to the Amazon S3 Upload page.",
+      "depth": 1,
+      "strong": [
+        [
+          43,
+          52
+        ],
+        [
+          94,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Click Upload.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click the newly uploaded ZIP file.",
+      "depth": 1
+    },
+    {
+      "item": "On the Properties tab, copy the Key to a secure location.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          32,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "You need to select the S3 Bucket Name and S3 Key when defining parameters for the stack creation in the AWS CloudFormation console with autoscaling.",
+      "depth": 0,
+      "strong": [
+        [
+          23,
+          37
+        ],
+        [
+          42,
+          48
+        ]
+      ]
+    },
+    {
+      "heading": "Deploying the Cloud Connector",
+      "level": 1
+    },
+    {
+      "text": "This procedure describes the steps for deploying Zscaler Cloud Connector using a CloudFormation template. To learn more about deploying Zscaler Cloud Connector using a Terraform script, see Deployment Templates for Zscaler Cloud Connector."
+    },
+    {
+      "text": "After you have met all the prerequisites, create a stack in the AWS CloudFormation console and deploy your Cloud Connector. Then, modify your route table and associated subnet to send workload traffic to the Cloud Connector."
+    },
+    {
+      "text": "The AWS CloudFormation console allows you to create stacks by uploading or creating a template file. A stack is a compilation of resources grouped into one collective unit. The template file describes the stack, which contains AWS and Zscaler Cloud Connector resources, and deploys all resources together as a group. To learn more, refer to the AWS product documentation."
+    },
+    {
+      "item": "Perform one of the following procedures to create a stack and deploy the Cloud Connector:",
+      "depth": 0
+    },
+    {
+      "item": "Create a stack in the AWS CloudFormation console.",
+      "depth": 1
+    },
+    {
+      "item": "To create a stack in the AWS CloudFormation console:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the AWS CloudFormation console.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create stack.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Create stack page, select Template is ready.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          33,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "In Step 1: Specify template, select Upload a template file and upload the AWS CloudFormation deployment template from Deployment Templates for Zscaler Cloud Connector.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          27
+        ],
+        [
+          36,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "To create the pre-deployment resources needed to deploy and operate the Cloud Connector, you must begin deployment in the AWS CloudFormation console with the Pre-Deployment Template. After you upload the Pre-Deployment Template, upload the Starter Deployment Template to create the resources needed to deploy and operate the Cloud Connector in an existing VPC. After you upload the Starter Deployment Template, use the Add-on Template with Private Access to create the resources needed to enable the Private Access DNS resolver capability, and use the Add-on Template with Gateway Load Balancer (GWLB) to distribute requests evenly across the Cloud Connector instances in all enabled availability zones.",
+      "depth": 2,
+      "strong": [
+        [
+          204,
+          227
+        ],
+        [
+          382,
+          409
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In Step 2: Specify stack details, enter a Stack name.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          32
+        ],
+        [
+          42,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "In the Parameters section, define the following parameters:",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Starter Deployment Template",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Choose a VPC ID to Deploy Cloud Connector: From the drop-down menu, select the VPC ID associated with your Cloud Connector.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Choose an Availability Zone to Deploy Cloud Connector: From the drop-down menu, select the desired availability zone.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Choose a Subnet ID to Deploy: From the drop-down menu, select the subnet ID associated with your Cloud Connectors. This subnet must reside in the same availability zone you selected in the previous step.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector Instance Key Pair: From the drop-down menu, select your EC2 instance access key pair.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector Instance Size: From the drop-down menu, select small, medium, or large for your EC2 instance type. Ensure that the instance type you select matches the VM size selected via the Cloud Provisioning Template.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          38
+        ],
+        [
+          71,
+          76
+        ],
+        [
+          78,
+          84
+        ],
+        [
+          89,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector: For your AWS EC2 instance type for the Cloud Connector instance, Zscaler recommends that you select m6i.large.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          125,
+          134
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Connector Provisioning URL: Enter your Cloud Connector provisioning URL.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Secrets Manager Secret Name: Enter the name of your secrets manager.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "HTTP Monitor Probe Port: Enter the HTTP monitor probe port for Cloud Connector to listen for monitoring health probes.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "EBS Encryption Enabled: From the drop-down menu, select true to enable EBS encryption (default) or false to disable it.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          56,
+          60
+        ],
+        [
+          99,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Add IAM Policy Permissions for AWS Tag Collection: From the drop-down menu, select true to enable Cloud Tag Collection IAM Policy creation (default) or false to disable it.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          50
+        ],
+        [
+          83,
+          87
+        ],
+        [
+          152,
+          157
+        ]
+      ]
+    },
+    {
+      "item": "Add Management Security Group Rule for Zscaler Support Server Connectivity: From the drop-down menu, select true to enable the creation of a Management Security Group rule that permits egress TCP/12002 Zscaler Support Server Destinations (default) or false to disable rule creation. (Disabling is not recommended because this may prohibit Zscaler Support assistance if required.)",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          75
+        ],
+        [
+          108,
+          112
+        ],
+        [
+          251,
+          256
+        ]
+      ]
+    },
+    {
+      "item": "You must define the HTTP Monitor Probe Port parameter to check the liveliness of the designated Cloud Connectors and to achieve high availability.",
+      "depth": 1,
+      "strong": [
+        [
+          20,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Add-on Template with ZPA",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Your Zscaler Cloud Name: From the drop-down menu, select the name of your Zscaler cloud.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Your ZPA Cloud Name: Select your Private Access cloud name. For all production clouds, your Private Access cloud name is ZPA. For all other clouds, your Private Access cloud name is ZPA-Beta.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          121,
+          124
+        ],
+        [
+          182,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "ServiceENI ID of Zscaler CC: Enter the elastic service interface (ENI) of the Zscaler Cloud Connector instance.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Domain Names for ZPA Application: Enter the domain names for the Private Access applications. You can enter up to 10 domain names.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Add-on Template with High Availability (deprecated)",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector Instance ID for each Cloud Connector: Select the instance ID for each Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector Instance HTTP Probe Port for each Cloud Connector: Enter the HTTP probe for each Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "List of Route Tables with affinity for each Cloud Connector: Enter the route tables associated with each Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "S3 Bucket for Lambda Deployment Package: Enter the AWS S3 bucket name for the specified region.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "S3 Key for Lambda Deployment Package: Enter the AWS S3 key for the Lambda deployment package ZIP file.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Add-on Template with Gateway Load Balancer (GWLB)",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "ZS CC Instance IDs: Select the instance ID for each Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "ZS CC instance Http Probe Port: Enter the HTTP probe health check port for each Cloud Connector.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "ZS CC GWLB enable cross zone forwarding: To enable the cross-zone GWLB operation, select true. If enabled, the Gateway Load Balancer distributes requests evenly across the Cloud Connector instance in all enabled availability zones. If this option is disabled, requests are distributed in the workload's availability zone only.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          39
+        ],
+        [
+          89,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "The Parameters section is defined based on the template file selected. If you want to customize the parameters, Zscaler recommends editing the template file and deploying with the edited version.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In Step 3: Configure stack options, add Tags to apply to your stack and add Permissions by choosing an Identity and Access Management (IAM) role to define how CloudFormation can control resources in the stack. If you do not select a role, permissions are based on your user credentials.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          10
+        ],
+        [
+          11,
+          34
+        ],
+        [
+          40,
+          44
+        ],
+        [
+          76,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "In the Advanced options section, set additional options for your Stack policy, Rollback Configuration, Notification options, and Stack creation options.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          65,
+          77
+        ],
+        [
+          79,
+          101
+        ],
+        [
+          103,
+          123
+        ],
+        [
+          129,
+          151
+        ]
+      ]
+    },
+    {
+      "item": "In Step 4: Review, verify your network and Cloud Connector configurations.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Select the I acknowledge that AWS CloudFormation might create IAM resources checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Create stack.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Create a stack in the AWS CloudFormation console with Autoscaling (Advanced Deployment).",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connector with autoscaling requires a new provisioning template with autoscaling set to Enabled. To enable autoscaling, contact Zscaler Support.",
+      "depth": 1
+    },
+    {
+      "item": "To create a stack in the AWS CloudFormation console with autoscaling and GWLB:",
+      "depth": 1
+    },
+    {
+      "item": "Before uploading the Starter Deployment Template with Autoscaling and GWLB to the AWS CloudFormation console, you must create a new Amazon Simple Storage Service (S3) bucket and upload the Zscaler Cloud Connector Lambda ZIP file. To learn more about Amazon S3, refer to the AWS product documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the AWS CloudFormation console.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create stack.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Create stack page, select Template is ready.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          33,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "In Step 1: Specify template, select Upload a template file, and upload the AWS CloudFormation deployment template from Deployment Templates for Zscaler Cloud Connector.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          27
+        ],
+        [
+          36,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "To create the pre-deployment resources needed to deploy and operate the Cloud Connector, you must begin deployment in the AWS CloudFormation console with the Pre-Deployment Template. After you upload the Pre-Deployment Template, upload the Starter Deployment Template with Autoscaling and GWLB to create the resources needed to deploy and operate the Cloud Connectors in an existing VPC.",
+      "depth": 2,
+      "strong": [
+        [
+          204,
+          227
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Parameters section, define the following parameters:",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Stack name: Enter a stack name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "VPC ID: From the drop-down menu, select the VPC ID associated with your Cloud Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Choose Availability Zones to Deploy Cloud Connector Resources: From the drop-down menu, select the desired availability zones to deploy Zscaler Cloud Connectors in autoscaling group, GWLB, and GWLB endpoints.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Subnet IDs for the Zscaler Cloud Connector Auto Scaling Group: From the drop-down menu, select the subnets where the autoscaling group is deployed.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Availability Zone based Auto Scaling Groups: From the drop-down menu, select true to create one autoscaling group for each availability zone (default) or false to create a single autoscaling group spanning all selected availability zones.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          43
+        ],
+        [
+          77,
+          81
+        ],
+        [
+          154,
+          159
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector AMI: (Optional) Enter the ID of the AMI to use for deployment. Leave blank to deploy the latest marketplace AMI (recommended).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector Instance Key Pair: From the drop-down menu, select the instance key pair.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Existing IAM Role ARN to use for Zscaler Cloud Connector: (Optional) Enter the Amazon Resource Name (ARN) that uniquely identifies an existing IAM role or instance profile.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Add IAM Policy Permissions for AWS Tag Collection: From the drop-down menu, select true to enable Cloud Tag Collection IAM Policy creation (default) or false to disable it. This setting is enforced only if CloudFormation creates a new IAM Role.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          49
+        ],
+        [
+          83,
+          87
+        ],
+        [
+          152,
+          157
+        ]
+      ]
+    },
+    {
+      "item": "Add Management Security Group Rule for Zscaler Support Server Connectivity: From the drop-down menu, select true to enable the creation of a Management Security Group rule that permits egress TCP/12002 Zscaler Support Server Destinations (default) or false to disable rule creation. (Disabling is not recommended because it may prevent Zscaler Support from assisting you if needed.)",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          74
+        ],
+        [
+          108,
+          112
+        ],
+        [
+          251,
+          256
+        ]
+      ]
+    },
+    {
+      "item": "Existing Security Group ID to use for Zscaler Cloud Connector Management Interface: (Optional) Enter the ID of an existing security group to apply to the management interface.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Existing Security Group ID to use for Zscaler Cloud Connector Service Interface: (Optional) Enter the ID of an existing security group to apply to the service interface.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Secrets Manager Secret Name: Enter the name of your AWS Secrets Manager. By default, the name is set to ZS/CC/credentials.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          104,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector Instance Size: By default, this field is set to small. Other sizes are not yet supported for autoscaling.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          37
+        ],
+        [
+          72,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Cloud Connector AWS EC2 Instance Type: For your AWS EC2 instance type for the Cloud Connector instance, Zscaler recommends that you select m6i.large.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          45
+        ],
+        [
+          147,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Connector Provisioning URL: Enter your Cloud Connector provisioning URL.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "HTTP Monitor Probe Port: Enter the HTTP monitor probe port for Cloud Connector to listen for monitoring health probes.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "EBS Encryption Enabled: From the drop-down menu, select true to enable Elastic Block Store (EBS) encryption (default) or false to disable it.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          56,
+          60
+        ],
+        [
+          121,
+          126
+        ]
+      ]
+    },
+    {
+      "item": "Lambda S3 Bucket Name: Enter the name of the AWS S3 bucket in this region where the Lambda deployment package ZIP file exists.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Lambda S3 Key: Enter the Lambda S3 key.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling Group Minimum Size: Enter the minimum number of Cloud Connectors to maintain in the autoscaling group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling Group Maximum Size: Enter the maximum number of Cloud Connectors to maintain in the autoscaling group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling Group Reuse Instances on Scale In: Select true to enable autoscaling to reuse instances or false to terminate instances.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          46
+        ],
+        [
+          55,
+          59
+        ],
+        [
+          104,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling Group Target CPU Utilization Value: To track CPU use by the autoscaling policy, enter a target value number (recommended default 80%). The threshold triggers a scale in or scale out to keep the average percentage across all instances at or under the number you enter.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling Group Warm Pool Enabled: From the drop-down menu, select true to enable autoscaling group warm pool or false to disable it. When warm pool is enabled, the autoscaling group can use pre-initialized (\"warmed\") EC2 instances to handle traffic increases.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          36
+        ],
+        [
+          70,
+          74
+        ],
+        [
+          116,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling Group Warm Pool State: From the drop-down menu, select the instance state of warm pool resources. Zscaler recommends selecting Stopped to reduce cost. This parameter is only enforced if you set Auto Scaling Group Warm Pool Enabled to true.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          34
+        ],
+        [
+          140,
+          147
+        ],
+        [
+          207,
+          243
+        ],
+        [
+          247,
+          251
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling Group Warm Pool Minimum Size: Enter the minimum number of instances to maintain in the warm pool. This parameter ensures that a certain number of warmed instances are always available to handle traffic increases. This parameter is only enforced if you set Auto Scaling Group Warm Pool Enabled to true.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          41
+        ],
+        [
+          269,
+          305
+        ],
+        [
+          309,
+          313
+        ]
+      ]
+    },
+    {
+      "item": "Auto Scaling Group Warm Pool Max Group Prepared Capacity: Enter the maximum number of instances allowed in the warm pool or in any state except Terminated in the autoscaling group. This parameter is enforced only if you set Auto Scaling Group Warm Pool Enabled to true.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          56
+        ],
+        [
+          144,
+          154
+        ],
+        [
+          224,
+          260
+        ],
+        [
+          264,
+          268
+        ]
+      ]
+    },
+    {
+      "item": "Log Group Retention: From the drop-down menu, select the number of days to retain the log events in the specified log group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "GWLB Target Failover Rebalance Strategy: From the drop-down menu, select rebalance to enable rebalance failover after you deregister a target or no_rebalance to disable it.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          39
+        ],
+        [
+          73,
+          82
+        ],
+        [
+          145,
+          157
+        ]
+      ]
+    },
+    {
+      "item": "GWLB Flow Stickiness Strategy: From the drop-down menu, select the distribution hash. Zscaler recommends selecting 5-tuple for optimal load disbursement unless otherwise required for your specific environments.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          29
+        ],
+        [
+          115,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "Enable Cross-Zone Load Balancing: From the drop-down menu, select true to enable cross-zone load balancing or false to disable it.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ],
+        [
+          66,
+          70
+        ],
+        [
+          110,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "VPC Subnets to Create VPC Endpoints in (one per AZ): (Optional) Enter additional VPC subnets to create additional VPC endpoints. One additional subnet is allowed for each availability zone.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "VPC Endpoint Service Principals: (Optional) Enter a list of service principal Amazon Resource Names (ARNs) to restrict which VPC endpoints can associate with the GWLB Endpoint Service.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Require Acceptance For Newly Created VPC Endpoints?: From the drop-down menu, select true to require the admin to manually accept the newly created VPC endpoints or false to not require the admin to manually accept them.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          51
+        ],
+        [
+          85,
+          89
+        ],
+        [
+          165,
+          170
+        ]
+      ]
+    },
+    {
+      "item": "The Parameters section is defined based on the template file you select. If you want to customize the parameters, Zscaler recommends editing the template file and deploying with the edited version.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In Step 3: Configure stack options, enter Tags to apply to your stack and add Permissions by choosing an Identity and Access Management (IAM) role to define how CloudFormation can control resources in the stack. If you do not select a role, permissions are based on your user credentials.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          10
+        ],
+        [
+          11,
+          34
+        ],
+        [
+          42,
+          46
+        ],
+        [
+          78,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "In the Advanced options section, set additional options for your Stack policy, Rollback Configuration, Notification options, and Stack creation options.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          65,
+          77
+        ],
+        [
+          79,
+          101
+        ],
+        [
+          103,
+          123
+        ],
+        [
+          129,
+          151
+        ]
+      ]
+    },
+    {
+      "item": "In Step 4: Review, verify your network and Cloud Connector configurations.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Select the I acknowledge that AWS CloudFormation might create IAM resources checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          11,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Create stack.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Route workload traffic to the Cloud Connector.",
+      "depth": 0
+    },
+    {
+      "item": "After you finish deploying the Cloud Connector from the AWS CloudFormation console, modify your route table and associated subnet to ensure that traffic is sent from the private workload subnet to Cloud Connector. By default, traffic is going out of the workload subnet.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Amazon VPC console.",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation pane, select Route Tables.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Locate and click your workload route table.",
+      "depth": 1
+    },
+    {
+      "item": "Click Edit routes.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Add route.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "For the Destination, enter 0.0.0.0/0.",
+      "depth": 1,
+      "strong": [
+        [
+          8,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "For the Target, do one of the following:",
+      "depth": 1,
+      "strong": [
+        [
+          8,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "For non-GWLB-based deployments, select Network Interface and choose the ENI associated with your Cloud Connector service interface instance.",
+      "depth": 2,
+      "strong": [
+        [
+          39,
+          56
+        ],
+        [
+          72,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "For GWLB-based deployments, select Gateway Load Balancer Endpoint and choose the GWLB Endpoint ID associated with your Gateway Load Balancer.",
+      "depth": 2,
+      "strong": [
+        [
+          35,
+          65
+        ],
+        [
+          81,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Click Save Changes.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "heading": "Managing the Cloud Connector",
+      "level": 1
+    },
+    {
+      "text": "You can manage the Cloud Connector from the Zscaler Admin Console. A deployed Cloud Connector is displayed on the dashboard. The Cloud & Branch Connector Monitoring page provides information on the name, group, location, geolocation (shown below), and status of the Cloud Connector AMIs deployed in your cloud account."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "After verifying deployment, you can configure the following policies:"
+    },
+    {
+      "item": "Traffic Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "Log and Control Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "DNS Control",
+      "depth": 0
+    },
+    {
+      "text": "If you face any issues with your Cloud Connector deployment, see Troubleshooting Cloud Connector with Amazon Web Services."
+    }
+  ]
+}

@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/bi-what-zscaler-business-insights.md"
+  - "vendor/zscaler-help/bi-what-zscaler-business-insights.json"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/request_executor.py"
   - "vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py"
@@ -36,13 +36,13 @@ This ledger covers the Tier 2 programmable-surface refresh for Business Insights
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| Business Insights provides visibility into SaaS application usage, spending insights, and workplace metrics. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:8` |
-| SaaS Application Management includes discovery, engagement data, Shadow IT, overlap visibility, and cost-control themes. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:10-20` |
-| Office Workplace & Workforce Management includes workplace insights, predictive cost-saving models, back-to-office strategy, and workforce metrics. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:22-31` |
-| Business Insights receives data from ZIA, IdPs, SaaS application connector integrations, and custom application signatures. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:40-45` |
-| SaaS app insights require ZIA, and workplace insights require ZIA plus Zscaler Client Connector on relevant endpoints. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:47-50` |
-| Zscaler can discover usage of more than 30K apps, but the portal shows a business-relevant subset by default. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:52-54` |
-| Business Insights can distinguish subscribed apps from used apps with metadata fields such as cost, license plans, and contract dates. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.md:56-58` |
+| Business Insights provides visibility into SaaS application usage, spending insights, and workplace metrics. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.json:8` |
+| SaaS Application Management includes discovery, engagement data, Shadow IT, overlap visibility, and cost-control themes. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.json:10-20` |
+| Office Workplace & Workforce Management includes workplace insights, predictive cost-saving models, back-to-office strategy, and workforce metrics. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.json:22-31` |
+| Business Insights receives data from ZIA, IdPs, SaaS application connector integrations, and custom application signatures. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.json:40-45` |
+| SaaS app insights require ZIA, and workplace insights require ZIA plus Zscaler Client Connector on relevant endpoints. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.json:47-50` |
+| Zscaler can discover usage of more than 30K apps, but the portal shows a business-relevant subset by default. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.json:52-54` |
+| Business Insights can distinguish subscribed apps from used apps with metadata fields such as cost, license plans, and contract dates. | `overview.md` | `vendor/zscaler-help/bi-what-zscaler-business-insights.json:56-58` |
 | Python `client.zbi` is Zscaler Business Insights REST API surface, not Zero Trust Browser. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:237`, `:331-335`; `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:23-24` |
 | Python `client.zbi` exposes `custom_apps`, `report_configs`, and `reports`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zbi/zbi_service.py:29-51` |
 | `client.zbi.custom_apps` supports list, get, create, update, and delete operations under `/bi/api/v1/customapps`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zbi/custom_apps.py:26-34`, `:40-92`, `:94-137`, `:139-194`, `:196-244`, `:246-281` |

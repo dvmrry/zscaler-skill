@@ -1,0 +1,635 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Cloud Connector Deployments with Google Cloud Platform Managed Instance Groups with Autoscaling",
+  "source": {
+    "url": "https://help.zscaler.com/cloud-branch-connector/understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling",
+    "node": "1535452",
+    "revision": "3203230"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "A Google Cloud Platform (GCP) Managed Instance Group (MIG) with autoscaling deployment dynamically adds Cloud Connector virtual machines (VMs) to an instance group to meet the current load when it increases, and it removes Cloud Connector VMs from the instance group when the load decreases. For example, consider a virtual Windows workstation deployment where users log in to their own virtual workstations at the beginning of the work day and log out at the end of the day. This causes fluctuations in the number of users and the amount of traffic flow during these periods."
+    },
+    {
+      "text": "Instance groups also constantly monitor the health of each Cloud Connector VM in the instance group. They remove unhealthy VMs from the instance group and replace them with healthy ones. If someone manually terminates a VM that is part of an instance group from the Google Cloud console, the instance group replaces the VM."
+    },
+    {
+      "text": "When deploying a Cloud Connector, only deploy an autoscaling group (ASG) with an ASG template or a non-ASG with a non-ASG template. Additionally, stopping or rebooting a VM that is part of an instance group from the Google Cloud console could cause the VM to be terminated."
+    },
+    {
+      "text": "Instance groups with autoscaling provide the following benefits:"
+    },
+    {
+      "item": "Dynamically scale the number of VMs in the instance group to match demand.",
+      "depth": 0
+    },
+    {
+      "item": "Automatically remove unhealthy VMs and replaces them with healthy ones.",
+      "depth": 0
+    },
+    {
+      "item": "Deploy VMs across availability zones for high availability. Load balancing distributes traffic among the VMs.",
+      "depth": 0
+    },
+    {
+      "text": "This article describes instance groups and how they work in a Cloud Connector deployment. The deployment template prompts you to configure certain instance group settings mentioned in this article. For information about the deployment template and the deployment steps, see Deployment Templates for Zscaler Cloud Connector and Deploying Zscaler Cloud Connector on the Google Cloud Platform. For comprehensive autoscaling information, refer to the GCP product documentation."
+    },
+    {
+      "heading": "Topology",
+      "level": 1
+    },
+    {
+      "text": "The following sections provide a diagram depicting the topology of an autoscaling deployment and a description of its components and flow."
+    },
+    {
+      "item": "Topology diagram",
+      "depth": 0
+    },
+    {
+      "item": "Topology details",
+      "depth": 0
+    },
+    {
+      "item": "The security stack is deployed in either a dedicated GCP project or within the same project as the workloads, based on your organizational architecture. GCP has an architectural limitation where instances with multiple network interfaces require separate virtual private cloud (VPC) networks for each interface. Cloud Connector deployments therefore require the creation of two distinct VPCs: one for management and one for service and security operations. After the security stack is in place, you must configure custom routes in the workload VPCs to direct appropriate traffic to the load balancer in front of the Cloud Connectors. This load balancer serves as the central entry point for the security stack.",
+      "depth": 1
+    },
+    {
+      "item": "Zonal MIGs with autoscaling are deployed in each configured region or zone, ensuring high availability and automatic failover across zones.",
+      "depth": 1
+    },
+    {
+      "item": "A Cloud NAT gateway is deployed in each region for the Cloud Connectors. This arrangement provides managed, scalable outbound internet access and allocates dedicated external IPs for each gateway.",
+      "depth": 1
+    },
+    {
+      "item": "Two Google Cloud Run functions are deployed:",
+      "depth": 1
+    },
+    {
+      "item": "Health Monitoring: This function uses custom metrics exported from each Cloud Connector VM (for example, via Cloud Monitoring/Operations) to determine the health status of the VM. The instance group automatically terminates unhealthy Cloud Connector VMs and replaces them with new ones. The Health Monitoring function is triggered every minute by default using Cloud Scheduler.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Resource Sync: This function ensures that the VMs registered in the Zscaler Admin Console match the membership of each Cloud Connector instance group. If the function discovers a Cloud Connector in the Zscaler Admin Console that is not part of any instance group, it issues an API call to the Zscaler Admin Console to delete the VM. This function runs every 10 minutes by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "The Resource Sync Cloud Run function uses RESTful APIs to communicate with the Cloud Connector API endpoint securely over HTTPS. The functions do not directly interact with individual Cloud Connector VMs; instead, they orchestrate via the Admin API.",
+      "depth": 1
+    },
+    {
+      "item": "Each Cloud Function is packaged in a ZIP file and deployed via Google Cloud Storage. The ZIP file is uploaded either to a newly created storage bucket during deployment or to an existing bucket specified in the deployment configuration. The Cloud Functions retrieve their code from this bucket during initialization.",
+      "depth": 1
+    },
+    {
+      "heading": "Scale-Out and Scale-In",
+      "level": 1
+    },
+    {
+      "text": "Each Cloud Connector independently posts data plane CPU utilization metrics at one-minute intervals to GCP Cloud Monitoring as a user-defined metric. The MIG autoscaling policy uses the aggregate CPU utilization value across all VMs in the instance group to determine whether a scale-in or scale-out event should happen based on a target percentage value."
+    },
+    {
+      "text": "Auto Scaling uses custom CPU utilization metrics instead of VM-level metrics because custom metrics provide more detailed and precise information about CPU usage. In logs and reports, the CPU utilization metric is displayed as smedge_cpu_utilization."
+    },
+    {
+      "item": "Scaling Policy",
+      "depth": 0
+    },
+    {
+      "item": "The scaling policy manages scale-out and scale-in events using the following variables:",
+      "depth": 0
+    },
+    {
+      "item": "Target value: By default, the target value is 80% aggregate CPU utilization across all VMs in the instance group over a period of two to three minutes. Autoscaling maintains CPU utilization as close to the target value as possible without exceeding it.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Instance group size: When a scaling event happens, autoscaling automatically determines the number of VMs to add or remove to bring the aggregate CPU utilization metric closer to the target value. By default, the maximum size of an instance group is 10 VMs and the minimum size is one VM. (The maximum cannot exceed the Cloud Connector group limit of 16 VMs per group.)",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "You can view the policy in the instance group details in the Google Cloud console.",
+      "depth": 0
+    },
+    {
+      "item": "Cooldown Period",
+      "depth": 0
+    },
+    {
+      "item": "While your VMs are initializing, the utilization metric might not reflect normal conditions. As a safeguard, autoscaling provides a cooldown (or initialization) period, which is the number of seconds between scaling actions.",
+      "depth": 0
+    },
+    {
+      "item": "For scale-in events, autoscaling takes into account utilization data from all VMs, even those that are still in the cooldown period.",
+      "depth": 1
+    },
+    {
+      "item": "For scale-out events, autoscaling ignores utilization data from VMs that are still in the cooldown period.",
+      "depth": 1
+    },
+    {
+      "item": "By default, the initialization period is 900 seconds (15 minutes).",
+      "depth": 0
+    },
+    {
+      "item": "Examples",
+      "depth": 0
+    },
+    {
+      "item": "The following examples demonstrate how scaling events affect the size of an instance group with a minimum size of two, a maximum size of 5, and the default target value (80%):",
+      "depth": 0
+    },
+    {
+      "item": "Scale-Out: Because the minimum instance group size is two, at least two VMs must always be running.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "No scaling event happens in normal conditions with two VMs running at 60% aggregate CPU utilization.",
+      "depth": 1
+    },
+    {
+      "item": "If the aggregate CPU utilization exceeds 80%, a scale-out event happens, bringing the number of VMs in the instance group to three.",
+      "depth": 1
+    },
+    {
+      "item": "After the cooldown period, if the aggregated CPU utilization still exceeds 80%, another scale-out event adds one more VM to the instance group, bringing the number of VMs to 4. This continues after the cooldown period ends until the average is less than 80%.",
+      "depth": 1
+    },
+    {
+      "item": "Scale-In: GCP autoscaling uses its own logic to determine what to do when the aggregate CPU utilization is less than 80%:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Wait because the value is too close to 80% or has not been under 80% long enough.",
+      "depth": 1
+    },
+    {
+      "item": "Trigger a scale-in event because, based on the time sample and the individual CPU utilization of each VM, removing one VM will meet the following criteria:",
+      "depth": 1
+    },
+    {
+      "item": "The number of VMs will be at or above the minimum target group size.",
+      "depth": 2
+    },
+    {
+      "item": "The average fluctuation for the remaining VM will likely remain below the target CPU utilization value.",
+      "depth": 2
+    },
+    {
+      "heading": "Cloud Connector Health Monitoring",
+      "level": 1
+    },
+    {
+      "text": "Health monitoring includes the following entities:"
+    },
+    {
+      "item": "Custom Metric Publishing: Each Cloud Connector publishes a VM-level custom metric at one-minute intervals. This metric value is either 0 for an unhealthy VM or 100 for a healthy VM.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Custom metrics also include dataplane CPU utilization metrics published at one-minute intervals, described in the previous section.",
+      "depth": 0
+    },
+    {
+      "item": "Health Monitoring: The Health Monitor function consumes the health metric at one-minute intervals and initiates the termination of a VM that it determines is unhealthy. It uses two criteria to determine whether to terminate the VM:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Recent Health Data",
+      "depth": 1
+    },
+    {
+      "item": "The Health Monitor function evaluates recent health data using sliding window logic with the following configurable environment variables:",
+      "depth": 1
+    },
+    {
+      "item": "The size of the sliding window. The default is 10 consecutive minutes.",
+      "depth": 2
+    },
+    {
+      "item": "The amount of time the VM was in an unhealthy state. The default value for defining a VM as unhealthy is 5 consecutive minutes.",
+      "depth": 2
+    },
+    {
+      "item": "The tolerance for flapping values in the sliding window. The default value is 7 unhealthy counts in 10 consecutive minutes.",
+      "depth": 2
+    },
+    {
+      "item": "Missing Metrics",
+      "depth": 1
+    },
+    {
+      "item": "The Health Monitor function uses the following configurable environment variables to handle scenarios in which a running VM does not post metrics:",
+      "depth": 1
+    },
+    {
+      "item": "If the VM does not report metrics for two minutes, the function generates a warning log.",
+      "depth": 2
+    },
+    {
+      "item": "If the VM does not report metrics for 5 minutes, the function generates a critical log.",
+      "depth": 2
+    },
+    {
+      "item": "If the VM does not report metrics for 10 minutes, the function generates a termination log and starts the process of deleting the VM.",
+      "depth": 2
+    },
+    {
+      "item": "Unhealthy VMs are terminated in iterations. By default, in a single iteration, 16 VMs can be terminated. After a VM is terminated, it is replaced immediately.",
+      "depth": 0
+    },
+    {
+      "text": "In logs and reports, the health metric is displayed as cloud_connector_aggr_health."
+    },
+    {
+      "heading": "Viewing Metrics and Logs",
+      "level": 1
+    },
+    {
+      "item": "Instance Group Details",
+      "depth": 0
+    },
+    {
+      "item": "The details page for an instance group contains comprehensive information about the group, such as the capacity overview, configuration settings, scaling policy, instance management, activity history, metrics, and so on.",
+      "depth": 0
+    },
+    {
+      "item": "To view the instance group details:",
+      "depth": 0
+    },
+    {
+      "item": "Open the Google Cloud console.",
+      "depth": 1
+    },
+    {
+      "item": "In the navigation pane, click Instance Groups.",
+      "depth": 1,
+      "strong": [
+        [
+          30,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Select the instance group for which you want to view details. The Overview tab opens.",
+      "depth": 1,
+      "strong": [
+        [
+          66,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click the Details tab to review the instance status, template, configuration, location, group size, and autoscaling policy.",
+      "depth": 1,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click the Monitoring tab to review instance group metrics over a period of time.",
+      "depth": 1,
+      "strong": [
+        [
+          10,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connector VM Details",
+      "depth": 0
+    },
+    {
+      "item": "To view details about a VM in the instance group:",
+      "depth": 0
+    },
+    {
+      "item": "Open the Google Cloud console.",
+      "depth": 1
+    },
+    {
+      "item": "In the navigation pane, click Instance Groups.",
+      "depth": 1,
+      "strong": [
+        [
+          30,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Select the instance group for which you want to view details.",
+      "depth": 1
+    },
+    {
+      "item": "On the Overview tab, in the VM instances section, click an instance in the Name column.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          40
+        ],
+        [
+          75,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Click Observability to monitor VM health, behavior, and performance.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Access to GCP Resources",
+      "level": 1
+    },
+    {
+      "text": "Service accounts provide secure access to Google Cloud resources. Three service accounts are required in a GCP autoscaling deployment:"
+    },
+    {
+      "item": "Deployment Service Account",
+      "depth": 0
+    },
+    {
+      "item": "This service account allows Terraform to run during deployment. It needs the following roles:",
+      "depth": 0
+    },
+    {
+      "item": "Compute Instance Admin (v1)",
+      "depth": 1
+    },
+    {
+      "item": "Compute Network Admin",
+      "depth": 1
+    },
+    {
+      "item": "Compute Security Admin",
+      "depth": 1
+    },
+    {
+      "item": "Service Account Admin",
+      "depth": 1
+    },
+    {
+      "item": "Service Account User",
+      "depth": 1
+    },
+    {
+      "item": "Secret Manager Admin",
+      "depth": 1
+    },
+    {
+      "item": "Project IAM Admin",
+      "depth": 1
+    },
+    {
+      "item": "DNS Administrator (optional)",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Functions Admin (Autoscaling only)",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Scheduler Admin (Autoscaling only)",
+      "depth": 1
+    },
+    {
+      "item": "Storage Admin (Autoscaling only)",
+      "depth": 1
+    },
+    {
+      "item": "This service account also needs the following APIs enabled:",
+      "depth": 0
+    },
+    {
+      "item": "Compute Engine API",
+      "depth": 1
+    },
+    {
+      "item": "Cloud DNS API",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Resource Manager API",
+      "depth": 1
+    },
+    {
+      "item": "Identity and Access Management (IAM) API",
+      "depth": 1
+    },
+    {
+      "item": "Secret Manager API",
+      "depth": 1
+    },
+    {
+      "item": "Autoscaling deployments only:",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Functions API",
+      "depth": 2
+    },
+    {
+      "item": "Cloud Scheduler API",
+      "depth": 2
+    },
+    {
+      "item": "Cloud Monitoring API",
+      "depth": 2
+    },
+    {
+      "item": "Cloud Logging API",
+      "depth": 2
+    },
+    {
+      "item": "Cloud Build API",
+      "depth": 2
+    },
+    {
+      "item": "Cloud Connector VM Service Account",
+      "depth": 0
+    },
+    {
+      "item": "This service account allows Cloud Connectors to access secret credentials. It needs the following roles:",
+      "depth": 0
+    },
+    {
+      "item": "Monitoring Metric Writer",
+      "depth": 1
+    },
+    {
+      "item": "One of the following roles, depending on the method you use to manage and store your secret credentials:",
+      "depth": 1
+    },
+    {
+      "item": "Secret Manager Secret Accessor (for GCP Secret Manager)",
+      "depth": 2
+    },
+    {
+      "item": "Service Account Token Creator (for HashiCorp Vault) with the following permissions assigned to it:",
+      "depth": 2
+    },
+    {
+      "item": "compute.instanceGroups.list",
+      "depth": 3
+    },
+    {
+      "item": "compute.instances.get",
+      "depth": 3
+    },
+    {
+      "item": "iam.serviceAccounts.get",
+      "depth": 3
+    },
+    {
+      "item": "iam.serviceAccountKeys.get,",
+      "depth": 3
+    },
+    {
+      "item": "iam.serviceAccounts.signJwt",
+      "depth": 3
+    },
+    {
+      "item": "Cloud Function Service Account",
+      "depth": 0
+    },
+    {
+      "item": "This service account allows the Cloud Run Functions (Health Monitor and Resource Sync) to make API calls to perform operations such as reading metrics, terminating VMs, and replacing VMs. It needs the following roles:",
+      "depth": 0
+    },
+    {
+      "item": "Compute Instance Admin (v1)",
+      "depth": 1
+    },
+    {
+      "item": "Monitoring Viewer",
+      "depth": 1
+    },
+    {
+      "item": "Logs Writer",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Run Invoker",
+      "depth": 1
+    },
+    {
+      "item": "One of the following roles, depending on the method you use to manage and store your secret credentials:",
+      "depth": 1
+    },
+    {
+      "item": "Secret Manager Secret Accessor (for GCP Secret Manager)",
+      "depth": 2
+    },
+    {
+      "item": "Service Account Token Creator (for HashiCorp Vault) with the following permissions assigned to it:",
+      "depth": 2
+    },
+    {
+      "item": "compute.instanceGroups.list",
+      "depth": 3
+    },
+    {
+      "item": "compute.instances.get",
+      "depth": 3
+    },
+    {
+      "item": "iam.serviceAccounts.get",
+      "depth": 3
+    },
+    {
+      "item": "iam.serviceAccountKays.get",
+      "depth": 3
+    },
+    {
+      "item": "iam.serviceAccounts.sign.Jwt",
+      "depth": 3
+    },
+    {
+      "text": "For information about creating service accounts and assigning roles, see Deploying Zscaler Cloud Connector on the Google Cloud Platform."
+    }
+  ]
+}

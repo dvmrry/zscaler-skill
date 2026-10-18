@@ -14,7 +14,7 @@ confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/privileged-remote-access-captures.md"
-  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json"
   - "vendor/zscaler-sdk-python/docsrc/zs/guides/release_notes.rst"
   - "vendor/zscaler-sdk-python/zscaler/zpa/pra_approval.py"
   - "vendor/zpacloud-ansible/CHANGELOG.md"
@@ -189,14 +189,14 @@ disabled on the target (`vendor/zscaler-help/privileged-remote-access-captures.m
 
 ## Step-Up Authentication
 
-Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md`; `vendor/zpacloud-ansible/CHANGELOG.md`; `vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py`; `vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_pra_approval.py`; `vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py`.
+Source: `vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json`; `vendor/zpacloud-ansible/CHANGELOG.md`; `vendor/zpacloud-ansible/plugins/modules/zpa_pra_approval.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_pra.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_application_segment_inspection.py`; `vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_pra_approval.py`; `vendor/zpacloud-ansible/tests/unit/plugins/modules/test_zpa_application_segment_pra.py`.
 
 Zscaler announced Step-Up Authentication for Privileged Remote Access as a
 limited-availability feature on July 20, 2026
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:70-77`). It can
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:70-77`). It can
 require a user to complete additional authentication before application access,
 and the Zscaler Admin Console supports conditional access for this flow
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:70-77`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:70-77`).
 
 ### Ansible PRA approval and 2.2.12 reconciliation boundaries
 

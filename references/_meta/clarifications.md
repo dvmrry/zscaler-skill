@@ -9,9 +9,9 @@ verified-against:
   vendor/zscaler-help: 35274f67cf10d96d3c6769f6553cbf590223ed92
 confidence: high
 sources:
-  - "vendor/zscaler-help/zia-about-bandwidth-classes-20260909.md"
-  - "vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.md"
-  - "vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.md"
+  - "vendor/zscaler-help/zia-about-bandwidth-classes-20260909.json"
+  - "vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.json"
+  - "vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.json"
 author-status: reviewed
 ---
 
@@ -512,7 +512,7 @@ The ZIdentity refresh (2026-06-15) registered these open behavior questions from
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
-`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `references/shared/subclouds.md`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
+`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `references/shared/subclouds.md`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
 
 The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these open behavior questions — each links to its detailed entry below:
 
@@ -662,7 +662,7 @@ Note: other failure modes (segment disabled, server group unavailable, connector
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Configuring Access Policies* (`vendor/zscaler-help/Configuring_Access_Policies.txt`) p.3 and *Understanding Step-Up Authentication* (`vendor/zscaler-help/understanding-step-up-authentication.md`):
+**Answer**: From *Configuring Access Policies* (`vendor/zscaler-help/Configuring_Access_Policies.txt`) p.3 and *Understanding Step-Up Authentication* (`vendor/zscaler-help/understanding-step-up-authentication.json`):
 
 The rule action is actually called **Conditional Access** in the Configuring Access Policies doc. "Require Approval" in About Access Policy is informal terminology for the same thing. Mechanics:
 
@@ -670,7 +670,7 @@ The rule action is actually called **Conditional Access** in the Configuring Acc
 - Step-up authentication uses **Authentication Levels (AL1 to AL4)**, hierarchical where higher = stronger assurance.
 - Flow: user logs in at standard level → attempts access to a Conditional-Access-gated application → ZIdentity checks required level → if insufficient, prompts for reauthentication (typically MFA via Zscaler Client Connector) → on success, access granted.
 - **Supported only with OIDC-based external IdP integrations.**
-- End-user UX: per *Verifying Access to Applications* (`vendor/zscaler-help/verifying-access-to-applications.md`), user sees a "pending verification" status in Zscaler Client Connector and clicks "Verify Now" to complete the step-up. Requires Client Connector v4.6+ (Windows, ZPA only), v4.7+ (Windows ZIA / macOS both).
+- End-user UX: per *Verifying Access to Applications* (`vendor/zscaler-help/verifying-access-to-applications.json`), user sees a "pending verification" status in Zscaler Client Connector and clicks "Verify Now" to complete the step-up. Requires Client Connector v4.6+ (Windows, ZPA only), v4.7+ (Windows ZIA / macOS both).
 - Separate **"Allow with Privileged Approval"** checkbox exists on Allow-action rules for Privileged Remote Access-enabled application segments — different feature, distinct from Conditional Access step-up.
 
 So: "Require Approval" = "Conditional Access" = ZIdentity step-up authentication. Three names for the same behavior. "Allow with Privileged Approval" is a separate PRA-specific capability.
@@ -685,7 +685,7 @@ So: "Require Approval" = "Conditional Access" = ZIdentity step-up authentication
 
 **Status**: resolved (2026-04-24).
 
-**Answer**: Captured three Zscaler Deception help articles (`vendor/zscaler-help/what-is-zscaler-deception.md`, `about-deception-strategy.md`, `about-zpa-app-connectors-deception.md`).
+**Answer**: Captured three Zscaler Deception help articles (`vendor/zscaler-help/what-is-zscaler-deception.json`, `about-deception-strategy.md`, `about-zpa-app-connectors-deception.md`).
 
 **What Deception is** — a separate Zscaler product for active-defense threat detection. It deploys realistic **decoys** (fake IT assets — servers, apps, Active Directory objects, endpoints, cloud resources) across the environment. Because no legitimate business traffic should ever touch a decoy, any interaction with one is a high-confidence signal of an ongoing breach. Designed to catch threats that bypass traditional defenses — APTs, ransomware, lateral movement, reconnaissance, supply-chain attacks, SCADA/ICS attacks.
 
@@ -990,7 +990,7 @@ When a forwarding-profile action has `systemProxy=true` with `systemProxyData` s
 
 **Resolves with**: lab test OR zscaler doc. **Status**: partially resolved (2026-04-24).
 
-**Partial answer (2026-04-24)**: The *Best Practices for Adding Bypasses for Z-Tunnel 2.0* help article (`vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.md`) documents two 3.8+ Windows flags — `Redirect Web Traffic to Zscaler Client Connector Listening Proxy` and `Use Z-Tunnel 2.0 for Proxied Web Traffic` — as the officially-supported way to combine system-proxy-style routing with Z-Tunnel 2.0. The truth table for their interaction is captured in [`../zcc/z-tunnel.md § Domain-based bypasses`](../zcc/z-tunnel.md). SDK fields: `redirect_web_traffic` and `use_tunnel2_for_proxied_web_traffic` on `ForwardingProfileActions`.
+**Partial answer (2026-04-24)**: The *Best Practices for Adding Bypasses for Z-Tunnel 2.0* help article (`vendor/zscaler-help/best-practices-adding-bypasses-z-tunnel-2.0.json`) documents two 3.8+ Windows flags — `Redirect Web Traffic to Zscaler Client Connector Listening Proxy` and `Use Z-Tunnel 2.0 for Proxied Web Traffic` — as the officially-supported way to combine system-proxy-style routing with Z-Tunnel 2.0. The truth table for their interaction is captured in [`../zcc/z-tunnel.md § Domain-based bypasses`](../zcc/z-tunnel.md). SDK fields: `redirect_web_traffic` and `use_tunnel2_for_proxied_web_traffic` on `ForwardingProfileActions`.
 
 Key interaction surfaced by the article: `Use Z-Tunnel 2.0 for Proxied Web Traffic` applies **only to the default return statement in the App Profile PAC**. Traffic matching a specific PAC statement that routes to a particular Service Edge silently uses Z-Tunnel 1.0, regardless of the flag state.
 
@@ -1028,7 +1028,7 @@ The SDK's `client.zcc.forwarding_profile` surface exposes CRUD on profile object
 
 **Partial answer (2026-04-24, revised same-day after help-doc capture)**:
 
-From `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md` (Zscaler help "About Zscaler Client Connector App Profiles"), the admin-portal object is called an **App Profile**, and one of its first-class functions is: *"Select the forwarding profile for Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) services."* App Profiles also carry: policy rule order, scope (all users vs groups), uninstall/disable/logout password gates, SSL cert installation, log generation settings, and a **default policy** (the fallback when no user-matching rule fires).
+From `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json` (Zscaler help "About Zscaler Client Connector App Profiles"), the admin-portal object is called an **App Profile**, and one of its first-class functions is: *"Select the forwarding profile for Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) services."* App Profiles also carry: policy rule order, scope (all users vs groups), uninstall/disable/logout password gates, SSL cert installation, log generation settings, and a **default policy** (the fallback when no user-matching rule fires).
 
 Mapping to SDK:
 
@@ -1327,10 +1327,10 @@ This affects two operational questions: "why is user X's traffic on Service Edge
 
 **Doc sweep 2026-05-06** (partial resolution):
 
-- `vendor/zscaler-help/what-is-zscaler-client-connector.md` § Service Edge Selection and Re-evaluation: ZCC "regularly checks whether the current Public Service Edge is still optimal." Triggers documented: regular intervals (duration unspecified), network change (e.g., user moves Wi-Fi), app or device restart. Override options exist (specifics not extracted).
+- `vendor/zscaler-help/what-is-zscaler-client-connector.json` § Service Edge Selection and Re-evaluation: ZCC "regularly checks whether the current Public Service Edge is still optimal." Triggers documented: regular intervals (duration unspecified), network change (e.g., user moves Wi-Fi), app or device restart. Override options exist (specifics not extracted).
 - `references/shared/cloud-architecture.md` explicitly states: "Zscaler's 'advanced geo-IP resolution' routes traffic to the nearest edge; the algorithm itself isn't customer-documented." This is the architectural confirmation that the gap is real and Zscaler-side rather than a doc-capture miss.
 - `vendor/zscaler-help/zscaler-resilience-marketing.md` mentions "dynamic service edge selection and customer-controlled data center exclusion" as the brownout/blackout mitigation — confirming both autonomous selection and a customer-override mechanism (DC exclusion) exist, but doesn't specify either.
-- **Subcloud interaction is fully resolved** by `references/shared/subclouds.md` (Tier A, sourced from `vendor/zscaler-help/understanding-subclouds.md`):
+- **Subcloud interaction is fully resolved** by `references/shared/subclouds.md` (Tier A, sourced from `vendor/zscaler-help/understanding-subclouds.json`):
   - **Default Zscaler PSE selection is geolocation-based** — explicit statement in `subclouds.md`.
   - **Subclouds OVERRIDE default geolocation selection entirely** — they restrict the eligible edge set to a named subset; geolocation no longer applies once a subcloud is in effect.
   - **Constraint**: a subcloud cannot consist of PSEs in a single data center (≥ 2 DCs required for availability).
@@ -1373,7 +1373,7 @@ The skill has individual refs covering pieces of the auth timeline (`kb:zia.auth
 
 **Resolved by existing refs**: auth-frequency enum and clock semantics (cookie expiry-based), surrogate IP TTL field names and dependency rules, browser-vs-non-browser flow split.
 
-**Step-up timing — resolved 2026-05-06** by `vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`:
+**Step-up timing — resolved 2026-05-06** by `vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`:
 
 The step-up flow is **synchronous on the access attempt**:
 
@@ -2560,7 +2560,7 @@ The Python SDK exposes `update_certificate` building `PUT /certificate/{id}` (`v
 
 *Origin: `references/zpa/app-connector.md` § Open questions*
 
-How frequently ZPA re-measures App Connector-to-application RTT (the latency signal used in connector/path selection) is not stated in the captured help docs (`vendor/zscaler-help/about-app-connectors.md`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`). Relevant to "our network path changed — how long until ZPA notices and re-routes" questions.
+How frequently ZPA re-measures App Connector-to-application RTT (the latency signal used in connector/path selection) is not stated in the captured help docs (`vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`). Relevant to "our network path changed — how long until ZPA notices and re-routes" questions.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read / operator experience
@@ -2805,15 +2805,15 @@ The AWS PSE module v2.0.0 confirms that PSE provisioning keys can be managed thr
 The July 23 release entry confirms an updated Private Service Edge Docker image,
 RHEL 9 PSE images on AWS, GCP, and Microsoft Azure, a Nutanix AHV PSE image,
 and a VMware PSE image
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-50`). The
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:37-50`). The
 August 4 entry separately confirms PSE Manager RPM packages for RHEL 8.x and
 9.x from the Zscaler repository
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-28`). This
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:12-28`). This
 settles the existence of those platform surfaces, but not the exact image
 formats, Marketplace or direct-download distribution paths, or whether ZPA PSE
 images exist for Hyper-V and KVM. The release capture explicitly warns that
 their omission is not proof of non-support
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:52-53`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:52-53`).
 
 **Status**: partially resolved — last updated 2026-08-04
 **Resolves with**: zscaler doc not yet read (platform deployment prerequisites
@@ -2925,7 +2925,7 @@ No ZPA-specific *Public* Service Edge help page is present in vendor sources. Th
 
 *Origin: `references/zpa/public-service-edges.md` § Open questions*
 
-The Private-SE page states a Service Edge registers with the Private Access Cloud, downloads policies/configurations, and caches path-selection decisions (`vendor/zscaler-help/about-private-service-edges.md:12`), but does not specify cache-invalidation, heartbeat cadence, or any fail-open/fail-closed behavior for the ZPA Public tier. Left unstated rather than imported from ZIA.
+The Private-SE page states a Service Edge registers with the Private Access Cloud, downloads policies/configurations, and caches path-selection decisions (`vendor/zscaler-help/about-private-service-edges.json:12`), but does not specify cache-invalidation, heartbeat cadence, or any fail-open/fail-closed behavior for the ZPA Public tier. Left unstated rather than imported from ZIA.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read (a ZPA-specific source for Public-tier cache/heartbeat behavior)
@@ -2947,7 +2947,7 @@ The Python `ServiceEdgeGroup` model exposes `upgrade_priority` (`vendor/zscaler-
 
 *Origin: `references/zpa/saml-attributes.md` § Open questions*
 
-The 100-attribute limit is taken from the ZSDK ranges document (`vendor/zscaler-help/zsdk-ranges-limitations.md:64`). No captured ZPA-specific source restates this figure for ZPA, and the SDK service layer does not encode a cap (`vendor/zscaler-sdk-python/zscaler/zpa/saml_attributes.py` exposes pagination but no count limit). Whether ZPA enforces exactly 100 — or a different value — is unconfirmed against a ZPA-specific source.
+The 100-attribute limit is taken from the ZSDK ranges document (`vendor/zscaler-help/zsdk-ranges-limitations.json:64`). No captured ZPA-specific source restates this figure for ZPA, and the SDK service layer does not encode a cap (`vendor/zscaler-sdk-python/zscaler/zpa/saml_attributes.py` exposes pagination but no count limit). Whether ZPA enforces exactly 100 — or a different value — is unconfirmed against a ZPA-specific source.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read / lab test
@@ -3409,15 +3409,15 @@ Two related gaps on source IP groups: (1) whether groups created in ZIA (`creato
 The capability distinction is now documented. AWS and GCP Zero Trust Gateway are
 Zscaler cloud-native services that secure workload traffic without requiring
 the customer to manage the security infrastructure
-(`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-21`;
-`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+(`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.json:8-21`;
+`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json:8-17`).
 For GCP specifically, intercept endpoint groups provide project access to a Zscaler-managed
 security service
-(`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:51-54`).
+(`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json:51-54`).
 Standard GCP Cloud Connector is the customer-deployed VM path: Help directs the
 customer to deploy it with Terraform and distinguishes the deployment, VM, and
 Cloud Run function service accounts
-(`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-29`).
+(`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json:8-29`).
 Whether the backend happens to represent the two surfaces with related group
 objects is not a remaining capability question and must not be used to collapse
 the managed-service and customer-VM operating models.
@@ -3434,7 +3434,7 @@ contract parity and Azure ZTG deployment availability are separate questions.
 
 *Origin: `references/cloud-connector/overview.md` § Open questions*
 
-Three high-availability mechanics are named in the captured HA help article but not pinned down: (1) whether the `?cchealth` probe port is configurable and over what range — the article says only "configured during deployment" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.md:30`); (2) where in the admin portal the fail-open / fail-close toggle lives — the article says "customers can change this configuration" without naming the path (`:51`); (3) what the fail-open egress path actually is — the source says fail-open lets "workloads that are accessing the internet to continue doing so" yet also that "the egressing traffic is flowing through Zscaler for inspection and policy control" (`:51`), two clauses that are hard to reconcile when the fail-open precondition is that no Cloud Connector in the group can reach a Service Edge. Whether fail-open routes direct-to-internet (no inspection) or via a retained/degraded Zscaler path is not resolved; neither reading should be documented as fact.
+Three high-availability mechanics are named in the captured HA help article but not pinned down: (1) whether the `?cchealth` probe port is configurable and over what range — the article says only "configured during deployment" (`vendor/zscaler-help/cbc-understanding-high-availability-and-failover.json:30`); (2) where in the admin portal the fail-open / fail-close toggle lives — the article says "customers can change this configuration" without naming the path (`:51`); (3) what the fail-open egress path actually is — the source says fail-open lets "workloads that are accessing the internet to continue doing so" yet also that "the egressing traffic is flowing through Zscaler for inspection and policy control" (`:51`), two clauses that are hard to reconcile when the fail-open precondition is that no Cloud Connector in the group can reach a Service Edge. Whether fail-open routes direct-to-internet (no inspection) or via a retained/degraded Zscaler path is not resolved; neither reading should be documented as fact.
 
 **Status**: open
 **Resolves with**: lab test (trigger a fail-open condition, observe the egress path) OR zscaler doc not yet read (a clearer source on the toggle path and probe-port range)
@@ -3458,7 +3458,7 @@ The console-label and runtime semantics of several `ForwardMethod` enum values a
 
 *Origin: `references/cloud-connector/forwarding.md` § Open questions*
 
-Two forwarding-rule capacity/precedence questions: (1) how many traffic forwarding rules a tenant may define is not captured — the wildcard-domain/FQDN-entry caps (16K per org, 8,000 per rule, `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md:108`) are entry limits, not a rule-count limit; (2) CC forwarding rules carry an Admin Rank field (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:41`), but whether admin rank *gates* the editable Rule Order values the way ZIA URL Filtering's admin-rank does is not stated in captured source.
+Two forwarding-rule capacity/precedence questions: (1) how many traffic forwarding rules a tenant may define is not captured — the wildcard-domain/FQDN-entry caps (16K per org, 8,000 per rule, `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json:108`) are entry limits, not a rule-count limit; (2) CC forwarding rules carry an Admin Rank field (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:41`), but whether admin rank *gates* the editable Rule Order values the way ZIA URL Filtering's admin-rank does is not stated in captured source.
 
 **Status**: open
 **Resolves with**: support ticket OR lab test (grow rule count until rejection; vary admin rank and observe whether Rule Order editability is constrained)
@@ -3491,7 +3491,7 @@ Several DNS-policy capabilities named in help UI text have no field in the captu
 
 *Origin: `references/cloud-connector/dns-subsystem.md` § Open questions*
 
-Three DNS-gateway behaviors not exposed in the gateway object: (1) whether the secondary resolver is tried before `failureBehavior` fires (and under what conditions) — the SDK carries `primaryIp` / `secondaryIp` / `failureBehavior` but no field describing the try-order; (2) what the default (non-deletable) DNS gateway resolves to and whether it is operator-modifiable — the SDK has no `isDefault` discriminator; (3) whether a LAN- or WAN-referenced resolver slot can carry an IPv6 address — the "IPv4 only" statement in capture is scoped to the Custom DNS Server entry (`vendor/zscaler-help/cbc-configuring-dns-gateway.md:32,40`), and the gateway struct's `primaryIp` / `secondaryIp` are plain strings with no documented address-family constraint. Related: the `ZPA Resolver` predefined DNS rule is treated as predefined/non-deletable by the TF deletion guard (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_dns_rule.go:135-139`) but no captured source describes its default state, match criteria, action, or license/mode gating.
+Three DNS-gateway behaviors not exposed in the gateway object: (1) whether the secondary resolver is tried before `failureBehavior` fires (and under what conditions) — the SDK carries `primaryIp` / `secondaryIp` / `failureBehavior` but no field describing the try-order; (2) what the default (non-deletable) DNS gateway resolves to and whether it is operator-modifiable — the SDK has no `isDefault` discriminator; (3) whether a LAN- or WAN-referenced resolver slot can carry an IPv6 address — the "IPv4 only" statement in capture is scoped to the Custom DNS Server entry (`vendor/zscaler-help/cbc-configuring-dns-gateway.json:32,40`), and the gateway struct's `primaryIp` / `secondaryIp` are plain strings with no documented address-family constraint. Related: the `ZPA Resolver` predefined DNS rule is treated as predefined/non-deletable by the TF deletion guard (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_dns_rule.go:135-139`) but no captured source describes its default state, match criteria, action, or license/mode gating.
 
 **Status**: open
 **Resolves with**: lab test (induce primary-resolver failure and observe try-order; inspect the default gateway and the `ZPA Resolver` rule) OR zscaler doc not yet read
@@ -3558,9 +3558,9 @@ an additional active service surface
 (`vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go:1-76`).
 (2) **Partially resolved:** current Help enumerates the Azure
 `/publicCloudTenant` and `/discoveryService/azure/...` families
-(`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:44-64`) and documents
+(`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:44-64`) and documents
 the Azure partner-integration behavior
-(`vendor/zscaler-help/cbc-about-microsoft-azure-accounts.md:8-28`). No
+(`vendor/zscaler-help/cbc-about-microsoft-azure-accounts.json:8-28`). No
 corresponding public GCP discovery REST family is established by the current
 captured API navigation, so only that GCP surface remains open. (3)
 **Resolved:** the unified Go client routes ZTW through a dedicated
@@ -3591,7 +3591,7 @@ The earlier FedRAMP premise is reopened. The shared Go OneAPI client constructs 
 
 *Origin: `references/cloud-connector/nss-va.md` § Open questions*
 
-Several NSS-VA-for-CBC behaviors are not pinned down in the captured help sources: (1) whether CBC DNS events (from the DNS Forwarding Gateway / DNS policy) appear under the NSS Firewall log type or require a separate feed — generic NSS docs list DNS as a separate type, but CBC NSS guidance references only Firewall; (2) NSS VA sizing numbers for typical CC fleet sizes (the guides point to Zscaler's interactive sizing tool but capture no CBC table); (3) the NSS client certificate's validity period and whether Zscaler offers automated renewal or requires manual re-registration; (4) whether two NSS VAs can consume the same Nanolog partition simultaneously (active-active HA) or the stream targets exactly one VA; (5) whether Log-and-Control Forwarding gateway selection affects the path CC VMs take to upload logs to the Nanolog — i.e. whether a misconfigured log/control rule could starve the Nanolog before the NSS VA can pull; (6) whether JSON is a supported Firewall feed output format for VM-based NSS in CBC (or CSV is the only tested format); (7) whether Log-and-Control Forwarding rule evaluation stops at the first matching rule (first-match-wins) and whether the auto-created default rule holds the terminal catch-all position — captured source confirms ascending-numerical-order evaluation and disabled-rule skip (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md:34,36`) but not the stop-on-first-match semantics.
+Several NSS-VA-for-CBC behaviors are not pinned down in the captured help sources: (1) whether CBC DNS events (from the DNS Forwarding Gateway / DNS policy) appear under the NSS Firewall log type or require a separate feed — generic NSS docs list DNS as a separate type, but CBC NSS guidance references only Firewall; (2) NSS VA sizing numbers for typical CC fleet sizes (the guides point to Zscaler's interactive sizing tool but capture no CBC table); (3) the NSS client certificate's validity period and whether Zscaler offers automated renewal or requires manual re-registration; (4) whether two NSS VAs can consume the same Nanolog partition simultaneously (active-active HA) or the stream targets exactly one VA; (5) whether Log-and-Control Forwarding gateway selection affects the path CC VMs take to upload logs to the Nanolog — i.e. whether a misconfigured log/control rule could starve the Nanolog before the NSS VA can pull; (6) whether JSON is a supported Firewall feed output format for VM-based NSS in CBC (or CSV is the only tested format); (7) whether Log-and-Control Forwarding rule evaluation stops at the first matching rule (first-match-wins) and whether the auto-created default rule holds the terminal catch-all position — captured source confirms ascending-numerical-order evaluation and disabled-rule skip (`vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json:34,36`) but not the stop-on-first-match semantics.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read (CBC-specific NSS sizing / cert / feed-format guidance) OR lab test (observe DNS-in-Firewall-feed, active-active VA behavior, and rule-match stop semantics in a tenant)
@@ -3615,16 +3615,16 @@ Three Insights-surface items the log-schema doc flags but cannot resolve from so
 
 The GCP side is now substantially bounded. Current Help enumerates exactly 16
 GCP Zero Trust Gateway regions
-(`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:31-53`). It
+(`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.json:31-53`). It
 also confirms standard GCP Cloud Connector is deployed with Terraform
-(`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.md:8-10`),
+(`vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-google-cloud-platform.json:8-10`),
 and the release summary confirms the Terraform package uses a Google Cloud
 Marketplace image
-(`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:38-42`). The standard
+(`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:38-42`). The standard
 customer-deployed architecture is documented as separate management and service
 VPCs, zonal MIGs, a regional Cloud NAT gateway, a load balancer, custom routes,
 and distinct deployment, VM, and function service accounts
-(`vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.md:8-32,65-76`).
+(`vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json:8-32,65-76`).
 
 What remains open is narrower: the region matrix for standard customer-deployed
 Cloud Connector; whether the workload-discovery region set equals the ZTG set;
@@ -3691,11 +3691,11 @@ Upstream issue [zscaler/terraform-provider-ztc#46](https://github.com/zscaler/te
 The official Cloud & Branch Connector 2025 release summary announced
 `eu-central-2` for Zero Trust Gateways on December 15, 2025, alongside
 `sa-east-1`, `ca-central-1`, and `eu-west-3`
-(`vendor/zscaler-help/cbc-release-upgrade-summary-2025.md:11-18`; [official
+(`vendor/zscaler-help/cbc-release-upgrade-summary-2025.json:11-18`; [official
 release entry](https://help.zscaler.com/cloud-branch-connector/release-upgrade-summary-2025?applicable_category=connector.zscaler.net&deployment_date=2025-12-15&id=1532586)).
 The current locally captured AWS ZTG region table includes the other three
 regions but omits `eu-central-2`
-(`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.md:8-29`). The
+(`vendor/zscaler-help/cbc-supported-regions-zero-trust-gateways.json:8-29`). The
 omission is a source conflict; neither source says whether the region was
 withdrawn, and omission alone is not evidence of withdrawal.
 
@@ -3711,7 +3711,7 @@ withdrawn, and omission alone is not evidence of withdrawal.
 
 Current GCP MIG Help says the Resource Sync Cloud Run function reconciles Admin
 Console membership with the MIG and runs every 10 minutes by default
-(`vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.md:26-32`).
+(`vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-google-cloud-platform-managed-instance-groups-autoscaling.json:26-32`).
 The pinned official GCP Terraform module instead describes a 30-minute trigger
 and configures cron `*/30 * * * *`
 (`vendor/terraform-gcp-cloud-connector-modules/modules/terraform-zscc-cloud-function-gcp/main.tf:331-353`).
@@ -3739,8 +3739,8 @@ their release stage, tenant entitlement, or an API contract
 Help captured in this pass establishes AWS and GCP Zero Trust Gateways as
 Limited Availability and Support-enabled, but no equivalent Azure deployment
 article or first-party availability matrix was found
-(`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.md:8-10`;
-`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.md:8-17`).
+(`vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.json:8-10`;
+`vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json:8-17`).
 
 **Status**: open
 **Resolves with**: a first-party cloud-specific Azure Zero Trust Gateway Help
@@ -4181,7 +4181,7 @@ Whether ZDX automatically discovers monitored applications or requires manual co
 
 *Origin: `references/zdx/cloud-architecture.md` § Open questions*
 
-The vendor help states the ZDX Central Authority design is "similar to that of the Internet & SaaS CA" (`vendor/zscaler-help/understanding-zdx-cloud-architecture.md:48`), which implies active-passive, but the ZDX CA's actual topology (active-passive vs active-active) is not explicitly confirmed.
+The vendor help states the ZDX Central Authority design is "similar to that of the Internet & SaaS CA" (`vendor/zscaler-help/understanding-zdx-cloud-architecture.json:48`), which implies active-passive, but the ZDX CA's actual topology (active-passive vs active-active) is not explicitly confirmed.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read OR support ticket
@@ -4412,7 +4412,7 @@ The Python `share_snapshot` docstring documents an `obfuscation` argument with e
 
 *Origin: `references/zdx/overview.md` § Open questions; `references/zdx/score.md` § Open questions*
 
-The ZDX Score takes Page Fetch Time and Availability as inputs, but the numerical weighting between them — the formula or relative weight — is not documented (`vendor/zscaler-help/about-zdx-score.md`). PFT is named the primary input and Availability a factor, without quantification.
+The ZDX Score takes Page Fetch Time and Availability as inputs, but the numerical weighting between them — the formula or relative weight — is not documented (`vendor/zscaler-help/about-zdx-score.json`). PFT is named the primary input and Availability a factor, without quantification.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read OR lab test
@@ -4511,7 +4511,7 @@ The reconstructed Automate contract publishes alert and user snapshot creation a
 
 *Origin: `references/zidentity/admin-rbac.md` § Open questions*
 
-The ZIdentity admin-RBAC capture lists four permission levels — Full / View Only / Restricted / None (`vendor/zscaler-help/admin-rbac-captures.md:124`) — but the extraction report notes shared docs elsewhere reference "Restricted Full" and "Restrictive View" as additional or alternate level names. Which enum is authoritative for ZIdentity admin roles is unresolved from the captured source.
+The ZIdentity admin-RBAC capture lists four permission levels — Full / View Only / Restricted / None (`vendor/zscaler-help/admin-rbac-captures.json:124`) — but the extraction report notes shared docs elsewhere reference "Restricted Full" and "Restrictive View" as additional or alternate level names. Which enum is authoritative for ZIdentity admin roles is unresolved from the captured source.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read (re-capture the live Admin Roles & Permissions article — see `zid-35`) OR tenant read
@@ -4522,7 +4522,7 @@ The ZIdentity admin-RBAC capture lists four permission levels — Full / View On
 
 *Origin: `references/zidentity/admin-rbac.md` § Open questions*
 
-It is unclear whether a ZIdentity "User Admin" role combined with Full Administrative Entitlements automatically inherits any ZIA/ZPA admin scope, or whether per-product admin scope must be configured separately in each product console. The captured admin-RBAC source (`vendor/zscaler-help/admin-rbac-captures.md`) describes ZIdentity-side role assignment but does not state how (or whether) it propagates into per-product feature/scope flags.
+It is unclear whether a ZIdentity "User Admin" role combined with Full Administrative Entitlements automatically inherits any ZIA/ZPA admin scope, or whether per-product admin scope must be configured separately in each product console. The captured admin-RBAC source (`vendor/zscaler-help/admin-rbac-captures.json`) describes ZIdentity-side role assignment but does not state how (or whether) it propagates into per-product feature/scope flags.
 
 **Status**: open
 **Resolves with**: tenant read (compare a ZIdentity admin's role against the scope they actually receive in ZIA/ZPA) OR zscaler doc not yet read
@@ -4808,7 +4808,7 @@ If API-client secrets are dumped to a saved export, the per-client file/key nami
 
 *Origin: `references/zidentity/step-up-authentication.md` § Open questions*
 
-Whether ZIdentity authentication levels can be configured differently per-product or only globally is unresolved; the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`) describes a single tenant-wide level tree, but does not state whether per-product overrides exist.
+Whether ZIdentity authentication levels can be configured differently per-product or only globally is unresolved; the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`) describes a single tenant-wide level tree, but does not state whether per-product overrides exist.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read OR tenant-side check
@@ -4819,7 +4819,7 @@ Whether ZIdentity authentication levels can be configured differently per-produc
 
 *Origin: `references/zidentity/step-up-authentication.md` § Open questions*
 
-How step-up interacts with SCIM-provisioned users who lack a mapped external IdP identity — whether such users can step up at all — is not addressed by the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`).
+How step-up interacts with SCIM-provisioned users who lack a mapped external IdP identity — whether such users can step up at all — is not addressed by the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`).
 
 **Status**: open
 **Resolves with**: lab test (attempt a step-up challenge for a SCIM user with no external IdP mapping) OR zscaler doc not yet read
@@ -4830,7 +4830,7 @@ How step-up interacts with SCIM-provisioned users who lack a mapped external IdP
 
 *Origin: `references/zidentity/step-up-authentication.md` § Open questions*
 
-Whether the per-level "message to user" field supports localization (multiple language strings) or only a single string per level is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`).
+Whether the per-level "message to user" field supports localization (multiple language strings) or only a single string per level is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`).
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read OR tenant-side check
@@ -4841,7 +4841,7 @@ Whether the per-level "message to user" field supports localization (multiple la
 
 *Origin: `references/zidentity/step-up-authentication.md` § Open questions*
 
-Whether step-up elevation is recorded in ZIA Transaction logs or ZPA LSS User Activity logs — and with what field values — is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.md`). Relevant to "can I see when a user was challenged" questions.
+Whether step-up elevation is recorded in ZIA Transaction logs or ZPA LSS User Activity logs — and with what field values — is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`). Relevant to "can I see when a user was challenged" questions.
 
 **Status**: open
 **Resolves with**: lab test (trigger a step-up, search ZIA/ZPA logs for a corresponding record) OR zscaler doc not yet read
@@ -4863,7 +4863,7 @@ The `add_user` docstring example passes `id` explicitly (`vendor/zscaler-sdk-pyt
 
 *Origin: `references/zidentity/api-clients.md` § Open questions*
 
-The `About Access Tokens` and `Revoking Access Tokens` help articles are named in the related-articles list of `vendor/zscaler-help/zidentity-about-api-clients.md` but are not captured in `vendor/zscaler-help/`. The "revocation takes effect at the next OneAPI call" timing and the post-revocation propagation window are therefore unverified against source. Capturing these pages would also resolve `zid-12`.
+The `About Access Tokens` and `Revoking Access Tokens` help articles are named in the related-articles list of `vendor/zscaler-help/zidentity-about-api-clients.json` but are not captured in `vendor/zscaler-help/`. The "revocation takes effect at the next OneAPI call" timing and the post-revocation propagation window are therefore unverified against source. Capturing these pages would also resolve `zid-12`.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read / capture
@@ -4885,7 +4885,7 @@ The API Client Access Policy is referenced in the captured API-clients help page
 
 *Origin: `references/zidentity/admin-rbac.md` § Open questions*
 
-The authoritative full permission matrix (25+ modules × 4 levels) is explicitly deferred to the live help portal by the capture (`vendor/zscaler-help/admin-rbac-captures.md:128`) and is not present in `vendor/zscaler-help/`. Capturing it would also resolve the permission-level enum question (`zid-01`).
+The authoritative full permission matrix (25+ modules × 4 levels) is explicitly deferred to the live help portal by the capture (`vendor/zscaler-help/admin-rbac-captures.json:128`) and is not present in `vendor/zscaler-help/`. Capturing it would also resolve the permission-level enum question (`zid-01`).
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read / capture
@@ -4929,7 +4929,7 @@ The DAS Help page states `policyId` is required for the explicit-policy option (
 
 *Origin: `references/ai-security/api-divergences.md` § Detector taxonomy divergence*
 
-The public Help article gives a 15-item capability list (`vendor/zscaler-help/ai-guard-what-is.md:18`-`:46`), while the integration skill/reference says AI Guard has 19 prompt detectors and 21 response detectors (`vendor/zguard-ai-integrations/Anthropic/claude-code-skill/README.md:21`) organized by `IN` and `OUT`. Whether the integration detector list is a console-complete taxonomy, an integration-local reference, or ahead of the captured Help page is not established.
+The public Help article gives a 15-item capability list (`vendor/zscaler-help/ai-guard-what-is.json:18`-`:46`), while the integration skill/reference says AI Guard has 19 prompt detectors and 21 response detectors (`vendor/zguard-ai-integrations/Anthropic/claude-code-skill/README.md:21`) organized by `IN` and `OUT`. Whether the integration detector list is a console-complete taxonomy, an integration-local reference, or ahead of the captured Help page is not established.
 
 **Status**: open
 **Resolves with**: current AI Guard console capture OR vendor Help/API documentation that lists the detector names by direction
@@ -4962,7 +4962,7 @@ The captured DAS Help page uses the global host `https://api.zseclipse.net` for 
 
 *Origin: `references/ai-security/api-divergences.md` § Help provider labels vs Automate provider types*
 
-The current Automate admin-plane provider-type discovery contract exposes 23 identifiers (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`); the current capture publishes 47 AI Guard operations across 29 paths, matches all 47 with zero schema-changed operations, and reports no retained publication absences (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:9-21`, `:27-28`, `:47-48`). The older [2026-08-12](https://github.com/dvmrry/zscaler-skill/blob/3174c9ac8901b019bc96de5f60af77677f52841d/vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md#L3-L64) no-AI-Guard observation remains historical context only. The 2026 Help chronology separately names User-mode or application support for GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io, none of which appears under those exact identifiers in the current enum (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.md:14-50`; `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). Static sources do not establish whether those labels are built-in/non-creatable providers, application-level aliases, or contract/Help timing drift.
+The current Automate admin-plane provider-type discovery contract exposes 23 identifiers (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`); the current capture publishes 47 AI Guard operations across 29 paths, matches all 47 with zero schema-changed operations, and reports no retained publication absences (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:9-21`, `:27-28`, `:47-48`). The older [2026-08-12](https://github.com/dvmrry/zscaler-skill/blob/3174c9ac8901b019bc96de5f60af77677f52841d/vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md#L3-L64) no-AI-Guard observation remains historical context only. The 2026 Help chronology separately names User-mode or application support for GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io, none of which appears under those exact identifiers in the current enum (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json:14-50`; `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). Static sources do not establish whether those labels are built-in/non-creatable providers, application-level aliases, or contract/Help timing drift.
 
 **Status**: open
 **Resolves with**: current provider-management Help article body, tenant provider-type discovery response, or vendor mapping between User-mode application labels and admin-plane provider types
@@ -4997,7 +4997,7 @@ The v1.9.39 legacy helper can build the AI Guard Bearer header and send a reques
 
 *Origin: `references/risk360/overview.md` § Open questions*
 
-Risk360 help captures describe dashboard, factors, asset-level risk, Monte Carlo, log processing, and product positioning (`vendor/zscaler-help/what-risk360.md:8-22`, `vendor/zscaler-help/risk360-about-dashboard.md:8-48`, `vendor/zscaler-help/risk360-monte-carlo.md:12-34`). A Python ZIdentity integration cassette incidentally shows a `ZRA` / `Risk360` resource-server entry with read-only and super-admin role scopes (`vendor/zscaler-sdk-python/tests/integration/zid/cassettes/TestResourceServers.yaml:25-28`, `:132-135`), but this refresh did not find a product-specific Risk360 SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family. Treat Risk360 programmability and export automation as unresolved until a vendor API source is captured.
+Risk360 help captures describe dashboard, factors, asset-level risk, Monte Carlo, log processing, and product positioning (`vendor/zscaler-help/what-risk360.json:8-22`, `vendor/zscaler-help/risk360-about-dashboard.json:8-48`, `vendor/zscaler-help/risk360-monte-carlo.md:12-34`). A Python ZIdentity integration cassette incidentally shows a `ZRA` / `Risk360` resource-server entry with read-only and super-admin role scopes (`vendor/zscaler-sdk-python/tests/integration/zid/cassettes/TestResourceServers.yaml:25-28`, `:132-135`), but this refresh did not find a product-specific Risk360 SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family. Treat Risk360 programmability and export automation as unresolved until a vendor API source is captured.
 
 **Status**: open
 **Resolves with**: vendor API documentation, SDK/provider source exposing Risk360 operations, or tenant-side API discovery
@@ -5008,7 +5008,7 @@ Risk360 help captures describe dashboard, factors, asset-level risk, Monte Carlo
 
 *Origin: `references/risk360/overview.md` § Open questions*
 
-The captured sources establish that Risk360 uses four attack-stage categories, weighted factors, industry-peer comparison, and a moving factor count (`vendor/zscaler-help/what-risk360.md:8-22`, `vendor/zscaler-help/risk360-about-dashboard.md:8-16`, `vendor/zscaler-help/risk360-about-factors.md:8-20`, `vendor/zscaler-help/risk360-product-marketing.md:18-24`). They do not enumerate the full current factor catalog, disclose per-factor weights, or explain the peer-benchmark cohort methodology.
+The captured sources establish that Risk360 uses four attack-stage categories, weighted factors, industry-peer comparison, and a moving factor count (`vendor/zscaler-help/what-risk360.json:8-22`, `vendor/zscaler-help/risk360-about-dashboard.json:8-16`, `vendor/zscaler-help/risk360-about-factors.json:8-20`, `vendor/zscaler-help/risk360-product-marketing.md:18-24`). They do not enumerate the full current factor catalog, disclose per-factor weights, or explain the peer-benchmark cohort methodology.
 
 **Status**: open
 **Resolves with**: captured Factors-page export, vendor methodology documentation, tenant read, or support confirmation
@@ -5019,7 +5019,7 @@ The captured sources establish that Risk360 uses four attack-stage categories, w
 
 *Origin: `references/breach-predictor/overview.md` § Open questions*
 
-The captured Breach Predictor help states that the product consumes and analyzes data from multiple sources, uses generative AI, and presents breach-probability, Sankey, MITRE ATT&CK, AI Assist, dashboard, findings, events, threat-landscape, ticket, and profile surfaces (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:25-48`). This refresh did not find a product-specific SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family, and the source does not enumerate the ingestion sources or integration API details.
+The captured Breach Predictor help states that the product consumes and analyzes data from multiple sources, uses generative AI, and presents breach-probability, Sankey, MITRE ATT&CK, AI Assist, dashboard, findings, events, threat-landscape, ticket, and profile surfaces (`vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:25-48`). This refresh did not find a product-specific SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family, and the source does not enumerate the ingestion sources or integration API details.
 
 **Status**: open
 **Resolves with**: vendor API/integration documentation, SDK/provider source, tenant-side integration capture, or support confirmation
@@ -5030,7 +5030,7 @@ The captured Breach Predictor help states that the product consumes and analyzes
 
 *Origin: `references/uvm/overview.md` § Open questions*
 
-The UVM AnySource capture names Upload File, AWS S3, GCP, Webhook, and Upload File API methods for AnySource ingestion (`vendor/zscaler-help/uvm-anysource-connector.md:8-16`), and the marketing capture describes connectors, AnySource, AnyTarget, reporting, and automated workflows (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-35`). This refresh did not find a UVM endpoint schema or SDK/provider/MCP/Postman implementation for the Upload File API or broader UVM administration.
+The UVM AnySource capture names Upload File, AWS S3, GCP, Webhook, and Upload File API methods for AnySource ingestion (`vendor/zscaler-help/uvm-anysource-connector.json:8-16`), and the marketing capture describes connectors, AnySource, AnyTarget, reporting, and automated workflows (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-35`). This refresh did not find a UVM endpoint schema or SDK/provider/MCP/Postman implementation for the Upload File API or broader UVM administration.
 
 **Status**: open
 **Resolves with**: vendor API documentation, captured Upload File API article, SDK/provider source, or tenant-side API discovery
@@ -5041,7 +5041,7 @@ The UVM AnySource capture names Upload File, AWS S3, GCP, Webhook, and Upload Fi
 
 *Origin: `references/dspm/overview.md` § Open questions*
 
-The DSPM captures establish product behavior, supported provider/on-prem scopes, scan/authentication types, classification, OCR, and data-residency claims (`vendor/zscaler-help/dspm-what-data-security-posture-management.md:8-78`, `vendor/zscaler-help/dspm-marketing.md:48-63`). This refresh did not find a DSPM SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family, and the captures do not provide an endpoint-level admin API or detailed scanner/orchestrator deployment contract.
+The DSPM captures establish product behavior, supported provider/on-prem scopes, scan/authentication types, classification, OCR, and data-residency claims (`vendor/zscaler-help/dspm-what-data-security-posture-management.json:8-78`, `vendor/zscaler-help/dspm-marketing.md:48-63`). This refresh did not find a DSPM SDK service, Terraform resource, Ansible module, MCP tool, or Postman endpoint family, and the captures do not provide an endpoint-level admin API or detailed scanner/orchestrator deployment contract.
 
 **Status**: open
 **Resolves with**: vendor API documentation, captured setup guide, SDK/provider source, or tenant-side deployment/API discovery
@@ -5052,7 +5052,7 @@ The DSPM captures establish product behavior, supported provider/on-prem scopes,
 
 *Origin: `references/zbi/policy-integration.md` § ZIA side — URL Filter `Isolate` action*
 
-The Zero Trust Browser traffic-flow article states that HTTP/HTTPS requests matching a URL Filtering policy with isolation are redirected to the isolation profile URL (`vendor/zscaler-help/what-is-zero-trust-browser.md:28`). The Smart Browser Isolation article separately states that Smart Isolation decrypts suspicious sites using SSL/TLS Inspection and auto-creates an editable SSL/TLS Inspection rule (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.md:16`, `:24`). The captured sources do not explicitly state whether a manual URL Filtering `Isolate` rule has the same SSL/TLS Inspection prerequisite, nor the precise behavior for HTTPS traffic in an SSL bypass path.
+The Zero Trust Browser traffic-flow article states that HTTP/HTTPS requests matching a URL Filtering policy with isolation are redirected to the isolation profile URL (`vendor/zscaler-help/what-is-zero-trust-browser.json:28`). The Smart Browser Isolation article separately states that Smart Isolation decrypts suspicious sites using SSL/TLS Inspection and auto-creates an editable SSL/TLS Inspection rule (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:16`, `:24`). The captured sources do not explicitly state whether a manual URL Filtering `Isolate` rule has the same SSL/TLS Inspection prerequisite, nor the precise behavior for HTTPS traffic in an SSL bypass path.
 
 **Status**: open
 **Resolves with**: lab test across HTTPS URLs with inspect vs bypass, plus vendor documentation or API behavior notes for manual URL Filtering `ISOLATE`
@@ -5076,7 +5076,7 @@ The ZPA CBI SDK surface exposes two read-only profile-list paths with overlappin
 
 *Origin: `references/zbi/api.md` § Open questions*
 
-The help article says default isolation profiles are automatically created for organizations with Zero Trust Browser (`vendor/zscaler-help/what-is-zero-trust-browser.md:32`). SDK/provider models expose default flags such as `defaultProfile` / `isDefault` (`vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:25-26`, `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:30`), but static sources do not establish whether those flags are server-managed only, can be changed through profile CRUD, or how default profile creation is triggered.
+The help article says default isolation profiles are automatically created for organizations with Zero Trust Browser (`vendor/zscaler-help/what-is-zero-trust-browser.json:32`). SDK/provider models expose default flags such as `defaultProfile` / `isDefault` (`vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go:25-26`, `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go:30`), but static sources do not establish whether those flags are server-managed only, can be changed through profile CRUD, or how default profile creation is triggered.
 
 **Status**: partially resolved — last updated 2026-06-18
 **Resolves with**: tenant-side profile CRUD test around default flags OR vendor documentation on default-profile lifecycle and mutability
@@ -5124,7 +5124,7 @@ SDKs and Terraform expose profile update operations (`vendor/zscaler-sdk-python/
 
 *Origin: `references/zwa/api.md` § Open questions*
 
-The captured help article documents predefined/custom workflows and says admins must map a workflow to incident transaction attributes before it triggers (`vendor/zscaler-help/understanding-workflows-workflow-automation.md:27-43`). The inspected SDK surface exposes DLP incident and customer-audit services only in Python (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:27-41`) and DLP incident/customer-audit packages in Go (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:102-350`, `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:36-47`). The first-pass source sweep did not find SDK, MCP, Postman, Terraform, or Ansible create/update/delete/list operations for workflow templates, custom workflows, or workflow mappings. This is an audit-scoped absence, not proof that no private/future API exists.
+The captured help article documents predefined/custom workflows and says admins must map a workflow to incident transaction attributes before it triggers (`vendor/zscaler-help/understanding-workflows-workflow-automation.json:27-43`). The inspected SDK surface exposes DLP incident and customer-audit services only in Python (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:27-41`) and DLP incident/customer-audit packages in Go (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:102-350`, `vendor/zscaler-sdk-go/zscaler/zwa/services/customeraudit/customeraudit.go:36-47`). The first-pass source sweep did not find SDK, MCP, Postman, Terraform, or Ansible create/update/delete/list operations for workflow templates, custom workflows, or workflow mappings. This is an audit-scoped absence, not proof that no private/future API exists.
 
 **Status**: open
 **Resolves with**: vendor API documentation, SDK/provider/MCP/Postman source exposing workflow configuration operations, or lab test against documented endpoints
@@ -5190,7 +5190,7 @@ The Python SDK exposes Business Insights `client.zbi` REST surfaces for custom a
 
 *Origin: `references/soc-workbench/overview.md` § Open questions*
 
-The captured SOC Workbench help says "Report Export via API" is a documented capability (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.md:62`), but this refresh did not find a SOC Workbench SDK, Terraform, Ansible, MCP, or Postman implementation that names the endpoint, request schema, authentication scope, or response shape. Treat the API as source-backed at the capability level only until the endpoint-level source is captured.
+The captured SOC Workbench help says "Report Export via API" is a documented capability (`vendor/zscaler-help/soc-what-zscaler-soc-workbench.json:62`), but this refresh did not find a SOC Workbench SDK, Terraform, Ansible, MCP, or Postman implementation that names the endpoint, request schema, authentication scope, or response shape. Treat the API as source-backed at the capability level only until the endpoint-level source is captured.
 
 **Status**: open
 **Resolves with**: vendor API documentation or captured help page for "Triggering Report Export Through an API"
@@ -5201,7 +5201,7 @@ The captured SOC Workbench help says "Report Export via API" is a documented cap
 
 *Origin: `references/unified/overview.md` § Open questions*
 
-The captured Experience Center help describes a unified administrative and operations console that consolidates management, configuration, monitoring, shared identity, policy, Copilot, and analytics (`vendor/zscaler-help/unified-what-zscaler-experience-center.md:8-18`). This refresh did not find a separate Experience Center SDK, Terraform, Ansible, MCP, or Postman surface. Static source therefore supports "no separate programmable surface found in this audit" rather than a universal claim that Experience Center can never expose its own API.
+The captured Experience Center help describes a unified administrative and operations console that consolidates management, configuration, monitoring, shared identity, policy, Copilot, and analytics (`vendor/zscaler-help/unified-what-zscaler-experience-center.json:8-18`). This refresh did not find a separate Experience Center SDK, Terraform, Ansible, MCP, or Postman surface. Static source therefore supports "no separate programmable surface found in this audit" rather than a universal claim that Experience Center can never expose its own API.
 
 **Status**: open
 **Resolves with**: vendor API documentation, SDK/provider source exposing an Experience Center service, or explicit vendor confirmation that automation must use the underlying product APIs
@@ -5212,7 +5212,7 @@ The captured Experience Center help describes a unified administrative and opera
 
 *Origin: `references/aem/overview.md` § Open questions*
 
-The AEM refresh established Help-level data-source and connector scope (`vendor/zscaler-help/aem-what-zscaler-security-operations.md:30-41`, `:43-63`) plus CAASM marketing positioning (`vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:20-59`), but found no product-specific Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. The exact AnySource upload contract, report-export API, query/configuration API, and whether those are public OneAPI surfaces remain unresolved.
+The AEM refresh established Help-level data-source and connector scope (`vendor/zscaler-help/aem-what-zscaler-security-operations.json:30-41`, `:43-63`) plus CAASM marketing positioning (`vendor/zscaler-help/asset-exposure-management-caasm-marketing.md:20-59`), but found no product-specific Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. The exact AnySource upload contract, report-export API, query/configuration API, and whether those are public OneAPI surfaces remain unresolved.
 
 **Status**: open
 **Resolves with**: vendor API documentation, SDK/provider source exposing AEM operations, Help capture for report/export API details, or tenant-side API capture
@@ -5223,7 +5223,7 @@ The AEM refresh established Help-level data-source and connector scope (`vendor/
 
 *Origin: `references/deception/overview.md` § Open questions*
 
-The Deception Help capture says Super admin can manage features including APIs, decoys, and audit logs (`vendor/zscaler-help/what-is-zscaler-deception.md:37-43`) and that Deception can integrate with ZPA for ZTN decoys (`vendor/zscaler-help/what-is-zscaler-deception.md:45-47`). ZPA Help and Terraform source show constraints/guards around Deception-configured ZPA access-policy rules (`vendor/zscaler-help/About_Access_Policy.txt:169-177`, `:185-190`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_reorder.go:258-295`). The public source set does not identify the Deception admin API endpoints, auth model, audit-log export details, or the full lifecycle/ownership contract for ZPA objects created by Deception.
+The Deception Help capture says Super admin can manage features including APIs, decoys, and audit logs (`vendor/zscaler-help/what-is-zscaler-deception.json:37-43`) and that Deception can integrate with ZPA for ZTN decoys (`vendor/zscaler-help/what-is-zscaler-deception.json:45-47`). ZPA Help and Terraform source show constraints/guards around Deception-configured ZPA access-policy rules (`vendor/zscaler-help/About_Access_Policy.txt:169-177`, `:185-190`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_reorder.go:258-295`). The public source set does not identify the Deception admin API endpoints, auth model, audit-log export details, or the full lifecycle/ownership contract for ZPA objects created by Deception.
 
 **Status**: open
 **Resolves with**: Deception admin API documentation, tenant-side Deception API capture, vendor confirmation, or deeper Help capture for API/audit-log pages
@@ -5234,7 +5234,7 @@ The Deception Help capture says Super admin can manage features including APIs, 
 
 *Origin: `references/identity-protection/overview.md` § Open questions*
 
-The Identity Protection Help capture establishes SecOps/ITDR architecture, ZTE integration, ZCC-dependent detection paths, and a current-vs-legacy UI note (`vendor/zscaler-help/itdr-what-identity-protection.md:35-56`). The refresh found no product-specific Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. The authoritative API surface, connector configuration API, report/export behavior, and exact parity between current SecOps Identity Protection and legacy ITDR remain unresolved.
+The Identity Protection Help capture establishes SecOps/ITDR architecture, ZTE integration, ZCC-dependent detection paths, and a current-vs-legacy UI note (`vendor/zscaler-help/itdr-what-identity-protection.json:35-56`). The refresh found no product-specific Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface in the audited vendor trees. The authoritative API surface, connector configuration API, report/export behavior, and exact parity between current SecOps Identity Protection and legacy ITDR remain unresolved.
 
 **Status**: open
 **Resolves with**: vendor API documentation, SDK/provider source exposing Identity Protection operations, current Help capture for legacy/current parity, or tenant-side capture
@@ -5267,7 +5267,7 @@ MCP v0.15.0's generated tool catalog labels the `ztw` family "Workload Segmentat
 
 *Origin: `references/zscaler-cellular/overview.md` § Open questions*
 
-The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.md:8`, `:10-15`, `:26-29`, `:45-67`). The captured Automate contract exposes 36 ZCell operations, the Python SDK exposes `client.zcell` as a OneAPI-only service, and MCP v0.15.0 includes 20 read-only tools across nine toolsets (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:34`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:141-153`). MCP still guesses the live token's canonical Cellular `prd` claim from three variants (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
+The Cellular Help capture describes Zscaler SIM, Cellular Edge, IP/IMEI/IMSI policy identifiers, and Cellular Admin Portal capabilities (`vendor/zscaler-help/cellular-what-zscaler-cellular.json:8`, `:10-15`, `:26-29`, `:45-67`). The captured Automate contract exposes 36 ZCell operations, the Python SDK exposes `client.zcell` as a OneAPI-only service, and MCP v0.15.0 includes 20 read-only tools across nine toolsets (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:34`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:281-287`; `vendor/zscaler-sdk-python/zscaler/zcell/zcell_service.py:37-103`; `vendor/zscaler-mcp-server/docs/guides/supported-tools.md:489-514`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:141-153`). MCP still guesses the live token's canonical Cellular `prd` claim from three variants (`vendor/zscaler-mcp-server/src/zscaler_mcp/security/entitlements.py:72-79`). The exact tenant entitlement boundary, live backend acceptance, and ZIA/ZPA policy object mapping for IP/IMEI/IMSI identifiers remain unresolved.
 
 **Status**: partially resolved — last updated 2026-07-16
 **Resolves with**: tenant-side API capture, vendor entitlement documentation, or vendor documentation mapping Cellular IP/IMEI/IMSI identifiers to ZIA/ZPA policy objects

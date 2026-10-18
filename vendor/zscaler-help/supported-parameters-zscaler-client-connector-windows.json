@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Supported Parameters for Zscaler Client Connector for Windows",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-client-connector/supported-parameters-zscaler-client-connector-windows",
+    "node": "1532587",
+    "revision": "3243058"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This table lists the available parameters for devices running Zscaler Client Connector for Windows. You can preconfigure these parameters when manually installing Zscaler Client Connector on a Windows device or deploying Zscaler Client Connector using GPO, SCCM, or other device management methods. The parameter names are different based on whether you are using an MSI file or an EXE file."
+    },
+    {
+      "text": "To learn more, see Customizing Zscaler Client Connector with Install Options for MSI and Customizing Zscaler Client Connector with Install Options for EXE."
+    },
+    {
+      "table": [
+        [
+          "Parameter",
+          "Description",
+          "Value",
+          "Notes"
+        ],
+        [
+          "MSI: USERDOMAINEXE: userDomain",
+          "Your organization's domain name. If your instance has multiple domains associated with it, enter the primary domain for your instance.The primary domain is only valid if you are using a single IdP with multiple domains. The primary domain won’t work if you have multiple domains across multiple IdPs.",
+          "Example: safemarch.comSpecify the exact domain that is present in the SAML NameID field. For example, if your user’s NameID is john.doe@corp.company.com, then enter corp.company.com.",
+          "This install option allows users to skip the app enrollment page. If single sign-on (SSO) is enabled for your organization, users are taken directly to your organization's SSO login page.If you've integrated SSO with the app (i.e., using a mechanism like Integrated Windows Authentication [IWA]), users can also skip the SSO login page and are automatically enrolled with Zscaler service and logged in.To use this install option when deploying Zscaler Client Connector with non-persistent Citrix VDIs, you must use IWA.An alternative to using this install option is to change the name of the installer file. To learn more, see Allow Users to Log into Zscaler Client Connector Without Entering Domains."
+        ],
+        [
+          "MSI: CLOUDNAMEEXE: cloudName",
+          "The name of the cloud on which your organization is provisioned. To learn more, see Understanding Zscaler Cloud Names.If your organization is provisioned on more than one cloud, your users are asked to select the cloud where their traffic is sent during the enrollment process. With this install option, you can specify the cloud where the app sends user traffic, so your users don't have to make the selection during enrollment.",
+          "If your cloud name is zscalertwo.net, enter zscalertwo or zscalertwo.net",
+          "Do not use this option if your organization is provisioned on one cloud. The app automatically sends traffic to the proper cloud and your users don't need to make a selection during enrollment.This option is required if you use the STRICTENFORCEMENT or strictEnforcement option."
+        ],
+        [
+          "MSI: DEVICETOKENEXE: deviceToken",
+          "The appropriate device token from the Zscaler Admin Console if you want to use the Zscaler Admin Console as an IdP. The Zscaler service silently provisions and authenticates users even if you don't have an authentication mechanism in place.",
+          "Example: 123456677754",
+          "This option applies only to Internet & SaaS. It is not supported by Private Access unless you also use Authentication Service.Before adding this option, you must generate a device token in the Zscaler Admin Console and complete the full configuration in Using Zscaler Admin Console as an IdP."
+        ],
+        [
+          "MSI: UNAMEEXE: userName",
+          "The username of the user.You can also use a Mobile Device Management (MDM) macro to auto-populate this value. Refer to your MDM's documentation.",
+          "A maximum of 255 alphanumeric and special characters.For example, if the username is j.doe@zscaler.com, enter j.doe",
+          "If you use this option, the USERDOMAIN or userDomain option must not be empty."
+        ],
+        [
+          "MSI: ENABLEFIPSEXE: enableFips",
+          "Indicates whether Zscaler Client Connector uses FIPS-compliant libraries for communication with the Zscaler infrastructure.",
+          "1 = Enable0= Disable (default)",
+          "Enable this option only if you require FIPS-level security within your organization."
+        ],
+        [
+          "MSI: EXTERNALDEVICEIDEXE: externalDeviceId",
+          "The identifier that associates devices in an MDM solution with devices in the Zscaler Admin Console.You can use an MDM macro to auto-populate this value. Refer to your MDM's documentation.",
+          "0 = Disable (default)Enter a custom value to identify the device (e.g., 123456677754).",
+          "Not supported on Zscaler Client Connector version 4.0 and earlier for Windows."
+        ],
+        [
+          "MSI: HIDEAPPUIONLAUNCHEXE: hideAppUIOnLaunch",
+          "Forces the app window to stay hidden before users enroll. Users can always open the window by clicking the app icon in the system tray.",
+          "1 = Enable0= Disable (default)",
+          "If Zscaler Client Connector is installed with the cloudName and userDomain options, Zscaler Client Connector attempts to automatically perform SSO."
+        ],
+        [
+          "MSI: POLICYTOKENEXE: policyToken",
+          "Allows you to specify which app profile policy you want to enforce for the app before the user enrolls. All relevant settings associated with the policy apply, including the bypass of the IdP login page.After the user enrolls, this policy is replaced with an app profile policy that matches the user based on group affiliation.",
+          "Example: 123456677754",
+          "Applies only, and is required, in the following situations:You use the STRICTENFORCEMENT or strictEnforcement option.You configure the machine tunnel and want the users to access Private Access applications before logging in to the device.In the Zscaler Admin Console, you must configure the app profile policy that you want to enforce and ensure that the custom PAC file associated with that policy includes a bypass for your IdP login page. This allows the user to access the IdP page to log in as necessary before enrolling with the app."
+        ],
+        [
+          "MSI: REINSTALLDRIVEREXE: reinstallDriver",
+          "Forces a reinstallation of the driver, even if you already have a driver installed. Use this option if you're having issues with your current driver.",
+          "1 = Enable0= Disable (default)",
+          ""
+        ],
+        [
+          "MSI: STRICTENFORCEMENTEXE: strictEnforcement",
+          "Allows you to require users to enroll with the app before accessing the internet and blocks traffic in the following situations:The user has not yet logged in after a new install.A user logs in and logs out.An administrator removes a device.",
+          "1 = Enable0= Disable (default)",
+          "If you enable this option, the following options are required:CLOUDNAME or cloudNamePOLICYTOKEN or policyTokenTo use this install option when deploying Zscaler Client Connector with non-persistent Citrix VDIs, you must set the HIDEAPPUIONLAUNCH or hideAppUIOnLaunch option to 0 (disabled) to allow Zscaler Client Connector to remind users to enroll before accessing the internet.This option only works when the forwarding profile action for Zscaler Client Connector is Tunnel or Tunnel with Local Proxy.This option does not affect users who remain logged in and disable the Internet & SaaS service."
+        ],
+        [
+          "MSI: Not supportedEXE: mode",
+          "Allows you to install the app in silent mode.",
+          "unattended = Enablewin32= Disable (default)",
+          ""
+        ],
+        [
+          "MSI: Not supportedEXE: unattendedmodeui",
+          "Allows you to control what's displayed to users if you are performing an unattended installation of the app.",
+          "none = Nothing is displayed to the user and no interaction is required. (default)minimal = A small progress bar showing installation progress is displayed to the user and no interaction is required.minimalWithDialogs = More information is displayed to the user with some dialogs that require user interaction.",
+          "If you enable this option, mode=unattended is required."
+        ],
+        [
+          "MSI: UNINSTALLPASSWORDCMDLINEEXE: uninstallPasswordCmdLine",
+          "Allows you to silently uninstall the app from users' devices using device management methods like GPO.",
+          "The password you add for this option must match the Uninstall Password configured for access in unattended mode.",
+          "This option is only available when using MSI or EXE (not the MST file). Using the password, you can uninstall the app from your users' devices by removing the MST file from the GPO.Prerequisites:Your users must be enrolled in the app. If users have the app installed on their devices but have not enrolled, you cannot uninstall the app using this method.You must have an Uninstall Password enabled and an unexpired uninstall password generated.This option is available only in Zscaler Client Connector version 4.2.1 and later for Windows. If you use an earlier version or you prefer to use the password configured in the app profile, you can use UNINSTALLPASSWORD or uninstallPassword."
+        ],
+        [
+          "MSI: ENABLEANTITAMPERINGEXE: enableAntiTampering",
+          "Prevents end users from stopping, modifying, and deleting Zscaler products and services.",
+          "1 = Enable0= Disable (default)",
+          "This option can be overridden by the Override Anti Tampering Install Parameter option in app profiles."
+        ],
+        [
+          "MSI: ENABLEIMPRIVATAINTEGRATIONEXE: enableImprivataIntegration",
+          "Enables integration with Imprivata OneSign.If enabled, Zscaler Client Connector silently logs in an Imprivata OneSign user to Zscaler Client Connector, applies security policies, and logs the end user activity in Zscaler Client Connector.",
+          "1 = Enable0= Disable (default)",
+          "This option is available only in Zscaler Client Connector version 4.4 and later for Windows."
+        ],
+        [
+          "MSI: BCPCONFIGFILEPATHEXE: bcpConfigFilePath",
+          "Allows you to install Zscaler Client Connector to enroll new users during a Private Access-related cloud outage or Internet Service Provider (ISP) outage.You can pass a predownloaded configuration file with Business Continuity settings from the Zscaler Admin Console. To learn more, see About Business Continuity.",
+          "<path to downloaded bcp config file>",
+          "If you pass this install option, you must also pass the BCPMAPUBKEYHASH or bcpMAPublicKeyHash option.This option is available only in Zscaler Client Connector version 4.6 and later for Windows."
+        ],
+        [
+          "MSI: BCPMAPUBKEYHASHEXE: bcpMAPublicKeyHash",
+          "Allows you to install Zscaler Client Connector to enroll new users during a Private Access-related cloud outage or Internet Service Provider (ISP) outage.You can pass a public key provided by Private Access and copied from the Zscaler Admin Console. To learn more, see About Business Continuity.",
+          "<bcp thumbprint>Example: sYxSOjkj9DP1Ksw3LQ/FrPsBPfcsURrM5vNuH7Kmf1A=",
+          "If you pass this install option, you must also pass the BCPCONFIGFILEPATH or bcpConfigFilePath option.This option is available only in Zscaler Client Connector version 4.6 and later for Windows."
+        ],
+        [
+          "MSI: IMPORTSEFAILCLOSECONFIGEXE: importSEFailCloseConfig",
+          "Allows you to pass a predownloaded configuration file with fail-close settings to use when Zscaler Client Connector is in strict enforcement mode.",
+          "<path to downloaded fail close config file>",
+          "If you pass this install option, you must also pass these options:STRICTENFORCEMENT or strictEnforcementSEFAILCLOSECONFIGTHUMBPRINT or failCloseConfigThumbprintThis option is available only in Zscaler Client Connector version 4.6 and later for Windows."
+        ],
+        [
+          "MSI: SEFAILCLOSECONFIGTHUMBPRINTEXE: failCloseConfigThumbprint",
+          "Allows you to pass the public key for a predownloaded configuration file with fail-close settings to use when Zscaler Client Connector is in strict enforcement mode.",
+          "<fail close thumbprint>Example: GjqjzPQ3Vk35+o3Yo2EsPOSV3rOJaeYTpcBmotISts=",
+          "If you pass this install option, you must also pass these options:STRICTENFORCEMENT or strictEnforcementIMPORTSEFAILCLOSECONFIG or importSEFailCloseConfigThis option is available only in Zscaler Client Connector version 4.6 and later for Windows."
+        ],
+        [
+          "MSI: Not supportedEXE: revertzcc",
+          "Allows you to silently revert Zscaler Client Connector to the previous version.",
+          "1 = Enable0= Disable (default)",
+          "If you pass this install option, you must use the installer path of the version before the upgrade. To learn more, see Reverting Zscaler Client Connector to the Previous Version."
+        ],
+        [
+          "MSI: REVERTPASSWORDCMDLINEEXE: revertPasswordCmdLine",
+          "Allows you to silently revert Zscaler Client Connector to the previous version.",
+          "The password you add for this option must match the Revert Password configured for access in unattended mode.",
+          "This option is available only in Zscaler Client Connector version 4.2.1 and later for Windows."
+        ],
+        [
+          "MSI: Not supportedEXE: installer-language",
+          "Sets the language used by the installer.",
+          "en = English (default)fr = French",
+          "This option does not change the language used in the Zscaler Client Connector app.This option is available only in Zscaler Client Connector version 4.5 and later for Windows."
+        ],
+        [
+          "MSI: INSTALLWEBVIEW2EXE: installWebView2",
+          "Enables installation of the WebView2 framework",
+          "1 = Enable0= Disable (default)",
+          "This option is used for testing WebView2-based functionality on a single device and should be used for testing only.To use this option:Enable the WebView2 option for all users. To learn more, see Using WebView2 Authentication.You must pass the ENABLESSO or enableSSO option if you want to test SSO with WebView2."
+        ],
+        [
+          "MSI: ENABLESSOEXE: enableSSO",
+          "Enables SSO using the Windows Primary account in an Azure Active Directory environment.",
+          "2 = Based on policy (default)1 = Enable0= Disable",
+          "To use this option, you must pass the INSTALLWEBVIEW2 or installWebView2 option if you want to test SSO with WebView2."
+        ],
+        [
+          "MSI: LWFBOOTSTARTEXE: LWFBootStart",
+          "Sets the Zscaler Lightweight Filter (LWF) Driver start type to Boot.",
+          "1 = Enable0= Disable (default)",
+          ""
+        ],
+        [
+          "MSI: USELWFDRIVEREXE: useLWFDriver",
+          "Enables the packet filter-based filter driver.",
+          "1 = Enable0= Disable (default)",
+          "This install option overrides the Tunnel Driver Type selection in forwarding profiles."
+        ],
+        [
+          "MSI: INSTALLLWFDRIVEREXE: installLWFDriver",
+          "Installs a high-performance Network Driver Interface Specification (NDIS) 6-based LWF driver.",
+          "1 = Enable0= Disable (default)",
+          ""
+        ],
+        [
+          "MSI: VDIEXE: vdi",
+          "Indicates that Zscaler Client Connector is being installed on a virtual desktop infrastructure (VDI).",
+          "1 = Enable0= Disable (default)",
+          ""
+        ],
+        [
+          "MSI: EXTERNALREDIRECTEXE: externalRedirect",
+          "Enables browser-based authentication for Zscaler Client Connector.",
+          "1 = Enable0= Disable (default)",
+          ""
+        ],
+        [
+          "MSI: CONFIGTIMEOUTEXE: configTimeout",
+          "Sets the number of seconds Zscaler Client Connector waits for the configuration file (if not already present).",
+          "0= 0 seconds (default)",
+          ""
+        ],
+        [
+          "MSI: MTAUTHREQUIREDEXE: mtAuthRequired",
+          "Requires users to authenticate against your IdP before the machine tunnel starts if you use the machine tunnel feature in Private Access.",
+          "1 = Enable0= Disable (default)",
+          ""
+        ],
+        [
+          "MSI: UPGRADEPASSWORDCMDLINEEXE: upgradePasswordCmdLine",
+          "Allows you to silently upgrade Zscaler Client Connector.",
+          "The password you add for this option must match the Upgrade Password configured for access in unattended mode.",
+          ""
+        ],
+        [
+          "MSI: ENABLECUSTOMPROXYDETECTIONEXE: enableCustomProxyDetection",
+          "Indicates how Zscaler Client Connector identifies the system proxy before the initial policy download.",
+          "1 = Enable0= Disable (default)",
+          "If enabled, Zscaler Client Connector downloads the PAC and parses the proxy instead of using the default Microsoft APIs. After the initial policy download, Zscaler Client Connector uses the Detect External Proxy Using Custom Method from the app profile and returns to this setting after a user logs out."
+        ],
+        [
+          "MSI: LAUNCHTRAYEXE: launchTray",
+          "By default, Zscaler Client Connector starts its services and user interface after installation. To change this, you can disable this install option to prevent Zscaler Client Connector from automatically starting after installation.If you disable the option, users must open Zscaler Client Connector manually to start the app, or Zscaler Client Connector automatically runs after the next reboot.",
+          "1 = Enable (default)0= Disable",
+          ""
+        ],
+        [
+          "MSI: KIOSKMODEEXE: kioskMode",
+          "By default, Zscaler Client Connector waits for a full-screen app (e.g., Windows Autopilot) to complete and for the Windows desktop to be visible before enrolling a new user. To change this, you can enable this option to allow Zscaler Client Connector to launch without waiting for the Windows desktop to display.",
+          "1 = Enable (default)0= Disable",
+          "This option is available only in Zscaler Client Connector version 4.10.0.463 and later."
+        ]
+      ]
+    }
+  ]
+}

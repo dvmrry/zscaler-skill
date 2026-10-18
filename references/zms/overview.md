@@ -11,17 +11,17 @@ confidence: medium
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/what-is-microsegmentation"
-  - "vendor/zscaler-help/what-is-microsegmentation-zpa.md"
+  - "vendor/zscaler-help/what-is-microsegmentation-zpa.json"
   - "https://www.zscaler.com/products-and-solutions/microsegmentation"
   - "vendor/zscaler-help/microsegmentation-marketing.md"
   - "https://www.zscaler.com/products/zero-trust-microsegmentation"
   - "vendor/zscaler-help/zero-trust-microsegmentation-marketing.md"
-  - "vendor/zscaler-help/about-application-catalog-microsegmentation.md"
-  - "vendor/zscaler-help/about-ml-tag-recommendations-page.md"
-  - "vendor/zscaler-help/about-tags.md"
-  - "vendor/zscaler-help/about-agent-provisioning-keys.md"
-  - "vendor/zscaler-help/editing-agent-provisioning-keys.md"
-  - "vendor/zscaler-help/zms-appzones-20260909.md"
+  - "vendor/zscaler-help/about-application-catalog-microsegmentation.json"
+  - "vendor/zscaler-help/about-ml-tag-recommendations-page.json"
+  - "vendor/zscaler-help/about-tags.json"
+  - "vendor/zscaler-help/about-agent-provisioning-keys.json"
+  - "vendor/zscaler-help/editing-agent-provisioning-keys.json"
+  - "vendor/zscaler-help/zms-appzones-20260909.json"
   - "vendor/zscaler-sdk-python/zscaler/zms/zms_service.py"
   - "vendor/zscaler-mcp-server/rules/zms-graphql-conventions.mdc"
 author-status: draft
@@ -41,7 +41,7 @@ server-side write API.
 
 ## Why ZMS exists alongside ZPA
 
-Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
 ZPA and ZMS solve different segmentation problems:
 
@@ -57,7 +57,7 @@ The clean separation: ZPA controls who can reach your apps from outside; ZMS con
 
 ## Architecture
 
-Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`.
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`.
 
 From `what-is-microsegmentation-zpa.md`:
 
@@ -84,7 +84,7 @@ The agent does **two jobs**:
 
 ## AI-powered policy recommendations
 
-Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
 The selling point. From the marketing captures:
 
@@ -94,7 +94,7 @@ The selling point. From the marketing captures:
   retained on a 14-day rolling cycle, but it does not state that the
   recommendation engine uses exactly that lookback or define how low-frequency
   flows affect a generated policy
-  (`vendor/zscaler-help/what-is-microsegmentation-zpa.md:12`).
+  (`vendor/zscaler-help/what-is-microsegmentation-zpa.json:12`).
 
 Whether monthly or quarterly flows fall outside recommendation inputs is an
 open operational question, not a documented consequence of the retention
@@ -103,7 +103,7 @@ an environment with long-period workflows.
 
 ## Current Segmentation portal surfaces
 
-Source: `vendor/zscaler-help/about-application-catalog-microsegmentation.md`; `vendor/zscaler-help/about-ml-tag-recommendations-page.md`; `vendor/zscaler-help/about-tags.md`; `vendor/zscaler-help/about-agent-provisioning-keys.md`; `vendor/zscaler-help/editing-agent-provisioning-keys.md`.
+Source: `vendor/zscaler-help/about-application-catalog-microsegmentation.json`; `vendor/zscaler-help/about-ml-tag-recommendations-page.json`; `vendor/zscaler-help/about-tags.json`; `vendor/zscaler-help/about-agent-provisioning-keys.json`; `vendor/zscaler-help/editing-agent-provisioning-keys.json`.
 
 ### Application Catalog and ML tag recommendations
 
@@ -111,47 +111,47 @@ The Application Catalog is under **Policies > Access Control > Segmentation**.
 It exposes applications and categories used for ML resource-tag recommendations,
 with portal filters for application name, category, process, protocol, and port;
 the result shape includes process name, protocol, and port start/end
-(`vendor/zscaler-help/about-application-catalog-microsegmentation.md:12-38`).
+(`vendor/zscaler-help/about-application-catalog-microsegmentation.json:12-38`).
 Those portal filters do not establish equivalent GraphQL or SDK filter fields
-(`vendor/zscaler-help/about-application-catalog-microsegmentation.md:40-46`).
+(`vendor/zscaler-help/about-application-catalog-microsegmentation.json:40-46`).
 
 The ML Tag Recommendations page shows Application Catalog detections on managed
 resources. Administrators can accept, edit, ignore, or delete a recommendation,
 revisit ignored recommendations, and see the previous and next recommendation
 runs. Zscaler Support is the documented path for enabling or disabling the
 feature for an organization
-(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:10-37`). When a
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.json:10-37`). When a
 recommendation is accepted, resources left unselected are treated as ignored
-(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:35-37`). The article
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.json:35-37`). The article
 does not publish the operations, enums, or payloads behind those actions
-(`vendor/zscaler-help/about-ml-tag-recommendations-page.md:39-43`).
+(`vendor/zscaler-help/about-ml-tag-recommendations-page.json:39-43`).
 
 ### Tags
 
 The portal's tag model is namespace → key → value, and a complete tag can be
 assigned to resource groups. The current page exposes namespace creation, tag
 search, add, detail, edit, and delete actions
-(`vendor/zscaler-help/about-tags.md:10-27`). Help does not define the GraphQL
+(`vendor/zscaler-help/about-tags.json:10-27`). Help does not define the GraphQL
 types or enforcement semantics behind those actions
-(`vendor/zscaler-help/about-tags.md:29-33`).
+(`vendor/zscaler-help/about-tags.json:29-33`).
 
 ### AppZones
 
 The current Help article places AppZones under **Zero Trust Cloud >
 Microsegmentation > App Zones** and describes them as applications grouped into
 zones based on application topology and underlying network connectivity
-(`vendor/zscaler-help/zms-appzones-20260909.md:12-19`). The page supports filters
+(`vendor/zscaler-help/zms-appzones-20260909.json:12-19`). The page supports filters
 for **Name**, **Description**, and **Member Count**, plus refresh, add, and
 column-visibility controls. Each row shows the AppZone name, the number of
 connected resources, and its description; selecting a row opens complete
 information, with edit and delete actions available
-(`vendor/zscaler-help/zms-appzones-20260909.md:20-36`). This is current
+(`vendor/zscaler-help/zms-appzones-20260909.json:20-36`). This is current
 Microsegmentation portal UI coverage, not a new ZPA application-segment
 contract.
 
 ## Provisioning + deployment
 
-Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`.
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`.
 
 From the help-portal capture:
 
@@ -159,7 +159,7 @@ From the help-portal capture:
 - **Available in US region** for the backend framework (the cloud control plane). Data collection can be localized to the customer's region of choice.
 - **Data retention: 14-day rolling**. The source does not enumerate the retained
   data classes or equate this period with the recommendation-engine lookback
-  (`vendor/zscaler-help/what-is-microsegmentation-zpa.md:12`).
+  (`vendor/zscaler-help/what-is-microsegmentation-zpa.json:12`).
 - **Managed resources** can deploy to any region (the agents — they run in the customer's environment regardless of where the control plane is).
 - **ZPA prerequisite** — the help-portal capture says "You can enable Microsegmentation for organizations that have Zscaler Private Access (ZPA)." ZMS is not sold standalone.
 
@@ -169,13 +169,13 @@ Provisioning keys are managed from the selected agent group's **Provisioning
 Keys** tab. The portal can list and filter keys, show the associated signing
 certificate, copy/edit/delete a key, and route operators to Agent Manager
 installation for VM groups or a Helm chart for Kubernetes Cluster groups
-(`vendor/zscaler-help/about-agent-provisioning-keys.md:10-29`). The current edit
+(`vendor/zscaler-help/about-agent-provisioning-keys.json:10-29`). The current edit
 drawer supports **Name**, **Maximum Reuse of Key** from 1 through 1,000, and
 **Signing Certificate**
-(`vendor/zscaler-help/editing-agent-provisioning-keys.md:10-22`). The capture
+(`vendor/zscaler-help/editing-agent-provisioning-keys.json:10-22`). The capture
 does not establish that Agent Group is editable or immutable, and it does not
 publish the underlying GraphQL operation
-(`vendor/zscaler-help/editing-agent-provisioning-keys.md:24-29`).
+(`vendor/zscaler-help/editing-agent-provisioning-keys.json:24-29`).
 
 ## Deployment flexibility (marketing claim)
 
@@ -190,7 +190,7 @@ The captured material does not confirm this interpretation. Treat the second mod
 
 ## Edge cases / gotchas
 
-Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
 1. **The implemented ZMS clients are read-only.** Operators looking for
    `client.zms.*` will find GraphQL queries, but no implemented Python SDK or MCP
@@ -201,7 +201,7 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-
    retention period does not establish that infrequent flows are excluded from
    recommendations. Treat long-period workflow coverage as something to verify,
    not as a known failure mode
-   (`vendor/zscaler-help/what-is-microsegmentation-zpa.md:12`).
+   (`vendor/zscaler-help/what-is-microsegmentation-zpa.json:12`).
 3. **Agents enforce locally, not via tunnel.** A host that loses cloud connectivity continues to enforce its last-known policy via WFP / nftables — failure mode is fail-closed against unknown flows but allow-known. Different mental model from ZPA's App Connector dial-out (which fails closed entirely if Connectors lose cloud).
 4. **WFP / nftables = native OS firewall.** Conflicts with other firewall management tools (Windows Defender Firewall policies via GPO, host-based firewalls like Carbon Black, custom nftables rules) are real concerns. Captured docs don't cover conflict resolution; treat as unanswered.
 5. **US-region-only control plane** at the captured date. Customers with EU / APAC data residency requirements should validate this hasn't changed and whether it's a blocker.
@@ -210,12 +210,12 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-
    provisioning-key page distinguishes Kubernetes Cluster agent groups and
    directs them to Helm installation, but it does not establish whether policy
    enforcement is per pod, node, workload, or another boundary
-   (`vendor/zscaler-help/about-agent-provisioning-keys.md:24-27`).
+   (`vendor/zscaler-help/about-agent-provisioning-keys.json:24-27`).
 8. **ZMS appears in help.zscaler.com/zpa/, not its own namespace.** Customers searching for "Zscaler microsegmentation" hit ZPA help docs. Skill should normalize this — recognize "Zscaler microsegmentation", "ZMS", "Zero Trust Microsegmentation" all as the same product.
 
 ## Where ZMS fits relative to existing skill content
 
-Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
 | Existing reference | ZMS touchpoint |
 |---|---|
@@ -226,7 +226,7 @@ Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-
 
 ## Open questions
 
-Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.md`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
+Source: `vendor/zscaler-help/what-is-microsegmentation-zpa.json`; `vendor/zscaler-help/microsegmentation-marketing.md`; `vendor/zscaler-help/zero-trust-microsegmentation-marketing.md`.
 
 - **Kubernetes enforcement granularity** — the Helm deployment path is
   documented, but is enforcement per pod, node, workload, or host agent?

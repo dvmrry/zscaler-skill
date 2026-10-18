@@ -17,12 +17,12 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/what-risk360.md"
-  - "vendor/zscaler-help/risk360-about-dashboard.md"
-  - "vendor/zscaler-help/risk360-about-factors.md"
-  - "vendor/zscaler-help/risk360-about-asset-level-risk.md"
+  - "vendor/zscaler-help/what-risk360.json"
+  - "vendor/zscaler-help/risk360-about-dashboard.json"
+  - "vendor/zscaler-help/risk360-about-factors.json"
+  - "vendor/zscaler-help/risk360-about-asset-level-risk.json"
   - "vendor/zscaler-help/risk360-monte-carlo.md"
-  - "vendor/zscaler-help/risk360-logs-retention.md"
+  - "vendor/zscaler-help/risk360-logs-retention.json"
   - "vendor/zscaler-help/risk360-product-marketing.md"
   - "vendor/zscaler-sdk-python/tests/integration/zid/cassettes/TestResourceServers.yaml"
 author-status: draft
@@ -34,19 +34,19 @@ This ledger covers the Tier 3 thin-stub refresh for Risk360. Rows either cite ex
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| Risk360 provides real-time risk metrics at organization level and across four attack stages. | `index.md`, `overview.md` | `vendor/zscaler-help/what-risk360.md:8-13` |
-| Risk360 help frames benefits around holistic analysis, Monte Carlo financial exposure, stakeholder reporting, peer benchmarking, compliance, ZTE integration, and no additional hardware upgrades. | `overview.md` | `vendor/zscaler-help/what-risk360.md:15-22` |
+| Risk360 provides real-time risk metrics at organization level and across four attack stages. | `index.md`, `overview.md` | `vendor/zscaler-help/what-risk360.json:8-13` |
+| Risk360 help frames benefits around holistic analysis, Monte Carlo financial exposure, stakeholder reporting, peer benchmarking, compliance, ZTE integration, and no additional hardware upgrades. | `overview.md` | `vendor/zscaler-help/what-risk360.json:15-22` |
 | Risk360 ingests data from an existing Zscaler deployment and produces cyber-risk posture insights. | `index.md`, `overview.md` | `vendor/zscaler-help/risk360-product-marketing.md:8-10` |
 | Named Risk360 telemetry sources include ZIA, ZPA, DLP policies, ThreatLabz, and external attack surface metrics. | `overview.md` | `vendor/zscaler-help/risk360-product-marketing.md:20-22` |
-| Risk360 logs are duplicates of configuration and transaction logs from other Zscaler SaaS products such as ZIA/ZPA. | `overview.md` | `vendor/zscaler-help/risk360-logs-retention.md:8-12` |
-| Risk360 log retention is up to one year during subscription, with storage in the United States or European Union. | `overview.md` | `vendor/zscaler-help/risk360-logs-retention.md:14-20` |
+| Risk360 logs are duplicates of configuration and transaction logs from other Zscaler SaaS products such as ZIA/ZPA. | `overview.md` | `vendor/zscaler-help/risk360-logs-retention.json:8-12` |
+| Risk360 log retention is up to one year during subscription, with storage in the United States or European Union. | `overview.md` | `vendor/zscaler-help/risk360-logs-retention.json:14-20` |
 | Captured factor counts differ: one marketing line says 140+, another says more than 115. | `overview.md` | `vendor/zscaler-help/risk360-product-marketing.md:16-24` |
-| Dashboard exposes risk score, industry-peer average, risk trends, risk events by location, contributing factors by entity, and Top 10 Factors with a `Licensed?` column. | `index.md`, `overview.md` | `vendor/zscaler-help/risk360-about-dashboard.md:8-16`, `:27-48` |
-| Risk360 severity ranges are 0-25 Low, 26-50 Medium, 51-75 High, and 76-100 Critical. | `overview.md` | `vendor/zscaler-help/risk360-about-dashboard.md:18-25` |
-| Factors are quantified by risk weight and mapped to MITRE and NIST. | `overview.md` | `vendor/zscaler-help/risk360-about-factors.md:8` |
-| CrowdStrike is named as a vendor integration that contributes risky events and activities to Risk360 factors. | `overview.md` | `vendor/zscaler-help/risk360-about-factors.md:10` |
-| Factor views are Attack-Based and Entity-Based. | `overview.md` | `vendor/zscaler-help/risk360-about-factors.md:17-20` |
-| Asset-level risk highlights risky assets and supports drill-downs; the model uses 65+ indicators across pre-infection, post-infection, and suspicious behavior. | `overview.md` | `vendor/zscaler-help/risk360-about-asset-level-risk.md:8-20` |
+| Dashboard exposes risk score, industry-peer average, risk trends, risk events by location, contributing factors by entity, and Top 10 Factors with a `Licensed?` column. | `index.md`, `overview.md` | `vendor/zscaler-help/risk360-about-dashboard.json:8-16`, `:27-48` |
+| Risk360 severity ranges are 0-25 Low, 26-50 Medium, 51-75 High, and 76-100 Critical. | `overview.md` | `vendor/zscaler-help/risk360-about-dashboard.json:18-25` |
+| Factors are quantified by risk weight and mapped to MITRE and NIST. | `overview.md` | `vendor/zscaler-help/risk360-about-factors.json:8` |
+| CrowdStrike is named as a vendor integration that contributes risky events and activities to Risk360 factors. | `overview.md` | `vendor/zscaler-help/risk360-about-factors.json:10` |
+| Factor views are Attack-Based and Entity-Based. | `overview.md` | `vendor/zscaler-help/risk360-about-factors.json:17-20` |
+| Asset-level risk highlights risky assets and supports drill-downs; the model uses 65+ indicators across pre-infection, post-infection, and suspicious behavior. | `overview.md` | `vendor/zscaler-help/risk360-about-asset-level-risk.json:8-20` |
 | Risk360 runs Monte Carlo simulation 1,000 times per day per organization. | `index.md`, `overview.md` | `vendor/zscaler-help/risk360-monte-carlo.md:10-12` |
 | Monte Carlo iterations randomize breach event and financial loss within a confidence interval. | `overview.md` | `vendor/zscaler-help/risk360-monte-carlo.md:14-17` |
 | Monte Carlo outputs include yearly average loss and loss exceedance curve. | `index.md`, `overview.md` | `vendor/zscaler-help/risk360-monte-carlo.md:18-23` |

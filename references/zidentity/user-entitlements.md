@@ -18,20 +18,20 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ziam/services/common/common.go"
   - "vendor/zscaler-sdk-go/tests/unit/ziam/services/user_entitlement_test.go"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
-  - "vendor/zscaler-help/what-zidentity.md"
-  - "vendor/zscaler-help/zidentity-about-api-clients.md"
+  - "vendor/zscaler-help/what-zidentity.json"
+  - "vendor/zscaler-help/zidentity-about-api-clients.json"
 author-status: draft
 ---
 
 # ZIdentity user entitlements — read-only admin & service entitlement query API
 
-Source: `vendor/zscaler-help/what-zidentity.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`.
+Source: `vendor/zscaler-help/what-zidentity.json`; `vendor/zscaler-help/zidentity-about-api-clients.json`; `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`.
 
 ZIdentity maintains two separate entitlement records per user: **admin entitlements** (role + scope + service, one record per Zscaler product the user has admin access to) and **service entitlements** (flat list of Zscaler products the user can access). Both are query-only.
 
 > **This is the deep-dive reference.** For role-assignment workflow, federation context, and the full ZIdentity 25-module permission matrix, see [`admin-rbac.md`](./admin-rbac.md).
 
-ZIdentity is described by Zscaler as "a unified identity service for Zscaler that centralizes and simplifies identity management, user authentication, and entitlement assignment for users to Zscaler services, such as Internet & SaaS (ZIA), Private Access (ZPA), etc." (`vendor/zscaler-help/what-zidentity.md`). API clients access Zscaler resources "across all Zscaler services with entitlements via role-based access control." (`vendor/zscaler-help/zidentity-about-api-clients.md:16-22`)
+ZIdentity is described by Zscaler as "a unified identity service for Zscaler that centralizes and simplifies identity management, user authentication, and entitlement assignment for users to Zscaler services, such as Internet & SaaS (ZIA), Private Access (ZPA), etc." (`vendor/zscaler-help/what-zidentity.json`). API clients access Zscaler resources "across all Zscaler services with entitlements via role-based access control." (`vendor/zscaler-help/zidentity-about-api-clients.json:16-22`)
 
 ## Read-only surface
 
@@ -217,7 +217,7 @@ Admin entitlements include `roles + scope + service` per record. Service-entitle
 
 ## Cross-product mapping
 
-Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-help/what-zidentity.md`; `vendor/zscaler-help/zidentity-about-api-clients.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zid/user_entitlement.py`; `vendor/zscaler-sdk-python/zscaler/zid/models/user_entitlement.py`; `vendor/zscaler-sdk-go/zscaler/ziam/services/user_entitlement/user_entitlement.go`; `vendor/zscaler-help/what-zidentity.json`; `vendor/zscaler-help/zidentity-about-api-clients.json`.
 
 A single user can have **multiple admin entitlement records**, one per Zscaler product. The SDK return shapes support that: Go returns `[]Entitlements` from `GetAdminEntitlement`, and Python wraps a list of `Entitlement` objects in `Entitlements.entitlements`.
 

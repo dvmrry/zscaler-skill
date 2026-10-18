@@ -8,23 +8,23 @@ confidence: high
 source-tier: doc
 sources:
   - "vendor/zscaler-help/legacy-api-authentication.md"
-  - "vendor/zscaler-help/legacy-getting-started-zia-api.md"
-  - "vendor/zscaler-help/legacy-getting-started-zpa-api.md"
-  - "vendor/zscaler-help/legacy-getting-started-zdx-api.md"
-  - "vendor/zscaler-help/legacy-getting-started-client-connector-api.md"
-  - "vendor/zscaler-help/legacy-getting-started-cloud-branch-connector-api.md"
-  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.md"
-  - "vendor/zscaler-help/legacy-understanding-zia-api.md"
-  - "vendor/zscaler-help/legacy-understanding-zpa-api.md"
-  - "vendor/zscaler-help/legacy-understanding-zscaler-client-connector-api.md"
-  - "vendor/zscaler-help/legacy-api-rate-limit-summary.md"
-  - "vendor/zscaler-help/legacy-api-response-codes-and-error-messages.md"
-  - "vendor/zscaler-help/legacy-understanding-rate-limiting.md"
+  - "vendor/zscaler-help/legacy-getting-started-zia-api.json"
+  - "vendor/zscaler-help/legacy-getting-started-zpa-api.json"
+  - "vendor/zscaler-help/legacy-getting-started-zdx-api.json"
+  - "vendor/zscaler-help/legacy-getting-started-client-connector-api.json"
+  - "vendor/zscaler-help/legacy-getting-started-cloud-branch-connector-api.json"
+  - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json"
+  - "vendor/zscaler-help/legacy-understanding-zia-api.json"
+  - "vendor/zscaler-help/legacy-understanding-zpa-api.json"
+  - "vendor/zscaler-help/legacy-understanding-zscaler-client-connector-api.json"
+  - "vendor/zscaler-help/legacy-api-rate-limit-summary.json"
+  - "vendor/zscaler-help/legacy-api-response-codes-and-error-messages.json"
+  - "vendor/zscaler-help/legacy-understanding-rate-limiting.json"
   - "vendor/zscaler-help/legacy-activation.md"
   - "vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md"
   - "vendor/zscaler-help/legacy-api-authentication-zdx.md"
   - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
-  - "vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.md"
+  - "vendor/zscaler-help/legacy-securing-zia-apis-oauth-2.0.json"
   - "vendor/zscaler-help/legacy-authentication-settings.md"
   - "vendor/zscaler-help/legacy-apis-home.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
@@ -311,7 +311,7 @@ The full table runs to ~200+ endpoints. Key entries:
 | `/cloudApplications/bulkUpdate` | — | — | 1/min, 4/hr | — |
 | `/app_view/{id}/apps` (App Governance) | 25/day (trial), 1000/day (license) | — | — | — |
 
-Full table: `vendor/zscaler-help/legacy-api-rate-limit-summary.md`.
+Full table: `vendor/zscaler-help/legacy-api-rate-limit-summary.json`.
 
 A ZIA Cloud Service Postman collection is available from Zscaler at `/sites/default/files/zia_cloud_service.postman_collection_06_23_2025.json`.
 

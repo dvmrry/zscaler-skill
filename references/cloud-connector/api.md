@@ -8,12 +8,12 @@ confidence: medium
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/cloud-branch-connector/configuring-cloud-provisioning-template"
-  - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md"
+  - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.json"
   - "https://help.zscaler.com/legacy-apis/understanding-zscaler-cloud-branch-connector-api"
-  - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md"
+  - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json"
   - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
-  - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
-  - "vendor/zscaler-help/cbc-about-microsoft-azure-accounts.md"
+  - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.json"
+  - "vendor/zscaler-help/cbc-about-microsoft-azure-accounts.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
   - "vendor/zscaler-sdk-python/zscaler/__init__.py"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
@@ -45,7 +45,7 @@ author-status: draft
 
 # Cloud Connector API surface
 
-Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.md`; `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go`; `vendor/terraform-provider-ztc/ztc/provider.go`; `vendor/terraform-provider-ztc/ztc/config.go`.
+Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json`; `vendor/zscaler-sdk-python/zscaler/ztw/ztw_service.py`; `vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go`; `vendor/terraform-provider-ztc/ztc/provider.go`; `vendor/terraform-provider-ztc/ztc/config.go`.
 
 How to manage Cloud Connector programmatically. Three programmatic paths exist:
 
@@ -114,7 +114,7 @@ Data sources (read-only lookups): parallel data sources exist for most of the ab
 
 ## Provisioning workflow
 
-Source: `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.md`.
+Source: `vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.json`.
 
 From *Configuring a Cloud Provisioning Template*:
 
@@ -196,16 +196,16 @@ The Azure account-management family uses `/publicCloudTenant`, not `/publicCloud
 
 | Operation group | Methods and paths |
 |---|---|
-| Azure account CRUD | `GET|POST /publicCloudTenant`; `GET|PUT|DELETE /publicCloudTenant/{id}` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:44-56`) |
-| Inventory helpers | `GET /publicCloudTenant/ccGroups`; `GET /publicCloudTenant/count`; `GET /publicCloudTenant/supportedRegions` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:49-53`) |
-| Subscription and permission sync | `PUT /discoveryService/azure/subscriptionSync`; `POST /discoveryService/azure/tenantPermission` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:57-58`) |
-| Regional resources and topic | `POST /discoveryService/azure/{region}/resourceGroups`; `POST /discoveryService/azure/{region}/storageAccounts`; `PUT /discoveryService/azure/{region}/topicSync` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:59-61`) |
+| Azure account CRUD | `GET|POST /publicCloudTenant`; `GET|PUT|DELETE /publicCloudTenant/{id}` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:44-56`) |
+| Inventory helpers | `GET /publicCloudTenant/ccGroups`; `GET /publicCloudTenant/count`; `GET /publicCloudTenant/supportedRegions` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:49-53`) |
+| Subscription and permission sync | `PUT /discoveryService/azure/subscriptionSync`; `POST /discoveryService/azure/tenantPermission` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:57-58`) |
+| Regional resources and topic | `POST /discoveryService/azure/{region}/resourceGroups`; `POST /discoveryService/azure/{region}/storageAccounts`; `PUT /discoveryService/azure/{region}/topicSync` (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:59-61`) |
 
-Help describes Azure partner integration as discovering workload metadata across subscriptions and associating Cloud Connectors with that workload information for policy enforcement (`vendor/zscaler-help/cbc-about-microsoft-azure-accounts.md:8-22`). No equivalent public GCP discovery REST family was established by this sweep.
+Help describes Azure partner integration as discovering workload metadata across subscriptions and associating Cloud Connectors with that workload information for policy enforcement (`vendor/zscaler-help/cbc-about-microsoft-azure-accounts.json:8-22`). No equivalent public GCP discovery REST family was established by this sweep.
 
 ## Rate limiting
 
-Source: `vendor/zscaler-sdk-go/zscaler/ztw/v2_client_ratelimit_test.go`; `vendor/zscaler-help/legacy-api-response-codes-and-error-messages.md`.
+Source: `vendor/zscaler-sdk-go/zscaler/ztw/v2_client_ratelimit_test.go`; `vendor/zscaler-help/legacy-api-response-codes-and-error-messages.json`.
 
 ZTW does **not** use ZIA's three-tier Heavy/Medium/Light weight model. The Go SDK's own ZTW rate-limiter test enforces a **two-bucket** model — reads in one bucket, all writes in another (`vendor/zscaler-sdk-go/zscaler/ztw/v2_client_ratelimit_test.go:111-140`):
 
@@ -290,7 +290,7 @@ Alternative: use `terraform plan -out` against the `ztc` provider and parse the 
 Source: `vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go`; `vendor/zscaler-sdk-go/zscaler/ztw/v2_config.go`.
 
 - **Resolved endpoint constants.** Admin user and role paths are `/ztw/api/v1/adminUsers` and `/ztw/api/v1/adminRoles` (`vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminusers/adminusers.go:13-14`; `vendor/zscaler-sdk-go/zscaler/ztw/services/adminuserrolemgmt/adminroles/adminroles.go:14-15`). `activation_cli` has no endpoint of its own and is inert because all implementation is commented out (`vendor/zscaler-sdk-go/zscaler/ztw/services/activation_cli/zconActivator.go:1-76`).
-- **GCP discovery automation remains open.** Azure now has a distinct `/publicCloudTenant` and `/discoveryService/azure/...` REST family (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:44-61`). No equivalent public GCP discovery REST family was established.
+- **GCP discovery automation remains open.** Azure now has a distinct `/publicCloudTenant` and `/discoveryService/azure/...` REST family (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:44-61`). No equivalent public GCP discovery REST family was established.
 - **Resolved: Go ZTW supports OneAPI/ZIdentity.** The unified Go client routes `ztw` to a dedicated OneAPI HTTP client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:372-373`), so ZIdentity OAuth is a supported path alongside the legacy `ZTC_*` credentials (see § Go-SDK authentication status). Tracked in [clarification `cloud-connector-18`](../_meta/clarifications.md#cloud-connector-18-ztw-api-surface-gaps-endpoint-paths-azuregcp-discovery-automation-go-zidentity-auth).
 
 ## Cross-links

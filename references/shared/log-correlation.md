@@ -10,7 +10,7 @@ sources:
   - "vendor/zscaler-help/nss-web-logs.csv"
   - "vendor/zscaler-help/nss-firewall-logs.csv"
   - "vendor/zscaler-help/nss-dns-logs.csv"
-  - "vendor/zscaler-help/about-log-streaming-service.md"
+  - "vendor/zscaler-help/about-log-streaming-service.json"
   - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt"
   - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
 author-status: draft
@@ -42,7 +42,7 @@ The skill emits SPL for validation rather than auto-executing queries. The opera
 
 ### ZIA — NSS (Nanolog Streaming Service)
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`.
 
 ZIA uses NSS (Nanolog Streaming Service) to stream traffic logs from the Zscaler Nanolog to a SIEM. NSS is the authoritative log path for ZIA web, firewall, and DNS events.
 
@@ -54,7 +54,7 @@ NSS produces three separate log streams, each with its own field schema:
 | Firewall logs | NSS for Firewall | [`zia.logs.firewall-records`](kb:zia.logs.firewall-records) |
 | DNS logs | NSS for DNS | [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields) |
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/nss-web-logs.csv`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/nss-web-logs.csv`.
 
 NSS streams are configured per-feed with a custom format template (the `%s{field}` / `%d{field}` specifiers). The Zscaler cloud retains traffic logs for a rolling 14-day period. For retention beyond 14 days, NSS streaming to a SIEM is required.
 
@@ -62,7 +62,7 @@ NSS streams are configured per-feed with a custom format template (the `%s{field
 
 ### ZPA — LSS (Log Streaming Service)
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
 
 ZPA uses LSS (Log Streaming Service) for its equivalent function. LSS streams through a ZPA Public Service Edge to an App Connector, which forwards to the log receiver. Twelve log types are available; the primary access log is **User Activity**.
 
@@ -77,7 +77,7 @@ ZPA uses LSS (Log Streaming Service) for its equivalent function. LSS streams th
 | AppProtection | AppProtection policy activity |
 | Microsegmentation | Microsegmentation flow activity |
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
 LSS retention: Zscaler retains User Activity, User Status, and App Connector logs for a rolling **14 days**. Audit logs are retained for **6 months**. For access beyond these windows, LSS streaming is required.
 
@@ -87,7 +87,7 @@ LSS retention: Zscaler retains User Activity, User Status, and App Connector log
 
 ### ZCC — client-side operational logs (not streamed)
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
 ZCC does not produce a SIEM-streamable log feed equivalent to NSS or LSS. ZCC writes operational logs to the endpoint device. These cover tunnel events, auth events, posture checks, and forwarding decisions — not individual web transactions (that is ZIA-side). Administrators access ZCC logs via the ZCC Portal diagnostic bundle or user-exported ZIP. See [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md) and [`../zcc/user-logging-controls.md`](../zcc/user-logging-controls.md).
 
@@ -317,14 +317,14 @@ This is the highest-confidence ZIA→ZPA join available without a shared session
 
 ### NSS deployment (ZIA)
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
 NSS receives the Zscaler Nanolog stream and formats it as syslog or CEF for a SIEM. Two architectures:
 
 - **Cloud NSS**: hosted by Zscaler; streams directly to the SIEM over the internet. No on-prem appliance. Current recommended approach.
 - **Legacy NSS**: on-prem virtual appliance receives the stream. The NSS VM decapsulates and re-delivers to the SIEM on the local network.
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-help/nss-web-logs.csv`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/nss-web-logs.csv`.
 
 Both architectures produce the same `%s{...}` / `%d{...}` field output.
 
@@ -332,7 +332,7 @@ Cloud Connector uses **NSS for Firewall only** (not NSS for Web) for its log str
 
 ### LSS deployment (ZPA)
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
 LSS path: ZPA Zero Trust Exchange -> Public Service Edge -> App Connector -> log receiver (SIEM).
 

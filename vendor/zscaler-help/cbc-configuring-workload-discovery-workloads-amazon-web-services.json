@@ -1,0 +1,542 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Workload Discovery for Workloads in Amazon Web Services",
+  "source": {
+    "url": "https://help.zscaler.com/cloud-branch-connector/configuring-workload-discovery-workloads-amazon-web-services",
+    "node": "1470596",
+    "revision": "3240661"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The workload discovery service is a Zscaler-managed service that discovers workloads in your Amazon Web Services (AWS) account. The service also fetches associated metadata such as user-defined tags and cloud service provider-generated attributes. These user-defined tags and cloud service provider-generated attributes are used in security policies."
+    },
+    {
+      "text": "Zscaler supports the following attributes:"
+    },
+    {
+      "item": "GroupId: The ID of the security group assigned to the attached Elastic Network Interface (ENI). This attribute can identify the AWS Lambda function workload.",
+      "depth": 0
+    },
+    {
+      "item": "GroupName: The name of the security group assigned to the attached ENI.",
+      "depth": 0
+    },
+    {
+      "item": "ImageId: The ID of the image used to launch the instance.",
+      "depth": 0
+    },
+    {
+      "item": "PlatformDetails: The platform. Zscaler also supports AWS Lambda and other services when not used in the context of Amazon Elastic Compute Cloud (EC2).",
+      "depth": 0
+    },
+    {
+      "item": "Vpc-id: The ID of the virtual private cloud (VPC) that the ENI runs in.",
+      "depth": 0
+    },
+    {
+      "item": "IamInstanceProfile-Arn: The Amazon Resource Name (ARN) of the Identity Access Management (IAM) instance profile.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Workload Discovery Services",
+      "level": 1
+    },
+    {
+      "text": "To enable workload discovery services, onboard your AWS account into the Zscaler Admin Console. After your AWS account appears in the Zscaler Admin Console, create a configuration in your AWS account. To learn more about adding an AWS account, see Adding an Amazon Web Services Account. The following changes are required to add a configuration to your AWS account:"
+    },
+    {
+      "item": "Create a Role",
+      "depth": 0
+    },
+    {
+      "item": "To create a role, you can either select Launch Cloudformation template in AWS console while adding an AWS account in the Zscaler Admin Console or you can create it manually. To create a role, you need the following information:",
+      "depth": 0,
+      "strong": [
+        [
+          40,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "List of permissions:",
+      "depth": 1
+    },
+    {
+      "item": "ec2:DescribeVpcs",
+      "depth": 2
+    },
+    {
+      "item": "ec2:DescribeSubnets",
+      "depth": 2
+    },
+    {
+      "item": "ec2:DescribeInstances",
+      "depth": 2
+    },
+    {
+      "item": "ec2:DescribeNetworkInterfaces",
+      "depth": 2
+    },
+    {
+      "item": "Optional list of permissions:",
+      "depth": 1
+    },
+    {
+      "item": "ec2:DescribeIamInstanceProfileAssociations",
+      "depth": 2
+    },
+    {
+      "item": "ec2:DescribeVpcEndpoints",
+      "depth": 2
+    },
+    {
+      "item": "Trusted role",
+      "depth": 1
+    },
+    {
+      "item": "External ID",
+      "depth": 1
+    },
+    {
+      "item": "Update the Cloud Connector Role for SQS Permissions",
+      "depth": 0
+    },
+    {
+      "item": "The workload discovery service communicates through API calls and a publish-subscribe mechanism based on the Amazon Simple Notification Service (SNS) and the Amazon Simple Queue Service (SQS). New tag discoveries are pushed through the SNS-SQS publish-subscribe mechanism to Cloud Connector. The SNS topic is in the Zscaler account, has all relevant changes to an account, and is protected by a resource-based policy. Cloud Connector must have the ability to manage queues, receive messages, and subscribe to SNS. In a new deployment using Terraform or CloudFormation, Zscaler adds the permissions by default. In an existing deployment, you must manually add permissions to the existing IAM roles that are associated with the Cloud Connector instances. For existing deployments, add the following permissions to the Cloud Connector IAM role:",
+      "depth": 0
+    },
+    {
+      "item": "sns:ListTopics",
+      "depth": 1
+    },
+    {
+      "item": "sns:ListSubscriptions",
+      "depth": 1
+    },
+    {
+      "item": "sns:Subscribe",
+      "depth": 1
+    },
+    {
+      "item": "sns:Unsubscribe",
+      "depth": 1
+    },
+    {
+      "item": "sqs:CreateQueue",
+      "depth": 1
+    },
+    {
+      "item": "sqs:DeleteQueue",
+      "depth": 1
+    },
+    {
+      "item": "Configure EventBridge",
+      "depth": 0
+    },
+    {
+      "item": "The default polling time for the workload discovery service is 5 minutes, which means changes can take up to 5 minutes to be distributed for policy enforcement. This polling time is sufficient for the applications of many users. For other users using auto scaling groups (ASGs), Zscaler must be notified immediately. The workload discovery service allows you to use EventBridge to trigger an update within a few seconds of an EC2 notification. You configure a rule in the EventBridge service of your account on the default bus. The rule sends a notification to an EventBridge bus in the Zscaler account assigned to your tenant. You can locate the name of the EventBridge on the account page of the Zscaler Admin Console. The format is an ARN. You must replace the REGION field, such as in the following example: arn:aws:events:<REGION>:11111111111:event-bus/zscaler-bus-146530-zsdevel.net.",
+      "depth": 0
+    },
+    {
+      "item": "To configure an EventBridge:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the AWS Management Console.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search field, enter EventBridge. Select Amazon EventBridge. The Amazon EventBridge page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          47,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "On the Amazon EventBridge page, under Get started, select EventBridge Rule.",
+      "depth": 1,
+      "strong": [
+        [
+          38,
+          49
+        ],
+        [
+          58,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "On the Define rule detail page, in the Rule detail section, configure the following:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          39,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the EventBridge.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description - optional: Enter a description for the EventBridge.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Event bus: Select default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Enable the rule on the selected event bus: Enable this setting.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Rule type: Select Rule with an event pattern.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Build event pattern page, configure the following:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Event Source section, select AWS events or EventBridge partner events.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          36,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Sample Event section, do not configure any settings.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "In the Creation method section, select Use pattern form.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          39,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Event pattern section, configure the following:",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Event source: Select AWS services.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "AWS service: Select EC2.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Event type: Select EC2 Instance State-change Notification.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Event Type Specification 1: Select Specific state(s).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          35,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Specific state(s): Select pending.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Event Type Specification 2: Select Any instance.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          35,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Select target(s) page, in the Target 1 section, configure the following:",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          37,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Target types: Select EventBridge event bus.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Target types: Select Event bus in a different account or Region.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Event bus as target: Enter the ARN from the Zscaler Admin Console. Replace the region field with the region the rule has created.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Execution role: Select Create a new role for this specific resource.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) Configure tags, then click Next.",
+      "depth": 1,
+      "strong": [
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Review your settings, then click Create.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Configure Namespace and Duplicate IP Addresses",
+      "depth": 0
+    },
+    {
+      "item": "You might encounter overlapping Classless Inter-Domain Routings (CIDRs). Adding a namespace makes them unique, so the IP addresses are not duplicates. If Zscaler detects a duplicate IP address, only one IP address is shown and all others are disregarded. You can see the number of duplicate IP addresses in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler offers a zero-touch configuration solution where the security admin does not need to add a configuration in the Zscaler Admin Console. During deployment in AWS, add a tag to the VPC. The tag key is zs:namespace and the value is the name of the namespace you want to assign. The workload discovery service discovers the zs:namespace tag through the standard tag-discovery process and assigns all of the workloads in that VPC to that namespace. The workload discovery service also discovers any Gateway Load Balancer (GWLB) endpoints in that VPC and assigns the endpoint to the namespace. Then, the workload discovery service builds a table. In this table, the discovered endpoint is assigned the namespace. If no GWLB exists or no namespace is defined, workloads are created in the default namespace unless the tag zs:namespace is set on the VPC. To learn more about namespaces, see Understanding Namespaces for Amazon Web Services and Microsoft Azure Accounts.",
+      "depth": 0
+    }
+  ]
+}

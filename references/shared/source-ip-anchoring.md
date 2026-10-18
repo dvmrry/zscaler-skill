@@ -8,13 +8,13 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zia/understanding-source-ip-anchoring"
-  - "vendor/zscaler-help/understanding-source-ip-anchoring.md"
+  - "vendor/zscaler-help/understanding-source-ip-anchoring.json"
   - "https://help.zscaler.com/zpa/understanding-source-ip-anchoring-direct"
-  - "vendor/zscaler-help/understanding-source-ip-anchoring-direct.md"
+  - "vendor/zscaler-help/understanding-source-ip-anchoring-direct.json"
   - "https://help.zscaler.com/zia/configuring-source-ip-anchoring"
-  - "vendor/zscaler-help/configuring-source-ip-anchoring.md"
+  - "vendor/zscaler-help/configuring-source-ip-anchoring.json"
   - "https://help.zscaler.com/zia/configuring-forwarding-policies-source-ip-anchoring-using-zpa"
-  - "vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md"
+  - "vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.json"
   - "vendor/zscaler-help/About_Access_Policy.txt"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
@@ -26,7 +26,7 @@ A ZIA + ZPA cross-product feature that forwards ZIA-processed internet traffic t
 
 ## Summary
 
-Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/understanding-source-ip-anchoring-direct.md`; `vendor/zscaler-help/configuring-source-ip-anchoring.md`.
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.json`; `vendor/zscaler-help/understanding-source-ip-anchoring-direct.json`; `vendor/zscaler-help/configuring-source-ip-anchoring.json`.
 
 - **Traffic flow**: `client → ZIA Public Service Edge (inspection) → ZIA Forwarding Control rule (Method = ZPA) → ZPA Gateway → ZPA App Connector → destination`.
 - **Destination-visible source IP** = the ZPA App Connector's IP (customer-deployed VM), not the ZIA PSE's.
@@ -38,7 +38,7 @@ Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zsca
 
 ## Why SIPA exists — the use-case motivation
 
-Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.json`; `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.json`.
 
 Legacy applications, regulatory SaaS services, and most notably **Microsoft 365 Conditional Access** support authentication patterns that require the destination to trust the source IP address. In a normal Zscaler deployment, traffic egresses from Zscaler's Public Service Edge IPs (shared infrastructure across many tenants). This is a problem when:
 
@@ -48,13 +48,13 @@ Legacy applications, regulatory SaaS services, and most notably **Microsoft 365 
 
 SIPA solves this by sending the "last hop" through a customer-deployed App Connector VM whose IP is under customer control.
 
-Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.md`.
+Source: `vendor/zscaler-help/sipa-microsoft-365-conditional-access-config.json`.
 
 **For Microsoft 365 specifically, SIPA only needs to cover the *initial login* traffic** (`login.microsoftonline.com`, `login.windows.net`, `login.microsoft.com`). After successful authentication, subsequent app traffic uses an authenticated token — the destination no longer needs to validate source IP. This means the SIPA-routed App Segment can be scoped narrowly to just the login domains, keeping App Connector load minimal and avoiding unnecessary latency on the high-volume post-auth traffic.
 
 ## Mechanics
 
-Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/configuring-source-ip-anchoring.md`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md`.
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.json`; `vendor/zscaler-help/configuring-source-ip-anchoring.json`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.json`.
 
 ### Traffic flow
 
@@ -144,7 +144,7 @@ Useful for: "DLP-scan all M365 uploads and egress through our corporate IP for C
 
 ## SIPA Direct — disaster-recovery variant
 
-Source: `vendor/zscaler-help/understanding-source-ip-anchoring-direct.md`.
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring-direct.json`.
 
 From *Understanding Source IP Anchoring Direct*: when ZIA is in disaster recovery (unreachable or impaired), SIPA's default flow breaks because ZIA Service Edge isn't available to initiate forward-to-ZPA traffic.
 
@@ -167,7 +167,7 @@ From *Understanding Source IP Anchoring Direct*: when ZIA is in disaster recover
 
 ## Forwarding Control rule schema for SIPA / dedicated-IP
 
-Source: `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md`.
+Source: `vendor/terraform-provider-zia/docs/resources/zia_forwarding_control_rule.md`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.json`.
 
 The ZIA Forwarding Control rule's `forward_method` enum (`zia_forwarding_control_rule` resource) accepts these values:
 
@@ -204,7 +204,7 @@ This is **distinct from SIPA**: SIPA hides traffic behind a customer-controlled 
 
 ## Mutually-exclusive features
 
-Source: `vendor/zscaler-help/configuring-source-ip-anchoring.md`; `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+Source: `vendor/zscaler-help/configuring-source-ip-anchoring.json`; `vendor/zscaler-help/understanding-source-ip-anchoring.json`.
 
 SIPA cannot coexist with several ZPA segment features. From `references/zpa/app-segments.md`:
 
@@ -216,7 +216,7 @@ These mutual exclusions live in the `match_style` / `double_encrypt` validation 
 
 ## ICMP limitations
 
-Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.json`.
 
 SIPA supports ICMP for ICMP-enabled ZPA App Segments, but with constraints:
 
@@ -226,13 +226,13 @@ SIPA supports ICMP for ICMP-enabled ZPA App Segments, but with constraints:
 
 ## Unsupported protocols
 
-Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`.
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.json`.
 
 - **RTSP (Real Time Streaming Protocol)** — explicitly not supported. SIPA cannot carry RTSP streams; apps requiring RTSP must use a different path.
 
 ## Policy footguns
 
-Source: `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/configuring-source-ip-anchoring.md`.
+Source: `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/configuring-source-ip-anchoring.json`.
 
 ### Country-code matching uses the wrong IP
 
@@ -258,7 +258,7 @@ The SIPA flow relies on ZIA's DNS rules returning ZPA Synthetic IPs. If the clie
 
 ## Diagnostic workflow for "SIPA isn't working"
 
-Source: `vendor/zscaler-help/understanding-source-ip-anchoring.md`; `vendor/zscaler-help/understanding-source-ip-anchoring-direct.md`; `vendor/zscaler-help/configuring-source-ip-anchoring.md`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.md`.
+Source: `vendor/zscaler-help/understanding-source-ip-anchoring.json`; `vendor/zscaler-help/understanding-source-ip-anchoring-direct.json`; `vendor/zscaler-help/configuring-source-ip-anchoring.json`; `vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.json`.
 
 Note: This checklist is derived from the cited SIPA configuration docs.
 

@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/uvm-anysource-connector.md"
+  - "vendor/zscaler-help/uvm-anysource-connector.json"
   - "vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
 author-status: draft
@@ -25,15 +25,15 @@ author-status: draft
 
 # Unified Vulnerability Management - AnySource ingestion and audit-scoped API surface
 
-Unified Vulnerability Management (UVM) is described in the captured SecOps context as a single platform for managing vulnerabilities and simplifying identification and remediation of security risks (`vendor/zscaler-help/uvm-anysource-connector.md:73-78`). The marketing capture frames UVM as risk prioritization with contextual insights into risk factors and mitigating controls (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:8-19`).
+Unified Vulnerability Management (UVM) is described in the captured SecOps context as a single platform for managing vulnerabilities and simplifying identification and remediation of security risks (`vendor/zscaler-help/uvm-anysource-connector.json:73-78`). The marketing capture frames UVM as risk prioritization with contextual insights into risk factors and mitigating controls (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:8-19`).
 
 ## Ingestion And Data Model
 
-The AnySource capture says UVM can create data sources using either dedicated vendor connectors or the AnySource connector, with AnySource allowing file uploads directly to the platform (`vendor/zscaler-help/uvm-anysource-connector.md:8`). Captured AnySource upload methods are Upload File, AWS S3, GCP, Webhook, and Upload File API (`vendor/zscaler-help/uvm-anysource-connector.md:10-16`).
+The AnySource capture says UVM can create data sources using either dedicated vendor connectors or the AnySource connector, with AnySource allowing file uploads directly to the platform (`vendor/zscaler-help/uvm-anysource-connector.json:8`). Captured AnySource upload methods are Upload File, AWS S3, GCP, Webhook, and Upload File API (`vendor/zscaler-help/uvm-anysource-connector.json:10-16`).
 
-The same capture includes a partial vendor connector list with examples such as Veracode, Apiiro, Aqua Security, Armis, AWS, Azure Blob, Azure Cloud Assets, CrowdStrike, Dragos, GitHub Advanced Security, Mandiant ASM, Microsoft Defender, Prisma Cloud, and Tenable (`vendor/zscaler-help/uvm-anysource-connector.md:18-45`). The marketing capture separately claims 150+ prebuilt integrations and names AnySource for flat files/webhooks and AnyTarget for downstream outputs (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-24`).
+The same capture includes a partial vendor connector list with examples such as Veracode, Apiiro, Aqua Security, Armis, AWS, Azure Blob, Azure Cloud Assets, CrowdStrike, Dragos, GitHub Advanced Security, Mandiant ASM, Microsoft Defender, Prisma Cloud, and Tenable (`vendor/zscaler-help/uvm-anysource-connector.json:18-45`). The marketing capture separately claims 150+ prebuilt integrations and names AnySource for flat files/webhooks and AnyTarget for downstream outputs (`vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-24`).
 
-Recommended AnySource fields are split between assets and findings: asset fields include hostname, type, IP, OS, owner, location, status, tags, software, and criticality; finding fields include vulnerability ID/name, severity/CVSS, description, affected asset, CVE, threat intel, tags, first/last seen timestamps, recommendations, and affected component (`vendor/zscaler-help/uvm-anysource-connector.md:47-71`).
+Recommended AnySource fields are split between assets and findings: asset fields include hostname, type, IP, OS, owner, location, status, tags, software, and criticality; finding fields include vulnerability ID/name, severity/CVSS, description, affected asset, CVE, threat intel, tags, first/last seen timestamps, recommendations, and affected component (`vendor/zscaler-help/uvm-anysource-connector.json:47-71`).
 
 ## Reporting And Workflows
 
@@ -49,17 +49,17 @@ The marketing capture describes prebuilt and custom dashboards, dynamically upda
 | Ansible | No product-specific UVM module found in this audit pass. |
 | MCP | No product-specific UVM tool found in this audit pass. EASM findings and ZMS resource/protection-status tools are adjacent exposure and workload-security surfaces, not UVM AnySource ingestion, vulnerability correlation, or remediation workflows (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:419-431`, `:460-485`). |
 | Postman | No UVM endpoint family found in the audited Postman collection. |
-| Help captures | AnySource ingestion methods, partial vendor connector examples, recommended fields, SecOps context, marketing positioning, reporting, and workflow claims are captured (`vendor/zscaler-help/uvm-anysource-connector.md:8-78`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:16-47`). |
+| Help captures | AnySource ingestion methods, partial vendor connector examples, recommended fields, SecOps context, marketing positioning, reporting, and workflow claims are captured (`vendor/zscaler-help/uvm-anysource-connector.json:8-78`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:16-47`). |
 
 ## API Surface
 
-The only source-backed API phrase in this refresh is "Upload File API" as an AnySource ingestion method (`vendor/zscaler-help/uvm-anysource-connector.md:10-16`). The audited SDK, Terraform, Ansible, MCP, and Postman sources did not expose an endpoint path, schema, auth scope, or broader UVM administration API. See [clarification uvm-01](../_meta/clarifications.md#uvm-01-uvm-anysource-upload-file-api-endpoint-and-broader-api-surface).
+The only source-backed API phrase in this refresh is "Upload File API" as an AnySource ingestion method (`vendor/zscaler-help/uvm-anysource-connector.json:10-16`). The audited SDK, Terraform, Ansible, MCP, and Postman sources did not expose an endpoint path, schema, auth scope, or broader UVM administration API. See [clarification uvm-01](../_meta/clarifications.md#uvm-01-uvm-anysource-upload-file-api-endpoint-and-broader-api-surface).
 
 ## What UVM Is Not
 
-- It is not evidenced here as a vulnerability scanner; the captured UVM surface focuses on vulnerability management, ingestion, correlation, prioritization, workflows, and remediation tracking (`vendor/zscaler-help/uvm-anysource-connector.md:8-16`, `:73-78`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:16-47`).
+- It is not evidenced here as a vulnerability scanner; the captured UVM surface focuses on vulnerability management, ingestion, correlation, prioritization, workflows, and remediation tracking (`vendor/zscaler-help/uvm-anysource-connector.json:8-16`, `:73-78`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:16-47`).
 - It is not evidenced as a broad public REST API product in the audited source families.
-- Do not treat the partial connector examples as a complete connector catalog; one capture labels the list partial and another marketing capture gives a broader 150+ integration claim (`vendor/zscaler-help/uvm-anysource-connector.md:18-20`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-24`).
+- Do not treat the partial connector examples as a complete connector catalog; one capture labels the list partial and another marketing capture gives a broader 150+ integration claim (`vendor/zscaler-help/uvm-anysource-connector.json:18-20`, `vendor/zscaler-help/uvm-unified-vulnerability-management-marketing.md:21-24`).
 
 ## Open Questions
 

@@ -7,7 +7,7 @@ last-verified: "2026-06-16"
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/admin-rbac-captures.md"
+  - "vendor/zscaler-help/admin-rbac-captures.json"
 author-status: draft
 ---
 
@@ -73,7 +73,7 @@ Custom role columns: Name, Description, 23 feature permissions:
 
 Administration Control · API Key Management · App Connector Management · Authentication · Business Continuity Management · Certificate Management · Client Connector Portal · Client Sessions · Cloud Connector Management · Company Information · Configuration · Dashboard · Diagnostics · Log Streaming · Machine Management · Notification Management · Policies · Private Service Edge Management · Privileged Remote Access · Privileged Sessions · Security Management · SCIM Management · VPN (For Legacy Apps)
 
-**Permission changes take up to 2 minutes to take effect.** Missing permissions display a warning icon (`vendor/zscaler-help/admin-rbac-captures.md:91`, `:105`).
+**Permission changes take up to 2 minutes to take effect.** Missing permissions display a warning icon (`vendor/zscaler-help/admin-rbac-captures.json:91`, `:105`).
 
 ### Scoping (implicit)
 
@@ -235,7 +235,7 @@ Cannot combine scope types. Options:
 
 7. **Failed-login lockout is 5-in-1-minute → 5-minute lock.** Brute-force-detection threshold is generous; a real attacker can slow-drip. Layer MFA + geographic-IP gating at ZIdentity for real protection.
 
-8. **Role changes take up to 2 minutes (ZPA).** Not instant. An admin whose role was just expanded may still see old permissions briefly; the same delay window can matter during revocation (`vendor/zscaler-help/admin-rbac-captures.md:105`).
+8. **Role changes take up to 2 minutes (ZPA).** Not instant. An admin whose role was just expanded may still see old permissions briefly; the same delay window can matter during revocation (`vendor/zscaler-help/admin-rbac-captures.json:105`).
 
 ## Cross-links
 

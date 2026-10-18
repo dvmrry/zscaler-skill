@@ -5,9 +5,10 @@
 # ///
 """check-scrape-freshness.py — flag stale Zscaler help-article scrapes.
 
-`vendor/zscaler-help/*.md` files are Playwright captures with a
-"**Captured:** YYYY-MM-DD" line in the body. This script extracts that date,
-computes age, and flags scrapes older than the threshold.
+`vendor/zscaler-help/*.json` help captures (scripts/help_capture.py) record
+`captured_at`; older `*.md` text captures carry a "**Captured:** YYYY-MM-DD"
+line. This script reads that date, computes age, and flags scrapes older than
+the threshold.
 
 Default threshold: 90 days. Exit 0 by default — advisory output only.
 
@@ -55,7 +56,7 @@ def main() -> int:
         print(f"✗ {scrape_dir} not found.")
         return 1
 
-    scrapes = sorted(scrape_dir.rglob("*.md"))
+    scrapes = sorted([*scrape_dir.rglob("*.md"), *scrape_dir.glob("*.json")])
     stale: list[dict] = []
     fresh: list[dict] = []
     no_marker: list[str] = []
@@ -68,6 +69,14 @@ def main() -> int:
         except Exception:
             continue
         m = CAPTURED_RE.search(text)
+        if path.suffix == ".json":
+            try:
+                doc = json.loads(text)
+            except ValueError:
+                doc = {}
+            if not isinstance(doc, dict) or doc.get("kind") != "help-article":
+                continue
+            m = re.match(r"(\d{4}-\d{2}-\d{2})", doc.get("captured_at", ""))
         rel = str(path.relative_to(REPO_ROOT))
         if not m:
             no_marker.append(rel)

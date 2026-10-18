@@ -46,7 +46,7 @@ STOP = re.compile(r"^(Was this article helpful|Related Articles)")
 class _Renderer(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self.lines: list[str] = []
+        self.blocks: list[dict] = []
         self.buf: list[str] = []
         self.skip = 0
         self.lists: list[int] = []  # nesting depth markers
@@ -62,11 +62,11 @@ class _Renderer(HTMLParser):
         if not text:
             return
         if self.heading:
-            self.lines.append("#" * self.heading + " " + text.replace("**", ""))
+            self.blocks.append({"heading": text.replace("**", ""), "level": self.heading})
         elif self.lists:
-            self.lines.append("  " * (len(self.lists) - 1) + "- " + text)
+            self.blocks.append({"item": text, "depth": len(self.lists) - 1})
         else:
-            self.lines.append(text)
+            self.blocks.append({"text": text})
 
     def handle_starttag(self, tag: str, attrs) -> None:
         if tag in SKIP:
@@ -111,7 +111,7 @@ class _Renderer(HTMLParser):
             (self.cell if self.cell is not None else self.buf).append("**")
             return
         if tag in ("td", "th") and self.cell is not None and self.row is not None:
-            self.row.append(_tidy("".join(self.cell)).replace("|", "\\|"))
+            self.row.append(_tidy("".join(self.cell)))
             self.cell = None
         elif tag == "tr" and self.row is not None and self.table is not None:
             if any(self.row):
@@ -141,11 +141,7 @@ class _Renderer(HTMLParser):
 
     def _emit_table(self, rows: list[list[str]]) -> None:
         width = max(len(r) for r in rows)
-        rows = [r + [""] * (width - len(r)) for r in rows]
-        self.lines.append("| " + " | ".join(rows[0]) + " |")
-        self.lines.append("|" + "---|" * width)
-        for r in rows[1:]:
-            self.lines.append("| " + " | ".join(r) + " |")
+        self.blocks.append({"table": [r + [""] * (width - len(r)) for r in rows]})
 
 
 def _tidy(text: str) -> str:
@@ -194,32 +190,88 @@ def inline_toggles(html_text: str) -> str:
     return out
 
 
-def render(article_html: str) -> tuple[str, str]:
-    """Return (title, canonical body) for one article's HTML."""
+def _strong(text: str) -> tuple[str, list[list[int]]]:
+    """Split `**bold**` runs out of rendered text: (plain text, [[start, end], ...] of the bold runs)."""
+    plain, spans, pos = [], [], 0
+    for i, part in enumerate(text.split("**")):
+        if i % 2 and part:
+            spans.append([pos, pos + len(part)])
+        plain.append(part)
+        pos += len(part)
+    return "".join(plain), spans
+
+
+def _structure(block: dict) -> dict:
+    """A rendered block in capture form: plain text, with bold kept as character ranges in `strong`."""
+    if "table" in block:
+        rows, strong = [], []
+        for r, row in enumerate(block["table"]):
+            cells = []
+            for c, cell in enumerate(row):
+                plain, spans = _strong(html.unescape(cell))
+                cells.append(plain)
+                strong += [[r, c, *span] for span in spans]
+            rows.append(cells)
+        return {"table": rows, **({"strong": strong} if strong else {})}
+    key = "heading" if "heading" in block else "item" if "item" in block else "text"
+    plain, spans = _strong(html.unescape(block[key]))
+    out = {key: plain, **{k: v for k, v in block.items() if k not in (key,)}}
+    return {**out, **({"strong": spans} if spans else {})}
+
+
+def _bare(block: dict) -> str:
+    return " ".join(" ".join(r) for r in block["table"]) if "table" in block else next(iter(block.values())).replace("**", "").strip()
+
+
+def render(article_html: str) -> tuple[str, list[dict]]:
+    """Return (title, blocks) for one article's HTML: one block per heading, paragraph, list item or table."""
     p = _Renderer()
     p.feed(inline_toggles(article_html))
     p._flush()
-    out: list[str] = []
-    for line in p.lines:
-        bare = line.lstrip("#- ").replace("**", "").strip()
-        if STOP.match(bare):
+    out: list[dict] = []
+    for block in p.blocks:
+        if "table" not in block and STOP.match(_bare(block)):
             break
-        if CHROME.match(bare):
+        if "table" not in block and CHROME.match(_bare(block)):
             continue
-        out.append(line)
+        out.append(block)
     # The first heading that is not the product banner is the article title.
-    title = next((l.lstrip("# ") for l in out if l.startswith("#") and "(ZIA)" not in l and "(ZPA)" not in l), "")
-    if title:
-        out = out[out.index(next(l for l in out if l.lstrip("# ") == title)) + 1:]
-    body = html.unescape("\n".join(out)).strip()
-    return title, body + "\n"
+    heading = next((b for b in out if "heading" in b and "(ZIA)" not in b["heading"] and "(ZPA)" not in b["heading"]), None)
+    title = heading["heading"] if heading else ""
+    if heading:
+        out = out[out.index(heading) + 1:]
+    return html.unescape(title), [_structure(b) for b in out]
+
+
+def text_of(blocks: list[dict]) -> str:
+    """The capture's anchoring text: the one fixed serialization of its blocks that quotes match against.
+
+    A heading is `#` x level, a list item is indented two spaces per depth and starts `- `, a table is
+    one `| a | b |` row per line with a `|---|` rule after its first row; bold is not marked. The
+    validator rebuilds the same text in JavaScript (`captureText` in kb-lib.mjs); a test pins the two.
+    """
+    lines: list[str] = []
+    for b in blocks:
+        if "heading" in b:
+            lines.append("#" * b["level"] + " " + b["heading"])
+        elif "item" in b:
+            lines.append("  " * b["depth"] + "- " + b["item"])
+        elif "table" in b:
+            row = lambda cells: "| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |"  # noqa: E731
+            lines.append(row(b["table"][0]))
+            lines.append("|" + "---|" * len(b["table"][0]))
+            lines.extend(row(r) for r in b["table"][1:])
+        else:
+            lines.append(b["text"])
+    return "\n".join(lines).strip() + "\n"
 
 
 HELP = ROOT / "vendor" / "zscaler-help"
-HEADER = re.compile(
+API = "https://help.zscaler.com/zapi/fetch-data"
+# The older Markdown capture header, read only by `migrate`.
+MD_HEADER = re.compile(
     r"\A# (?P<title>.*)\n\n\*\*Source:\*\* (?P<url>\S+)\n\*\*Captured:\*\* (?P<date>\S+)[^\n]*\n"
     r"(?:\*\*Revision:\*\* node (?P<nid>\d+), revision (?P<rev>\d+)\n)?\n---\n\n")
-API = "https://help.zscaler.com/zapi/fetch-data"
 
 
 def fetch(url: str) -> dict:
@@ -239,61 +291,80 @@ def fetch(url: str) -> dict:
     # A moved article answers 301 with its new alias and the current body.
     current = f"https://help.zscaler.com{info['url']}" if info.get("status") == 301 and info.get("url") else url
     return {"title": body["title"], "html": f"<article><h3>{html.escape(body['title'])}</h3>{body['content']}</article>",
-            "nid": body["nid"], "rev": body["revision_id"], "url": current, "moved": current != url}
+            "nid": str(body["nid"]), "rev": str(body["revision_id"]), "url": current, "moved": current != url}
 
 
-def document(title: str, url: str, body: str, nid: str, rev: str, date: str | None = None) -> str:
-    date = date or datetime.date.today().isoformat()
-    return (f"# {title}\n\n**Source:** {url}\n**Captured:** {date} via help_capture.py (article payload, canonical text)\n"
-            f"**Revision:** node {nid}, revision {rev}\n\n---\n\n{body}")
+def document(title: str, url: str, blocks: list[dict], nid: str, rev: str, date: str | None = None) -> dict:
+    """A capture file: provenance, then the article as blocks (see text_of for how quotes anchor)."""
+    return {
+        "schema_version": 1,
+        "kind": "help-article",
+        "title": title,
+        "source": {"url": url, "node": str(nid), "revision": str(rev)},
+        "captured_at": date or datetime.date.today().isoformat(),
+        "blocks": blocks,
+    }
+
+
+def write(path: Path, doc: dict) -> None:
+    path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+
+
+def read(path: Path) -> dict | None:
+    """A capture made by this tool, or None for any other file."""
+    try:
+        doc = json.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
+    return doc if isinstance(doc, dict) and doc.get("kind") == "help-article" else None
 
 
 def capture(url: str, name: str | None) -> Path:
-    name = name or url.rstrip("/").rsplit("/", 1)[-1] + ".md"
-    if not re.fullmatch(r"[\w.-]+\.md", name):
-        raise SystemExit(f"capture name must be a plain file name ending in .md: {name}")
+    name = name or url.rstrip("/").rsplit("/", 1)[-1] + ".json"
+    if not re.fullmatch(r"[\w.-]+\.json", name):
+        raise SystemExit(f"capture name must be a plain file name ending in .json: {name}")
     out = HELP / name
     if out.exists():
         raise SystemExit(f"exists: {out}; use `check --replace {name}` to update it")
     art = fetch(url)
-    title, body = render(art["html"])
-    out.write_text(document(title, art["url"], body, art["nid"], art["rev"]))
+    title, blocks = render(art["html"])
+    write(out, document(title, art["url"], blocks, art["nid"], art["rev"]))
     return out
 
 
 def check(names: list[str], replace: bool) -> int:
-    """Refetch each capture made by this tool; return how many drifted. Same revision means unchanged."""
+    """Refetch each capture; return how many drifted. The same revision means unchanged, so one request decides."""
     drifted = 0
-    files = [HELP / n for n in names] or sorted(HELP.glob("*.md"))
+    files = [HELP / n for n in names] or sorted(HELP.glob("*.json"))
     for path in files:
-        text = path.read_text()
-        m = HEADER.match(text)
-        if not m or not m["rev"]:
+        doc = read(path)
+        if not doc:
             if names:
-                print(f"skip {path.name}: not a help_capture.py capture (recapture it with `capture` first)")
+                print(f"skip {path.name}: not a help_capture.py capture")
             continue
-        art = fetch(m["url"])
-        if art["rev"] == m["rev"]:
+        src = doc["source"]
+        art = fetch(src["url"])
+        if art["rev"] == src["revision"]:
             print(f"ok    {path.name} (revision {art['rev']})")
             continue
-        title, body = render(art["html"])
-        old_body = text[m.end():]
-        if body == old_body:
-            print(f"ok    {path.name} (revision {m['rev']} -> {art['rev']}, text unchanged)")
+        title, blocks = render(art["html"])
+        if text_of(blocks) == text_of(doc["blocks"]):
+            print(f"ok    {path.name} (revision {src['revision']} -> {art['rev']}, text unchanged)")
             if replace:
-                path.write_text(document(title, art["url"], body, art["nid"], art["rev"], m["date"]))
+                write(path, document(title, art["url"], blocks, art["nid"], art["rev"], doc["captured_at"]))
             continue
         drifted += 1
-        print(f"DRIFT {path.name} (revision {m['rev']} -> {art['rev']})")
-        sys.stdout.writelines(difflib.unified_diff(old_body.splitlines(True), body.splitlines(True), "committed", "live", n=1))
+        print(f"DRIFT {path.name} (revision {src['revision']} -> {art['rev']})")
+        old, new = text_of(doc["blocks"]), text_of(blocks)
+        sys.stdout.writelines(difflib.unified_diff(old.splitlines(True), new.splitlines(True), "committed", "live", n=1))
         if replace:
-            path.write_text(document(title, art["url"], body, art["nid"], art["rev"]))
+            write(path, document(title, art["url"], blocks, art["nid"], art["rev"]))
             print(f"      replaced {path.name}")
     return drifted
 
 
 def recapture(names: list[str]) -> int:
-    """Rewrite older-format captures (other tools, hand-edited) as canonical captures, in place."""
+    """Replace older-format captures (other tools, hand-edited) with canonical JSON captures."""
     failed = 0
     for name in names:
         path = HELP / name
@@ -304,9 +375,79 @@ def recapture(names: list[str]) -> int:
             art = fetch(m.group(0))
         except SystemExit as e:
             print(f"skip  {name}: {e}"); failed += 1; continue
-        title, body = render(art["html"])
-        path.write_text(document(title, art["url"], body, art["nid"], art["rev"]))
-        print(f"done  {name}" + (f" (moved to {art['url']})" if art.get("moved") else ""))
+        title, blocks = render(art["html"])
+        out = path.with_suffix(".json")
+        write(out, document(title, art["url"], blocks, art["nid"], art["rev"]))
+        if out != path:
+            path.unlink()
+        print(f"done  {name} -> {out.name}" + (f" (moved to {art['url']})" if art.get("moved") else ""))
+    return failed
+
+
+def _parse_md_body(body: str) -> list[dict]:
+    """Blocks from an older Markdown capture body (the inverse of the old line rendering)."""
+    raw: list[dict] = []
+    rows: list[list[str]] = []
+    for line in body.rstrip("\n").split("\n"):
+        if line.startswith("|"):
+            if not re.fullmatch(r"\|(?:---\|)+", line):
+                cells = re.split(r"(?<!\\)\|", line.strip()[1:-1])
+                rows.append([c.strip().replace("\\|", "|") for c in cells])
+            continue
+        if rows:
+            raw.append({"table": rows}); rows = []
+        if m := re.match(r"(#{1,6}) (.*)", line):
+            raw.append({"heading": m[2], "level": len(m[1])})
+        elif m := re.match(r"((?:  )*)- (.*)", line):
+            raw.append({"item": m[2], "depth": len(m[1]) // 2})
+        else:
+            raw.append({"text": line})
+    if rows:
+        raw.append({"table": rows})
+    # Markdown bodies are already unescaped; _structure unescapes again, so escape `&` back first.
+    return [_structure(_escape(b)) for b in raw]
+
+
+def _escape(block: dict) -> dict:
+    esc = lambda t: t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")  # noqa: E731
+    if "table" in block:
+        return {"table": [[esc(c) for c in r] for r in block["table"]]}
+    return {k: esc(v) if isinstance(v, str) else v for k, v in block.items()}
+
+
+def migrate(names: list[str]) -> int:
+    """Convert Markdown captures made by this tool to JSON captures, proving each loses nothing.
+
+    The live article is used when it is still at the captured revision (exact block structure); else the
+    Markdown body is parsed. Either way the JSON's anchoring text must equal the Markdown body with bold
+    unmarked, or the file is left alone and reported.
+    """
+    failed = 0
+    files = [HELP / n for n in names] or sorted(HELP.glob("*.md"))
+    for path in files:
+        text = path.read_text()
+        m = MD_HEADER.match(text)
+        if not m or not m["rev"]:
+            if names:
+                print(f"skip  {path.name}: not a help_capture.py Markdown capture")
+            continue
+        expected = text[m.end():].replace("**", "").strip() + "\n"
+        blocks, how = None, "parsed"
+        try:
+            art = fetch(m["url"])
+            if art["rev"] == m["rev"]:
+                _, live = render(art["html"])
+                if text_of(live) == expected:
+                    blocks, how = live, "live"
+        except (SystemExit, OSError) as e:  # offline or moved: fall back to parsing
+            how = f"parsed ({e})"
+        if blocks is None:
+            blocks = _parse_md_body(text[m.end():])
+        if text_of(blocks) != expected:
+            print(f"FAIL  {path.name}: anchoring text differs from the Markdown body"); failed += 1; continue
+        write(path.with_suffix(".json"), document(m["title"], m["url"], blocks, m["nid"], m["rev"], m["date"]))
+        path.unlink()
+        print(f"done  {path.name} ({how})")
     return failed
 
 
@@ -314,11 +455,15 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     if len(args) == 2 and args[0] == "render":
         t, b = render(Path(args[1]).read_text())
-        sys.stdout.write(f"# {t}\n\n{b}")
+        print(json.dumps({"title": t, "blocks": b}, indent=2, ensure_ascii=False))
+    elif len(args) == 2 and args[0] == "text":
+        sys.stdout.write(text_of(json.loads(Path(args[1]).read_text())["blocks"]))
     elif args[:1] == ["capture"] and len(args) in (2, 3):
         print(capture(args[1], args[2] if len(args) == 3 else None))
     elif args[:1] == ["recapture"] and len(args) > 1:
         sys.exit(1 if recapture(args[1:]) else 0)
+    elif args[:1] == ["migrate"]:
+        sys.exit(1 if migrate(args[1:]) else 0)
     elif args[:1] == ["check"]:
         replace = "--replace" in args
         sys.exit(1 if check([a for a in args[1:] if a != "--replace"], replace) and not replace else 0)

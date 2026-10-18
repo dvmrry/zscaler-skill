@@ -15,11 +15,11 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/fail_open_policy.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go"
-  - "vendor/zscaler-help/about-forwarding-profiles.md"
-  - "vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.md"
-  - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
-  - "vendor/zscaler-help/what-is-zscaler-client-connector.md"
-  - "vendor/zscaler-help/choosing-traffic-forwarding-methods.md"
+  - "vendor/zscaler-help/about-forwarding-profiles.json"
+  - "vendor/zscaler-help/configuring-forwarding-profiles-zscaler-client-connector.json"
+  - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json"
+  - "vendor/zscaler-help/what-is-zscaler-client-connector.json"
+  - "vendor/zscaler-help/choosing-traffic-forwarding-methods.json"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 verified-against:
@@ -28,13 +28,13 @@ verified-against:
 
 # ZCC forwarding profile — how ZCC decides where to send traffic
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-python/zscaler/zcc/forwarding_profile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.json`.
 
 The forwarding profile is **the policy object that runs on the endpoint** and decides, per packet, where to send it — into a Z-Tunnel toward a Public Service Edge (ZIA), into the ZPA Microtunnel (ZPA), into a local PAC, or direct. Misunderstanding the forwarding profile is the #1 source of "traffic bypassed Zscaler" mysteries.
 
 ## Summary
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.json`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`.
 
 A forwarding profile describes **how ZCC should behave on different classes of network** — typically "trusted" (corporate LAN / VPN) and "untrusted" (home Wi-Fi, coffee shop) and sometimes more granular tiers. The profile object contains:
 
@@ -71,11 +71,11 @@ Within `UnifiedTunnelRequest` (lines 107–124): `BlockUnreachableDomainsTraffic
 
 ## Mechanics
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.json`; `vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt`.
 
 ### Network type branches
 
-The help article `vendor/zscaler-help/about-forwarding-profiles.md` defines the four network classifications ZCC distinguishes (lines 28–44):
+The help article `vendor/zscaler-help/about-forwarding-profiles.json` defines the four network classifications ZCC distinguishes (lines 28–44):
 
 | networkType name | Description | Qualifier |
 |---|---|---|
@@ -173,7 +173,7 @@ Parallel structure; independent of ZIA actions. One action block per network typ
 
 ### The two action lists are independent
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.json`.
 
 A profile can set:
 
@@ -235,7 +235,7 @@ A separate `FailOpenPolicy` object lives at the company level (one per tenant), 
 
 ### Failure taxonomy and version-specific overrides
 
-The *About Forwarding Profiles* capture (`vendor/zscaler-help/about-forwarding-profiles.md`) and SDK example values document the failure taxonomy ZCC actually distinguishes:
+The *About Forwarding Profiles* capture (`vendor/zscaler-help/about-forwarding-profiles.json`) and SDK example values document the failure taxonomy ZCC actually distinguishes:
 
 | Failure condition | What ZCC does | Configurable via |
 |---|---|---|
@@ -298,7 +298,7 @@ Both SDKs now expose a `UnifiedTunnel` sub-structure distinct from both Forwardi
 
 ## Edge cases
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/failopenpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.md`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/forwardingprofile.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/failopenpolicy.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/forwarding_profile/forwarding_profile.go`; `vendor/zscaler-help/about-forwarding-profiles.json`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`.
 
 - **Profile has no TRUSTED branch at all.** If `forwardingProfileActions` doesn't include an item with `networkType = TRUSTED`, ZCC has no defined behavior for the trusted branch. **Inferred** from struct shape: this likely behaves the same as `evaluate_trusted_network = false` (`forwarding_profile.go:40`), but the equivalence is not stated in any captured help article — vendor source only confirms the field exists. Lab-test before relying on the equivalence; ZCC's actual default behavior for absent action blocks could differ from the master-toggle-off path. **Confidence: low**.
 - **Trusted-network criteria match at home by accident.** If `trusted_subnets` are broad enough to match a common home-network config (e.g., `192.168.1.0/24`, the default for many consumer routers), users on home Wi-Fi can be classified TRUSTED and skip ZIA inspection. Audit trusted criteria for specificity.

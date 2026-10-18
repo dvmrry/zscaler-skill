@@ -11,7 +11,7 @@ sources:
   - "vendor/zscaler-help/automate-zscaler/guides-analytics-api.md"
   - "vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md"
   - "vendor/zscaler-help/automate-zscaler/api-reference-index.md"
-  - "vendor/zscaler-help/about-saas-security-report.md"
+  - "vendor/zscaler-help/about-saas-security-report.json"
   - "https://automate.zscaler.com/docs/api-reference-and-guides/graphql-api-references/zinsights/"
   - "https://automate.zscaler.com/docs/api-reference-and-guides/guides/zscaler-analytics/working-with-zscaler-analytics"
 author-status: draft
@@ -26,7 +26,7 @@ The Zscaler Analytics GraphQL API (internally called **ZInsights**, path prefix 
 - **ZINS / SaaS Security Report dashboards** — CASB app usage, shadow IT app discovery, cybersecurity incidents, IoT device classification, and Zero Trust Firewall location/action aggregations as displayed in the ZIA Analytics section
 - **BI API complement** — the REST-based Business Insights API (`/bi/api/v1`) handles saved report configurations and bulk downloads; the GraphQL API handles live, parameterized, cross-domain queries against the same underlying data warehouse
 
-Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`; `vendor/zscaler-help/automate-zscaler/api-reference-index.md`; `vendor/zscaler-help/about-saas-security-report.md`.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/automate-zscaler/guides-understanding-oneapi.md`; `vendor/zscaler-help/automate-zscaler/api-reference-index.md`; `vendor/zscaler-help/about-saas-security-report.json`.
 
 The endpoint is listed alongside all other OneAPI products at `automate.zscaler.com` and is included in the downloadable OneAPI Postman collection.
 
@@ -199,7 +199,7 @@ Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor
 
 ## Worked examples
 
-Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/about-saas-security-report.md`.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/about-saas-security-report.json`.
 
 ### Example 1: Web traffic protocols + threat categories (trend dashboard)
 
@@ -462,7 +462,7 @@ The three analytics-adjacent APIs serve distinct use cases:
 
 **ZInsights GraphQL (`/zins/graphql`):** Aggregated trend and dashboard data. Use for live parameterized queries across web traffic, CASB, shadow IT, IoT, cybersecurity, and firewall domains. No saved-report overhead — submit a query, receive aggregated results directly.
 
-Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/about-saas-security-report.md`.
+Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`; `vendor/zscaler-help/about-saas-security-report.json`.
 
 ---
 
@@ -490,7 +490,7 @@ Source: `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`; `vendor
 
 - OneAPI auth and gateway reference — [`./oneapi.md`](./oneapi.md)
 - ZDX REST API (device-level data) — [`../zdx/api.md`](../zdx/api.md)
-- SaaS Security Report (UI context) — `vendor/zscaler-help/about-saas-security-report.md`
+- SaaS Security Report (UI context) — `vendor/zscaler-help/about-saas-security-report.json`
 - Business Insights API (saved reports) — `vendor/zscaler-help/automate-zscaler/api-reference-bi-overview.md`
 - GraphQL source capture — `vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md`
 - Analytics API guide capture — `vendor/zscaler-help/automate-zscaler/guides-analytics-api.md`

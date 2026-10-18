@@ -7,14 +7,14 @@ last-verified: "2026-05-06"
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/understanding-pac-file.md"
-  - "vendor/zscaler-help/about-hosted-pac-files.md"
-  - "vendor/zscaler-help/writing-pac-file.md"
-  - "vendor/zscaler-help/best-practices-writing-pac-files.md"
-  - "vendor/zscaler-help/using-default-zscaler-kerberos-pac-file.md"
-  - "vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md"
-  - "vendor/zscaler-help/url-format-guidelines.md"
-  - "vendor/zscaler-help/understanding-subclouds.md"
+  - "vendor/zscaler-help/understanding-pac-file.json"
+  - "vendor/zscaler-help/about-hosted-pac-files.json"
+  - "vendor/zscaler-help/writing-pac-file.json"
+  - "vendor/zscaler-help/best-practices-writing-pac-files.json"
+  - "vendor/zscaler-help/using-default-zscaler-kerberos-pac-file.json"
+  - "vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.json"
+  - "vendor/zscaler-help/url-format-guidelines.json"
+  - "vendor/zscaler-help/understanding-subclouds.json"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
@@ -25,7 +25,7 @@ PAC (Proxy Auto-Config) files are JavaScript programs that tell a client where t
 
 ## PAC file fundamentals
 
-A PAC file defines a single JavaScript function `FindProxyForURL(url, host)` that returns a string telling the browser how to handle each request. (Tier A — vendor/zscaler-help/understanding-pac-file.md.)
+A PAC file defines a single JavaScript function `FindProxyForURL(url, host)` that returns a string telling the browser how to handle each request. (Tier A — vendor/zscaler-help/understanding-pac-file.json.)
 
 **Return values:**
 
@@ -53,7 +53,7 @@ PAC files execute **serially per request**. Every browser request triggers a `Fi
 
 ## The four default Zscaler-hosted PACs
 
-Zscaler generates and hosts four master PAC files. They are **non-editable** — to customize, clone and upload as a custom PAC. (Tier A — vendor/zscaler-help/about-hosted-pac-files.md.)
+Zscaler generates and hosts four master PAC files. They are **non-editable** — to customize, clone and upload as a custom PAC. (Tier A — vendor/zscaler-help/about-hosted-pac-files.json.)
 
 | PAC | Purpose | Default port |
 |---|---|---|
@@ -66,7 +66,7 @@ Any tenant that enables Kerberos must use `kerberos.pac` (or a clone), even if t
 
 ## How the PAC gets to a client — server-side variable substitution
 
-The browser is configured with a **Hosted URL** pointing at the PAC. On each fetch: (Tier A — vendor/zscaler-help/understanding-pac-file.md.)
+The browser is configured with a **Hosted URL** pointing at the PAC. On each fetch: (Tier A — vendor/zscaler-help/understanding-pac-file.json.)
 
 1. Client browser requests the PAC URL (HTTP or HTTPS; HTTPS recommended).
 2. Zscaler's PAC server runs **geolocation** against the client's source IP to find the nearest Public Service Edge (PSE).
@@ -98,7 +98,7 @@ The `_FX` suffix variant is used when the PAC author wants to force a specific p
 
 ### Manual-failover syntax
 
-The standard automatic failover is: primary PSE → secondary PSE when primary is unreachable. To force failover for other reasons (ISP issues, latency): (Tier A — vendor/zscaler-help/writing-pac-file.md.)
+The standard automatic failover is: primary PSE → secondary PSE when primary is unreachable. To force failover for other reasons (ISP issues, latency): (Tier A — vendor/zscaler-help/writing-pac-file.json.)
 
 ```javascript
 return "PROXY ${SECONDARY_GATEWAY_FX}:80; PROXY ${GATEWAY_FX}:80; DIRECT";
@@ -123,15 +123,15 @@ return "PROXY ${SECONDARY.GATEWAY.<Subcloud>.<Zscaler Cloud>.net_FX}:80; PROXY $
 
 10-version history enables staged rollouts — author a new version, test via a small population, promote to current. There is no native canary or percentage-rollout primitive; staging is done by pointing selected users at a versioned URL.
 
-**Rollback procedure:** the **Currently Deployed Version** field on the Hosted PAC Files page can be set to any of the 10 retained versions, making rollback a single-field change rather than a re-upload. (Tier A — `vendor/zscaler-help/about-hosted-pac-files.md`, *Currently Deployed Version*.) Combined with the immediate-propagation behavior, this is the fastest revert path when a deployed PAC breaks something.
+**Rollback procedure:** the **Currently Deployed Version** field on the Hosted PAC Files page can be set to any of the 10 retained versions, making rollback a single-field change rather than a re-upload. (Tier A — `vendor/zscaler-help/about-hosted-pac-files.json`, *Currently Deployed Version*.) Combined with the immediate-propagation behavior, this is the fastest revert path when a deployed PAC breaks something.
 
-**Operational telemetry:** the Hosted PAC Files page exposes a **Number of Hits** column showing how many times each PAC was hit in the last 30 days (Tier A — `vendor/zscaler-help/about-hosted-pac-files.md`). Useful for confirming a PAC URL is actually being fetched by clients, or for detecting orphaned PAC URLs no one fetches anymore.
+**Operational telemetry:** the Hosted PAC Files page exposes a **Number of Hits** column showing how many times each PAC was hit in the last 30 days (Tier A — `vendor/zscaler-help/about-hosted-pac-files.json`). Useful for confirming a PAC URL is actually being fetched by clients, or for detecting orphaned PAC URLs no one fetches anymore.
 
 The 12% non-ASCII cap is rarely-discussed but real: PAC files with verbose Unicode comments, non-English hostnames, or BOM markers can silently fail save validation.
 
 ### API surface for hosted PAC management
 
-The ZIA Admin Portal hosts PAC management at Administration > Hosted PAC Files. Operations available (Tier A — vendor/zscaler-help/about-hosted-pac-files.md):
+The ZIA Admin Portal hosts PAC management at Administration > Hosted PAC Files. Operations available (Tier A — vendor/zscaler-help/about-hosted-pac-files.json):
 - Add a custom PAC file
 - View, preview, export (text / `.pac` / `.js`)
 - Manage up to 10 versions per PAC file
@@ -142,7 +142,7 @@ PAC file status values:
 - `Verified` — syntax valid
 - `Error-Accepted` — has errors; admin accepted and saved with errors at verification time
 
-**PAC changes are immediate.** The moment you save a new PAC version as "currently deployed," all browsers fetching that URL get the new content on their next refresh cycle. No staged-vs-live gate. Test on a local machine and in a canary group first. Zscaler highly recommends saving a copy of the current PAC before applying changes. (Tier A — vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.md.)
+**PAC changes are immediate.** The moment you save a new PAC version as "currently deployed," all browsers fetching that URL get the new content on their next refresh cycle. No staged-vs-live gate. Test on a local machine and in a canary group first. Zscaler highly recommends saving a copy of the current PAC before applying changes. (Tier A — vendor/zscaler-help/using-custom-pac-file-forward-traffic-zia.json.)
 
 ### Obfuscate URL — strongly recommended
 
@@ -156,7 +156,7 @@ The ZIA Admin Portal generates a URL for your use when you enable **Obfuscate UR
 
 ## The Kerberos PAC file vs standard PAC
 
-Key differences of the Kerberos PAC: (Tier A — vendor/zscaler-help/using-default-zscaler-kerberos-pac-file.md.)
+Key differences of the Kerberos PAC: (Tier A — vendor/zscaler-help/using-default-zscaler-kerberos-pac-file.json.)
 
 - Uses `${GATEWAY_HOST}` and `${SECONDARY_GATEWAY_HOST}` (FQDN variables, not IP) — required because Kerberos SPNs are bound to FQDNs.
 - Forwards traffic to **port 8800** — the Kerberos challenge port on ZIA Public Service Edges. ZIA PSEs challenge all traffic received on port 8800 for a Negotiate Authentication (Kerberos) ticket.
@@ -172,7 +172,7 @@ if (shExpMatch(host, "kdcproxy.domain.com")) return "DIRECT";
 
 ## Best practices for bypass lists (what to always bypass)
 
-Based on vendor/zscaler-help/best-practices-writing-pac-files.md and common deployment patterns:
+Based on vendor/zscaler-help/best-practices-writing-pac-files.json and common deployment patterns:
 
 **Always bypass via DIRECT:**
 - Private IP ranges: `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `127.0.0.1`, `localhost`
@@ -201,7 +201,7 @@ function FindProxyForURL(url, host) {
 
 ### Performance considerations
 
-(Tier A — vendor/zscaler-help/best-practices-writing-pac-files.md.)
+(Tier A — vendor/zscaler-help/best-practices-writing-pac-files.json.)
 
 - **OR-heavy PACs are slow.** PACs execute serially. A naive "100 OR conditions" pattern parses every one on every request. Group by outer `if` (match `*.google.com` once, then 10 specific patterns inside) and put high-probability checks at the top.
 - **Avoid `dnsResolve()` and `isResolvable()` except where necessary** — DNS inside a PAC is a hot-path dependency. These calls block the browser until DNS resolves.
@@ -210,7 +210,7 @@ function FindProxyForURL(url, host) {
 
 ### Case sensitivity
 
-Some browsers may execute PAC files in a case-sensitive manner. Add this at the top to lowercase everything at execution: (Tier A — vendor/zscaler-help/best-practices-writing-pac-files.md.)
+Some browsers may execute PAC files in a case-sensitive manner. Add this at the top to lowercase everything at execution: (Tier A — vendor/zscaler-help/best-practices-writing-pac-files.json.)
 
 ```javascript
 var lhost = host.toLowerCase();
@@ -230,7 +230,7 @@ The `PROXY h1:p1; PROXY h2:p2; DIRECT` pattern is the correct fallback chain. Th
 
 ## Subclouds and PAC variables
 
-A **subcloud** is a tenant-level restriction that limits which PSEs serve the tenant. When a tenant uses a subcloud, the PAC must reference the subcloud-qualified variable form to pin traffic to the subcloud: (Tier A — vendor/zscaler-help/understanding-subclouds.md.)
+A **subcloud** is a tenant-level restriction that limits which PSEs serve the tenant. When a tenant uses a subcloud, the PAC must reference the subcloud-qualified variable form to pin traffic to the subcloud: (Tier A — vendor/zscaler-help/understanding-subclouds.json.)
 
 ```
 ${GATEWAY.<Subcloud>.<Zscaler Cloud>.net}
@@ -315,7 +315,7 @@ When a tenant runs both ZIA and ZPA, the PAC must **not** route ZPA application 
 | Z-Tunnel mode | PAC is bypassed for traffic ZCC handles directly. ZCC intercepts ZPA app segment FQDNs at the OS network layer and routes through the ZPA tunnel. PAC routing for browser-only traffic still applies for non-ZPA destinations. |
 | PAC mode | PAC must explicitly `DIRECT` ZPA app segment FQDNs (or otherwise not return a ZIA proxy). Otherwise the browser sends ZPA-bound traffic to ZIA, where it has no destination — likely a connection failure or unexpected ZIA policy match. |
 
-**Source IP Anchoring (SIPA) — the intentional opposite case.** SIPA is the mechanism where ZIA *intentionally* forwards selected traffic through to ZPA App Connectors via a ZPA gateway, using the App Connector's IP as the egress source (`vendor/zscaler-help/configuring-source-ip-anchoring.md`, `vendor/zscaler-help/understanding-source-ip-anchoring-direct.md`). When SIPA is configured for a given application segment, the client forwarding policy explicitly routes that segment's traffic via ZIA (not via ZCC's direct ZPA tunnel) — the PAC can then send the relevant FQDNs to ZIA, and ZIA's forwarding-control rules complete the chain to ZPA. (Tier A.) The SIPA-supporting case requires `Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors` under Advanced Settings (Tier A — `vendor/zscaler-help/configuring-source-ip-anchoring.md`).
+**Source IP Anchoring (SIPA) — the intentional opposite case.** SIPA is the mechanism where ZIA *intentionally* forwards selected traffic through to ZPA App Connectors via a ZPA gateway, using the App Connector's IP as the egress source (`vendor/zscaler-help/configuring-source-ip-anchoring.json`, `vendor/zscaler-help/understanding-source-ip-anchoring-direct.json`). When SIPA is configured for a given application segment, the client forwarding policy explicitly routes that segment's traffic via ZIA (not via ZCC's direct ZPA tunnel) — the PAC can then send the relevant FQDNs to ZIA, and ZIA's forwarding-control rules complete the chain to ZPA. (Tier A.) The SIPA-supporting case requires `Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors` under Advanced Settings (Tier A — `vendor/zscaler-help/configuring-source-ip-anchoring.json`).
 
 **Pattern.** For a tenant running ZPA without SIPA, add a DIRECT bypass for known ZPA app segment FQDNs in the PAC before any ZIA-proxy logic. Maintain that list in lockstep with the ZPA app segment configuration — drift between the PAC's bypass list and the actual ZPA segments leads to either policy escape (ZPA-app traffic accidentally proxied through ZIA) or broken access (a new ZPA segment that the PAC still routes through ZIA).
 
@@ -358,14 +358,14 @@ Zscaler's recommendation for mobile users is **ZCC over PAC**: ZCC is the prefer
 **Android-specific PAC handling** (Tier C/D — operational lore, not in captured vendor docs):
 
 - Android also configures proxy **per-Wi-Fi-network**, with the same per-app honoring caveats as iOS.
-- Android's "always-on VPN" mode (relevant for ZCC-via-Android-Enterprise) intercepts traffic at the OS network layer regardless of app PAC awareness — making ZCC-on-Android-Enterprise functionally superior to PAC-only deployment for non-PAC-aware apps. (Tier B — `vendor/zscaler-help/deploying-zscaler-client-connector-google-workspace-android.md` mentions "Use as the always-on VPN app: ON".)
+- Android's "always-on VPN" mode (relevant for ZCC-via-Android-Enterprise) intercepts traffic at the OS network layer regardless of app PAC awareness — making ZCC-on-Android-Enterprise functionally superior to PAC-only deployment for non-PAC-aware apps. (Tier B — `vendor/zscaler-help/deploying-zscaler-client-connector-google-workspace-android.json` mentions "Use as the always-on VPN app: ON".)
 - Cellular connections similarly do not inherit Wi-Fi PAC settings.
 
 For mobile populations split across managed and BYOD: managed devices via ZCC + always-on VPN profile; BYOD via PAC if MDM isn't an option, with explicit acknowledgement that non-browser apps will leak.
 
 ## Verification
 
-The ZIA Admin Portal has a **Verify PAC File** option that runs syntax validation before save. External tools like Google's `pactester` work for local verification. A PAC that fails verification can still be saved with **Error-Accepted** status — don't rely on status being `Verified` without testing. (Tier A — vendor/zscaler-help/best-practices-writing-pac-files.md.)
+The ZIA Admin Portal has a **Verify PAC File** option that runs syntax validation before save. External tools like Google's `pactester` work for local verification. A PAC that fails verification can still be saved with **Error-Accepted** status — don't rely on status being `Verified` without testing. (Tier A — vendor/zscaler-help/best-practices-writing-pac-files.json.)
 
 ## Operational gotchas
 

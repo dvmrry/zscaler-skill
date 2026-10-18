@@ -7,7 +7,7 @@ last-verified: "2026-04-27"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/about-machine-groups.md"
+  - "vendor/zscaler-help/about-machine-groups.json"
   - "vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_policy_forwarding_rule.md"
@@ -32,22 +32,22 @@ author-status: draft
 
 > **Product note:** Machine Groups are a ZPA-only construct. The vendor help article lives at `help.zscaler.com/zpa/about-machine-groups`; all SDK/Terraform artifacts (`zscaler-sdk-python/zscaler/zpa/machine_groups.py`, `zscaler-sdk-go/zscaler/zpa/services/machinegroup/`, `terraform-provider-zpa`) are under the ZPA surface. There is no Machine Groups entity in ZIA. The April 2026 coverage audit (`_meta/archive/audits/2026-04-26.md` line 70) mis-classified this as a ZIA gap; this doc lives under ZPA where it belongs.
 
-Source: `vendor/zscaler-help/about-machine-groups.md`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
+Source: `vendor/zscaler-help/about-machine-groups.json`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
 
 ---
 
 ## What a Machine Group is
 
-A machine group is a named collection of enrolled internal devices (Windows or macOS) that have registered with Zscaler Private Access using a machine provisioning key. The group is the unit of machine identity in ZPA policy — it allows policy rules to scope access by device set rather than (or in addition to) user identity. (Tier A — `vendor/zscaler-help/about-machine-groups.md`)
+A machine group is a named collection of enrolled internal devices (Windows or macOS) that have registered with Zscaler Private Access using a machine provisioning key. The group is the unit of machine identity in ZPA policy — it allows policy rules to scope access by device set rather than (or in addition to) user identity. (Tier A — `vendor/zscaler-help/about-machine-groups.json`)
 
-Machine groups exist to support **Machine Tunnels**: ZPA connections established before a user logs in to Zscaler Client Connector. The tunnel runs as a machine-identity session so that domain controllers, Group Policy, and cached-credential infrastructure are reachable at the Windows or macOS pre-login stage. (Tier A — `vendor/zscaler-help/about-machine-groups.md`)
+Machine groups exist to support **Machine Tunnels**: ZPA connections established before a user logs in to Zscaler Client Connector. The tunnel runs as a machine-identity session so that domain controllers, Group Policy, and cached-credential infrastructure are reachable at the Windows or macOS pre-login stage. (Tier A — `vendor/zscaler-help/about-machine-groups.json`)
 
 Key facts from the vendor documentation:
 
-- A machine group is associated with one or more **machine provisioning keys**. Zscaler recommends deploying one machine group per provisioning key. (Tier A — `vendor/zscaler-help/about-machine-groups.md`)
-- Devices in a machine group can use Machine Tunnels to access internal applications even when the device's Zscaler Client Connector is not connected to ZPA as a user-authenticated session. (Tier A — `vendor/zscaler-help/about-machine-groups.md`)
-- The machine provisioning key must be added to the Zscaler Client Connector app profile rule for Machine Tunnel enrollment to succeed. (Tier A — `vendor/zscaler-help/about-machine-groups.md`)
-- Machine groups are visible in the ZPA Admin Console at **Administration > Identity > Private Access > Machine Groups**. (Tier A — `vendor/zscaler-help/about-machine-groups.md`)
+- A machine group is associated with one or more **machine provisioning keys**. Zscaler recommends deploying one machine group per provisioning key. (Tier A — `vendor/zscaler-help/about-machine-groups.json`)
+- Devices in a machine group can use Machine Tunnels to access internal applications even when the device's Zscaler Client Connector is not connected to ZPA as a user-authenticated session. (Tier A — `vendor/zscaler-help/about-machine-groups.json`)
+- The machine provisioning key must be added to the Zscaler Client Connector app profile rule for Machine Tunnel enrollment to succeed. (Tier A — `vendor/zscaler-help/about-machine-groups.json`)
+- Machine groups are visible in the ZPA Admin Console at **Administration > Identity > Private Access > Machine Groups**. (Tier A — `vendor/zscaler-help/about-machine-groups.json`)
 
 ### How membership is determined
 
@@ -57,7 +57,7 @@ The attributes visible per enrolled machine record are: `id`, `name`, `descripti
 
 There is no operator-specified hostname glob or certificate subject pattern on a machine group definition itself. Matching is token/certificate enrollment-driven. (Tier C — inferred from SDK read-only model and enrollment documentation; see Deferred questions.)
 
-Source: `vendor/zscaler-help/about-machine-groups.md`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`.
+Source: `vendor/zscaler-help/about-machine-groups.json`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`; `vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md`.
 
 ---
 
@@ -121,7 +121,7 @@ Machine Groups as a criterion scope which device groups a rule applies to. The `
 
 A policy rule that includes `MACHINE_GRP` but does not include `CLIENT_TYPE` applies to both machine tunnel sessions and user sessions on matching devices. A rule that includes only `CLIENT_TYPE = zpn_client_type_machine_tunnel` applies to all machine tunnel sessions regardless of which machine group the device belongs to.
 
-Source: `vendor/zscaler-help/about-machine-groups.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md`.
+Source: `vendor/zscaler-help/about-machine-groups.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_policy_access_rule_v2.md`.
 
 ---
 
@@ -136,7 +136,7 @@ Machine Groups are created in the ZPA Admin Console at **Administration > Identi
 - Editing a configured machine group (name, description)
 - Deleting a machine group
 
-(Tier A — `vendor/zscaler-help/about-machine-groups.md`)
+(Tier A — `vendor/zscaler-help/about-machine-groups.json`)
 
 ### API / SDK: read-only
 
@@ -255,7 +255,7 @@ Neither the Python SDK nor the Go SDK provides Create, Update, or Delete for mac
 
 ### Machine provisioning key linkage is required
 
-A machine group is inert until a provisioning key is associated with it and embedded in a ZCC app profile rule. Without the provisioning key, no device can enroll into the group, and the group will have zero member machines. Zscaler recommends one provisioning key per machine group. (Tier A — `vendor/zscaler-help/about-machine-groups.md`)
+A machine group is inert until a provisioning key is associated with it and embedded in a ZCC app profile rule. Without the provisioning key, no device can enroll into the group, and the group will have zero member machines. Zscaler recommends one provisioning key per machine group. (Tier A — `vendor/zscaler-help/about-machine-groups.json`)
 
 ### Platform restriction: Windows and macOS only
 

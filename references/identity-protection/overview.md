@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/itdr-what-identity-protection.md"
+  - "vendor/zscaler-help/itdr-what-identity-protection.json"
   - "vendor/zscaler-mcp-server/docs/guides/supported-tools.md"
 author-status: draft
 ---
@@ -36,19 +36,19 @@ This is a thin Tier-C reference. The refresh found Identity Protection / ITDR He
 | Ansible | No Identity Protection / ITDR modules found in the audited ZIA or ZPA collections. |
 | MCP | No Identity Protection / ITDR tools found in the audited MCP server. The MCP ZIdentity family is limited to user/group lookup and membership operations; it is not Identity Protection/ITDR posture or threat detection (`vendor/zscaler-mcp-server/docs/guides/supported-tools.md:400-415`). |
 | Postman | No Identity Protection / ITDR endpoint family found in the audited OneAPI collection. |
-| Help | Identity Protection is covered by the ITDR Help capture. The capture says it detects anomalous activities and provides continuous unified visibility into identity risks (`vendor/zscaler-help/itdr-what-identity-protection.md:8`). |
+| Help | Identity Protection is covered by the ITDR Help capture. The capture says it detects anomalous activities and provides continuous unified visibility into identity risks (`vendor/zscaler-help/itdr-what-identity-protection.json:8`). |
 
 ## What it is
 
-Identity Protection helps organizations detect anomalous identity activity such as compromised credentials, suspicious logins, and sensitive data theft, and gives continuous visibility into identity risk (`vendor/zscaler-help/itdr-what-identity-protection.md:8`). The capture places it in the Zscaler SecOps platform alongside UVM, AEM, and SOC Workbench (`vendor/zscaler-help/itdr-what-identity-protection.md:10`).
+Identity Protection helps organizations detect anomalous identity activity such as compromised credentials, suspicious logins, and sensitive data theft, and gives continuous visibility into identity risk (`vendor/zscaler-help/itdr-what-identity-protection.json:8`). The capture places it in the Zscaler SecOps platform alongside UVM, AEM, and SOC Workbench (`vendor/zscaler-help/itdr-what-identity-protection.json:10`).
 
-The architecture section says Identity Protection is an ITDR solution integrated with the SecOps platform, with an Identities App, an ITDR Connector, a Data Fabric Cluster, and Zero Trust Exchange integration (`vendor/zscaler-help/itdr-what-identity-protection.md:35-42`). The Zero Trust Exchange integration is described as providing ZIA/ZPA visibility, enrichment, and containment, including access-policy controls to block compromised users when identity attacks are detected (`vendor/zscaler-help/itdr-what-identity-protection.md:42`).
+The architecture section says Identity Protection is an ITDR solution integrated with the SecOps platform, with an Identities App, an ITDR Connector, a Data Fabric Cluster, and Zero Trust Exchange integration (`vendor/zscaler-help/itdr-what-identity-protection.json:35-42`). The Zero Trust Exchange integration is described as providing ZIA/ZPA visibility, enrichment, and containment, including access-policy controls to block compromised users when identity attacks are detected (`vendor/zscaler-help/itdr-what-identity-protection.json:42`).
 
 ## Capability scope
 
-The Help capture lists detection and posture capabilities: identity posture scanning, AD posture scans, Entra ID posture scans, Okta integration, real-time identity change detection, credential exposure scanning, and identity threat detection (`vendor/zscaler-help/itdr-what-identity-protection.md:44-52`). It specifically says AD posture scan requires ZCC on a domain-joined Windows machine, Credential Exposure Scan requires ZCC, and Identity Threat Detection is enabled as an endpoint policy on designated machines with ZCC installed (`vendor/zscaler-help/itdr-what-identity-protection.md:46-52`).
+The Help capture lists detection and posture capabilities: identity posture scanning, AD posture scans, Entra ID posture scans, Okta integration, real-time identity change detection, credential exposure scanning, and identity threat detection (`vendor/zscaler-help/itdr-what-identity-protection.json:44-52`). It specifically says AD posture scan requires ZCC on a domain-joined Windows machine, Credential Exposure Scan requires ZCC, and Identity Threat Detection is enabled as an endpoint policy on designated machines with ZCC installed (`vendor/zscaler-help/itdr-what-identity-protection.json:46-52`).
 
-The legacy note says the Help portal includes an ITDR entry under "Zscaler Legacy" and that Identity Protection in the new SecOps platform UI is the current generation; advanced tasks can redirect to the legacy ITDR experience (`vendor/zscaler-help/itdr-what-identity-protection.md:54-56`).
+The legacy note says the Help portal includes an ITDR entry under "Zscaler Legacy" and that Identity Protection in the new SecOps platform UI is the current generation; advanced tasks can redirect to the legacy ITDR experience (`vendor/zscaler-help/itdr-what-identity-protection.json:54-56`).
 
 ## Programmability posture
 

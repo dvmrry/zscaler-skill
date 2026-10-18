@@ -11,9 +11,9 @@ confidence: high
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/zia/understanding-scim"
-  - "vendor/zscaler-help/understanding-scim-zia.md"
+  - "vendor/zscaler-help/understanding-scim-zia.json"
   - "https://help.zscaler.com/zpa/about-scim"
-  - "vendor/zscaler-help/about-scim-zpa.md"
+  - "vendor/zscaler-help/about-scim-zpa.json"
   - "vendor/zscaler-sdk-go/zscaler/zia/services/scim_api/"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/scim_api/"
 author-status: draft
@@ -21,19 +21,19 @@ author-status: draft
 
 # SCIM provisioning
 
-SCIM (System for Cross-domain Identity Management) is the protocol Zscaler uses for **automated user and group lifecycle management** from an external IdP. For ZIA, the help capture names user and group provisioning, group and department updates, and user deprovisioning as supported SCIM use cases (`vendor/zscaler-help/understanding-scim-zia.md:17`, `vendor/zscaler-help/understanding-scim-zia.md:21`, `vendor/zscaler-help/understanding-scim-zia.md:22`, `vendor/zscaler-help/understanding-scim-zia.md:23`). For ZPA, the help capture says SCIM allows Private Access to remove users when disabled or deleted in the directory and to enforce policy based on SCIM attributes and groups (`vendor/zscaler-help/about-scim-zpa.md:16`, `vendor/zscaler-help/about-scim-zpa.md:20`, `vendor/zscaler-help/about-scim-zpa.md:21`).
+SCIM (System for Cross-domain Identity Management) is the protocol Zscaler uses for **automated user and group lifecycle management** from an external IdP. For ZIA, the help capture names user and group provisioning, group and department updates, and user deprovisioning as supported SCIM use cases (`vendor/zscaler-help/understanding-scim-zia.json:17`, `vendor/zscaler-help/understanding-scim-zia.json:21`, `vendor/zscaler-help/understanding-scim-zia.json:22`, `vendor/zscaler-help/understanding-scim-zia.json:23`). For ZPA, the help capture says SCIM allows Private Access to remove users when disabled or deleted in the directory and to enforce policy based on SCIM attributes and groups (`vendor/zscaler-help/about-scim-zpa.json:16`, `vendor/zscaler-help/about-scim-zpa.json:20`, `vendor/zscaler-help/about-scim-zpa.json:21`).
 
-**SCIM is separate from SAML.** SAML is authentication; SCIM is provisioning. ZPA's SCIM help notes that the SAML IdP and SCIM IdP are usually the same provider, while ZIA requires SAML as the authentication method before SCIM provisioning is used (`vendor/zscaler-help/about-scim-zpa.md:33`, `vendor/zscaler-help/understanding-scim-zia.md:35`).
+**SCIM is separate from SAML.** SAML is authentication; SCIM is provisioning. ZPA's SCIM help notes that the SAML IdP and SCIM IdP are usually the same provider, while ZIA requires SAML as the authentication method before SCIM provisioning is used (`vendor/zscaler-help/about-scim-zpa.json:33`, `vendor/zscaler-help/understanding-scim-zia.json:35`).
 
 ## Summary
 
-- **SCIM 2.0 only.** ZIA and ZPA help captures both state that Zscaler supports only SCIM version 2.0 (`vendor/zscaler-help/understanding-scim-zia.md:35`, `vendor/zscaler-help/about-scim-zpa.md:35`).
-- **SAML is a prerequisite** for SCIM provisioning in ZIA (`vendor/zscaler-help/understanding-scim-zia.md:35`).
-- **Username + SAML `nameID` must match** for ZPA SCIM; the ZPA attributes page lists username as the only required and unique attribute, and says the SCIM username attribute must match the SAML `nameID` (`vendor/zscaler-help/about-scim-zpa.md:54`, `vendor/zscaler-help/about-scim-zpa.md:56`, `vendor/zscaler-help/about-scim-zpa.md:58`).
-- **ZPA SCIM Attributes are read-only** and Private Access does not support custom attributes (`vendor/zscaler-help/about-scim-zpa.md:41`).
-- **Domain pre-registration** is required for usernames in ZIA: the domain part of a SCIM username must be registered to the tenant, and Zscaler Support assists with that process (`vendor/zscaler-help/understanding-scim-zia.md:33`).
-- **Max 128 groups per user** in ZIA (`vendor/zscaler-help/understanding-scim-zia.md:33`).
-- **Partners**: the ZIA help capture links Microsoft Entra ID, Okta, PingFederate, PingOne, Google Workspace, AD FS, OneLogin, and CA Single Sign-On configuration guides; the ZPA capture also says Private Access works with any IdP that supports the SCIM standard, giving SailPoint as an example (`vendor/zscaler-help/understanding-scim-zia.md:114`, `vendor/zscaler-help/understanding-scim-zia.md:115`, `vendor/zscaler-help/understanding-scim-zia.md:116`, `vendor/zscaler-help/understanding-scim-zia.md:117`, `vendor/zscaler-help/understanding-scim-zia.md:118`, `vendor/zscaler-help/understanding-scim-zia.md:119`, `vendor/zscaler-help/understanding-scim-zia.md:120`, `vendor/zscaler-help/understanding-scim-zia.md:121`, `vendor/zscaler-help/understanding-scim-zia.md:122`, `vendor/zscaler-help/about-scim-zpa.md:26`).
+- **SCIM 2.0 only.** ZIA and ZPA help captures both state that Zscaler supports only SCIM version 2.0 (`vendor/zscaler-help/understanding-scim-zia.json:35`, `vendor/zscaler-help/about-scim-zpa.json:35`).
+- **SAML is a prerequisite** for SCIM provisioning in ZIA (`vendor/zscaler-help/understanding-scim-zia.json:35`).
+- **Username + SAML `nameID` must match** for ZPA SCIM; the ZPA attributes page lists username as the only required and unique attribute, and says the SCIM username attribute must match the SAML `nameID` (`vendor/zscaler-help/about-scim-zpa.json:54`, `vendor/zscaler-help/about-scim-zpa.json:56`, `vendor/zscaler-help/about-scim-zpa.json:58`).
+- **ZPA SCIM Attributes are read-only** and Private Access does not support custom attributes (`vendor/zscaler-help/about-scim-zpa.json:41`).
+- **Domain pre-registration** is required for usernames in ZIA: the domain part of a SCIM username must be registered to the tenant, and Zscaler Support assists with that process (`vendor/zscaler-help/understanding-scim-zia.json:33`).
+- **Max 128 groups per user** in ZIA (`vendor/zscaler-help/understanding-scim-zia.json:33`).
+- **Partners**: the ZIA help capture links Microsoft Entra ID, Okta, PingFederate, PingOne, Google Workspace, AD FS, OneLogin, and CA Single Sign-On configuration guides; the ZPA capture also says Private Access works with any IdP that supports the SCIM standard, giving SailPoint as an example (`vendor/zscaler-help/understanding-scim-zia.json:114`, `vendor/zscaler-help/understanding-scim-zia.json:115`, `vendor/zscaler-help/understanding-scim-zia.json:116`, `vendor/zscaler-help/understanding-scim-zia.json:117`, `vendor/zscaler-help/understanding-scim-zia.json:118`, `vendor/zscaler-help/understanding-scim-zia.json:119`, `vendor/zscaler-help/understanding-scim-zia.json:120`, `vendor/zscaler-help/understanding-scim-zia.json:121`, `vendor/zscaler-help/understanding-scim-zia.json:122`, `vendor/zscaler-help/about-scim-zpa.json:26`).
 
 ## Mechanics
 

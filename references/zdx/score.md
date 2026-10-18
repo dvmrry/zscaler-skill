@@ -7,7 +7,7 @@ last-verified: "2026-06-15"
 confidence: high
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/about-zdx-score.md"
+  - "vendor/zscaler-help/about-zdx-score.json"
   - "vendor/zscaler-sdk-python/zscaler/zdx/apps.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/devices.py"
   - "vendor/zscaler-sdk-python/zscaler/zdx/models/applications.py"
@@ -26,13 +26,13 @@ For the architectural overview and score bucket definitions in narrative form, s
 
 ## Score model
 
-Source: `vendor/zscaler-help/about-zdx-score.md`.
+Source: `vendor/zscaler-help/about-zdx-score.json`.
 
-**Scale**: 0–100. 0 is the lowest (worst) and 100 is the highest (best). (`vendor/zscaler-help/about-zdx-score.md:19`)
+**Scale**: 0–100. 0 is the lowest (worst) and 100 is the highest (best). (`vendor/zscaler-help/about-zdx-score.json:19`)
 
-**Scope**: A ZDX Score represents all users in an organization, across all applications, all locations, and all cities. Depending on the time period and filters applied in the dashboard, the score adjusts accordingly. (`vendor/zscaler-help/about-zdx-score.md:17`)
+**Scope**: A ZDX Score represents all users in an organization, across all applications, all locations, and all cities. Depending on the time period and filters applied in the dashboard, the score adjusts accordingly. (`vendor/zscaler-help/about-zdx-score.json:17`)
 
-**Rounding**: All scores are rounded to the nearest whole number. (`vendor/zscaler-help/about-zdx-score.md:69`)
+**Rounding**: All scores are rounded to the nearest whole number. (`vendor/zscaler-help/about-zdx-score.json:69`)
 
 ### Score buckets
 
@@ -42,56 +42,56 @@ Source: `vendor/zscaler-help/about-zdx-score.md`.
 | Okay | 34–65 | Amber |
 | Poor | 0–33 | Red |
 
-(`vendor/zscaler-help/about-zdx-score.md:21-25`)
+(`vendor/zscaler-help/about-zdx-score.json:21-25`)
 
 ## Score calculation
 
-Source: `vendor/zscaler-help/about-zdx-score.md`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
+Source: `vendor/zscaler-help/about-zdx-score.json`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
 ### Primary input
 
-The ZDX Score for applications is based primarily on the **Page Fetch Time (PFT)** of an application compared against the weighted average Page Fetch Time of peers in the same region. (`vendor/zscaler-help/about-zdx-score.md:44`)
+The ZDX Score for applications is based primarily on the **Page Fetch Time (PFT)** of an application compared against the weighted average Page Fetch Time of peers in the same region. (`vendor/zscaler-help/about-zdx-score.json:44`)
 
-- **Baseline**: calculated daily for each application on a rolling 7-day window, specific to each region with at least one active device. (`vendor/zscaler-help/about-zdx-score.md:44`)
-- **Availability factor**: application availability also impacts the score — probe failures (when the network is down) pull the score down. (`vendor/zscaler-help/about-zdx-score.md:44`)
-- The score is a single composite metric, not a weighted sum of named sub-scores. The exact numerical weighting between PFT and availability is not documented. (`vendor/zscaler-help/about-zdx-score.md:44`)
+- **Baseline**: calculated daily for each application on a rolling 7-day window, specific to each region with at least one active device. (`vendor/zscaler-help/about-zdx-score.json:44`)
+- **Availability factor**: application availability also impacts the score — probe failures (when the network is down) pull the score down. (`vendor/zscaler-help/about-zdx-score.json:44`)
+- The score is a single composite metric, not a weighted sum of named sub-scores. The exact numerical weighting between PFT and availability is not documented. (`vendor/zscaler-help/about-zdx-score.json:44`)
 
 ### Measurement cadence
 
-- Zscaler Client Connector sends a probe to each application **every 5 minutes**. (`vendor/zscaler-help/about-zdx-score.md:38`)
-- For each 5-minute period, measurements are given a numerical value from 0 to 100. (`vendor/zscaler-help/about-zdx-score.md:38`)
-- **The lowest value within an hour becomes that hour's value.** This is the "lowest-value-wins" rollup. (`vendor/zscaler-help/about-zdx-score.md:38`)
-- Baseline is recalculated daily on a rolling 7-day window per region per application. (`vendor/zscaler-help/about-zdx-score.md:44`)
+- Zscaler Client Connector sends a probe to each application **every 5 minutes**. (`vendor/zscaler-help/about-zdx-score.json:38`)
+- For each 5-minute period, measurements are given a numerical value from 0 to 100. (`vendor/zscaler-help/about-zdx-score.json:38`)
+- **The lowest value within an hour becomes that hour's value.** This is the "lowest-value-wins" rollup. (`vendor/zscaler-help/about-zdx-score.json:38`)
+- Baseline is recalculated daily on a rolling 7-day window per region per application. (`vendor/zscaler-help/about-zdx-score.json:44`)
 
 **Default time window**: when no time range is specified, score endpoints default to the **last 2 hours**. (`vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go:17`)
 
 ## Score scopes
 
-Source: `vendor/zscaler-help/about-zdx-score.md`.
+Source: `vendor/zscaler-help/about-zdx-score.json`.
 
-Each scope applies the "lowest-value-wins" pattern at a different aggregation level. (`vendor/zscaler-help/about-zdx-score.md:38`)
+Each scope applies the "lowest-value-wins" pattern at a different aggregation level. (`vendor/zscaler-help/about-zdx-score.json:38`)
 
 ### Application scope
 
-1. For each user who accessed the app during the selected time period, find the **lowest value** that user experienced for the app. (`vendor/zscaler-help/about-zdx-score.md:40-42`)
+1. For each user who accessed the app during the selected time period, find the **lowest value** that user experienced for the app. (`vendor/zscaler-help/about-zdx-score.json:40-42`)
 2. Average those lowest-per-user values across all users.
 
-> Example: three users accessed an application during a 24-hour period. Their lowest values are 42, 76, and 62. Application score = (42 + 76 + 62) / 3 = **60**. (`vendor/zscaler-help/about-zdx-score.md:46`)
+> Example: three users accessed an application during a 24-hour period. Their lowest values are 42, 76, and 62. Application score = (42 + 76 + 62) / 3 = **60**. (`vendor/zscaler-help/about-zdx-score.json:46`)
 
 ### Department / location / city scope
 
-1. Identify the lowest value for users accessing apps from that department, location, or city during each time interval. (`vendor/zscaler-help/about-zdx-score.md:49-53`)
+1. Identify the lowest value for users accessing apps from that department, location, or city during each time interval. (`vendor/zscaler-help/about-zdx-score.json:49-53`)
 2. Average those interval-level lowest-values across all intervals.
-3. For a 24-hour range, the time interval is one hour; the sum is divided by **25** (24 hours + 1 for the starting score). (`vendor/zscaler-help/about-zdx-score.md:53`)
+3. For a 24-hour range, the time interval is one hour; the sum is divided by **25** (24 hours + 1 for the starting score). (`vendor/zscaler-help/about-zdx-score.json:53`)
 
 ### Organization scope
 
-1. For each time interval, find the **application with the lowest value** — that app's value is the organization's score for that interval. (`vendor/zscaler-help/about-zdx-score.md:56-60`)
-2. Average across intervals (same divide-by-N+1 pattern as department/location/city). (`vendor/zscaler-help/about-zdx-score.md:60`)
+1. For each time interval, find the **application with the lowest value** — that app's value is the organization's score for that interval. (`vendor/zscaler-help/about-zdx-score.json:56-60`)
+2. Average across intervals (same divide-by-N+1 pattern as department/location/city). (`vendor/zscaler-help/about-zdx-score.json:60`)
 
 ### User scope
 
-A user's ZDX Score is the **lowest application score** the user experienced during the selected time range — representing the user's poorest digital experience, not their average. (`vendor/zscaler-help/about-zdx-score.md:63-65`)
+A user's ZDX Score is the **lowest application score** the user experienced during the selected time range — representing the user's poorest digital experience, not their average. (`vendor/zscaler-help/about-zdx-score.json:63-65`)
 
 ## API endpoints
 
@@ -221,23 +221,23 @@ Source: `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-pyt
 
 ## Edge cases and gotchas
 
-Source: `vendor/zscaler-help/about-zdx-score.md`.
+Source: `vendor/zscaler-help/about-zdx-score.json`.
 
-**Lowest-value-wins creates apparent spikes**: ZDX reports the worst case within each time window, not the average. A single bad 5-minute probe result pulls the entire hour's score down. A score jump from 90 to 40 in one hour may reflect only one poor sample, not a sustained degradation. (`vendor/zscaler-help/about-zdx-score.md:38`)
+**Lowest-value-wins creates apparent spikes**: ZDX reports the worst case within each time window, not the average. A single bad 5-minute probe result pulls the entire hour's score down. A score jump from 90 to 40 in one hour may reflect only one poor sample, not a sustained degradation. (`vendor/zscaler-help/about-zdx-score.json:38`)
 
-**Baseline initialization lag**: Newly-added applications have no baseline for their first week because the 7-day rolling baseline is still forming. Expect noisy or unstable scores during app onboarding. (`vendor/zscaler-help/about-zdx-score.md:44`)
+**Baseline initialization lag**: Newly-added applications have no baseline for their first week because the 7-day rolling baseline is still forming. Expect noisy or unstable scores during app onboarding. (`vendor/zscaler-help/about-zdx-score.json:44`)
 
-**Users with no app access have no score**: A user who accessed no applications during the time range does not have a calculated score and will not appear in per-user roll-ups. This is distinct from a user with score 0. (`vendor/zscaler-help/about-zdx-score.md:63-65`)
+**Users with no app access have no score**: A user who accessed no applications during the time range does not have a calculated score and will not appear in per-user roll-ups. This is distinct from a user with score 0. (`vendor/zscaler-help/about-zdx-score.json:63-65`)
 
-**Region-specific baselines**: Page Fetch Time is compared against a weighted average of peers in the same region. Moving a user to a different region may shift their scores due to different regional baselines. (`vendor/zscaler-help/about-zdx-score.md:44`)
+**Region-specific baselines**: Page Fetch Time is compared against a weighted average of peers in the same region. Moving a user to a different region may shift their scores due to different regional baselines. (`vendor/zscaler-help/about-zdx-score.json:44`)
 
-**Availability vs responsiveness**: The score reflects user-perceived performance (latency, response time), not application-side availability. A slow-but-up app scores badly for a region; a fully-down app scores low everywhere. (`vendor/zscaler-help/about-zdx-score.md:44`)
+**Availability vs responsiveness**: The score reflects user-perceived performance (latency, response time), not application-side availability. A slow-but-up app scores badly for a region; a fully-down app scores low everywhere. (`vendor/zscaler-help/about-zdx-score.json:44`)
 
-**Devices with location services off**: Devices without OS location services still report ZDX metrics but without lat/long coordinates. They appear correctly in department and city roll-ups via ZIA/ZPA configuration but may not appear on map-based dashboards. (`vendor/zscaler-help/about-zdx-score.md:44`)
+**Devices with location services off**: Devices without OS location services still report ZDX metrics but without lat/long coordinates. They appear correctly in department and city roll-ups via ZIA/ZPA configuration but may not appear on map-based dashboards. (`vendor/zscaler-help/about-zdx-score.json:44`)
 
 ## Open questions
 
-Source: `vendor/zscaler-help/about-zdx-score.md`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
+Source: `vendor/zscaler-help/about-zdx-score.json`; `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/application_score_metrics.go`.
 
 - **Exact numerical weighting between PFT and Availability** — the docs state both are inputs but do not document the weighting formula or relative weight — *unverified, requires vendor doc or lab test*. See [clarification zdx-36](../_meta/clarifications.md#zdx-36-pft-vs-availability-score-weighting).
 - **Zero-value handling in the lowest-value-within-hour rollup** — unclear whether probe failures (zero or null values) are included or excluded in lowest-value selection, which materially affects how availability impacts the hourly score — *unverified, requires vendor doc or tenant-side check*. See [clarification zdx-37](../_meta/clarifications.md#zdx-37-zero-value-handling-in-the-lowest-value-within-hour-rollup).

@@ -1,0 +1,480 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Developer Reference",
+  "source": {
+    "url": "https://help.zscaler.com/zsdk/developer-reference",
+    "node": "1511411",
+    "revision": "3121914"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The combination of ZSDK classes and notifications allows you to configure ZSDK for your mobile application's secured communication needs."
+    },
+    {
+      "text": "Zscaler recommends reviewing Best Practices on how to best use classes and notifications."
+    },
+    {
+      "heading": "Classes",
+      "level": 1
+    },
+    {
+      "text": "ZSDK uses the following classes:"
+    },
+    {
+      "item": "ZscalerSDK",
+      "depth": 0
+    },
+    {
+      "item": "ZscalerSDK is the primary class for calling ZSDK key methods and properties.",
+      "depth": 0
+    },
+    {
+      "item": "This class provides the following core functionalities:",
+      "depth": 0
+    },
+    {
+      "item": "Initialization",
+      "depth": 1
+    },
+    {
+      "item": "Tunnel Operations",
+      "depth": 1
+    },
+    {
+      "item": "Tunnel Lifecycle Management",
+      "depth": 1
+    },
+    {
+      "item": "Platform-Specific Configurations",
+      "depth": 1
+    },
+    {
+      "item": "Maintenance Operations",
+      "depth": 1
+    },
+    {
+      "heading": "Initialization",
+      "level": 2
+    },
+    {
+      "item": "When you call to initialize a connection between the application and ZSDK, you create an instance of ZSDK.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Method",
+          "Platform",
+          "Description"
+        ],
+        [
+          "init(application: Application, zscalerSDKConfiguration: ZscalerSDKConfiguration)",
+          "Android",
+          "Initializes to establish a connection between the application and ZSDK. This is required before calling other methods."
+        ],
+        [
+          "setConfiguration(zscalerSDKConfiguration: ZscalerSDKConfiguration",
+          "Both",
+          "Update or set the parameters for ZSDK configuration."
+        ],
+        [
+          "sharedInstance()",
+          "iOS",
+          "Returns the shared instance of ZSDK."
+        ],
+        [
+          "For Kotlin: ZscalerSDKFor Java: ZscalerSDK.INSTANCE",
+          "Android",
+          "Returns the shared instance of ZSDK."
+        ]
+      ]
+    },
+    {
+      "heading": "Tunnel Operations",
+      "level": 2
+    },
+    {
+      "item": "You can start two different tunnels and stop tunnel operations to manage your secured communication.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Method",
+          "Description"
+        ],
+        [
+          "startPreLoginTunnel(appKey: String, deviceUdid: String)",
+          "Starts a Prelogin tunnel. Zscaler issues a client certificate that is valid for 180 days."
+        ],
+        [
+          "startZeroTrustTunnel(appKey: String, deviceUdid: String, accessToken: String)",
+          "Starts a Zero Trust tunnel. Zscaler issues a client certificate that is valid for 7 days.If you use ZSDK version 2.0 or later, the startZeroTrustTunnel() operation can be called even if a Prelogin tunnel is running. ZSDK upgrades the existing tunnel connection to Zero Trust."
+        ],
+        [
+          "stopTunnel()",
+          "Terminates any active tunnels from use."
+        ]
+      ]
+    },
+    {
+      "heading": "Tunnel Lifecycle Management",
+      "level": 2
+    },
+    {
+      "item": "Managing the lifecycle of ZSDK tunnels is important to remain consistent with operational needs and to maintain resources. You can manage them through the following methods:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Method",
+          "Description"
+        ],
+        [
+          "suspend()",
+          "Suspends ZSDK and stops active tunnels.For iOS, call this method before app suspension.For Android, call this method when the app enters the background and no network operation is pending or in progress."
+        ],
+        [
+          "resume()",
+          "Resumes ZSDK operations.For iOS, call this method when the app enters the foreground.For Android, call this method when the app is ready to resume network operations (i.e., when the app comes to the foreground)."
+        ],
+        [
+          "status()",
+          "Returns the current ZSDK status as ZscalerSDKTunnelStatus object that comprises:tunnelConnectionState: The string status of the tunnel connection (ON, OFF, CONNECTING).tunnelType: The integer type of tunnel.0: Prelogin1: Zero Trust-1: Unknown"
+        ]
+      ]
+    },
+    {
+      "heading": "Platform-Specific Configurations",
+      "level": 2
+    },
+    {
+      "item": "Depending on your platform, you can call upon different configuration methods.",
+      "depth": 0
+    },
+    {
+      "heading": "Android-Specific Configurations",
+      "level": 3
+    },
+    {
+      "item": "There are specific methods that you can call if you integrate ZSDK into an Android application.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Method",
+          "Description"
+        ],
+        [
+          "setUpClient(okHttpClientBuilder: OkHttpClient.Builder?, baseURL: String): Retrofit?",
+          "Manually configures and returns a ZscalerSDKRetrofit client to use the proxy and proxy auth (if configured) to route traffic to the baseURL through a ZSDK tunnel. Optionally, you can pass your OkHttpClient.Builder instance to the ZscalerSDKRetrofit client."
+        ],
+        [
+          "setUpWebView(): ZscalerSDKWebView?",
+          "Manually configures and returns a ZscalerSDKWebView instance to use the proxy and proxy auth (as required) to route its traffic through a ZSDK tunnel."
+        ]
+      ]
+    },
+    {
+      "heading": "iOS-Specific Configurations",
+      "level": 3
+    },
+    {
+      "item": "There are specific methods that you can call if you integrate ZSDK into an iOS application.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Method",
+          "Description"
+        ],
+        [
+          "setup(sessionConfiguration: URLSessionConfiguration)",
+          "Manually configures URL sessions for ZSDK to use."
+        ],
+        [
+          "setup(websiteDataStore: WKWebSiteDataStore)",
+          "Manually configures WebView data store settings for ZSDK to use."
+        ]
+      ]
+    },
+    {
+      "heading": "Maintenance Operations",
+      "level": 2
+    },
+    {
+      "item": "You can maintain your logs by exporting or clearing them. You can also reset proxy port information when the setup fails.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Method",
+          "Description"
+        ],
+        [
+          "exportLogs(destination: File Path)",
+          "Exports logs in a ZIP file to a specified location."
+        ],
+        [
+          "clearLogs()",
+          "Clears all logs."
+        ],
+        [
+          "resetProxyPortAndRequireSessionRecreation()",
+          "Resets proxy port when setup fails. Requires recreation of all HTTPS (e.g., URL sessions) and WebView requests."
+        ]
+      ]
+    },
+    {
+      "item": "You can also call on the following properties for more information:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Property",
+          "Description"
+        ],
+        [
+          "proxyInfo()",
+          "Returns the ZscalerProxyInfo if it's available."
+        ],
+        [
+          "getClientPublicIp()",
+          "Returns the public IP address of the client app as a string that is visible to ZSDK Public Service Edge."
+        ],
+        [
+          "For iOS only: configuration",
+          "Returns the ZscalerConfiguration instance."
+        ]
+      ]
+    },
+    {
+      "item": "ZscalerConfiguration",
+      "depth": 0
+    },
+    {
+      "item": "ZscalerConfiguration is a configuration object with the following configurable ZSDK properties:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Property Name",
+          "Property Type",
+          "Platform",
+          "Description"
+        ],
+        [
+          "shouldAutomaticallyConfigureRequests",
+          "Boolean",
+          "iOS",
+          "If enabled, ZSDK auto-configures URL sessions."
+        ],
+        [
+          "shouldAutomaticallyConfigureWebviews",
+          "Boolean",
+          "iOS",
+          "If enabled, ZSDK auto-configures WebViews."
+        ],
+        [
+          "useProxyAuthentication",
+          "Boolean",
+          "All",
+          "If enabled, ZSDK allows proxy authentication."
+        ],
+        [
+          "failIfDeviceCompromised",
+          "Boolean",
+          "All",
+          "If enabled, ZSDK prevents Mutual Transport Layer Security tunnels on jailbroken or rooted devices."
+        ],
+        [
+          "blockZPAConnectionsOnTunnelFailure",
+          "Boolean",
+          "All",
+          "If enabled, ZSDK blocks ZPA connections when any tunnels fail."
+        ]
+      ]
+    },
+    {
+      "item": "ZscalerProxyInfo",
+      "depth": 0
+    },
+    {
+      "item": "You can call on the following proxy configuration details from the ZscalerProxyInfo class:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Property Name",
+          "Description"
+        ],
+        [
+          "proxyHost",
+          "Returns the proxy server hostname."
+        ],
+        [
+          "proxyPort",
+          "Returns the proxy server port."
+        ],
+        [
+          "username",
+          "Returns the proxy authentication username if useProxyAuthentication is enabled."
+        ],
+        [
+          "password",
+          "Returns the proxy authentication password if useProxyAuthentication is enabled."
+        ]
+      ]
+    },
+    {
+      "item": "ZscalerError and ZscalerSDKException",
+      "depth": 0
+    },
+    {
+      "item": "ZscalerError for iOS and ZscalerSDKException for Android represent the following errors that can occur in ZSDK:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Code",
+          "Error Name",
+          "Description"
+        ],
+        [
+          "9001",
+          "unknown",
+          "There is an unknown issue."
+        ],
+        [
+          "9002",
+          "invalidParameter",
+          "An incorrect parameter was entered."
+        ],
+        [
+          "9101",
+          "noNetwork",
+          "There was an issue connecting to the network."
+        ],
+        [
+          "9102",
+          "timeOut",
+          "The request has timed out."
+        ],
+        [
+          "9501",
+          "tunnelError",
+          "There is an issue with the tunnel."
+        ],
+        [
+          "9301",
+          "permissionDenied",
+          "Permission has not been granted to the user."
+        ]
+      ]
+    },
+    {
+      "text": "Any text highlighted in red indicates that you must enter the specific details."
+    },
+    {
+      "heading": "Notifications",
+      "level": 1
+    },
+    {
+      "text": "ZSDK provides notifications to monitor the state of the tunnel."
+    },
+    {
+      "table": [
+        [
+          "Notification Name",
+          "Description",
+          "Resolution",
+          ""
+        ],
+        [
+          "Android",
+          "iOS",
+          "",
+          ""
+        ],
+        [
+          "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_CONNECTED",
+          "NSNotification.ZscalerSDKTunnelConnected",
+          "The tunnel is in a connected state and ready for use for outbound network requests. Your application can send HTTPS and WebView traffic via the tunnel now.",
+          "No action required."
+        ],
+        [
+          "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_DISCONNECTED",
+          "NSNotification.ZscalerSDKTunnelDisconnected",
+          "Describes that the tunnel has stopped operations.",
+          "No action required."
+        ],
+        [
+          "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_RECONNECTING",
+          "NSNotification.ZscalerSDKTunnelReconnecting",
+          "There was an issue establishing a connection to the ZSDK Public Service Edge. ZSDK continues to connect and sends a Tunnel Connected notification if the connection is successfully established.",
+          "Check your network connection. If the error persists, contact Zscaler Support."
+        ],
+        [
+          "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_AUTHENTICATION_REQUIRED",
+          "NSNotification.ZscalerSDKTunnelAuthenticationRequired",
+          "Either the client certificate and proof of authentication or authorization have expired.",
+          "Call the startZeroTrustTunnel() method to add a new, valid access token to re-authenticate the session."
+        ],
+        [
+          "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_RESOURCE_BLOCKED",
+          "NSNotification.ZscalerSDKTunnelResourceBlocked",
+          "Access to the application is blocked as per the associated access policy.",
+          "Ensure the application segment is configured in the ZSDK Admin Portal."
+        ],
+        [
+          "ZscalerSDKNotificationEnum.ZSCALERSDK_PROXY_START_FAILED",
+          "NSNotification.ZscalerSDKProxyStartFailed",
+          "Proxy initialization has failed.",
+          "Call resetProxyPortAndRequireSessionRecreation() to retry the setup.For Android, check the string ZDK_TUNNEL_PROXT_START_FAILED in the notification message. For example, if(intent.getStringExtra(ZscalerSDK.NOTIFICATION_MESSAGE).equals(\"ZDK_TUNNEL_PROXY_START_FAILED\")."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          17
+        ],
+        [
+          0,
+          1,
+          0,
+          11
+        ],
+        [
+          0,
+          2,
+          0,
+          10
+        ],
+        [
+          1,
+          0,
+          0,
+          7
+        ],
+        [
+          1,
+          1,
+          0,
+          3
+        ]
+      ]
+    }
+  ]
+}

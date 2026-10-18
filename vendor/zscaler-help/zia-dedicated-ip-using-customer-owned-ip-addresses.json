@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Dedicated IP Using Customer-Owned IP Addresses",
+  "source": {
+    "url": "https://help.zscaler.com/zia/dedicated-ip-using-customer-owned-ip-addresses",
+    "node": "1534000",
+    "revision": "3218001"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Zscaler's dedicated IP service provides organizations with dedicated IP addresses and also allows you to bring your own IP address range (i.e., Bring Your Own IP or BYOIP) into the Zscaler cloud."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To integrate BYOIP with Zscaler's dedicated IP service:"
+    },
+    {
+      "item": "You require at least one /24 subnet for each Zscaler data center where you need dedicated IP addresses to be provisioned.",
+      "depth": 0
+    },
+    {
+      "item": "You must subscribe to the Zscaler dedicated IP service, which provisions dedicated IP addresses at a single Zscaler data center. These IPs can either be Zscaler-owned or customer-owned.",
+      "depth": 0
+    },
+    {
+      "item": "Customer-owned IP addresses must be verified using cryptographic Route Origin Authorization (ROA) for integration into Zscaler's dedicated IP service.",
+      "depth": 0
+    },
+    {
+      "item": "The IP address prefix must be registered with your Regional Internet Registry (RIR), which manages the allocation of numbered resources like IP addresses, and associated with an Autonomous System Number (ASN).",
+      "depth": 0
+    },
+    {
+      "heading": "Integrating Customer-Owned IP Address",
+      "level": 1
+    },
+    {
+      "text": "The following section explains the steps and process of verifying and securing your IP addresses with Zscaler to ensure successful deployment:"
+    },
+    {
+      "item": "Create an ROA.",
+      "depth": 0
+    },
+    {
+      "item": "Create a Route Origin Authorization (ROA) object in your RIR which contains your prefix and a Zscaler ASN. A ROA proves you own the IP address and that you authorize Zscaler to announce your prefix via a Zscaler ASN.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler operates three Autonomous Systems (ASes), one in each of the following regions. Use one of these Autonomous System Numbers (ASN) depending upon which region the BYOIP is deployed:",
+      "depth": 1
+    },
+    {
+      "item": "APAC: AS53813",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Americas: AS22616",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "EMEA: AS62044",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "When creating an ROA, the ROA object must be the same prefix length that is announced from a data center. For example, if you announce 200.100.100.0/24 from data center 1, a corresponding ROA object must be created for 200.100.100.0/24.",
+      "depth": 0
+    },
+    {
+      "item": "Generate a self-signed certificate.",
+      "depth": 0
+    },
+    {
+      "item": "Create a self-signed x.509 certificate (standard format of digital certificates used to verify entities in online communications) which creates a public and private certificate. This is used to sign the Zscaler BYOIP message and to ensure the authenticity of the message.",
+      "depth": 1
+    },
+    {
+      "item": "For example, on Linux, use the following commands:",
+      "depth": 1
+    },
+    {
+      "item": "openssl genrsa -out private.key 2048",
+      "depth": 1
+    },
+    {
+      "item": "openssl req -new -x509 -key private.key -days 365 | tr -d '\\n' > publickey.cer",
+      "depth": 1
+    },
+    {
+      "item": "When generated, attach the public certificate to your netblock where the BYOIP prefix is allocated, in the comment or remarks section of your RIR:",
+      "depth": 1
+    },
+    {
+      "item": "ARIN: Edit the comments of the prefix record",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "RIPE: Edit the remarks of the inetnum record",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "APNIC: Edit the remarks of the inetnum record",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that there are no spaces or carriage returns when pasting the message into the comments or remarks section.",
+      "depth": 1
+    },
+    {
+      "item": "Create and sign the Zscaler BYOIP message.",
+      "depth": 0
+    },
+    {
+      "item": "For Zscaler to authenticate your IP addresses and advertise the routes, create a Zscaler BYOIP message with the following format: <version>|<prefix>|<mesg_expire_date>",
+      "depth": 1
+    },
+    {
+      "item": "This is an example of a Zscaler BYOIP message: 1|200.100.100.0/24|20251231",
+      "depth": 1
+    },
+    {
+      "item": "In this example:",
+      "depth": 1
+    },
+    {
+      "item": "The version is 1",
+      "depth": 2
+    },
+    {
+      "item": "The BYOIP prefix is 200.100.100.0/24",
+      "depth": 2
+    },
+    {
+      "item": "The message expiration date is 20251231, formatted as <yyyy><mm><dd>",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler recommends setting the expiration date at least one month ahead of creating the message as it allows appropriate time to validate and provision the IP addresses.",
+      "depth": 2
+    },
+    {
+      "item": "Sign the Zscaler BYOIP message with the private certificate that you created. For example, on Linux, use the following command:",
+      "depth": 1
+    },
+    {
+      "item": "echo \"1|200.100.100.0/24|20251231\" | tr -d '\\n' | openssl dgst -sha256 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:-1 -sign private.key -keyform PEM | openssl base64 | tr -- '+=/' '-_~' | tr -d '\\n' > my-signed-prefix-signature",
+      "depth": 1
+    },
+    {
+      "item": "Submit a Zscaler Support ticket.",
+      "depth": 0
+    },
+    {
+      "item": "After signing your BYOIP message, submit a Zscaler Support ticket with the following information:",
+      "depth": 1
+    },
+    {
+      "item": "The list of Zscaler data centers where the IP prefixes need to be advertised. You need a minimum of one /24 address prefix for each Zscaler data center.",
+      "depth": 2
+    },
+    {
+      "item": "The Zscaler BYOIP text message and signed message.",
+      "depth": 2
+    },
+    {
+      "item": "After submitting the ticket, the Zscaler Support team validates the authenticity of the routes, advertises the routes from the requested data centers, and provisions the IP addresses from the prefix to your Zscaler tenant.",
+      "depth": 1
+    }
+  ]
+}

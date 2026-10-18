@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/bp-what-zscaler-breach-predictor.md"
+  - "vendor/zscaler-help/bp-what-zscaler-breach-predictor.json"
 author-status: draft
 ---
 
@@ -27,12 +27,12 @@ This ledger covers the Tier 3 thin-stub refresh for Breach Predictor. Rows eithe
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| Breach Predictor anticipates threats, provides threat context, and helps prevent access to sensitive data. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:8` |
-| Captured benefits are Enhanced Attack Visibility, Proactive Breach Risk Reduction, and Improved Security Posture. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:10-16` |
-| Breach Predictor supplements rather than replaces reactive security tools. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:25` |
-| Breach Predictor uses predictive intelligence to identify policy problems before threats move to the next stage. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:27-29` |
-| Breach Predictor workflow is to track data from multiple sources, use generative AI, and draw conclusions for visibility and guidance. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:31-37` |
-| Product concepts include Overall Breach Probability, Sankey charts, MITRE ATT&CK tables, AI Assist Dashboard, Dashboard, Findings, Events, Threat Landscape, Tickets, Profiles, and Alerts & Remediation. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.md:39-48` |
+| Breach Predictor anticipates threats, provides threat context, and helps prevent access to sensitive data. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:8` |
+| Captured benefits are Enhanced Attack Visibility, Proactive Breach Risk Reduction, and Improved Security Posture. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:10-16` |
+| Breach Predictor supplements rather than replaces reactive security tools. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:25` |
+| Breach Predictor uses predictive intelligence to identify policy problems before threats move to the next stage. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:27-29` |
+| Breach Predictor workflow is to track data from multiple sources, use generative AI, and draw conclusions for visibility and guidance. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:31-37` |
+| Product concepts include Overall Breach Probability, Sankey charts, MITRE ATT&CK tables, AI Assist Dashboard, Dashboard, Findings, Events, Threat Landscape, Tickets, Profiles, and Alerts & Remediation. | `overview.md` | `vendor/zscaler-help/bp-what-zscaler-breach-predictor.json:39-48` |
 | Go SDK has no product-specific Breach Predictor service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Breach Predictor service found in `vendor/zscaler-sdk-go` during the 2026-06-16 surface sweep. |
 | Python SDK has no product-specific Breach Predictor service in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Breach Predictor service found in `vendor/zscaler-sdk-python` during the 2026-06-16 surface sweep. |
 | Terraform has no product-specific Breach Predictor resource or data source in the audited source. | `overview.md` | AUDIT-SCOPED ABSENCE: no Breach Predictor resource/data-source surface found in `vendor/terraform-provider-zia` or `vendor/terraform-provider-zpa` during the 2026-06-16 surface sweep. |

@@ -41,7 +41,7 @@ sources:
   - "vendor/terraform-provider-ztc/docs/index.md"
   - "vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md"
   - "vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_log_rule.md"
-  - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md"
+  - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json"
   - "vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md"
 author-status: draft
 ---
@@ -77,7 +77,7 @@ One structural caveat remains on the reconstructed OpenAPI snapshot: the validat
 
 - **Go SDK:** the `ForwardMethod` doc comment lists ten values: `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP`. (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:44`) The field itself is a plain `string` with no validation — the list is a comment only.
 - **Terraform provider:** the `forward_method` schema enforces only five values via `validation.StringInSlice`: `DIRECT`, `LOCAL_SWITCH`, `ZIA`, `ECZPA`, `DROP`. (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go:167-173`) Note this set **invents** `LOCAL_SWITCH` (absent from the Go enum) and **omits** `ZPA`, `ECSELF`, `PROXYCHAIN`, `ENATDEDIP`, `GEOIP`, and `INVALID`. The provider serializes the string straight to the API `forwardMethod` field with no remapping (`:569` expand, `:388` read-back), so TF callers send `LOCAL_SWITCH` on the wire.
-- **Console (help capture):** the forwarding-method drop-down exposes five operator-facing names — **ZIA, ZPA, Direct, Drop, Local**. (`vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md:18,38,154,234,343,450`) "Local" is described as Cloud-Connector/ZTG-only.
+- **Console (help capture):** the forwarding-method drop-down exposes five operator-facing names — **ZIA, ZPA, Direct, Drop, Local**. (`vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json:18,38,154,234,343,450`) "Local" is described as Cloud-Connector/ZTG-only.
 
 **Significance / which to trust:** There is no single authoritative enum. The Go doc-comment list and the TF validator are *different supersets of each other*, and both are over a free-string wire field. Concretely:
 
@@ -107,7 +107,7 @@ Do not assume `LOCAL_SWITCH` works through the Go SDK path or that `ZPA`/`ECSELF
 - **Go SDK:** the `ForwardingRules` struct carries `SrcWorkloadGroups` (`json:"srcWorkloadGroups"`) and **no** `DestWorkloadGroups` counterpart. (`vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go:152`)
 - **Python SDK:** the model holds both `src_workload_groups` and `dest_workload_groups`, and serializes **both** `srcWorkloadGroups` and `destWorkloadGroups` in `request_format`. (`vendor/zscaler-sdk-python/zscaler/ztw/models/forwarding_rules.py:129-135,266-267`) The accessor docstring adds `dest_workload_groups_ids` and notes it is "Valid for LOCAL_SWITCH forward method." (`vendor/zscaler-sdk-python/zscaler/ztw/forwarding_rules.py:144,278`) This attribute was added in Python SDK PR #450. (`vendor/zscaler-sdk-python/CHANGELOG.md` — PR #450 "Added new attribute `dest_workload_groups_ids` to ZTW `forwarding_rules`")
 - **Terraform provider:** exposes `src_workload_groups` only; no `dest_workload_groups` field. (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go:247,588`)
-- **Console (help capture):** exposes **both** Source Workload Groups and Destination Workload Groups; Destination Workload Groups are "only applicable to the Local traffic forwarding method." (`vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md:422,530`)
+- **Console (help capture):** exposes **both** Source Workload Groups and Destination Workload Groups; Destination Workload Groups are "only applicable to the Local traffic forwarding method." (`vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json:422,530`)
 
 **Significance / which to trust:** Destination Workload Groups are a real API/console field (Python proves it serializes as `destWorkloadGroups`), but the **Go SDK and TF provider cannot set them** — they would silently drop the criterion. Engineers needing destination-workload-group matching on a Local rule must use the Python SDK or the raw API, not the Go SDK or Terraform. The Python "valid for LOCAL_SWITCH" note also corroborates the `LOCAL_SWITCH` token as the wire value behind the console "Local" method on `ecRdr` rules. (Cross-ref: `forwarding.md:78-80`, `sdk.md:369`.)
 

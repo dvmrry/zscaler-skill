@@ -16,16 +16,16 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/account_groups/account_groups.go"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_public_cloud_info.go"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_account_groups.go"
-  - "vendor/zscaler-help/cbc-about-amazon-web-services-accounts.md"
-  - "vendor/zscaler-help/cbc-adding-amazon-web-services-account.md"
-  - "vendor/zscaler-help/cbc-about-amazon-web-services-account-groups.md"
-  - "vendor/zscaler-help/cbc-adding-amazon-web-services-account-group.md"
-  - "vendor/zscaler-help/cbc-analyzing-amazon-web-services-account-details.md"
-  - "vendor/zscaler-help/cbc-analyzing-amazon-web-services-account-group-details.md"
-  - "vendor/zscaler-help/cbc-registering-endpoint-amazon-web-services.md"
-  - "vendor/zscaler-help/cbc-configuring-workload-discovery-workloads-amazon-web-services.md"
-  - "vendor/zscaler-help/cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.md"
-  - "vendor/zscaler-help/cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.md"
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-accounts.json"
+  - "vendor/zscaler-help/cbc-adding-amazon-web-services-account.json"
+  - "vendor/zscaler-help/cbc-about-amazon-web-services-account-groups.json"
+  - "vendor/zscaler-help/cbc-adding-amazon-web-services-account-group.json"
+  - "vendor/zscaler-help/cbc-analyzing-amazon-web-services-account-details.json"
+  - "vendor/zscaler-help/cbc-analyzing-amazon-web-services-account-group-details.json"
+  - "vendor/zscaler-help/cbc-registering-endpoint-amazon-web-services.json"
+  - "vendor/zscaler-help/cbc-configuring-workload-discovery-workloads-amazon-web-services.json"
+  - "vendor/zscaler-help/cbc-using-sublocation-scopes-group-cloud-connector-workloads-amazon-web.json"
+  - "vendor/zscaler-help/cbc-understanding-namespaces-amazon-web-services-and-microsoft-azure-accounts.json"
 author-status: draft
 ---
 
@@ -35,7 +35,7 @@ This doc covers the AWS account-level integration that feeds tag-based policy an
 
 > **Reference IaC vs production IaC.** Where CloudFormation or Terraform is mentioned below, references are to **Zscaler's published example templates** — reference implementations illustrating one valid onboarding path. They are not product specification. Runtime requirements and reference defaults are not always separately documented; this doc flags the distinction where it matters. **Fork agents:** if `_data/iac/` is populated for this fork, treat it as production truth. Use this doc for context and reasoning, not as a deployment spec.
 
-> **Feature gating.** AWS partner integrations (workload discovery) must be enabled by Zscaler Support before the Partner Integrations menu is visible (*"To enable this feature, contact Zscaler Support."* — `vendor/zscaler-help/cbc-about-amazon-web-services-accounts.md:18`). Do not assume it is on by default.
+> **Feature gating.** AWS partner integrations (workload discovery) must be enabled by Zscaler Support before the Partner Integrations menu is visible (*"To enable this feature, contact Zscaler Support."* — `vendor/zscaler-help/cbc-about-amazon-web-services-accounts.json:18`). Do not assume it is on by default.
 
 > **This is not a console-only feature.** Every onboarding concept below has a backing REST endpoint; most have an SDK call (Python and/or Go), and some — but not all — have a Terraform resource. See [§ SDK / Terraform / API surface](#sdk-terraform-api-surface) below for the per-concept availability matrix — several operations (permission verification, Zscaler-side trust settings, data-collection enable/disable) are SDK/API-only with no Terraform resource. The console screens described here are one front-end over that API.
 
@@ -113,7 +113,7 @@ The CloudFormation template Zscaler provides creates the required IAM role. The 
 
 ## Permission states
 
-The permission state is carried by the `permissionStatus` field on the account object (Python `PublicCloudInfo.permission_status` ← `permissionStatus`, `vendor/zscaler-sdk-python/zscaler/ztw/models/public_cloud_info.py:104`; the Python service documents it as a settable keyword arg with example value `"TBD"`, `vendor/zscaler-sdk-python/zscaler/ztw/public_cloud_info.py:247`). The Go struct carries the same field but currently leaves it commented out (`...public_cloud_info.go:36-37`), so for state reads use the Python client. The verify-on-demand action is a real endpoint: `PUT /discoveryService/{awsAccountID}/permissions`, supplying the discovery role and external ID (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:81-91`; Python `update_discovery_service_permissions`, `vendor/zscaler-sdk-python/zscaler/ztw/discovery_service.py:73-110`). The three state *labels* below are enumerated in the help text — *"Permission: The permission status of the account (i.e., Pending, Allowed, or Denied)."* (`vendor/zscaler-help/cbc-about-amazon-web-services-accounts.md:38`); the SDK confirms the field exists but does not itself enumerate its string values.
+The permission state is carried by the `permissionStatus` field on the account object (Python `PublicCloudInfo.permission_status` ← `permissionStatus`, `vendor/zscaler-sdk-python/zscaler/ztw/models/public_cloud_info.py:104`; the Python service documents it as a settable keyword arg with example value `"TBD"`, `vendor/zscaler-sdk-python/zscaler/ztw/public_cloud_info.py:247`). The Go struct carries the same field but currently leaves it commented out (`...public_cloud_info.go:36-37`), so for state reads use the Python client. The verify-on-demand action is a real endpoint: `PUT /discoveryService/{awsAccountID}/permissions`, supplying the discovery role and external ID (`vendor/zscaler-sdk-go/zscaler/ztw/services/partner_integrations/partner_integrations.go:81-91`; Python `update_discovery_service_permissions`, `vendor/zscaler-sdk-python/zscaler/ztw/discovery_service.py:73-110`). The three state *labels* below are enumerated in the help text — *"Permission: The permission status of the account (i.e., Pending, Allowed, or Denied)."* (`vendor/zscaler-help/cbc-about-amazon-web-services-accounts.json:38`); the SDK confirms the field exists but does not itself enumerate its string values.
 
 After adding an account, the permission column in the Zscaler console shows one of three states:
 

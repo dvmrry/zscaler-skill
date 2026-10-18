@@ -8,10 +8,10 @@ confidence: medium
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zscaler-client-connector/about-machine-tunnels"
-  - "vendor/zscaler-help/about-machine-tunnels.md"
-  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md"
-  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md"
-  - "vendor/zscaler-help/configuring-device-posture-profiles.md"
+  - "vendor/zscaler-help/about-machine-tunnels.json"
+  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json"
+  - "vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json"
+  - "vendor/zscaler-help/configuring-device-posture-profiles.json"
   - "vendor/zscaler-help/automate-zscaler/api-reference-zcc-overview.md"
   - "vendor/terraform-provider-zpa/docs/data-sources/zpa_machine_group.md"
   - "vendor/terraform-provider-zpa/zpa/validator.go"
@@ -25,7 +25,7 @@ author-status: draft
 
 ## Overview
 
-Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+Source: `vendor/zscaler-help/about-machine-tunnels.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json`.
 
 A **machine tunnel** allows a Windows or macOS device to establish a ZPA connection *before* the user logs in to Zscaler Client Connector (ZCC). The tunnel runs as a machine-identity session rather than a user-identity session, so it exists even when no user is authenticated to ZCC.
 
@@ -53,7 +53,7 @@ Key facts from the source documentation:
 
 ### Layer separation
 
-Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/configuring-device-posture-profiles.md`.
+Source: `vendor/zscaler-help/about-machine-tunnels.json`; `vendor/zscaler-help/configuring-device-posture-profiles.json`.
 
 The machine tunnel involves two distinct layers that are frequently conflated:
 
@@ -65,7 +65,7 @@ The `about-machine-tunnels.md` help article describes the ZCC Portal view (monit
 
 ### Machine identity establishment
 
-Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
+Source: `vendor/zscaler-help/about-machine-tunnels.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json`; `vendor/zscaler-sdk-python/zscaler/zpa/machine_groups.py`; `vendor/zscaler-sdk-go/zscaler/zpa/services/machinegroup/zpa_machine_group.go`.
 
 Before a machine tunnel can be evaluated by ZPA policy, the machine must be enrolled and provisioned:
 
@@ -81,7 +81,7 @@ The flow: ZCC (using the provisioning key from the app profile) enrolls the devi
 
 ### ZPA Admin Portal
 
-Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`.
+Source: `vendor/zscaler-help/about-machine-tunnels.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json`.
 
 The admin-facing setup requires three objects, created in the ZPA Admin Portal:
 
@@ -201,7 +201,7 @@ From the Terraform data source: machine group IDs retrieved via `data.zpa_machin
 
 ### App Segments
 
-Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
+Source: `vendor/zscaler-help/about-machine-tunnels.json`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
 
 Machine tunnel sessions resolve application segments and undergo policy evaluation exactly like user sessions — using the most-specific-segment-wins matching described in [`./app-segments.md`](./app-segments.md). The segments available to a machine tunnel are constrained by whatever access policy rules match the machine tunnel client type.
 
@@ -215,13 +215,13 @@ Forwarding Policy evaluates before Access Policy (see [`./policy-precedence.md`]
 
 ### Client Forwarding Policy
 
-Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
+Source: `vendor/zscaler-help/about-machine-tunnels.json`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
 
 The Client Forwarding Policy (which decides forwarding profile and ZIA/ZPA service routing for ZCC itself) also accepts `zpn_client_type_machine_tunnel` as a valid client type in its conditions. This is used to direct machine tunnel traffic through specific Service Edges or to enforce specific forwarding behaviors for pre-login sessions distinct from post-login sessions.
 
 ### Posture profiles and machine tunnels
 
-Source: `vendor/zscaler-help/configuring-device-posture-profiles.md`; `vendor/zscaler-help/about-machine-tunnels.md`.
+Source: `vendor/zscaler-help/configuring-device-posture-profiles.json`; `vendor/zscaler-help/about-machine-tunnels.json`.
 
 Device Posture Profiles have an explicit **Apply to Windows Machine Tunnel** and **Apply to macOS Machine Tunnel** toggle (see `configuring-device-posture-profiles.md`). When selected, the posture type is evaluated against the pre-login machine tunnel session. When not selected, the posture check only applies to regular (post-login) ZPA and ZIA tunnels.
 
@@ -233,7 +233,7 @@ This posture-check capability allows, for example, requiring that a domain-joine
 
 ## Common gotchas
 
-Source: `vendor/zscaler-help/about-machine-tunnels.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.md`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.md`; `vendor/zscaler-help/configuring-device-posture-profiles.md`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
+Source: `vendor/zscaler-help/about-machine-tunnels.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-windows.json`; `vendor/zscaler-help/supported-parameters-zscaler-client-connector-macos.json`; `vendor/zscaler-help/configuring-device-posture-profiles.json`; `vendor/zscaler-sdk-python/zscaler/zpa/policies.py`.
 
 ### GPO timing and the chicken-and-egg problem
 

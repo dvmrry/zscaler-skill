@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding SAML",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-saml",
+    "node": "1399681",
+    "revision": "3218436"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Zscaler can deploy Identity Federation using Security Assertion Markup Language (SAML) for provisioning and authenticating users. Zscaler recommends deploying System for Cross-domain Identity Management (SCIM) for provisioning and SAML for authentication. This article provides an overview of using SAML for provisioning and authenticating users for the Zscaler service."
+    },
+    {
+      "text": "The Zscaler service supports SAML 2.0 and above. To learn how to configure SAML for your organization, see Configuring SAML."
+    },
+    {
+      "text": "SAML is an XML-based structure that is used to organize users’ security and identity information and to distribute this information across the organization’s boundaries to other entities. It enables the following entities to exchange identity, authentication, attribute, and authorization information:"
+    },
+    {
+      "item": "A principal, which is a user who is trying to access a service or application online",
+      "depth": 0
+    },
+    {
+      "item": "A SAML authority, also referred to as the identity provider (IdP), that authenticates the user",
+      "depth": 0
+    },
+    {
+      "item": "A relying party, which is the service provider (SP) that relies on the IdP to authenticate the user before it allows access to the service or application",
+      "depth": 0
+    },
+    {
+      "text": "SAML provides for a federated identity wherein partner services use the same name identifier to refer to a user. It also enables Single Sign-On (SSO) so users can authenticate only once to an IdP and then access various services."
+    },
+    {
+      "text": "SAML achieves this through a collection of assertions, protocols, bindings, and profiles:"
+    },
+    {
+      "item": "Assertions: A SAML authority creates statements regarding any of the following information:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The authentication of a subject",
+      "depth": 1
+    },
+    {
+      "item": "A subject’s attribute information",
+      "depth": 1
+    },
+    {
+      "item": "Data of a subject in regard to a specific resource",
+      "depth": 1
+    },
+    {
+      "item": "Protocols: Request/response protocols allow the SPs to:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Request one or more assertions from a SAML authority",
+      "depth": 1
+    },
+    {
+      "item": "Request an IdP’s authentication for a principal and return the corresponding assertion",
+      "depth": 1
+    },
+    {
+      "item": "Request the registration of a name identifier",
+      "depth": 1
+    },
+    {
+      "item": "Request the termination of an identifier’s use",
+      "depth": 1
+    },
+    {
+      "item": "Get back a protocol message requested by means of an artifact",
+      "depth": 1
+    },
+    {
+      "item": "Request a single logout for a collection of related sessions",
+      "depth": 1
+    },
+    {
+      "item": "Request mapping of a name identifier",
+      "depth": 1
+    },
+    {
+      "item": "Bindings: A binding defines how the SAML protocol messages are sent over transport and messaging protocols. The Zscaler service supports the HTTP Post Binding, which defines how SAML protocol messages can be transported within the base 64-encoded content of an HTML form control.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Profiles: A profile defines the assertions, protocols, and bindings used for specific use cases.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "text": "To learn more about SAML, refer to OASIS Security Services (SAML) TC."
+    },
+    {
+      "text": "The service supports both SP-initiated and IdP-initiated SAML deployments, as well as SAML auto-provisioning."
+    },
+    {
+      "heading": "Service Provider-Initiated SAML",
+      "level": 1
+    },
+    {
+      "text": "The most common deployment is the SP-initiated SAML deployment where the user tries to access a website and is redirected to the Zscaler service, which then sends a SAML request to the IdP. The IdP validates the user’s credentials, gets the user attributes like group membership, and returns the SAML response assertion to the Zscaler service through the user's browser. The diagram below shows the SP-initiated SAML process:"
+    },
+    {
+      "item": "A user opens a browser and tries to reach a website.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service generates a SAML authentication request, which is encoded and embedded into the URL for the IdP.",
+      "depth": 0
+    },
+    {
+      "item": "The service sends a redirect to the user's browser. It includes the encoded SAML authentication request to be submitted to the IdP.",
+      "depth": 0
+    },
+    {
+      "item": "The user's browser submits the authentication request to the IdP.",
+      "depth": 0
+    },
+    {
+      "item": "The IdP does the following:",
+      "depth": 0
+    },
+    {
+      "item": "Decodes the SAML request.",
+      "depth": 1
+    },
+    {
+      "item": "Extracts the URL for the Customer Assertion Service (CAS) of Zscaler.",
+      "depth": 1
+    },
+    {
+      "item": "Authenticates the user by login credentials or by checking for valid Active Directory session.",
+      "depth": 1
+    },
+    {
+      "item": "Generates a SAML response with digitally signed public/private DSA/RSA keys, encodes it, and sends it to browser.",
+      "depth": 1
+    },
+    {
+      "item": "The browser forwards the SAML response to the service. The CAS of Zscaler uses the IdP's public key to verify the response.",
+      "depth": 0
+    },
+    {
+      "item": "After the service successfully verifies the response, it logs in the user and redirects the user's browser to the destination URL.",
+      "depth": 0
+    },
+    {
+      "heading": "Identity Provider-Initiated SAML",
+      "level": 1
+    },
+    {
+      "text": "In IdP-initiated SAML, a user can log in directly from an SSO provider's portal by clicking the Zscaler application icon. When the user clicks the Zscaler application icon, the IdP generates a SAML response that is posted to Zscaler at"
+    },
+    {
+      "text": "https://login.<Zscaler Cloud Name>:443/sso_upd/<organization_id>. For example, if your organization is on the zscaler.net cloud, the SAML response is posted to Zscaler at https://login.zscaler.net:443/sso_upd/123456."
+    },
+    {
+      "text": "The service obtains the login name and optionally the group, department, and username from the SAML response. The SAML response must be 4 MB at the most. To ensure security and prevent man-in-the-middle attacks, the Zscaler service requires the SAML response to be digitally signed by the IdP. Also, if required by the IdP, the service can digitally sign its request."
+    },
+    {
+      "heading": "SAML Auto-Provisioning",
+      "level": 1
+    },
+    {
+      "text": "You can enable SAML auto-provisioning to allow the service to automatically retrieve information related to users, groups, and departments from the SAML response and automatically add the information to the database. It can also automatically update a user's group membership based on the information retrieved from the SAML response. The SAML response must be 4 MB at the most."
+    },
+    {
+      "item": "If the user doesn't exist in the database, the user is added in the database along with the group and the department values. This new user is activated, and all relevant policies are enforced.",
+      "depth": 0
+    },
+    {
+      "item": "If the user exists in the database, the user display name, group, and department values in the SAML response are updated in the database.",
+      "depth": 0
+    },
+    {
+      "item": "If the user display name, group, and department values don't exist in the SAML response, then these values are removed from the database too.",
+      "depth": 0
+    },
+    {
+      "text": "To learn more, see Configuring SAML."
+    }
+  ]
+}

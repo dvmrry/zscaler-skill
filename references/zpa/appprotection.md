@@ -7,13 +7,13 @@ last-verified: "2026-07-20"
 confidence: high
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md"
-  - "vendor/zscaler-help/about-appprotection-controls.md"
-  - "vendor/zscaler-help/about-appprotection-policy.md"
-  - "vendor/zscaler-help/about-appprotection-profiles.md"
-  - "vendor/zscaler-help/about-appprotection-applications.md"
-  - "vendor/zscaler-help/about-active-directory-controls.md"
-  - "vendor/zscaler-help/configuring-appprotection-policies.md"
+  - "vendor/zscaler-help/protecting-private-applications-zpa-appprotection.json"
+  - "vendor/zscaler-help/about-appprotection-controls.json"
+  - "vendor/zscaler-help/about-appprotection-policy.json"
+  - "vendor/zscaler-help/about-appprotection-profiles.json"
+  - "vendor/zscaler-help/about-appprotection-applications.json"
+  - "vendor/zscaler-help/about-active-directory-controls.json"
+  - "vendor/zscaler-help/configuring-appprotection-policies.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_protection.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_segments_inspection.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py"
@@ -34,7 +34,7 @@ AppProtection is ZPA's **inline application-layer security inspection engine** �
 
 ## Architecture
 
-Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`; `vendor/zscaler-help/about-appprotection-applications.md`; `vendor/zscaler-help/about-appprotection-policy.md`.
+Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.json`; `vendor/zscaler-help/about-appprotection-applications.json`; `vendor/zscaler-help/about-appprotection-policy.json`.
 
 ```
 user (browser or ZCC)
@@ -63,7 +63,7 @@ ZPA App Connector ─────────► Zero Trust Exchange ───�
 
 ## The three-tier policy model
 
-Source: `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/configuring-appprotection-policies.md`.
+Source: `vendor/zscaler-help/about-appprotection-controls.json`; `vendor/zscaler-help/about-appprotection-profiles.json`; `vendor/zscaler-help/about-appprotection-policy.json`; `vendor/zscaler-help/configuring-appprotection-policies.json`.
 
 ```
 Controls         (atomic detection units)
@@ -77,7 +77,7 @@ Policy Rules     (criteria + action + profile assignment, evaluated in order)
 
 ### Tier 1 — Controls (the detection atoms)
 
-Source: `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-active-directory-controls.md`.
+Source: `vendor/zscaler-help/about-appprotection-controls.json`; `vendor/zscaler-help/about-active-directory-controls.json`.
 
 A Control is a single detection rule — "does this HTTP body contain SQL-injection patterns", "is this Kerberos AS-REQ from a suspicious source", etc. Each carries:
 
@@ -100,7 +100,7 @@ Controls come from **six categories**:
 
 #### OWASP control categories (13 groups)
 
-From `vendor/zscaler-help/about-appprotection-controls.md`:
+From `vendor/zscaler-help/about-appprotection-controls.json`:
 
 - Preprocessors
 - Environment and Port Scanners
@@ -133,7 +133,7 @@ Output: **Active Directory Protection dashboard** in the ZPA Admin Console for i
 
 ### Tier 2 — Profiles (bundles of controls)
 
-Source: `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-controls.md`.
+Source: `vendor/zscaler-help/about-appprotection-profiles.json`; `vendor/zscaler-help/about-appprotection-controls.json`.
 
 A Profile is a named reusable bundle. Picks:
 
@@ -151,7 +151,7 @@ Custom profiles are clones-of-default (or built-from-scratch) where you tune con
 
 ### Tier 3 — Policy Rules (where + how to apply)
 
-Source: `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/configuring-appprotection-policies.md`.
+Source: `vendor/zscaler-help/about-appprotection-policy.json`; `vendor/zscaler-help/configuring-appprotection-policies.json`.
 
 Policy rules at **Policies > Cybersecurity > Inline Security > Protection Policies > AppProtection** evaluate top-to-bottom:
 
@@ -193,7 +193,7 @@ The product behavior above maps onto a real, programmable surface. The Python SD
 | Delete profile | `delete_profile` (`app_protection.py:362`) | `DELETE .../inspectionProfile/{id}` |
 | Attach/detach all predefined controls | `profile_control_attach` (`app_protection.py:390`) | `PUT .../inspectionProfile/{id}/associateAllPredefinedControls` (`app_protection.py:410`) or `.../deAssociateAllPredefinedControls` (`app_protection.py:413`) |
 
-Note the SDK divergence worth flagging to an operator: `add_profile` and `update_profile` default `predefined_controls_version` to **`OWASP_CRS/3.3.0`** (`app_protection.py:222`, `:299`), even though the *portal* default version is `OWASP_CRS/4.8.0` (`vendor/zscaler-help/about-appprotection-controls.md:37`). Pass `predefined_controls_version="OWASP_CRS/4.8.0"` explicitly to match the console.
+Note the SDK divergence worth flagging to an operator: `add_profile` and `update_profile` default `predefined_controls_version` to **`OWASP_CRS/3.3.0`** (`app_protection.py:222`, `:299`), even though the *portal* default version is `OWASP_CRS/4.8.0` (`vendor/zscaler-help/about-appprotection-controls.json:37`). Pass `predefined_controls_version="OWASP_CRS/4.8.0"` explicitly to match the console.
 
 ### Predefined and custom controls (Tier 1) → `client.zpa.app_protection`
 
@@ -219,7 +219,7 @@ The Go SDK mirrors the same split: `inspectioncontrol` services (`vendor/zscaler
 
 ## How AppProtection relates to other ZPA features
 
-Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`; `vendor/zscaler-help/about-appprotection-applications.md`; `vendor/zscaler-help/about-appprotection-policy.md`.
+Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.json`; `vendor/zscaler-help/about-appprotection-applications.json`; `vendor/zscaler-help/about-appprotection-policy.json`.
 
 | Feature | Relationship |
 |---|---|
@@ -233,7 +233,7 @@ Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.m
 
 ## Logging — LSS, not NSS
 
-Source: `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
+Source: `vendor/zscaler-help/about-appprotection-policy.json`; `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
 
 AppProtection events flow through ZPA's **Log Streaming Service (LSS)** as a dedicated log type. The wire identifier a SIEM/LSS engineer actually configures is **`zpn_waf_http_exchanges_log`** (described as "ZPA App Protection" in the LSS source-log-type table — `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md:97`). This is the value you pass as `source_log_type` when standing up an LSS configuration. Distinct from:
 
@@ -247,7 +247,7 @@ The "Understanding AppProtection Log Fields" article (referenced from the LSS ov
 
 ## Licensing
 
-Source: `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`.
+Source: `vendor/zscaler-help/about-appprotection-policy.json`; `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.json`.
 
 AppProtection appears bundled with ZPA — the default `OWASP Top-10 for Visibility` profile ships with every ZPA account, and the help docs don't gate basic AppProtection behind a separate SKU.
 
@@ -265,7 +265,7 @@ Specific tier names (Business / Transformation / Workplace+) and what each unloc
 
 ## Surprises worth flagging
 
-Source: `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-policy.md`; `vendor/zscaler-help/about-active-directory-controls.md`.
+Source: `vendor/zscaler-help/about-appprotection-controls.json`; `vendor/zscaler-help/about-appprotection-profiles.json`; `vendor/zscaler-help/about-appprotection-policy.json`; `vendor/zscaler-help/about-active-directory-controls.json`.
 
 1. **AppProtection was called Inspection until recently.** SDKs, Terraform resources, and older docs say "Inspection Policy", "Inspection Profile", `zpn_inspection_profile_id`. They're the same thing. A user looking at ZPA Terraform with `zpa_inspection_*` resources is configuring AppProtection. The current Python SDK still carries the old name internally: `client.zpa.app_protection` returns a class named `InspectionControllerAPI` (`vendor/zscaler-sdk-python/zscaler/zpa/zpa_service.py:200-202`), and every API path is `.../inspectionProfile` and `.../inspectionControls/...` (`app_protection.py:86`, `:700`).
 
@@ -289,7 +289,7 @@ Source: `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-h
 
 ## Common questions this unlocks
 
-Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.md`; `vendor/zscaler-help/about-appprotection-controls.md`; `vendor/zscaler-help/about-appprotection-profiles.md`; `vendor/zscaler-help/about-appprotection-policy.md`.
+Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.json`; `vendor/zscaler-help/about-appprotection-controls.json`; `vendor/zscaler-help/about-appprotection-profiles.json`; `vendor/zscaler-help/about-appprotection-policy.json`.
 
 - **"Is AppProtection part of ZPA?"** → Yes, mostly bundled; some capabilities (Browser Protection) appear tier-gated. Confirm specifics with TAM.
 - **"What's the difference between AppProtection and Inspection Policy?"** → Same product, renamed. Inspection is the old name; AppProtection is current.
@@ -304,7 +304,7 @@ Source: `vendor/zscaler-help/protecting-private-applications-zpa-appprotection.m
 These remain unbacked by vendor source at the source-tier hierarchy and should not be stated as fact:
 
 - **Per-field log schema for `zpn_waf_http_exchanges_log`.** The "Understanding AppProtection Log Fields" article is referenced but not captured; the exact field list, types, and which fields carry control-number / severity / action is unverified. (Behavior named, schema not captured.)
-- **Browser Protection tier entitlement.** What capabilities the Browser Protection subscription unlocks beyond baseline AppProtection, and the SKU/tier names that gate it, are not spelled out in captured help docs (`vendor/zscaler-help/about-appprotection-policy.md` notes only that the option appears "depending on your AppProtection subscription"). Confirm per-tenant with the account team.
+- **Browser Protection tier entitlement.** What capabilities the Browser Protection subscription unlocks beyond baseline AppProtection, and the SKU/tier names that gate it, are not spelled out in captured help docs (`vendor/zscaler-help/about-appprotection-policy.json` notes only that the option appears "depending on your AppProtection subscription"). Confirm per-tenant with the account team.
 - **Whether the SDK exposes the Active Directory / Kerberos / SMB / LDAP controls as a distinct surface** or folds them into the predefined/ADP control lists (`list_predef_control_adp`). The help captures describe AD controls as a first-class category, but the Python SDK only exposes generic predefined/ADP/API/custom control listings — no AD-specific method was found in `app_protection.py`. Unverified whether AD controls surface through `list_predef_control_adp` or another path.
 - **TLS 1.2 cipher constraint (`ECDHE-RSA-AES128-GCM-SHA256`).** Sourced from help captures only; not confirmed against SDK/API or a current product note, and may have widened with newer connector builds.
 

@@ -12,14 +12,14 @@ verified-against:
   vendor/terraform-aws-zpa-private-service-edge-modules: b555a112e27ac25a018b8681a5a339fe7c40458a
   vendor/terraform-azurerm-zpa-private-service-edge-modules: bdfecd0adaef82e50a4575d4d6252395aca706b2
 sources:
-  - "vendor/zscaler-help/about-private-service-edges.md"
-  - "vendor/zscaler-help/about-private-service-edge-groups.md"
-  - "vendor/zscaler-help/understanding-private-access-architecture.md"
-  - "vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md"
-  - "vendor/zscaler-help/zsdk-deploying-zsdk-private-service-edges.md"
-  - "vendor/zscaler-help/zsdk-about-zsdk-private-service-edge-groups.md"
-  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md"
-  - "vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md"
+  - "vendor/zscaler-help/about-private-service-edges.json"
+  - "vendor/zscaler-help/about-private-service-edge-groups.json"
+  - "vendor/zscaler-help/understanding-private-access-architecture.json"
+  - "vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.json"
+  - "vendor/zscaler-help/zsdk-deploying-zsdk-private-service-edges.json"
+  - "vendor/zscaler-help/zsdk-about-zsdk-private-service-edge-groups.json"
+  - "vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json"
+  - "vendor/zscaler-help/zpa-updating-host-os-and-software-packages.json"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_private_cloud_group.md"
   - "vendor/terraform-provider-zpa/docs/resources/zpa_lss_private_service_edge_status.md"
@@ -66,7 +66,7 @@ author-status: draft
 
 ## Overview
 
-Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md`.
+Source: `vendor/zscaler-help/about-private-service-edges.json`; `vendor/zscaler-help/understanding-private-access-architecture.json`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.json`.
 
 A ZPA Private Service Edge (PSE) is a **single-tenant instance broker** that delivers the same ZPA session-brokering function as a ZPA Public Service Edge, but runs inside the operator's own environment — data center, private cloud, or cloud-hosted tenant VPC — rather than in a Zscaler PoP.
 
@@ -100,7 +100,7 @@ ZPA Public Service Edges are Zscaler-operated, multi-tenant, globally distribute
 
 ## Architecture
 
-Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.md`.
+Source: `vendor/zscaler-help/understanding-private-access-architecture.json`; `vendor/zscaler-help/about-private-service-edges.json`; `vendor/zscaler-help/zsdk-about-zsdk-private-service-edges.json`.
 
 ### Data path
 
@@ -159,13 +159,13 @@ A PSE is not required — and adds operational overhead — in standard deployme
 
 ## Form factors and deployment
 
-Source: `vendor/zscaler-help/zsdk-deploying-zsdk-private-service-edges.md`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
+Source: `vendor/zscaler-help/zsdk-deploying-zsdk-private-service-edges.json`; `vendor/terraform-aws-zpa-app-connector-modules/README.md`; `vendor/terraform-azurerm-zpa-app-connector-modules/README.md`.
 
 ### VM / virtual appliance
 
 ZPA PSEs are distributed as **virtual machine images** for deployment on enterprise hypervisors. Supported platforms include VMware (ESXi/vSphere). Cloud deployments are possible in private cloud environments that support the VM image format. Zscaler distributes the images; the operator provisions the VM and handles the enrollment step.
 
-This is distinct from ZIA's Virtual Service Edge (VSE), which runs on a broader range of platforms (VMware, Azure, AWS, Hyper-V, GCP) and does inline inspection. The captured ZPA release evidence establishes PSE Docker and RHEL 9 cloud images, including images for AWS, GCP, and Azure, but does not establish whether or how those images are distributed through public cloud marketplaces (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-53`).
+This is distinct from ZIA's Virtual Service Edge (VSE), which runs on a broader range of platforms (VMware, Azure, AWS, Hyper-V, GCP) and does inline inspection. The captured ZPA release evidence establishes PSE Docker and RHEL 9 cloud images, including images for AWS, GCP, and Azure, but does not establish whether or how those images are distributed through public cloud marketplaces (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:37-53`).
 
 ### July–August 2026 image and RPM releases
 
@@ -173,17 +173,17 @@ The July 23 release supplies an updated PSE Docker image, updated RHEL 9 PSE
 images for AWS, GCP, and Azure, and updated PSE images for Nutanix AHV and
 VMware. The release says these image updates include a 4 GB boot partition for
 seamless operating-system updates
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-50`). It does
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:37-50`). It does
 not name updated Hyper-V or KVM images; that omission is not evidence that those
 platforms are unsupported
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:52-53`).
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:52-53`).
 
 The August 4 entry is a different distribution path: Manager version `26.56.1`
 provides PSE RPM packages for RHEL 8.x and 9.x, downloadable from the Zscaler
 repository
-(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:12-23`). It does
+(`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:12-23`). It does
 not state that another PSE Docker, VM, hypervisor, or cloud-marketplace image was
-updated (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:25-28`).
+updated (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:25-28`).
 
 ### Host OS and package maintenance
 
@@ -193,14 +193,14 @@ captured procedure covers updating RHEL 9.4 or 9.5 to RHEL 9.6 and later.
 Zscaler recommends OS updates at least every five weeks; validate connectivity
 to the update servers. Prebuilt-image components must be provisioned to a
 Private Access tenant to receive software updates through the OS package
-manager (`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md:9-19`).
+manager (`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.json:9-19`).
 
 Local policy determines the update schedule. Warn users about possible rolling
 reconnections; the source estimates **20 minutes of downtime per component**.
 Do not update every Private Service Edge or App Connector in a group at once.
 Concurrent updates are allowed only when enough remaining components are
 running to carry the traffic load
-(`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.md:23-29`).
+(`vendor/zscaler-help/zpa-updating-host-os-and-software-packages.json:23-29`).
 For the corresponding App Connector guidance, see [App Connector — host OS and
 package maintenance](./app-connector.md#host-os-and-package-maintenance).
 
@@ -486,7 +486,7 @@ The AWS module's secondary provisioning-key flow creates the generic Terraform `
 
 ## Admin Console navigation
 
-Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/about-private-service-edge-groups.md`.
+Source: `vendor/zscaler-help/about-private-service-edges.json`; `vendor/zscaler-help/about-private-service-edge-groups.json`.
 
 ZPA Private Service Edges and their groups are managed under **Infrastructure > Private Access > Component**:
 
@@ -520,7 +520,7 @@ The response model (`vendor/zscaler-sdk-python/zscaler/zpa/models/service_edge_s
 
 ## Software version profiles
 
-Source: `vendor/zscaler-help/about-private-service-edge-groups.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
+Source: `vendor/zscaler-help/about-private-service-edge-groups.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
 
 Each PSE Group is assigned a **version profile** that controls which release track the PSEs in that group follow. Supported profile names:
 
@@ -537,7 +537,7 @@ The `el8` variants exist for environments that require OS-level compatibility wi
 
 ## Policy implications
 
-Source: `vendor/zscaler-help/understanding-private-access-architecture.md`; `vendor/zscaler-help/about-private-service-edges.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
+Source: `vendor/zscaler-help/understanding-private-access-architecture.json`; `vendor/zscaler-help/about-private-service-edges.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
 
 ### PSE selection by ZCC
 
@@ -575,7 +575,7 @@ The microtenant feature requires a license. In standard single-tenant deployment
 
 ## Common gotchas
 
-Source: `vendor/zscaler-help/about-private-service-edges.md`; `vendor/zscaler-help/about-private-service-edge-groups.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
+Source: `vendor/zscaler-help/about-private-service-edges.json`; `vendor/zscaler-help/about-private-service-edge-groups.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_service_edge_group.md`.
 
 Note: This section summarizes the cited PSE material above.
 
@@ -616,7 +616,7 @@ The `ReadOnly` and `ZscalerManaged` fields on the `ServiceEdgeGroup` struct (Go 
   confirms current RHEL 9 PSE images for AWS, GCP, and Azure plus PSE images for
   Nutanix AHV and VMware. It does not identify Hyper-V or KVM packages, the exact
   file/image format used on each platform, or cloud Marketplace distribution
-  mechanics (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.md:37-53`).
+  mechanics (`vendor/zscaler-help/zpa-release-upgrade-summary-2026-july.json:37-53`).
   (Tracked as [`zpa-49`](../_meta/clarifications.md#zpa-49-supported-hypervisor-cloud-image-formats-for-zpa-pses).)
 - **PSE hardware appliance** — the ZIA PSE product has dedicated hardware appliances (PSE 3, PSE 5 physical clusters). It is not confirmed whether ZPA PSEs are virtual-only or also available as dedicated hardware. The help sources describe only VM images. (Tracked as [`zpa-50`](../_meta/clarifications.md#zpa-50-zpa-pse-dedicated-hardware-appliance-availability).)
 - **Private Cloud Controller vs PSE Group — product positioning** — the SDK surface is now documented above: `/privateCloudControllerGroup` (group container) and `/privateCloudController` (member instance) form the same group/instance pairing as `/serviceEdgeGroup` ÷ `/serviceEdge`, with `site_id` and `privateBrokerGroupIds` linking the group to a ZPA site (`vendor/zscaler-sdk-python/zscaler/zpa/private_cloud_group.py:180`, `:201`). What the SDK source does **not** settle is the product semantics: whether the Private Cloud Controller family is a sovereign/private-cloud ZPA control-plane variant or simply an alternate PSE grouping type, and whether it is in scope for standard PSE deployments using Zscaler's public ZPA CA. Confirm against ZPA Private Cloud product docs before treating it as part of a standard PSE rollout. (Tracked as [`zpa-51`](../_meta/clarifications.md#zpa-51-private-cloud-controller-product-positioning).)

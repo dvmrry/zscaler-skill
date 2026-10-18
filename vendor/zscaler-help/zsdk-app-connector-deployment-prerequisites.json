@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "App Connector Deployment Prerequisites",
+  "source": {
+    "url": "https://help.zscaler.com/zsdk/app-connector-deployment-prerequisites",
+    "node": "1508226",
+    "revision": "3015106"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Before deploying a ZSDK App Connector on any supported platform, Zscaler highly recommends reading the following information and making the necessary changes to your organization's environment, where applicable:"
+    },
+    {
+      "item": "App Connector Specifications and Sizing Requirements",
+      "depth": 0
+    },
+    {
+      "item": "The following hardware specifications are recommended by Zscaler for each ZSDK App Connector:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Requirements",
+          "Specifications"
+        ],
+        [
+          "Memory",
+          "4 GB RAM"
+        ],
+        [
+          "CPU",
+          "Depending on whether you have a physical machine or virtual machine (VM) and whether hyperthreading is required:2 CPU cores (Xeon E5 class) for physical machines without hyperthreading4 CPU cores (Xeon E5 class) for VMs with hyperthreadingBoth Amazon Web Services (AWS) and Google Cloud Platform (GCP) require a minimum of 4 CPU cores.To deploy an App Connector on AWS, Zscaler recommends using t3.xlarge (for non-production or low-traffic App Connectors) or m5a.xlarge (for production or high-traffic App Connectors).To deploy an App Connector on GCP, Zscaler recommends using a Linux RPM on n2-standard-4 or n2-highcpu-4.Azure VMs earlier than V3 require 2 CPU cores, while VMs V3 and later require 4 CPU cores.To deploy an App Connector on Azure, Zscaler recommends using Standard_F4s_v2 or Standard_D4s_v3.Using the PassMark Software Pty Ltd benchmark to verify the CPU Mark, Zscaler recommends using a minimum CPU Mark of 2,640 when choosing a CPU. The Intel Advanced Encryption Standard New Instructions (AES-NI) instruction set must also be enabled on the CPU.To learn more, see the App Connector Deployment Guide for your platform."
+        ],
+        [
+          "Disk Space",
+          "64 GB (thin provisioned) for all deployment platforms"
+        ],
+        [
+          "Network Card",
+          "Minimum 1 NIC"
+        ]
+      ]
+    },
+    {
+      "item": "For VMware platform deployment, the default configuration to allow the host to dynamically allocate VM resources is not recommended. Configure the VM setting to reserve the following memory and CPU allocations:",
+      "depth": 0
+    },
+    {
+      "item": "Memory: 8 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "CPU: total CPU GHz (the number of cores (2 or 4 cores) multiplied by the GHz per core)",
+      "depth": 1
+    },
+    {
+      "item": "To learn more about Broadcom's VMware, see Broadcom Documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Using these specifications, each App Connector supports up to 500 Mbps of throughput. Based on Zscaler's recommendations, determine the App Connector sizing requirements for your deployment. If disk space fills up in the App Connector, Zscaler recommends archiving files and creating more log space.",
+      "depth": 0
+    },
+    {
+      "item": "After an App Connector is enrolled, an outbound TLS tunnel over port 443 is established to the ZSDK cloud infrastructure. This communication channel provides various functionality and uses minimal bandwidth, which includes the following traffic:",
+      "depth": 0
+    },
+    {
+      "item": "Periodic keepalives to ZSDK Public Service Edges or ZSDK Private Service Edges",
+      "depth": 1
+    },
+    {
+      "item": "Application learning",
+      "depth": 1
+    },
+    {
+      "item": "Application health reporting",
+      "depth": 1
+    },
+    {
+      "item": "App Connector software upgrades (upgrades are completed based on a weekly schedule)",
+      "depth": 1
+    },
+    {
+      "item": "You can deploy additional App Connectors at any time, using the same provisioning key to add them to the existing App Connector Group, while ensuring network and internet connectivity. App Connectors are designed to scale elastically. You can deploy additional App Connectors, in the same App Connector Group, to increase the total throughput as required by your deployment. Zscaler recommends that you have a minimum of two healthy App Connectors to always ensure an available path. To learn more, see About Deploying App Connectors and Supported Platforms for App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "After deployment, ensure that the App Connector meets your sizing requirements. To learn more, see Maintaining Deployed App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you have more App Connectors with lower specifications rather than fewer App Connectors with higher specifications to horizontally scale your deployment. For example, if you have fewer App Connectors with higher specifications and one fails, it could adversely affect more user application traffic or sessions than a smaller App Connector that fails.",
+      "depth": 0
+    },
+    {
+      "item": "App Connector Platform Prerequisites",
+      "depth": 0
+    },
+    {
+      "item": "Before you begin any procedures within the App Connector Deployment Guide for your platform, make sure that you have met the following prerequisites:",
+      "depth": 0
+    },
+    {
+      "item": "Intel x86_64/AMD64 based architecture",
+      "depth": 1
+    },
+    {
+      "item": "systemd",
+      "depth": 1
+    },
+    {
+      "item": "Root or sudo access to the system to configure a new package repository and install packages",
+      "depth": 1
+    },
+    {
+      "item": "DNS resolution and network access",
+      "depth": 1
+    },
+    {
+      "item": "An App Connector provisioning key",
+      "depth": 1
+    },
+    {
+      "item": "A static MAC address",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Security Guidance and Firewall Requirements",
+      "depth": 0
+    },
+    {
+      "item": "App Connectors can be deployed in different ways (as private cloud VMs, public cloud VMs, or OS packages), so the security features for each deployment type are slightly different.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends treating access to App Connectors as privileged, so only authorized personnel can access an App Connector's console. By limiting access, there is the added benefit of shielding inter-process communication within the App Connector from attack.",
+      "depth": 0
+    },
+    {
+      "heading": "OS Security",
+      "level": 1
+    },
+    {
+      "item": "The App Connector VMs distributed by Zscaler for use in private clouds are configured without any remotely accessible services running. Swap partitions are disabled on the App Connector VMs to ensure that memory growth does not have an impact on App Connector performance. For enhanced security, you must use the passwd command to change the credentials on the default admin account. To learn more, see the App Connector Deployment Guide for the platform you're using.",
+      "depth": 0
+    },
+    {
+      "item": "Both the private and public cloud VM images provided by Zscaler are configured with minimal listening services to reduce the remotely exploitable attack surface. Because these images are essentially unmodified operating systems (currently based on RHEL 9), you can patch these systems when necessary by using the standard yum OS update mechanism. To learn more, see Maintaining Deployed App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "Because vulnerabilities are regularly found in core open-source components such as DNS resolvers and the Linux Kernel, Zscaler recommends either patching or using new Zscaler-distributed VM images on a regular basis, or protecting App Connectors using firewall policies. Additionally, if you've installed the App Connector as a package, Zscaler recommends that you take similar precautions.",
+      "depth": 0
+    },
+    {
+      "item": "Some organizations choose to firewall or otherwise restrict outbound traffic to the internet from the data center. It is possible to deploy an App Connector in such an environment as long as the App Connector is able to reach all Zscaler data centers containing ZSDK Public Service Edges. To learn more, see What Is My Cloud Name for ZSDK?",
+      "depth": 0
+    },
+    {
+      "heading": "Firewall Requirements and Interoperability Guidelines",
+      "level": 1
+    },
+    {
+      "item": "All the Zscaler data centers containing Zscaler Public Service Edges must be allowed. A partial firewall configuration can result in connectivity problems for end users. Zscaler’s policy is to provide a 90-day notice for activating additional IP CIDR ranges, to provide organizations with sufficient opportunity for changing control policies.",
+      "depth": 0
+    },
+    {
+      "item": "Because the service enforces TLS certificate pinning for both client and server certificates, all forms of inline or man-in-the-middle TLS interception or inspection must be disabled. App Connectors do not function if the TLS certificates presented by the ZSDK Public Service Edges or Private Service Edges do not cryptographically verify against Zscaler-trusted public keys.",
+      "depth": 0
+    },
+    {
+      "item": "By design, certificate verification is not configurable to maintain the integrity of the service. Ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the App Connector to allow the App Connector to resolve and reach ZSDK Public Service Edges. To learn more, see What Is My Cloud Name for ZSDK?",
+      "depth": 0
+    },
+    {
+      "text": "After you have met all the prerequisites, you can deploy the App Connector on a supported platform."
+    }
+  ]
+}

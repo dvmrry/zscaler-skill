@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/itdr-what-identity-protection.md"
+  - "vendor/zscaler-help/itdr-what-identity-protection.json"
 author-status: draft
 ---
 
@@ -25,12 +25,12 @@ author-status: draft
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| Identity Protection detects anomalous activity such as compromised credentials and suspicious logins and provides continuous unified visibility into identity risks. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.md:8` |
-| Identity Protection is part of the SecOps platform alongside UVM, AEM, and SOC Workbench. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.md:10` |
-| Identity Protection architecture includes the Identities App, ITDR Connector, Data Fabric Cluster, and ZTE integration. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.md:35-42` |
-| ZTE integration provides visibility, enrichment, containment, and access-policy controls for compromised users through ZIA/ZPA context. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.md:42` |
-| Identity Protection capabilities include identity posture scan, AD posture scan, Entra ID posture scan, Okta integration, change detection, credential exposure scan, and identity threat detection. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.md:44-52` |
-| AD posture scans, credential exposure scans, and identity threat detection have ZCC dependencies in the captured Help source. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.md:46-52` |
-| Current Identity Protection is the SecOps UI generation; the Help portal still has legacy ITDR links for advanced tasks. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.md:54-56` |
+| Identity Protection detects anomalous activity such as compromised credentials and suspicious logins and provides continuous unified visibility into identity risks. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.json:8` |
+| Identity Protection is part of the SecOps platform alongside UVM, AEM, and SOC Workbench. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.json:10` |
+| Identity Protection architecture includes the Identities App, ITDR Connector, Data Fabric Cluster, and ZTE integration. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.json:35-42` |
+| ZTE integration provides visibility, enrichment, containment, and access-policy controls for compromised users through ZIA/ZPA context. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.json:42` |
+| Identity Protection capabilities include identity posture scan, AD posture scan, Entra ID posture scan, Okta integration, change detection, credential exposure scan, and identity threat detection. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.json:44-52` |
+| AD posture scans, credential exposure scans, and identity threat detection have ZCC dependencies in the captured Help source. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.json:46-52` |
+| Current Identity Protection is the SecOps UI generation; the Help portal still has legacy ITDR links for advanced tasks. | `overview.md` | `vendor/zscaler-help/itdr-what-identity-protection.json:54-56` |
 | No product-specific Identity Protection Go SDK, Python SDK, Terraform, Ansible, MCP, or Postman surface was found in the audited vendor trees. | `overview.md` | AUDIT-SCOPED ABSENCE -> 2026-06-16 search across the Go/Python SDK, Terraform, Ansible, and Postman families; MCP portion rechecked 2026-07-30 against v0.15.0 for Identity Protection / ITDR product surface. |
 | Identity Protection API/integration surface and current-vs-legacy parity remain unresolved. | `overview.md`, `clarifications.md` | OPEN QUESTION -> `references/_meta/clarifications.md#identity-protection-01-identity-protection-api-integration-surface-and-legacy-itdr-parity` |

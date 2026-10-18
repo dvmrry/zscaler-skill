@@ -9,8 +9,8 @@ verified-against:
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.md"
-  - "vendor/zscaler-help/understanding-step-up-authentication.md"
+  - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.json"
+  - "vendor/zscaler-help/understanding-step-up-authentication.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/stepup_auth_level.py"
 author-status: draft
 ---
@@ -21,11 +21,11 @@ The mechanism behind ZIA URL Filter's `Conditional` action and ZPA Access Policy
 
 ## What step-up authentication is
 
-Step-up authentication allows dynamic requests for stronger authentication when users attempt to access sensitive resources or when risk signals indicate a potential threat. This feature enhances the existing authentication process by requiring multi-factor authentication (MFA) when needed, ensuring that access to high-risk or sensitive data is protected. (Tier A — vendor/zscaler-help/understanding-step-up-authentication.md.)
+Step-up authentication allows dynamic requests for stronger authentication when users attempt to access sensitive resources or when risk signals indicate a potential threat. This feature enhances the existing authentication process by requiring multi-factor authentication (MFA) when needed, ensuring that access to high-risk or sensitive data is protected. (Tier A — vendor/zscaler-help/understanding-step-up-authentication.json.)
 
 Step-up authentication is a method that prompts users to reauthenticate with a higher assurance level (e.g., using MFA) when accessing specific resources. For example, if a user logs in with a username and password (a lower assurance level), they might still be asked to verify their identity via MFA (a higher assurance level) when accessing a sensitive resource, such as financial information or critical applications.
 
-**OIDC-only constraint:** "Step-up authentication is supported only with OIDC-based external IdP integrations." SAML IdP integrations silently don't work for step-up. (Tier A — vendor/zscaler-help/understanding-step-up-authentication.md.)
+**OIDC-only constraint:** "Step-up authentication is supported only with OIDC-based external IdP integrations." SAML IdP integrations silently don't work for step-up. (Tier A — vendor/zscaler-help/understanding-step-up-authentication.json.)
 
 ## Authentication Levels — AL1 through AL4 (and beyond)
 
@@ -78,7 +78,7 @@ OIDC's `acr` (Authentication Context Class Reference) claim is the standard way 
 
 ## Trigger conditions and the step-up flow
 
-(Tier A — vendor/zscaler-help/understanding-step-up-authentication.md and understanding-step-up-authentication-zidentity.md.)
+(Tier A — vendor/zscaler-help/understanding-step-up-authentication.json and understanding-step-up-authentication-zidentity.md.)
 
 Step-up authentication is triggered when a user attempts to access a resource that requires a higher authentication level than their current session provides.
 

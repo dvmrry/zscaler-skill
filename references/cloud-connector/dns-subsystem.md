@@ -7,11 +7,11 @@ last-verified: "2026-06-15"
 confidence: high
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/cbc-about-dns-gateways.md"
-  - "vendor/zscaler-help/cbc-configuring-dns-gateway.md"
-  - "vendor/zscaler-help/cbc-about-dns-policies.md"
-  - "vendor/zscaler-help/cbc-about-log-and-control-forwarding.md"
-  - "vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.md"
+  - "vendor/zscaler-help/cbc-about-dns-gateways.json"
+  - "vendor/zscaler-help/cbc-configuring-dns-gateway.json"
+  - "vendor/zscaler-help/cbc-about-dns-policies.json"
+  - "vendor/zscaler-help/cbc-about-log-and-control-forwarding.json"
+  - "vendor/zscaler-help/cbc-configuring-log-and-control-forwarding-rule.json"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/dns_gateway/dns_gateway.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_dns_rules/traffic_dns_rules.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/traffic_log_rules/traffic_log_rules.go"
@@ -40,10 +40,10 @@ DNS Gateways redirect DNS queries received by Cloud Connector to specific upstre
 
 ### Resolver configuration
 
-- **Primary DNS Server** — the help-page drop-down (`vendor/zscaler-help/cbc-configuring-dns-gateway.md:31-35`) lists three choices: a Custom DNS Server (a user-entered IP), the LAN Primary DNS Server, or the LAN Secondary DNS Server. The SDK-backed enum behind this field (`ecDnsGatewayOptionsPrimary`) is broader: it accepts `LAN_PRI_DNS_AS_PRI`, `LAN_SEC_DNS_AS_SEC`, `WAN_PRI_DNS_AS_PRI`, and `WAN_SEC_DNS_AS_SEC` (`vendor/terraform-provider-ztc/ztc/resource_ztc_dns_gateway.go:71-76`) — the two `WAN_*` values are not surfaced in the captured help drop-down (they map to the WAN-CTR predefined gateway). See the enum table under *SDK / Terraform surface* for the full set.
+- **Primary DNS Server** — the help-page drop-down (`vendor/zscaler-help/cbc-configuring-dns-gateway.json:31-35`) lists three choices: a Custom DNS Server (a user-entered IP), the LAN Primary DNS Server, or the LAN Secondary DNS Server. The SDK-backed enum behind this field (`ecDnsGatewayOptionsPrimary`) is broader: it accepts `LAN_PRI_DNS_AS_PRI`, `LAN_SEC_DNS_AS_SEC`, `WAN_PRI_DNS_AS_PRI`, and `WAN_SEC_DNS_AS_SEC` (`vendor/terraform-provider-ztc/ztc/resource_ztc_dns_gateway.go:71-76`) — the two `WAN_*` values are not surfaced in the captured help drop-down (they map to the WAN-CTR predefined gateway). See the enum table under *SDK / Terraform surface* for the full set.
 - **Secondary DNS Server** — same drop-down choices and same enum (`ecDnsGatewayOptionsSecondary`, `vendor/terraform-provider-ztc/ztc/resource_ztc_dns_gateway.go:78-87`).
-- For a **Custom DNS Server** entry, "Zscaler only supports IPv4 addresses" (`vendor/zscaler-help/cbc-configuring-dns-gateway.md:32,40`). Whether the LAN/WAN-referenced resolvers can themselves be IPv6 is not stated in captures — treat a blanket "no IPv6 anywhere on the gateway" as unconfirmed (see Open questions).
-- Up to **255 DNS gateways** can be created (`vendor/zscaler-help/cbc-configuring-dns-gateway.md:56`).
+- For a **Custom DNS Server** entry, "Zscaler only supports IPv4 addresses" (`vendor/zscaler-help/cbc-configuring-dns-gateway.json:32,40`). Whether the LAN/WAN-referenced resolvers can themselves be IPv6 is not stated in captures — treat a blanket "no IPv6 anywhere on the gateway" as unconfirmed (see Open questions).
+- Up to **255 DNS gateways** can be created (`vendor/zscaler-help/cbc-configuring-dns-gateway.json:56`).
 
 For hardware devices in gateway mode, Zscaler pre-creates two non-editable gateways:
 
@@ -85,13 +85,13 @@ DNS Policies define rule-based control over DNS requests and responses traversin
 
 ### Rule model
 
-Rules are evaluated in **ascending numerical order** (Rule 1 before Rule 2); first match wins. The captured help page (`vendor/zscaler-help/cbc-about-dns-policies.md:40-42`) names two predefined rules; the Terraform provider's `validatePredefinedDNSRules` function names a third (`ZPA Resolver`), though that guard is currently commented out of the delete path (see the `ZPA Resolver` row):
+Rules are evaluated in **ascending numerical order** (Rule 1 before Rule 2); first match wins. The captured help page (`vendor/zscaler-help/cbc-about-dns-policies.json:40-42`) names two predefined rules; the Terraform provider's `validatePredefinedDNSRules` function names a third (`ZPA Resolver`), though that guard is currently commented out of the delete path (see the `ZPA Resolver` row):
 
 | Predefined rule | Default state | Notes |
 |---|---|---|
-| **Redirect Resolution of Zscaler Domains to WAN CTR** | Disabled | Matches the Zscaler Cloud Endpoints app service group; only applies to hardware devices in gateway mode, and "appears based on the licenses enabled in your tenant"; only certain fields editable (Rule Order, Rule Status, Location/Sublocation, Cloud & Branch Connector Groups) (`vendor/zscaler-help/cbc-about-dns-policies.md:40-41`) |
+| **Redirect Resolution of Zscaler Domains to WAN CTR** | Disabled | Matches the Zscaler Cloud Endpoints app service group; only applies to hardware devices in gateway mode, and "appears based on the licenses enabled in your tenant"; only certain fields editable (Rule Order, Rule Status, Location/Sublocation, Cloud & Branch Connector Groups) (`vendor/zscaler-help/cbc-about-dns-policies.json:40-41`) |
 | **ZPA Resolver** | Not stated in captures | Named only in the TF provider's `validatePredefinedDNSRules` function, which is written to reject deleting a rule named `ZPA Resolver` or `Redirect Resolution of Zscaler Domains to WAN CTR` (`vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_dns_rule.go:135-139`). Note that this guard is currently inactive — the call to it in the delete function is commented out (`resource_ztc_traffic_forwarding_dns_rule.go:378-387`), so the present provider does not actually block the deletion. The function records the *intent* to treat these as predefined. The help capture does not describe `ZPA Resolver`; its default state, criteria, and appearance conditions are an open question. |
-| **Default Connector DNS Rule** | Enabled (allow all) | Catch-all; always lowest precedence; action is modifiable but rule cannot be deleted (`vendor/zscaler-help/cbc-about-dns-policies.md:26,42`) |
+| **Default Connector DNS Rule** | Enabled (allow all) | Catch-all; always lowest precedence; action is modifiable but rule cannot be deleted (`vendor/zscaler-help/cbc-about-dns-policies.json:26,42`) |
 
 Because the default rule allows all traffic, new filtering rules must be placed above it in rule order to have effect.
 

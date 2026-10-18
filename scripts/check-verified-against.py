@@ -454,6 +454,18 @@ def pin_location(pin: Pin, snapshot: ReferenceSnapshot) -> str:
     return f"{pin.file}:{pin.line}{label}"
 
 
+def migrated_help_capture(vendor_path: str) -> str | None:
+    """The Markdown capture a JSON help capture replaced, for pins recorded before the move.
+
+    `help_capture.py migrate` turned each `vendor/zscaler-help/X.md` into `X.json` with the same
+    anchoring text (it refuses a file whose text would change), so a pin at which `X.md` existed
+    still describes `X.json`.
+    """
+    if vendor_path.startswith("vendor/zscaler-help/") and vendor_path.endswith(".json"):
+        return vendor_path[: -len(".json")] + ".md"
+    return None
+
+
 def validate_snapshot_source_paths(
     root: Path,
     snapshot: ReferenceSnapshot,
@@ -493,6 +505,9 @@ def validate_snapshot_source_paths(
         key = (pin.sha, source.vendor_path)
         if key not in path_results:
             path_results[key] = git_object_type(root, f"{pin.sha}:{source.vendor_path}")
+            migrated = migrated_help_capture(source.vendor_path)
+            if path_results[key] is None and migrated:
+                path_results[key] = git_object_type(root, f"{pin.sha}:{migrated}")
         object_type = path_results[key]
         if object_type is None:
             errors.append(

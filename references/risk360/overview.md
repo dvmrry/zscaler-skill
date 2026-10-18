@@ -17,12 +17,12 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/what-risk360.md"
-  - "vendor/zscaler-help/risk360-about-dashboard.md"
-  - "vendor/zscaler-help/risk360-about-factors.md"
-  - "vendor/zscaler-help/risk360-about-asset-level-risk.md"
+  - "vendor/zscaler-help/what-risk360.json"
+  - "vendor/zscaler-help/risk360-about-dashboard.json"
+  - "vendor/zscaler-help/risk360-about-factors.json"
+  - "vendor/zscaler-help/risk360-about-asset-level-risk.json"
   - "vendor/zscaler-help/risk360-monte-carlo.md"
-  - "vendor/zscaler-help/risk360-logs-retention.md"
+  - "vendor/zscaler-help/risk360-logs-retention.json"
   - "vendor/zscaler-help/risk360-product-marketing.md"
   - "vendor/zscaler-sdk-python/tests/integration/zid/cassettes/TestResourceServers.yaml"
 author-status: draft
@@ -30,23 +30,23 @@ author-status: draft
 
 # Risk360 - cyber risk quantification and audit-scoped API surface
 
-Risk360 analyzes organizational security data and provides real-time risk metrics at the organization level and across four attack stages: External Attack Surface, Compromise, Lateral Propagation, and Data Loss (`vendor/zscaler-help/what-risk360.md:8-13`). The help capture frames Risk360 around holistic risk analysis, financial exposure through Monte Carlo simulation, stakeholder reporting, peer benchmarking, compliance support, and deployment through the Zero Trust Exchange without additional hardware upgrades (`vendor/zscaler-help/what-risk360.md:15-22`).
+Risk360 analyzes organizational security data and provides real-time risk metrics at the organization level and across four attack stages: External Attack Surface, Compromise, Lateral Propagation, and Data Loss (`vendor/zscaler-help/what-risk360.json:8-13`). The help capture frames Risk360 around holistic risk analysis, financial exposure through Monte Carlo simulation, stakeholder reporting, peer benchmarking, compliance support, and deployment through the Zero Trust Exchange without additional hardware upgrades (`vendor/zscaler-help/what-risk360.json:15-22`).
 
 ## Data And Risk Model
 
 The product-marketing capture says Risk360 ingests data from an existing Zscaler deployment and creates a cyber-risk posture view with actionable insights (`vendor/zscaler-help/risk360-product-marketing.md:8-10`). The named telemetry sources are ZIA, ZPA, DLP policies, ThreatLabz security research, and external attack surface metrics (`vendor/zscaler-help/risk360-product-marketing.md:20-22`).
 
-Risk360 logs are defined as duplicates of configuration and transaction logs from other Zscaler SaaS products such as ZIA and ZPA (`vendor/zscaler-help/risk360-logs-retention.md:8-12`). Retention is up to one year during the subscription term, and storage is in either the United States or the European Union (`vendor/zscaler-help/risk360-logs-retention.md:14-20`).
+Risk360 logs are defined as duplicates of configuration and transaction logs from other Zscaler SaaS products such as ZIA and ZPA (`vendor/zscaler-help/risk360-logs-retention.json:8-12`). Retention is up to one year during the subscription term, and storage is in either the United States or the European Union (`vendor/zscaler-help/risk360-logs-retention.json:14-20`).
 
 Factor count is a moving target in the captured sources: one marketing line says 140+ predefined factors, while another says more than 115 predefined factors (`vendor/zscaler-help/risk360-product-marketing.md:16-24`). Cite it as "115+ / 140+ depending on source" or "growing factor catalog"; do not make a high-confidence exact-count claim.
 
 ## Dashboard, Factors, And Asset-Level Risk
 
-The Dashboard page exposes a Zscaler-computed risk score, industry peer average, category score trends, risk events by location, contributing factors by entity, and a Top 10 Factors section with a "Licensed?" column (`vendor/zscaler-help/risk360-about-dashboard.md:8-16`, `:27-48`). Severity ranges are captured as 0-25 Low, 26-50 Medium, 51-75 High, and 76-100 Critical (`vendor/zscaler-help/risk360-about-dashboard.md:18-25`).
+The Dashboard page exposes a Zscaler-computed risk score, industry peer average, category score trends, risk events by location, contributing factors by entity, and a Top 10 Factors section with a "Licensed?" column (`vendor/zscaler-help/risk360-about-dashboard.json:8-16`, `:27-48`). Severity ranges are captured as 0-25 Low, 26-50 Medium, 51-75 High, and 76-100 Critical (`vendor/zscaler-help/risk360-about-dashboard.json:18-25`).
 
-The Factors page says Risk360 quantifies each factor according to risk weight and maps factors to MITRE and NIST (`vendor/zscaler-help/risk360-about-factors.md:8`). It also supports integrations with vendors such as CrowdStrike to gather risky events and translate them into factors (`vendor/zscaler-help/risk360-about-factors.md:10`). The captured views are Attack-Based and Entity-Based (`vendor/zscaler-help/risk360-about-factors.md:17-20`).
+The Factors page says Risk360 quantifies each factor according to risk weight and maps factors to MITRE and NIST (`vendor/zscaler-help/risk360-about-factors.json:8`). It also supports integrations with vendors such as CrowdStrike to gather risky events and translate them into factors (`vendor/zscaler-help/risk360-about-factors.json:10`). The captured views are Attack-Based and Entity-Based (`vendor/zscaler-help/risk360-about-factors.json:17-20`).
 
-Asset-level risk aggregates asset counts, highlights risky assets, and supports drill-downs into the drivers of risk (`vendor/zscaler-help/risk360-about-asset-level-risk.md:8-10`). The asset-level model uses more than 65 indicators grouped into pre-infection behavior, post-infection behavior, and suspicious behavior (`vendor/zscaler-help/risk360-about-asset-level-risk.md:12-20`).
+Asset-level risk aggregates asset counts, highlights risky assets, and supports drill-downs into the drivers of risk (`vendor/zscaler-help/risk360-about-asset-level-risk.json:8-10`). The asset-level model uses more than 65 indicators grouped into pre-infection behavior, post-infection behavior, and suspicious behavior (`vendor/zscaler-help/risk360-about-asset-level-risk.json:12-20`).
 
 ## Monte Carlo Financial Modeling
 
@@ -64,7 +64,7 @@ The simulation runs four scenarios: Inherent risk, Residual risk after mitigatin
 | Ansible | No product-specific Risk360 module found in this audit pass. |
 | MCP | No product-specific Risk360 tool found in this audit pass. |
 | Postman | No Risk360 endpoint family found in the audited Postman collection. |
-| Help captures | Risk model, dashboard, factors, asset-level risk, Monte Carlo, logs/retention, and marketing-positioning captures are available (`vendor/zscaler-help/what-risk360.md:8-22`, `vendor/zscaler-help/risk360-about-dashboard.md:8-48`, `vendor/zscaler-help/risk360-about-factors.md:8-20`, `vendor/zscaler-help/risk360-about-asset-level-risk.md:8-20`, `vendor/zscaler-help/risk360-monte-carlo.md:8-42`, `vendor/zscaler-help/risk360-logs-retention.md:8-20`). |
+| Help captures | Risk model, dashboard, factors, asset-level risk, Monte Carlo, logs/retention, and marketing-positioning captures are available (`vendor/zscaler-help/what-risk360.json:8-22`, `vendor/zscaler-help/risk360-about-dashboard.json:8-48`, `vendor/zscaler-help/risk360-about-factors.json:8-20`, `vendor/zscaler-help/risk360-about-asset-level-risk.json:8-20`, `vendor/zscaler-help/risk360-monte-carlo.md:8-42`, `vendor/zscaler-help/risk360-logs-retention.json:8-20`). |
 
 ## API Surface
 
@@ -72,7 +72,7 @@ Do not claim a Risk360 public API from the current captures. The audited sources
 
 ## What Risk360 Is Not
 
-- It is not evidenced here as a scanner or traffic enforcement engine; the source-backed model is risk quantification over telemetry and external signals (`vendor/zscaler-help/what-risk360.md:8-22`, `vendor/zscaler-help/risk360-product-marketing.md:20-22`).
+- It is not evidenced here as a scanner or traffic enforcement engine; the source-backed model is risk quantification over telemetry and external signals (`vendor/zscaler-help/what-risk360.json:8-22`, `vendor/zscaler-help/risk360-product-marketing.md:20-22`).
 - It is not evidenced as a standalone API product in the audited source families.
 - It is not safe to quote one exact factor count without qualification; the captured sources cite both 140+ and more than 115 factors (`vendor/zscaler-help/risk360-product-marketing.md:18-24`).
 

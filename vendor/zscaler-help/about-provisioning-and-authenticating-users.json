@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding User Provisioning and Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-provisioning-authenticating-users",
+    "node": "1399496",
+    "revision": "3223541"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The Zscaler service can enforce web and firewall policies by location, department, group, and user, and it can track internet usage by location, department, and user. To leverage the ability to enforce granular policies and the reporting capabilities of the Zscaler service, provisioning and authenticating users are required. Provisioning must be done first and involves uploading users, groups, and departments to the service database. Enabling authentication allows the Zscaler service to identify the traffic that it receives so it can enforce the configured location, department, group and user policies, as well as provide user and department logging and reporting."
+    },
+    {
+      "text": "When a user from an organization with Zscaler deployed opens a browser and sends an HTTP request to a site, the request is redirected to the nearest Zscaler gateway, the Public Service Edge for Internet & SaaS (ZIA). The Public Service Edge first checks if the request is from a location defined in the Zscaler Admin Console (that is, a known location), or from a location that was not configured on the Zscaler Admin Console (that is, an unknown location)."
+    },
+    {
+      "text": "When the Zscaler service receives traffic from a known location or at a dedicated proxy port that is associated with a location, the service automatically applies the location's policies and tracks internet activity by location. In order to leverage granular department, group, and user policies as well as enable the ability to track usage trends by department and user, an organization must provision its users and enable authentication."
+    },
+    {
+      "text": "If authentication is disabled for a known location, users are able to access any website, unless there are location-based category or website block policies configured. Also, if users are coming through a location with an unregistered domain, the service still knows the location because the IP address is registered with Zscaler. So, location-based policies are still applied to these users. However, the service does not know who the users are and to which domain they belong to because authentication is disabled. Yet, in some deployments from known locations, by mapping a user to a private IP address, Zscaler can apply the user's policies instead of the location's policies to traffic that it cannot authenticate. This is known as a Surrogate IP. To learn more about this, including how to enable it, see Understanding Surrogate IP."
+    },
+    {
+      "text": "When the Zscaler service receives traffic from a location that it cannot identify, it automatically requires users to authenticate themselves because it cannot associate the traffic with a location. In this case, users must be provisioned on the service so it can successfully authenticate them, apply the appropriate department, group, and user policies, and track internet usage."
+    },
+    {
+      "text": "The following sections provide additional information on provisioning and authenticating users:"
+    },
+    {
+      "item": "About Provisioning",
+      "depth": 0
+    },
+    {
+      "item": "Provisioning involves uploading user, group, and department information to the Zscaler service database. The Zscaler service supports various provisioning mechanisms, as described in Choosing Provisioning and Authentication Methods. Following guidelines apply when provisioning users, groups, and departments:",
+      "depth": 0
+    },
+    {
+      "item": "Users: Users can be included as criteria in policies, and in reports and analytics as well. The user ID must be in the form of an email address. It does not have to be a valid email address, but it must be unique, and its domain must belong to the organization.",
+      "depth": 1
+    },
+    {
+      "item": "Groups: Groups can be included as criteria in policies in order to control access. For example, you can define groups and policies based on the apps that users are allowed to access. You could create a facebook-users group and a twitter-users group, define a policy that allows access to Facebook and apply it to the facebook-users group, then define another policy that allows access to Twitter and apply it to the twitter-users group. Depending on their business needs, the users could belong to one or both groups. A user can belong to up to 128 groups.",
+      "depth": 1
+    },
+    {
+      "item": "Departments: Like users, departments can be included as criteria in policies, and in reports and analytics as well. Therefore, consider your reporting needs when defining departments in the Zscaler service. Ensure that the departments are structured correctly so that you get the correct department-based reports. Unlike groups, a user can belong to only one department. The service tracks usage at the user-level. If a user belonged to multiple departments, then they would be reported upon multiple times. Additionally, using role-based administration, administrators can have control over a set of users in a department. When you set up administrators, you can define their scope by department. However, if users belong to more than one department, this can cause conflicts.",
+      "depth": 1
+    },
+    {
+      "item": "Authenticating Users from Known Locations",
+      "depth": 0
+    },
+    {
+      "item": "The following diagram illustrates how Public Service Edges handle HTTP traffic from known locations:",
+      "depth": 0
+    },
+    {
+      "item": "Authentication is always enabled for dedicated proxy ports. To learn more, see Configuring Dedicated Proxy Ports.",
+      "depth": 1
+    },
+    {
+      "item": "For traffic from unknown locations, the Zscaler service always enforces Kerberos authentication on all explicitly forwarded traffic it receives on port 8800.",
+      "depth": 1
+    },
+    {
+      "item": "For example, when applications don't support cookies or when an unknown user agent is used.",
+      "depth": 1
+    },
+    {
+      "item": "To learn how to enable IP surrogacy, see Understanding Surrogate IP.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Understanding SAML.",
+      "depth": 1
+    },
+    {
+      "item": "To learn about authentication and provisioning, see Choosing Provisioning and Authentication Methods.",
+      "depth": 1
+    },
+    {
+      "item": "Authenticating Users from Unknown Locations",
+      "depth": 0
+    },
+    {
+      "item": "The following diagram illustrates how Public Service Edges handle HTTP traffic from locations that are not configured on the Zscaler service:",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about dedicated proxy ports, see Configuring Dedicated Proxy Ports.",
+      "depth": 1
+    },
+    {
+      "item": "For example, when applications don't support cookies or when an unknown user agent is used.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more about authentication methods, see Choosing Provisioning and Authentication Methods.",
+      "depth": 1
+    },
+    {
+      "item": "As shown in the diagrams, the Zscaler service uses cookies to determine whether a user has been authenticated. To learn more about cookies, see About Zscaler Cookies.",
+      "depth": 1
+    }
+  ]
+}

@@ -201,6 +201,31 @@ function sourceFile(g, ev) {
 }
 
 /** The file's text at a ref: "HEAD" is the checked-out pin; anything else is read from the submodule's git. */
+/**
+ * The text a quote anchors in. A help capture is JSON (`kind: "help-article"`, written by
+ * scripts/help_capture.py); its quotes anchor in captureText, the fixed serialization of its blocks.
+ * A pointer still resolves against the raw JSON.
+ */
+function anchorTextOf(text, ev) {
+  if (text === null || ev.pointer !== undefined || !text.startsWith("{")) return text;
+  let doc;
+  try { doc = JSON.parse(text); } catch { return text; }
+  return doc?.kind === "help-article" ? captureText(doc.blocks) : text;
+}
+
+/** A help capture's anchoring text; must equal `text_of` in scripts/help_capture.py (a test pins the two). */
+export function captureText(blocks) {
+  const lines = [];
+  const row = (cells) => `| ${cells.map((c) => c.replaceAll("|", "\\|")).join(" | ")} |`;
+  for (const b of blocks) {
+    if (b.heading !== undefined) lines.push(`${"#".repeat(b.level)} ${b.heading}`);
+    else if (b.item !== undefined) lines.push(`${"  ".repeat(b.depth)}- ${b.item}`);
+    else if (b.table) lines.push(row(b.table[0]), `|${"---|".repeat(b.table[0].length)}`, ...b.table.slice(1).map(row));
+    else lines.push(b.text);
+  }
+  return `${lines.join("\n").trim()}\n`;
+}
+
 function textAt(f, ref, cache) {
   const key = `${f.full}@${ref}`;
   if (!cache.has(key)) {
@@ -303,7 +328,7 @@ export function anchorEvidence(g, ev, cache = new Map()) {
   const errors = [];
   let anchors = [];
   for (const ref of refs) {
-    const text = textAt(f, ref, cache);
+    const text = anchorTextOf(textAt(f, ref, cache), ev);
     const label = ref === "HEAD" ? f.repoPath : `${f.repoPath}@${ref}`;
     if (text === null) { errors.push(`${label} does not exist`); continue; }
     const r = anchorIn(text, ev, label, { emphasis: f.src.kind === "capture" });

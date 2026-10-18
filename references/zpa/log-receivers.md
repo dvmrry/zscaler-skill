@@ -7,7 +7,7 @@ last-verified: "2026-06-15"
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/about-log-streaming-service.md"
+  - "vendor/zscaler-help/about-log-streaming-service.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/lss.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go"
@@ -22,13 +22,13 @@ author-status: draft
 
 ## What the Log Streaming Service is
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
 
-The Log Streaming Service (LSS) is ZPA's mechanism for forwarding operational logs to external destinations — SIEMs, log aggregators, cloud storage. It is distinct from ZIA's Nanolog Streaming Service (NSS) and operates on a different architecture. (Tier A — vendor/zscaler-help/about-log-streaming-service.md: "While the LSS is used to capture log data about App Connectors and users in Private Access using a log receiver, the Nanolog Streaming Service (NSS) resides in Internet & SaaS (ZIA).")
+The Log Streaming Service (LSS) is ZPA's mechanism for forwarding operational logs to external destinations — SIEMs, log aggregators, cloud storage. It is distinct from ZIA's Nanolog Streaming Service (NSS) and operates on a different architecture. (Tier A — vendor/zscaler-help/about-log-streaming-service.json: "While the LSS is used to capture log data about App Connectors and users in Private Access using a log receiver, the Nanolog Streaming Service (NSS) resides in Internet & SaaS (ZIA).")
 
 A **Log Receiver** (`lssConfig` in the API) is the operator-created configuration object that defines where log traffic goes: the TCP/TLS endpoint, the log type it carries, the output format, and optional filter conditions.
 
-**Cloud log retention:** Zscaler retains User Activity, User Status, and App Connector log information for rolling periods of at least 14 days during the subscription term. Audit log information is retained for at least 6-month periods. (Tier A — vendor/zscaler-help/about-log-streaming-service.md.) For access to logs beyond these retention windows, LSS is required.
+**Cloud log retention:** Zscaler retains User Activity, User Status, and App Connector log information for rolling periods of at least 14 days during the subscription term. Audit log information is retained for at least 6-month periods. (Tier A — vendor/zscaler-help/about-log-streaming-service.json.) For access to logs beyond these retention windows, LSS is required.
 
 Three related concepts that are NOT this doc:
 
@@ -40,9 +40,9 @@ Three related concepts that are NOT this doc:
 
 ## LSS architecture
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
-LSS is deployed using two components: a log receiver and an App Connector. (Tier A — vendor/zscaler-help/about-log-streaming-service.md: "LSS resides in the Zero Trust Exchange (ZTE) and initiates a log stream through a Public Service Edge for Private Access. The App Connector resides in your company's enterprise environment. It receives the log stream and then forwards it to a log receiver.")
+LSS is deployed using two components: a log receiver and an App Connector. (Tier A — vendor/zscaler-help/about-log-streaming-service.json: "LSS resides in the Zero Trust Exchange (ZTE) and initiates a log stream through a Public Service Edge for Private Access. The App Connector resides in your company's enterprise environment. It receives the log stream and then forwards it to a log receiver.")
 
 The data flow:
 ```
@@ -89,9 +89,9 @@ An optional policy rule that gates which sessions/events are forwarded. Uses the
 
 ## Log types
 
-Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go`; `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go`; `vendor/zscaler-help/about-log-streaming-service.json`.
 
-The Python SDK `source_log_map` and the TF data source `data_source_zpa_lss_config_log_types_formats.go` define the full set. (Tier A — vendor/zscaler-help/about-log-streaming-service.md:44-55 lists exactly 12 human-facing log types.)
+The Python SDK `source_log_map` and the TF data source `data_source_zpa_lss_config_log_types_formats.go` define the full set. (Tier A — vendor/zscaler-help/about-log-streaming-service.json:44-55 lists exactly 12 human-facing log types.)
 
 | Internal code | Human label | SDK `source_log_type`? | Notes |
 |---|---|---|---|
@@ -112,7 +112,7 @@ The Python SDK `source_log_map` and the TF data source `data_source_zpa_lss_conf
 | `zpn_ldap_inspection_log` | (LDAP inspection) | No (SDK); unresolved (zpa-41) | LDAP inspection log. Present in TF data source (format lookup); absent from TF resource write validator; receiver-API acceptance unconfirmed. |
 | `zpn_krb_inspection_log` | (Kerberos inspection) | No (SDK); unresolved (zpa-41) | Kerberos inspection log. Present in TF data source (format lookup); absent from TF resource write validator; receiver-API acceptance unconfirmed. |
 
-(Tier A — Python `source_log_map`: vendor/zscaler-sdk-python/zscaler/zpa/lss.py:27-36; TF data source code set: vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:21-38; human labels: vendor/zscaler-help/about-log-streaming-service.md:44-55.)
+(Tier A — Python `source_log_map`: vendor/zscaler-sdk-python/zscaler/zpa/lss.py:27-36; TF data source code set: vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:21-38; human labels: vendor/zscaler-help/about-log-streaming-service.json:44-55.)
 
 **Two code sets, two purposes.** The Python SDK `source_log_map` maps exactly **8** human-readable keys to internal codes — `app_connector_metrics` → `zpn_ast_comprehensive_stats`, `app_connector_status` → `zpn_ast_auth_log`, `audit_logs` → `zpn_audit_log`, `browser_access` → `zpn_http_trans_log`, `private_svc_edge_status` → `zpn_sys_auth_log`, `user_activity` → `zpn_trans_log`, `user_status` → `zpn_auth_log`, `web_inspection` → `zpn_waf_http_exchanges_log` (vendor/zscaler-sdk-python/zscaler/zpa/lss.py:27-36). Those 8 are the codes the SDK will accept on a receiver's `source_log_type`. The TF data source enumerates **16** codes (vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:21-38), but that list validates the `log_type` argument to the format-lookup data source only (`GET /lssConfig/logType/formats`). The 8 extra codes — `zpn_pbroker_comprehensive_stats`, `zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log` — are valid for format lookups but absent from the Python SDK's `source_log_map`. The one exception is `zpn_pbroker_comprehensive_stats`, which the **Terraform resource** `zpa_lss_config_controller` additionally accepts as a live `source_log_type` (`vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go:225`) — so it is a confirmed streamable code via TF, just not via the Python SDK. The remaining 7 — `zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log` — appear only in the format-lookup set and the TF resource write validator does not include them; whether the ZPA API accepts them on a live receiver's `sourceLogType` is unresolved (see [zpa-41](../_meta/clarifications.md#zpa-41-format-only-log-type-codes-acceptance-on-a-receivers-sourcelogtype)).
 
@@ -126,9 +126,9 @@ Custom log stream content can be supplied as a raw template string, overriding t
 
 ## Delivery guarantee model
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
-(Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
+(Tier A — vendor/zscaler-help/about-log-streaming-service.json.)
 
 **At-least-once with a 15-minute retransmit window:**
 - The LSS does not transmit any log data generated during a connection loss between ZPA and the App Connectors.
@@ -160,9 +160,9 @@ The following log types explicitly **do not support** status-code filters: Brows
 
 ## TLS certificate handling
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`; `vendor/terraform-provider-zpa/zpa/resource_zpa_lss_config_controller.go`.
 
-(Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
+(Tier A — vendor/zscaler-help/about-log-streaming-service.json.)
 
 LSS supports mutual TLS encryption between the log receiver and the App Connector. TLS requirements:
 
@@ -202,7 +202,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
 
 ## Operational gotchas
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/terraform-provider-zpa/zpa/validator.go`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`; `vendor/terraform-provider-zpa/zpa/validator.go`.
 
 **1. Connector groups required for log sourcing.**
 If `connector_groups` is empty, the receiver has no source connectors and will emit nothing. The Python SDK `add_lss_config` accepts `app_connector_group_ids=None` without error, but the resulting receiver is non-functional until connector groups are added.
@@ -223,18 +223,18 @@ Passing a status code from one log type's filter list to a receiver configured f
 The SIEM or log receiver is targeted by the App Connector, not by Zscaler's cloud. The endpoint must be accessible from wherever the App Connector runs — typically inside the corporate network or a cloud VPC. Internet-exposed SIEM endpoints work if the App Connector has outbound internet access.
 
 **7. Deception-configured receivers are read-only.**
-If a log receiver is configured using Zscaler Deception, the copy, edit, and delete options are unavailable in the Admin Console. (Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
+If a log receiver is configured using Zscaler Deception, the copy, edit, and delete options are unavailable in the Admin Console. (Tier A — vendor/zscaler-help/about-log-streaming-service.json.)
 
 **8. Receiver capacity limits.**
 The help doc does not publish explicit per-receiver throughput limits. Capacity is constrained by App Connector CPU/network and the log receiver's ingestion capacity. High-volume tenants (many users, dense access patterns) may need to distribute log types across multiple receivers or increase App Connector resources.
 
 ## Admin Console
 
-Logs > Log Streaming > Log Receivers. Per-receiver columns: Name, Domain Name or IP Address, TCP Port, TLS Encryption, Log Type. Supports copy (clone configuration), edit, delete. (Tier A — vendor/zscaler-help/about-log-streaming-service.md.)
+Logs > Log Streaming > Log Receivers. Per-receiver columns: Name, Domain Name or IP Address, TCP Port, TLS Encryption, Log Type. Supports copy (clone configuration), edit, delete. (Tier A — vendor/zscaler-help/about-log-streaming-service.json.)
 
 ## Open questions
 
-- **`zpn_auth_log_1id` human label.** The TF data source lists `zpn_auth_log_1id` as a valid format-lookup code (vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:32), but no source maps it to a human-facing label. The "User Status (Zidentity)" label in the Log types table is inferred from the `auth_log` stem plus the `_1id` suffix (Zidentity / "OneID") and is not directly confirmed — the help doc's 12 labels (vendor/zscaler-help/about-log-streaming-service.md:44-55) list only a single "User Status" with no Zidentity variant. Confirm the operator-facing name before relying on it. (Tracked as [`zpa-40`](../_meta/clarifications.md#zpa-40-zpn_auth_log_1id-human-facing-label).)
+- **`zpn_auth_log_1id` human label.** The TF data source lists `zpn_auth_log_1id` as a valid format-lookup code (vendor/terraform-provider-zpa/zpa/data_source_zpa_lss_config_log_types_formats.go:32), but no source maps it to a human-facing label. The "User Status (Zidentity)" label in the Log types table is inferred from the `auth_log` stem plus the `_1id` suffix (Zidentity / "OneID") and is not directly confirmed — the help doc's 12 labels (vendor/zscaler-help/about-log-streaming-service.json:44-55) list only a single "User Status" with no Zidentity variant. Confirm the operator-facing name before relying on it. (Tracked as [`zpa-40`](../_meta/clarifications.md#zpa-40-zpn_auth_log_1id-human-facing-label).)
 - **Format-only codes' receiver acceptance.** `zpn_pbroker_comprehensive_stats` is established as a live `source_log_type` — the TF resource `zpa_lss_config_controller` validates it (`resource_zpa_lss_config_controller.go:225`), strong evidence the API accepts it on a receiver. For the remaining 7 codes present in the TF format-lookup set but absent from both the Python `source_log_map` and the TF resource's `source_log_type` set (`zms_flow_log`, `zpn_sitec_comprehensive_stats`, `zpn_sitec_auth_log`, `zpn_auth_log_1id`, `zpn_smb_inspection_log`, `zpn_ldap_inspection_log`, `zpn_krb_inspection_log`), whether the ZPA API rejects them on a receiver's `sourceLogType` (vs. the Python SDK simply not exposing a key) is not established in available sources — the SDK validates against its own map, not a server response. (Tracked as [`zpa-41`](../_meta/clarifications.md#zpa-41-format-only-log-type-codes-acceptance-on-a-receivers-sourcelogtype).)
 
 ## Cross-links

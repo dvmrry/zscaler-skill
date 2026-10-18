@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Global Public Service Edges for Internet & SaaS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/about-global-public-service-edges",
+    "node": "1400866",
+    "revision": "3239406"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Zscaler has configured several Global, or Ghost, Public Service Edges for Internet & SaaS (ZIA) across its clouds. The addresses of these Public Service Edges do not listen for traffic but are dummy addresses that all Public Service Edges know about. They can be useful when working in no default route environments. To learn more, see Implementing Zscaler in No Default Route Environments."
+    },
+    {
+      "text": "You can use the following as Global Public Service Edge IP addresses:"
+    },
+    {
+      "item": "185.46.212.88",
+      "depth": 0
+    },
+    {
+      "item": "185.46.212.89",
+      "depth": 0
+    },
+    {
+      "item": "185.46.212.90",
+      "depth": 0
+    },
+    {
+      "item": "185.46.212.91",
+      "depth": 0
+    },
+    {
+      "item": "185.46.212.92",
+      "depth": 0
+    },
+    {
+      "item": "185.46.212.93",
+      "depth": 0
+    },
+    {
+      "item": "185.46.212.97",
+      "depth": 0
+    },
+    {
+      "item": "185.46.212.98",
+      "depth": 0
+    },
+    {
+      "heading": "No Default Route Example",
+      "level": 1
+    },
+    {
+      "text": "In order to send packets to a Global Public Service Edge (185.46.212.88), a user's traffic with PAC configured first resolves their PAC server address to http://pac.<Zscaler Cloud Name>.net/<your organization's domain>/No-Default-Route. Because the user is coming from a Public Service Edge IP via a tunnel, the PAC server returns the Zscaler Global IP."
+    },
+    {
+      "text": "You can find the <Zscaler Cloud Name> in the Account Settings menu. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names. ​​​​​​"
+    },
+    {
+      "text": "Use PAC files to direct the corporate user traffic to the Global Public Service Edge IP address."
+    },
+    {
+      "text": "Ensure that you route the traffic destined to the Global Public Service Edge IP address through a GRE or an IPSec tunnel."
+    },
+    {
+      "text": "If the user is outside the corporate network and is coming from a non-Zscaler Public Service Edge IP and non-customer public IP, then the PAC file uses the \"${GATEWAY_FX}\" variable instead."
+    },
+    {
+      "text": "In the above solution, each of the customer location configurations remains the same, providing a simple method of deploying configuration without differences between locations. This minimizes configuration and deployment complexity. In addition, a single PAC can accommodate both internal and external scenarios."
+    },
+    {
+      "text": "You can also detect whether the user is present on premises (by resolving an internal domain) and then return the Global Public Service Edge IP. A sample PAC file is given below:"
+    },
+    {
+      "text": "var egressip = \"${SRCIP}\"; /*Assuming HQ source IP is 172.16.1.1*/ if (shExpMatch(egressip,\"172.16.1.1\")) { /* User is in the HQ*/ return \"PROXY 185.46.212.88:80; PROXY ${COUNTRY_GATEWAY_FX}:80; PROXY ${COUNTRY_SECONDARY_GATEWAY_FX}:80 \"; } return \"PROXY ${COUNTRY_GATEWAY_FX}:80; PROXY ${COUNTRY_SECONDARY_GATEWAY_FX}:80\";"
+    }
+  ]
+}

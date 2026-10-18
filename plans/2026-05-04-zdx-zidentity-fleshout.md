@@ -18,13 +18,13 @@
 
 | Task | New ref | Source candidates |
 |---|---|---|
-| 1 | `references/zdx/score.md` | `vendor/zscaler-help/about-zdx-score.md` + SDK `apps.py` (score retrieval methods) + ZDX overview existing |
-| 2 | `references/zdx/cloud-architecture.md` | `vendor/zscaler-help/understanding-zdx-cloud-architecture.md` + ZDX overview |
+| 1 | `references/zdx/score.md` | `vendor/zscaler-help/about-zdx-score.json` + SDK `apps.py` (score retrieval methods) + ZDX overview existing |
+| 2 | `references/zdx/cloud-architecture.md` | `vendor/zscaler-help/understanding-zdx-cloud-architecture.json` + ZDX overview |
 | 3 | `references/zdx/applications.md` | SDK `apps.py` + Go `services/inventory/` + Postman ZDX collection |
 | 4 | `references/zdx/devices.md` | SDK `devices.py` + Go `services/inventory/` + Postman ZDX |
 | 5 | `references/zdx/reports.md` | SDK `services/reports/` (Go) + Postman ZDX reports endpoints |
 | 6 | `references/zdx/administration.md` | SDK `admin.py` + Go `services/administration/` + Postman ZDX admin endpoints |
-| 7 | `references/zidentity/admin-rbac.md` | `vendor/zscaler-help/admin-rbac-captures.md` + SDK admin role surface if exists |
+| 7 | `references/zidentity/admin-rbac.md` | `vendor/zscaler-help/admin-rbac-captures.json` + SDK admin role surface if exists |
 | 8 | `references/zidentity/users.md` | SDK `users.py` + Go `services/users/` + Postman ZIdentity |
 | 9 | `references/zidentity/groups.md` | SDK `groups.py` + Go `services/groups/` + Postman ZIdentity |
 | 10 | `references/zidentity/resource-servers.md` | SDK `resource_servers.py` + Go `services/resource_servers/` + Postman |
@@ -51,7 +51,7 @@ Each task follows the same three-subagent pipeline + commit. Bite-sized steps:
 
 **Files:**
 - Create: `references/zdx/score.md`
-- Read: `vendor/zscaler-help/about-zdx-score.md`, `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`, existing `references/zdx/overview.md` (for context, not duplication)
+- Read: `vendor/zscaler-help/about-zdx-score.json`, `vendor/zscaler-sdk-python/zscaler/zdx/apps.py`, existing `references/zdx/overview.md` (for context, not duplication)
 
 Apply per-task pattern. Target ref topic: how the ZDX Score is computed, score components (Performance / Network Path / Performance + Network Path / etc.), score interpretation (good/fair/poor thresholds), score-related API endpoints.
 
@@ -61,7 +61,7 @@ Frontmatter target: `confidence: high` (Tier-A vendor source for the score model
 
 **Files:**
 - Create: `references/zdx/cloud-architecture.md`
-- Read: `vendor/zscaler-help/understanding-zdx-cloud-architecture.md`, existing `references/zdx/overview.md`
+- Read: `vendor/zscaler-help/understanding-zdx-cloud-architecture.json`, existing `references/zdx/overview.md`
 
 Apply per-task pattern. Topic: ZDX-side architecture — Service Edges that participate in probes, data flow from ZCC to ZDX cloud, dashboard pipeline, telemetry architecture.
 
@@ -105,7 +105,7 @@ Apply per-task pattern. Topic: administrative APIs (probably user/probe configur
 
 **Files:**
 - Create: `references/zidentity/admin-rbac.md`
-- Read: `vendor/zscaler-help/admin-rbac-captures.md`, any admin-related SDK surface
+- Read: `vendor/zscaler-help/admin-rbac-captures.json`, any admin-related SDK surface
 
 Apply per-task pattern. Topic: admin role model, role-to-permission mapping, RBAC scoping, role assignment API.
 

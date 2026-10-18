@@ -7,18 +7,18 @@ last-verified: "2026-04-28"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.md"
-  - "vendor/zscaler-help/zsdk-developer-reference.md"
-  - "vendor/zscaler-help/zsdk-about-access-policy.md"
-  - "vendor/zscaler-help/zsdk-about-segment-groups.md"
-  - "vendor/zscaler-help/zsdk-about-app-connectors.md"
-  - "vendor/zscaler-help/zsdk-about-registered-apps.md"
-  - "vendor/zscaler-help/zsdk-register-your-app.md"
-  - "vendor/zscaler-help/zsdk-step-step-configuration-guide-zsdk.md"
-  - "vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md"
-  - "vendor/zscaler-help/zsdk-best-practices.md"
-  - "vendor/zscaler-help/zsdk-ranges-limitations.md"
-  - "vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.md"
+  - "vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.json"
+  - "vendor/zscaler-help/zsdk-developer-reference.json"
+  - "vendor/zscaler-help/zsdk-about-access-policy.json"
+  - "vendor/zscaler-help/zsdk-about-segment-groups.json"
+  - "vendor/zscaler-help/zsdk-about-app-connectors.json"
+  - "vendor/zscaler-help/zsdk-about-registered-apps.json"
+  - "vendor/zscaler-help/zsdk-register-your-app.json"
+  - "vendor/zscaler-help/zsdk-step-step-configuration-guide-zsdk.json"
+  - "vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.json"
+  - "vendor/zscaler-help/zsdk-best-practices.json"
+  - "vendor/zscaler-help/zsdk-ranges-limitations.json"
+  - "vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.json"
 author-status: draft
 ---
 
@@ -26,7 +26,7 @@ author-status: draft
 
 ## What ZSDK is and who uses it
 
-Zscaler SDK for Mobile Apps (ZSDK) is a ZTNA product embedded directly into consumer or enterprise mobile applications (iOS and Android). It is **not** an admin or IT product — the primary users are **mobile app developers** at organizations that own the app source code and want to enforce Zero Trust access control without requiring end users to install a separate security client (Tier A — vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.md).
+Zscaler SDK for Mobile Apps (ZSDK) is a ZTNA product embedded directly into consumer or enterprise mobile applications (iOS and Android). It is **not** an admin or IT product — the primary users are **mobile app developers** at organizations that own the app source code and want to enforce Zero Trust access control without requiring end users to install a separate security client (Tier A — vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.json).
 
 The value proposition: back-end APIs and services are deployed behind App Connectors and are invisible to the public internet. The mobile app, with ZSDK embedded, establishes mTLS microtunnels through the ZSDK cloud to reach those services. No VPN client, no ZCC install.
 
@@ -43,13 +43,13 @@ The value proposition: back-end APIs and services are deployed behind App Connec
 
 **ZSDK is out of scope for SDK/Terraform automation work** — there is no ZSDK Terraform provider, no ZSDK Python SDK, and no ZSDK Go SDK in the vendor sources. All ZSDK configuration is portal-only via `admin.zsdkone.net`.
 
-Source: `vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.md`; `vendor/zscaler-help/zsdk-developer-reference.md`; `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md`.
+Source: `vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.json`; `vendor/zscaler-help/zsdk-developer-reference.json`; `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.json`.
 
 ---
 
 ## The ZSDK admin cloud
 
-ZSDK runs on a dedicated multi-tenant infrastructure separate from ZPA and ZIA. Admin portal: `admin.zsdkone.net` (Tier A — vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md).
+ZSDK runs on a dedicated multi-tenant infrastructure separate from ZPA and ZIA. Admin portal: `admin.zsdkone.net` (Tier A — vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.json).
 
 Architecture components:
 
@@ -60,7 +60,7 @@ Architecture components:
 
 All communication is end-to-end encrypted. Multi-tenant isolation is enforced at the cloud level.
 
-Source: `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md`; `vendor/zscaler-help/zsdk-about-app-connectors.md`.
+Source: `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.json`; `vendor/zscaler-help/zsdk-about-app-connectors.json`.
 
 ---
 
@@ -73,7 +73,7 @@ Source: `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md`; `ve
 3. After identity verification succeeds, ZSDK calls `startZeroTrustTunnel()` with the access token.
 4. ZSDK creates an mTLS microtunnel to the ZSDK Public Service Edge. The PSE acts as broker and routes requests through the App Connector's outbound microtunnel to the back-end service.
 
-The App Connector establishes outbound-only connections to the ZSDK cloud — no inbound ports required (Tier A — vendor/zscaler-help/zsdk-about-app-connectors.md).
+The App Connector establishes outbound-only connections to the ZSDK cloud — no inbound ports required (Tier A — vendor/zscaler-help/zsdk-about-app-connectors.json).
 
 ### Token validation and trust binding
 
@@ -84,9 +84,9 @@ Each registered app has a **Trust Binding** setting that controls device re-enro
 | Strong | More frequent device re-enrollment; higher security |
 | Loose | Longer intervals between re-enrollments |
 
-Authentication Type is always **One Identity** (the ZSDK-specific IdP connector). The JWT is verified against the security certificate at every tunnel establishment (Tier A — vendor/zscaler-help/zsdk-about-registered-apps.md).
+Authentication Type is always **One Identity** (the ZSDK-specific IdP connector). The JWT is verified against the security certificate at every tunnel establishment (Tier A — vendor/zscaler-help/zsdk-about-registered-apps.json).
 
-Source: `vendor/zscaler-help/zsdk-about-registered-apps.md`; `vendor/zscaler-help/zsdk-developer-reference.md`.
+Source: `vendor/zscaler-help/zsdk-about-registered-apps.json`; `vendor/zscaler-help/zsdk-developer-reference.json`.
 
 ---
 
@@ -105,7 +105,7 @@ Registration fields:
 | Authentication Type | Always "One Identity" |
 | Trust Binding | Strong or Loose (see above) |
 
-Source: `vendor/zscaler-help/zsdk-about-registered-apps.md`; `vendor/zscaler-help/zsdk-register-your-app.md`.
+Source: `vendor/zscaler-help/zsdk-about-registered-apps.json`; `vendor/zscaler-help/zsdk-register-your-app.json`.
 
 After creation, the app key must be **Published** to activate it. Once published, the key cannot be edited or deleted — only Revoked. Revoking an app key immediately invalidates all SDK tunnels for that app.
 
@@ -113,7 +113,7 @@ Navigation: Configuration & Control > Apps > Registered Apps
 
 ### App Connectors and App Connector Groups
 
-Source: `vendor/zscaler-help/zsdk-about-app-connectors.md`; `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md`.
+Source: `vendor/zscaler-help/zsdk-about-app-connectors.json`; `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.json`.
 
 App Connectors are VMs or Linux packages deployed in the customer's data center, private cloud, or public cloud (AWS EC2, etc.). They establish outbound mTLS tunnels to the ZSDK cloud.
 
@@ -132,7 +132,7 @@ Application segments define the back-end destinations (IP addresses, FQDNs, port
 
 ### Segment Groups
 
-Segment groups logically group application segments. Access policy rules reference either individual application segments or segment groups. Using segment groups simplifies policy: a single policy rule with a segment group covers all applications in that group (Tier A — vendor/zscaler-help/zsdk-about-segment-groups.md).
+Segment groups logically group application segments. Access policy rules reference either individual application segments or segment groups. Using segment groups simplifies policy: a single policy rule with a segment group covers all applications in that group (Tier A — vendor/zscaler-help/zsdk-about-segment-groups.json).
 
 Navigation: Resource Management > Application Management > Segment Groups
 
@@ -146,15 +146,15 @@ Rule components:
 - **Boolean Operators** — how criteria combine (AND/OR logic)
 - **Rule Action** — Allow Access, Block Access, or Require Approval
 
-Policy configuration: Policy > Access Policy (Tier A — vendor/zscaler-help/zsdk-about-access-policy.md)
+Policy configuration: Policy > Access Policy (Tier A — vendor/zscaler-help/zsdk-about-access-policy.json)
 
-Source: `vendor/zscaler-help/zsdk-about-segment-groups.md`; `vendor/zscaler-help/zsdk-about-access-policy.md`.
+Source: `vendor/zscaler-help/zsdk-about-segment-groups.json`; `vendor/zscaler-help/zsdk-about-access-policy.json`.
 
 ---
 
 ## Configuration workflow (canonical order)
 
-From the step-by-step guide (Tier A — vendor/zscaler-help/zsdk-step-step-configuration-guide-zsdk.md):
+From the step-by-step guide (Tier A — vendor/zscaler-help/zsdk-step-step-configuration-guide-zsdk.json):
 
 1. Register your app → obtain an app key
 2. Configure a Token Validator (validates the JWT claims from the IdP)
@@ -164,13 +164,13 @@ From the step-by-step guide (Tier A — vendor/zscaler-help/zsdk-step-step-confi
 6. Add Access Policy (who can reach what)
 7. Integrate ZSDK into the mobile app source code
 
-Source: `vendor/zscaler-help/zsdk-step-step-configuration-guide-zsdk.md`.
+Source: `vendor/zscaler-help/zsdk-step-step-configuration-guide-zsdk.json`.
 
 ---
 
 ## Key limits
 
-All limits are per organization unless noted (Tier A — vendor/zscaler-help/zsdk-ranges-limitations.md):
+All limits are per organization unless noted (Tier A — vendor/zscaler-help/zsdk-ranges-limitations.json):
 
 | Category | Feature | Limit |
 |---|---|---|
@@ -204,13 +204,13 @@ All limits are per organization unless noted (Tier A — vendor/zscaler-help/zsd
 | Private Service Edges | PSE Provisioning Keys | 100 |
 | Organization | Admin password length | 100 characters |
 
-Source: `vendor/zscaler-help/zsdk-ranges-limitations.md`.
+Source: `vendor/zscaler-help/zsdk-ranges-limitations.json`.
 
 ---
 
 ## Developer SDK classes and notifications
 
-The ZSDK library exposes four classes (Tier A — vendor/zscaler-help/zsdk-developer-reference.md):
+The ZSDK library exposes four classes (Tier A — vendor/zscaler-help/zsdk-developer-reference.json):
 
 - `ZscalerSDK` — the shared singleton; use the shared instance throughout the app
 - `ZscalerConfiguration` — configure before calling any tunnel methods
@@ -228,7 +228,7 @@ The ZSDK library exposes four classes (Tier A — vendor/zscaler-help/zsdk-devel
 | `ZSCALERSDK_TUNNEL_RESOURCE_BLOCKED` | `ZscalerSDKTunnelResourceBlocked` | Access blocked by access policy |
 | `ZSCALERSDK_PROXY_START_FAILED` | `ZscalerSDKProxyStartFailed` | Proxy initialization failed |
 
-### Developer best practices (Tier A — vendor/zscaler-help/zsdk-best-practices.md)
+### Developer best practices (Tier A — vendor/zscaler-help/zsdk-best-practices.json)
 
 - Use the shared `ZscalerSDK` instance for consistency.
 - Configure `ZscalerConfiguration` before starting tunnels.
@@ -237,7 +237,7 @@ The ZSDK library exposes four classes (Tier A — vendor/zscaler-help/zsdk-devel
 - Subscribe to ZSDK notifications via `BroadcastReceiver` (Android) or `NSNotification` (iOS) to monitor tunnel state.
 - Export and clear logs as needed for debugging.
 
-Source: `vendor/zscaler-help/zsdk-developer-reference.md`; `vendor/zscaler-help/zsdk-best-practices.md`.
+Source: `vendor/zscaler-help/zsdk-developer-reference.json`; `vendor/zscaler-help/zsdk-best-practices.json`.
 
 ---
 
@@ -245,7 +245,7 @@ Source: `vendor/zscaler-help/zsdk-developer-reference.md`; `vendor/zscaler-help/
 
 ### ZSDK error codes
 
-Source: `vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.md`.
+Source: `vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.json`.
 
 | Code | Name | Description |
 |---|---|---|
@@ -305,7 +305,7 @@ Errors 2001–2025 relate to authentication and certificate operations at the ZS
 | 2024 | hmacValidationFailed | HMAC payload validation failed |
 | 2025 | missingSubInAccessToken | `sub` claim missing from access token |
 
-Source: `vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.md`.
+Source: `vendor/zscaler-help/zsdk-understanding-zsdk-error-codes.json`.
 
 ---
 
@@ -315,7 +315,7 @@ ZSDK is **portal-only** from an automation perspective. There is no Terraform pr
 
 ZSDK shares the App Connector concept with ZPA but is administered through a separate portal (`admin.zsdkone.net`) and managed independently. ZSDK App Connectors are not the same as ZPA App Connectors — they are registered against different clouds and cannot be shared between products.
 
-Source: `vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.md`; `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.md`; `vendor/zscaler-help/zsdk-about-app-connectors.md`.
+Source: `vendor/zscaler-help/zsdk-what-zscaler-sdk-mobile-apps.json`; `vendor/zscaler-help/zsdk-understanding-zsdk-cloud-architecture.json`; `vendor/zscaler-help/zsdk-about-app-connectors.json`.
 
 ---
 

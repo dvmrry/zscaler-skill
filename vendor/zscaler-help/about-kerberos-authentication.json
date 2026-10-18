@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Kerberos Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/zia/about-kerberos-authentication",
+    "node": "1399556",
+    "revision": "3243734"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Zscaler supports authentication using Kerberos, an industry standard secure protocol. Unlike the other supported authentication mechanisms, Kerberos doesn't use cookies for authentication. It is a ticket-based authentication protocol that is widely used to authenticate users to network services. To learn more about the Kerberos protocol, see RFC 4120 The Kerberos Network Authentication Service (V5)."
+    },
+    {
+      "heading": "How Kerberos Authentication Works With Zscaler",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler service uses Kerberos cross-realm authentication, enabling clients from your organization’s domain to authenticate themselves to the Public Service Edges for Internet & SaaS (ZIA) in the Zscaler domain. Your organization and the Zscaler domain establish a one-way trust relationship based on a shared password, eliminating the need to upload and manage keytab files or to join the Public Service Edges to your domain."
+    },
+    {
+      "text": "The following diagram shows a simplified view of the authentication process after the trust relationship is established. Review the following:"
+    },
+    {
+      "item": "In the organization's domain, the Kerberos Key Distribution Center (KDC) is integrated in the domain controller on the Windows server.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler domain, the Central Authority (CA) hosts the KDC.",
+      "depth": 0
+    },
+    {
+      "item": "The user is logged in to the corporate domain.",
+      "depth": 0
+    },
+    {
+      "item": "The user's browser uses the default Kerberos PAC file to identify the primary Public Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "The user's browser sends the request to the Public Service Edge. (HTTPS requests are also sent as HTTP CONNECT method requests to the Public Service Edge.) If the Public Service Edge doesn't find a Zscaler cookie for the domain in the HTTP request, it issues a 407 Negotiate challenge.",
+      "depth": 0
+    },
+    {
+      "item": "Because the user has already logged into the domain, the user has a session ticket for the domain controller. Using this session ticket, the client sends the domain controller an authentication request for the Zscaler service. The domain controller issues a cross-realm ticket.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The client sends the cross-realm ticket to Zscaler KDC, which issues a ticket for the Public Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "The client sends the HTTP request with the proxy authorization header and ticket, which contains the client information. The Public Service Edge decrypts the ticket, and after verifying the username, sends the request to the website.",
+      "depth": 0
+    },
+    {
+      "text": "As shown in the diagram, users authenticate themselves only once when they log in to the corporate domain. They don't need to log in separately to the Zscaler service. Additionally, the Zscaler service is able to identify users through the proxy authorization header. This allows the service to then apply user, group, and department policies on FTP and HTTPS transactions without decrypting them."
+    },
+    {
+      "heading": "Kerberos Authentication Overview",
+      "level": 1
+    },
+    {
+      "text": "You can review the features, benefits, requirements, and limitations for your organization:"
+    },
+    {
+      "item": "Features",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler Kerberos implementation provides the following features:",
+      "depth": 0
+    },
+    {
+      "item": "It is simple to configure and manage. Your organization and the Zscaler service establish a one-way trust that is based on a shared password, eliminating the need to upload and manage keytab files or to join the Public Service Edges to your domain.",
+      "depth": 1
+    },
+    {
+      "item": "It offers various deployment options. Your organization can use Kerberos as its sole authentication method or combine it with another method, such as SAML or LDAP. To learn more, see Kerberos Deployment Guidelines.",
+      "depth": 1
+    },
+    {
+      "item": "It can be used to authenticate road warriors as well. DirectAccess is required (to learn more, see Kerberos Deployment Guidelines).",
+      "depth": 1
+    },
+    {
+      "item": "Benefits",
+      "depth": 0
+    },
+    {
+      "item": "Using Kerberos to authenticate users provides the following benefits:",
+      "depth": 0
+    },
+    {
+      "item": "It enables the Zscaler service to authenticate users when they use applications that do not support cookies, such as Office 365 and Windows Metro apps.",
+      "depth": 1
+    },
+    {
+      "item": "It enables transparent Single Sign-On (SSO) authentication for users. Users authenticate themselves once, when they log in to their corporate domain. They do not need to explicitly authenticate to the Zscaler service, because authentication occurs transparently with Kerberos.",
+      "depth": 1
+    },
+    {
+      "item": "The service can enforce granular user, group, and department policies on proxied FTP transactions as well as HTTPS transactions, without having to decrypt the HTTPS transactions.",
+      "depth": 1
+    },
+    {
+      "item": "Your organization doesn't need to configure its firewall to allow incoming connections from Public Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "Kerberos is a secure, open standard protocol that most operating systems support, including Windows 7, Windows 8, OS X, Linux, and FreeBSD. Additionally, most browsers support Kerberos authentication, including Internet Explorer, Firefox, and Safari.",
+      "depth": 1
+    },
+    {
+      "item": "Requirements",
+      "depth": 0
+    },
+    {
+      "item": "To use Kerberos as an authentication mechanism, your organization must do the following:",
+      "depth": 0
+    },
+    {
+      "item": "Provision users on the Zscaler service. Kerberos is an authentication mechanism. It is not a provisioning method, like SAML or LDAP synchronization. Users must be provisioned on the Zscaler service before they can use Kerberos for authentication. For supported provisioning methods, see About Provisioning and Authentication Methods.",
+      "depth": 1
+    },
+    {
+      "item": "Use a PAC file to forward traffic to the Zscaler service.",
+      "depth": 1
+    },
+    {
+      "item": "The service supports Kerberos authentication only for traffic forwarded in explicit mode. It doesn't support Kerberos for traffic forwarded in transparent mode, which is traffic forwarded through a GRE or IPSec tunnel and the browser isn't configured to use a PAC file to forward traffic. To learn more, see Using the Default Zscaler Kerberos PAC File.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the DNS server on site can resolve the Zscaler service host names (Zscaler PAC servers; Central Authority, which hosts the Zscaler Key Distribution Center (KDC); and Public Service Edges). If this isn't possible from the location, then your organization must conditionally forward Zscaler cloud domain resolution to the Zscaler DNS servers.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that your firewall allows connections to port 88/8800 to enable Kerberos authentication.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the domain suffix of either the client or server, in the Kerberos ticket obtained from your organization's domain controller, is a registered domain in the Zscaler account. In the example below, the domain suffix is SAFEMARCH.COM. To see the Kerberos tickets, open Windows PowerShell and run the command klist.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Additionally, the following are required in a Windows environment:",
+      "depth": 0
+    },
+    {
+      "item": "A domain controller that runs Windows Server 2008 or higher",
+      "depth": 1
+    },
+    {
+      "item": "Client devices must run Windows Vista or higher",
+      "depth": 1
+    },
+    {
+      "item": "Client devices must be joined to the domain",
+      "depth": 1
+    },
+    {
+      "item": "Limitations",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service doesn't support Kerberos on Windows XP, Apple iOS, or Android devices.",
+      "depth": 0
+    },
+    {
+      "text": "Before deploying Kerberos, see Kerberos Deployment Guidelines. To deploy Kerberos, see Deploying Kerberos."
+    }
+  ]
+}

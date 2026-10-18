@@ -10,15 +10,15 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/unified/understanding-zscaler-cloud-names"
-  - "vendor/zscaler-help/understanding-zscaler-cloud-names.md"
+  - "vendor/zscaler-help/understanding-zscaler-cloud-names.json"
   - "https://help.zscaler.com/zia/understanding-zscaler-cloud-architecture"
-  - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.md"
+  - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.json"
   - "https://help.zscaler.com/zpa/understanding-private-access-architecture"
-  - "vendor/zscaler-help/understanding-private-access-architecture.md"
+  - "vendor/zscaler-help/understanding-private-access-architecture.json"
   - "https://help.zscaler.com/zia/understanding-business-continuity-cloud-components"
-  - "vendor/zscaler-help/understanding-business-continuity-cloud-components.md"
+  - "vendor/zscaler-help/understanding-business-continuity-cloud-components.json"
   - "https://help.zscaler.com/zia/understanding-multi-cluster-load-sharing"
-  - "vendor/zscaler-help/understanding-multi-cluster-load-sharing.md"
+  - "vendor/zscaler-help/understanding-multi-cluster-load-sharing.json"
   - "https://help.zscaler.com/legacy-apis/activation"
   - "vendor/zscaler-help/legacy-activation.md"
   - "vendor/zscaler-help/zia-activation.md"
@@ -33,7 +33,7 @@ Component-level picture of how a Zscaler cloud is put together — Central Autho
 
 ## Summary
 
-Each Zscaler cloud is a self-contained deployment. Zscaler's current public production naming inventory distinguishes ZIA (`zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`) from the names used by ZPA, ZDX, Client Connector, Cloud & Branch Connector, Zero Trust Branch, Zscaler Cellular, Risk360, and the Authentication Service (`vendor/zscaler-help/understanding-zscaler-cloud-names.md:16-26`). A cloud consists of:
+Each Zscaler cloud is a self-contained deployment. Zscaler's current public production naming inventory distinguishes ZIA (`zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net`) from the names used by ZPA, ZDX, Client Connector, Cloud & Branch Connector, Zero Trust Branch, Zscaler Cellular, Risk360, and the Authentication Service (`vendor/zscaler-help/understanding-zscaler-cloud-names.json:16-26`). A cloud consists of:
 
 - **Central Authority (CA)** — the control plane. Holds configuration, policy, threat-intel, and software-update state.
 - **Service Edges** — the data plane. Public (Zscaler-operated), Private (customer-premise hardware), and Virtual (customer-operated VMs) variants. Process traffic, enforce policy.
@@ -52,19 +52,19 @@ The unified Help article records this service-specific public production map:
 
 | Service | Documented cloud name(s) | Source |
 |---|---|---|
-| Internet & SaaS (ZIA) | `zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:18` |
-| Private Access (ZPA) | `private.zscaler.com`, `zpatwo.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:19` |
-| Digital Experience (ZDX) | `zdxcloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:20` |
-| Client Connector | `mobile.zscaler.net`, `mobile.zscalerone.net`, `mobile.zscalertwo.net`, `mobile.zscalerthree.net`, `mobile.zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:21` |
-| Cloud & Branch Connector | `connector.zscaler.net`, `connector.zscalerone.net`, `connector.zscalertwo.net`, `connector.zscalerthree.net`, `connector.zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:22` |
-| Zero Trust Branch | `goairgap.com` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:23` |
-| Zscaler Cellular | `ztsim.com` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:24` |
-| Risk360 | `zscalerrisk.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:25` |
-| Authentication Service | `zslogin.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.md:26` |
+| Internet & SaaS (ZIA) | `zscaler.net`, `zscalerone.net`, `zscalertwo.net`, `zscalerthree.net`, `zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:18` |
+| Private Access (ZPA) | `private.zscaler.com`, `zpatwo.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:19` |
+| Digital Experience (ZDX) | `zdxcloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:20` |
+| Client Connector | `mobile.zscaler.net`, `mobile.zscalerone.net`, `mobile.zscalertwo.net`, `mobile.zscalerthree.net`, `mobile.zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:21` |
+| Cloud & Branch Connector | `connector.zscaler.net`, `connector.zscalerone.net`, `connector.zscalertwo.net`, `connector.zscalerthree.net`, `connector.zscloud.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:22` |
+| Zero Trust Branch | `goairgap.com` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:23` |
+| Zscaler Cellular | `ztsim.com` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:24` |
+| Risk360 | `zscalerrisk.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:25` |
+| Authentication Service | `zslogin.net` | `vendor/zscaler-help/understanding-zscaler-cloud-names.json:26` |
 
-Client Connector and Cloud & Branch Connector names are derived from the organization's ZIA cloud: for example, a tenant on `zscaler.net` uses `mobile.zscaler.net` and `connector.zscaler.net` for those services (`vendor/zscaler-help/understanding-zscaler-cloud-names.md:28-30`).
+Client Connector and Cloud & Branch Connector names are derived from the organization's ZIA cloud: for example, a tenant on `zscaler.net` uses `mobile.zscaler.net` and `connector.zscaler.net` for those services (`vendor/zscaler-help/understanding-zscaler-cloud-names.json:28-30`).
 
-**Scope boundary:** use this as a public production naming map, not as a government-cloud matrix. The list does not by itself identify a tenant's assigned cloud, select an API/SDK/provider endpoint, or establish product availability; retain the relevant tenant configuration and product-specific government-host routing as separate evidence (`vendor/zscaler-help/understanding-zscaler-cloud-names.md:8-12`, `vendor/zscaler-help/understanding-zscaler-cloud-names.md:32-34`).
+**Scope boundary:** use this as a public production naming map, not as a government-cloud matrix. The list does not by itself identify a tenant's assigned cloud, select an API/SDK/provider endpoint, or establish product availability; retain the relevant tenant configuration and product-specific government-host routing as separate evidence (`vendor/zscaler-help/understanding-zscaler-cloud-names.json:8-12`, `vendor/zscaler-help/understanding-zscaler-cloud-names.json:32-34`).
 
 ## Mechanics
 
@@ -123,7 +123,7 @@ A Public Service Edge data center is not necessarily a single cluster — Zscale
 
 The operational consequence: **Zscaler can add capacity to existing VIPs without forcing customers to migrate GRE tunnels.** A customer's GRE tunnel terminates at a VIP; new clusters joining behind that VIP just expand the pool. The customer sees no change.
 
-Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.md`.
+Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.json`.
 
 Per-cloud MCLS configuration data is published at `config.zscaler.com/<cloud>/cenr` (e.g., `config.zscaler.com/zscalertwo.net/cenr`). Rollout is infrastructure-schedule-driven, not per-org opt-in.
 
@@ -256,4 +256,4 @@ The platform is built so that **data plane (Service Edges) can run on cached sta
 - ZCC fail-open (the client-side last-resort when cloud is unreachable) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
 - IPSec tunnels — VSE forwarding-method constraint, cipher suites, NAT-T — [`./ipsec-tunnels.md`](./ipsec-tunnels.md)
 - Sandbox servers (one of the support systems mentioned here) — [`zia.sandbox`](kb:zia.sandbox)
-- Nanolog / NSS log streaming — `vendor/zscaler-help/understanding-nanolog-streaming-service.md`
+- Nanolog / NSS log streaming — `vendor/zscaler-help/understanding-nanolog-streaming-service.json`

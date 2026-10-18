@@ -12,8 +12,8 @@ sources:
   - "vendor/zscaler-sdk-python/zscaler/zcc/entitlements.py"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go"
   - "vendor/zscaler-sdk-go/zscaler/zcc/services/common/common.go"
-  - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md"
-  - "vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md"
+  - "vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json"
+  - "vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.json"
 author-status: draft
 ---
 
@@ -57,7 +57,7 @@ Entitlement is **not** the same as ZPA Access Policy. An entitled user still nee
 2. Does a matching ZPA Access Policy rule exist for this user + app? If not — ZPA evaluates and denies. LSS records are generated.
 3. Is the App Connector reachable, healthy, and scoped to the segment? App Connector layer.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`.
 
 ---
 
@@ -86,7 +86,7 @@ Setting `zpa_enable_for_all = true` disables the effect of `group_list`. An oper
 
 Machine Tunnel — the ZPA mode where the device (not the user) establishes a tunnel, used for pre-login access to domain controllers and internal resources before the user authenticates — requires `machine_tun_enabled_for_all = true`. There is no per-group machine-tunnel entitlement at the `ZpaGroupEntitlements` level. It is an all-devices-or-none toggle here; per-device scoping is handled via Machine Groups in ZPA and the App Profile machine provisioning key. See [`./azure-vm-deployment.md`](./azure-vm-deployment.md) for the machine tunnel deployment model.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`.
 
 ---
 
@@ -145,13 +145,13 @@ No deep traces, no app-health metrics, no probes from this user's endpoint. The 
 
 A user can be entitled to ZPA at the entitlement level but still not get ZPA forwarding if their App Profile's Forwarding Profile has ZPA actions set to `NONE` on all network types. Entitlement opens the product; the Forwarding Profile controls the traffic path. Check both layers.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-go/zscaler/zcc/services/entitlements/entitlements.go`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`.
 
 ---
 
 ## App Profile entitlement-related fields
 
-The App Profile (Web Policy) interacts with entitlements in the following ways (Tier A — vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md):
+The App Profile (Web Policy) interacts with entitlements in the following ways (Tier A — vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json):
 
 - **Forwarding Profile selection** (`forwarding_profile_id` on WebPolicy) — determines whether ZPA microtunnel is active per network type. An App Profile can reference a Forwarding Profile with ZPA tunneling disabled on all network types, effectively nullifying ZPA even for entitled users.
 - **Machine Provisioning Key** — the App Profile carries the machine provisioning key (from ZPA) that allows Machine Tunnel enrollment. Without the key in the App Profile, machine tunnels cannot enroll even if `machine_tun_enabled_for_all = true`.
@@ -256,7 +256,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; 
 
 App Profile (Web Policy) changes — including changes that affect which Forwarding Profile a user gets — propagate only on ZCC logout/restart. **Entitlement changes are not subject to this lag** — entitlement evaluation happens at the Zscaler service layer when ZCC attempts to establish a service session, not at App Profile download time. However, if an App Profile change is needed alongside an entitlement change (e.g., adding machine provisioning key while enabling `machine_tun_enabled_for_all`), the App Profile half does not take effect until next restart.
 
-Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.md`; `vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zcc/models/zpagroupentitlements.py`; `vendor/zscaler-sdk-python/zscaler/zcc/models/zdxgroupentitlements.py`; `vendor/zscaler-help/about-zscaler-client-connector-app-profiles.json`; `vendor/zscaler-help/configuring-zscaler-client-connector-app-profiles.json`.
 
 ---
 

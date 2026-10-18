@@ -8,7 +8,7 @@ confidence: medium
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/legacy-apis/understanding-zdx-api"
-  - "vendor/zscaler-help/understanding-zdx-api.md"
+  - "vendor/zscaler-help/understanding-zdx-api.json"
   - "vendor/zscaler-help/automate-zscaler/api-authentication-overview.md"
   - "vendor/zscaler-help/automate-zscaler/api-reference-zdx-overview.md"
   - "vendor/zscaler-api-specs/automate-zscaler/zdx-api-reference.json"

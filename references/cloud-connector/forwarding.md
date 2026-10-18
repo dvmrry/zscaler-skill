@@ -11,9 +11,9 @@ confidence: high
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/cloud-branch-connector/configuring-traffic-forwarding-rule"
-  - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md"
-  - "vendor/zscaler-help/cbc-about-traffic-forwarding.md"
-  - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.md"
+  - "vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json"
+  - "vendor/zscaler-help/cbc-about-traffic-forwarding.json"
+  - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.json"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go"
   - "vendor/terraform-provider-ztc/docs/resources/ztc_traffic_forwarding_rule.md"
   - "vendor/terraform-provider-ztc/ztc/resource_ztc_traffic_forwarding_rule.go"
@@ -27,7 +27,7 @@ How Cloud Connector decides what to do with each packet it receives. Traffic for
 
 ## Summary
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
 
 The admin console exposes five forwarding-method labels — **ZIA, ZPA, Direct, Drop, Local** (`cbc-about-traffic-forwarding.md:38`). But the API `ForwardMethod` field carries a wider enum (`forwarding_rules.go:44` Supported Values: `INVALID`, `DIRECT`, `PROXYCHAIN`, `ZIA`, `ZPA`, `ECZPA`, `ECSELF`, `DROP`, `ENATDEDIP`, `GEOIP`), and two of the console labels map to different enum strings when you drive the rule through the SDK / Terraform / API:
 
@@ -50,7 +50,7 @@ The Automate contract now gives a third source on the documented `forwardMethod`
 
 ### July 2026 Layer 4 ingress scope
 
-The July 6 release adds Source Network Address Translation and Destination Network Address Translation for **AWS, Azure, and GCP** and separately announces Azure Gateway Load Balancer support through Terraform (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.md:18-22`). This confirms the three-cloud product scope for L4 ingress. The scoped release entry does not define the SNAT/DNAT request schema, policy evaluation order, or the exact mapping from the SDK's `Type` strings to creation endpoints; retain those as unconfirmed rather than deriving them from the enum alone.
+The July 6 release adds Source Network Address Translation and Destination Network Address Translation for **AWS, Azure, and GCP** and separately announces Azure Gateway Load Balancer support through Terraform (`vendor/zscaler-help/cbc-release-upgrade-summary-2026.json:18-22`). This confirms the three-cloud product scope for L4 ingress. The scoped release entry does not define the SNAT/DNAT request schema, policy evaluation order, or the exact mapping from the SDK's `Type` strings to creation endpoints; retain those as unconfirmed rather than deriving them from the enum alone.
 
 Rules are evaluated **top-down by rule order, first match wins**. Same pattern as ZIA URL Filter. A default rule with a default gateway is predefined for ZIA forwarding; custom rules evaluate before the default.
 
@@ -60,7 +60,7 @@ Rules are evaluated **top-down by rule order, first match wins**. Same pattern a
 
 ### Rule structure
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
 
 **API surface.** Traffic forwarding rules live under `GET /ztw/api/v1/ecRules/ecRdr` (`forwarding_rules.go:17`), with the usual `Get`/`Create` (POST)/`Update` (PUT)/`Delete` operations on `/ecRules/ecRdr/{id}`, a `/ecRules/ecRdr/count` sub-endpoint (`forwarding_rules.go:348`), and a paginated `GetAll` that reads all pages (`forwarding_rules.go:287,321`). Filterable by `ruleName`, `ruleOrder`, `ruleDescription`, `ruleForwardMethod`, and `location` (`forwarding_rules.go:294-307`).
 
@@ -94,14 +94,14 @@ All criteria ANDed together within a single rule. Multiple items within one crit
 
 **Action section:**
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `vendor/zscaler-sdk-go/zscaler/ztw/services/policy_management/forwarding_rules/forwarding_rules.go`.
 
 - **Forward to Proxy Gateway** — optional drop-down to select a proxy gateway (`cbc-configuring-traffic-forwarding-rule.md:120`). This is the action that backs the `PROXYCHAIN` forwarding method; the `proxyGateway` field is "applicable only for the Proxy Chaining forwarding method" (`forwarding_rules.go:154`).
 - **WAN Selection** — `None` (default) / `Balanced` / `Best Link` (`cbc-configuring-traffic-forwarding-rule.md:316`). `None` defers to the Branch Configuration Template's Traffic Distribution setting; `Balanced` distributes evenly; `Best Link` always uses the best-performing WAN link. **Only applicable to hardware devices deployed in gateway mode** (`:322`) — Branch-side. (The API `WanSelection` field is marked deprecated/no-longer-configurable in the SDK, `forwarding_rules.go:49-51`, though the console still exposes it for gateway-mode Branch Connectors.)
 
 ### The forwarding methods
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`.
 
 #### ZIA
 
@@ -137,7 +137,7 @@ Traffic is discarded. No forwarding; workload sees connection failure. Used for 
 
 > The local forwarding method is only available for Cloud Connector and Zscaler Zero Trust Gateways.
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`.
 
 Not available on Branch Connector. Local is the **east-west / macrosegmentation** method: it "facilitates subnet-to-subnet or virtual private cloud (VPC)-to-VPC communication across Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP), allowing you to permit ingress traffic to publicly hosted applications in AWS" and controls "traffic for east-west segmentation and macrosegmentation using 5-tuples" (`cbc-configuring-traffic-forwarding-rule.md:436`).
 
@@ -151,9 +151,9 @@ Local pairs with **Destination Workload Groups**, which are "only applicable to 
 
 ### Predefined rules and gateway-mode gating
 
-Source: `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-about-traffic-forwarding.json`; `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`.
 
-Per `vendor/zscaler-help/cbc-about-traffic-forwarding.md:41-45`, **three** predefined Direct rules ship, created by Zscaler. They are **disabled by default** (you can enable them), and they appear based on the licenses enabled in your tenant:
+Per `vendor/zscaler-help/cbc-about-traffic-forwarding.json:41-45`, **three** predefined Direct rules ship, created by Zscaler. They are **disabled by default** (you can enable them), and they appear based on the licenses enabled in your tenant:
 
 - **Direct rule for Zscaler Cloud Endpoints** — "if the destination is a Zscaler Cloud Endpoints application service group, then the forwarding method is set to Direct" (`cbc-about-traffic-forwarding.md:42`). It matches on **destination = the Zscaler Cloud Endpoints application service group**, not on Cloud Connector control-plane / peer-discovery traffic.
 - **Direct rule for WAN Destinations Group** — "if the destination is a WAN IP group, then the forwarding method is set to Direct" (`cbc-about-traffic-forwarding.md:43`).
@@ -168,9 +168,9 @@ Per `vendor/zscaler-help/cbc-about-traffic-forwarding.md:41-45`, **three** prede
 
 ### AWS-specific: GWLB vs ENI endpoint selection
 
-Source: `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`; `vendor/zscaler-help/cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.md`.
+Source: `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.json`; `vendor/zscaler-help/cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.json`.
 
-Per `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md` and `cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.md`, AWS deployments choose between two traffic-redirect mechanisms:
+Per `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.json` and `cbc-zero-trust-security-aws-workloads-zscaler-cloud-connector.md`, AWS deployments choose between two traffic-redirect mechanisms:
 
 - **Gateway Load Balancer (GWLB)** — preferred for multi-VPC fleets where AWS GWLB handles transparent traffic insertion. Spoke VPCs route via VPC Endpoint to a Gateway Load Balancer pointed at the CC ENI.
 - **ENI / route-table modification** — direct route-table updates pointing 0.0.0.0/0 (or specific CIDRs) at the CC's service ENI. Simpler for single-VPC deployments; doesn't scale well across many spoke VPCs.
@@ -179,7 +179,7 @@ This is an AWS-specific topology choice with no Azure equivalent (Azure deployme
 
 ### Rule evaluation order
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`.
 
 First-match-wins top-down, same as ZIA URL Filter. Disabled rules skip without losing position.
 
@@ -203,7 +203,7 @@ Not captured in depth; referenced here so an operator asking "why aren't my Clou
 
 ## Common patterns
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-help/cbc-about-traffic-forwarding.md`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `vendor/zscaler-help/cbc-about-traffic-forwarding.json`.
 
 - **Exempt cloud metadata service**: `Rule 1 — destination 169.254.169.254, method Direct`. Prevents metadata-service calls from hitting ZIA (which would either block or add latency).
 - **Route cloud provider storage direct**: `Rule N — Application Service Group = Amazon Web Services (or Azure, GCP), method Direct`. VPC-endpoint-friendly.
@@ -213,7 +213,7 @@ Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendo
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.md`; `vendor/zscaler-help/cbc-about-traffic-forwarding.md`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.md`.
+Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `vendor/zscaler-help/cbc-about-traffic-forwarding.json`; `vendor/zscaler-help/cbc-deploying-zscaler-cloud-connector-amazon-web-services.json`.
 
 - **Rule ordering mistakes**: placing a Direct exemption rule **below** a broad ZIA rule causes the ZIA rule to match first; the exemption never fires. Same footgun as ZIA URL Filter's first-match-wins.
 - **Wildcard domain matching without DNS through Cloud Connector**: UDP and non-web traffic to wildcard destinations fails to match — Cloud Connector only sees the destination IP, not the hostname. Either route DNS through Cloud Connector, or use IP-based criteria instead of FQDN.

@@ -7,7 +7,7 @@ last-verified: "2026-05-06"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md"
+  - "vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json"
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/webpolicy.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/models/webprivacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zcc/web_privacy.py"
@@ -34,13 +34,13 @@ ZCC logging operates on two independent axes that are easy to conflate:
 | **ZIA NSS / Nanolog** | Web transactions, firewall sessions, DNS queries — cloud-side observation | Admin via NSS feed config | ZIA cloud → SIEM |
 | **ZPA LSS** | ZPA application access sessions — cloud-side | Admin via LSS receiver config | ZPA cloud → App Connector → SIEM |
 
-Reducing client-side log verbosity does **not** suppress cloud-side log capture. A user whose ZCC logging controls are hidden still generates full ZIA web logs and ZPA LSS records for every session (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md).
+Reducing client-side log verbosity does **not** suppress cloud-side log capture. A user whose ZCC logging controls are hidden still generates full ZIA web logs and ZPA LSS records for every session (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json).
 
 ---
 
 ## Log modes and event coverage
 
-ZCC supports five log modes. The active mode is configured in the App Profile (`WebPolicy.logMode`) (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md):
+ZCC supports five log modes. The active mode is configured in the App Profile (`WebPolicy.logMode`) (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json):
 
 | Mode | Events recorded | Typical use |
 |---|---|---|
@@ -70,7 +70,7 @@ The following event categories are inferred from ZCC's functional architecture. 
 
 ### User access (when logging controls are visible)
 
-From the ZCC More window and system tray menu (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md):
+From the ZCC More window and system tray menu (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json):
 
 | Method | Description | Notes |
 |---|---|---|
@@ -79,7 +79,7 @@ From the ZCC More window and system tray menu (Tier A — vendor/zscaler-help/co
 | Report an Issue | Send encrypted log bundle by email to org support admin; optionally forward to Zscaler Support | Bundle is always encrypted regardless of ZCC version; user cannot read it |
 | Clear logs | Remove current log contents | Available in More window |
 
-The admin controls visibility of all the above via the **App Supportability** toggle: Administration > Client Connector Support > App Supportability > `Hide Logging Controls on Zscaler Client Connector`. This is tenant-wide (applies to all users) (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md).
+The admin controls visibility of all the above via the **App Supportability** toggle: Administration > Client Connector Support > App Supportability > `Hide Logging Controls on Zscaler Client Connector`. This is tenant-wide (applies to all users) (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json).
 
 ### Admin/support access
 
@@ -184,7 +184,7 @@ If Debug logging was enabled for a triage session and then reverted to Info, rot
 
 ### ZCC 2.1.2 threshold: encrypted vs readable exports
 
-On ZCC before 2.1.2 (Windows/macOS): exported logs are always encrypted; users cannot read them. On 2.1.2 and later: the exported ZIP is plaintext-readable. Tenants that upgraded past 2.1.2 with user-facing logging controls still visible transitioned from "export but cannot read" to "export and read." Verify App Supportability toggle state after upgrading (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.md).
+On ZCC before 2.1.2 (Windows/macOS): exported logs are always encrypted; users cannot read them. On 2.1.2 and later: the exported ZIP is plaintext-readable. Tenants that upgraded past 2.1.2 with user-facing logging controls still visible transitioned from "export but cannot read" to "export and read." Verify App Supportability toggle state after upgrading (Tier A — vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json).
 
 ### App Profile update propagation delay
 

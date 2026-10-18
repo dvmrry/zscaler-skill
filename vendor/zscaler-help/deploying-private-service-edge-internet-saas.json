@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Private Service Edge for Internet & SaaS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/deploying-private-service-edge-internet-saas",
+    "node": "1401241",
+    "revision": "3243664"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "A Private Service Edge for Internet & SaaS (ZIA) is part of the Zscaler cloud. It communicates with other nodes in the cloud, such as the Zscaler Central Authority (CA), for user authentication and policy updates, and the cloud routers and Nanolog clusters for logging and reporting. To learn more, see Understanding Private Service Edge for Internet & SaaS."
+    },
+    {
+      "text": "To deploy a Private Service Edge:"
+    },
+    {
+      "item": "Review the following deployment methods and determine the best one for your environment:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy inside the DMZ",
+      "depth": 1
+    },
+    {
+      "item": "This deployment method requires configuration changes to your firewall to allow Zscaler cloud communications. These changes can impact firewall performance because internet traffic is sent through the firewall to the Private Service Edge in the DMZ, and then through the firewall again to the internet. This might lead to port or session table exhaustion.",
+      "depth": 1
+    },
+    {
+      "item": "The following requirements must be met for this deployment method:",
+      "depth": 1
+    },
+    {
+      "item": "Configure the firewall to allow the Private Service Edges to communicate with the other nodes in the Zscaler cloud and allow Zscaler Operations to maintain and monitor the Private Service Edges. This deployment also requires ongoing maintenance as the Zscaler cloud expands. To learn more, see Firewall Configuration Requirements: Private Service Edge for Internet & SaaS Deployments.",
+      "depth": 2
+    },
+    {
+      "item": "For redundancy, configure a backup tunnel to Private Service Edges at another data center or to a Public Service Edges for Internet & SaaS.",
+      "depth": 2
+    },
+    {
+      "item": "Assign multiple public IP addresses per Private Service Edge. To learn more, see Network and IP Address Requirements.",
+      "depth": 2
+    },
+    {
+      "item": "Deploy outside the Corporate Firewall",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler highly recommends that you send your HTTP/HTTPS traffic through a GRE or IPSec tunnel from your firewall to the Private Service Edges. The primary incentive is to group all outbound internet traffic inside a tunnel to remediate and avoid potential port or session table exhaustion on the firewall. This arrangement does not require configuration changes to your firewall to accommodate the communication requirements of the Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "If you use PAC files to forward your traffic to the Private Service Edges, see Using PAC Files: Private Service Edge for Internet & SaaS Deployments.",
+      "depth": 1
+    },
+    {
+      "item": "The following requirements must be met for this deployment method:",
+      "depth": 1
+    },
+    {
+      "item": "Configure GRE or IPSec VPN tunnels to the Private Service Edges.",
+      "depth": 2
+    },
+    {
+      "item": "Send only HTTP/HTTPS traffic to the Private Service Edges. Send all other traffic directly to the internet.",
+      "depth": 3
+    },
+    {
+      "item": "Send un-NATed traffic through the tunnels for visibility into user traffic.",
+      "depth": 3
+    },
+    {
+      "item": "To learn more, see Understanding Generic Routing Encapsulation (GRE) and Understanding IPSec VPNs.",
+      "depth": 2
+    },
+    {
+      "item": "For redundancy, configure backup tunnels to Private Service Edges at another data center or to a Public Service Edges.",
+      "depth": 2
+    },
+    {
+      "item": "Assign multiple public IP addresses per Private Service Edge. To learn more, see Network and IP Address Requirements.",
+      "depth": 2
+    },
+    {
+      "item": "Deploy behind the Network Firewall",
+      "depth": 1
+    },
+    {
+      "item": "You might decide to install the Private Service Edges behind the corporate firewall. This deployment option also requires configuration changes to the firewall.",
+      "depth": 1
+    },
+    {
+      "item": "The following requirements must be met for this deployment method:",
+      "depth": 1
+    },
+    {
+      "item": "Configure the firewall to allow the Private Service Edges to communicate with the other nodes in the Zscaler cloud and allow Zscaler Operations to maintain and monitor the Private Service Edges. This deployment also requires ongoing maintenance as the Zscaler cloud expands. To learn more, see Firewall Configuration Requirements: Private Service Edge for Internet & SaaS Deployments.",
+      "depth": 2
+    },
+    {
+      "item": "For redundancy, configure a backup tunnel to Private Service Edges at another data center or to a Public Service Edge.",
+      "depth": 2
+    },
+    {
+      "item": "Assign multiple public IP addresses and multiple RFC 1918 IP addresses per Private Service Edge, along with 1:1 static NAT on your organization's NAT devices. To learn more, see Network and IP Address Requirements.",
+      "depth": 2
+    },
+    {
+      "item": "For all design review questions and architecture considerations, contact your Zscaler Sales representative, who assists in choosing the appropriate Private Service Edge deployment option depending on your environment and requirements.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you provide Zscaler with the necessary network and IP address requirements.",
+      "depth": 0
+    },
+    {
+      "item": "After you receive the Private Service Edges from Zscaler, install them.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the network as follows:",
+      "depth": 0
+    },
+    {
+      "item": "If the Private Service Edges are deployed in the DMZ of your organization, inside your internal network or behind any network device that might filter or otherwise interfere with communication to and from the Zscaler service, configure all relevant network devices to allow the necessary traffic per the firewall rules posted on config.zscaler.com/<zscaler cloud name>/fcr.",
+      "depth": 1
+    },
+    {
+      "item": "For Direct Server Return (DSR) load balancing to function correctly, enable Gratuitous ARP (GARP) on the network switches directly connected to the Private Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "Set the switch ports connecting to the Private Service Edges or load balancers (LBs) to Access mode so that traffic between the Private Service Edges and LB NIC ports is not VLAN tagged. The Private Service Edges and LBs do not support VLAN tagging.",
+      "depth": 1
+    },
+    {
+      "item": "Disable Link Level Discovery Protocol (LLDP) on the network switch ports connected to the Private Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "Most switches offer a Layer 2 flow control option or feature. Disable this feature on all switch ports serving the Internet & SaaS Private Infrastructure VLANs. Internet & SaaS has its own Layer 4 flow control feature embedded in the TCP stack.",
+      "depth": 1
+    },
+    {
+      "item": "Contact your network equipment provider for best practices and network configuration if required.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Operations provisions the Private Service Edges and inform your organization after the Private Service Edges are operational. Zscaler Operations are responsible for the ongoing maintenance of the Private Service Edges. To learn more, see Hardware Usage Terms.",
+      "depth": 0
+    },
+    {
+      "item": "Test the deployment:",
+      "depth": 0
+    },
+    {
+      "item": "If authentication is enabled for your location, browse to an external site and verify that the Zscaler service requests your credentials before it allows access to the internet.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that your policies are enforced. Verify that the service blocks access to a site due to policy.",
+      "depth": 1
+    },
+    {
+      "item": "View and check the logs using the dashboard in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "If you have a Digital Experience (ZDX) subscription, check whether you can see your ZIA Private Service Edges' health information on the ZIA PSE Health Dashboard page.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) If your organization uses PAC files to forward traffic to the Zscaler service, edit the PAC files and ensure that the variables that point to the Private Service Edges specify the subcloud that Zscaler configured for your organization. To learn more, see Using PAC Files: Private Service Edge for Internet & SaaS Deployments. Also, if applicable, ensure that your firewall allows the devices from your internal network to reach the Zscaler PAC servers.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) If your organization uses GRE tunnels to forward traffic to the Zscaler service, follow the standard procedure for Self-Provisioning of GRE Tunnels. Private Service Edge VIP addresses are available for selection on the GRE Tunnels page in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Self-provisioning of GRE tunnels towards Private Service Edge clusters is only supported for clusters deployed on public IP space (i.e., a non-NAT environment). If you need to build a GRE tunnel toward a Private Service Edge cluster deployed within a NAT environment, submit a support ticket from your Zscaler Admin Console.",
+      "depth": 0
+    }
+  ]
+}

@@ -11,14 +11,14 @@ sources:
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go"
   - "vendor/zscaler-sdk-python/zscaler/zpa/lss.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py"
-  - "vendor/zscaler-help/about-log-streaming-service.md"
-  - "vendor/zscaler-help/admin-rbac-captures.md"
+  - "vendor/zscaler-help/about-log-streaming-service.json"
+  - "vendor/zscaler-help/admin-rbac-captures.json"
 author-status: draft
 ---
 
 # ZPA Admin Audit Logs
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-sdk-python/zscaler/zpa/lss.py`.
 
 ZPA records admin actions (configuration changes, admin console sessions) as audit log entries. Unlike ZIA — which has a dedicated `auditlogEntryReport` REST endpoint for pulling a report — ZPA admin audit logs are surfaced through the **Log Streaming Service (LSS)** for continuous delivery to a SIEM, and are accessible via the ZPA Admin Console for interactive review.
 
@@ -26,7 +26,7 @@ This document covers the ZPA audit log surface. Data-plane traffic logs (user ac
 
 ## What is captured
 
-Per `vendor/zscaler-help/about-log-streaming-service.md` (sourced from `https://help.zscaler.com/zpa/about-log-streaming-service`):
+Per `vendor/zscaler-help/about-log-streaming-service.json` (sourced from `https://help.zscaler.com/zpa/about-log-streaming-service`):
 
 > **Audit Logs**: Session information for all admins accessing the Zscaler Admin Console.
 
@@ -34,9 +34,9 @@ This includes admin login sessions and configuration changes made through the ZP
 
 ## Retention
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
-Per `vendor/zscaler-help/about-log-streaming-service.md`:
+Per `vendor/zscaler-help/about-log-streaming-service.json`:
 
 > Zscaler retains audit log information for at least **6-month periods** during the subscription term.
 
@@ -46,13 +46,13 @@ For comparison: User Activity, User Status, and App Connector logs are retained 
 
 ## LSS delivery guarantee for audit logs
 
-Per `vendor/zscaler-help/about-log-streaming-service.md`:
+Per `vendor/zscaler-help/about-log-streaming-service.json`:
 
 > With the **exception of audit log data**, the LSS does not transmit any log data generated during a connection loss between the App Connector and the SIEM.
 
 This means audit log data has a stronger delivery guarantee than other LSS log types. After a connection is restored, the LSS can retransmit the last 15 minutes of audit log data. The delivery of that retransmitted data is still described as "not guaranteed," but audit logs are explicitly called out as receiving special treatment during connectivity interruptions.
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
 ---
 
@@ -145,7 +145,7 @@ resource "zpa_lss_config_controller" "lss_audit_logs" {
 
 The TLS requirement is that the log receiver's certificate must be signed by a public root CA. The App Connector automatically receives a root certificate during deployment and trusts both public and custom root CAs.
 
-Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
+Source: `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`; `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-sdk-python/zscaler/zpa/models/lss.py`.
 
 ---
 
@@ -270,13 +270,13 @@ Format is selectable: JSON, CSV, or TSV.
 
 The log receiver must expose a port reachable from the App Connector's network. Mutual TLS requires the log receiver to present a certificate signed by a public root CA.
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_lss_audit_logs.md`.
 
 ---
 
 ## ZPA admin roles and audit access
 
-Per `vendor/zscaler-help/admin-rbac-captures.md`, ZPA has two predefined admin roles:
+Per `vendor/zscaler-help/admin-rbac-captures.json`, ZPA has two predefined admin roles:
 
 - **ZPA Administrator** — full read/write/delete access; can create custom admin roles.
 - **ZPA Read Only Administrator** — view-only.
@@ -285,13 +285,13 @@ Custom roles can be configured with granular feature permissions. The **Log Stre
 
 Role changes in ZPA take up to **2 minutes** to take effect.
 
-Source: `vendor/zscaler-help/admin-rbac-captures.md`; `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/admin-rbac-captures.json`; `vendor/zscaler-help/about-log-streaming-service.json`.
 
 ---
 
 ## Open questions
 
-Source: `vendor/zscaler-help/about-log-streaming-service.md`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
 1. **Resolved 2026-04-26.** ZPA Admin Console audit log UI is confirmed. The Log Streaming Service source states that Zscaler retains audit log information for at least 6-month periods during the subscription term, and that access beyond the 14 days available in the Zscaler Admin Console requires setting up LSS. This confirms the ZPA Admin Console does have an audit log UI with a 14-day interactive window. LSS is required for longer retention or SIEM forwarding. The admin console audit log viewer is at Logs > (implied) Audit Logs within the ZPA Admin Console.
 

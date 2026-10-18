@@ -17,7 +17,7 @@ verified-against:
 confidence: medium
 source-tier: mixed
 sources:
-  - "vendor/zscaler-help/ztb-what-zero-trust-branch.md"
+  - "vendor/zscaler-help/ztb-what-zero-trust-branch.json"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py"
   - "vendor/zscaler-sdk-python/zscaler/ztb/legacy.py"
@@ -38,11 +38,11 @@ author-status: draft
 
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
-| ZTB combines SD-WAN capabilities with device segmentation for branches, factories, and data centers. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.md:8` |
-| ZTB appliances terminate ISP connections, forward branch/cloud traffic to ZTE, and apply ZIA/ZPA policies based on destination and user identity. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.md:10` |
-| ZTB network-of-one automatically discovers, classifies, and isolates IoT, OT, IoMT, headless, and legacy devices. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.md:12` |
-| ZTB feature list includes automatic device classification, clientless SSH/RDP/VNC access, ZIA/ZPA forwarding policies, ZTP, and `/32` endpoint subnet-mask provisioning. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.md:16-24` |
-| Deployment capture lists ZTB appliances, Zscaler Admin Console, ZTP, VMware ESXi, and ZT800 form factors. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.md:33-47` |
+| ZTB combines SD-WAN capabilities with device segmentation for branches, factories, and data centers. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.json:8` |
+| ZTB appliances terminate ISP connections, forward branch/cloud traffic to ZTE, and apply ZIA/ZPA policies based on destination and user identity. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.json:10` |
+| ZTB network-of-one automatically discovers, classifies, and isolates IoT, OT, IoMT, headless, and legacy devices. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.json:12` |
+| ZTB feature list includes automatic device classification, clientless SSH/RDP/VNC access, ZIA/ZPA forwarding policies, ZTP, and `/32` endpoint subnet-mask provisioning. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.json:16-24` |
+| Deployment capture lists ZTB appliances, Zscaler Admin Console, ZTP, VMware ESXi, and ZT800 form factors. | `overview.md` | `vendor/zscaler-help/ztb-what-zero-trust-branch.json:33-47` |
 | Python `client.ztb` is exposed by `oneapi_client.py`. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:295-301` |
 | Python `ZTBService` says it exposes Zero Trust Branch API resources and is used via OneAPI, with legacy client helpers for standalone token-based access. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:37-44`; accessor at `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:295-301` |
 | Python `ZTBService` exposes alarms, API keys, app connector config, devices, groups, logs, policy comments, ransomware kill, sites, site-to-site VPN, and templates. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/ztb/ztb_service.py:49-135`; `vendor/zscaler-sdk-python/README.md:1921-1933` |
