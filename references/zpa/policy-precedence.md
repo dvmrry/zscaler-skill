@@ -10,18 +10,18 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/about-policies"
-  - "vendor/zscaler-help/About_Policies.txt"
+  - "vendor/zscaler-help/about-policies.json"
   - "https://help.zscaler.com/zpa/about-access-policy"
-  - "vendor/zscaler-help/About_Access_Policy.txt"
+  - "vendor/zscaler-help/zpa-access-policy-20260909.json"
   - "vendor/zscaler-help/zpa-access-policy-20260909.json"
   - "https://help.zscaler.com/zpa/configuring-access-policies"
-  - "vendor/zscaler-help/Configuring_Access_Policies.txt"
+  - "vendor/zscaler-help/configuring-access-policies.json"
   - "https://help.zscaler.com/zpa/access-policy-configuration-examples"
-  - "vendor/zscaler-help/Access_Policy_Configuration_Examples.txt"
+  - "vendor/zscaler-help/access-policy-configuration-examples.json"
   - "https://help.zscaler.com/zscaler-deployments-operations/access-policy-deployment-and-operations-guide"
-  - "vendor/zscaler-help/Access_Policy_Deployment_and_Operations_Guide.txt"
+  - "vendor/zscaler-help/access-policy-deployment-and-operations-guide.json"
   - "https://help.zscaler.com/zpa/using-app-segment-multimatch"
-  - "vendor/zscaler-help/Using_Application_Segment_Multimatch.txt"
+  - "vendor/zscaler-help/zpa-using-app-segment-multimatch.json"
   - "vendor/terraform-provider-zpa/zpa/common.go"
   - "vendor/zscaler-sdk-go/zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go"
 author-status: draft
@@ -59,7 +59,7 @@ Criteria available on an access policy rule, from *About Access Policy* pp.1–3
 | Segment Groups | Groups of segments the rule applies to |
 | Branch Connector Groups | Branch Connector groups |
 | Chrome Enterprise Browser | Whether user accesses apps via Chrome Enterprise browser. Object type `CHROME_ENTERPRISE` (`terraform-provider-zpa/zpa/common.go:1221`) |
-| Chrome Posture Profile<br>*(code-layer object type)* | A Chrome Posture Profile referenced by ID. Object type `CHROME_POSTURE_PROFILE` (`terraform-provider-zpa/zpa/common.go:1217`) — see operand-form note below. Not listed as a standalone criterion in *About Access Policy*; the help docs surface it only as a sub-option of Chrome Enterprise Browser: "When enabled, you can also select a configured Chrome posture profile" (*Configuring Access Policies* p.5, `vendor/zscaler-help/Configuring_Access_Policies.txt:152`) |
+| Chrome Posture Profile<br>*(code-layer object type)* | A Chrome Posture Profile referenced by ID. Object type `CHROME_POSTURE_PROFILE` (`terraform-provider-zpa/zpa/common.go:1217`) — see operand-form note below. Not listed as a standalone criterion in *About Access Policy*; the help docs surface it only as a sub-option of Chrome Enterprise Browser: "When enabled, you can also select a configured Chrome posture profile" (*Configuring Access Policies* p.5, `vendor/zscaler-help/configuring-access-policies.json:152`) |
 | Client Connector Posture Profiles | Zscaler Client Connector device posture checks |
 | Client Connector Trusted Networks | Trusted-network state reported by Zscaler Client Connector |
 | Client Types | `Zscaler Client Connector`, `Client Connector for VDI`, `Client Connector Partner`, `Branch Connector`, `Cloud Connector`, `Machine Tunnel`, `Web Browser`, `Internet & SaaS Service Edge`, `Extranet` |

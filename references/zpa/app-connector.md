@@ -23,7 +23,7 @@ sources:
   - "vendor/zscaler-help/understanding-connector-software-updates.json"
   - "https://help.zscaler.com/zpa/about-connector-groups"
   - "vendor/zscaler-help/zpa-about-connector-groups.json"
-  - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
+  - "vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json"
   - "vendor/zscaler-help/understanding-private-access-architecture.json"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/zpa/app_connectors.py"
@@ -431,7 +431,7 @@ From *Understanding the Private Access Architecture* (captured earlier, see [`..
 
 ### Health reporting and metrics
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/about-app-connectors.json`.
+Source: `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`; `vendor/zscaler-help/about-app-connectors.json`.
 
 App Connectors surface health metrics that the ZPA admin console displays and that streaming log fields (per `Understanding_App_Connector_Metrics_Log_Fields.txt`) carry. Relevant:
 
@@ -444,7 +444,7 @@ App Connectors surface health metrics that the ZPA admin console displays and th
 
 ### How sessions are assigned to App Connectors
 
-Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/zpa-about-connector-groups.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/zpa-about-connector-groups.json`; `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`.
 
 Connector **health and target reachability gate eligibility** for session assignment. ZPA's connector-selection step happens in two phases — eligibility filtering, then latency-based selection — and the metrics surfaced above are the inputs to the eligibility phase.
 
@@ -502,7 +502,7 @@ Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/un
 
 ## Common question shapes
 
-Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`.
 
 | Question | Likely cause | Start |
 |---|---|---|
@@ -517,7 +517,7 @@ Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/ab
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-connector-software-updates.json`; `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`.
 
 - **4-hour upgrade window is not extendable.** Groups with too many connectors to finish in 4 hours get staggered across multiple nights. Pick upgrade nights carefully for large groups.
 - **Upgraded connector re-enrollment is transparent** — the connector resumes service on the new version without a new provisioning key. The client-cert chain survives the upgrade.
@@ -549,7 +549,7 @@ The same pattern likely applies to App Connector Groups when an `app_connector_g
 
 ## Logging — LSS retransmit window is shorter than NSS
 
-Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`.
 
 ZPA's Log Streaming Service (LSS) is the equivalent of ZIA's NSS for Private Access logs, but with **stricter retransmit semantics** that catch operators off-guard:
 
@@ -562,7 +562,7 @@ See also [`../shared/nss-architecture.md § Surprises`](../shared/nss-architectu
 
 ## Open questions
 
-Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/about-connector-provisioning-keys.json`; `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`.
 
 - **Exact App Connector-to-app latency probe cadence** — how frequently ZPA re-measures connector-to-app RTT. Not documented publicly; relevant for "our network path changed, how long until ZPA notices" questions. (Tracked as [`zpa-27`](../_meta/clarifications.md#zpa-27-app-connector-to-app-latency-probe-cadence).)
 - **Certificate validity window** — exactly how long an App Connector cert is valid before re-enrollment is required. Not captured. (Tracked as [`zpa-28`](../_meta/clarifications.md#zpa-28-app-connector-certificate-validity-window-before-re-enrollment).)

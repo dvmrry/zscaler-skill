@@ -10,7 +10,7 @@ sources:
   - "https://help.zscaler.com/zidentity/what-zidentity"
   - "vendor/zscaler-help/what-zidentity.json"
   - "vendor/zscaler-help/understanding-zidentity-apis.json"
-  - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.json"
+  - "vendor/zscaler-help/understanding-step-up-authentication.json"
   - "vendor/zscaler-help/understanding-step-up-authentication.json"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/constants.py"

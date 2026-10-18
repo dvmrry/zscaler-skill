@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Policies",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/about-policies",
+    "node": "1483496",
+    "revision": "3243309"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Users cannot access any internal applications you've configured for Private Access (ZPA), regardless of whether you explicitly define your applications or enable application discovery, until you configure policies for them. If you are using the Log Streaming Service (LSS), you can also configure log streaming policies for information captured by a log receiver. To learn more, see Configuring a Log Receiver."
+    },
+    {
+      "text": "Private Access uses the Name Identifier (NameID) within a SAML assertion for IdP configuration and authentication. Using NameID as a SAML attribute within access and timeout policy rules is not supported."
+    },
+    {
+      "text": "However, you can use the value associated with NameID within your policy rule criteria by explicitly defining a user attribute (e.g., Email Address, User Name, etc.). In your IdP's SAML assertion, the user attribute can use the same value, and then you can include this attribute in your policy rule criteria."
+    },
+    {
+      "item": "See example SAML JSON",
+      "depth": 0
+    },
+    {
+      "item": "{ \"nameid\": \"jane.doe@example.com\" \"orgid\": \"86753098675309696\" \"saml_attributes\": { \"Group\": \"ZPA-users\", \"First Name\": \"Jane\", \"Last Name\": \"Doe\", \"Email Address\": \"jane.doe@example.com\" } }",
+      "depth": 0
+    },
+    {
+      "text": "Private Access allows you to apply the following policies to your organization:"
+    },
+    {
+      "item": "Access Policy: Access policy rules enable you to implement role-based access control. This allows you to define rules that determine who has access to an application. To learn more, see About Access Policy. To view examples of how an organization can configure access policy rules for a variety of scenarios, see Access Policy Configuration Examples.",
+      "depth": 0
+    },
+    {
+      "item": "AppProtection Policy: AppProtection policy rules allow you to create rules that define when application requests need to go through an AppProtection control. To learn more, see About AppProtection Policy.",
+      "depth": 0
+    },
+    {
+      "item": "Browser Protection Policy: Browser Protection policy rules allow you to create rules that define Browser Protection requests for Browser Protection profiles. To learn more, see About Browser Protection Policy.",
+      "depth": 0
+    },
+    {
+      "item": "Client Forwarding Policy: Client forwarding policy rules allow you to create rules that define when application requests are forwarded to Private Access from the Zscaler Client Connector. To learn more, see About Client Forwarding Policy.",
+      "depth": 0
+    },
+    {
+      "item": "Isolation Policy: Isolation policy rules allow you to create rules that define what isolation profiles to use or bypass. To learn more, see About Isolation Policy.",
+      "depth": 0
+    },
+    {
+      "item": "Privileged Remote Access (PRA) policies: Privileged Remote Access (PRA) policies consist of privileged credentials policies and consoles policies. Privileged credentials policy rules allow you to assign privileged consoles to include designated credentials. To learn more, see About Privileged Credentials Policy. consoles policy rules allow you to set permissions for File Transfer, Clipboard, and Session Recording features. To learn more, see About Consoles Policy.",
+      "depth": 0
+    },
+    {
+      "item": "Timeout Policy: Timeout policy rules allow you to create granular rules that control authentication timeout and idle connection timeout settings. To learn more, see About Timeout Policy.",
+      "depth": 0
+    },
+    {
+      "item": "Redirection Policy: Redirection policy rules allow you to set criteria for preferring Private Service Edges for Private Access over Public Service Edges for Private Access. To learn more, see About Redirection Policy.",
+      "depth": 0
+    },
+    {
+      "heading": "Policy Evaluation Order",
+      "level": 1
+    },
+    {
+      "text": "Private Access evaluates policy rules using the most specific application segment and a top-down, first-match principle. For example, when a user requests a specific application, Private Access starts evaluating all of your configured policies, starting with the first rule in a set of policy rules. As soon as it finds a policy that matches the criteria that was specified in a rule, it enforces that policy rule and disregards all other rules that follow, including any potentially conflicting rules."
+    },
+    {
+      "text": "Private Access evaluates policy rules in the following order:"
+    },
+    {
+      "item": "When the application request is received, Private Access first tries to identify the rule that matches the criteria. If application segments are part of the criteria, then Private Access chooses the rule corresponding to the most specific application segment for a given domain name or IP address.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Private Access evaluates your policy rules and executes the specified action for the rule. Within a set of policy rules, if none of the policy rules apply, then the following applies:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "For access policy, access to the application is implicitly set to Block Access. This is also the case if you do not define any policy rules at all within the Zscaler Admin Console. To learn more, see About Access Policy.",
+      "depth": 0
+    },
+    {
+      "item": "For timeout policy, Private Access applies the default timeout policy rule. To learn more, see About Timeout Policy.",
+      "depth": 0
+    },
+    {
+      "item": "For client forwarding policy, access to the application is implicitly set to Forward to Private Access. This is also the case if you do not define any policy rules at all within the Zscaler Admin Console. To learn more, see About Client Forwarding Policy.",
+      "depth": 0
+    },
+    {
+      "item": "For isolation policy, Private Access applies the default isolation policy rule. To learn more, see About Isolation Policy.",
+      "depth": 0
+    },
+    {
+      "text": "These policy evaluation order guidelines apply in the following scenarios:"
+    },
+    {
+      "item": "Conflicting Access Policy Rules",
+      "depth": 0
+    },
+    {
+      "item": "An organization configures an access policy rule that allows access to any application for any user.",
+      "depth": 1
+    },
+    {
+      "item": "It temporarily wants to block the \"Sales\" group from accessing any applications, so it configures an additional access policy rule denying them access.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In this scenario, users in the \"Sales\" group are not blocked from accessing any applications because these users match the first policy rule, which allows any users access to any applications. Private Access applies that first access policy rule and disregards the second policy rule. To resolve this issue, the order of the access policy rules must be modified so that the policy rule blocking the \"Sales\" group comes before the policy rule allowing any users access to any applications.",
+      "depth": 0
+    },
+    {
+      "item": "Conflicting Access Policy Rules with Segment Groups",
+      "depth": 0
+    },
+    {
+      "item": "An organization configures an access policy rule that allows all applications for the \"Marketing Dept.\"",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The organization also configures a policy that denies the \"Operations Apps\" segment group to the \"Marketing Dept.\"",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In this scenario, even if the organization configured the latter policy denying the \"Operations App\" segment group to the \"Marketing Dept,\" users from \"Marketing Dept\" still have access to the \"Operations Apps\" segment group. When a user from the \"Marketing Dept\" requests an application from the \"Operations App\" segment group, Private Access first checks the access policy rules and finds the policy rule allowing Marketing users access to any application. It then applies that access policy rule and immediately stops checking any other policies, because a matching policy was found for the user.",
+      "depth": 0
+    },
+    {
+      "text": "Private Access evaluates policy rules using the most specific application segment and a top-down, first-match principle for Default Microtenants, and then evaluates the most specific application segment for a custom Microtenant. However, some caveats apply:"
+    },
+    {
+      "item": "If you are a user within the Default Microtenant attempting to access an application segment within the Default Microtenant, Private Access evaluates access policies, timeout policies, and client forwarding policies using the most specific application segment that is within the Default Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "If you are a user within a custom Microtenantattempting to access an application segment within a custom Microtenant, Private Access evaluates access policies, timeout policies, and client forwarding policies using the most specific application segment that is within the custom Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "If you are a user within a custom Microtenant attempting to access an application segment within the Default Microtenant, Private Access evaluates the Default Microtenant first. If there is no match, Private Access evaluates the access policy, timeout policy, client forwarding policy within the custom Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "If you are a user within a custom Microtenant, Private Access evaluates redirection policies for only the custom Microtenant you are within. If you are a user within the Default Microtenant, Private Access evaluates redirection policies only for the Default Microtenant.",
+      "depth": 0
+    }
+  ]
+}

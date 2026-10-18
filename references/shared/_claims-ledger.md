@@ -22,7 +22,7 @@ sources:
   - "vendor/zscaler-help/automate-zscaler/analytics-graphql-api.md"
   - "vendor/zscaler-help/automate-zscaler/api-endpoint-catalog.md"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
-  - "vendor/zscaler-help/legacy-activation.md"
+  - "vendor/zscaler-help/legacy-activation.json"
   - "vendor/zscaler-help/admin-rbac-captures.json"
   - "vendor/zscaler-help/understanding-nanolog-streaming-service.json"
   - "vendor/zscaler-help/understanding-business-continuity-cloud-components.json"
@@ -66,7 +66,7 @@ This ledger covers the shared claims changed or explicitly guarded in the Tier 2
 | Terraform provider ZPA v4.4.11 depends on Go SDK v3.8.47, so it is no longer pinned below the SDK v3.8.43 transport change; the v3.8.47 source itself is not separately verified here. | `oneapi.md` | `vendor/terraform-provider-zpa/CHANGELOG.md:3-8`; `vendor/terraform-provider-zpa/go.mod:14` |
 | ZDX OneAPI rate-limit headers are `RateLimit-Limit`, `RateLimit-Remaining`, and `RateLimit-Reset`. | `oneapi.md` | `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:64`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:65`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:66`, `vendor/zscaler-help/automate-zscaler/guides-rate-limiting.md:67` |
 | ZIA and Cloud & Branch Connector config changes are staged behind activation gates. CBC exposes explicit activation operations; ZIA supports explicit activation and also autoactivates pending changes when an API/admin session ends. | `activation.md`, `oneapi.md`, `index.md` | `vendor/zscaler-help/automate-zscaler/getting-started.md:193`, `vendor/zscaler-help/automate-zscaler/getting-started.md:196`; `vendor/terraform-provider-zia/docs/guides/zia-activator-overview.md:64-70` |
-| The captured legacy ZIA activation status enum values are `ACTIVE`, `PENDING`, and `INPROGRESS`. | `cloud-architecture.md`, `activation.md` | `vendor/zscaler-help/legacy-activation.md:55`, `vendor/zscaler-help/legacy-activation.md:72` |
+| The captured legacy ZIA activation status enum values are `ACTIVE`, `PENDING`, and `INPROGRESS`. | `cloud-architecture.md`, `activation.md` | `vendor/zscaler-help/legacy-activation.json:55`, `vendor/zscaler-help/legacy-activation.json:72` |
 | ZIA maintenance read-only mode returns HTTP 403 with `STATE_READONLY`, and the `x-zscaler-mode: read-only` header is included. | `activation.md`, `oneapi.md` | `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:24`, `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:26`, `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:29`, `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:30`, `vendor/zscaler-help/automate-zscaler/guides-response-codes.md:34` |
 | ZPA permission or role changes can take up to two minutes to take effect. | `admin-rbac.md` | `vendor/zscaler-help/admin-rbac-captures.json:91`, `vendor/zscaler-help/admin-rbac-captures.json:105` |
 | UNSUPPORTED narrowed: tenant vintage is not proven by this reference alone; verify a tenant's OneAPI/ZIdentity auth path before treating legacy admin credentials as deprecated. | `admin-rbac.md` | `UNSUPPORTED -> references/shared/admin-rbac.md:230` |

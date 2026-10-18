@@ -10,7 +10,7 @@ verified-against:
 confidence: high
 sources:
   - "vendor/zscaler-help/zia-about-bandwidth-classes-20260909.json"
-  - "vendor/zscaler-help/zia-configuring-bandwidth-classes-20260909.json"
+  - "vendor/zscaler-help/adding-bandwidth-classes.json"
   - "vendor/zscaler-help/zia-large-files-bandwidth-class-20260909.json"
 author-status: reviewed
 ---
@@ -512,7 +512,7 @@ The ZIdentity refresh (2026-06-15) registered these open behavior questions from
 
 Partial / SDK-mined (resolved via code read or help-doc capture; full lab confirmation pending): `zcc-01`, `zcc-02`, `zcc-03`, `zcc-04`, `zcc-05`, `zcc-06`, `zcc-07`, **`log-04`** (field name + illustrative values confirmed via `web-log-schema.md`; full enum of `ruletype` / `reason` values still needs a tenant export). All six ZCC enum clarifications had their **datatype** (int vs string) resolved by the Go SDK cross-check on 2026-04-24; the integer-to-meaning mapping remains open for `zcc-01` through `zcc-04` and `zcc-06`.
 
-`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `references/shared/subclouds.md`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
+`shared-17`, `shared-18`, `shared-19` — partially resolved by 2026-05-06 doc sweep (refined further the same day). Existing-doc backing now covers: Service Edge re-evaluation triggers + **subcloud override mechanics fully resolved** via `references/shared/subclouds.md`; ZIA auth-frequency + surrogate-IP TTL fields and dependency rules + **ZIdentity step-up timing fully resolved** as synchronous via `vendor/zscaler-help/understanding-step-up-authentication.json`; QUIC handling with ZTunnel-mode interaction, HTTP/2 enable toggle + Bandwidth Control fallback, WebSocket DLP Copilot-only carveout. The remaining sub-questions narrowed substantially: selection-signal weighting and DC-exclusion mechanics (shared-17), surrogate IP clock anchor + auth-source decision tree + trusted-network-transition behavior (shared-18), HTTP/2 per-stream re-evaluation + WebSocket non-DLP inspection coverage + gRPC/SSE/chunked behavior (shared-19).
 
 The Cloud & Branch Connector (ZTW) deep-dive refresh (2026-06-15) added these open behavior questions — each links to its detailed entry below:
 
@@ -560,7 +560,7 @@ Admin rank gates what order values a rule can have. Can two rules at different a
 
 **Answer**: Admin rank is a structural precedence guarantee, not a tiebreaker layered on top of rule order. The question's premise (two rules at different admin ranks with the same numerical order) is effectively neutralized by the doc's behavior guarantee.
 
-From *Configuring the URL Filtering Policy* (`vendor/zscaler-help/Configuring_the_URL_Filtering_Policy.txt`) p.3:
+From *Configuring the URL Filtering Policy* (`vendor/zscaler-help/configuring-url-filtering-policy.json`) p.3:
 
 > **Edit Rule Order**: Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order. You can change the value, but if you've enabled Admin Rank, your assigned admin rank determines the rule order values you can select.
 >
@@ -584,7 +584,7 @@ When a ZPA client resolves to multiple application segments in sequence (e.g., f
 
 **Resolves with**: operator experience OR lab test. **Status**: open — 2026-04-28.
 
-**Doc sweep 2026-04-23** (partial): Confirmed schema shape from *Understanding User Activity Log Fields* (`vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`). Key observations:
+**Doc sweep 2026-04-23** (partial): Confirmed schema shape from *Understanding User Activity Log Fields* (`vendor/zscaler-help/understanding-user-activity-log-fields.json`). Key observations:
 
 - Fields like `Application`, `AppGroup`, `Policy`, `Server`, `ServerIP`, `ServerPort`, and timestamps are **singular per record** — no array-valued segment list. This makes "single record with multiple segment IDs" structurally unlikely.
 - The example record in the doc's preamble shows `ConnectionID` as a **comma-concatenated pair** (e.g., `SqyZIMkg0JTj7EABsvwA,Q+EjXGdrvbF2lPiBbedm`) where the first part matches `SessionID` exactly. This hints that `ConnectionID` may encode `<SessionID>,<attempt-or-subconnection>` when a TLS session spans multiple ZPA connections — but the field description just says "The application connection ID" without elaboration.
@@ -604,7 +604,7 @@ When a ZPA client resolves to multiple application segments in sequence (e.g., f
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Understanding Application Access* (`vendor/zscaler-help/Understanding_Application_Access.txt`) p.1 and *Using Application Segment Multimatch* (`vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`) p.9: "more granular" means **most-specific FQDN wins** among overlapping segments. The Multimatch article's Example 1 (p.9) shows the specificity stack explicitly: `server1.db.hr.company.com` > `*.db.hr.company.com` > `*.hr.company.com` > `*.company.com` > `*.com`. IP-subnet equivalent (p.10): `/32` host > `/24` subnet. Note the specificity comparison is strictly on the **domain/address** dimension; port-range narrowness does not enter the "granularity" judgment.
+**Answer**: From *Understanding Application Access* (`vendor/zscaler-help/about-application-access.json`) p.1 and *Using Application Segment Multimatch* (`vendor/zscaler-help/zpa-using-app-segment-multimatch.json`) p.9: "more granular" means **most-specific FQDN wins** among overlapping segments. The Multimatch article's Example 1 (p.9) shows the specificity stack explicitly: `server1.db.hr.company.com` > `*.db.hr.company.com` > `*.hr.company.com` > `*.company.com` > `*.com`. IP-subnet equivalent (p.10): `/32` host > `/24` subnet. Note the specificity comparison is strictly on the **domain/address** dimension; port-range narrowness does not enter the "granularity" judgment.
 
 ---
 
@@ -616,7 +616,7 @@ If two overlapping segments set different Multimatch styles on the same domain-s
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Using Application Segment Multimatch* (`vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`) p.1:
+**Answer**: From *Using Application Segment Multimatch* (`vendor/zscaler-help/zpa-using-app-segment-multimatch.json`) p.1:
 
 > Private Access (ZPA) evaluates Multimatch across all application segments that include the same applications. When an administrator enables or disables Multimatch for an application segment, Private Access checks all other application segments that contains any overlapping domains to determine whether the change is allowed. If a domain is found in multiple application segments with different Multimatch settings, there is a conflict and the application segment cannot be updated.
 
@@ -642,7 +642,7 @@ What does "no match in this application segment" mean precisely — port mismatc
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Understanding Application Access* (`vendor/zscaler-help/Understanding_Application_Access.txt`) p.1, the "no match" case is specifically the **destination port** not being configured in the selected (most-granular) segment:
+**Answer**: From *Understanding Application Access* (`vendor/zscaler-help/about-application-access.json`) p.1, the "no match" case is specifically the **destination port** not being configured in the selected (most-granular) segment:
 
 > If two or more application segments cover the same destination address, Zscaler Client Connector attempts to match traffic to the more granular application segment. If there is no match in this application segment for the destination port, Zscaler Client Connector bypasses ZPA and sends traffic directly.
 
@@ -662,7 +662,7 @@ Note: other failure modes (segment disabled, server group unavailable, connector
 
 **Status**: resolved (2026-04-23).
 
-**Answer**: From *Configuring Access Policies* (`vendor/zscaler-help/Configuring_Access_Policies.txt`) p.3 and *Understanding Step-Up Authentication* (`vendor/zscaler-help/understanding-step-up-authentication.json`):
+**Answer**: From *Configuring Access Policies* (`vendor/zscaler-help/configuring-access-policies.json`) p.3 and *Understanding Step-Up Authentication* (`vendor/zscaler-help/understanding-step-up-authentication.json`):
 
 The rule action is actually called **Conditional Access** in the Configuring Access Policies doc. "Require Approval" in About Access Policy is informal terminology for the same thing. Mechanics:
 
@@ -709,7 +709,7 @@ So: "Require Approval" = "Conditional Access" = ZIdentity step-up authentication
 
 **Status**: clarified by *About Policies* / Policy Evaluation Order section (2026-04-23), though the Deployment Guide's example remains oddly phrased.
 
-**Answer**: *About Policies* (`vendor/zscaler-help/About_Policies.txt`) p.2 is the authoritative statement. The "Policy Evaluation Order" section:
+**Answer**: *About Policies* (`vendor/zscaler-help/about-policies.json`) p.2 is the authoritative statement. The "Policy Evaluation Order" section:
 
 > Private Access evaluates policy rules using the most specific application segment and a top-down, first-match principle. For example, when a user requests a specific application, Private Access starts evaluating all of your configured policies, starting with the first rule in a set of policy rules. As soon as it finds a policy that matches the criteria that was specified in a rule, it enforces that policy rule and disregards all other rules that follow, including any potentially conflicting rules.
 
@@ -1139,7 +1139,7 @@ The coverage audit (`archive/audits/2026-04-26.md`) listed machine groups under 
 
 *Origin: `references/zpa/logs/access-log-schema.md` § State machine and timing*
 
-ZPA LSS User Activity logs document `ConnectionStatus` values `Open`, `Close`, `Active` (per `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`) but don't state what triggers an `Active` record on a long-lived connection. The delta-byte counter wording "since the last transaction log" implies multiple records per long connection, but the boundary trigger (time interval, byte volume threshold, segment change, other) is not specified.
+ZPA LSS User Activity logs document `ConnectionStatus` values `Open`, `Close`, `Active` (per `vendor/zscaler-help/understanding-user-activity-log-fields.json`) but don't state what triggers an `Active` record on a long-lived connection. The delta-byte counter wording "since the last transaction log" implies multiple records per long connection, but the boundary trigger (time interval, byte volume threshold, segment change, other) is not specified.
 
 **Resolves with**: lab test on a long-lived ZPA session (e.g., SSH tunnel sustained for hours) with LSS receiving — observe `Active` record cadence and what events correlate with each emission. Or vendor support thread.
 
@@ -1373,7 +1373,7 @@ The skill has individual refs covering pieces of the auth timeline (`kb:zia.auth
 
 **Resolved by existing refs**: auth-frequency enum and clock semantics (cookie expiry-based), surrogate IP TTL field names and dependency rules, browser-vs-non-browser flow split.
 
-**Step-up timing — resolved 2026-05-06** by `vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`:
+**Step-up timing — resolved 2026-05-06** by `vendor/zscaler-help/understanding-step-up-authentication.json`:
 
 The step-up flow is **synchronous on the access attempt**:
 
@@ -2560,7 +2560,7 @@ The Python SDK exposes `update_certificate` building `PUT /certificate/{id}` (`v
 
 *Origin: `references/zpa/app-connector.md` § Open questions*
 
-How frequently ZPA re-measures App Connector-to-application RTT (the latency signal used in connector/path selection) is not stated in the captured help docs (`vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`). Relevant to "our network path changed — how long until ZPA notices and re-routes" questions.
+How frequently ZPA re-measures App Connector-to-application RTT (the latency signal used in connector/path selection) is not stated in the captured help docs (`vendor/zscaler-help/about-app-connectors.json`; `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`). Relevant to "our network path changed — how long until ZPA notices and re-routes" questions.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read / operator experience
@@ -4808,7 +4808,7 @@ If API-client secrets are dumped to a saved export, the per-client file/key nami
 
 *Origin: `references/zidentity/step-up-authentication.md` § Open questions*
 
-Whether ZIdentity authentication levels can be configured differently per-product or only globally is unresolved; the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`) describes a single tenant-wide level tree, but does not state whether per-product overrides exist.
+Whether ZIdentity authentication levels can be configured differently per-product or only globally is unresolved; the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication.json`) describes a single tenant-wide level tree, but does not state whether per-product overrides exist.
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read OR tenant-side check
@@ -4819,7 +4819,7 @@ Whether ZIdentity authentication levels can be configured differently per-produc
 
 *Origin: `references/zidentity/step-up-authentication.md` § Open questions*
 
-How step-up interacts with SCIM-provisioned users who lack a mapped external IdP identity — whether such users can step up at all — is not addressed by the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`).
+How step-up interacts with SCIM-provisioned users who lack a mapped external IdP identity — whether such users can step up at all — is not addressed by the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication.json`).
 
 **Status**: open
 **Resolves with**: lab test (attempt a step-up challenge for a SCIM user with no external IdP mapping) OR zscaler doc not yet read
@@ -4830,7 +4830,7 @@ How step-up interacts with SCIM-provisioned users who lack a mapped external IdP
 
 *Origin: `references/zidentity/step-up-authentication.md` § Open questions*
 
-Whether the per-level "message to user" field supports localization (multiple language strings) or only a single string per level is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`).
+Whether the per-level "message to user" field supports localization (multiple language strings) or only a single string per level is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication.json`).
 
 **Status**: open
 **Resolves with**: zscaler doc not yet read OR tenant-side check
@@ -4841,7 +4841,7 @@ Whether the per-level "message to user" field supports localization (multiple la
 
 *Origin: `references/zidentity/step-up-authentication.md` § Open questions*
 
-Whether step-up elevation is recorded in ZIA Transaction logs or ZPA LSS User Activity logs — and with what field values — is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication-zidentity.json`). Relevant to "can I see when a user was challenged" questions.
+Whether step-up elevation is recorded in ZIA Transaction logs or ZPA LSS User Activity logs — and with what field values — is not stated in the captured step-up material (`vendor/zscaler-help/understanding-step-up-authentication.json`). Relevant to "can I see when a user was challenged" questions.
 
 **Status**: open
 **Resolves with**: lab test (trigger a step-up, search ZIA/ZPA logs for a corresponding record) OR zscaler doc not yet read
@@ -4962,7 +4962,7 @@ The captured DAS Help page uses the global host `https://api.zseclipse.net` for 
 
 *Origin: `references/ai-security/api-divergences.md` § Help provider labels vs Automate provider types*
 
-The current Automate admin-plane provider-type discovery contract exposes 23 identifiers (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`); the current capture publishes 47 AI Guard operations across 29 paths, matches all 47 with zero schema-changed operations, and reports no retained publication absences (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:9-21`, `:27-28`, `:47-48`). The older [2026-08-12](https://github.com/dvmrry/zscaler-skill/blob/3174c9ac8901b019bc96de5f60af77677f52841d/vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md#L3-L64) no-AI-Guard observation remains historical context only. The 2026 Help chronology separately names User-mode or application support for GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io, none of which appears under those exact identifiers in the current enum (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json:14-50`; `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). Static sources do not establish whether those labels are built-in/non-creatable providers, application-level aliases, or contract/Help timing drift.
+The current Automate admin-plane provider-type discovery contract exposes 23 identifiers (`vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`); the current capture publishes 47 AI Guard operations across 29 paths, matches all 47 with zero schema-changed operations, and reports no retained publication absences (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:7-10`; `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:9-21`, `:27-28`, `:47-48`). The older [2026-08-12](https://github.com/dvmrry/zscaler-skill/blob/3174c9ac8901b019bc96de5f60af77677f52841d/vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md#L3-L64) no-AI-Guard observation remains historical context only. The 2026 Help chronology separately names User-mode or application support for GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io, none of which appears under those exact identifiers in the current enum (`vendor/zscaler-help/ai-guard-users-release-20260909.json:14-50`; `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). Static sources do not establish whether those labels are built-in/non-creatable providers, application-level aliases, or contract/Help timing drift.
 
 **Status**: open
 **Resolves with**: current provider-management Help article body, tenant provider-type discovery response, or vendor mapping between User-mode application labels and admin-plane provider types
@@ -5135,7 +5135,7 @@ The captured help article documents predefined/custom workflows and says admins 
 
 *Origin: `references/zwa/api.md` § Open questions*
 
-The Go SDK exposes `DeleteDLPIncident(ctx, service, dlpIncidentID)` as `DELETE /dlp/v1/incidents/{id}` (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270`), and the legacy help capture lists DELETE on `/dlp/v1/incidents/{dlpIncidentId}` (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:215-244`). Python's inspected `DLPIncidentsAPI` does not expose a delete method; it exposes close/resolve via `incident_close()` instead (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:586-645`). Static source does not explain whether DELETE hard-deletes, archives, requires elevated rights, is tenant-disabled, or differs operationally from closing an incident.
+The Go SDK exposes `DeleteDLPIncident(ctx, service, dlpIncidentID)` as `DELETE /dlp/v1/incidents/{id}` (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270`), and the legacy help capture lists DELETE on `/dlp/v1/incidents/{dlpIncidentId}` (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:215-244`). Python's inspected `DLPIncidentsAPI` does not expose a delete method; it exposes close/resolve via `incident_close()` instead (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:586-645`). Static source does not explain whether DELETE hard-deletes, archives, requires elevated rights, is tenant-disabled, or differs operationally from closing an incident.
 
 **Status**: open
 **Resolves with**: lab test on a disposable incident, vendor documentation for DELETE semantics, or SDK issue/release note explaining parity
@@ -5157,7 +5157,7 @@ Python and Go expose a pull customer-audit API (`POST /customer/audit` / `/dlp/v
 
 *Origin: `references/zwa/api.md` § Open questions*
 
-Python's general OneAPI client exposes `client.zwa` as `ZWAService` when not in legacy mode and uses `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN` for OAuth-style auth (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:233-244`, `:271-277`). Python also exposes `LegacyZWAClient`, which uses `key_id`, `key_secret`, and `cloud` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:636-656`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`). Go ZWA uses API key ID/secret and posts to `/v1/auth/api-key/token` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`), matching the legacy help capture (`vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`). The exact tenant/product migration boundary between current OneAPI access and legacy API-key access is not established by static source alone.
+Python's general OneAPI client exposes `client.zwa` as `ZWAService` when not in legacy mode and uses `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN` for OAuth-style auth (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:165-184`, `:233-244`, `:271-277`). Python also exposes `LegacyZWAClient`, which uses `key_id`, `key_secret`, and `cloud` (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:636-656`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py:47-65`). Go ZWA uses API key ID/secret and posts to `/v1/auth/api-key/token` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`), matching the legacy help capture (`vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.json:8-37`). The exact tenant/product migration boundary between current OneAPI access and legacy API-key access is not established by static source alone.
 
 **Status**: open
 **Resolves with**: current vendor migration documentation, tenant lab tests for the same operation through both Python client modes, or SDK maintainer clarification
@@ -5168,7 +5168,7 @@ Python's general OneAPI client exposes `client.zwa` as `ZWAService` when not in 
 
 *Origin: `references/zwa/api.md` § Open questions*
 
-The legacy help capture documents optional `fetchTriggerContext` on `GET /dlp/v1/incidents/{dlpIncidentId}/triggers`, used to include prefix/suffix trigger context (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1592-1617`). The Python `get_incident_triggers(incident_id)` and Go `GetDLPIncidentTriggers(ctx, service, dlpIncidentID)` signatures expose only the incident ID and no query-param argument (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:192-238`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:312-330`). It is unclear whether callers can pass this through another SDK path, whether the SDK omits a still-supported server parameter, or whether the help page is ahead/behind the SDK.
+The legacy help capture documents optional `fetchTriggerContext` on `GET /dlp/v1/incidents/{dlpIncidentId}/triggers`, used to include prefix/suffix trigger context (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:1592-1617`). The Python `get_incident_triggers(incident_id)` and Go `GetDLPIncidentTriggers(ctx, service, dlpIncidentID)` signatures expose only the incident ID and no query-param argument (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:192-238`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:312-330`). It is unclear whether callers can pass this through another SDK path, whether the SDK omits a still-supported server parameter, or whether the help page is ahead/behind the SDK.
 
 **Status**: open
 **Resolves with**: SDK source update, direct HTTP lab test with `fetchTriggerContext=true`, or vendor documentation/issue explaining intended SDK coverage
@@ -5223,7 +5223,7 @@ The AEM refresh established Help-level data-source and connector scope (`vendor/
 
 *Origin: `references/deception/overview.md` § Open questions*
 
-The Deception Help capture says Super admin can manage features including APIs, decoys, and audit logs (`vendor/zscaler-help/what-is-zscaler-deception.json:37-43`) and that Deception can integrate with ZPA for ZTN decoys (`vendor/zscaler-help/what-is-zscaler-deception.json:45-47`). ZPA Help and Terraform source show constraints/guards around Deception-configured ZPA access-policy rules (`vendor/zscaler-help/About_Access_Policy.txt:169-177`, `:185-190`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_reorder.go:258-295`). The public source set does not identify the Deception admin API endpoints, auth model, audit-log export details, or the full lifecycle/ownership contract for ZPA objects created by Deception.
+The Deception Help capture says Super admin can manage features including APIs, decoys, and audit logs (`vendor/zscaler-help/what-is-zscaler-deception.json:37-43`) and that Deception can integrate with ZPA for ZTN decoys (`vendor/zscaler-help/what-is-zscaler-deception.json:45-47`). ZPA Help and Terraform source show constraints/guards around Deception-configured ZPA access-policy rules (`vendor/zscaler-help/zpa-access-policy-20260909.json:169-177`, `:185-190`; `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_reorder.go:258-295`). The public source set does not identify the Deception admin API endpoints, auth model, audit-log export details, or the full lifecycle/ownership contract for ZPA objects created by Deception.
 
 **Status**: open
 **Resolves with**: Deception admin API documentation, tenant-side Deception API capture, vendor confirmation, or deeper Help capture for API/audit-log pages

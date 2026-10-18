@@ -15,11 +15,11 @@ confidence: high
 source-tier: mixed
 sources:
   - "https://help.zscaler.com/zpa/configuring-defined-application-segments"
-  - "vendor/zscaler-help/Configuring_Defined_Application_Segments.txt"
+  - "vendor/zscaler-help/zpa-configuring-defined-application-segments.json"
   - "https://help.zscaler.com/zpa/about-application-access"
-  - "vendor/zscaler-help/Understanding_Application_Access.txt"
+  - "vendor/zscaler-help/about-application-access.json"
   - "https://help.zscaler.com/zpa/using-app-segment-multimatch"
-  - "vendor/zscaler-help/Using_Application_Segment_Multimatch.txt"
+  - "vendor/zscaler-help/zpa-using-app-segment-multimatch.json"
   - "vendor/zscaler-help/zpa-configuring-defined-application-segments.json"
   - "vendor/zscaler-help/zpa-using-app-segment-multimatch.json"
   - "https://www.zscaler.com/resources/reference-architectures"
@@ -48,7 +48,7 @@ How ZPA picks which application segment handles a request when two or more segme
 
 ## Summary
 
-Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`; `vendor/zscaler-help/Understanding_Application_Access.txt`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`; `vendor/zscaler-help/about-application-access.json`.
 
 From *Configuring Defined Application Segments*, p.10:
 
@@ -62,7 +62,7 @@ Separate precedence rules apply to the **Bypass** setting: if a segment containi
 
 ## Mechanics
 
-Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/about-application-access.json`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment.md`; `vendor/terraform-provider-zpa/docs/resources/zpa_application_segment_multimatch_bulk.md`.
 
 ### What defines an application segment
 
@@ -212,7 +212,7 @@ And p.15:
 
 ## The specificity-wins rule (covers eval Q6)
 
-Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Understanding_Application_Access.txt`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/about-application-access.json`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`.
 
 From *Configuring Defined Application Segments* p.10 and *Understanding Application Access* p.1, the definitive rule:
 
@@ -264,7 +264,7 @@ So for same-FQDN overlap resolution:
 
 ### Multimatch (INCLUSIVE mode)
 
-Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json:48-65`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json:14-67`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json:48-65`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json:14-67`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`.
 
 From *Using Application Segment Multimatch* p.4:
 
@@ -308,7 +308,7 @@ When Multimatch is on across the specificity chain, multiple segments match. As 
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`.
 
 - **ICMP asymmetric aggregation.** From p.13: "If ICMP is enabled for a specific application in an application segment and the same application is disabled for ICMP in a different application segment, then Zscaler Client Connector considers ICMP enabled for that application and forwards the ICMP request to Private Access." — Cross-segment ICMP behavior is OR-aggregated, not most-specific-wins.
 - **IdP application overlap.** From p.1: "If your IdP is defined as an application within an application segment, the Authentication Timeout for the IdP application must be set to Never. If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in Private Access (ZPA) to avoid user reauthentication failure."
@@ -321,7 +321,7 @@ Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `ven
 
 ## Worked example (covers eval Q6)
 
-Source: `vendor/zscaler-help/Configuring_Defined_Application_Segments.txt`; `vendor/zscaler-help/Using_Application_Segment_Multimatch.txt`.
+Source: `vendor/zscaler-help/zpa-configuring-defined-application-segments.json`; `vendor/zscaler-help/zpa-using-app-segment-multimatch.json`.
 
 Scenario: Two application segments both cover `foo.internal.corp`, which a user requests:
 

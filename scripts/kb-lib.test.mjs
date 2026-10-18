@@ -193,7 +193,7 @@ test("every help capture's anchoring text is the same in JavaScript and in help_
     `sys.path.insert(0, ${JSON.stringify(path.join(ROOT, "scripts"))})`,
     "from help_capture import read, text_of",
     "from pathlib import Path",
-    `out = {p.name: hashlib.sha256(text_of(d["blocks"]).encode()).hexdigest() for p in sorted(Path(${JSON.stringify(dir)}).glob("*.json")) if (d := read(p))}`,
+    `out = {p.name: hashlib.sha256(text_of(d["blocks"]).encode()).hexdigest() for p in sorted(Path(${JSON.stringify(dir)}).glob("*.json")) if (d := read(p)) and d["kind"] == "help-article"}`,
     "print(json.dumps(out))",
   ].join("\n");
   const expected = JSON.parse(execFileSync("python3", ["-c", py], { encoding: "utf8", maxBuffer: 16 << 20 }));
@@ -203,6 +203,40 @@ test("every help capture's anchoring text is the same in JavaScript and in help_
     const got = crypto.createHash("sha256").update(captureText(doc.blocks)).digest("hex");
     assert.equal(got, sha, name);
   }
+});
+
+test("every file under vendor/zscaler-help is a tool capture or listed as static, and notes are never evidence", () => {
+  const sha = (t) => crypto.createHash("sha256").update(t).digest("hex");
+  const article = (url) => ({ schema_version: 1, kind: "help-article", title: "T", source: { url, node: "1", revision: "2" }, captured_at: "2026-10-18", blocks: [{ text: "Rules stop at the first match." }] });
+  const root = tmpRepo({
+    "references/_meta/sources.json": { schema_version: 1, sources: { "zscaler-help": { kind: "capture", root: "vendor/zscaler-help", rank: 5, title: "Help" } } },
+    "vendor/zscaler-help/a.json": article("https://help.zscaler.com/zia/a"),
+    "vendor/zscaler-help/a-again.json": article("https://help.zscaler.com/zia/a"),
+    "vendor/zscaler-help/stray.md": "hand-written",
+    "vendor/zscaler-help/edited.pdf": "now different",
+    "vendor/zscaler-help/notes.md": "our own notes",
+    "references/_meta/static-captures.json": {
+      schema_version: 1,
+      files: {
+        "edited.pdf": { class: "pdf", reason: "vendor PDF", sha256: sha("as listed") },
+        "notes.md": { class: "note", reason: "authored", sha256: sha("our own notes") },
+        "gone.pdf": { class: "pdf", reason: "vendor PDF", sha256: sha("x") },
+      },
+      retired: { "stray.md": { replaced_by: "nowhere.json", reason: "duplicate", on: "2026-10-18" } },
+    },
+    "references/zia/zia.example.json": subject({
+      claims: { "from-note": { statement: "Notes say so.", tier: "A", evidence: [{ source: "zscaler-help", path: "notes.md", quotes: ["our own notes"] }] } },
+      prose: [{ text: "{{from-note}}" }],
+    }),
+  });
+  const errs = messages(root);
+  assert.ok(errs.some((m) => /captures the same page as a(-again)?\.json/.test(m)));
+  assert.ok(errs.some((m) => /not written by scripts\/help_capture\.py and not listed/.test(m)));
+  assert.ok(errs.some((m) => /edited\.pdf changed since it was listed/.test(m)));
+  assert.ok(errs.some((m) => /gone\.pdf is listed but does not exist/.test(m)));
+  assert.ok(errs.some((m) => /notes\.md is an authored note/.test(m)));
+  assert.ok(errs.some((m) => /stray\.md is listed as retired but still exists/.test(m)));
+  assert.ok(errs.some((m) => /retired for nowhere\.json, which does not exist/.test(m)));
 });
 
 test("references must resolve to the right kind of node", () => {

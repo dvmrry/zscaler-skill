@@ -19,7 +19,7 @@ source-tier: mixed
 sources:
   - "vendor/zscaler-help/what-is-zscaler-deception.json"
   - "vendor/zscaler-help/about-deception-strategy.json"
-  - "vendor/zscaler-help/About_Access_Policy.txt"
+  - "vendor/zscaler-help/zpa-access-policy-20260909.json"
   - "vendor/zscaler-help/supported-mcp-server-decoy-applications-and-tools.json"
   - "vendor/zscaler-help/configuring-services-network-decoy.json"
   - "vendor/zscaler-help/deception-ranges-and-limitations.json"
@@ -42,8 +42,8 @@ author-status: draft
 | Deception decoy types include Network, Threat Intelligence, Active Directory, Endpoint, and Cloud decoys. | `overview.md` | `vendor/zscaler-help/what-is-zscaler-deception.json:51-59` |
 | Decoy interactions generate high-fidelity real-time alerts; ThreatParse reconstructs attacks in natural language; orchestration and remediation flows are captured in Help. | `overview.md` | `vendor/zscaler-help/what-is-zscaler-deception.json:61-75` |
 | Deception Strategy configures Network, TI, AD decoys, and Landmine policies, using personalities and Internal or ZTN deployment paths. | `overview.md` | `vendor/zscaler-help/about-deception-strategy.json:8-16` |
-| ZPA access-policy Help says Deception rule-order updates are not supported and regular rules must have greater order than Deception rules when present. | `index.md`, `overview.md` | `vendor/zscaler-help/About_Access_Policy.txt:169-177` |
-| ZPA access-policy Help says copy, edit, and delete options are unavailable for access policies configured using Deception. | `index.md`, `overview.md` | `vendor/zscaler-help/About_Access_Policy.txt:185-190` |
+| ZPA access-policy Help says Deception rule-order updates are not supported and regular rules must have greater order than Deception rules when present. | `index.md`, `overview.md` | `vendor/zscaler-help/zpa-access-policy-20260909.json:169-177` |
+| ZPA access-policy Help says copy, edit, and delete options are unavailable for access policies configured using Deception. | `index.md`, `overview.md` | `vendor/zscaler-help/zpa-access-policy-20260909.json:185-190` |
 | The Go SDK has an adjacent ZCC OTP response field named `deceptionSettingsOtp`; this is not a Deception product admin API. | `overview.md` | `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:11-18`, `:33-50` |
 | The Python SDK has an adjacent ZCC OTP model field named `deception_settings_otp`; this is not a Deception product admin API. | `overview.md` | `vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:22-37`, `:60-65` |
 | Terraform ZPA policy access rule reordering preserves an unmanaged rule named `Zscaler Deception` at order 1 and shifts user-defined rules after it. | `overview.md` | `vendor/terraform-provider-zpa/zpa/resource_zpa_policy_access_rule_reorder.go:258-295` |

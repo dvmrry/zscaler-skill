@@ -16,9 +16,9 @@ sources:
   - "vendor/zscaler-help/cbc-about-cloud-connector-groups.json"
   - "vendor/zscaler-help/cbc-understanding-azure-vmss-deployments.json"
   - "vendor/zscaler-help/cbc-understanding-cloud-connector-deployments-amazon-web-services-auto-scaling-groups.json"
-  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
+  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json"
   - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.json"
-  - "vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.json"
+  - "vendor/zscaler-help/cbc-os24-cloud-20260909.json"
   - "vendor/zscaler-help/cbc-os24-cloud-20260909.json"
   - "vendor/zscaler-help/cbc-os24-branch-20260909.json"
   - "vendor/zscaler-help/supported-versions-20260909.json"
@@ -57,7 +57,7 @@ rendered body gives the threshold, target, deadline, and no-action status but no
 migration commands or automatic OS replacement behavior
 (`vendor/zscaler-help/cbc-os24-cloud-20260909.json:5,19-21`). The older scoped
 local capture also recorded that this notice did not cover the separate Branch
-Connector notice (`vendor/zscaler-help/cbc-end-support-zsos24-cloud-connector-deployments.json:15-18`);
+Connector notice (`vendor/zscaler-help/cbc-os24-cloud-20260909.json:15-18`);
 the current Branch notice is summarized below.
 
 ### Branch Connector lifecycle scope
@@ -147,12 +147,12 @@ The current Python/Go EC-group clients expose reads plus deletion (`vendor/zscal
 | Get one VM in a group | `GET /ecgroup/{id}/vm/{vmId}` | `get_ec_group_vm` (`ec_groups.py:263`) |
 | Delete one VM in a group | `DELETE /ecgroup/{id}/vm/{vmId}` | `delete_ec_group_vm` (`ec_groups.py:304`) |
 | Update upgrade schedule | `PUT /ecgroup/scheduleupgrade` | Raw Automate API; request includes `dayOfWeek`, `startTime`, and `endTime` (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:175246-175314`) |
-| Select release channel | `PUT /ecgroup/releaseChannel` | Bulk group/VM IDs; `STABLE`, `LATEST`, or `BETA` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:12-20`) |
-| Enable/disable VMs in bulk | `PUT /ecgroup/vmStatus` | Bulk group/VM IDs; `ENABLE` or `DISABLE` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:21-31`) |
+| Select release channel | `PUT /ecgroup/releaseChannel` | Bulk group/VM IDs; `STABLE`, `LATEST`, or `BETA` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:12-20`) |
+| Enable/disable VMs in bulk | `PUT /ecgroup/vmStatus` | Bulk group/VM IDs; `ENABLE` or `DISABLE` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:21-31`) |
 | Enable/disable one VM | `PUT /ecgroup/{ecgroupId}/vm/{vmId}/{status}` | Raw Automate API (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:158164-158192`) |
-| Read aggregate metrics | `GET /ecgroup/vmUpgradeMetrics` | Release-channel and scheduled-upgrade metrics with platform/channel/status filters (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:33-48`) |
+| Read aggregate metrics | `GET /ecgroup/vmUpgradeMetrics` | Release-channel and scheduled-upgrade metrics with platform/channel/status filters (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:33-48`) |
 
-The raw API can therefore change upgrade timing, release channel, and VM enabled state. The scoped group OpenAPI still exposes no immediate per-VM **upgrade now** operation (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:50-52`). Do not mistake an SDK coverage gap for a read-only product API, and do not mistake `scheduleupgrade` for an immediate upgrade trigger.
+The raw API can therefore change upgrade timing, release channel, and VM enabled state. The scoped group OpenAPI still exposes no immediate per-VM **upgrade now** operation (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:50-52`). Do not mistake an SDK coverage gap for a read-only product API, and do not mistake `scheduleupgrade` for an immediate upgrade trigger.
 
 To confirm or monitor the window programmatically, read `GET /ecgroup/{id}/vm/{vmId}` and inspect `buildVersion`, `lastUpgradeTime`, `upgradeStatus`, `upgradeStartTime`, `upgradeEndTime`, `upgradeDayOfWeek` (`vendor/zscaler-sdk-python/zscaler/ztw/models/ec_group_vm.py:48-53`; `vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go:111-116`).
 
@@ -243,7 +243,7 @@ Rationale:
 
 ### Change management
 
-- Operators can configure the schedule and release channel and can enable or disable selected VMs through the raw API, but the captured group API provides no immediate per-VM upgrade-now action (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:12-52`).
+- Operators can configure the schedule and release channel and can enable or disable selected VMs through the raw API, but the captured group API provides no immediate per-VM upgrade-now action (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:12-52`).
 - zsroot rotation is operator-initiated — track it as a change record (CC hostname, date, operator). zsroot qualifies for privileged-credential audit scope; include it in the credential inventory.
 
 ---

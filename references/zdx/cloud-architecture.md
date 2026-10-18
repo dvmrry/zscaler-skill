@@ -10,7 +10,7 @@ sources:
   - "vendor/zscaler-help/understanding-zdx-cloud-architecture.json"
   - "vendor/zscaler-help/about-zdx-score.json"
   - "vendor/zscaler-help/understanding-zdx-api.json"
-  - "vendor/zscaler-help/legacy-api-authentication-zdx.md"
+  - "vendor/zscaler-help/legacy-api-authentication-zdx.json"
   - "vendor/zscaler-help/legacy-getting-started-zdx-api.json"
   - "vendor/zscaler-help/viewing-and-configuring-zdx-module-upgrades.json"
 author-status: draft
@@ -118,7 +118,7 @@ ZDX integrates with Microsoft Graph API (for Microsoft Teams) or Zoom to read me
 
 ### ZDX API authentication
 
-ZDX has a dedicated legacy auth flow: OAuth 2.0 with API key_id + key_secret credentials from the ZDX Admin Portal (this key flow is **not** ZIdentity/OneAPI). ZDX is *also* OneAPI-capable — the Go SDK detects ZDX paths and routes them through its ZDX OneAPI HTTP client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:376-377,396-397`); see [`./api.md § Auth`](./api.md). (`vendor/zscaler-help/legacy-api-authentication-zdx.md:8-27`)
+ZDX has a dedicated legacy auth flow: OAuth 2.0 with API key_id + key_secret credentials from the ZDX Admin Portal (this key flow is **not** ZIdentity/OneAPI). ZDX is *also* OneAPI-capable — the Go SDK detects ZDX paths and routes them through its ZDX OneAPI HTTP client (`vendor/zscaler-sdk-go/zscaler/oneapiclient.go:376-377,396-397`); see [`./api.md § Auth`](./api.md). (`vendor/zscaler-help/legacy-api-authentication-zdx.json:8-27`)
 
 **Token endpoint:**
 
@@ -134,7 +134,7 @@ Request body for `/oauth/token`:
 { "key_id": "<key_id>", "key_secret": "<key_secret>" }
 ```
 
-Response fields: `token` (string), `token_type` (default: `Bearer`), `expires_in` (default: `3600` seconds). (`vendor/zscaler-help/legacy-api-authentication-zdx.md:19-27`)
+Response fields: `token` (string), `token_type` (default: `Bearer`), `expires_in` (default: `3600` seconds). (`vendor/zscaler-help/legacy-api-authentication-zdx.json:19-27`)
 
 A score of `-1` returned by the API indicates no data is available for the queried parameters — it is not an error code. (`vendor/zscaler-help/understanding-zdx-api.json:72-74`)
 

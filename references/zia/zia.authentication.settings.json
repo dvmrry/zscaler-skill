@@ -41,7 +41,7 @@
     },
     {
       "label": "Values.",
-      "text": "{{enum-values}} The older legacy API page lists different names for the same fields {{divergence:enum-vocabulary}}, and the legacy KB doc, the legacy API page and the OpenAPI document give different orgAuthType values {{divergence:org-auth-type-vocabulary}}. The frequency field is covered in [[zia.authentication.frequency]]."
+      "text": "{{enum-values}} The frequency field is covered in [[zia.authentication.frequency]]."
     },
     {
       "label": "What depends on what.",
@@ -54,11 +54,9 @@
   ],
   "checks": [
     {
-      "do": "The exact value names against the spec, not the older legacy page, since the two give different value sets.",
+      "do": "The exact value names against the spec.",
       "uses": [
-        "enum-values",
-        "enum-vocabulary",
-        "org-auth-type-vocabulary"
+        "enum-values"
       ]
     },
     {
@@ -75,12 +73,59 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "legacy-authentication-settings.md",
-          "quotes": [
-            "Retrieves organization's default authentication settings information. (Lightweight version",
-            "Updates the organization's default authentication settings information.",
-            "`authFrequency`, `authCustomFrequency`, `lastSyncStartTime`, `lastSyncEndTime` are not applicable in the Lite API."
-          ]
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/paths/~1authSettings/get",
+          "expect": {
+            "description": "<p> Retrieves the organization's default authentication settings information, including authentication profile and Kerberos authentication information.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/paths/~1authSettings/put",
+          "expect": {
+            "description": "<p> Updates the organization's default authentication settings information.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/paths/~1authSettings~1lite/get",
+          "expect": {
+            "description": "<p>Retrieves organization's default authentication settings information."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/authFrequency",
+          "expect": {
+            "description": "How frequently the users are required to authenticate (i.e., cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/authCustomFrequency",
+          "expect": {
+            "description": "<p>How frequently the users are required to authenticate. This field is customized to set the value in days. Valid range is 1–180.</p><p>This field is not applicable to the Lite API.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/lastSyncStartTime",
+          "expect": {
+            "description": "Timestamp (epoch time in seconds) corresponding to the start of the last LDAP sync. This is reset when the organization's authentication type is changed to a different directory authentication type. Applicable only for directory-based authentication. This field is not applicable to the Lite API."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/lastSyncEndTime",
+          "expect": {
+            "description": "Timestamp (epoch time in seconds) corresponding to the end of the last LDAP sync. This is reset when the organization's authentication type is changed to a different directory authentication type. Applicable only for directory-based authentication. This field is not applicable to the Lite API."
+          }
         },
         {
           "source": "sdk-go",
@@ -163,7 +208,8 @@
             "Supported values: NEVER, ONE_MONTH, THREE_MONTHS, SIX_MONTHS."
           ]
         }
-      ]
+      ],
+      "conditions": "Until the 2026-10-18 recapture the legacy API reference page gave other value sets for these fields; it now gives the same values as the OpenAPI document, so the two divergences recording the difference were removed."
     },
     "ldap-and-saml-completeness": {
       "statement": "Setting orgAuthType to an LDAP-based type requires a complete LdapProperties configuration, and enabling SAML (samlEnabled) requires complete SamlSettings.",
@@ -186,10 +232,11 @@
         },
         {
           "source": "zscaler-help",
-          "path": "legacy-authentication-settings.md",
-          "quotes": [
-            "Enabling SAML requires complete SamlSettings."
-          ]
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/samlEnabled",
+          "expect": {
+            "description": "Whether or not to authenticate users using SAML Single Sign-On. Enabling SAML requires complete SamlSettings."
+          }
         }
       ]
     },
@@ -199,11 +246,19 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "legacy-authentication-settings.md",
-          "quotes": [
-            "Password strength required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory).",
-            "Password expiration required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory)."
-          ]
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/passwordStrength",
+          "expect": {
+            "description": "Password strength required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory)."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/passwordExpiry",
+          "expect": {
+            "description": "Password expiration required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory)."
+          }
         }
       ]
     },
@@ -213,11 +268,11 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "legacy-authentication-settings.md",
-          "quotes": [
-            "When the orgAuthType is NONE, administrators must manually provide the password to new end users.",
-            "If SAML Single Sign-On is enabled, this one-time token is not applicable, and this field is ineffective."
-          ]
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/oneTimeAuth",
+          "expect": {
+            "description": "When the orgAuthType is NONE, administrators must manually provide the password to new end users. For new users who have not yet authenticated, a one-time token or link with a temporary password is sent as an email by the security cloud. If SAML Single Sign-On is enabled, this one-time token is not applicable, and this field is ineffective."
+          }
         }
       ]
     },
@@ -277,98 +332,16 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "legacy-authentication-settings.md",
-          "quotes": [
-            "Enable to disable directory synchronization for this user repository type so you can enable SCIM provisioning or SAML auto-provisioning.",
-            "Use this setting to migrate from directory synchronization to SCIM provisioning."
-          ]
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/directorySyncMigrateToScimEnabled",
+          "expect": {
+            "description": "Enable to disable directory synchronization for this user repository type so you can enable SCIM provisioning or SAML auto-provisioning. Use this setting to migrate from directory synchronization to SCIM provisioning."
+          }
         }
       ],
       "gaps": [
         "scim-migration-reversibility"
       ]
-    }
-  },
-  "divergences": {
-    "enum-vocabulary": {
-      "summary": "The legacy API reference page and the OpenAPI document give different value sets for the same authSettings fields.",
-      "positions": [
-        {
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "legacy-authentication-settings.md",
-            "quotes": [
-              "Enum: [3 Items — NONE, LOW, HIGH]",
-              "Enum: [4 Items — NEVER, MONTHLY, QUARTERLY, SEMIANNUALLY]",
-              "Enum: [3 Items — OTP_DISABLED, OTP_ENABLED, OTP_MANDATORY]"
-            ]
-          },
-          "says": "passwordStrength is NONE, LOW or HIGH; passwordExpiry is NEVER, MONTHLY, QUARTERLY or SEMIANNUALLY; oneTimeAuth is OTP_DISABLED, OTP_ENABLED or OTP_MANDATORY."
-        },
-        {
-          "evidence": {
-            "source": "api-specs",
-            "path": "automate-zscaler/openapi/zia.openapi.json",
-            "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/passwordStrength",
-            "expect": {
-              "type": "string",
-              "enum": [
-                "NONE",
-                "MEDIUM",
-                "STRONG"
-              ]
-            }
-          },
-          "says": "passwordStrength is NONE, MEDIUM or STRONG (and passwordExpiry and oneTimeAuth use the values in the enum-values claim)."
-        }
-      ],
-      "impact": "A write built from the legacy page's value names (LOW, HIGH, MONTHLY, OTP_ENABLED) uses names the current spec and the Python SDK do not list; use the spec's values.",
-      "resolution": {
-        "by": "enum-values",
-        "rule": "source-rank"
-      }
-    },
-    "org-auth-type-vocabulary": {
-      "summary": "The legacy KB doc, the legacy API page and the OpenAPI document give different orgAuthType values.",
-      "positions": [
-        {
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "legacy-authentication-settings.md",
-            "quotes": [
-              "Enum: [9 Items — ANY, NONE, LDAP_GROUP, LDAP_USER, SAML, AD_GROUP, AD_USER, ZIDENTITY, ZIDENTITY_GUEST]"
-            ]
-          },
-          "says": "orgAuthType is ANY, NONE, LDAP_GROUP, LDAP_USER, SAML, AD_GROUP, AD_USER, ZIDENTITY or ZIDENTITY_GUEST. (The retired KB doc also listed KERBEROS_SERVICE and LDAP; neither source has them.)"
-        },
-        {
-          "evidence": {
-            "source": "api-specs",
-            "path": "automate-zscaler/openapi/zia.openapi.json",
-            "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/orgAuthType",
-            "expect": {
-              "type": "string",
-              "enum": [
-                "ANY",
-                "NONE",
-                "SAFECHANNEL_DIR",
-                "MICROSOFT_ACTIVE_DIR",
-                "OPENLDAP_DIR",
-                "NOVELL_DIR",
-                "IBM_DOMINO_DIR",
-                "SUN_DIR",
-                "SMAUTH_ENTERPRISE_HOSTED"
-              ]
-            }
-          },
-          "says": "orgAuthType is ANY, NONE, SAFECHANNEL_DIR, MICROSOFT_ACTIVE_DIR, OPENLDAP_DIR, NOVELL_DIR, IBM_DOMINO_DIR, SUN_DIR or SMAUTH_ENTERPRISE_HOSTED."
-        }
-      ],
-      "impact": "SAML, KERBEROS_SERVICE and LDAP are not valid orgAuthType values in the spec; SAML is turned on with samlEnabled, Kerberos with kerberosEnabled.",
-      "resolution": {
-        "by": "enum-values",
-        "rule": "source-rank"
-      }
     }
   },
   "gaps": {

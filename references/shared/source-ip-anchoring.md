@@ -15,7 +15,7 @@ sources:
   - "vendor/zscaler-help/configuring-source-ip-anchoring.json"
   - "https://help.zscaler.com/zia/configuring-forwarding-policies-source-ip-anchoring-using-zpa"
   - "vendor/zscaler-help/configuring-forwarding-policies-source-ip-anchoring-using-zpa.json"
-  - "vendor/zscaler-help/About_Access_Policy.txt"
+  - "vendor/zscaler-help/zpa-access-policy-20260909.json"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
 ---
@@ -232,7 +232,7 @@ Source: `vendor/zscaler-help/understanding-source-ip-anchoring.json`.
 
 ## Policy footguns
 
-Source: `vendor/zscaler-help/About_Access_Policy.txt`; `vendor/zscaler-help/configuring-source-ip-anchoring.json`.
+Source: `vendor/zscaler-help/zpa-access-policy-20260909.json`; `vendor/zscaler-help/configuring-source-ip-anchoring.json`.
 
 ### Country-code matching uses the wrong IP
 

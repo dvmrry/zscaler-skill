@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from help_capture import _parse_md_body, document, render, text_of  # noqa: E402
+from help_capture import _parse_md_body, changes, document, render, text_of  # noqa: E402
 
 ARTICLE = """
 <article>
@@ -76,3 +76,15 @@ def test_an_older_markdown_body_parses_back_to_the_same_blocks():
         "- Allow & log\n| Code | Name |\n|---|---|\n| 3 | NXDomain \\| not found |\n"
     )
     assert _parse_md_body(markdown) == blocks
+
+
+def test_ordered_lists_keep_their_numbers():
+    _, blocks = render('<h3>T</h3><ol><li>First</li><li>Second<ul><li>sub</li></ul></li></ol><ol start="5"><li>Five</li></ol>')
+    assert text_of(blocks) == "1. First\n2. Second\n  - sub\n5. Five\n"
+
+
+def test_a_drift_report_names_the_changed_lines_of_the_new_text():
+    delta = changes("a\nb\nc\nd\n", "a\nB\nc\nd\ne\n")
+    assert delta["changed_lines"] == [2, 5] and delta["removed"] == ["b"]
+    # A deletion marks the lines on either side of where it was.
+    assert changes("a\nb\nc\n", "a\nc\n")["changed_lines"] == [1, 2]

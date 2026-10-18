@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "API Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/api-authentication-workflow-automation-api",
+    "node": "1452716",
+    "revision": "3070571",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Workflow%20Automation%20API%20Authentication_1.json?VersionId=KYaziQDvwfrPppbz2FGZ72Z6gaKN5Isg"
+  },
+  "captured_at": "2026-10-18",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Workflow Automation - DLP Incident  Management API",
+      "description": "Zscaler Workflow Automation - DLP Incident Management API.",
+      "termsOfService": "http://zscaler.com/terms/",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://api.us1.zsworkflow.net"
+      }
+    ],
+    "tags": [
+      {
+        "name": "API Authentication"
+      }
+    ],
+    "paths": {
+      "/v1/auth/api-key/token": {
+        "post": {
+          "tags": [
+            "API Authentication"
+          ],
+          "description": "Authenticate using the <code>key_id</code> and the <code>key_secret</code>. The response returns a session token in the header called <code>Bearer Token</code> that must be used in subsequent requests.",
+          "operationId": "getPublicAPISessionTokenForAPIKey",
+          "requestBody": {
+            "description": "Authorize with the <code>key_id</code> and <code>key_secret</code> for a short term session token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZSDLPGetSessionTokenRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "Successful operation. A new authorization token is created.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZSDLPGetSessionTokenResponse"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authorization failure"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "ZSDLPGetSessionTokenRequest": {
+          "type": "object",
+          "properties": {
+            "key_id": {
+              "type": "string",
+              "description": "The key ID."
+            },
+            "key_secret": {
+              "type": "string",
+              "description": "The key secret."
+            }
+          }
+        },
+        "ZSDLPGetSessionTokenResponse": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string",
+              "description": "The session token."
+            },
+            "token_type": {
+              "type": "string",
+              "description": "The type of the session token."
+            },
+            "expires_in": {
+              "type": "integer",
+              "description": "The expiration time of the session token."
+            }
+          }
+        }
+      }
+    }
+  }
+}

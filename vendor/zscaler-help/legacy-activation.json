@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Activation",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/activation",
+    "node": "1402436",
+    "revision": "3127525",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Activation_11.json?VersionId=QCO_717KCrtvnISsgXsnH_YRpwUEh70L"
+  },
+  "captured_at": "2026-10-18",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Activation"
+      }
+    ],
+    "paths": {
+      "/eusaStatus/latest": {
+        "get": {
+          "tags": [
+            "Activation"
+          ],
+          "description": "Retrieves the End User Subscription Agreement (EUSA) acceptance status. If the status does not exist, it returns a status object with no ID.",
+          "operationId": "EusaStatusZResource_getEusaStatusForLatestEusaInfoId",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EusaStatus"
+              }
+            }
+          }
+        }
+      },
+      "/eusaStatus/{eusaStatusId}": {
+        "put": {
+          "tags": [
+            "Activation"
+          ],
+          "description": "Updates the EUSA status based on the specified status ID",
+          "operationId": "EusaStatusZResource_updateEusaStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "eusaStatusId",
+              "in": "path",
+              "description": "The EUSA status ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The EUSA status details",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EusaStatus"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EusaStatus"
+              }
+            }
+          }
+        }
+      },
+      "/status": {
+        "get": {
+          "tags": [
+            "Activation"
+          ],
+          "description": "<p>Gets the activation status for the saved configuration changes. To learn more about activating configuration changes, see <a href=\"/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n",
+          "operationId": "getOrganizationActivationStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/ActivationStatus"
+              }
+            }
+          }
+        }
+      },
+      "/status/activate": {
+        "post": {
+          "tags": [
+            "Activation"
+          ],
+          "description": "<p>Activates the saved configuration changes. To learn more, see <a href=\"/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n",
+          "operationId": "activateOrganizationalChanges",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/ActivationStatus"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "EusaStatus": {
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the EUSA status",
+            "readOnly": true
+          },
+          "version": {
+            "description": "Specifies the EUSA info ID version. This field is for Zscaler internal use only.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "acceptedStatus": {
+            "type": "boolean",
+            "description": "A Boolean value that specifies the EUSA status. If set to true, the EUSA is accepted. If set to false, the EUSA is in an 'agreement pending' state. The default value is false."
+          }
+        }
+      },
+      "ActivationStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "PENDING",
+              "INPROGRESS"
+            ]
+          }
+        },
+        "description": "Organization Policy Edit/Update Activation status"
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of id and name"
+      }
+    }
+  }
+}

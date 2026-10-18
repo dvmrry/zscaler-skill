@@ -71,14 +71,19 @@
   ],
   "claims": {
     "operator-expression": {
-      "statement": "A rule matches when this expression is true: Source IP Groups AND Source Countries AND URL Categories AND [Users OR/AND Groups OR/AND Departments] AND User Risk Profile AND [Location Groups OR Locations] AND Time AND Request Methods AND Protocols AND User Agent AND [Device Groups OR Devices] AND Device Trust.",
+      "statement": "A rule matches when all four groups are true, joined by AND: Who, Where and When [ (Users OR/AND Groups OR/AND Departments) AND User Risk Profile AND Adaptive Access Profile AND (Location Groups OR Locations) AND Time ]; What [ Request Methods AND Protocols AND URL Categories AND User Agent AND HTTP Header Profiles ]; Source [ Source IP Groups AND Source Countries ]; and Device [ (Device Groups OR Devices) AND Workload Groups AND Device Trust Level ].",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"A rule matches when this expression is true: Source IP Groups AND Source Countries AND URL Categories AND [Users OR/AND Groups OR/AND Departments] AND User Risk Profile AND [Location Groups OR Locations] AND Time AND Request Methods AND Protocols AND User Agent AND [Device Groups OR Devices] AND Device Trust.\".",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
-            "Source IP Groups (AND) Source Countries (AND) URL Categories (AND) [Users (OR/AND) Groups (OR/AND) Departments] (AND) User Risk Profile (AND) [Location Groups (OR) Locations] (AND) Time (AND) Request Methods (AND) Protocols (AND) User Agent (AND) [Device Groups (OR) Devices] (AND) Device Trust."
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:",
+            "Who, Where, & When: [ (Users OR/AND Groups OR/AND Departments) AND User Risk Profile AND Adaptive Access Profile AND (Location Groups OR Locations) AND Time ] AND",
+            "What: [ Request Methods AND Protocols AND URL Categories AND User Agent AND HTTP Header Profiles ] AND",
+            "Source: [ Source IP Groups AND Source Countries ] AND",
+            "Device: [ (Device Groups OR Devices) AND Workload Groups AND Device Trust Level ]"
           ]
         }
       ]
@@ -89,7 +94,7 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "after": "URL Categories: Select any number of URL super categories or categories or both.",
           "quotes": [
             "Selecting no value ignores this criterion in the policy evaluation."
@@ -107,7 +112,7 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
             "The URL Categories fields are connected with a logical AND operator."
           ]
@@ -132,7 +137,7 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
             "User Risk Profile: Select the user risk score levels to which the rule applies.",
             "Low: Level with user risk scores ranging from 0 to 29",
@@ -177,9 +182,9 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Understanding_Policy_Enforcement.txt",
+          "path": "understanding-policy-enforcement.json",
           "quotes": [
-            "During a CONNECT request or an incoming SSL connection (SNI), only the destination domain is available and not the full URL."
+            "During a CONNECT request or an incoming SSL/TLS connection (SNI), only the destination domain is available and not the full URL."
           ]
         }
       ]

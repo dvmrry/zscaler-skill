@@ -168,7 +168,7 @@
       ]
     },
     "last-sync-fields": {
-      "statement": "lastSyncStartTime and lastSyncEndTime are epoch-second timestamps of the last LDAP sync, applicable only to directory-based authentication. lastSyncStartTime is reset when the authentication type is changed to a different directory authentication type.",
+      "statement": "lastSyncStartTime and lastSyncEndTime are epoch-second timestamps of the start and end of the last LDAP sync, applicable only to directory-based authentication. Both are reset when the authentication type is changed to a different directory authentication type.",
       "tier": "A",
       "binds": [
         "zia/auth-settings"
@@ -176,13 +176,22 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "legacy-authentication-settings.md",
-          "quotes": [
-            "This is reset when the organization's authentication type is changed to a different directory authentication type.",
-            "Timestamp (epoch time in seconds) corresponding to the end of the last LDAP sync. Applicable only for directory-based authentication."
-          ]
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/lastSyncStartTime",
+          "expect": {
+            "description": "Timestamp (epoch time in seconds) corresponding to the start of the last LDAP sync. This is reset when the organization's authentication type is changed to a different directory authentication type. Applicable only for directory-based authentication. This field is not applicable to the Lite API."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/lastSyncEndTime",
+          "expect": {
+            "description": "Timestamp (epoch time in seconds) corresponding to the end of the last LDAP sync. This is reset when the organization's authentication type is changed to a different directory authentication type. Applicable only for directory-based authentication. This field is not applicable to the Lite API."
+          }
         }
-      ]
+      ],
+      "conditions": "Corrected on recapture (2026-10-18): previously \"lastSyncStartTime and lastSyncEndTime are epoch-second timestamps of the last LDAP sync, applicable only to directory-based authentication. lastSyncStartTime is reset when the authentication type is changed to a different directory authentication type.\" The spec now states the reset for lastSyncEndTime as well."
     }
   },
   "gaps": {

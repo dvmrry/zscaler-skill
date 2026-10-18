@@ -16,7 +16,7 @@ sources:
   - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-microsoft-azure.json"
   - "vendor/zscaler-help/cbc-troubleshooting-cloud-connector-amazon-web-services.json"
   - "vendor/zscaler-help/cbc-managing-cloud-branch-connector-upgrades.json"
-  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
+  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json"
   - "vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json"
   - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go"
@@ -274,14 +274,14 @@ This is monitoring of the workload-discovery integration, not CC traffic — but
 
 ## 4. API/SDK access
 
-Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json`; `vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
+Source: `vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json`; `vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json`; `vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go`; `vendor/zscaler-sdk-go/zscaler/ztw/services/provisioning/public_cloud_account/public_cloud_account.go`; `vendor/terraform-provider-ztc/docs/data-sources/ztc_edge_connector_group.md`.
 
 The current SDKs do not expose a general Insights time-series wrapper. The raw
 group API does expose `GET /ecgroup/vmUpgradeMetrics`, which returns aggregate
 release-channel and scheduled-upgrade telemetry with platform, release-channel,
 location, name, and upgrade-status filters
 (`vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json:24-28`;
-`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:33-48`). That
+`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:33-48`). That
 operation does not establish a general Session, DNS, or Tunnel Insights
 time-series API. The remaining monitoring-adjacent programmatic reads are:
 

@@ -9,7 +9,7 @@ verified-against:
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/understanding-step-up-authentication-zidentity.json"
+  - "vendor/zscaler-help/understanding-step-up-authentication.json"
   - "vendor/zscaler-help/understanding-step-up-authentication.json"
   - "vendor/zscaler-sdk-python/zscaler/zpa/stepup_auth_level.py"
 author-status: draft

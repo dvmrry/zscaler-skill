@@ -7,14 +7,14 @@ last-verified: "2026-04-29"
 confidence: medium
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/nss-web-logs.csv"
-  - "vendor/zscaler-help/nss-firewall-logs.csv"
-  - "vendor/zscaler-help/nss-dns-logs.csv"
+  - "vendor/zscaler-help/nss-feed-output-format-web-logs.json"
+  - "vendor/zscaler-help/nss-feed-output-format-firewall-logs.json"
+  - "vendor/zscaler-help/nss-feed-output-format-dns-logs.json"
   - "vendor/zscaler-help/about-cloud-nss-feeds.json"
-  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
-  - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt"
-  - "vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt"
-  - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
+  - "vendor/zscaler-help/understanding-log-stream-content-format.json"
+  - "vendor/zscaler-help/understanding-user-activity-log-fields.json"
+  - "vendor/zscaler-help/understanding-user-status-log-fields.json"
+  - "vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json"
   - "vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json"
   - "vendor/zscaler-help/understanding-zdx-api.json"
   - "vendor/terraform-provider-zia/docs/resources/zia_cloud_nss_feed.md"
@@ -24,7 +24,7 @@ author-status: draft
 
 # Zscaler log type catalog — SIEM-agnostic mapping reference
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`; `vendor/terraform-provider-zia/docs/resources/zia_cloud_nss_feed.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`; `vendor/terraform-provider-zia/docs/resources/zia_cloud_nss_feed.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py`.
 
 The bridge between Zscaler log streams (universal, defined by Zscaler) and where they land in your SIEM (per-tenant, defined by your config). Use this catalog to answer:
 
@@ -34,7 +34,7 @@ The bridge between Zscaler log streams (universal, defined by Zscaler) and where
 
 ## Canonical vs. tenant — the catalog covers one half
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json`; `vendor/zscaler-help/understanding-zdx-api.json`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`; `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json`; `vendor/zscaler-help/understanding-zdx-api.json`.
 
 This catalog is **canonical** — the Zscaler-published view of each log type and its schema. The complementary artifact is the **tenant schema**: an empirical dump of what's actually in your SIEM after parsing / TA / aliases (e.g., a Splunk `fieldsummary` against your sourcetype). Tenant schemas are private and live in your fork / CLAUDE.md / memory.
 
@@ -60,7 +60,7 @@ Splunk landing spots are listed as common NSS sourcetype patterns and operator c
 
 ## ZIA — NSS feeds
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/about-cloud-nss-feeds.json`; `vendor/terraform-provider-zia/docs/resources/zia_cloud_nss_feed.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/about-cloud-nss-feeds.json`; `vendor/terraform-provider-zia/docs/resources/zia_cloud_nss_feed.md`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_nss.py`.
 
 ZIA Nanolog Streaming Service (NSS) feeds carry transaction-level events from the ZIA cloud to a SIEM via syslog or HEC.
 
@@ -148,7 +148,7 @@ ZIA Nanolog Streaming Service (NSS) feeds carry transaction-level events from th
 
 ## ZPA — LSS feeds
 
-Source: `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`; `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/understanding-log-stream-content-format.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`; `vendor/zscaler-help/understanding-user-status-log-fields.json`; `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`.
 
 ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from the ZPA cloud to a SIEM. Each LSS log type is a separate feed configured in the ZPA admin UI; tenants may co-index multiple LSS log types in a single SIEM destination or split them.
 
@@ -254,7 +254,7 @@ ZPA Log Streaming Service (LSS) feeds carry session and connector telemetry from
 
 ## ZCC — client-side logs
 
-Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json`; `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt`.
+Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-client-connector.json`; `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/understanding-user-status-log-fields.json`.
 
 ### ZCC client diagnostic logs
 
@@ -278,7 +278,7 @@ Source: `vendor/zscaler-help/understanding-zdx-api.json`; `vendor/zscaler-help/a
 
 ## Coverage gaps
 
-Source: `vendor/zscaler-help/about-cloud-nss-feeds.json`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/about-cloud-nss-feeds.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`.
 
 Schemas not yet documented in this repo, surfaced by the catalog:
 

@@ -1,0 +1,588 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Monitoring Private Service Edge Performance",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/monitoring-private-service-edge-performance",
+    "node": "1485371",
+    "revision": "3213771"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "There are a variety of things to consider when monitoring Private Service Edges for Private Access (ZPA) and their performance. The most important thing is to make sure your Private Service Edges are deployed in a manner that follows Zscaler's recommendations for image sizing and scalability, supported platform requirements, deployment best practices, networking configurations, and other essential guidelines. To learn more, see Private Service Edge Deployment Prerequisites and Networking Deployed Software Components."
+    },
+    {
+      "text": "Within the Zscaler Admin Console, you can use the Private Service Edge Dashboard to help monitor your organization's Private Service Edges."
+    },
+    {
+      "text": "When monitoring Private Service Edges directly, consider the following:"
+    },
+    {
+      "item": "CPU Utilization",
+      "depth": 0
+    },
+    {
+      "item": "Peak sustained CPU utilization should be less than 70%. The value needs to take into account all Private Service Edges in the group. The CPU utilization of the group's Private Service Edges should be able to manage additional load and allow each Private Service Edge to operate under 70% utilization in the event that one of the Private Service Edges becomes unavailable. For example, if you only have two Private Service Edges and they are both at 50%, this is below the 70% threshold. However, if one Private Service Edge goes down, then the other Private Service Edge runs above 70%.",
+      "depth": 0
+    },
+    {
+      "item": "To monitor CPU utilization:",
+      "depth": 0
+    },
+    {
+      "item": "Review Private Service Edge Status Logs in the Log Streaming Service",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge Status logs can be streamed to a SIEM or a syslog server using the Log Streaming Service (LSS). PPrivate Service Edge Status logs are generated periodically for each Private Service Edge, and the field CPUUtilization displays the Private Service Edge host’s CPU utilization at that instance. For more information, see About Private Service Edge Metrics Log Fields.",
+      "depth": 1,
+      "strong": [
+        [
+          223,
+          237
+        ]
+      ]
+    },
+    {
+      "item": "Review Private Service Edge Status Logs on the Host",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge logs can be viewed on the Private Service Edge host whenever the Private Service Edge is running. The information displayed in the Private Service Edge logs includes the log output of the Private Service Edge to the local system logging facilities.",
+      "depth": 1
+    },
+    {
+      "item": "To reduce and balance the load among the VMs:",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the Hypervisor is healthy.",
+      "depth": 2
+    },
+    {
+      "item": "Change the Hypervisor setup accordingly.",
+      "depth": 2
+    },
+    {
+      "item": "Use CLI Commands on the Private Service Edge Host",
+      "depth": 1
+    },
+    {
+      "item": "Linux provides several utilities to view CPU utilization using Command Line Interface (CLI) commands. For example:",
+      "depth": 1
+    },
+    {
+      "item": "The top command reports the sum of utilization across all cores on all processors.",
+      "depth": 2
+    },
+    {
+      "item": "The sysstat package contains different tools for performance and usage.",
+      "depth": 2
+    },
+    {
+      "item": "You can also create a script that periodically reports the Private Service Edge host’s CPU utilization to a separate statistics collection server.",
+      "depth": 1
+    },
+    {
+      "item": "If the CPU utilization is more than 100%, it may be due to multiple CPU cores on the Private Service Edge host. For example, if there are 4 cores, the top output shows usage at 400%. Use the lscpu command to check the number of CPU cores. In this case, the calculation of the peak CPU should be normalized across the number of cores.",
+      "depth": 1
+    },
+    {
+      "item": "Use Simple Network Management Protocol",
+      "depth": 1
+    },
+    {
+      "item": "Simple Network Management Protocol (SNMP) provides a well-defined interface for periodically monitoring performance metrics on host servers. CPU information on the Private Service Edge host can be read using SNMP object identifiers (OIDs).",
+      "depth": 1
+    },
+    {
+      "item": "Some of the well-known SNMP OIDs for monitoring CPU utilization on a Linux OS are:",
+      "depth": 1
+    },
+    {
+      "item": "Percentage of user CPU time: .1.3.6.1.4.1.2021.11.9.0",
+      "depth": 2
+    },
+    {
+      "item": "Raw user CPU time: .1.3.6.1.4.1.2021.11.50.0",
+      "depth": 2
+    },
+    {
+      "item": "Percentage of system CPU time: .1.3.6.1.4.1.2021.11.10.0",
+      "depth": 2
+    },
+    {
+      "item": "Raw system CPU time: .1.3.6.1.4.1.2021.11.52.0",
+      "depth": 2
+    },
+    {
+      "item": "Percentage of idle CPU time: .1.3.6.1.4.1.2021.11.11.0",
+      "depth": 2
+    },
+    {
+      "item": "Raw idle CPU time: .1.3.6.1.4.1.2021.11.53.0",
+      "depth": 2
+    },
+    {
+      "item": "To reduce the CPU utilization on individual Private Service Edge hosts, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy an additional Private Service Edge into the Private Service Edge group to distribute users across additional Private Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "Deploy dedicated Private Service Edge groups for specific application segments to reduce the number of applications that are requested through each Private Service Edge group.",
+      "depth": 1
+    },
+    {
+      "item": "The CPU steal percentage is the CPU time stolen from the VM by a Hypervisor and is reported every minute in the status log. When the CPU steal percentage is high, the Hypervisor is busy, resulting in degraded performance for the Private Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "Memory Utilization",
+      "depth": 0
+    },
+    {
+      "item": "Peak sustained memory utilization should be less than 80%. The value needs to take into account all Private Service Edges in the group. The memory of the group's Private Service Edge should be able to manage additional loads and allow each Private Service Edge to operate under 80% utilization in the event one of the Private Service Edges becomes unavailable. For example, if you only have two Private Service Edges and they are both at 50%, this is below the 80% threshold. However, if one Private Service Edge goes down, then the otherPrivate Service Edge runs above 80%",
+      "depth": 0
+    },
+    {
+      "item": "To monitor memory:",
+      "depth": 0
+    },
+    {
+      "item": "Review Private Service Edge Status Logs in the Log Streaming Service",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge Status logs can be streamed to a SIEM or a syslog server using the Log Streaming Service (LSS). Private Service Edge Status logs are generated periodically for each Private Service Edge, and the field MemUtilization displays the Private Service Edge host’s memory utilization at that instance. For more information, see About Private Service Edge Status Log Fields.",
+      "depth": 1,
+      "strong": [
+        [
+          222,
+          236
+        ]
+      ]
+    },
+    {
+      "item": "Review Private Service Edge Status Logs on the Host",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge logs can be viewed on the Private Service Edge host whenever the Private Service Edge is running. The information displayed in the Private Service Edge logs includes the log output of the Private Service Edge to the local system logging facilities.",
+      "depth": 1
+    },
+    {
+      "item": "To reduce and balance the load among the VMs:",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the Hypervisor is healthy.",
+      "depth": 2
+    },
+    {
+      "item": "Change the Hypervisor setup accordingly.",
+      "depth": 2
+    },
+    {
+      "item": "Use CLI Commands on the Private Service Edge Host",
+      "depth": 1
+    },
+    {
+      "item": "Linux provides several utilities such as free, top, cat/proc/meminfo, htop, and others to view memory utilization using CLI commands. You can create a script that periodically reports the Private Service Edge host’s memory utilization to a separate statistics collection server.",
+      "depth": 1
+    },
+    {
+      "item": "Use Simple Network Management Protocol",
+      "depth": 1
+    },
+    {
+      "item": "Simple Network Management Protocol (SNMP) provides a well-defined interface for periodically monitoring performance metrics on host servers. Memory information on the Private Service Edge host can be read using SNMP object identifiers (OIDs).",
+      "depth": 1
+    },
+    {
+      "item": "Some of the well-known SNMP OIDs for monitoring memory on a Linux OS are:",
+      "depth": 1
+    },
+    {
+      "item": "Total RAM in machine: .1.3.6.1.4.1.2021.4.5.0",
+      "depth": 2
+    },
+    {
+      "item": "Total RAM used: .1.3.6.1.4.1.2021.4.6.0",
+      "depth": 2
+    },
+    {
+      "item": "Total RAM Free: .1.3.6.1.4.1.2021.4.11.0",
+      "depth": 2
+    },
+    {
+      "item": "To reduce memory utilization on individual Private Service Edge hosts, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Increase the amount of available memory on the Private Service Edge host.",
+      "depth": 1
+    },
+    {
+      "item": "Deploy additional Private Service Edges into the Private Service Edge group to distribute users across additional Private Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "Deploy dedicated Private Service Edge groups for specific application segments to reduce the number of applications that are requested through each Private Service Edge group.",
+      "depth": 1
+    },
+    {
+      "item": "Data Throughput",
+      "depth": 0
+    },
+    {
+      "item": "Peak sustained throughput based on recommended Private Service Edge specifications should be less than 500 Mbps.",
+      "depth": 0
+    },
+    {
+      "item": "500 Mbps of throughput is an aggregate of multiple streams of traffic.",
+      "depth": 0
+    },
+    {
+      "item": "To monitor Private Service Edge throughput:",
+      "depth": 0
+    },
+    {
+      "item": "Review Private Service Edge Status Logs in the Log Streaming Service",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge Status logs can be streamed to a SIEM or a syslog server using Log Streaming Service (LSS). Private Service Edge Status logs are generated periodically for each Private Service Edge, and the fields TotalBytesRx and TotalBytesTx display the Private Service Edge host’s throughput at that instance. For more information, see About Private Service Edge Status Log Fields.",
+      "depth": 1,
+      "strong": [
+        [
+          219,
+          231
+        ],
+        [
+          236,
+          248
+        ]
+      ]
+    },
+    {
+      "item": "Review Private Service Edge Status Logs on the Host",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge logs can be viewed on the Private Service Edge host whenever the Private Service Edge is running. The information displayed in the Private Service Edge logs includes the log output of the Private Service Edge to the local system logging facilities. The CPU steal percentage is the CPU time stolen from the VM by a Hypervisor and is reported every minute in the status log. When the CPU steal percentage is high, the Hypervisor is busy, resulting in degraded performance for the Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "To reduce and balance the load among the VMs:",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the Hypervisor is healthy.",
+      "depth": 2
+    },
+    {
+      "item": "Change the Hypervisor setup accordingly.",
+      "depth": 2
+    },
+    {
+      "item": "Use CLI Commands on the Private Service Edge Host",
+      "depth": 1
+    },
+    {
+      "item": "Linux provides several utilities such as nload, iftop, nethogs, bmon, and others to view bandwidth statistics on the Private Service Edge host interface using CLI commands. You can create a script that periodically reports the host’s bandwidth utilization to a separate statistics collection server.",
+      "depth": 1
+    },
+    {
+      "item": "Use Simple Network Management Protocol",
+      "depth": 1
+    },
+    {
+      "item": "Simple Network Management Protocol (SNMP) provides a well-defined interface for periodically monitoring performance metrics on host servers. Data throughput information on the Private Service Edge host can be read using SNMP object identifiers (OIDs).",
+      "depth": 1
+    },
+    {
+      "item": "Some of the well-known SNMP OIDs for monitoring Private Service Edge throughput on a Linux OS are:",
+      "depth": 1
+    },
+    {
+      "item": "The total number of bytes received on the interface: .1.3.6.1.2.1.2.2.1.10",
+      "depth": 2
+    },
+    {
+      "item": "The total number of bytes transmitted on the interface: .1.3.6.1.2.1.2.2.1.16",
+      "depth": 2
+    },
+    {
+      "item": "To reduce data throughput on individual Private Service Edge hosts, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy an additional Private Service Edge into the Private Service Edge group to distribute users across additional Private Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "Deploy dedicated Private Service Edge groups for specific application segments to reduce the number of applications that are requested through each Private Service Edge group.",
+      "depth": 1
+    },
+    {
+      "item": "Source Port Consumption",
+      "depth": 0
+    },
+    {
+      "item": "The number of used and free ports can be obtained from the Private Service Edge host by using the following command. In the following example, 11 is the number of UDP ports and 13 is the number of TCP ports in use.",
+      "depth": 0
+    },
+    {
+      "item": "[root@ip-10-0-0-116 admin]# sudo su [root@ip-10-0-0-116 admin]# ss -uln | wc -l && ss -tn state connected | wc -l 11 13",
+      "depth": 0
+    },
+    {
+      "item": "If the in-use count for either TCP or UDP ports is equal or close to the available ports, the Private Service Edge host is likely to experience port exhaustion and the Private Service Edge may not be able to connect to the applications.",
+      "depth": 0
+    },
+    {
+      "item": "In the following example, the command is still used. It shows the difference of 60999-32768=28231, which indicates the number of ports available for use on this Private Service Edge host. The count of in-use UDP and TCP ports must be lower than 28231.",
+      "depth": 0
+    },
+    {
+      "item": "[root@ip-10-0-0-116 admin]# sysctl net.ipv4.ip_local_port_range net.ipv4.ip_local_port_range = 32768 60999 [root@ip-10-0-0-116 admin]#",
+      "depth": 0
+    },
+    {
+      "item": "To adjust port usage, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Increase the Available Maximum Number of Ports",
+      "depth": 1
+    },
+    {
+      "item": "For a non-permanent increase in ports, which does not persist across the Private Service Edge host restart, use one of the following options. The text in red is an example of port ranges:",
+      "depth": 1
+    },
+    {
+      "item": "Use echo",
+      "depth": 2
+    },
+    {
+      "item": "echo 32768 65000 > /proc/sys/net/ipv4/ip_local_port_range",
+      "depth": 1
+    },
+    {
+      "item": "Use sysctl",
+      "depth": 2
+    },
+    {
+      "item": "sysctl -w net.ipv4.ip_local_port_range=\"32768 65000\"",
+      "depth": 1
+    },
+    {
+      "item": "For a permanent increase in ports, add the following to /etc/sysctl.conf. The text in red is an example of port ranges:",
+      "depth": 1
+    },
+    {
+      "item": "net.ipv4.ip_local_port_range = 32768 65000",
+      "depth": 1
+    },
+    {
+      "item": "Host Application Access",
+      "depth": 0
+    },
+    {
+      "item": "There may be degraded application performance if an excessive number of applications are accessed from a smaller number of Private Service Edges within a group. Too many applications accessed from a given Private Service Edge may result in increased application latency or higher amounts of CPU or memory used on the Private Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "To reduce the number of applications per Private Service Edge, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy dedicated Private Service Edge groups for specific application segments to reduce the number of applications that are requested through each Private Service Edge group.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends that you add additional Private Service Edges to the existing Private Service Edge groups to support excess applications.",
+      "depth": 1
+    },
+    {
+      "item": "Disk Space Utilization",
+      "depth": 0
+    },
+    {
+      "item": "Private Service Edges generate logs that are stored on the disk during the normal course of operation. To ensure adequate disk space is available for Private Service Edge logs and software updates, monitor the disk space for consumption.",
+      "depth": 0
+    },
+    {
+      "item": "The Private Service Edge process restarts if there is less than 100 MB of disk space left, and generates a log in the /var/log/message file to reflect the cause of the restart. This ensures that the software updates for the Private Service Edge can download successfully.",
+      "depth": 0
+    },
+    {
+      "item": "If the Private Service Edge runs other software, it can generate large volumes of logs that can fill up the disk space.",
+      "depth": 0
+    },
+    {
+      "item": "To monitor disk space:",
+      "depth": 0
+    },
+    {
+      "item": "Review the Amount of Free Disk Space",
+      "depth": 1
+    },
+    {
+      "item": "The sudo df -h command displays free disk space on the Private Service Edge host. For example:",
+      "depth": 1
+    },
+    {
+      "item": "[admin@ip-10-0-0-228 ~]$ sudo df -h Filesystem Size Used Avail Use% Mounted on /dev/nvme0n1p1 8.0G 1.7G 6.4G 21% / devtmpfs 1.9G 0 1.9G 0% /dev tmpfs 1.9G 0 1.9G 0% /dev/shm tmpfs 1.9G 181M 1.7G 10% /run tmpfs 1.9G 0 1.9G 0% /sys/fs/cgroup tmpfs 375M 0 375M 0% /run/user/1000",
+      "depth": 1
+    },
+    {
+      "item": "Check the Top Process that Consumes Disk Space",
+      "depth": 1
+    },
+    {
+      "item": "Use the following command to see the top process that consumes disk space:",
+      "depth": 1
+    },
+    {
+      "item": "sudo du -a /| sort -n -r | head -n 20",
+      "depth": 1
+    },
+    {
+      "item": "Review the Number of System Log Lines Generated",
+      "depth": 1
+    },
+    {
+      "item": "Use the following command to get a rough estimate of the lines of syslogd written by the Private Service Edge process:",
+      "depth": 1
+    },
+    {
+      "item": "sudo grep -v \"zpa-service-edge\" /var/log/messages | wc -l sudo grep \"zpa-service-edge\" /var/log/messages | wc -l",
+      "depth": 1
+    },
+    {
+      "item": "Use Simple Network Management Protocol",
+      "depth": 1
+    },
+    {
+      "item": "Simple Network Management Protocol (SNMP) provides a well-defined interface for periodically monitoring performance metrics on host servers. Disk space information on the Private Service Edge host can be read using SNMP object identifiers (OIDs).",
+      "depth": 1
+    },
+    {
+      "item": "Some of the well-known SNMP OIDs for monitoring disk space utilization on a Linux OS are:",
+      "depth": 1
+    },
+    {
+      "item": "Available space on the disk: .1.3.6.1.4.1.2021.9.1.7.1",
+      "depth": 2
+    },
+    {
+      "item": "Used space on the disk: .1.3.6.1.4.1.2021.9.1.8.1",
+      "depth": 2
+    },
+    {
+      "item": "Percentage of space used on disk: .1.3.6.1.4.1.2021.9.1.9.1",
+      "depth": 2
+    },
+    {
+      "item": "Percentage of inodes used on disk: .1.3.6.1.4.1.2021.9.1.10.1",
+      "depth": 2
+    },
+    {
+      "item": "Path where the disk is mounted: .1.3.6.1.4.1.2021.9.1.2.1",
+      "depth": 2
+    },
+    {
+      "item": "Path of the device for the partition: .1.3.6.1.4.1.2021.9.1.3.1",
+      "depth": 2
+    },
+    {
+      "item": "Total size of the disk/partition (kBytes): .1.3.6.1.4.1.2021.9.1.6.1",
+      "depth": 2
+    },
+    {
+      "item": "To reduce disk space on individual Private Service Edge hosts, use the following options:",
+      "depth": 0
+    },
+    {
+      "item": "Archive the Files",
+      "depth": 1
+    },
+    {
+      "item": "Use a Linux utility like logrotate to archive files on a regular basis (e.g., daily, weekly, or monthly) with the /etc/logrotate.conf command.",
+      "depth": 1
+    },
+    {
+      "item": "Some ways to use logrotate for archiving are:",
+      "depth": 1
+    },
+    {
+      "item": "Archive log files daily: daily",
+      "depth": 2
+    },
+    {
+      "item": "Keep 7 days worth of logs: rotate 7",
+      "depth": 2
+    },
+    {
+      "item": "Create new (empty) log files after archiving old ones: create",
+      "depth": 2
+    },
+    {
+      "item": "Use a date as a suffix of the archived file: dateext",
+      "depth": 2
+    },
+    {
+      "item": "Un-comment to compress log files: compress",
+      "depth": 2
+    },
+    {
+      "item": "Remove the Files",
+      "depth": 1
+    },
+    {
+      "item": "Run a cron job to delete log files or use the rm command to remove any files you think are not necessary, including archived files. For example, there is no functional implication for deleting /var/log/messages. Before deleting, check if you require the files for Private Service Edge troubleshooting.",
+      "depth": 1
+    },
+    {
+      "item": "If you archive files to reduce disk space, you do not need to remove files as well.",
+      "depth": 1
+    },
+    {
+      "item": "Create More Log Space",
+      "depth": 1
+    },
+    {
+      "item": "To create more space in /var/log/journal, use the vacuum-size or the vacuum-time commands. For example:",
+      "depth": 1
+    },
+    {
+      "item": "sudo journalctl --vacuum-size=100m sudo journalctl --vacuum-time=1d",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends at least disabling rsyslogd to reduce disk space.",
+      "depth": 0
+    },
+    {
+      "item": "File Descriptors Exhaustion",
+      "depth": 0
+    },
+    {
+      "item": "If the number of file descriptors is not sufficient on the Private Service Edge host, transactions can fail due to file descriptor exhaustion. To address this, increase the SYSTEM_FD limit by executing the following command:",
+      "depth": 0
+    },
+    {
+      "item": "sudo sysctl -w fs.file-max=1000000",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see About the Private Service Edge Dashboard.",
+      "depth": 0
+    }
+  ]
+}

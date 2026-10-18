@@ -16,7 +16,7 @@ sources:
   - "https://help.zscaler.com/zero-trust-browser/what-is-zero-trust-browser"
   - "vendor/zscaler-help/what-is-zero-trust-browser.json"
   - "https://help.zscaler.com/zero-trust-browser/understanding-turbo-mode-isolation"
-  - "vendor/zscaler-help/understanding-turbo-mode-isolation.json"
+  - "vendor/zscaler-help/ztb-turbo-mode-isolation.json"
   - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.json"
   - "vendor/zscaler-help/zpa-about-isolation-policy.json"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py"
@@ -32,11 +32,11 @@ author-status: draft
 
 # ZBI overview — architecture, traffic flow, rendering modes
 
-What Zero Trust Browser actually does: render a web page on a Zscaler-hosted browser instance, then stream the rendering to the user's local browser. The user interacts with pixels (or with remotely-generated rendering instructions in Turbo Mode); the real HTML, CSS, and JavaScript never reach the endpoint (`vendor/zscaler-help/what-is-zero-trust-browser.json:14`, `:18`, `vendor/zscaler-help/understanding-turbo-mode-isolation.json:15`, `:17`).
+What Zero Trust Browser actually does: render a web page on a Zscaler-hosted browser instance, then stream the rendering to the user's local browser. The user interacts with pixels (or with remotely-generated rendering instructions in Turbo Mode); the real HTML, CSS, and JavaScript never reach the endpoint (`vendor/zscaler-help/what-is-zero-trust-browser.json:14`, `:18`, `vendor/zscaler-help/ztb-turbo-mode-isolation.json:15`, `:17`).
 
 ## Summary
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/ztb-turbo-mode-isolation.json`.
 
 **The isolation container is ephemeral and cloud-resident.** Each user gets an endpoint container allocated at first isolation request; subsequent requests hitting the same isolation profile reuse it; the container is destroyed when the user logs out manually or after **10 minutes of idle time** (`vendor/zscaler-help/what-is-zero-trust-browser.json:38`).
 
@@ -51,7 +51,7 @@ Because the cloud browser's egress traffic hits a Public Service Edge too, the r
 
 ## Mechanics
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/ztb-turbo-mode-isolation.json`.
 
 ### Components
 
@@ -185,7 +185,7 @@ The honest answer to "is this programmable?" depends on the object. ZIA isolatio
 
 ## Light mentions (one-line each)
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/ztb-turbo-mode-isolation.json`.
 
 Features captured in vendor docs but not deep-dived here. Skill should recognize the names and route to vendor docs / TAM for depth:
 
@@ -198,7 +198,7 @@ Features captured in vendor docs but not deep-dived here. Skill should recognize
 
 ## Edge cases
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/ztb-turbo-mode-isolation.json`.
 
 - **Smart Browser Isolation explicitly depends on SSL/TLS Inspection.** The Smart Isolation help page says suspicious websites are decrypted using SSL/TLS Inspection and enabling the feature creates an editable SSL/TLS Inspection rule (`vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:16`, `:24`). Whether every manual URL Filtering `Isolate` rule has identical decrypt behavior is not established by the captured source; track that as an open question rather than stating it as a hard failure mode.
 - **During ZPA maintenance windows, Isolation may be unavailable.** From the ZPA Isolation help article: "If ZPA is undergoing a maintenance period, Isolation might not be available." Operator-visible failure mode.
@@ -211,7 +211,7 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-h
 
 ## Open questions
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/ztb-turbo-mode-isolation.json`.
 
 - **Exact container-destroy latency** after the 10-minute idle threshold — is it 10:00 hard, or 10:00 + some grace? Not documented numerically.
 - **Container resource limits** (memory, CPU) — not surfaced in the customer-facing docs.

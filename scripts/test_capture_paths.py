@@ -28,3 +28,14 @@ def test_a_json_capture_is_checked_against_the_markdown_it_replaced():
     assert CVA.migrated_help_capture("vendor/zscaler-help/about-x.json") == "vendor/zscaler-help/about-x.md"
     assert CVA.migrated_help_capture("vendor/zscaler-help/nss-web-logs.csv") is None
     assert CVA.migrated_help_capture("vendor/zscaler-api-specs/zia.json") is None
+
+
+def test_a_pin_before_a_capture_replaced_a_retired_file_names_that_file(tmp_path):
+    meta = tmp_path / "references" / "_meta"
+    meta.mkdir(parents=True)
+    (meta / "static-captures.json").write_text(
+        '{"schema_version": 1, "files": {}, "retired": {"Old_Article.txt": '
+        '{"replaced_by": "old-article.json", "reason": "PDF export", "on": "2026-10-18"}}}'
+    )
+    found = CVA.predecessors("vendor/zscaler-help/old-article.json", tmp_path)
+    assert found == ["vendor/zscaler-help/old-article.md", "vendor/zscaler-help/Old_Article.txt"]

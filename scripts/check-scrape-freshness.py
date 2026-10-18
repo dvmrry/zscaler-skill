@@ -5,7 +5,7 @@
 # ///
 """check-scrape-freshness.py — flag stale Zscaler help-article scrapes.
 
-`vendor/zscaler-help/*.json` help captures (scripts/help_capture.py) record
+`vendor/zscaler-help/*.json` captures written by scripts/help_capture.py record
 `captured_at`; older `*.md` text captures carry a "**Captured:** YYYY-MM-DD"
 line. This script reads that date, computes age, and flags scrapes older than
 the threshold.
@@ -74,7 +74,7 @@ def main() -> int:
                 doc = json.loads(text)
             except ValueError:
                 doc = {}
-            if not isinstance(doc, dict) or doc.get("kind") != "help-article":
+            if not isinstance(doc, dict) or doc.get("kind") not in ("help-article", "help-api-spec", "help-index"):
                 continue
             m = re.match(r"(\d{4}-\d{2}-\d{2})", doc.get("captured_at", ""))
         rel = str(path.relative_to(REPO_ROOT))

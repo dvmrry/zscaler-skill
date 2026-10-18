@@ -1,0 +1,2259 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Deployed Software Components",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/managing-deployed-software-components",
+    "node": "1540995",
+    "revision": "3239059"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "After you deploy a software component and complete the proper networking configurations, perform the following procedures to verify that the software component is running and healthy. Software components refer to App Connectors, Private Service Edges, Private Cloud Controllers, and Network Connectors."
+    },
+    {
+      "text": "This article does not apply to containerized architectures such as Docker, Kubernetes, and OpenShift."
+    },
+    {
+      "text": "You should verify that the sizing and scalability specifications you decided upon before deployment are still adequate for your organization's needs:"
+    },
+    {
+      "item": "Check Software Component Status (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "You can check the status of software components using the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "App Connector",
+      "depth": 1
+    },
+    {
+      "item": "Check the status by accessing the App Connectors page and the Health dashboard.",
+      "depth": 2
+    },
+    {
+      "item": "To check the App Connector status in the Zscaler Admin Console:",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Infrastructure > App Connectors. Check that the App Connector you deployed appears in the table of configured App Connectors.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          71
+        ],
+        [
+          74,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Go to Dashboards > Health. The Health page for Private Access appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          31,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Check that the App Connector you deployed appears in the App Connectors widget. The App Connector must have enrolled successfully at least once for it to appear in the Health dashboard.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          57,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Use systemd to check that the zpa-connector service is running on the local system.",
+      "depth": 2
+    },
+    {
+      "item": "To check App Connector status using systemd:",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ sudo systemctl status zpa-connector",
+      "depth": 1
+    },
+    {
+      "item": "A healthy App Connector typically consists of two processes: the parent process and the child. If only the parent process is present, this could mean that the App Connector is not healthy. For example, the following output example indicates a healthy App Connector that is in an active and running status. Both the parent process of PID 2696 and the child process of PID 2705 are present.",
+      "depth": 1
+    },
+    {
+      "item": "zpa-connector.service - Zscaler Private Access App Connector Loaded: loaded (/usr/lib/systemd/system/zpa-connector.service; enabled; vendor preset: enabled) Active: active (running) since Thu 2016-08-18 00:58:44 UTC; 2h 16min ago Main PID: 2696 (zpa-connector) CGroup: /system.slice/zpa-connector.service ├─2696 /opt/zscaler/bin/zpa-connector └─2705 zpa-connector-child",
+      "depth": 1
+    },
+    {
+      "item": "The next example shows that the App Connector (with parent process PID 2696) is in an inactive or stopped status:",
+      "depth": 1
+    },
+    {
+      "item": "zpa-connector.service - Zscaler Private Access App Connector Loaded: loaded (/usr/lib/systemd/system/zpa-connector.service; enabled; vendor preset: enabled) Active: inactive (dead) since Thu 2016-08-18 03:19:03 UTC; 9s ago Process: 2696 ExecStart=/opt/zscaler/bin/zpa-connector (code=killed, signal=TERM) Main PID: 2696 (code=killed, signal=TERM)",
+      "depth": 1
+    },
+    {
+      "item": "The systemd core dump is enabled by default in Red Hat Enterprise Linux 8 (RHEL 8). If the systemd core dump is enabled, the systemd output of a zpa-connector service running on RHEL 8 can include core dump information.",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "Check the status by accessing the Private Service Edges page and the Health dashboard in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Infrastructure > Private Service Edges. Check that the Private Service Edge you deployed appears in the table of configured Private Service Edges.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          71
+        ],
+        [
+          74,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Go to Dashboards > Health. The Health page for Private Access appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          31,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Check that the Private Service Edge you deployed appears in the Private Service Edge widget. The Private Service Edge must have enrolled successfully at least once for it to appear in the Health dashboard.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          64,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "Using systemd, you can check that the zpa-service-edge service is running on the local system.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the Private Service Edge console using your admin credentials.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ sudo systemctl status zpa-service-edge",
+      "depth": 3
+    },
+    {
+      "item": "A healthy Private Service Edge typically consists of two processes: the parent process and the child. If only the parent process is present, this could mean that the Private Service Edge is not healthy. For example, the following output example indicates a healthy Private Service Edge that is in an active and running status. Both the parent process of PID 2696 and the child process of PID 2705 are present.",
+      "depth": 3
+    },
+    {
+      "item": "zpa-service-edge.service - Zscaler Private Access Service Edge Loaded: loaded (/usr/lib/systemd/system/zpa-service-edge.service; enabled; vendor preset: enabled) Active: active (running) since Thu 2016-08-18 00:58:44 UTC; 2h 16min ago Main PID: 2696 (zpa-connector) CGroup: /system.slice/zpa-service-edge.service ├─2696 /opt/zscaler/bin/zpa-service-edge └─2705 zpa-service-edge-child",
+      "depth": 3
+    },
+    {
+      "item": "The next example shows that the Private Service Edge (with parent process PID 2696) is in an inactive or stopped status:",
+      "depth": 3
+    },
+    {
+      "item": "zpa-service-edge.service - Zscaler Private Access Service Edge Loaded: loaded (/usr/lib/systemd/system/zpa-service-edge.service; enabled; vendor preset: enabled) Active: inactive (dead) since Thu 2016-08-18 03:19:03 UTC; 9s ago Process: 2696 ExecStart=/opt/zscaler/bin/zpa-service-edge (code=killed, signal=TERM) Main PID: 2696 (code=killed, signal=TERM)",
+      "depth": 3
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Business Continuity > Private Cloud Controllers.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Check that the Private Cloud Controller you deployed appears in the table of configured Private Cloud Controllers.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Network Connector",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > VPN (for Legacy Apps) > Network Connectors.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          70
+        ],
+        [
+          73,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Check that the Network Connector you deployed appears in the table of configured Network Connectors.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Verify Software Component Sizing Specifications (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "After a software component is deployed, check that the virtual machine (VM) image meets your requirements:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ free -g",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the total available memory is at least 4 GB, as shown in the total column as the value 4. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ free -g total used free shared buff/cache available Mem: 4 0 3 0 0 4 Swap: 0 0 0",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ cat /proc/cpuinfo | grep flags",
+      "depth": 0
+    },
+    {
+      "item": "Check to see if the list includes the ht flag, which is highlighted in green in the following example:",
+      "depth": 0
+    },
+    {
+      "item": "flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology eagerfpu pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm fsgsbase bmi1 avx2 smep bmi2 erms invpcid xsaveopt",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ cat /proc/cpuinfo | grep processor",
+      "depth": 0
+    },
+    {
+      "item": "You should see a list of processors, for example:",
+      "depth": 0
+    },
+    {
+      "item": "processor : 0 processor : 1 processor : 2 processor : 3",
+      "depth": 0
+    },
+    {
+      "item": "If your list of flags included ht in step 3, then you should see a minimum of 4 processors displayed here. If not, then you should see a minimum of 2 processors.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see the specification and sizing requirements for App Connectors, Private Service Edges, Private Cloud Controllers, and Network Connectors.",
+      "depth": 0
+    },
+    {
+      "text": "After verifying your deployment, perform the following procedures to manage and maintain the system:"
+    },
+    {
+      "item": "Change the Default Admin Password for the System Console (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "The default admin account username is admin and the password is zscaler. For enhanced security, you must use the passwd command to change the credentials on the default admin account. If you forget a changed admin account password, Zscaler recommends deploying a new App Connector, Private Service Edge, Private Cloud Controller, or Network Connector rather than trying to recover it.",
+      "depth": 0
+    },
+    {
+      "item": "To change the default admin account credentials:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using the default admin username and password.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the passwd command, then enter the current default password (zscaler).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ passwd Changing password for user admin. Changing password for admin. (current) UNIX password: New password: Retype new password: passwd: all authentication tokens updated successfully. $",
+      "depth": 0
+    },
+    {
+      "item": "Enter the logout command.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ logout",
+      "depth": 0
+    },
+    {
+      "item": "Log In to and Out of the System Console (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "To log in to the software component's console, enter the admin credentials.",
+      "depth": 0
+    },
+    {
+      "item": "zpa-connector login: admin Password: *",
+      "depth": 0,
+      "strong": [
+        [
+          37,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "After the initial boot of a software component instance, it can take up to 15 minutes for the admin credentials to apply. If you receive an invalid credentials error after initial boot, wait a few minutes and try again.",
+      "depth": 0
+    },
+    {
+      "item": "To log out of the software component's console, enter logout:",
+      "depth": 0
+    },
+    {
+      "item": "$ logout",
+      "depth": 0
+    },
+    {
+      "item": "Start, Stop, or Restart a Software Component (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "Software components are configured to start automatically at system boot. In some scenarios, it might be necessary to stop, start, or restart the software component.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the system hosting the software component's package via SSH, or log in to the local App Connector, Private Service Edge, Private Cloud Controller, or Network Connector console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Using systemd, enter the appropriate command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "App Connector",
+      "depth": 2
+    },
+    {
+      "item": "Start:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl start zpa-connector",
+      "depth": 2
+    },
+    {
+      "item": "Stop:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-connector",
+      "depth": 2
+    },
+    {
+      "item": "Restart:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 2
+    },
+    {
+      "item": "The following logs might be seen in the App Connector console when an App Connector is restarted, upgraded, or downgraded. This potential error can be ignored:",
+      "depth": 2
+    },
+    {
+      "item": "Mar 23 12:45:39 rhel zpa-connector-child[18383]: Upgrade prep error for: Connector, err: ZPATH_RESULT_ERR, upgrade_id: 73195382414249455",
+      "depth": 2
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 2
+    },
+    {
+      "item": "Start:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl start zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "Stop:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "Restart:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "The following logs might be seen in the Private Service Edge console when a Private Service Edge is restarted, upgraded, or downgraded. This potential error can be ignored:",
+      "depth": 2
+    },
+    {
+      "item": "Mar 25 12:45:39 rhel zpa-service-edge-child[18383]: Upgrade prep error for: Connector, err: ZPATH_RESULT_ERR, upgrade_id: 73195382414249455",
+      "depth": 2
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 2
+    },
+    {
+      "item": "Start:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl start zpa-pcc",
+      "depth": 2
+    },
+    {
+      "item": "Stop:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-pcc",
+      "depth": 2
+    },
+    {
+      "item": "Restart:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-pcc",
+      "depth": 2
+    },
+    {
+      "item": "The following logs might be seen in the Private Cloud Controller console when a Private Cloud Controller is restarted, upgraded, or downgraded. This potential error can be ignored:",
+      "depth": 2
+    },
+    {
+      "item": "Mar 23 12:45:39 centos zpa-pcc-child[18383]: Upgrade prep error for: Connector, err: ZPATH_RESULT_ERR, upgrade_id: 73195382414249455",
+      "depth": 2
+    },
+    {
+      "item": "Network Connector",
+      "depth": 2
+    },
+    {
+      "item": "Start:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl start np-connector",
+      "depth": 2
+    },
+    {
+      "item": "Stop:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl stop np-connector",
+      "depth": 2
+    },
+    {
+      "item": "Restart:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl restart np-connector",
+      "depth": 2
+    },
+    {
+      "item": "The following logs might be seen in the Network Connector console when a Network Connector is restarted, upgraded, or downgraded. This potential error can be ignored:",
+      "depth": 2
+    },
+    {
+      "item": "Mar 23 12:45:39 centos np-connector[18383]: Upgrade prep error for: Connector, err: ZPATH_RESULT_ERR, upgrade_id: 73195382414249455",
+      "depth": 2
+    },
+    {
+      "item": "View Logs (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "Each software component records logs using the syslog facilities of the local Linux system.",
+      "depth": 0
+    },
+    {
+      "item": "To view software component logs:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the command for your software component:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "App Connector:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo journalctl -u zpa-connector",
+      "depth": 2
+    },
+    {
+      "item": "Private Service Edge:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo journalctl -u zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "Private Cloud Controller:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo journalctl -u zpa-pcc",
+      "depth": 2
+    },
+    {
+      "item": "Network Connector:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo journalctl -u np-connector",
+      "depth": 2
+    },
+    {
+      "item": "The information displayed includes the log output of the software component to the local system logging facilities. Also, a running software component periodically outputs status messages, for example:",
+      "depth": 0
+    },
+    {
+      "item": "-------- App Connector Status:ID=217246525011525974:Name=Test App Connector-1:Ver=18.42.1 -------- Certificate will expire in 370 days, 21 hours, 39 minutes Control connection state: fohh_connection_connected, local:[10.80.202.1]:53040 remote:broker1a.ec2.prod.zpath.net...3.245]:443 RPC Messages: BrkRq = 0, BrkRqAck = 0, BindReq = 0, BindReqAck = 0, AppRtDisc = 0, AppRtReq = 0, DsnAstChk = 0 Broker data connection count = 0, backed_off connections = 0 Data Transfer: Total ToBroker = 0 bytes, Total FromBroker = 0 bytes Mtunnels: Total Created = 0, Total Freed = 0, Current Active = 0 Registered apps count = 0, alive app = 0, passive_health = 0, service_count = 0, target_count = 0, alive_target ...target = 0",
+      "depth": 0
+    },
+    {
+      "item": "To create a text file containing the current log information, use the following command:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ sudo journalctl > dump-of-journalctl.txt",
+      "depth": 1
+    },
+    {
+      "item": "Older logs are automatically stored in the /var/log/messages file.",
+      "depth": 0
+    },
+    {
+      "item": "Install Endpoint Monitoring Tools (App Connector, Private Service Edge, or Private Cloud Controller)",
+      "depth": 0
+    },
+    {
+      "item": "You can install monitoring or endpoint security tools on the software component's host OS as long as the tools do not interfere with Zscaler processes or compete for resources. You must ensure that other tools do not consume host OS resources to an extent that results in resources available for the App Connector service, Private Service Edge service, or Private Cloud Controller service dropping below minimum provisioning requirements. It is the organization’s responsibility to ensure that the tools you run don't interfere with the proper operation of the internal processes and external communication of the software component's services.",
+      "depth": 0
+    },
+    {
+      "item": "Replace a Provisioning Key or Move to New Hardware (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "You must re-enroll the software component to replace its provisioning key, or if it is moved to new hardware. For both cases, you must use a new key with the virtual machine (VM) image you originally deployed. Review the following steps based on your software component:",
+      "depth": 0
+    },
+    {
+      "item": "App Connector",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 1
+    },
+    {
+      "item": "Network Connector",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Infrastructure > App Connectors.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          73
+        ],
+        [
+          74,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Locate the App Connector you want to replace the provisioning key for, and click the Delete icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          85,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "In the confirmation window that appears, follow the instructions and click Delete.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          75,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) If you do not already have your new App Connector provisioning key, be sure to complete the procedure for adding a new provisioning key.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Temporarily enable sshd:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "For Amazon Web Services (AWS), update your Security Group to allow inbound connections from port 22. To learn more, see the App Connector Deployment Guide for Amazon Web Services (AWS).",
+      "depth": 2
+    },
+    {
+      "item": "For Microsoft Azure, update your Network security group (firewall) to allow inbound connections from port 22. To learn more, see the App Connector Deployment Guide for Microsoft Azure.",
+      "depth": 2
+    },
+    {
+      "item": "For all other platforms, enter the following command:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo systemctl start sshd",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command to stop the zpa-connector service:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-connector",
+      "depth": 0
+    },
+    {
+      "item": "Use one of the following options to remove the old provisioning key file:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "Enter a command to get full root access, and then enter the remove command:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo su /home/admin]# rm -f /opt/zscaler/var/*",
+      "depth": 2
+    },
+    {
+      "item": "Enter the remove command in a subshell:",
+      "depth": 2
+    },
+    {
+      "item": "$ sudo bash -c \"rm -f /opt/zscaler/var/*\"",
+      "depth": 2
+    },
+    {
+      "item": "Create a new provisioning key file with 644 permissions at /opt/zscaler/var/provision_key. For example:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/provision_key $ sudo chmod 644 /opt/zscaler/var/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "You must reconfigure your proxy settings in the App Connector after creating a new provisioning key file because the proxy settings are removed along with the old provisioning key file in a previous step.",
+      "depth": 0
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key, making sure that the key is in double quotes (\"):",
+      "depth": 0
+    },
+    {
+      "item": "echo \"<App Connector Provisioning Key>\" | sudo tee /opt/zscaler/var/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to start the zpa-connector service:",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "item": "$ sudo systemctl start zpa-connector",
+      "depth": 0
+    },
+    {
+      "item": "For all platforms, except AWS and Azure, enter the following command to disable sshd:",
+      "depth": 1,
+      "number": 13
+    },
+    {
+      "item": "$ sudo systemctl stop sshd",
+      "depth": 0
+    },
+    {
+      "item": "For AWS and Azure, make sure that you disable inbound access via port 22.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Infrastructure > Private Service Edges.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          56
+        ],
+        [
+          57,
+          71
+        ],
+        [
+          74,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Private Service Edge that you want to replace the provisioning key for, and click the Delete icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          97,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "In the confirmation window that appears, follow the instructions and click Delete.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          75,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) If you do not already have your new Private Service Edge provisioning key, be sure to complete the procedure for adding a new Private Service Edge with a new provisioning key.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Log in to the Private Service Edge console using your admin credentials.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "To temporarily enable sshd, enter the following command:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ sudo systemctl start sshd",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to stop the zpa-service-edge service:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-service-edge",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to remove the old provisioning key file:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "$ sudo rm -rf /opt/zscaler/var/service-edge/*",
+      "depth": 0
+    },
+    {
+      "item": "Create a new provisioning key file with 644 permissions at /opt/zscaler/var/service-edge/provision_key. For example:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/service-edge/provision_key/ $ sudo chmod 644 /opt/zscaler/var/service-edge/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/service-edge/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 0
+    },
+    {
+      "item": "echo \"<Service Edge Provisioning Key>\" | sudo tee /opt/zscaler/var/service-edge/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "Make sure that the key is in double quotes (\").",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/service-edge/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to start the zpa-service-edge service:",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "item": "$ sudo systemctl start zpa-service-edge",
+      "depth": 0
+    },
+    {
+      "item": "For all platforms, except AWS and Azure, enter the following command to disable sshd:",
+      "depth": 1,
+      "number": 13
+    },
+    {
+      "item": "$ sudo systemctl stop sshd",
+      "depth": 0
+    },
+    {
+      "item": "For AWS and Azure, make sure that you disable inbound access via port 22.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Business Continuity > Private Cloud Controllers.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Private Cloud Controller that you want to replace the provisioning key for, and click the Delete icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          101,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "In the confirmation window that appears, follow the instructions and click Delete.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          75,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) If you do not already have your new Private Cloud Controller provisioning key, be sure to complete the procedure for adding a new Private Cloud Controller with a new provisioning key.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Log in to the Private Cloud Controller console using your admin credentials.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "To temporarily enable sshd, enter the following command:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ sudo systemctl start sshd",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to stop the zpa-pcc service:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-pcc",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to remove the old provisioning key file:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "$ sudo rm -rf /opt/zscaler/var/pcc/",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to recreate the Private Cloud Controller directory:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ sudo mkdir -p /opt/zscaler/var/pcc/provision_key $ sudo chmod 644 /opt/zscaler/var/pcc/provision_key",
+      "depth": 1
+    },
+    {
+      "item": "Create a new provisioning key file with 644 permissions at /opt/zscaler/var/pcc/provision_key. For example:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/pcc/provision_key/* $ sudo chmod 644 /opt/zscaler/var/pcc/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/pcc/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 0
+    },
+    {
+      "item": "echo \"<Private Cloud Controller Provisioning Key>\" | sudo tee /opt/zscaler/var/pcc/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "Make sure that the key is in double quotes (\").",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/pcc/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to start the zpa-pcc service:",
+      "depth": 1,
+      "number": 13
+    },
+    {
+      "item": "$ sudo systemctl start zpa-pcc",
+      "depth": 0
+    },
+    {
+      "item": "For all platforms, except AWS and Azure, enter the following command to disable sshd:",
+      "depth": 1,
+      "number": 14
+    },
+    {
+      "item": "$ sudo systemctl stop sshd",
+      "depth": 0
+    },
+    {
+      "item": "For AWS and Azure, make sure that you disable inbound access via port 22.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Infrastructure > Network Connectors.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          71
+        ],
+        [
+          74,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Network Connector that you want to replace the provisioning key for, and click the Delete icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          94,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "In the confirmation window that appears, follow the instructions and click Delete.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          75,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) If you do not already have your new Network Connector provisioning key, be sure to complete the procedure for adding a new Network Connector with a new provisioning key.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Log in to the Network Connector console using your admin credentials.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "To temporarily enable sshd, enter the following command:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ sudo systemctl start sshd",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to stop the np-connector service:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo systemctl stop np-connector",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to remove the old provisioning key file:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "$ sudo su /home/admin]# rm -f /opt/zscaler/var/*",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to recreate the Network Connector directory:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ sudo mkdir -p /opt/zscaler/var/provision_key $ sudo chmod 644 /opt/zscaler/var/provision_key",
+      "depth": 1
+    },
+    {
+      "item": "Create a new provisioning key file with 644 permissions at /opt/zscaler/var/provision_key. For example:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/provision_key/* $ sudo chmod 644 /opt/zscaler/var/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 0
+    },
+    {
+      "item": "echo \"<Network Connector Provisioning Key>\" | sudo tee /opt/zscaler/var/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "Make sure that the key is in double quotes (\").",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to start the np-connector service:",
+      "depth": 1,
+      "number": 13
+    },
+    {
+      "item": "$ sudo systemctl start np-connector",
+      "depth": 0
+    },
+    {
+      "item": "For all platforms, except AWS and Azure, enter the following command to disable sshd:",
+      "depth": 1,
+      "number": 14
+    },
+    {
+      "item": "$ sudo systemctl stop sshd",
+      "depth": 0
+    },
+    {
+      "item": "For AWS and Azure, make sure that you disable inbound access via port 22.",
+      "depth": 0
+    },
+    {
+      "item": "If you need to replace a deployed software component using a new provisioning key on an existing VM image, complete the procedure to replace a provisioning key. If you need to replace a deployed software component using an existing provisioning key on a new VM image, complete the steps for the following components:",
+      "depth": 0
+    },
+    {
+      "item": "App Connector",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 1
+    },
+    {
+      "item": "Network Connector",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Infrastructure > App Connector Keys.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          71
+        ],
+        [
+          74,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Locate the existing key you want to use, and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          55,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit App Connector Provisioning Key drawer, increase the Maximum Reuse of Provisioning Key value to accommodate the number of App Connectors you are going to replace. To learn more, see Editing App Connector Provisioning Keys.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          42
+        ],
+        [
+          64,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the new replacement App Connector VM images using the existing provisioning key from the previous step. By doing so, these new App Connectors automatically join the same App Connector group as the App Connectors you are replacing. To learn more, see the Deployment Guide for your App Connector.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "When the new App Connectors are deployed, they appear in the Health dashboard. Verify that the new App Connectors in the App Connector group are enabled and showing an Up Time. To learn more, see Viewing App Connector Details.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          168,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "Go to Private Access > Private Infrastructure > App Connectors.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          45
+        ],
+        [
+          48,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Locate the App Connector you want to replace, and click the Edit icon.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          60,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit App Connector drawer, set the Status to Disabled. To learn more, see Editing a Deployed App Connector.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          42,
+          48
+        ],
+        [
+          52,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Verify that user access to your applications is still available.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "To ensure that all user traffic has fully transferred to the new replacement App Connectors, wait at least 24 hours before deleting the old disabled App Connectors. When the user sessions have expired on the disabled App Connectors, delete them in the Zscaler Admin Console and remove any old VM instances from your environment.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Infrastructure > Private Service Edge Provisioning Keys.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          71
+        ],
+        [
+          74,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "Locate the existing key you want to use, and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          55,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Private Service Edge Provisioning Key drawer, increase the Maximum Reuse of Provisioning Key value to accommodate the number of Private Service Edges you are going to replace. To learn more, see Editing Private Service Edge Provisioning Keys.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          49
+        ],
+        [
+          71,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the new replacement Private Service Edge VM images using the existing provisioning key from the previous step. By doing so, these new Private Service Edges automatically join the same Private Service Edge group as the Private Service Edges you are replacing. To learn more, see the Deployment Guide for your Private Service Edge.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "When the new Private Service Edges are deployed, they appear in the Health dashboard. Verify that the new Private Service Edges in the Private Service Edge group are enabled and showing an Up Time. To learn more, see Viewing Service Edge Details.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          189,
+          196
+        ]
+      ]
+    },
+    {
+      "item": "Go to Private Access > Private Infrastructure > Private Service Edges.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          45
+        ],
+        [
+          48,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Private Service Edge you want to replace, and click the Edit icon.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          67,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Private Service Edge window, set the Status to Disabled. To learn more, see Editing a Deployed Private Service Edge.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          49,
+          55
+        ],
+        [
+          59,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Verify that user access to your applications is still available.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "To ensure that all user traffic has fully transferred to the new replacement Private Service Edges, wait at least 24 hours before deleting the old disabled Private Service Edges. When the user sessions have expired on the disabled Private Service Edges, delete them in the Zscaler Admin Console and remove any old VM instances from your environment.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Business Continuity > Private Cloud Controller Provisioning Keys.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "Locate the existing key you want to use, and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          55,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit Private Cloud Controller Provisioning Key page, increase the Maximum Reuse of Provisioning Key value to accommodate the number of Private Cloud Controllers you are going to replace. To learn more, see Editing Private Cloud Controller Provisioning Keys.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          53
+        ],
+        [
+          73,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the new replacement Private Cloud Controller VM images using the existing provisioning key from the previous step. By doing so, these new Private Cloud Controllers automatically join the same Private Cloud Controller group as the Private Cloud Controller you are replacing. To learn more, see the Deployment Guide for your Private Cloud Controller.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Go to Infrastructure > Business Continuity > Private Cloud Controllers.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          42
+        ],
+        [
+          45,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Private Cloud Controller you want to replace, and click the Edit icon.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          71,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit Private Cloud Controller page, set the Status to Disabled. To learn more, see Editing a Deployed Private Cloud Controller.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          36
+        ],
+        [
+          51,
+          57
+        ],
+        [
+          61,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Verify that user access to your applications is still available.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "To ensure that all user traffic has fully transferred to the new replacement Private Cloud Controller, wait at least 24 hours before deleting the old disabled Private Cloud Controller. When the user sessions have expired on the disabled Private Cloud Controllers, delete them in the Zscaler Admin Console and remove any old VM instances from your environment.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > VPN (for Legacy Apps) > Network Connector Provisioning Keys.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          72
+        ],
+        [
+          73,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "Locate the existing key you want to use, and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          55,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Network Connector Provisioning Key drawer, increase the Maximum Reuse of Provisioning Key value to accommodate the number of Network Connectors you are going to replace. To learn more, see Editing Network Connector Provisioning Keys.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          46
+        ],
+        [
+          68,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the new replacement Network Connector VM images using the existing provisioning key from the previous step. By doing so, these new Network Connectors automatically join the same Network Connector group as the Network Connectors you are replacing.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Go to Private Access > VPN (for Legacy Apps) > Network Connectors.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          46
+        ],
+        [
+          47,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Network Connector you want to replace, and click the Edit icon.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit Network Connector page, set the Status to Disabled. To learn more, see Editing a Deployed Network Connector.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          44,
+          50
+        ],
+        [
+          54,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Verify that user access to your applications is still available.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "To ensure that all user traffic has fully transferred to the new replacement Network Connectors, wait at least 24 hours before deleting the old disabled Network Connectors. When the user sessions have expired on the disabled Network Connectors, delete them in the Zscaler Admin Console and remove any old VM instances from your environment.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "Replace a Software Component Using an Existing Provisioning Key (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "Update System Software (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "Occasionally, it might be necessary to update the OS software to mitigate major security vulnerabilities that were discovered on Linux. Zscaler recommends that you update the OS every 30 days to stay up-to-date with the latest security patches.",
+      "depth": 0
+    },
+    {
+      "item": "To update the software component's system software:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command to upgrade the local system software:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ sudo yum update -y",
+      "depth": 0
+    },
+    {
+      "item": "After running the sudo yum update command, the following response is returned. Zscaler handles the entitlement and recommends ignoring this response:",
+      "depth": 0
+    },
+    {
+      "item": "Updating Subscription Management repositories.",
+      "depth": 0
+    },
+    {
+      "item": "Unable to read consume identity",
+      "depth": 0
+    },
+    {
+      "item": "This system is not registered with an entitlement server. You can use \"rhc\" or \"subscription-manager\" to register.",
+      "depth": 0
+    },
+    {
+      "item": "After completing the update process, reboot the software component using the following command:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ sudo reboot",
+      "depth": 0
+    },
+    {
+      "item": "Update Software Packages (all software components)",
+      "depth": 0
+    },
+    {
+      "item": "There are multiple ways to upgrade the software component's software package:",
+      "depth": 0
+    },
+    {
+      "item": "Update the software component's software package with a proxy server.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Edit the /etc/yum.conf file. Use an editor, such as vi.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "$ sudo vi /etc/yum.conf",
+      "depth": 1
+    },
+    {
+      "item": "Add the proxy server and port information as well as the proper authentication credentials for it. For example:",
+      "depth": 1
+    },
+    {
+      "item": "# The proxy server - proxy server:port number proxy=http://proxy.example.com:8080 # Proxy authentication proxy_username=proxyusername proxy_password=proxypassword",
+      "depth": 1
+    },
+    {
+      "item": "Update the software package using the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "$ sudo yum update",
+      "depth": 1
+    },
+    {
+      "item": "After completing the update process, restart the software component using the following command:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "App Connector:",
+      "depth": 3
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "Private Service Edge:",
+      "depth": 3
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-service-edge",
+      "depth": 3
+    },
+    {
+      "item": "Private Cloud Controller:",
+      "depth": 3
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-pcc",
+      "depth": 3
+    },
+    {
+      "item": "Network Connector:",
+      "depth": 3
+    },
+    {
+      "item": "$ sudo systemctl restart np-connector",
+      "depth": 3
+    },
+    {
+      "item": "Update the software component's software package with access to the package repository.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Update the software based on your software component:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "App Connector",
+      "depth": 3
+    },
+    {
+      "item": "Update the App Connector software package using the following command:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ sudo yum update zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "After completing the update process, restart the App Connector using the following command:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 3
+    },
+    {
+      "item": "Update the Private Service Edge software package using the following command:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ sudo yum update zpa-service-edge",
+      "depth": 3
+    },
+    {
+      "item": "After completing the update process, restart the Private Service Edge using the command:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-service-edge",
+      "depth": 3
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 3
+    },
+    {
+      "item": "Update the Private Cloud Controller software package using the following command:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ sudo yum update zpa-pcc",
+      "depth": 3
+    },
+    {
+      "item": "After completing the update process, restart the Private Cloud Controller using the following command:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-pcc",
+      "depth": 3
+    },
+    {
+      "item": "Network Connector",
+      "depth": 3
+    },
+    {
+      "item": "Update the Network Connector software package using the following command:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ sudo yum update np-connector",
+      "depth": 3
+    },
+    {
+      "item": "After completing the update process, restart the Network Connector using the following command:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "$ sudo systemctl restart np-connector",
+      "depth": 3
+    },
+    {
+      "item": "Update the software component's software package without access to the package repository.",
+      "depth": 1
+    },
+    {
+      "item": "App Connector",
+      "depth": 2
+    },
+    {
+      "item": "Download one of the following RPM packages:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "RPM package for Red Hat Enterprise Linux 8-based deployments (zpa-connector.rpm)",
+      "depth": 4
+    },
+    {
+      "item": "RPM package for Red Hat Enterprise Linux 9-based deployments (zpa-connector.rpm)",
+      "depth": 4
+    },
+    {
+      "item": "Use the scp command to copy the RPM package to the App Connector, for example:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ scp <RPM Version>",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Update the App Connector software package using the following command:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "$ sudo rpm -Uvh zpa-connector-26.57.3-1.el9.x86_64.rpm",
+      "depth": 2
+    },
+    {
+      "item": "Make sure that the update completes successfully, for example:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "$ sudo rpm -Uvh zpa-connector-26.57.3-1.el9.x86_64.rpm [sudo] password for admin: Preparing... ################################# [100%] Updating / installing... 1:zpa-connector-26.57.3-1.el9 ################################# [ 50%] Warning: zpa-connector.service changed on disk. Run 'systemctl daemon-reload' to reload units. Cleaning up / removing... 2:zpa-connector-26.57.3-1.el9 ################################# [100%]",
+      "depth": 2
+    },
+    {
+      "item": "Restart the App Connector using the following command:",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 2
+    },
+    {
+      "item": "Download one of the RPM packages:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "RPM package for Red Hat Enterprise Linux 8-based deployments: (zpa-service-edge.rpm)",
+      "depth": 4
+    },
+    {
+      "item": "RPM package for Red Hat Enterprise Linux 9-based deployments: (zpa-service-edge.rpm)",
+      "depth": 4
+    },
+    {
+      "item": "Use the scp command to copy the RPM package to the Private Service Edge as shown in this example:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ scp <RPM Version>",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the Private Service Edge console using your admin credentials.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Update the Private Service Edge software package using the following command:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "$ sudo rpm -Uvh zpa-service-edge-26.57.3-1.el9.x86_64.rpm",
+      "depth": 2
+    },
+    {
+      "item": "Make sure that the update completes successfully as shown in this example:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "$ sudo rpm -Uvh zpa-service-edge-26.57.3-1.el9.x86_64.rpm [sudo] password for admin: Preparing... ################################# [100%] Updating / installing... 1:zpa-service-edge-26.57.3-1.el9 ################################# [ 50%] Warning: zpa-service-edge.service changed on disk. Run 'systemctl daemon-reload' to reload units. Cleaning up / removing... 2:zpa-service-edge-26.57.3-1.el9 ################################# [100%]",
+      "depth": 2
+    },
+    {
+      "item": "Restart the Private Service Edge using the command:",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 2
+    },
+    {
+      "item": "Download the following files on a server with access for Red Hat Enterprise Linux 9-based deployments:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "RPM package (zpa-pcc.rpm)",
+      "depth": 4
+    },
+    {
+      "item": "GPG public key (https://yum.private.zscaler.com/yum/el9/gpg)",
+      "depth": 4
+    },
+    {
+      "item": "Use the scp command to copy the RPM package to the remote Private Cloud Controller's target directory, for example:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ scp zpa-pcc.rpm admin@<server>:/home/admin $ scp gpg admin@<server>:/home/admin",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the Private Cloud Controller console using your admin credentials.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Update the Private Cloud Controller software package using the following command:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "$ sudo yum upgrade zpa-pcc-26.57.3-1.el9.x86_64.rpm",
+      "depth": 2
+    },
+    {
+      "item": "Make sure that the update completes successfully as shown in this example:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": ": [root@test-abc.lab.test /tmp]# yum upgrade zpa-pcc-26.57.3-1.el9.x86_64.rpm -y Last metadata expiration check: 0:01:13 ago on Tue Sep 9 17:20:46 2025. Dependencies resolved. ============================================================================================================================================================================================== Package Architecture Version Repository Size ============================================================================================================================================================================================== Upgrading: zpa-pcc x86_64 26.57.3-1.el9 @commandline 3.4 M Transaction Summary ============================================================================================================================================================================================== Upgrade 1 Package Total size: 3.4 M Downloading Packages: Running transaction check Transaction check succeeded. Running transaction test Transaction test succeeded. Running transaction Preparing : 1/1 Running scriptlet: zpa-pcc-26.57.3-1.el9.x86_64 1/2 Upgrading : zpa-pcc-26.57.3-1.el9.x86_64 1/2 Running scriptlet: zpa-pcc-26.57.3-1.el9.x86_64 1/2 Warning: The unit file, source configuration file or drop-ins of zpa-pcc.service changed on disk. Run 'systemctl daemon-reload' to reload units. Running scriptlet: zpa-pcc-26.57.3-1.el9.x86_64 2/2 Cleanup : zpa-pcc-26.57.3-1.el9.x86_64 2/2 Running scriptlet: zpa-pcc-26.57.3-1.el9.x86_64 2/2 Verifying : zpa-pcc-26.57.3-1.el9.x86_64 1/2 Verifying : zpa-pcc-26.57.3-1.el9.x86_64 2/2 Upgraded: zpa-pcc-26.57.3-1.el9.x86_64 Complete!",
+      "depth": 2
+    },
+    {
+      "item": "Reload the service units using the following command:",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "$ sudo systemctl daemon-reload",
+      "depth": 3
+    },
+    {
+      "item": "Restart the Private Cloud Controller using the following command:",
+      "depth": 3,
+      "number": 7
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-pcc",
+      "depth": 3
+    },
+    {
+      "item": "Network Connector",
+      "depth": 2
+    },
+    {
+      "item": "Download the following files on a server with access for Red Hat Enterprise Linux 9-based deployments:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "RPM package (zpa-np-connector.rpm)",
+      "depth": 4
+    },
+    {
+      "item": "GPG public key (https://yum.private.zscaler.com/yum/el9/gpg)",
+      "depth": 4
+    },
+    {
+      "item": "Use the scp command to copy the RPM package to the remote Network Connector's target directory, for example:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ scp zpa-np.rpm admin@<server>:/home/admin $ scp gpg admin@<server>:/home/admin",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Network Connector console using your admin credentials.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Update the Network Connector software package using the following command:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "$ sudo yum upgrade zpa-np-26.57.3-1.el9.x86_64.rpm",
+      "depth": 3
+    },
+    {
+      "item": "Make sure that the update completes successfully as shown in this example:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "$ sudo rpm -Uvh np-connector-26.57.3-1.el9.x86_64.rpm [sudo] password for admin: Preparing... ################################# [100%] Updating / installing... 1:np-connector-26.57.3-1.el9 ################################# [ 50%] Warning: np-connector.service changed on disk. Run 'systemctl daemon-reload' to reload units. Cleaning up / removing... 2:np-connector-26.57.3-1.el9 ################################# [100%]",
+      "depth": 3
+    },
+    {
+      "item": "Restart the Network Connector using the command:",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "$ sudo systemctl restart np-connector",
+      "depth": 3
+    }
+  ]
+}

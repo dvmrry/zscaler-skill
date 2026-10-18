@@ -472,16 +472,38 @@ This replaces the manual reverify cycle.
     capture, after which `kb.mjs validate` lists exactly the quotes the change broke. A different
     rendering of an unchanged revision can only come from the renderer, so vendor changes and tool
     changes never mix.
-  - Older text captures (Playwright innerText, PDF text, CSV tables) stay until they are recaptured or
-    converted; `scripts/check-verified-against.py` treats a pin at which `X.md` existed as covering
-    the migrated `X.json`.
+  - **Three page kinds.** The site says what a page is: an article (`help-article`, as above), a legacy
+    API reference page whose content is a Swagger file (`help-api-spec`: the spec itself under `spec`,
+    cited by keyed JSON pointer, with its `file_url` version in `source`), or a product index
+    (`help-index`: categories and their articles, which shows when Zscaler adds or removes one). A page
+    under maintenance answers 403; `check` reports it as unavailable, never as drift.
+  - **Ordered lists keep their numbers** (`number` on the item, `3. ` in the anchoring text), because an
+    evaluation order is often the fact a claim rests on.
+  - **Every file under `vendor/zscaler-help/` is accounted for** (`kb.mjs validate`): written by the tool,
+    or listed in `references/_meta/static-captures.json` with a class (`pdf`, `text-capture`,
+    `unavailable`, `marketing`, `tool-output`, `note`), a reason and a pinned sha256, so CI knows exactly
+    what it cannot refresh and any edit to such a file is caught. A `note` (authored text) can never be
+    evidence, and one page is captured once (no two captures share a source URL).
+  - **Replaced files are recorded, not just deleted.** The PDF exports and CSV exports of help articles
+    (and duplicate captures of one page) were retired for the article's capture; `static-captures.json`
+    lists each under `retired` with its replacement. `scripts/check-verified-against.py` treats a legacy
+    doc's source pin at which `X.md` existed, or a retired predecessor existed, as naming what the doc
+    was verified against; the doc is verified in full when it converts to the graph.
+  - **Known limit:** automate.zscaler.com guide pages (rate limiting, getting started, ...) are browser
+    text captures with no deterministic fetcher yet (`text-capture`); the Automate API contract itself is
+    captured by `scripts/automate-capture`.
 - **JSON pointers are keyed.** A step into an array by index is rejected because it shifts when the
   source is regenerated. `[member=value]` selects the one element whose member matches. API facts
   cite the OpenAPI document, not the flattened field list. Every pointer carries `expect`.
-- **Drift in CI (planned).** A scheduled job runs `help_capture.py check`; on drift it rewrites the
-  changed captures, lets a small model re-anchor quotes under the re-anchoring rules, and opens a pull
-  request for review. It never merges; statement rewrites and gap-status changes are reviewed by a
-  person.
+- **Drift in CI.** `help_capture.py check --replace --json` refetches every capture, rewrites the
+  changed ones and reports, per changed page, the revision change, the changed lines of its anchoring
+  text and a diff. `scripts/kb-drift.mjs` turns that report into the review: every evidence entry citing
+  a changed page is **broken** (no longer anchors; a small model re-anchors it under the re-anchoring
+  rules), **in-change** (still anchors, but on or next to a changed line, so a person reads the change
+  against the claim) or **untouched** (nothing to review). Gone and unavailable pages are listed with
+  what cites them. The job opens a pull request with that report as its body and never merges; statement
+  rewrites and gap-status changes are reviewed by a person. (The scheduled workflow itself is not written
+  yet.)
 
 ## Company index (overlay)
 

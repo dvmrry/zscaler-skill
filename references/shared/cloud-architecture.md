@@ -20,8 +20,8 @@ sources:
   - "https://help.zscaler.com/zia/understanding-multi-cluster-load-sharing"
   - "vendor/zscaler-help/understanding-multi-cluster-load-sharing.json"
   - "https://help.zscaler.com/legacy-apis/activation"
-  - "vendor/zscaler-help/legacy-activation.md"
-  - "vendor/zscaler-help/zia-activation.md"
+  - "vendor/zscaler-help/legacy-activation.json"
+  - "vendor/zscaler-help/legacy-activation.json"
   - "vendor/zscaler-sdk-python/zscaler/zia/activate.py"
   - "vendor/zscaler-help/Traffic_Forwarding_in_ZIA_Reference_Architecture.txt"
 author-status: draft
@@ -187,7 +187,7 @@ ZIA config changes are **staged pending** until activation. An explicit call is 
 | `GET /status` | Current activation status (3-value enum) | Check before activating |
 | `POST /status/activate` | Apply pending config changes | Moves from PENDING → ACTIVE |
 
-Status enum from the legacy API docs is `ACTIVE` / `PENDING` / `INPROGRESS` (`vendor/zscaler-help/legacy-activation.md:55`, `:72`).
+Status enum from the legacy API docs is `ACTIVE` / `PENDING` / `INPROGRESS` (`vendor/zscaler-help/legacy-activation.json:55`, `:72`).
 
 **ZPA has no activation step.** Changes propagate on write — this is an architectural difference between the two products' control planes, parallel to the active-passive vs active-active CA topology difference.
 

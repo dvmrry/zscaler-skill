@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Obtaining Machine Group Details Using API",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/obtaining-machine-group-details-using-api",
+    "node": "1484856",
+    "revision": "3160708"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) machine group use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Getting Details for All Machine Groups",
+      "level": 1
+    },
+    {
+      "text": "To get details for all the machine groups:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the machine-group-controller: /mgmtconfig/v1/admin/customers/{customerId}/machineGroup.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/machineGroup.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"list\": [ { \"id\": \"73196561382769734\", \"creationTime\": \"1612770231\", \"modifiedBy\": \"73196561382768641\", \"name\": \"Example machine group 1 DND\", \"enabled\": true } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/machineGroup?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/machineGroup?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"2\", \"list\": [ { \"id\": \"217246660303025140\", \"creationTime\": \"1624496602\", \"modifiedBy\": \"217246660303023906\", \"name\": \"test_machine_group\", \"enabled\": true, \"description\": \"test_machine_group\" }, { \"id\": \"217246660303023893\", \"creationTime\": \"1594844294\", \"modifiedBy\": \"72057594037935690\", \"name\": \"Test\", \"enabled\": true, \"description\": \"test\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/machineGroup&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string name%20LIKE%20123 is supported for the Name filter, using the Contains (LIKE) operator, for the filter value 123.",
+      "depth": 0,
+      "strong": [
+        [
+          265,
+          269
+        ],
+        [
+          288,
+          296
+        ]
+      ]
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/machineGroup&search=name%20LIKE%20123."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"2\", \"totalCount\": \"2\", \"list\": [ { \"id\": \"72057594037987359\", \"modifiedTime\": \"1646157983\", \"creationTime\": \"1610701957\", \"modifiedBy\": \"72057594038052745\", \"name\": \"123\", \"enabled\": true, \"description\": \"/><img src=x onerror=alert(document.cookie)>\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the ZPA API Portal or the Reference Guide to make your API calls, the search field string does not require any characters. For example, name%20LIKE%20123 is name LIKE 123."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular Machine Group",
+      "level": 1
+    },
+    {
+      "text": "To get details of a particular machine group:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the machine-group-controller: /mgmtconfig/v1/admin/customers/{customerId}/machineGroup/{Id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "id: The ID of the desired machine group.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/machineGroup/73196561382769734."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"73196561382769734\", \"creationTime\": \"1612770231\", \"modifiedBy\": \"73196561382768641\", \"name\": \"Example machine group 1 DND\", \"enabled\": true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

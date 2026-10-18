@@ -9,7 +9,7 @@ verified-against:
 confidence: high
 source-tier: doc
 sources:
-  - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt"
+  - "vendor/zscaler-help/understanding-user-activity-log-fields.json"
   - "vendor/zscaler-help/understanding-zscaler-cloud-architecture.json"
   - "vendor/zscaler-help/understanding-private-service-edge-internet-saas.json"
   - "vendor/zscaler-help/about-virtual-service-edges-internet-saas.json"
@@ -17,7 +17,7 @@ sources:
   - "vendor/zscaler-help/what-is-zscaler-client-connector.json"
   - "references/ai-security/ai-guard.md"
   - "vendor/zscaler-help/ai-guard-what-is.json"
-  - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-users-help-index.json"
   - "vendor/zscaler-help/zia-dedicated-ip-using-customer-owned-ip-addresses.json"
   - "vendor/zscaler-help/understanding-source-ip-anchoring.json"
   - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.json"
@@ -89,7 +89,7 @@ Zscaler has renamed several core components over time without fully purging the 
 | Zscaler Incident Receiver | ZIR | — | Zscaler-native destination for outbound email policy rule content. ICAP transport; also one-way. |
 | Cloud-to-Cloud Incident Forwarding | C2C | — | Forwards DLP incident metadata + evidence directly to customer public-cloud storage (S3, Azure Blob, etc.). The feed ZWA reads from. |
 | LWF Driver | (same) | `enableLWFDriver` flag on Forwarding Profile | Windows Lightweight Filter — low-level packet interception driver |
-| AI Guard | ZGuard (`client.zguard` is a deprecated Python accessor alias) | Current Help root: `secure-ai-users/`; former root `ai-guard/` returned a maintenance status in the current capture (`vendor/zscaler-help/ai-guard-users-help-index.md:50-55`); Python package `zscaler/aiguard/`; canonical accessor `client.aiguard` | LLM runtime protection for prompt/response policy detection. Python SDK 1.9.39 exposes six OneAPI configuration resources under `client.aiguard`, while `LegacyAIGuardClient(...).aiguard.policy_detection` routes runtime detection; this client split is not a universal backend/auth constraint (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`). Deployment modes remain Proxy, DaaS, and OnPrem. See `references/ai-security/ai-guard.md`. |
+| AI Guard | ZGuard (`client.zguard` is a deprecated Python accessor alias) | Current Help root: `secure-ai-users/`; former root `ai-guard/` returned a maintenance status in the current capture (`vendor/zscaler-help/ai-guard-users-help-index.json:50-55`); Python package `zscaler/aiguard/`; canonical accessor `client.aiguard` | LLM runtime protection for prompt/response policy detection. Python SDK 1.9.39 exposes six OneAPI configuration resources under `client.aiguard`, while `LegacyAIGuardClient(...).aiguard.policy_detection` routes runtime detection; this client split is not a universal backend/auth constraint (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py:26-84`). Deployment modes remain Proxy, DaaS, and OnPrem. See `references/ai-security/ai-guard.md`. |
 | AI Access Security | Secure Access to AI Apps | Product page: `products-and-solutions/ai-access-security` | Current positioning surface for controlling access and content across public GenAI, embedded SaaS AI, agents, and developer tools, including discovery, prompt/response insight, access controls, inline DLP, moderation, and AI-IDE controls. Publication does not prove tenant entitlement, rollout stage, API parity, or cloud availability (`vendor/zscaler-help/ai-access-security-marketing.md:8-31`). |
 | Breach Predictor | (same) | Help URL: `breach-predictor/` | Predictive threat intelligence — AI-driven breach probability scoring based on telemetry. See `references/breach-predictor/`. |
 | SOC Workbench | Zscaler SOC Workbench | Help URL: `soc-workbench/` | Unified alert/incident triage workspace in the Security Operations platform. Shares Data Fabric + AnySource connectors with AEM/UVM. See `references/soc-workbench/`. |

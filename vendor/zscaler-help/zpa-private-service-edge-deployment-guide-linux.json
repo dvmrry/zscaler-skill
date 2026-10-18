@@ -1,0 +1,886 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Private Service Edge Deployment Guide for Linux",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/private-service-edge-deployment-guide-linux",
+    "node": "1484566",
+    "revision": "3239062"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy a Private Service Edge for Private Access (ZPA) on Red Hat Enterprise Linux 9.x (and 8.x), and post-deployment verification checks."
+    },
+    {
+      "item": "Step 1: Make Sure That You Have Met All of the Private Service Edge Deployment Prerequisites",
+      "depth": 0
+    },
+    {
+      "item": "Before deploying a Private Service Edge for Private Access (ZPA) on any supported platform, Zscaler highly recommends reading the following information and making the necessary changes to your organization's environment, where applicable.",
+      "depth": 0
+    },
+    {
+      "item": "Each Private Service Edge supports up to 500 Mbps of throughput. Use the information on this page to determine the Private Service Edge sizing requirements for your deployment. For example, with a 1 Gbps aggregate (i.e., total inbound and outbound) connection, you would need to deploy 2 to 3 Private Service Edges.",
+      "depth": 0
+    },
+    {
+      "item": "500 Mbps of throughput is an aggregate of multiple streams of traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Private Service Edge Specifications and Sizing Requirements",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge Platform Prerequisites",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge Security Guidance and Firewall Requirements",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge Zscaler Client Connector Requirements",
+      "depth": 1
+    },
+    {
+      "item": "After you have met all of the prerequisites, you can deploy the Private Service Edge on a supported platform.",
+      "depth": 0
+    },
+    {
+      "item": "The following specifications are recommended by Zscaler for up to 500 Mbps throughput for each Private Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "Memory (RAM) and vCPU (for virtual machines) or CPU (for physical machines) cores:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Active Users",
+          "Memory",
+          "vCPU or CPU Cores"
+        ],
+        [
+          "Up to 2,000",
+          "8 GB (10 GB with ZDX)",
+          "4 vCPUs or 4 CPUs"
+        ],
+        [
+          "Up to 4,000",
+          "16 GB (18 GB with ZDX)",
+          "8 vCPUs or 8 CPUs"
+        ],
+        [
+          "Up to 10,000",
+          "32 GB (34 GB with ZDX)",
+          "16 vCPUs or 16 CPUs"
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see the Private Service Edge Deployment Guide for your platform.",
+      "depth": 0
+    },
+    {
+      "item": "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+      "depth": 1
+    },
+    {
+      "item": "Network Card: 1 NIC (minimum)",
+      "depth": 1
+    },
+    {
+      "item": "Depending on your deployment use case, each Private Service Edge must be able to accept incoming connections from either internal or external sources or both internal and external sources on TCP port 443. For example, if you enable Private Access for remote and office users, each Private Service Edge needs to accept incoming connections from both internal and external endpoints running Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Private Service Edges are reachable over the internet for remote users in a disaster recovery scenario, or when the Private Service Edge is the closest Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "In the scenario where a Private Service Edge is deployed behind a firewall, the firewall performs destination network address translation (DNAT) for the Private Service Edge's private IP address. In this case, the flow of traffic is from Zscaler Client Connector to the Private Service Edge. The firewall then translates the destination public IP address that Zscaler Client Connector connects to on the private IP address of the Private Service Edge. The firewall advertises a public IP address on the internet. It is necessary to configure the public IP address advertised by the firewall as a publish IP of the respective Private Service Edge. In the case of disaster recovery, you must add this IP address as the A record for that Private Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "Your firewalls must be configured to let the Private Service Edge establish outbound connections to the IP addresses of the Public Service Edge for Private Access, and establish inbound connections from App Connectors and Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "The following conditions apply to each Private Service Edge that is placed behind a firewall:",
+      "depth": 0
+    },
+    {
+      "item": "They must accept incoming connections from internal sources and remote users and on-premises users (as applicable and dependent on your use case) on TCP port 443.",
+      "depth": 1
+    },
+    {
+      "item": "They must have a unique private IP address that can be reached over the internal network.",
+      "depth": 1
+    },
+    {
+      "item": "After a Private Service Edge is enrolled, an outbound TLS tunnel over TCP port 443 is established to the Private Access cloud infrastructure. This communication channel provides various functionality and includes the following traffic:",
+      "depth": 0
+    },
+    {
+      "item": "Periodic keepalives to the Public Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "Policy configuration download",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge software upgrades (upgrades are completed based on a weekly schedule)",
+      "depth": 1
+    },
+    {
+      "item": "You can deploy additional Private Service Edges at any time, using the same provisioning key to add them to the existing Private Service Edge group, while ensuring network and internet connectivity. Private Service Edges are designed to scale elastically. You can deploy additional Private Service Edges in the same Private Service Edge group to increase the total throughput as required by your deployment. Zscaler recommends that you deploy Private Service Edges in pairs (N+1), where N is the number of Private Service Edges as per the sizing requirements. To learn more, see Deploying Private Service Edges and Supported Platforms for Private Service Edges.",
+      "depth": 0
+    },
+    {
+      "item": "After deployment, ensure that the Private Service Edge meets your sizing requirements. To learn more, see Verify Private Service Edge Sizing Specifications. If disk space fills up in the Private Service Edge, Zscaler recommends archiving files and creating more log space. To learn more, see Monitoring Private Service Edge Performance.",
+      "depth": 0
+    },
+    {
+      "heading": "Understanding Private Service Edge Throughput",
+      "level": 1
+    },
+    {
+      "item": "Throughput numbers are aggregate (i.e., total inbound and outbound). Each Private Service Edge supports up to 500 Mbps throughput. Private Service Edges communicate over the provided (default) gateway, which is most likely your ISP WAN broadband connection.",
+      "depth": 0
+    },
+    {
+      "item": "500 Mbps of throughput is an aggregate of multiple streams of traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you check your existing VPN solution's average and peak throughput when determining your sizing requirements. Be sure to only account for user or client VPN traffic and not any site-to-site tunnel traffic.",
+      "depth": 0
+    },
+    {
+      "item": "For example, if you have a 1 Gbps aggregate (i.e., total inbound and outbound) connection in your data center, you can use the 500 Mbps throughput guideline to make sure you have enough Private Service Edges to support the connection and have room for failover (N+1). In this case, you would need to deploy 2 to 3 Private Service Edges to support the 1 Gbps connection.",
+      "depth": 0
+    },
+    {
+      "item": "The exact throughput can vary and depends on other network factors such as your internal network setup, latency, and whether you have double encryption, AppProtection, or ZDX enabled. Make sure that you have enough Private Service Edges to support the connection and room for failover (N+1).",
+      "depth": 0
+    },
+    {
+      "item": "To horizontally scale your deployment, Zscaler recommends that you have more Private Service Edges with lower specifications rather than fewer Private Service Edges with higher specifications. For example, if you have fewer Private Service Edges with higher specifications and one fails, you could adversely affect more user application traffic or sessions than a smaller Private Service Edge that fails.",
+      "depth": 0
+    },
+    {
+      "item": "Before you begin any procedures within the Private Service Edge Deployment Guide for your platform, make sure that you have the following:",
+      "depth": 0
+    },
+    {
+      "item": "Intel x86_64/AMD64-based architecture",
+      "depth": 1
+    },
+    {
+      "item": "systemd",
+      "depth": 1
+    },
+    {
+      "item": "Root or sudo access to the system to configure a new package repository and install packages",
+      "depth": 1
+    },
+    {
+      "item": "DNS resolution and network access",
+      "depth": 1
+    },
+    {
+      "item": "A Private Service Edge provisioning key obtained from the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "For OAuth 2.0 enrollment, Manager software and Private Service Edge version 25.48.4 or later",
+      "depth": 1
+    },
+    {
+      "item": "An OAuth 2.0 enrollment token obtained from a hyperscaler marketplace, virtual image, or RPM installer provided by Zscaler, or a Private Service Edge provisioning key obtained from the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "The OAuth server only supports IPv4-based communication. If a Private Service Edge only has an IPv6 address, it cannot access the OAuth server.",
+      "depth": 1
+    },
+    {
+      "item": "A static MAC address",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edges can be deployed in different ways (as private cloud VMs, public cloud VMs, or OS packages), so the security features for each deployment type are slightly different.",
+      "depth": 0
+    },
+    {
+      "heading": "Operating System Security",
+      "level": 1
+    },
+    {
+      "item": "The Private Service Edge VMs distributed by Zscaler for use in private clouds are configured without any remotely accessible services running. Swap partitions are disabled on the Private Service Edge and its VMs to ensure that memory growth does not have an impact on the Private Service Edge performance. For enhanced security, you must use the passwd command to change the credentials on the default admin account. To learn more, see the Private Service Edge Deployment Guides for the platform you are using.",
+      "depth": 0
+    },
+    {
+      "item": "Security Technical Implementation Guide (STIG) images are provided for AWS, GCP, Microsoft Azure, Nutanix, and VMware by default. To learn more, see Private Service Edge Software by Platform. The remaining private and public cloud VM images provided by Zscaler are essentially unmodified operating systems (currently based on RHEL 9.x). You can patch these systems when necessary by using the standard yum OS update mechanism. Zscaler recommends that you harden the operating system, including the sshd-config file, on the VM images in accordance with your organization's security standards after initial deployment. To learn more, see Managing Deployed Software Components.",
+      "depth": 0
+    },
+    {
+      "item": "Due to the fact that vulnerabilities are regularly found in core open-source components such as DNS resolvers and the Linux Kernel, Zscaler recommends either patching or using new Zscaler-distributed VM images on a regular basis, or protecting Private Service Edges using firewall policies. Additionally, if you've installed the Private Service Edge as a package, Zscaler recommends that you take similar precautions.",
+      "depth": 0
+    },
+    {
+      "item": "Some organizations choose to firewall or otherwise restrict outbound traffic to the internet from the data center. It is possible to deploy a Private Service Edge in such an environment as long as the Private Service Edge is able to reach all Zscaler data centers containing Public Service Edges. For firewall configuration information for your deployment, see config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "heading": "Firewall Requirements and Interoperability Guidelines",
+      "level": 1
+    },
+    {
+      "item": "All of the Zscaler data centers containing Public Service Edges must be allowed. A partial firewall configuration will result in connectivity problems for end users. Zscaler's policy is to provide a 90-day notice for activating additional IP CIDR ranges to provide organizations with sufficient opportunity for changing control policies.",
+      "depth": 0
+    },
+    {
+      "item": "Because the service enforces TLS certificate pinning for both client and server certificates, all forms of inline or man-in-the-middle TLS interception or inspection must be disabled. Private Service Edge will not function if the TLS certificates presented by the Public Service Edges do not cryptographically verify against Zscaler-trusted public keys.",
+      "depth": 0
+    },
+    {
+      "item": "By design, certificate verification is not configurable to maintain the integrity of the service, so ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the Private Service Edge. This is necessary for allowing the Private Service Edge to resolve and reach Public Service Edges. Private Service Edge requires your firewall configuration to accept the incoming connections from the users. Also, if you need to allowlist additional Zscaler IP addresses, refer to config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). It might be possible to allowlist based on Zscaler cloud hostnames instead of IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Private Service Edges require that Zscaler Client Connector be at least on version 2.1.2.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Configure the Networking for the Deployed Private Service Edge",
+      "depth": 0
+    },
+    {
+      "item": "After you have deployed a software component on a supported platform, you can complete the following networking configurations. Software components refer to App Connectors, Private Service Edges, Private Cloud Controllers, and Network Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "You can configure a Domain Name System (DNS) Resolver, Network Time Protocol (NTP) servers, static routing, and other features from the Zscaler Admin Console. To learn more, see Editing Network Settings.",
+      "depth": 0
+    },
+    {
+      "item": "Configure DHCP IP Addressing (App Connector, Private Service Edge, or Private Cloud Controller)",
+      "depth": 1
+    },
+    {
+      "item": "Configure Static IP Addressing (all software components)",
+      "depth": 1
+    },
+    {
+      "item": "Configure Additional Interfaces (App Connector or Private Service Edge)",
+      "depth": 1
+    },
+    {
+      "item": "Configure a Proxy Bypass (App Connector)",
+      "depth": 1
+    },
+    {
+      "item": "Configure yum to Use an HTTP Proxy Server (App Connector or Private Service Edge)",
+      "depth": 1
+    },
+    {
+      "item": "By default, virtual machine-based App Connectors, Private Service Edges, or Private Cloud Controllers are configured to use DHCP networking on their primary interface. If necessary, you can configure a static IP address for the software component.",
+      "depth": 0
+    },
+    {
+      "item": "If DHCP is not available, you can configure a static IP address on a VM-based App Connector, Private Service Edge, Private Cloud Controller, or Network Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 1
+    },
+    {
+      "item": "View the current connection profile.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Modify the connection profile using the following format: <profile name> connection.id <new connection name>. For example:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" connection.id LAN autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "Review the current connection profile.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Edit the profile using a static IP and a default gateway with the following format: <connection ID> ipv4.method manual ipv4.addresses <IP addresses> ipv4.gateway <gateway IP> ipv4.dns <DNS IP> ipv4.dns-search <domain name>. For example:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ sudo nmcli connection modify LAN ipv4.method manual ipv4.addresses 172.30.1.88/24 ipv4.gateway 172.30.1.1 ipv4.dns 172.30.1.254 ipv4.dns-search company.com",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection ID back up. For example:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo nmcli connection up LAN",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the default gateway.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ ip route show default",
+      "depth": 0
+    },
+    {
+      "item": "Verify the DNS settings.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo cat /etc/resolv.conf",
+      "depth": 0
+    },
+    {
+      "item": "If necessary, additional changes can be made to interfaces by configuring new ones using nmcli connection add con-name or by renaming existing ones using nmcli connection modify.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "View the current connection profiles.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Configure the interface's IP network using either a dynamic or static Ethernet configuration.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For dynamic, modify the connection profile. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method auto autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "For static, modify the connection profile and identify the IP addresses and gateway using the following format: <profile name> ipv4.method manual ipv4.addresses <address> ipv4.gateway <gateway IP>. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method manual ipv4.addresses 192.168.2.241/24 ipv4.gateway 192.168.2.254",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection profile back up. For example:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ sudo nmcli connection up \"Profile 1\"",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the new connection.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "If you want to configure yum to communicate through an HTTP proxy server, refer to the Red Hat documentation.",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector is configured to send traffic to a proxy, you can set up a proxy bypass on it for the traffic that needs to be exempted from the proxy (i.e., traffic between the App Connector and the Public or Private Service Edges for Private Access). To use a proxy bypass for an App Connector, a proxy bypass file needs to be added to the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the App Connector to do a proxy bypass:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Create a file named opt/zscaler/var/proxy-bypass. Use an editor, such as vi. For example:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$sudo vi /opt/zscaler/var/proxy-bypass",
+      "depth": 0
+    },
+    {
+      "item": "Enter the necessary bypass entries using IP addresses, subnets, domains, or domains with a prefix wildcard. For example:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "1.2.3.4 111.222.33.0/24 myexampledomain.com *.internal.local",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, restart the App Connector using the following command:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: (Optional) Migrate Private Service Edges to Red Hat Enterprise Linux 9",
+      "depth": 0
+    },
+    {
+      "item": "This article provides migration instructions to replace CentOS 7 instances with Red Hat Enterprise Linux 9.x (RHEL 9.x). The enrollment and provisioning of new Private Service Edges for Private Access (ZPA) can be automated in a few steps using Terraform (IaC) or Container Orchestration to further simplify deployment.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about support for CentOS 7.x, see End-of-Support for CentOS 7.x, RHEL 7.x, and Oracle Linux 7.x.",
+      "depth": 0
+    },
+    {
+      "item": "Note the following requirements for successfully migrating from CentOS 7 to RHEL 9.x:",
+      "depth": 0
+    },
+    {
+      "item": "Use a fresh install for all deployments.",
+      "depth": 1
+    },
+    {
+      "item": "The EL9 repository must be used with RHEL 9 base OS. Older platform binaries (EL7/EL8) are not supported.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the/opt/zscaler/var folder is empty before install.",
+      "depth": 1
+    },
+    {
+      "item": "Yum upgrades from EL7/EL8 to RHEL9 are not supported.",
+      "depth": 1
+    },
+    {
+      "item": "Requires ESXi version 7.0 Update 2 or newer, including ESXi 8.x. To learn more about ESXi support, see End-of-Support for VMware vSphere Hypervisor (ESXi) Version 5.5.",
+      "depth": 1
+    },
+    {
+      "item": "Use the following steps to migrate from CentOS 7 to RHEL 9.x:",
+      "depth": 0
+    },
+    {
+      "item": "Use a current provisioning key or create a new Private Service Edge group with a provisioning key for each location.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Verify that the version profile is set to Default, Previous Default, or New Release.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          42,
+          49
+        ],
+        [
+          51,
+          67
+        ],
+        [
+          72,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Follow the step-by-step guide to deploy new VMs using the RHEL 9.x images and newly created provisioning keys. Ensure the yum repository is pointing to the new RHEL 9 link: https://yum.zpagov.net/yum/el9",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Only RHEL 9.x repositories and RPMs are supported on RHEL 9.x.",
+      "depth": 0
+    },
+    {
+      "item": "Add trusted networks and enable Publicly Accessible (if applicable) on the new Private Service Edge groups.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          32,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Disable the Private Service Edge groups 15 minutes prior to the regional off-hours maintenance window to allow connections to gradually drain down.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "During regional off hours, remove trusted networks and disable public access (if applicable) on CentOS 7 Private Service Edge groups.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Step 4: Deploy the Private Service Edge on Red Hat",
+      "depth": 0
+    },
+    {
+      "item": "To deploy a Private Service Edge, you need to download the RPM package on the Private Service Edge you're deploying. However, in some cases, the Private Service Edge might be unable to download the package, and you'll have to download it on a server instead. Choose one of the following deployment options depending on your situation.",
+      "depth": 0
+    },
+    {
+      "item": "Downloading the RPM Package on the Private Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "If the Private Service Edge can download the RPM package:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Private Service Edge console with sudo access or directly as the root user.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Create a file named /etc/yum.repos.d/zscaler.repo. Use an editor, such as vi.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "$ sudo vi /etc/yum.repos.d/zscaler.repo",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following content within the file:",
+      "depth": 1
+    },
+    {
+      "item": "[zscaler] name=Zscaler Private Access Repository baseurl=https://yum.private.zscaler.com/yum/el9 enabled=1 gpgcheck=1 gpgkey=https://yum.private.zscaler.com/yum/el9/gpg",
+      "depth": 1
+    },
+    {
+      "item": "For Red Hat Enterprise Linux 8-based deployments, you must use https://yum.private.zscaler.com/yum/el8 as the baseurl.",
+      "depth": 1
+    },
+    {
+      "item": "Install the package using the yum install command.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "$ sudo yum install zpa-service-edge",
+      "depth": 1
+    },
+    {
+      "item": "The Private Service Edge console asks for confirmation twice. Enter y both times and ensure that the GPG fingerprint matches, a6fe 2422 fce7 e8ac 672e 9e51 644e a315 8765 e1dd, as highlighted in green within the example below:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "$ sudo yum install zpa-service-edge Loaded plugins: fastestmirror, langpacks Determining fastest mirrors * base: mirror.keystealth.org * epel: mirrors.kernel.org * extras: mirror.lug.udel.edu * updates: mirrors.cat.pdx.edu Resolving Dependencies --> Running transaction check ---> Package zpa-service-edge.x86_64 0:26.57.3-1.el9 will be installed --> Finished Dependency Resolution Dependencies Resolved ================================================================================ Package Arch Version Repository Size ================================================================================ Installing: zpa-service-edge x86_64 26.57.3-1.el9 zscaler 1.1 M Transaction Summary ================================================================================ Install 1 Package Total download size: 1.1 M Installed size: 2.9 M Is this ok [y/d/N]: y Downloading packages: warning: /var/cache/yum/x86_64/7/zscaler/packages/zpa-service-edge-26.57.3-1.el9.x86_64.rpm: Header V4 RSA/SHA1 Signature, key ID 8765e1dd: NOKEY kb 00:00:01 ETA Public key for zpa-service-edge-26.57.3-1.el9.x86_64.rpm is not installed zpa-service-edge-26.57.3-1.el9.x86_64.rpm | 1.1 MB 00:00:03 Retrieving key from https://yum.private.zscaler.com/gpg Importing GPG key 0x8765E1DD: Userid : \"Zscaler, Inc. (External Package Repository Signing Key) <ext-pkg-repo@zscaler.com>\" Fingerprint: a6fe 2422 fce7 e8ac 672e 9e51 644e a315 8765 e1dd From : https://yum.private.zscaler.com/gpg Is this ok [y/N]: y Running transaction check Running transaction test Transaction test succeeded Running transaction Installing : zpa-service-edge-26.57.3-1.el9.x86_64 1/1 Verifying : zpa-service-edge-26.57.3-1.el9.x86_64 1/1 Installed: zpa-service-edge.x86_64 0:26.57.3-1.el9 Complete!",
+      "depth": 1
+    },
+    {
+      "item": "Populate and apply the Private Service Edge provisioning key.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "See instructions.",
+      "depth": 2
+    },
+    {
+      "item": "Stop the running Private Service Edge service.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions, at /opt/zscaler/var/service-edge/provision_key. For example:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/service-edge/provision_key $ sudo chmod 644 /opt/zscaler/var/service-edge/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/service-edge/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/service-edge/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 2
+    },
+    {
+      "item": "Start the zpa-service-edge service.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "$ sudo systemctl start zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "After the Private Service Edge provisioning key is applied, and you have made any necessary network configuration changes, be sure to verify that the deployed Private Service Edge is running and healthy.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler highly recommends updating the Private Service Edge system software before proceeding.",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "Console outputs reference 26.57.3-1.el9 if you are using the Private Service Edge RPM for Red Hat Enterprise Linux 9-based deployments.",
+      "depth": 1
+    },
+    {
+      "item": "Downloading the RPM Package on a Server",
+      "depth": 1
+    },
+    {
+      "item": "If the Private Service Edge can't download the RPM package, you must download the package on a server:",
+      "depth": 1
+    },
+    {
+      "item": "Download the following files on a server with access:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "For Red Hat Enterprise Linux 8-based deployments:",
+      "depth": 3
+    },
+    {
+      "item": "RPM package (zpa-service-edge.rpm)",
+      "depth": 4
+    },
+    {
+      "item": "GPG public key (https://yum.private.zscaler.com/yum/el8/gpg)",
+      "depth": 4
+    },
+    {
+      "item": "For Red Hat Enterprise Linux 9-based deployments:",
+      "depth": 3
+    },
+    {
+      "item": "RPM package (zpa-service-edge.rpm)",
+      "depth": 4
+    },
+    {
+      "item": "GPG public key (https://yum.private.zscaler.com/yum/el9/gpg)",
+      "depth": 4
+    },
+    {
+      "item": "Use the scp command to copy the RPM package to the Private Service Edge, for example:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "$ scp zpa-service-edge.rpm admin@<server>:/home/admin $ scp gpg admin@",
+      "depth": 1
+    },
+    {
+      "item": "Run chmod 777 zpa-service-edge.rpm.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "$ chmod 777 zpa-service-edge.rpm",
+      "depth": 1
+    },
+    {
+      "item": "Install using the yum install command.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "$ sudo yum localinstall zpa-service-edge.rpm​​​​​",
+      "depth": 1
+    },
+    {
+      "item": "Run cd.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "$ cd /opt/zscaler/var/service-edge/",
+      "depth": 1
+    },
+    {
+      "item": "Apply the Private Service Edge provisioning key.",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "See instructions.",
+      "depth": 2
+    },
+    {
+      "item": "Stop running the Private Service Edge service.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "$ sudo systemctl stop zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions, at /opt/zscaler/var/service-edge/provision_key. For example:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "$ sudo touch /opt/zscaler/var/service-edge/provision_key $ sudo chmod 644 /opt/zscaler/var/service-edge/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "$ sudo vi /opt/zscaler/var/service-edge/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "$ sudo cat /opt/zscaler/var/service-edge/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 2
+    },
+    {
+      "item": "Start the zpa-service-edge service.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "$ sudo systemctl start zpa-service-edge",
+      "depth": 2
+    },
+    {
+      "item": "Run the following:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "$ iptables -I INPUT 1 -j ACCEPT",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler highly recommends updating the Private Service Edge system software before proceeding.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Step 5: Verify that the deployed Private Service Edge is running and healthy. Also, check that it meets your sizing requirements.",
+      "depth": 0
+    },
+    {
+      "text": "After you have verified your deployment, you can perform additional tasks to maintain the system (i.e., changing your Private Service Edge console admin credentials or performing system software updates). To learn more, see Managing Deployed Software Components."
+    }
+  ]
+}

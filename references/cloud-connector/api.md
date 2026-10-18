@@ -11,7 +11,7 @@ sources:
   - "vendor/zscaler-help/cbc-configuring-cloud-provisioning-template.json"
   - "https://help.zscaler.com/legacy-apis/understanding-zscaler-cloud-branch-connector-api"
   - "vendor/zscaler-help/cbc-understanding-zscaler-cloud-branch-connector-api.json"
-  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md"
+  - "vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json"
   - "vendor/zscaler-help/cbc-release-upgrade-summary-2026.json"
   - "vendor/zscaler-help/cbc-about-microsoft-azure-accounts.json"
   - "vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json"
@@ -165,13 +165,13 @@ The raw CBC API is mutable even though the current Go EC-group package exposes r
 
 | Method | Path | Contract |
 |---|---|---|
-| PUT | `/ecgroup/releaseChannel` | Bulk-select `STABLE`, `LATEST`, or `BETA` for group and VM IDs (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:12-20`). |
-| PUT | `/ecgroup/vmStatus` | Bulk-set selected group/VM IDs to `ENABLE` or `DISABLE` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:21-31`). |
-| GET | `/ecgroup/vmUpgradeMetrics` | Read release-channel and scheduled-upgrade metrics, including platform, release-channel, and upgrade-status filters (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:33-48`). |
+| PUT | `/ecgroup/releaseChannel` | Bulk-select `STABLE`, `LATEST`, or `BETA` for group and VM IDs (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:12-20`). |
+| PUT | `/ecgroup/vmStatus` | Bulk-set selected group/VM IDs to `ENABLE` or `DISABLE` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:21-31`). |
+| GET | `/ecgroup/vmUpgradeMetrics` | Read release-channel and scheduled-upgrade metrics, including platform, release-channel, and upgrade-status filters (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:33-48`). |
 | PUT | `/ecgroup/scheduleupgrade` | Update the scheduled upgrade time; the captured Automate body includes `dayOfWeek`, `startTime`, and `endTime` fields (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:175246-175314`). |
 | PUT | `/ecgroup/{ecgroupId}/vm/{vmId}/{status}` | Change one VM's status through the Automate contract (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:158164-158192`). |
 
-These operations support scheduling, release-channel selection, and VM enable/disable. The scoped group OpenAPI does not expose an immediate per-VM **upgrade now** operation (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:50-52`).
+These operations support scheduling, release-channel selection, and VM enable/disable. The scoped group OpenAPI does not expose an immediate per-VM **upgrade now** operation (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:50-52`).
 
 ## Partner integrations (workload discovery)
 

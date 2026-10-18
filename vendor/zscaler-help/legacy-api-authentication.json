@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "API Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/api-authentication",
+    "node": "1402451",
+    "revision": "2760976",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/API%20Authentication_30.json?VersionId=SzrVmSEWONjgcnKlxwAo7iUPxmj.bU.Y"
+  },
+  "captured_at": "2026-10-18",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "API Authentication"
+      }
+    ],
+    "paths": {
+      "/authenticatedSession": {
+        "get": {
+          "tags": [
+            "API Authentication"
+          ],
+          "description": "Checks if there is an authentication session.",
+          "operationId": "getAuthenticatedSession",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "<p>Successful Operation. When an authenticated session exists, the response contains authType information. If authType is not present, the authenticated session has expired or it does not exist.</p>",
+              "schema": {
+                "$ref": "#/definitions/SessionInfo"
+              }
+            },
+            "503": {
+              "description": "Service is temporarily unavailable due to maintenance"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "API Authentication"
+          ],
+          "description": "<p>Creates an authenticated session. The response returns a cookie in the header called <code>JSESSIONID</code> that must be used in subsequent requests.</p>",
+          "operationId": "postAuthenticatedSessionInfo",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "credentials",
+              "description": "User credential.",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/AuthCredentials"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "<p>Successful Operation. The response contains authType information only when authentication has completed successfully, regardless of the response code given.</p>",
+              "schema": {
+                "$ref": "#/definitions/SessionInfo"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "API Authentication"
+          ],
+          "description": "<p>Ends an authenticated session.</p>",
+          "operationId": "setAuthenticatedSessionInfo",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/ActivationStatus"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "SessionInfo": {
+        "type": "object",
+        "properties": {
+          "authType": {
+            "type": "string",
+            "description": "Login type",
+            "readOnly": true,
+            "enum": [
+              "ADMIN_LOGIN",
+              "SUPPORT_ACCESS_PARTIAL",
+              "SUPPORT_ACCESS_FULL",
+              "PARTNER_ACCESS",
+              "INTEGRATION_PARTNER_ACCESS",
+              "DEFAULT_LOGIN",
+              "ADMIN_SAML_SSO_LOGIN",
+              "SUPPORT_ACCESS_READ_ONLY",
+              "MOBILE_APP_TOKEN"
+            ]
+          },
+          "obfuscateApiKey": {
+            "type": "boolean",
+            "description": "Whether API key was obfuscated or not",
+            "readOnly": true,
+            "default": false
+          },
+          "passwordExpiryTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Password Expiry Time",
+            "readOnly": true
+          },
+          "passwordExpiryDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Password Expiry Days",
+            "readOnly": true
+          }
+        }
+      },
+      "AuthCredentials": {
+        "type": "object",
+        "properties": {
+          "apiKey": {
+            "type": "string",
+            "description": "The obfuscated form of the API key"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username of admin user that is provisioned"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password of the admin user"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Long value that represent the the current time in milliseconds since  midnight, January 1, 1970 UTC. This timestamp value must be reflecting the real current time."
+          }
+        },
+        "description": "Credential info that is required for authenticating a session"
+      },
+      "ActivationStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "PENDING",
+              "INPROGRESS"
+            ]
+          }
+        },
+        "description": "Organization Policy Edit/Update Activation status"
+      }
+    }
+  }
+}

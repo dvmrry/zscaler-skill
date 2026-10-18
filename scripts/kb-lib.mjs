@@ -93,6 +93,9 @@ export function loadPublic(root) {
     manifest: fs.existsSync(path.join(root, META, "capture-manifest.json"))
       ? readJson(path.join(root, META, "capture-manifest.json"))
       : { schema_version: 1, files: {} },
+    staticCaptures: fs.existsSync(path.join(root, META, "static-captures.json"))
+      ? readJson(path.join(root, META, "static-captures.json"))
+      : { schema_version: 1, files: {} },
     files,
     problems,
   };
@@ -219,7 +222,7 @@ export function captureText(blocks) {
   const row = (cells) => `| ${cells.map((c) => c.replaceAll("|", "\\|")).join(" | ")} |`;
   for (const b of blocks) {
     if (b.heading !== undefined) lines.push(`${"#".repeat(b.level)} ${b.heading}`);
-    else if (b.item !== undefined) lines.push(`${"  ".repeat(b.depth)}- ${b.item}`);
+    else if (b.item !== undefined) lines.push(`${"  ".repeat(b.depth)}${b.number !== undefined ? `${b.number}.` : "-"} ${b.item}`);
     else if (b.table) lines.push(row(b.table[0]), `|${"---|".repeat(b.table[0].length)}`, ...b.table.slice(1).map(row));
     else lines.push(b.text);
   }
@@ -482,6 +485,7 @@ export function validateGraph(g, { citations = true } = {}) {
     ["products.json", g.products, "products"],
     ["sources.json", g.sources, "sources"],
     ["capture-manifest.json", g.manifest, "capture-manifest"],
+    ["static-captures.json", g.staticCaptures, "static-captures"],
   ]) {
     for (const e of validate(S, "registry.schema.json", value, { $ref: `#/$defs/${def}` })) err(`${META}/${msg}`, e);
   }
@@ -574,8 +578,10 @@ export function validateGraph(g, { citations = true } = {}) {
       for (const e of r.errors) err(node.file, `${where}: ${e}`);
       if (r.kind === "capture") citedCaptures.add(r.repoPath);
     }
+    checkCaptureInventory(g, err, warnings, citedCaptures);
     for (const file of citedCaptures) {
       const entry = g.manifest.files[file];
+      if (!fs.existsSync(path.join(g.root, file))) continue; // the evidence check already reports it
       if (!entry) err(`${META}/capture-manifest.json`, `cited capture ${file} has no manifest entry`);
       else if (entry.sha256 !== sha256File(path.join(g.root, file))) {
         err(`${META}/capture-manifest.json`, `${file} changed since it was recorded; re-check its quotes and update the manifest (kb.mjs manifest)`);
@@ -643,6 +649,63 @@ function checkProse(g, node, err, warnings) {
     for (const u of c.uses) {
       if (!resolvesFrom(g, node, u)) err(f, `checks[${i}] uses ${u}, which is not a claim, gap or divergence of ${node.id} nor a kb ID`);
     }
+  }
+}
+
+const HELP_ROOT = "vendor/zscaler-help";
+export const HELP_KINDS = new Set(["help-article", "help-api-spec", "help-index"]);
+
+/** A help capture written by scripts/help_capture.py, or null for any other file. */
+export function helpCapture(full) {
+  if (!full.endsWith(".json")) return null;
+  try {
+    const doc = JSON.parse(fs.readFileSync(full, "utf8"));
+    return HELP_KINDS.has(doc?.kind) ? doc : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Every file under vendor/zscaler-help is accounted for: written by help_capture.py (so CI can refresh
+ * it), or listed in static-captures.json with a reason and a pinned hash (so CI knows it cannot, and any
+ * edit is caught). Notes are not vendor text and are never evidence; one page is captured once.
+ */
+function checkCaptureInventory(g, err, warnings, cited) {
+  const reg = `${META}/static-captures.json`;
+  const listed = g.staticCaptures.files;
+  const seen = new Set();
+  const byUrl = new Map();
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(path.join(g.root, dir), { withFileTypes: true })) {
+      const rel = `${dir}/${e.name}`;
+      if (e.isDirectory()) { walk(rel); continue; }
+      const name = rel.slice(HELP_ROOT.length + 1);
+      seen.add(name);
+      const doc = helpCapture(path.join(g.root, rel));
+      if (doc) {
+        if (listed[name]) err(reg, `${name} is a help_capture.py capture; it cannot also be listed as static`);
+        const url = doc.source?.url;
+        if (byUrl.has(url)) err(rel, `captures the same page as ${byUrl.get(url)} (${url}); keep one`);
+        else byUrl.set(url, name);
+        continue;
+      }
+      const entry = listed[name];
+      if (!entry) err(rel, "not written by scripts/help_capture.py and not listed in static-captures.json; capture it with the tool or list it with a reason");
+      else if (entry.sha256 !== sha256File(path.join(g.root, rel))) err(reg, `${name} changed since it was listed; re-check what cites it and update its sha256`);
+    }
+  };
+  if (fs.existsSync(path.join(g.root, HELP_ROOT))) walk(HELP_ROOT);
+  for (const name of Object.keys(listed)) if (!seen.has(name)) err(reg, `${name} is listed but does not exist`);
+  for (const [name, r] of Object.entries(g.staticCaptures.retired || {})) {
+    if (seen.has(name)) err(reg, `${name} is listed as retired but still exists`);
+    if (!seen.has(r.replaced_by)) err(reg, `${name} is retired for ${r.replaced_by}, which does not exist`);
+  }
+  for (const file of cited) {
+    const entry = listed[file.slice(HELP_ROOT.length + 1)];
+    if (!file.startsWith(`${HELP_ROOT}/`) || !entry) continue;
+    if (entry.class === "note") err(reg, `${file} is an authored note, not vendor text; it cannot be cited as evidence`);
+    if (entry.class === "retiring") warnings.push({ file: reg, message: `${file} is retiring (${entry.reason}); move its citations` });
   }
 }
 

@@ -18,7 +18,7 @@ confidence: high
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/what-is-zero-trust-browser.json"
-  - "vendor/zscaler-help/understanding-turbo-mode-isolation.json"
+  - "vendor/zscaler-help/ztb-turbo-mode-isolation.json"
   - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.json"
   - "vendor/zscaler-help/zpa-about-isolation-policy.json"
   - "vendor/zscaler-help/understanding-isolation-miscellaneous-unknown-category-zia.json"
@@ -78,8 +78,8 @@ This ledger covers the Zero Trust Browser / Cloud Browser Isolation claims chang
 | After redirect, Zero Trust Browser assigns a temporary remote browser; the remote browser connects to the original URL through the nearest Public Service Edges and is evaluated against Internet & SaaS policies. | `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:30` |
 | Default profiles are automatically created for organizations with Zero Trust Browser, and admins can manually create multiple profiles for both Internet & SaaS and Private Access. | `index.md`, `policy-integration.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:32` |
 | Each redirected user receives an endpoint container; subsequent requests hitting the same profile use the same container, and containers are destroyed on manual logout or after the default 10-minute idle timeout. | `overview.md` | `vendor/zscaler-help/what-is-zero-trust-browser.json:38` |
-| Turbo Mode transfers rendered information as an instruction set rather than pixel streaming, with web content processed on Isolation containers and no code executed locally. | `overview.md` | `vendor/zscaler-help/understanding-turbo-mode-isolation.json:15`, `:17` |
-| Turbo Mode requires hardware acceleration with WebGL/WebGL2 and is not supported for Internet Explorer 11. | `overview.md` | `vendor/zscaler-help/understanding-turbo-mode-isolation.json:19`, `:27` |
+| Turbo Mode transfers rendered information as an instruction set rather than pixel streaming, with web content processed on Isolation containers and no code executed locally. | `overview.md` | `vendor/zscaler-help/ztb-turbo-mode-isolation.json:15`, `:17` |
+| Turbo Mode requires hardware acceleration with WebGL/WebGL2 and is not supported for Internet Explorer 11. | `overview.md` | `vendor/zscaler-help/ztb-turbo-mode-isolation.json:19`, `:27` |
 | Smart Browser Isolation automatically isolates suspicious websites using AI/ML models, decrypts them using SSL/TLS Inspection, and presents a remote-browser rendition using Zero Trust Browser. | `policy-integration.md`, `overview.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:16` |
 | Smart Isolation requires Malware Protection Inspect Inbound and Inspect Outbound toggles. | `policy-integration.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:18` |
 | Enabling Smart Isolation creates an editable SSL/TLS Inspection rule; the policy also requires an available Browser Isolation Profile. | `policy-integration.md`, `overview.md` | `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json:24`, `:32`, `:34` |

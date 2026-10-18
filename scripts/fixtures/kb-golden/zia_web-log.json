@@ -88,6 +88,16 @@
         "type": "string",
         "description": "The name of the Zscaler cloud (Insights: This field is specific to NSS)"
       },
+      "txn_delay_req": {
+        "type": "integer",
+        "label": "Request latency due to bandwidth control (ms)",
+        "description": "Displays the bandwidth transaction request delay in milliseconds"
+      },
+      "txn_delay_resp": {
+        "type": "integer",
+        "label": "Response latency due to bandwidth control (ms)",
+        "description": "Displays the bandwidth transaction response delay in milliseconds"
+      },
       "throttlereqsize": {
         "type": "integer",
         "label": "Throttled request bytes",
@@ -141,6 +151,11 @@
         "type": "string",
         "label": "Prompt",
         "description": "The prompt entered by the user in the generative AI application"
+      },
+      "prompt_class": {
+        "type": "string",
+        "label": "Prompt Classification",
+        "description": "The type or category assigned to the user's input prompt in the generative AI application"
       },
       "inst_level1_type": {
         "type": "string",
@@ -214,7 +229,12 @@
       "dlpidentifier": {
         "type": "integer",
         "label": "DLP Identifier",
-        "description": "The unique identifier of the DLP incident"
+        "description": "The unique DLP identifier of the transaction. Whenever a DLP rule is triggered, and the appropriate alert is configured, an email containing this ID is sent to your auditors. This field is not populated if %d{exempt_dlpidentifier} is populated."
+      },
+      "exempt_dlpidentifier": {
+        "type": "integer",
+        "label": "Exempted DLP Identifier",
+        "description": "The unique DLP identifier of the transaction. This field is populated in cases where the DLP scan times out, exempting the transaction from policy enforcement. This field is not populated if %d{dlpidentifier} is populated."
       },
       "dlpmd5": {
         "type": "string",
@@ -238,6 +258,26 @@
       "all_dlprulenames": {
         "type": "string",
         "description": "The names of all DLP rules whether they were triggered or not. This field is a combination of %s{other_dlprulenames} and %s{trig_dlprulename}."
+      },
+      "dlp_policy_action": {
+        "type": "string",
+        "label": "DLP Policy Action",
+        "description": "The DLP policy action that was taken on the transaction"
+      },
+      "dlp_confirm_just_str": {
+        "type": "string",
+        "label": "DLP Confirmation Message",
+        "description": "The message entered by a user to justify a transaction that triggers a DLP rule with the Confirm action"
+      },
+      "extranet_name": {
+        "type": "string",
+        "label": "Extranet Resource",
+        "description": "The name of the extranet resource associated with the transaction"
+      },
+      "ft_rulename": {
+        "type": "string",
+        "label": "Allowed File Type Rule",
+        "description": "The name of the File Type Control rule applied to the transaction. Applies only to Allow rules, not Block"
       },
       "fileclass": {
         "type": "string",
@@ -280,10 +320,15 @@
         "label": "Document Type",
         "description": "The type of document uploaded or downloaded during the transaction"
       },
+      "upload_doc_sub_type": {
+        "type": "string",
+        "label": "Subdocument Type",
+        "description": "The subtype of the document uploaded or downloaded during the transaction"
+      },
       "unscannabletype": {
         "type": "string",
         "label": "Unscannable Type",
-        "description": "The unscannable file type:\nEncrypted or password-protected (e.g., GZIP, PDF)\nUnscannable (e.g., corrupt archive)\nUndetectable (unable to determine the file type, based on multiple methods)"
+        "description": "The unscannable file type:Encrypted or password-protected (e.g., GZIP, PDF)Unscannable (e.g., corrupt archive)Undetectable (unable to determine the file type, based on multiple methods)"
       },
       "rdr_rulename": {
         "type": "string",
@@ -308,7 +353,7 @@
       "zpa_app_seg_name": {
         "type": "string",
         "label": "Application Segment",
-        "description": "The name of the Zscaler Private Access (ZPA) application segment"
+        "description": "The name of the Private Access (ZPA) application segment"
       },
       "reqdatasize": {
         "type": "integer",
@@ -482,7 +527,7 @@
       "trafficredirectmethod": {
         "type": "string",
         "label": "Traffic Forwarding",
-        "description": "The traffic forwarding method to ZIA Public Service Edges"
+        "description": "The traffic forwarding method to Public Service Edges for Internet & SaaS (ZIA)"
       },
       "location": {
         "type": "string",
@@ -492,7 +537,7 @@
       "userlocationname": {
         "type": "string",
         "label": "User Location",
-        "description": "Applicable to the web traffic processed via Isolation. The field shows the actual traffic origination point, whereas the %s{location} field displays the Isolation Location. When the web traffic is not handled by Isolation, the field value is None."
+        "description": "Applicable to the web traffic processed via Zero Trust Browser (formerly Isolation). The field shows the actual traffic origination point, whereas the %s{location} field displays the isolation location. When the web traffic is not handled by Zero Trust Browser, the field value is None."
       },
       "ruletype": {
         "type": "string",
@@ -511,7 +556,7 @@
       },
       "reason": {
         "type": "string",
-        "description": "The action that the service took and the policy that was applied, if the transaction was blocked. To learn about the reasons for policy actions, see Policy Reasons."
+        "description": "The action that the service took and the policy that was applied, if the transaction was blocked. To learn more about the reasons for policy actions, see Policy Reasons."
       },
       "urlfilterrulelabel": {
         "type": "string",
@@ -535,18 +580,28 @@
       },
       "ssldecrypted": {
         "type": "string",
-        "label": "SSL Inspected",
-        "description": "Indicates whether the transaction was SSL inspected or not"
+        "label": "SSL/TLS Inspected",
+        "description": "Indicates whether the transaction was SSL/TLS inspected or not"
+      },
+      "ssl_rulename": {
+        "type": "string",
+        "label": "SSL/TLS Policy Name",
+        "description": "The name of the SSL/TLS Inspection policy rule that was applied to the transaction"
       },
       "externalspr": {
         "type": "string",
-        "label": "SSL Policy Reason",
-        "description": "The SSL policy reasons"
+        "label": "SSL/TLS Policy Reason",
+        "description": "The SSL/TLS policy reasons"
       },
       "keyprotectiontype": {
         "type": "string",
         "label": "Intermediate CA Protection Type",
-        "description": "Indicates whether an HSM Protection or a Software Protection intermediate CA certificate is used for the TLS interception"
+        "description": "Indicates whether an HSM Protection or a Software Protection intermediate CA certificate is used for the SSL/TLS interception"
+      },
+      "ja4_str": {
+        "type": "string",
+        "label": "JA4 Fingerprint",
+        "description": "The JA4 network fingerprint associated with the SSL/TLS connection. To enable logging for JA4 fingerprints, contact Zscaler Support."
       },
       "clientsslcipher": {
         "type": "string",
@@ -565,13 +620,55 @@
       },
       "cltsslfailreason": {
         "type": "string",
-        "label": "Client SSL Handshake Failure Reason",
-        "description": "The reason for the client SSL handshake failure"
+        "label": "Client SSL/TLS Handshake Failure Reason",
+        "description": "The reason for the client SSL/TLS handshake failure"
       },
       "cltsslfailcount": {
         "type": "integer",
-        "label": "Client SSL Handshake Failure Aggregate Count",
-        "description": "The number of failed client SSL handshake attempts"
+        "label": "Client SSL/TLS Handshake Failure Aggregate Count",
+        "description": "The number of failed client SSL/TLS handshake attempts"
+      },
+      "client_tls_keyex_pqc_offers": {
+        "type": "integer",
+        "description": "Indicates if the TLS client offered a post-quantum cryptography (PQC) key exchange algorithm"
+      },
+      "client_tls_keyex_non_pqc_offers": {
+        "type": "integer",
+        "description": "Indicates if the TLS client offered a non-PQC key exchange algorithm"
+      },
+      "client_tls_keyex_hybrid_offers": {
+        "type": "integer",
+        "description": "Indicates if the TLS client offered a hybrid key exchange algorithm"
+      },
+      "client_tls_keyex_unknown_offers": {
+        "type": "integer",
+        "description": "Indicates if the TLS client offered an unknown key exchange algorithm"
+      },
+      "client_tls_sig_pqc_offers": {
+        "type": "integer",
+        "description": "Indicates if the TLS client offered a PQC digital signature algorithm"
+      },
+      "client_tls_sig_non_pqc_offers": {
+        "type": "integer",
+        "description": "Indicates if the TLS client offered a non-PQC digital signature algorithm"
+      },
+      "client_tls_sig_hybrid_offers": {
+        "type": "integer",
+        "description": "Indicates if the TLS client offered a hybrid digital signature algorithm"
+      },
+      "client_tls_sig_unknown_offers": {
+        "type": "integer",
+        "description": "Indicates if the TLS client offered an unknown digital signature algorithm"
+      },
+      "client_tls_keyex_alg": {
+        "type": "string",
+        "label": "Client Side Key Exchange Algorithm",
+        "description": "The TLS client key exchange algorithm"
+      },
+      "client_tls_sig_alg": {
+        "type": "string",
+        "label": "Client Side Digital Signature Algorithm",
+        "description": "The TLS client digital signature algorithm"
       },
       "srvsslcipher": {
         "type": "string",
@@ -581,7 +678,7 @@
       "srvtlsversion": {
         "type": "string",
         "label": "Server Connection TLS Version",
-        "description": "The TLS/SSL version used for communication between the ZIA Public Service Edge and the server"
+        "description": "The SSL/TLS version used for communication between the Public Service Edge for Internet & SaaS (ZIA) and the server"
       },
       "serversslsessreuse": {
         "type": "string",
@@ -621,12 +718,22 @@
       "is_sslselfsigned": {
         "type": "string",
         "label": "Server Certificate Self Signed",
-        "description": "Indicates whether the certificate presented by the server to the ZIA Public Service Edge was self-signed"
+        "description": "Indicates whether the certificate presented by the server to the Public Service Edge for Internet & SaaS (ZIA) was self-signed"
       },
       "is_sslexpiredca": {
         "type": "string",
         "label": "Server Connection Cert Expiry",
         "description": "Indicates whether the certificate presented by the server is expired or not"
+      },
+      "server_tls_keyex_alg": {
+        "type": "string",
+        "label": "Server Side Key Exchange Algorithm",
+        "description": "The TLS server key exchange algorithm"
+      },
+      "server_tls_sig_alg": {
+        "type": "string",
+        "label": "Server Side Digital Signature Algorithm",
+        "description": "The TLS server digital signature algorithm"
       },
       "riskscore": {
         "type": "integer",
@@ -652,6 +759,11 @@
         "type": "string",
         "label": "Threat Super Category",
         "description": "The class of malware that was detected in the transaction, if any"
+      },
+      "ai_ml_detect_src": {
+        "type": "string",
+        "label": "AI/ML Detection Source",
+        "description": "The AI/ML detection source for the transaction"
       },
       "urlclass": {
         "type": "string",

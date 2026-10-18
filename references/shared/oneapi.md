@@ -24,7 +24,7 @@ sources:
   - "vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/ai-security.openapi.json"
   - "vendor/zscaler-api-specs/automate-zscaler/openapi/openapi-validation-report.md"
-  - "vendor/zscaler-help/legacy-api-authentication.md"
+  - "vendor/zscaler-help/legacy-api-authentication.json"
   - "vendor/zscaler-help/legacy-getting-started-zia-api.json"
   - "vendor/zscaler-help/legacy-getting-started-zpa-api.json"
   - "vendor/zscaler-help/legacy-managing-cloud-service-api-key.json"
@@ -85,7 +85,7 @@ We've vendored the relevant captures under `vendor/zscaler-help/automate-zscaler
 
 ## Authentication mechanisms (5 paths in the wild)
 
-Source: `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md`; `vendor/zscaler-help/legacy-api-authentication.md`.
+Source: `vendor/zscaler-help/automate-zscaler/api-authentication-overview.md`; `vendor/zscaler-help/legacy-api-authentication.json`.
 
 Related references: [`legacy-api.md`](./legacy-api.md), [`zia.api`](kb:zia.api), [`../zpa/api.md`](../zpa/api.md), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
 
@@ -607,7 +607,7 @@ Note: This section summarizes the cited OneAPI mechanics above.
 
 ## Legacy Authentication
 
-Source: `vendor/zscaler-help/legacy-api-authentication.md`.
+Source: `vendor/zscaler-help/legacy-api-authentication.json`.
 
 Related references: [`legacy-api.md`](./legacy-api.md), [`zia.api`](kb:zia.api), [`../zpa/api.md`](../zpa/api.md), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
 
@@ -626,7 +626,7 @@ OneAPI and legacy auth can coexist on a ZIdentity-enabled tenant during the migr
 
 ### ZIA legacy — session-based cookie auth
 
-ZIA's legacy API uses a session cookie (`JSESSIONID`) obtained from `POST /api/v1/authenticatedSession`. The tenant API key is obfuscated with a timestamp before submission; the raw key is never sent on the wire (Tier A — vendor/zscaler-help/legacy-api-authentication.md).
+ZIA's legacy API uses a session cookie (`JSESSIONID`) obtained from `POST /api/v1/authenticatedSession`. The tenant API key is obfuscated with a timestamp before submission; the raw key is never sent on the wire (Tier A — vendor/zscaler-help/legacy-api-authentication.json).
 
 **Session lifecycle:**
 

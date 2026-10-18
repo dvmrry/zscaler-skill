@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
-"""Turn a rendered help.zscaler.com article into the canonical capture text.
+"""Capture help.zscaler.com pages as JSON: articles as blocks, API reference pages as their Swagger spec,
+product indexes as their article lists.
 
-The capture is what knowledge-graph claims quote, so it must be deterministic and
-independent of the fetcher: the same article HTML always yields the same text.
-Headings become `#` lines, list items `- ` (nested by two spaces), tables Markdown
-tables (one row per line, so a row can be quoted), and everything else plain text.
-Links keep their text and images are dropped. Bold stays as `**text**`: the vendor marks the
-recommended value in some tables only by bold, and quote matching ignores the markers.
+The capture is what knowledge-graph claims cite, so it must be deterministic and independent of the
+fetcher: the same page always yields the same file. An article becomes `blocks` (heading with level,
+paragraph, list item with depth and, in an ordered list, its number, table rows) of plain text, with
+bold kept as character ranges; quotes match `text_of(blocks)`, one fixed serialization. Links keep their
+text and images are dropped. An API reference page keeps its Swagger document, cited by JSON pointer.
 
-Articles are fetched from the help site's own content endpoint (`/zapi/fetch-data`) over plain
-HTTP: no browser, no credentials, so it runs anywhere, CI included. The payload carries a node and
-revision ID, recorded in the capture header, so `check` can tell an unchanged article in one request.
+Pages are fetched from the help site's own content endpoint (`/zapi/fetch-data`) over plain HTTP: no
+browser, no credentials, so it runs anywhere, CI included. Articles and API pages carry the site's node
+and revision IDs, so `check` tells an unchanged page in one request, and a changed rendering of an
+unchanged revision can only come from this tool (`rerender`), never from the vendor.
 
 Usage:
-  help_capture.py render <article.html>          print canonical text for saved HTML
-  help_capture.py capture <url> [<name.md>]      fetch and write vendor/zscaler-help/<name.md>
-  help_capture.py check [<name.md> ...]          refetch committed captures; exit 1 on drift
-  help_capture.py check --replace <name.md> ...  rewrite drifted captures in place (then run
+  help_capture.py render <article.html>          print the blocks for saved HTML
+  help_capture.py text <name.json>               print a capture's anchoring text (what quotes match)
+  help_capture.py capture <url> [<name.json>]    fetch and write vendor/zscaler-help/<name.json>
+  help_capture.py check [<name.json> ...]        refetch committed captures; exit 1 on drift
+  help_capture.py check [--json] [--replace] ..   --json prints a report for scripts/kb-drift.mjs;
+  help_capture.py check --replace <name.json> .. rewrite drifted captures in place (then run
                                                  `node scripts/kb.mjs validate` to see broken quotes)
+  help_capture.py rerender [<name.json> ...]     apply a renderer change to captures still at their captured
+                                                 revision; a moved revision is reported, not touched
   help_capture.py recapture <name.md> ...        replace an older-format capture with the canonical
                                                  one, reading its Source URL from the old header
 """
@@ -49,7 +54,8 @@ class _Renderer(HTMLParser):
         self.blocks: list[dict] = []
         self.buf: list[str] = []
         self.skip = 0
-        self.lists: list[int] = []  # nesting depth markers
+        self.lists: list[list] = []  # one [ordered, last number] per open list
+        self.ordinal: int | None = None  # the number of the <ol> item whose text comes next
         self.table: list[list[str]] | None = None
         self.row: list[str] | None = None
         self.cell: list[str] | None = None
@@ -64,7 +70,12 @@ class _Renderer(HTMLParser):
         if self.heading:
             self.blocks.append({"heading": text.replace("**", ""), "level": self.heading})
         elif self.lists:
-            self.blocks.append({"item": text, "depth": len(self.lists) - 1})
+            item = {"item": text, "depth": len(self.lists) - 1}
+            # An ordered list keeps its numbers: they are often the fact (an evaluation order).
+            if self.ordinal is not None:
+                item["number"] = self.ordinal
+                self.ordinal = None
+            self.blocks.append(item)
         else:
             self.blocks.append({"text": text})
 
@@ -90,9 +101,13 @@ class _Renderer(HTMLParser):
             self.cell = []
         elif tag in ("ul", "ol"):
             self._flush()
-            self.lists.append(1)
+            start = dict(attrs).get("start") if tag == "ol" else None
+            self.lists.append([tag == "ol", int(start) - 1 if start and start.isdigit() else 0])
         elif tag == "li":
             self._flush()
+            if self.lists and self.lists[-1][0]:
+                self.lists[-1][1] += 1
+                self.ordinal = self.lists[-1][1]
         elif re.fullmatch(r"h[1-6]", tag):
             self._flush()
             self.heading = int(tag[1])
@@ -246,7 +261,8 @@ def render(article_html: str) -> tuple[str, list[dict]]:
 def text_of(blocks: list[dict]) -> str:
     """The capture's anchoring text: the one fixed serialization of its blocks that quotes match against.
 
-    A heading is `#` x level, a list item is indented two spaces per depth and starts `- `, a table is
+    A heading is `#` x level, a list item is indented two spaces per depth and starts `- ` (or `3. `
+    for the third item of an ordered list), a table is
     one `| a | b |` row per line with a `|---|` rule after its first row; bold is not marked. The
     validator rebuilds the same text in JavaScript (`captureText` in kb-lib.mjs); a test pins the two.
     """
@@ -255,7 +271,8 @@ def text_of(blocks: list[dict]) -> str:
         if "heading" in b:
             lines.append("#" * b["level"] + " " + b["heading"])
         elif "item" in b:
-            lines.append("  " * b["depth"] + "- " + b["item"])
+            marker = f'{b["number"]}. ' if "number" in b else "- "
+            lines.append("  " * b["depth"] + marker + b["item"])
         elif "table" in b:
             row = lambda cells: "| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |"  # noqa: E731
             lines.append(row(b["table"][0]))
@@ -274,28 +291,70 @@ MD_HEADER = re.compile(
     r"(?:\*\*Revision:\*\* node (?P<nid>\d+), revision (?P<rev>\d+)\n)?\n---\n\n")
 
 
-def fetch(url: str) -> dict:
-    """The article payload for one help.zscaler.com URL: title, content HTML, node and revision IDs."""
+class Unavailable(SystemExit):
+    """The page exists but cannot be read now (the site answers 403 while an article is under maintenance)."""
+
+
+def _payload(url: str) -> dict:
     parsed = urllib.parse.urlparse(url)
     if parsed.netloc != "help.zscaler.com":
-        raise SystemExit(f"not a help.zscaler.com article: {url}")
+        raise SystemExit(f"not a help.zscaler.com page: {url}")
     query = urllib.parse.urlencode({"url_alias": parsed.path, "view_type": "full", "cloud": "false",
                                     "domain": "zscaler", "language": "en", "_format": "json"})
     req = urllib.request.Request(f"{API}?{query}", headers={"User-Agent": "zscaler-skill help_capture.py"})
     with urllib.request.urlopen(req, timeout=60) as resp:
-        data = json.load(resp)["data"]
-    body = data.get("body") or {}
-    info = data.get("info") or {}
-    if info.get("status") not in (200, 301) or not body.get("content"):
+        return json.load(resp)["data"]
+
+
+def _get_json(url: str) -> object:
+    req = urllib.request.Request(url, headers={"User-Agent": "zscaler-skill help_capture.py"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return json.load(resp)
+
+
+def _articles(items: list[dict] | None) -> list[dict]:
+    return [{k: a[k] for k in ("nid", "title", "url", "view_type") if k in a} for a in items or []]
+
+
+def page(url: str) -> dict:
+    """One help page, classified by what the site serves for it.
+
+    `help-article`: an article (title, content HTML, node and revision IDs). `help-api-spec`: a legacy API
+    reference page, whose content is a Swagger file (`file_url`). `help-index`: a product's documentation
+    index (categories and their articles). Raises Unavailable for a page under maintenance (403) and
+    SystemExit for anything else that is not there.
+    """
+    data = _payload(url)
+    info, body = data.get("info") or {}, data.get("body") or {}
+    current = f"https://help.zscaler.com{info['url']}" if info.get("url") else url
+    if info.get("status") == 403:
+        raise Unavailable(f"unavailable (403, under maintenance): {current}")
+    if info.get("status") not in (200, 301):
+        raise SystemExit(f"no page at {url} ({info.get('status')})")
+    base = {"url": current, "moved": current != url, "title": html.unescape(body.get("title", ""))}
+    view = info.get("view_type")
+    if view == "swagger_article" and body.get("file_url"):
+        return {**base, "kind": "help-api-spec", "nid": str(body["nid"]), "rev": str(body["revision_id"]),
+                "file_url": body["file_url"], "spec": _get_json(body["file_url"])}
+    if view == "documentation":
+        cats = [{"title": c["title"], "articles": _articles(c.get("articles"))} for c in body.get("categories") or []]
+        return {**base, "kind": "help-index", "categories": cats, "articles": _articles(body.get("articles"))}
+    if not body.get("content"):
         raise SystemExit(f"no article at {url}")
-    # A moved article answers 301 with its new alias and the current body.
-    current = f"https://help.zscaler.com{info['url']}" if info.get("status") == 301 and info.get("url") else url
-    return {"title": body["title"], "html": f"<article><h3>{html.escape(body['title'])}</h3>{body['content']}</article>",
-            "nid": str(body["nid"]), "rev": str(body["revision_id"]), "url": current, "moved": current != url}
+    return {**base, "kind": "help-article", "nid": str(body["nid"]), "rev": str(body["revision_id"]),
+            "html": f"<article><h3>{html.escape(body['title'])}</h3>{body['content']}</article>"}
+
+
+def fetch(url: str) -> dict:
+    """An article page (see page); anything else is an error here."""
+    pg = page(url)
+    if pg["kind"] != "help-article":
+        raise SystemExit(f"not an article ({pg['kind']}): {url}")
+    return pg
 
 
 def document(title: str, url: str, blocks: list[dict], nid: str, rev: str, date: str | None = None) -> dict:
-    """A capture file: provenance, then the article as blocks (see text_of for how quotes anchor)."""
+    """An article capture: provenance, then the article as blocks (see text_of for how quotes anchor)."""
     return {
         "schema_version": 1,
         "kind": "help-article",
@@ -304,6 +363,31 @@ def document(title: str, url: str, blocks: list[dict], nid: str, rev: str, date:
         "captured_at": date or datetime.date.today().isoformat(),
         "blocks": blocks,
     }
+
+
+def build(pg: dict, date: str | None = None) -> dict:
+    """The capture file for a page of any kind."""
+    if pg["kind"] == "help-article":
+        title, blocks = render(pg["html"])
+        return document(title, pg["url"], blocks, pg["nid"], pg["rev"], date)
+    head = {"schema_version": 1, "kind": pg["kind"], "title": pg["title"]}
+    when = {"captured_at": date or datetime.date.today().isoformat()}
+    if pg["kind"] == "help-api-spec":
+        # Cite a spec by keyed JSON pointer into `spec`, as API facts are cited elsewhere.
+        src = {"url": pg["url"], "node": pg["nid"], "revision": pg["rev"], "file_url": pg["file_url"]}
+        return {**head, "source": src, **when, "spec": pg["spec"]}
+    return {**head, "source": {"url": pg["url"]}, **when, "categories": pg["categories"], "articles": pg["articles"]}
+
+
+def content(doc: dict) -> str:
+    """What a capture says, for comparing two captures of the same page and for diffs."""
+    if doc["kind"] == "help-article":
+        return text_of(doc["blocks"])
+    body = doc["spec"] if doc["kind"] == "help-api-spec" else {"categories": doc["categories"], "articles": doc["articles"]}
+    return json.dumps(body, indent=1, sort_keys=True, ensure_ascii=False) + "\n"
+
+
+KINDS = ("help-article", "help-api-spec", "help-index")
 
 
 def write(path: Path, doc: dict) -> None:
@@ -316,7 +400,7 @@ def read(path: Path) -> dict | None:
         doc = json.loads(path.read_text())
     except (OSError, ValueError):
         return None
-    return doc if isinstance(doc, dict) and doc.get("kind") == "help-article" else None
+    return doc if isinstance(doc, dict) and doc.get("kind") in KINDS else None
 
 
 def capture(url: str, name: str | None) -> Path:
@@ -326,41 +410,111 @@ def capture(url: str, name: str | None) -> Path:
     out = HELP / name
     if out.exists():
         raise SystemExit(f"exists: {out}; use `check --replace {name}` to update it")
-    art = fetch(url)
-    title, blocks = render(art["html"])
-    write(out, document(title, art["url"], blocks, art["nid"], art["rev"]))
+    write(out, build(page(url)))
     return out
 
 
-def check(names: list[str], replace: bool) -> int:
-    """Refetch each capture; return how many drifted. The same revision means unchanged, so one request decides."""
+def changes(old: str, new: str) -> dict:
+    """Which lines of the new anchoring text changed (1-based), what was removed, and a unified diff.
+
+    A deletion marks the lines on either side of where it was, so a quote next to removed text is found.
+    """
+    a, b = old.splitlines(), new.splitlines()
+    changed: set[int] = set()
+    removed: list[str] = []
+    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes():
+        if tag in ("replace", "insert"):
+            changed.update(range(j1 + 1, j2 + 1))
+        if tag in ("replace", "delete"):
+            removed.extend(a[i1:i2])
+        if tag == "delete":
+            changed.update(k for k in (j1, j1 + 1) if 1 <= k <= len(b))
+    diff = "".join(difflib.unified_diff(old.splitlines(True), new.splitlines(True), "committed", "live", n=1))
+    return {"changed_lines": sorted(changed), "removed": removed, "diff": diff}
+
+
+def check(names: list[str], replace: bool, as_json: bool = False) -> int:
+    """Refetch each capture; return how many drifted.
+
+    An article or API page whose revision ID is unchanged is unchanged, so one request decides; an index
+    has no revision, so its article list is compared. A page under maintenance is reported as unavailable
+    and a missing page as gone; neither is drift. With `as_json`, print one JSON report instead of text:
+    {"pages": [{file, status, from?, to?, changed_lines?, removed?, diff?, message?}]}, the input of
+    scripts/kb-drift.mjs.
+    """
     drifted = 0
+    report: list[dict] = []
+    say = (lambda *_: None) if as_json else print
     files = [HELP / n for n in names] or sorted(HELP.glob("*.json"))
     for path in files:
         doc = read(path)
         if not doc:
             if names:
-                print(f"skip {path.name}: not a help_capture.py capture")
+                say(f"skip {path.name}: not a help_capture.py capture")
+            continue
+        src = doc["source"]
+        try:
+            pg = page(src["url"])
+        except Unavailable as e:
+            say(f"UNAVAILABLE {path.name}: {e}")
+            report.append({"file": path.name, "status": "unavailable", "message": str(e)})
+            continue
+        except SystemExit as e:
+            say(f"GONE  {path.name}: {e}")
+            report.append({"file": path.name, "status": "gone", "message": str(e)})
+            continue
+        same_rev = "revision" in src and pg.get("rev") == src["revision"] and pg.get("file_url", src.get("file_url")) == src.get("file_url")
+        if same_rev:
+            say(f"ok    {path.name} (revision {src['revision']})")
+            continue
+        fresh = build(pg, doc["captured_at"])
+        revs = {"from": src.get("revision"), "to": pg.get("rev")} if "revision" in src else {}
+        if content(fresh) == content(doc):
+            say(f"ok    {path.name}" + (f" (revision {revs['from']} -> {revs['to']}, content unchanged)" if revs else ""))
+            if replace and fresh != doc:
+                write(path, fresh)
+            continue
+        drifted += 1
+        delta = changes(content(doc), content(fresh))
+        report.append({"file": path.name, "status": "drift", **revs, **delta})
+        say(f"DRIFT {path.name}" + (f" (revision {revs['from']} -> {revs['to']})" if revs else ""))
+        if not as_json:
+            sys.stdout.write(delta["diff"])
+        if replace:
+            write(path, build(pg))
+            say(f"      replaced {path.name}")
+    if as_json:
+        print(json.dumps({"pages": report}, indent=2, ensure_ascii=False))
+    return drifted
+
+
+def rerender(names: list[str]) -> int:
+    """Apply a renderer change: re-render captures whose article is still at the captured revision.
+
+    The revision ID is the vendor's: an unchanged revision is unchanged content, so any difference here
+    comes from this tool. A capture whose revision moved is vendor drift and is left for `check`, so the
+    two kinds of change never land together. Returns how many captures were left for `check`.
+    """
+    moved = 0
+    files = [HELP / n for n in names] or sorted(HELP.glob("*.json"))
+    for path in files:
+        doc = read(path)
+        if not doc or doc["kind"] != "help-article":
             continue
         src = doc["source"]
         art = fetch(src["url"])
-        if art["rev"] == src["revision"]:
-            print(f"ok    {path.name} (revision {art['rev']})")
+        if art["rev"] != src["revision"]:
+            moved += 1
+            print(f"DRIFT {path.name} (revision {src['revision']} -> {art['rev']}): vendor change, run `check`")
             continue
-        title, blocks = render(art["html"])
-        if text_of(blocks) == text_of(doc["blocks"]):
-            print(f"ok    {path.name} (revision {src['revision']} -> {art['rev']}, text unchanged)")
-            if replace:
-                write(path, document(title, art["url"], blocks, art["nid"], art["rev"], doc["captured_at"]))
+        _, blocks = render(art["html"])
+        if blocks == doc["blocks"]:
             continue
-        drifted += 1
-        print(f"DRIFT {path.name} (revision {src['revision']} -> {art['rev']})")
         old, new = text_of(doc["blocks"]), text_of(blocks)
-        sys.stdout.writelines(difflib.unified_diff(old.splitlines(True), new.splitlines(True), "committed", "live", n=1))
-        if replace:
-            write(path, document(title, art["url"], blocks, art["nid"], art["rev"]))
-            print(f"      replaced {path.name}")
-    return drifted
+        print(f"RENDER {path.name}" + ("" if old != new else " (structure only, same text)"))
+        sys.stdout.writelines(difflib.unified_diff(old.splitlines(True), new.splitlines(True), "before", "after", n=0))
+        write(path, {**doc, "blocks": blocks})
+    return moved
 
 
 def recapture(names: list[str]) -> int:
@@ -372,15 +526,14 @@ def recapture(names: list[str]) -> int:
         if not m:
             print(f"skip  {name}: no help.zscaler.com source in its header"); failed += 1; continue
         try:
-            art = fetch(m.group(0))
+            pg = page(m.group(0))
         except SystemExit as e:
             print(f"skip  {name}: {e}"); failed += 1; continue
-        title, blocks = render(art["html"])
         out = path.with_suffix(".json")
-        write(out, document(title, art["url"], blocks, art["nid"], art["rev"]))
+        write(out, build(pg))
         if out != path:
             path.unlink()
-        print(f"done  {name} -> {out.name}" + (f" (moved to {art['url']})" if art.get("moved") else ""))
+        print(f"done  {name} -> {out.name} ({pg['kind']})" + (f" (moved to {pg['url']})" if pg.get("moved") else ""))
     return failed
 
 
@@ -462,10 +615,13 @@ if __name__ == "__main__":
         print(capture(args[1], args[2] if len(args) == 3 else None))
     elif args[:1] == ["recapture"] and len(args) > 1:
         sys.exit(1 if recapture(args[1:]) else 0)
+    elif args[:1] == ["rerender"]:
+        sys.exit(1 if rerender(args[1:]) else 0)
     elif args[:1] == ["migrate"]:
         sys.exit(1 if migrate(args[1:]) else 0)
     elif args[:1] == ["check"]:
-        replace = "--replace" in args
-        sys.exit(1 if check([a for a in args[1:] if a != "--replace"], replace) and not replace else 0)
+        replace, as_json = "--replace" in args, "--json" in args
+        names = [a for a in args[1:] if a not in ("--replace", "--json")]
+        sys.exit(1 if check(names, replace, as_json) and not replace else 0)
     else:
         sys.exit(__doc__)

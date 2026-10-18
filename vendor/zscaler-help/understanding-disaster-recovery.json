@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Disaster Recovery",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/understanding-disaster-recovery",
+    "node": "1485391",
+    "revision": "3245313"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Enabling disaster recovery ensures Business Continuity in the event of a disaster scenario that impacts the global Zscaler cloud infrastructure. Disaster recovery is for organizations that depend on the Zscaler cloud to remain operational during disaster events by providing users with access to critical applications."
+    },
+    {
+      "text": "Zscaler provides support for disaster recovery in both Private Access (ZPA) and Internet & SaaS (ZIA). The contents in this article are about disaster recovery in Private Access To learn more about disaster recovery in Internet & SaaS, see About Disaster Recovery."
+    },
+    {
+      "text": "To provide application access during a global Private Access outage:"
+    },
+    {
+      "item": "Designated application segments, Private Service Edges for Private Access, and App Connectors must be enabled for disaster recovery.",
+      "depth": 0
+    },
+    {
+      "item": "A domain name must be configured in the Disaster Recovery Settings and the Zscaler Client Connector Profiles. This is used by the Private Access admin to trigger Disaster Recovery Mode, and is used by Zscaler Client Connector to look up which Private Service Edges to connect to in Disaster Recovery Mode.",
+      "depth": 0
+    },
+    {
+      "item": "Two types of DNS records are used for disaster recovery:",
+      "depth": 0
+    },
+    {
+      "item": "DNS TXT records trigger the activation of disaster recovery.",
+      "depth": 1
+    },
+    {
+      "item": "DNS A records are used by Zscaler Client Connector to discover the Private Service Edges.",
+      "depth": 1
+    },
+    {
+      "text": "The Zscaler DNS Record Generator creates the DNS TXT records used for disaster recovery. Activating disaster recovery by uploading the DNS TXT records to the Disaster Recovery Domain Name in the settings disrupts existing Zscaler Client Connector connections and must be used with caution. Both App Connectors and Private Service Edges that are enabled for disaster recovery restart after disaster recovery is activated via DNS."
+    },
+    {
+      "text": "Zscaler Client Connector then forwards the M-Tunnels (Microtunnels) of the applications that are designated for disaster recovery to the Private Service Edge. To learn more, see Configuring Disaster Recovery."
+    },
+    {
+      "text": "Disaster recovery allows an organization to test their Private Access Business Continuity Plan (BCP) processes to ensure all disaster-recovery-related solutions and systems are working properly. The option to test disaster recovery is supported via Disaster Recovery Test Mode. When Disaster Recovery Test Mode is enabled, the Zscaler Admin Console is still accessible."
+    },
+    {
+      "text": "Any changes made to the Private Access cloud via the Zscaler Admin Console do not take effect until Disaster Recovery Test Mode is disabled via the DNS records, or the activation record expires. To learn more, see Configuring Zscaler Client Connector Profiles. The Zscaler Admin Console is not supported during Disaster Recovery Mode."
+    },
+    {
+      "item": "Functions and Features Supported Through Disaster Recovery",
+      "depth": 0
+    },
+    {
+      "item": "Application segments designated for disaster recovery are accessible when Disaster Recovery Mode is activated.",
+      "depth": 1
+    },
+    {
+      "item": "Existing and disaster-recovery-generated App Connectors, Private Service Edges, and Zscaler Client Connectors with valid and unexpired certificates are supported.",
+      "depth": 1
+    },
+    {
+      "item": "Users that are enrolled in the Private Access cloud prior to enabling disaster recovery are supported.",
+      "depth": 1
+    },
+    {
+      "item": "Functions and Features Not Supported as Part of Disaster Recovery",
+      "depth": 0
+    },
+    {
+      "item": "Authentication and reauthentication",
+      "depth": 1
+    },
+    {
+      "item": "Reauthentication behavior is modified during Disaster Recovery Mode. The SAML assertion validity is extended by 14 days, by default, from the date the SAML assertion was issued. The SAML assertion is issued when a user authenticates or reauthenticates.",
+      "depth": 0
+    },
+    {
+      "item": "Browser Access",
+      "depth": 1
+    },
+    {
+      "item": "Client-To-Client Connectivity",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connectors",
+      "depth": 1
+    },
+    {
+      "item": "Dashboards and Diagnostics",
+      "depth": 1
+    },
+    {
+      "item": "Enrollment of new App Connectors, Private Service Edges, or Zscaler Client Connectors",
+      "depth": 1
+    },
+    {
+      "item": "AppProtection for Private Application Traffic Management",
+      "depth": 1
+    },
+    {
+      "item": "Log Streaming Service",
+      "depth": 1
+    },
+    {
+      "item": "Machine Tunnels",
+      "depth": 1
+    },
+    {
+      "item": "Microtenants",
+      "depth": 1
+    },
+    {
+      "item": "When in Disaster Recovery Mode, Private Service Edges and App Connectors mapped within a default or custom Microtenant provide traffic to only applications designated for disaster recovery.",
+      "depth": 0
+    },
+    {
+      "item": "Policies",
+      "depth": 1
+    },
+    {
+      "item": "Source IP Anchoring",
+      "depth": 1
+    },
+    {
+      "item": "SCIM Configuration",
+      "depth": 1
+    },
+    {
+      "item": "User enrollments",
+      "depth": 1
+    },
+    {
+      "item": "ZscalerDeception",
+      "depth": 1
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before enabling disaster recovery, the following prerequisites must be met:"
+    },
+    {
+      "item": "Deploy and maintain App Connectors and Private Service Edges. To learn more, see App Connector Deployment Guides for Supported Platforms and Private Service Edge Deployment Guides for Supported Platforms.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "In the scenario where a Private Service Edge is deployed behind a firewall, your firewalls must be configured to let the Private Service Edge establish outbound connections to the IP addresses of the Public Service Edge, and establish inbound connections from App Connectors and Zscaler Client Connectors. To learn more, see Private Service Edge Deployment Prerequisites."
+    },
+    {
+      "item": "Ensure the end user's machines are running Zscaler Client Connector versions 4.0 and later for Windows, and Zscaler Client Connector version 3.7.1.38 for macOS.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Download the Zscaler DNS Record Generator. To learn more, see Understanding and Installing the Zscaler DNS Record Generator.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Identify the critical application segments, App Connector Groups, and Private Service Edge Groups that you want to designate for disaster recovery.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Create a separate domain name in your DNS for disaster recovery. Then enter the IP addresses of the Private Service Edge designated for disaster recovery into the DNS A record.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "text": "After the prerequisites are met, proceed to configure disaster recovery."
+    },
+    {
+      "heading": "Navigating Disaster Recovery",
+      "level": 1
+    },
+    {
+      "text": "On the Disaster Recovery page (Infrastructure > Business Continuity > Disaster Recovery), you can navigate to the following pages:"
+    },
+    {
+      "item": "Disaster Recovery Application Segments",
+      "depth": 0
+    },
+    {
+      "item": "Disaster Recovery App Connector Groups",
+      "depth": 0
+    },
+    {
+      "item": "Disaster Recovery Private Service Edge Groups",
+      "depth": 0
+    },
+    {
+      "item": "Disaster Recovery Settings",
+      "depth": 0
+    },
+    {
+      "text": "You can also download the Zscaler DNS Record Generator. The Zscaler DNS Record Generator creates the DNS TXT records and the public key, which are then used to verify the activation of Disaster Recovery Mode. The public key is uploaded in the Disaster Recovery Settings and when configuring Zscaler Client Connector Profiles."
+    }
+  ]
+}

@@ -24,7 +24,7 @@ sources:
   - vendor/terraform-provider-ztc/ztc/config.go
   - vendor/terraform-provider-ztc/docs/index.md
   - vendor/zscaler-terraform-skills/skills/ztc-skill/references/auth-and-providers.md
-  - vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md
+  - vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json
   - vendor/zscaler-help/cbc-release-upgrade-summary-2026.json
   - vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json
 author-status: draft
@@ -227,7 +227,7 @@ Manages Cloud Connector groups — the logical groupings of Cloud Connector VM i
 
 TF data source: `ztc_edge_connector_group`
 
-**Raw API coverage exceeds the SDK EC-group package.** Current Help adds bulk release-channel selection, bulk VM enable/disable, and upgrade metrics at `PUT /ecgroup/releaseChannel`, `PUT /ecgroup/vmStatus`, and `GET /ecgroup/vmUpgradeMetrics` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.md:12-48`). The Automate contract also exposes `PUT /ecgroup/scheduleupgrade` and `PUT /ecgroup/{ecgroupId}/vm/{vmId}/{status}` (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:175246-175314`; `vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:158164-158192`). Those methods are absent from the current Go EC-group function set, which contains only Get/GetByName/Delete/GetAll/lite reads (`vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go:36-88`).
+**Raw API coverage exceeds the SDK EC-group package.** Current Help adds bulk release-channel selection, bulk VM enable/disable, and upgrade metrics at `PUT /ecgroup/releaseChannel`, `PUT /ecgroup/vmStatus`, and `GET /ecgroup/vmUpgradeMetrics` (`vendor/zscaler-help/cbc-cloud-branch-connector-groups-api.json:12-48`). The Automate contract also exposes `PUT /ecgroup/scheduleupgrade` and `PUT /ecgroup/{ecgroupId}/vm/{vmId}/{status}` (`vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:175246-175314`; `vendor/zscaler-api-specs/automate-zscaler/zcloudconnector-api-reference.json:158164-158192`). Those methods are absent from the current Go EC-group function set, which contains only Get/GetByName/Delete/GetAll/lite reads (`vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go:36-88`).
 
 ---
 

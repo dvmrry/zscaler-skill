@@ -1,0 +1,1729 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "NSS Feed Output Format: Web Logs",
+  "source": {
+    "url": "https://help.zscaler.com/zia/nss-feed-output-format-web-logs",
+    "node": "1400566",
+    "revision": "3243682"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The web Nanolog Streaming Service (NSS) feed specifies the data from the web logs that the NSS sends to the security information and event management (SIEM) system. You can configure an NSS feed by including one or more fields. The fields and their values display in the NSS feed output."
+    },
+    {
+      "item": "View a sample web log.",
+      "depth": 0
+    },
+    {
+      "item": "\"Mon Jun 20 15:29:11 2022\",\"new-gre\",\"HTTP\",\"ebay.com/\",\"Blocked\",\"Ebay\",\"Consumer Apps\",\"72\",\"14061\",\"0\",\"0\",\"Productivity Loss\",\"Shopping and Auctions\",\"Online Shopping\",\"None\",\"None\",\"0\",\"None\",\"None\",\"new-gre\",\"Default Department\",\"172.17.3.49\",\"66.211.175.229\",\"GET\",\"403\",\"curl/7.68.0\",\"None\",\"FwFilter\",\"Firewall_1\",\"Other\",\"None\",\"NA\",\"NA\",\"N/A\"",
+      "depth": 0
+    },
+    {
+      "text": "The following tables display information about the web log fields and example values for those fields. If applicable, the web log fields are mapped to their corresponding columns in Web Insights Logs (Logs > Insights > Web Insights > Logs)."
+    },
+    {
+      "heading": "Date/Time",
+      "level": 1
+    },
+    {
+      "text": "The following are date and time fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{time}",
+          "The time and date of the transaction. This excludes the time zone.",
+          "Mon Oct 16 22:55:48 2023",
+          "Logged Time"
+        ],
+        [
+          "%s{tz}",
+          "The time zone. This is the same as the time zone you specified when you configured the NSS feed.",
+          "GMT",
+          ""
+        ],
+        [
+          "%02d{ss}",
+          "Seconds (0–59)",
+          "48",
+          "This field is derived from Logged Time"
+        ],
+        [
+          "%02d{mm}",
+          "Minutes (0–59)",
+          "55",
+          "This field is derived from Logged Time"
+        ],
+        [
+          "%02d{hh}",
+          "Hours (0–23)",
+          "22",
+          "This field is derived from Logged Time"
+        ],
+        [
+          "%02d{dd}",
+          "The day of the month (1–31)",
+          "16",
+          "This field is derived from Logged Time"
+        ],
+        [
+          "%02d{mth}",
+          "The month of the year",
+          "10",
+          "This field is derived from Logged Time"
+        ],
+        [
+          "%04d{yyyy}",
+          "Year",
+          "2023",
+          "This field is derived from Logged Time"
+        ],
+        [
+          "%s{mon}",
+          "The name of the month",
+          "Oct",
+          "This field is derived from Logged Time"
+        ],
+        [
+          "%s{day}",
+          "The day of the week",
+          "Mon",
+          "This field is derived from Logged Time"
+        ],
+        [
+          "%d{epochtime}",
+          "The epoch time of the transaction",
+          "1578128400",
+          ""
+        ]
+      ]
+    },
+    {
+      "heading": "User Information",
+      "level": 1
+    },
+    {
+      "text": "The following are user information fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{login}",
+          "The user's login name in email address format",
+          "jdoe@safemarch.com",
+          "User"
+        ],
+        [
+          "%s{dept}",
+          "The department of the user",
+          "Sales",
+          "Department"
+        ],
+        [
+          "%s{company}",
+          "The name of the company",
+          "Zscaler",
+          "This field is specific to NSS"
+        ],
+        [
+          "%s{cloudname}",
+          "The name of the Zscaler cloud",
+          "zscaler.net",
+          "This field is specific to NSS"
+        ]
+      ]
+    },
+    {
+      "heading": "Bandwidth Control",
+      "level": 1
+    },
+    {
+      "text": "The following are Bandwidth Control fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%d{txn_delay_req}",
+          "Displays the bandwidth transaction request delay in milliseconds",
+          "1,234",
+          "Request latency due to bandwidth control (ms)"
+        ],
+        [
+          "%d{txn_delay_resp}",
+          "Displays the bandwidth transaction response delay in milliseconds",
+          "1,234",
+          "Response latency due to bandwidth control (ms)"
+        ],
+        [
+          "%d{throttlereqsize}",
+          "The throttled transaction size in the Uplink direction (Upload) in bytes",
+          "5",
+          "Throttled request bytes"
+        ],
+        [
+          "%d{throttlerespsize}",
+          "The throttled transaction size in the Downlink direction (Download) in bytes",
+          "7",
+          "Throttled response bytes"
+        ],
+        [
+          "%s{bwthrottle}",
+          "Indicates whether the transaction was throttled due to a configured bandwidth policy",
+          "Yes",
+          ""
+        ],
+        [
+          "%s{bwclassname}",
+          "The name of the bandwidth class",
+          "Entertainment, General Surfing, Office AppsThe full list is under the Bandwidth Classes field on the Bandwidth Control page.",
+          "Bandwidth Class"
+        ],
+        [
+          "%s{bwrulename}",
+          "The name of the bandwidth rule",
+          "Microsoft 365Any name under the Rule Name column on the Bandwidth Control page",
+          "Bandwidth Rule"
+        ]
+      ]
+    },
+    {
+      "heading": "Cloud Application",
+      "level": 1
+    },
+    {
+      "text": "The following are cloud application fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{appname}",
+          "The name of the cloud application",
+          "Adobe Connect, Craigslist, DropboxThe full list is on the Cloud Applications page.",
+          "Cloud Application"
+        ],
+        [
+          "%s{appclass}",
+          "The cloud application category of the application that was accessed",
+          "Administration, Collaboration, Web MailThe full list is on the Cloud App Control Policy page.",
+          "Cloud Application Class"
+        ],
+        [
+          "%s{app_risk_score}",
+          "The computed or assigned risk index for the cloud application, with 1 being the lowest risk and 5 being the highest. If the risk index is not available, the field displays None.",
+          "1–5None",
+          "Risk Index"
+        ],
+        [
+          "%s{app_status}",
+          "The status of the cloud application",
+          "SanctionedUnsanctionedN/A",
+          "Application Status"
+        ],
+        [
+          "%s{activity}",
+          "The name of the action the user performed on the application",
+          "Download",
+          "Application Activity"
+        ],
+        [
+          "%s{prompt_req}",
+          "The prompt entered by the user in the generative AI application",
+          "",
+          "Prompt"
+        ],
+        [
+          "%s{prompt_class}",
+          "The type or category assigned to the user's input prompt in the generative AI application",
+          "",
+          "Prompt Classification"
+        ],
+        [
+          "%s{inst_level1_type}",
+          "The level 1 type (e.g., Organization for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.",
+          "ORG",
+          "App Instance Level 1 Type"
+        ],
+        [
+          "%s{inst_level1_id}",
+          "The level 1 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.",
+          "12324321232",
+          "App Instance Level 1"
+        ],
+        [
+          "%s{inst_level1_name}",
+          "Additional information regarding the discovered cloud application instance, if available.",
+          "org_12324321232",
+          ""
+        ],
+        [
+          "%s{inst_level2_type}",
+          "The level 2 type (e.g., Project for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.",
+          "PROJECT",
+          "App Instance Level 2 Type"
+        ],
+        [
+          "%s{inst_level2_id}",
+          "The level 2 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.",
+          "project_max1",
+          "App Instance Level 2"
+        ],
+        [
+          "%s{inst_level2_name}",
+          "Additional information regarding the discovered cloud application instance, if available.",
+          "genai_pr",
+          ""
+        ],
+        [
+          "%s{inst_level3_type}",
+          "The level 3 type (e.g., Resource Type for Google Cloud Platform). The Instance Discovery Report provides visibility about the different cloud application instances accessed by users at various levels of a hierarchy. To learn more, see About the Instance Discovery Report.",
+          "RESOURCE_TYPE",
+          "App Instance Level 3 Type"
+        ],
+        [
+          "%s{inst_level3_id}",
+          "The level 3 ID associated with the discovered cloud application instance. To learn more, see About the Instance Discovery Report.",
+          "Vertex AI",
+          "App Instance Level 3"
+        ],
+        [
+          "%s{inst_level3_name}",
+          "Additional information regarding the discovered cloud application instance, if available.",
+          "None",
+          ""
+        ]
+      ]
+    },
+    {
+      "heading": "Data Center",
+      "level": 1
+    },
+    {
+      "text": "The following are data center fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{datacenter}",
+          "The name of the data center",
+          "CA Client Node DC",
+          "Data Center"
+        ],
+        [
+          "%s{datacentercity}",
+          "The city where the data center is located",
+          "Sa",
+          ""
+        ],
+        [
+          "%s{datacentercountry}",
+          "The country where the data center is located",
+          "US",
+          ""
+        ]
+      ]
+    },
+    {
+      "heading": "Data Loss Prevention (DLP)",
+      "level": 1
+    },
+    {
+      "text": "The following are DLP fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{dlpdict}",
+          "The DLP dictionaries that were matched, if any",
+          "Credit Cards|Gambling|MRN NumbersThe full list is under the Name column on the DLP Dictionaries page.",
+          "DLP Dictionaries"
+        ],
+        [
+          "%s{dlpdicthitcount}",
+          "The number of hits for each of the dictionaries that were matched in the transaction",
+          "4|5|1|2",
+          ""
+        ],
+        [
+          "%s{dlpeng}",
+          "The DLP engine that was matched, if any",
+          "HIPAAThe full list is under the Name column on the DLP Engines page.",
+          "DLP Engine"
+        ],
+        [
+          "%d{dlpidentifier}",
+          "The unique DLP identifier of the transaction. Whenever a DLP rule is triggered, and the appropriate alert is configured, an email containing this ID is sent to your auditors. This field is not populated if %d{exempt_dlpidentifier} is populated.",
+          "6646484838839025669",
+          "DLP Identifier"
+        ],
+        [
+          "%d{exempt_dlpidentifier}",
+          "The unique DLP identifier of the transaction. This field is populated in cases where the DLP scan times out, exempting the transaction from policy enforcement. This field is not populated if %d{dlpidentifier} is populated.",
+          "5526484838837385671",
+          "Exempted DLP Identifier"
+        ],
+        [
+          "%s{dlpmd5}",
+          "The MD5 hash of the transaction",
+          "154f149b1443fbfa8c121d13e5c019a1 ​​​​​​",
+          "DLP MD5"
+        ],
+        [
+          "%s{dlprulename}",
+          "The name of the DLP rule applied to the transaction. Applies only to Allow rules, not Block. To enable logging for DLP Allowed Rule Name, contact Zscaler Support.",
+          "DLP_Rule_1Any Rule Name with the Allow Action on the Data Loss Prevention page",
+          "Allowed DLP Rule Name"
+        ],
+        [
+          "%s{trig_dlprulename}",
+          "The name of the DLP rule that triggered a transaction, which can be either allowed or blocked.",
+          "DLP_Rule_1",
+          ""
+        ],
+        [
+          "%s{other_dlprulenames}",
+          "The names of all the DLP rules that were evaluated and passed, but no action was taken.",
+          "[DLP_Rule_4, DLP_Rule_5]",
+          "Other DLP Rules"
+        ],
+        [
+          "%s{all_dlprulenames}",
+          "The names of all DLP rules whether they were triggered or not. This field is a combination of %s{other_dlprulenames} and %s{trig_dlprulename}.",
+          "[DLP_Rule_1, DLP_Rule_4, DLP_Rule_5]",
+          ""
+        ],
+        [
+          "%s{dlp_policy_action}",
+          "The DLP policy action that was taken on the transaction",
+          "Incident Reported",
+          "DLP Policy Action"
+        ],
+        [
+          "%s{dlp_confirm_just_str}",
+          "The message entered by a user to justify a transaction that triggers a DLP rule with the Confirm action",
+          "My manager approved it",
+          "DLP Confirmation Message"
+        ]
+      ]
+    },
+    {
+      "heading": "Extranet Application",
+      "level": 1
+    },
+    {
+      "text": "The following is an Extranet Application field:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{extranet_name}",
+          "The name of the extranet resource associated with the transaction",
+          "Extranet 123",
+          "Extranet Resource"
+        ]
+      ]
+    },
+    {
+      "heading": "File Type Control",
+      "level": 1
+    },
+    {
+      "text": "The following are File Type Control fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{ft_rulename}",
+          "The name of the File Type Control rule applied to the transaction. Applies only to Allow rules, not Block",
+          "File_Type_1Any Rule Name with the Allow Action on the File Type Control page",
+          "Allowed File Type Rule"
+        ],
+        [
+          "%s{fileclass}",
+          "The class of file downloaded during the transaction",
+          "Active Web Contents, Archive Files, AudioThe full list is under the File Type field on the File Type Control page.",
+          ""
+        ],
+        [
+          "%s{filetype}",
+          "The type of file downloaded during the transaction",
+          "RAR Files, ZIP, Windows ExecutablesThe full list is under the File Type field on the File Type Control page.",
+          "Download File Type"
+        ],
+        [
+          "%s{filename}",
+          "The name of downloaded files during the transaction",
+          "nssfeed.txt",
+          "Download File Name"
+        ],
+        [
+          "%s{filesubtype}",
+          "The subtype of the downloaded file (extension name)",
+          "rar, exe, pptSubtypes are in parentheses under the File Types field on the File Type Control page.",
+          ""
+        ],
+        [
+          "%s{upload_fileclass}",
+          "The class of file uploaded during the transaction",
+          "Active Web Contents, Archive Files, AudioThe full list is under the File Type field on the File Type Control page.",
+          ""
+        ],
+        [
+          "%s{upload_filetype}",
+          "The type of file uploaded during the transaction",
+          "RAR Files, ZIP, Windows ExecutablesThe full list is under the File Type field on the File Type Control page.",
+          "Upload File Type"
+        ],
+        [
+          "%s{upload_filename}",
+          "The name of uploaded files during the transaction",
+          "nssfeed.exe",
+          "Upload File Name"
+        ],
+        [
+          "%s{upload_filesubtype}",
+          "The subtype of the uploaded file (extension name)",
+          "rar, exe, pptSubtypes are in parentheses under the File Types field on the File Type Control page.",
+          ""
+        ],
+        [
+          "%s{upload_doctypename}",
+          "The type of document uploaded or downloaded during the transaction",
+          "Corporate FinanceCourt FormDMVInsuranceLegal",
+          "Document Type"
+        ],
+        [
+          "%s{upload_doc_sub_type}",
+          "The subtype of the document uploaded or downloaded during the transaction",
+          "Financial Statements: Income Statements (Profit and Loss Statements)",
+          "Subdocument Type"
+        ],
+        [
+          "%s{unscannabletype}",
+          "The unscannable file type:Encrypted or password-protected (e.g., GZIP, PDF)Unscannable (e.g., corrupt archive)Undetectable (unable to determine the file type, based on multiple methods)",
+          "Encrypted FileUndetectable FileUnscannable File",
+          "Unscannable Type"
+        ]
+      ]
+    },
+    {
+      "heading": "Forwarding Control",
+      "level": 1
+    },
+    {
+      "text": "The following are Forwarding Control fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{rdr_rulename}",
+          "The name of the redirect/forwarding policy",
+          "FWD_Rule_1Any name under the Rule Name column on the Forwarding Control page",
+          "Forwarding Rule"
+        ],
+        [
+          "%s{fwd_type}",
+          "The type of forwarding method used",
+          "DirectDropProxy ChainingZPA",
+          "Forwarding Method"
+        ],
+        [
+          "%s{fwd_gw_name}",
+          "The name of the gateway defined in a forwarding rule",
+          "FWD_1",
+          "Gateway Name"
+        ],
+        [
+          "%s{fwd_gw_ip}",
+          "The IP address of the gateway used",
+          "10.1.1.110.1.1.1-10.1.1.510.1.1.0/24",
+          "Gateway IP"
+        ],
+        [
+          "%s{zpa_app_seg_name}",
+          "The name of the Private Access (ZPA) application segment",
+          "ZPA_test_app_segment",
+          "Application Segment"
+        ]
+      ]
+    },
+    {
+      "heading": "HTTP Transaction",
+      "level": 1
+    },
+    {
+      "text": "The following are HTTP transaction fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%d{reqdatasize}",
+          "The size of the HTTP request payload, excluding the headers, in bytes",
+          "1000",
+          ""
+        ],
+        [
+          "%d{reqhdrsize}",
+          "The size of the HTTP request header in bytes",
+          "300",
+          ""
+        ],
+        [
+          "%d{reqsize}",
+          "The request size in bytes",
+          "1300",
+          "Sent Bytes"
+        ],
+        [
+          "%d{respdatasize}",
+          "The size of the HTTP response payload, excluding the headers, in bytes",
+          "10000",
+          ""
+        ],
+        [
+          "%d{resphdrsize}",
+          "The size of the HTTP response header in bytes",
+          "500",
+          ""
+        ],
+        [
+          "%d{respsize}",
+          "The total size of the HTTP response, including the header and payload, in bytes",
+          "10500",
+          "Received Bytes"
+        ],
+        [
+          "%d{totalsize}",
+          "The total size of the HTTP transaction in bytes. The sum of the total request size and total response size.",
+          "11800",
+          "Total Bytes"
+        ],
+        [
+          "%s{reqmethod}",
+          "The HTTP request method",
+          "invalid, get, connect",
+          "Request Method"
+        ],
+        [
+          "%s{reqversion}",
+          "The HTTP request version",
+          "1.1",
+          "Request HTTP Version"
+        ],
+        [
+          "%s{respcode}",
+          "The HTTP response code sent to the client. The service generates a 403-Forbidden response for blocked transactions.",
+          "100 - Continue202 - Accepted305 - Use Proxy403 - Forbidden500 - Internal Server Error",
+          "Response Code"
+        ],
+        [
+          "%s{respversion}",
+          "The HTTP response version",
+          "1.0",
+          "Response HTTP Version"
+        ],
+        [
+          "%s{referer}",
+          "The HTTP referrer URL",
+          "www.google.com",
+          "Referrer URL"
+        ],
+        [
+          "%s{refererhost}",
+          "The hostname of the referrer URL",
+          "www.example.com for http://www.example.com/index.html",
+          ""
+        ],
+        [
+          "%s{uaclass}",
+          "The user agent class",
+          "Firefox, Chrome, Safari",
+          ""
+        ],
+        [
+          "%s{ua}",
+          "The full user agent string for both known and unknown agents. The user agent string contains browser and system information that the destination server can use to provide appropriate content.",
+          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0)",
+          "User Agent"
+        ],
+        [
+          "%s{ua_token}",
+          "The user agent token. This displays None if the user agent token doesn't exist.",
+          "Google Chrome (0.x)Mozilla (5.0)",
+          ""
+        ],
+        [
+          "%s{host}",
+          "The destination hostname. If present, the host value in the HTTP request line populates this field. If the host value in the HTTP request line is not present, the host header is used.",
+          "mail.google.com",
+          ""
+        ],
+        [
+          "%s{url}",
+          "The destination URL. It excludes the protocol identifier (e.g., http:// or https://).",
+          "www.trythisencodeurl.com/index",
+          "URL"
+        ],
+        [
+          "%s{df_hostname}",
+          "An optional field that contains the TLS connection's Server Name Indication (SNI) in cases that the HTTPS request host header does not match the SNI. TLS Inspection must be enabled for this field to be populated. The field is present in the logs only if there is a mismatch.",
+          "",
+          "Domain Fronted SNI"
+        ],
+        [
+          "%s{df_hosthead}",
+          "The field contains HTTP/S transactions that indicate domain fronting due to an FQDN mismatch between the request URL and the request's host header. The field is present in the logs only if there is a mismatch.",
+          "",
+          "Domain Fronted Host Header"
+        ],
+        [
+          "%s{contenttype}",
+          "The name of the content type",
+          "application/vnd_apple_keynoteimage/giftext/x_pythonThe full list is under the Content Type filter on the Web Insights page.",
+          "Content Type"
+        ]
+      ]
+    },
+    {
+      "heading": "Mobile Application",
+      "level": 1
+    },
+    {
+      "text": "The following are mobile application fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{mobappname}",
+          "The name of the mobile app, if any",
+          "Adobe Reader, Amazon, DropboxThe full list is under the Mobile Application filter on the Mobile Insights page.",
+          "Mobile Application"
+        ],
+        [
+          "%s{mobappcat}",
+          "The category of the mobile app, if any",
+          "Communication, Education, GamesThe full list is under the Mobile Application Category filter on the Mobile Insights page.",
+          "Mobile Application Category"
+        ],
+        [
+          "%s{mobdevtype}",
+          "The type of mobile device",
+          "iOS, Google Android, Apple iPhoneThe full list is under the Mobile Device Type filter on the Mobile Insights page.",
+          "Mobile Device Type"
+        ]
+      ]
+    },
+    {
+      "heading": "Network",
+      "level": 1
+    },
+    {
+      "text": "The following are network fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{cip}",
+          "The IP address of the user. It can be the internal IP address if it's visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF). Otherwise, it is the same as %s{cintip}.",
+          "192.168.2.200, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1",
+          "Client IP"
+        ],
+        [
+          "%s{cintip}",
+          "The client's internet (NATed Public) IP address. This is different from the %s{cip} value if the internal IP address is visible. Otherwise, it is the same as %s{cip}.",
+          "203.0.113.5, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1",
+          ""
+        ],
+        [
+          "%s{cpubip}",
+          "The client public IP address",
+          "198.51.100.100",
+          "Client External IP"
+        ],
+        [
+          "%d{clt_sport}",
+          "The client source port. To enable logging for Client Source Port, contact Zscaler Support.",
+          "12345",
+          "Client Source Port"
+        ],
+        [
+          "%s{srcip_country}",
+          "The country associated with the source IP address",
+          "Afghanistan",
+          "Source IP Country"
+        ],
+        [
+          "%s{dstip_country}",
+          "The country associated with the destination IP address",
+          "Portugal",
+          "Destination IP Country"
+        ],
+        [
+          "%s{is_src_cntry_risky}",
+          "Indicates whether the country associated with the source IP address is risky or not",
+          "Yes",
+          ""
+        ],
+        [
+          "%s{is_dst_cntry_risky}",
+          "Indicates whether the country associated with the destination IP address is risky or not",
+          "No",
+          ""
+        ],
+        [
+          "%s{sip}",
+          "The destination server IP address. This displays 0.0.0.0 if the request was blocked.",
+          "1.1.1.1, 2a02:2e0:40c:102:1:2b:10:80, 2001:db8::2:1",
+          "Server IP"
+        ],
+        [
+          "%d{srv_dport}",
+          "The server destination port. To enable logging for Server Destination Port, contact Zscaler Support.",
+          "443",
+          "Server Destination Port"
+        ],
+        [
+          "%s{proto}",
+          "The protocol type of the transaction",
+          "HTTP, FTPThe full list is under the Protocol filter on the Web Insights page.",
+          "Protocol"
+        ],
+        [
+          "%s{alpnprotocol}",
+          "The Application-Layer Protocol Negotiation (ALPN) protocol",
+          "FTP, SMBThe full list is under the ALPN Protocol filter on the Web Insights page.",
+          "ALPN Protocol"
+        ],
+        [
+          "%s{trafficredirectmethod}",
+          "The traffic forwarding method to Public Service Edges for Internet & SaaS (ZIA)",
+          "DNAT (Destination Translation)GRE (GRE Tunnel)IPSEC (IPSec Tunnel)PBF (Policy Based Forwarding)PAC (PAC File)PAC_GRE (PAC File over GRE Tunnel)PAC_IPSEC (PAC File over IPSec Tunnel)Zscaler Client Connector (Zscaler App)",
+          "Traffic Forwarding"
+        ],
+        [
+          "%s{location}",
+          "The gateway location or sub-location of the source. To learn more, see About Locations.",
+          "Headquarters",
+          "Location"
+        ],
+        [
+          "%s{userlocationname}",
+          "Applicable to the web traffic processed via Zero Trust Browser (formerly Isolation). The field shows the actual traffic origination point, whereas the %s{location} field displays the isolation location. When the web traffic is not handled by Zero Trust Browser, the field value is None.",
+          "",
+          "User Location"
+        ]
+      ]
+    },
+    {
+      "heading": "Policy",
+      "level": 1
+    },
+    {
+      "text": "The following are policy fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{ruletype}",
+          "The type of policy. Applies only to Block rules, not Allow.",
+          "File Type Control, Data Loss Prevention, Sandbox",
+          "Blocked Policy Type"
+        ],
+        [
+          "%s{rulelabel}",
+          "The name of the rule that was applied to the transaction. Applies only to Block rules, not Allow.",
+          "URL_Filtering_1, URL_Filtering_2",
+          "Blocked Policy Name"
+        ],
+        [
+          "%s{action}",
+          "The action that the service took on the transaction",
+          "Allowed, Blocked",
+          "Policy Action"
+        ],
+        [
+          "%s{reason}",
+          "The action that the service took and the policy that was applied, if the transaction was blocked. To learn more about the reasons for policy actions, see Policy Reasons.",
+          "Virus/Spyware/Malware BlockedNot allowed to browse this categoryFile Attachment not allowedThis page is unsafe (high PageRisk index)Denied due to SSL/TLS connection to the server failing or a firewall policyDestination contains potential phishing contentFile Attachment CautionedRecipient is a redirectSpam UWL",
+          ""
+        ],
+        [
+          "%s{urlfilterrulelabel}",
+          "The name of the rule that was applied to the URL filter",
+          "URL_Filtering_1Any name under the Rule Name column on the URL & Cloud App Control page",
+          "URL Filtering Policy Name"
+        ],
+        [
+          "%s{apprulelabel}",
+          "The name of the rule that was applied to the application",
+          "File_Sharing_1Any name under the Rule Name column on the URL & Cloud App Control page",
+          "Cloud Application Policy Name"
+        ]
+      ]
+    },
+    {
+      "heading": "Sandbox",
+      "level": 1
+    },
+    {
+      "text": "The following are Sandbox fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{bamd5}",
+          "The MD5 hash of the malware file that was detected in the transaction, or the MD5 of the file that was sent for analysis to the Sandbox engine",
+          "196a3d797bfee07fe4596b69f4ce1141",
+          "MD5"
+        ],
+        [
+          "%s{sha256}",
+          "The hash of identical files",
+          "81ec78bc8298568bb5ea66d3c2972b670d0f7459b6cdbbcaacce90ab417ab15c",
+          "SHA-256"
+        ]
+      ]
+    },
+    {
+      "heading": "SSL/TLS",
+      "level": 1
+    },
+    {
+      "text": "The following are SSL/TLS fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{ssldecrypted}",
+          "Indicates whether the transaction was SSL/TLS inspected or not",
+          "YesNo",
+          "SSL/TLS Inspected"
+        ],
+        [
+          "%s{ssl_rulename}",
+          "The name of the SSL/TLS Inspection policy rule that was applied to the transaction",
+          "SSL/TLS_Rule_1Any name under the Rule Name column on the SSL/TLS Inspection Policy page",
+          "SSL/TLS Policy Name"
+        ],
+        [
+          "%s{externalspr}",
+          "The SSL/TLS policy reasons",
+          "BlockedInspectedN/ANot inspected because of Microsoft 365 bypassNot inspected because of SSL/TLS policyNot inspected because of UCaaS bypassNot inspected because of Zscaler best practicesThe full list is under the SSL/TLS Policy Reason filter on the Web Insights page.",
+          "SSL/TLS Policy Reason"
+        ],
+        [
+          "%s{keyprotectiontype}",
+          "Indicates whether an HSM Protection or a Software Protection intermediate CA certificate is used for the SSL/TLS interception",
+          "HSM ProtectionSoftware ProtectionN/A",
+          "Intermediate CA Protection Type"
+        ],
+        [
+          "%s{ja4_str}",
+          "The JA4 network fingerprint associated with the SSL/TLS connection. To enable logging for JA4 fingerprints, contact Zscaler Support.",
+          "t13d191000_9dc949149365_e7c285222651",
+          "JA4 Fingerprint"
+        ]
+      ]
+    },
+    {
+      "heading": "Client Connection",
+      "level": 1
+    },
+    {
+      "text": "The following are client connection fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{clientsslcipher}",
+          "The negotiated cipher suite for communication between the client and Zscaler",
+          "SSL3_CK_RSA_NULL_MD5, SSL3_CK_RSA_NULL_SHA",
+          "Client Connection Cipher"
+        ],
+        [
+          "%s{clienttlsversion}",
+          "The TLS version used for communication between the client and Zscaler",
+          "SSL2SSL3TLS1_1TLS1_2TLS1_3",
+          "Client Connection TLS Version"
+        ],
+        [
+          "%s{clientsslsessreuse}",
+          "Client cipher reuse information",
+          "UnknownNoYes",
+          "Client Session Reused"
+        ],
+        [
+          "%s{cltsslfailreason}",
+          "The reason for the client SSL/TLS handshake failure",
+          "Bad Record Mac, Certificate Unknown, Close Notify, etc.The full list is under the Client SSL/TLS Handshake Failure Reason filter on the Web Insights page.",
+          "Client SSL/TLS Handshake Failure Reason"
+        ],
+        [
+          "%d{cltsslfailcount}",
+          "The number of failed client SSL/TLS handshake attempts",
+          "",
+          "Client SSL/TLS Handshake Failure Aggregate Count"
+        ],
+        [
+          "%d{client_tls_keyex_pqc_offers}",
+          "Indicates if the TLS client offered a post-quantum cryptography (PQC) key exchange algorithm",
+          "0 or 1",
+          ""
+        ],
+        [
+          "%d{client_tls_keyex_non_pqc_offers}",
+          "Indicates if the TLS client offered a non-PQC key exchange algorithm",
+          "0 or 1",
+          ""
+        ],
+        [
+          "%d{client_tls_keyex_hybrid_offers}",
+          "Indicates if the TLS client offered a hybrid key exchange algorithm",
+          "0 or 1",
+          ""
+        ],
+        [
+          "%d{client_tls_keyex_unknown_offers}",
+          "Indicates if the TLS client offered an unknown key exchange algorithm",
+          "0 or 1",
+          ""
+        ],
+        [
+          "%d{client_tls_sig_pqc_offers}",
+          "Indicates if the TLS client offered a PQC digital signature algorithm",
+          "0 or 1",
+          ""
+        ],
+        [
+          "%d{client_tls_sig_non_pqc_offers}",
+          "Indicates if the TLS client offered a non-PQC digital signature algorithm",
+          "0 or 1",
+          ""
+        ],
+        [
+          "%d{client_tls_sig_hybrid_offers}",
+          "Indicates if the TLS client offered a hybrid digital signature algorithm",
+          "0 or 1",
+          ""
+        ],
+        [
+          "%d{client_tls_sig_unknown_offers}",
+          "Indicates if the TLS client offered an unknown digital signature algorithm",
+          "0 or 1",
+          ""
+        ],
+        [
+          "%s{client_tls_keyex_alg}",
+          "The TLS client key exchange algorithm",
+          "X23319LMKEM788",
+          "Client Side Key Exchange Algorithm"
+        ],
+        [
+          "%s{client_tls_sig_alg}",
+          "The TLS client digital signature algorithm",
+          "rsa_pss_rsae_sha256",
+          "Client Side Digital Signature Algorithm"
+        ]
+      ]
+    },
+    {
+      "heading": "Server Connection",
+      "level": 1
+    },
+    {
+      "text": "The following are server connection fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{srvsslcipher}",
+          "The negotiated cipher suite for communication between Zscaler and the server",
+          "SSL3_CK_RSA_NULL_MD5, SSL3_CK_RSA_NULL_SHA",
+          "Server Connection Cipher"
+        ],
+        [
+          "%s{srvtlsversion}",
+          "The SSL/TLS version used for communication between the Public Service Edge for Internet & SaaS (ZIA) and the server",
+          "SSL2SSL3TLS1_1TLS1_2TLS1_3",
+          "Server Connection TLS Version"
+        ],
+        [
+          "%s{serversslsessreuse}",
+          "Server cipher reuse information",
+          "UnknownNoYes",
+          "Server Session Reused"
+        ],
+        [
+          "%s{srvocspresult}",
+          "The OCSP result/certificate revocation result",
+          "GoodRevokedUnknown",
+          "Server Connection OCSP Result"
+        ],
+        [
+          "%s{srvcertchainvalpass}",
+          "The validation of the certificate chain",
+          "UnknownFailPass",
+          "Server Connection Cert Chain Validity"
+        ],
+        [
+          "%s{srvwildcardcert}",
+          "The server wildcard certificate",
+          "UnknownNoYes",
+          "Server Wildcard Certificate"
+        ],
+        [
+          "%s{srvcertvalidationtype}",
+          "The validation method of the server certificate",
+          "EV (Extended Validation)OV (Organization Validation)DV (Domain Validation)",
+          "Server Certificate Validation Type"
+        ],
+        [
+          "%s{srvcertvalidityperiod}",
+          "The expiration of the server certificate",
+          "Short (0–3 months)Medium (3–12 months)Long (More than 12 months)",
+          "Server Certificate Validity Period"
+        ],
+        [
+          "%s{is_ssluntrustedca}",
+          "Indicates whether the server certificate is signed by a Zscaler-trusted certificate authority or not",
+          "FailPassNone",
+          "Certificate Chain Validity"
+        ],
+        [
+          "%s{is_sslselfsigned}",
+          "Indicates whether the certificate presented by the server to the Public Service Edge for Internet & SaaS (ZIA) was self-signed",
+          "NoNoneYes",
+          "Server Certificate Self Signed"
+        ],
+        [
+          "%s{is_sslexpiredca}",
+          "Indicates whether the certificate presented by the server is expired or not",
+          "NoNoneYes",
+          "Server Connection Cert Expiry"
+        ],
+        [
+          "%s{server_tls_keyex_alg}",
+          "The TLS server key exchange algorithm",
+          "X23319LMKEM788",
+          "Server Side Key Exchange Algorithm"
+        ],
+        [
+          "%s{server_tls_sig_alg}",
+          "The TLS server digital signature algorithm",
+          "rsa_pss_rsae_sha256",
+          "Server Side Digital Signature Algorithm"
+        ]
+      ]
+    },
+    {
+      "heading": "Threat Protection",
+      "level": 1
+    },
+    {
+      "text": "The following are Threat Protection fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%d{riskscore}",
+          "The Page Risk Index score of the destination URL. The service computes risk for each page by weighing several factors, including page locations, reputation of destination, and content that may look suspicious. The range is 0–100, from the lowest to the highest risk.",
+          "10",
+          "Suspicious Content"
+        ],
+        [
+          "%s{threatseverity}",
+          "The severity of the threat that was detected in the transaction, if any. The severity relates to the Page Risk Index score. For example, if the value of %d{riskscore} is between 90 and 100, then the value of %s{threatseverity} is Critical.",
+          "Critical (90–100)High (75–89)Medium (46–74)Low (1–45)None (0)",
+          "Threat Severity"
+        ],
+        [
+          "%s{threatname}",
+          "The name of the threat that was detected in the transaction, if any",
+          "EICAR Test File",
+          "Threat Name"
+        ],
+        [
+          "%s{malwarecat}",
+          "The category of malware that was detected in the transaction, if any. Also indicates if a file was submitted to the Sandbox engine for analysis and the result of the analysis.",
+          "Adware, Benign, TrojanSandbox Adware, Sandbox Anonymizer, Sandbox MalwareThe full list is under the Threat Category filter on the Web Insights page.The Threat Category Sent for Analysis is equivalent to “Submitted to Sandbox” in the SIEM output. Additionally, Other Virus is equivalent to \"Virus\" for backward compatibility.",
+          "Threat Category"
+        ],
+        [
+          "%s{malwareclass}",
+          "The class of malware that was detected in the transaction, if any",
+          "Sandbox",
+          "Threat Super Category"
+        ],
+        [
+          "%s{ai_ml_detect_src}",
+          "The AI/ML detection source for the transaction",
+          "AI/ML - ATP - Phishing",
+          "AI/ML Detection Source"
+        ]
+      ],
+      "strong": [
+        [
+          4,
+          2,
+          168,
+          185
+        ],
+        [
+          4,
+          2,
+          260,
+          271
+        ]
+      ]
+    },
+    {
+      "heading": "URL Categorization",
+      "level": 1
+    },
+    {
+      "text": "The following are URL categorization fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{urlclass}",
+          "The class of the destination URL",
+          "Bandwidth Loss, General Surfing, Privacy RiskThe full list is on the URL Categories page.",
+          "URL Class"
+        ],
+        [
+          "%s{urlsupercat}",
+          "The super category of the destination URL",
+          "Entertainment/Recreation, Travel, SecurityThe full list is on the URL Categories page.",
+          "URL Super Category"
+        ],
+        [
+          "%s{urlcat}",
+          "The category of the destination URL",
+          "Entertainment, Adult Themes, GamesSpyware CallbackThe full list is on the URL Categories page.Also includes the Advanced Threat Category. The full list is under the Advanced Threat Category filter on the Web Insights page.",
+          "URL Category"
+        ],
+        [
+          "%s{urlcatmethod}",
+          "Refers to the source of the URL's category. To learn more, see Web Insights Logs: Columns.",
+          "Database ADatabase BAI/ML-based content categorizationUser-DefinedNone",
+          "URL Categorization Method"
+        ]
+      ]
+    },
+    {
+      "heading": "Zscaler Client Connector Device Information",
+      "level": 1
+    },
+    {
+      "text": "The following are Zscaler Client Connector device fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%s{devicehostname}",
+          "The hostname of the device",
+          "THINKPADSMITH",
+          "Device Hostname"
+        ],
+        [
+          "%s{devicemodel}",
+          "The model of the device",
+          "20L8S7WC08",
+          "Device Model"
+        ],
+        [
+          "%s{devicename}",
+          "The name of the device",
+          "PC11NLPA:5F08D97BBF43257A8FB4BBF4061A38AE324EF734",
+          "Device Name"
+        ],
+        [
+          "%s{devicetype}",
+          "The type of device",
+          "Zscaler Client Connector",
+          "Device Type"
+        ],
+        [
+          "%s{deviceostype}",
+          "The OS type of the device",
+          "iOSAndroid OSWindows OSMAC OSOther OS",
+          "OS Type"
+        ],
+        [
+          "%s{deviceosversion}",
+          "The OS version the device uses",
+          "Version 10.14.2 (Build 18C54)",
+          "OS Version"
+        ],
+        [
+          "%s{deviceowner}",
+          "The owner of the device",
+          "jsmith",
+          "Device Owner"
+        ],
+        [
+          "%s{deviceappversion}",
+          "The app version the device uses",
+          "2.0.0.120",
+          "Enrolled Device appversion"
+        ],
+        [
+          "%s{ztunnelversion}",
+          "The Z-Tunnel version",
+          "ZTUNNEL_1_0",
+          "Zscaler Client Connector Tunnel Version"
+        ],
+        [
+          "%s{external_devid}",
+          "The external device ID that associates a user’s device with the mobile device management (MDM) solution",
+          "1234",
+          "External Device ID"
+        ],
+        [
+          "%d{bypassed_traffic}",
+          "Indicates whether the traffic bypassed the Zscaler Client Connector or not",
+          "1 indicates that the traffic bypassed Zscaler Client Connector0 indicates that the traffic did not bypass Zscaler Client Connector",
+          "Bypassed Transaction"
+        ],
+        [
+          "%s{bypassed_etime}",
+          "The date and time when the traffic bypassed the Zscaler Client Connector",
+          "Mon Oct 16 22:55:48 2023",
+          "Bypassed Transaction Event Time"
+        ],
+        [
+          "%s{flow_type}",
+          "The flow type of the transaction",
+          "DirectLoopbackVPNVPN TunnelZIAZPA",
+          "Flow Type"
+        ]
+      ]
+    },
+    {
+      "heading": "Miscellaneous",
+      "level": 1
+    },
+    {
+      "text": "The following are miscellaneous fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example",
+          "Insights Logs"
+        ],
+        [
+          "%d{recordid}",
+          "The unique record identifier for each log",
+          "",
+          "This field is specific to NSS"
+        ],
+        [
+          "%s{pcapid}",
+          "The path of the packet capture (PCAP) file that captured the transaction. The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>. The company ID is the internal ID of an organization and can be found on the Company Profile page. The directory is the log type. To download the PCAP file, go to the Capture column on the Web Insights Logs page.",
+          "43139974/web/663ba8fd30b50001.pcap",
+          "Capture"
+        ],
+        [
+          "%s{productversion}",
+          "The current version of the product. Useful for SIEMs whose format requires the product internal version to be sent in the log output.",
+          "5.0.902.95524_04",
+          "This field is specific to NSS"
+        ],
+        [
+          "%s{nsssvcip}",
+          "The service IP address of the NSS. Useful for syslog-format logs that require the origin host IP address to be specified.",
+          "10.10.102.300",
+          "This field is specific to NSS"
+        ],
+        [
+          "%s{eedone}",
+          "Indicates if the characters specified in the Feed Escape Character field of the NSS feed configuration page were hex encoded",
+          "Yes",
+          "This field is specific to NSS"
+        ]
+      ]
+    },
+    {
+      "heading": "Obfuscated Fields",
+      "level": 1
+    },
+    {
+      "text": "Select web log fields support obfuscation, as indicated by the prefix o. For example, the field %d{ocip} is the obfuscated version of %s{cip}. Instead of displaying the client IP address, the obfuscated field displays a random string in the NSS feed output."
+    },
+    {
+      "text": "The following are obfuscated fields:"
+    },
+    {
+      "item": "%s{ologin}",
+      "depth": 0
+    },
+    {
+      "item": "%s{obwclassname}",
+      "depth": 0
+    },
+    {
+      "item": "%s{odlpdict}",
+      "depth": 0
+    },
+    {
+      "item": "%s{odlpeng}",
+      "depth": 0
+    },
+    {
+      "item": "%s{odlprulename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{ordr_rulename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{ofwd_gw_name}",
+      "depth": 0
+    },
+    {
+      "item": "%s{ozpa_app_seg_name}",
+      "depth": 0
+    },
+    {
+      "item": "%d{ocip}",
+      "depth": 0
+    },
+    {
+      "item": "%d{ocpubip}",
+      "depth": 0
+    },
+    {
+      "item": "%s{ourlfilterrulelabel}",
+      "depth": 0
+    },
+    {
+      "item": "%s{oapprulelabel}",
+      "depth": 0
+    },
+    {
+      "item": "%s{ourlcat}",
+      "depth": 0
+    },
+    {
+      "item": "%s{odevicehostname}",
+      "depth": 0
+    },
+    {
+      "item": "%s{odevicename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{odeviceowner}",
+      "depth": 0
+    },
+    {
+      "heading": "Base64 Fields",
+      "level": 1
+    },
+    {
+      "text": "A SIEM can have parsing issues whenever a string field has non-printable or delimiter characters. For that reason, the Zscaler service has URL encoding for URL fields like URL, Referrer, and Hostname. There are several other fields that have the same parsing issue, but URL encoding is not suitable. Such fields are encoded using Base64."
+    },
+    {
+      "text": "Turning on Base64 encoding for all supported fields may result in approximately a 20% drop in performance."
+    },
+    {
+      "text": "The following are Base64 fields:"
+    },
+    {
+      "item": "%s{b64ua}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64filename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64upload_filename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64threatname}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64mobappname}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64host}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64url}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64referer}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64login}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64location}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64dept}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64urlcat}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64rulelabel}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64urlfilterrulelabel}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64apprulelabel}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64dlprulename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64rdr_rulename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64fwd_gw_name}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64zpa_app_seg_name}",
+      "depth": 0
+    },
+    {
+      "item": "%s{b64userlocationname}",
+      "depth": 0
+    },
+    {
+      "heading": "Hex-Encoded Fields",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler service hex encodes all non-printable ASCII characters that are in URLs when it sends logs to the NSS. Any URL character that is less than or equal to 0x20, or greater than or equal to 0x7F, is encoded as %HH. This ensures that your SIEM can parse the URLs that contain control characters. For example, a \\n character in a URL is encoded as %0A, and a space is encoded as %20."
+    },
+    {
+      "text": "The following are hex-encoded fields:"
+    },
+    {
+      "item": "%s{eua}",
+      "depth": 0
+    },
+    {
+      "item": "%s{efilename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{eupload_filename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{emobappname}",
+      "depth": 0
+    },
+    {
+      "item": "%s{ehost}",
+      "depth": 0
+    },
+    {
+      "item": "%s{eurl}",
+      "depth": 0
+    },
+    {
+      "item": "%s{ereferer}",
+      "depth": 0
+    },
+    {
+      "item": "%s{erefererpath}",
+      "depth": 0
+    },
+    {
+      "item": "%s{eurlpath}",
+      "depth": 0
+    },
+    {
+      "item": "%s{erefererhost}",
+      "depth": 0
+    },
+    {
+      "item": "%s{elogin}",
+      "depth": 0
+    },
+    {
+      "item": "%s{elocation}",
+      "depth": 0
+    },
+    {
+      "item": "%s{edepartment}",
+      "depth": 0
+    },
+    {
+      "item": "%s{erulelabel}",
+      "depth": 0
+    },
+    {
+      "item": "%s{eurlfilterrulelabel}",
+      "depth": 0
+    },
+    {
+      "item": "%s{eapprulelabel}",
+      "depth": 0
+    },
+    {
+      "item": "%s{euserlocationname}",
+      "depth": 0
+    },
+    {
+      "item": "%s{edevicename}",
+      "depth": 0
+    },
+    {
+      "item": "%s{edevicehostname}",
+      "depth": 0
+    },
+    {
+      "item": "%s{eprompt_req}",
+      "depth": 0
+    }
+  ]
+}

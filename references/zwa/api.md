@@ -18,8 +18,8 @@ confidence: high
 source-tier: code
 sources:
   - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json"
-  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
-  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
+  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.json"
+  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.json"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_http_client.py"
   - "vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py"
@@ -50,7 +50,7 @@ ZWA has a real SDK surface, but it is narrow: DLP incident lifecycle operations 
 
 ## Auth and client naming
 
-Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sdk-python/zscaler/zwa/legacy.py`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go`; `vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.json`.
 
 **Python current client.** The general OneAPI `Client` reads `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET` or `ZSCALER_PRIVATE_KEY`, and `ZSCALER_VANITY_DOMAIN`; it obtains an OAuth token and updates the default authorization header (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:241-252`). In that mode, `client.zwa` is the current `ZWAService` wrapper (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:287-293`).
 
@@ -58,7 +58,7 @@ Source: `vendor/zscaler-sdk-python/zscaler/oneapi_client.py`; `vendor/zscaler-sd
 
 **Go SDK.** The Go ZWA package is also API-key based: config fields and environment variables are `ZWA_API_KEY_ID`, `ZWA_API_SECRET`, and `ZWA_CLOUD`; the base URL is `https://api.<cloud>.zsworkflow.net`; authentication posts `key_id` and `key_secret` to `/v1/auth/api-key/token` and parses `token`, `token_type`, and `expires_in` (`vendor/zscaler-sdk-go/zscaler/zwa/v2_config.go:45-49`, `:80-105`, `:140-180`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`).
 
-**Legacy help.** The captured Workflow Automation API getting-started/auth pages match the API-key flow: API management is enabled with a Workflow Automation subscription, authentication uses API key ID + key secret, and `POST /v1/auth/api-key/token` returns a bearer token with expiration (`vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json:8-17`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`). Because Python current-client, Python legacy, Go, and the legacy help pages do not express the same migration boundary, keep the exact boundary open in [clarification zwa-04](../_meta/clarifications.md#zwa-04-current-vs-legacy-auth-boundary).
+**Legacy help.** The captured Workflow Automation API getting-started/auth pages match the API-key flow: API management is enabled with a Workflow Automation subscription, authentication uses API key ID + key secret, and `POST /v1/auth/api-key/token` returns a bearer token with expiration (`vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json:8-17`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.json:8-37`). Because Python current-client, Python legacy, Go, and the legacy help pages do not express the same migration boundary, keep the exact boundary open in [clarification zwa-04](../_meta/clarifications.md#zwa-04-current-vs-legacy-auth-boundary).
 
 ## DLP incidents - Python
 
@@ -109,27 +109,27 @@ The Go shared incident model carries the same broad incident record fields used 
 
 ## Legacy help API map
 
-Source: `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`.
+Source: `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json`.
 
 The legacy help capture lists these DLP incident endpoints in the Workflow Automation API reference:
 
 | Method | Path | Help line(s) |
 |---|---|---|
-| GET | `/dlp/v1/incidents/transactions/{transactionId}` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:23-24`, `:47-50` |
-| GET / DELETE | `/dlp/v1/incidents/{dlpIncidentId}` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:25-27`, `:215-249` |
-| GET | `/dlp/v1/incidents/{dlpIncidentId}/change-history` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:28-29`, `:475-503` |
-| GET | `/dlp/v1/incidents/{dlpIncidentId}/tickets` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:30-31`, `:541-560` |
-| POST | `/dlp/v1/incidents/{dlpIncidentId}/incident-groups/search` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:32-33`, `:604-633` |
-| POST | `/dlp/v1/incidents/{dlpIncidentId}/close` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:34-35`, `:668-692` |
-| POST | `/dlp/v1/incidents/{dlpIncidentId}/notes` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:36-37`, `:907-926` |
-| POST | `/dlp/v1/incidents/{dlpIncidentId}/labels` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:38-39`, `:1141-1165` |
-| POST | `/dlp/v1/incidents/search` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:40-41`, `:1380-1433` |
-| GET | `/dlp/v1/incidents/{dlpIncidentId}/triggers` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:42-43`, `:1592-1621` |
-| GET | `/dlp/v1/incidents/{dlpIncidentId}/evidence` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:44-45`, `:1644-1686` |
+| GET | `/dlp/v1/incidents/transactions/{transactionId}` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:23-24`, `:47-50` |
+| GET / DELETE | `/dlp/v1/incidents/{dlpIncidentId}` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:25-27`, `:215-249` |
+| GET | `/dlp/v1/incidents/{dlpIncidentId}/change-history` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:28-29`, `:475-503` |
+| GET | `/dlp/v1/incidents/{dlpIncidentId}/tickets` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:30-31`, `:541-560` |
+| POST | `/dlp/v1/incidents/{dlpIncidentId}/incident-groups/search` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:32-33`, `:604-633` |
+| POST | `/dlp/v1/incidents/{dlpIncidentId}/close` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:34-35`, `:668-692` |
+| POST | `/dlp/v1/incidents/{dlpIncidentId}/notes` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:36-37`, `:907-926` |
+| POST | `/dlp/v1/incidents/{dlpIncidentId}/labels` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:38-39`, `:1141-1165` |
+| POST | `/dlp/v1/incidents/search` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:40-41`, `:1380-1433` |
+| GET | `/dlp/v1/incidents/{dlpIncidentId}/triggers` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:42-43`, `:1592-1621` |
+| GET | `/dlp/v1/incidents/{dlpIncidentId}/evidence` | `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:44-45`, `:1644-1686` |
 
 Two divergences are worth preserving:
 
-- Help documents optional `fetchTriggerContext` on trigger downloads (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1592-1617`), while Python and Go trigger methods expose only `incident_id` (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:192-238`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:312-330`). Track this in [clarification zwa-05](../_meta/clarifications.md#zwa-05-trigger-context-query-param-sdk-coverage).
+- Help documents optional `fetchTriggerContext` on trigger downloads (`vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:1592-1617`), while Python and Go trigger methods expose only `incident_id` (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:192-238`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:312-330`). Track this in [clarification zwa-05](../_meta/clarifications.md#zwa-05-trigger-context-query-param-sdk-coverage).
 - Help and Go expose incident DELETE, while Python does not. Do not describe ZWA as create/read/update/delete complete; delete semantics and parity remain open in [clarification zwa-02](../_meta/clarifications.md#zwa-02-dlp-incident-delete-semantics).
 
 ## Audit logs
@@ -174,11 +174,11 @@ Source: `vendor/zscaler-api-specs/oneapi-postman-collection.json`; `vendor/terra
 
 ## Usage guardrails
 
-Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md`.
+Source: `vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py`; `vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json`.
 
 - Say **incident lifecycle API**, not workflow management API. Incident search/detail/history/tickets/triggers/evidence/labels/notes/close are source-backed; workflow template/mapping create-update-delete-list operations are not source-backed in this pass.
-- Say **evidence URL / downloadable evidence XML**, not "raw evidence always returned inline" (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:293-300`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:1644-1686`).
-- Preserve cross-SDK differences: Python does not expose delete; Go and help do (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.md:215-244`).
+- Say **evidence URL / downloadable evidence XML**, not "raw evidence always returned inline" (`vendor/zscaler-sdk-python/zscaler/zwa/dlp_incidents.py:293-300`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:1644-1686`).
+- Preserve cross-SDK differences: Python does not expose delete; Go and help do (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:255-270`; `vendor/zscaler-help/dlp-incidents-workflow-automation-api.json:215-244`).
 - Preserve auth differences: Python current `client.zwa` is OneAPI-client-shaped, while Python legacy and Go are API-key/token-shaped (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:738-758`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`).
 
 ## Open questions

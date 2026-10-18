@@ -1,0 +1,1144 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Troubleshooting App Connectors",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/troubleshooting-app-connectors",
+    "node": "1484651",
+    "revision": "3240759"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This article provides troubleshooting information and guidelines about App Connectors. To learn more about App Connectors, see About App Connectors. To configure App Connectors, see Configuring App Connectors."
+    },
+    {
+      "text": "When troubleshooting App Connectors, consider the following:"
+    },
+    {
+      "item": "App Connector Not Connected to the Cloud",
+      "depth": 0
+    },
+    {
+      "item": "If the App Connector was previously working and now shows an error about not being connected to the cloud, you might see an error similar to the following:",
+      "depth": 0
+    },
+    {
+      "item": "Apr 02 08:03:21 zpa-connector zpa-connector-child[1737]: [1;39mReceived event from [13.170.52.111]:38864;broker2.sha1.prod.zpath.net:[56.109.210.189]:2010: BEV_EVENT_CONNECTED, sock=63 using ECDHE-RSA-AES128-GCM-SHA256[0m Apr 02 08:03:22 zpa-connector zpa-connector-child[1737]: [1;39mReceived event from [13.170.52.111]:38864;broker2.sha1.prod.zpath.net:[56.109.210.189]:2010: BEV_EVENT_READING BEV_EVENT_ERROR, sock=63[0m Apr 02 08:03:22 zpa-connector zpa-connector-child[1737]: [1;39m*Connector not yet connected to cloud, please check connectivity, if this persists*[0m",
+      "depth": 0
+    },
+    {
+      "item": "The App Connector logs are automatically stored in the /var/log/messages file. To learn more about viewing log files for the App Connector, see Managing Deployed Software Components.",
+      "depth": 0
+    },
+    {
+      "item": "This error often occurs when an App Connector is deleted from the Zscaler Admin Console accidently. Private Access immediately recognizes that it should not communicate with the App Connector, and it breaks the active connection. There is no way to recover the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve this issue:",
+      "depth": 0
+    },
+    {
+      "item": "Remove the App Connector on the deployed platform.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command to stop the zpa-connector service:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl stop zpa-connector",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command to switch to a root user:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo su",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to delete the App Connector:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "[root@zpa-connector ~]$ rm -rf /opt/zscaler/var/*",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to switch back to a regular user:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "[root@zpa-connector admin]# exit",
+      "depth": 0
+    },
+    {
+      "item": "Restart services:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl restart zpa-connector",
+      "depth": 1
+    },
+    {
+      "item": "If you attempt to delete the App Connector and the App Connector still reports an ID number, then the App Connector is not fully deleted.",
+      "depth": 0
+    },
+    {
+      "item": "Restart the process of configuring an App Connector and deploying on a platform.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "App Connector Not Communicating with the Cloud",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector successfully logged a connection but the App Connector shows as disconnected in the Zscaler Admin Console, there is most likely an issue with the connector process not getting CPU cycles on the virtual machine (VM) or the VM is frozen.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve this issue, try stopping the VM and restarting it again. Sometimes, the issue resolves on its own.",
+      "depth": 0
+    },
+    {
+      "item": "DNS Failure, But App Connector Successful",
+      "depth": 0
+    },
+    {
+      "item": "If you have a DNS failure and the App Connector “root” process is successful, you might see an error similar to the following:",
+      "depth": 0
+    },
+    {
+      "item": "The domain (e.g., api.private.com) in the echo statement depends on the Private Access cloud you are on.",
+      "depth": 0
+    },
+    {
+      "item": "May 25 14:32:53 ussy-nwopapp03 zpa-connector-child[2040]: Checking Enrollment May 25 14:32:53 ussy-nwopapp03 zpa-connector-child[2040]: Resolve read certificatefailed May 25 14:32:53 ussy-nwopapp03 zpa-connector-child[2040]: No valid certificate. Attempting to enroll May 25 14:32:53 ussy-nwopapp03 zpa-connector-child[2040]: Enroll: Connecting to api.private.zscaler.com via co2br.prod.zpath.net. May 25 14:32:53 ussy-nwopapp03 zpa-connector-child[2040]: DNS resolution failed for api.private.zscaler.com May 25 14:32:53 ussy-nwopapp03 zpa-connector-child[2040]: Could not create HTTP client May 25 14:32:53 ussy-nwopapp03 zpa-connector-child[2040]: Certificate enrollment failed. May 25 14:32:55 ussy-nwopapp03 zpa-connector[3971]: zscaler-update: zpa-connector-child exited too fast, was running for 2 seconds May 25 14:32:55 ussy-nwopapp03 zpa-connector[3971]: zscaler-update: zpa-connector-child failed too many times in a row- reverting to default software",
+      "depth": 0
+    },
+    {
+      "item": "The DNS failure might be an issue with the permissions for the user account “zscaler”. Typically, this means the “root” process is able to read /etc/resolv.conf, but the “zscaler” user account cannot.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve this issue, correct the file permission on /etc/resolv.conf for the “zscaler” user account to allow it read access.",
+      "depth": 0
+    },
+    {
+      "item": "Server Domain Resolution Change Does Not Take Effect Immediately",
+      "depth": 0
+    },
+    {
+      "item": "When DNS resolution changes on the health-monitored application server domain, it takes a few minutes for the change to take effect. During this time, you can expect to still see traffic still being routed to the old server IP address. This is because the App Connector has a little tolerance on DNS resolution to handle DNS flapping. To reduce this delay, you can change the application segment's Health Reporting option to None. For more information, see About Applications.",
+      "depth": 0,
+      "strong": [
+        [
+          398,
+          414
+        ],
+        [
+          425,
+          429
+        ]
+      ]
+    },
+    {
+      "item": "SSL Interceptions",
+      "depth": 0
+    },
+    {
+      "item": "If you have an error similar to the following, a device between the App Connector and Private Access cloud service is attempting an SSL interception:",
+      "depth": 0
+    },
+    {
+      "item": "Jul 10 13:58:18 zpa-connector zpa-connector-child[992]: Received event from [uninitialized]:0;co2br.prod.zpath.net:[52.28.10.14]:443: BEV_EVENT_READING BEV_EVENT_ERROR, sock=54 self signed certificate in certificate chain /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com",
+      "depth": 0
+    },
+    {
+      "item": "Private Access does not support SSL interceptions. Private Access uses TLS connections and pinned certificates, so a device performing SSL interception causes the connection to fail between the App Connector and the Zscaler cloud.",
+      "depth": 0
+    },
+    {
+      "item": "To make sure traffic is not SSL intercepted, you need to allowlist all the Private Access domains or IP addresses in the SSL interception device that are listed on config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). This ensures that App Connectors and the Zscaler URLs (e.g., *.zpath.net, *.zscaler.com) are bypassed by an SSL inspection.",
+      "depth": 0
+    },
+    {
+      "item": "Memory Leaks or High Memory Usage",
+      "depth": 0
+    },
+    {
+      "item": "You should routinely monitor and address memory leaks or high memory usage in your App Connectors. For more information, see Monitoring App Connector Performance.",
+      "depth": 0
+    },
+    {
+      "item": "If there is a need to contact Zscaler Support, be prepared to run the following script. It collects a memory report every minute. This might need to run for at least one hour or up to multiple days.",
+      "depth": 0
+    },
+    {
+      "item": "Script:",
+      "depth": 0
+    },
+    {
+      "item": "#!/bin/bash # trap ctrl-c and call ctrl_c() trap ctrl_c INT function ctrl_c() { echo \" Trapped CTRL-C\" exit } echo \"dumping memory report at $(date)\" uname -a >> memory_report.txt hostname >> memory_report.txt lscpu >> memory_report.txt while : do echo \"dumping memory report at $(date)\" date >> memory_report.txt echo \"ps aux --sort=-pmem | head -5\" >> memory_report.txt ps aux --sort=-pmem | head -5 >> memory_report.txt echo \"curl -s 127.0.0.1:9000/memory/status\" >> memory_report.txt curl -s 127.0.0.1:9000/memory/status >> memory_report.txt echo \"curl -s 127.0.0.1:9000/memory/argo\" >> memory_report.txt curl -s 127.0.0.1:9000/memory/argo >> memory_report.txt sleep 60 done",
+      "depth": 0,
+      "strong": [
+        [
+          86,
+          678
+        ]
+      ]
+    },
+    {
+      "item": "High CPU",
+      "depth": 0
+    },
+    {
+      "item": "You should routinely monitor and address high CPU for your App Connectors. For more information, see Monitoring App Connector Performance.",
+      "depth": 0
+    },
+    {
+      "item": "If there is a need to contact Zscaler Support, be prepared to run the following script. It collects a CPU report. This might need to run for at least one hour or up to multiple days.",
+      "depth": 0
+    },
+    {
+      "item": "Script:",
+      "depth": 0
+    },
+    {
+      "item": "#!/bin/bash # trap ctrl-c and call ctrl_c() trap ctrl_c INT function ctrl_c() { echo \" Trapped CTRL-C\" exit } echo \"dumping cpu report at $(date)\" uname -a >> cpu_report.txt hostname >> cpu_report.txt lscpu >> cpu_report.txt while : do echo \"dumping cpu report at $(date)\" date >> cpu_report.txt echo \"ps aux --sort=-pcpu | head -5\" >> cpu_report.txt ps aux --sort=-pcpu | head -5 >> cpu_report.txt echo \"vmstat\" >> cpu_report.txt vmstat >> cpu_report.txt echo \"curl -s 127.0.0.1:9000/memory/status\" >> cpu_report.txt curl -s 127.0.0.1:9000/memory/status >> cpu_report.txt echo \"curl -s 127.0.0.1:9000/memory/argo\" >> cpu_report.txt curl -s 127.0.0.1:9000/memory/argo >> cpu_report.txt sleep 60 done",
+      "depth": 0,
+      "strong": [
+        [
+          86,
+          699
+        ]
+      ]
+    },
+    {
+      "item": "Unable to Connect to the Private Access (ZPA) Cloud",
+      "depth": 0
+    },
+    {
+      "item": "If you have issues with the App Connector connecting to the Private Access cloud, there are a few things to check when narrowing down what is preventing the App Connector connection:",
+      "depth": 0
+    },
+    {
+      "item": "Check the IP Address Ranges",
+      "depth": 1
+    },
+    {
+      "item": "Make sure all the IP address ranges allowed by the firewall match those in the Private Access firewall policies: config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud).",
+      "depth": 1
+    },
+    {
+      "item": "Test the Connectivity",
+      "depth": 1
+    },
+    {
+      "item": "Test connectivity to the upstream Public Service Edge for Private Access by querying the DNS address co2br.prod.zpath.net from the server that is running the App Connector software.",
+      "depth": 1
+    },
+    {
+      "item": "co2br is an endpoint for App Connectors to locate Public Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "Successful connectivity results in two IP addresses. For example:",
+      "depth": 1
+    },
+    {
+      "item": "[admin@localhost ~]$ dig +short co2br.prod.zpath.net 13.60.119.37 42.68.244.163 [admin@localhost ~]$",
+      "depth": 1
+    },
+    {
+      "item": "If you do not get two IP addresses, there is a DNS lookup issue that you need to investigate further.",
+      "depth": 1
+    },
+    {
+      "item": "Check for a TLS Connection",
+      "depth": 1
+    },
+    {
+      "item": "Test if the App Connector can make a TLS connection to a Public Service Edge using the openssl command.",
+      "depth": 1
+    },
+    {
+      "item": "A successful TLS connection results in a certificate subject string returned from the Public Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "[admin@localhost ~]$ openssl s_client -servername mockcompany.com.server1.net -connect 13.60.119.37:443 2>&1 | grep subject subject=/C=US/ST=California/L=San Jose/O=Zscaler/OU=Emerging Technologies/CN=broker1a.sjc8.prod.zpath.net [admin@localhost ~]$",
+      "depth": 1
+    },
+    {
+      "item": "If the openssl command shows an error, then there is a problem with your network. You can try running the openssl command in a loop to see if there is a regular pattern to the success/failure rate. For example, the firewall rule might not allow the App Connector to open a connection to a Public Service Edge. Sometimes TCP goes through, but TLS fails. This is a sign that the firewall is blocking the application layer, but it’s allowing the transport layer.",
+      "depth": 1
+    },
+    {
+      "item": "Get the tcpdump",
+      "depth": 1
+    },
+    {
+      "item": "Get the tcpdump and see the delay between the packet sent and the TCP RST received. If the delay is too short (e.g., 1 or 2 milliseconds), then most likely the firewall in your organization's premise is sending the RST.",
+      "depth": 1
+    },
+    {
+      "item": "Verify the Frequency of Error Occurrence",
+      "depth": 1
+    },
+    {
+      "item": "This error sometimes occurs intermittently, which indicates a networking issue either in your organization’s environment or in the internet path from the App Connector to Public Service Edge. In those cases, do the following:",
+      "depth": 1
+    },
+    {
+      "item": "Watch for messages similar to those in the example.",
+      "depth": 2
+    },
+    {
+      "item": "Check the output of journalctl -n10000 zpa-connector | grep fohh_connection_connected. These messages are printed every minute and tell you if the connection is always connected.",
+      "depth": 2
+    },
+    {
+      "item": "Review the rx and tx counters in the messages, which tell you how many bytes were transferred on this channel. Based on the state and the byte counters, you can also see if the connection is inconsistent.",
+      "depth": 2
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "* FC f_conn [10.204.5.5]:41236;broker1b.was2.prod.zpath.net:[52.4.154.137]:443:fohh_connection_connected, rx = 195538, peer_tx = 195538, tx = 855420, tx_drop = 0, tx_limit = 34409852, tx_limit_update = 1559057907248724, r_rx = 855420, r_tx_limit = 33749970, tx_wnd_update = 1559057907248724, rx_wnd_update = 1559057881252092, tx_blocked = 0, enq = 855420, deq = 855420 * FC f_conn [10.204.5.5]:41236;broker1b.was2.prod.zpath.net:[52.4.154.137]:443:fohh_connection_backoff, rx = 0, peer_tx = 0, tx = 0, tx_drop = 0, tx_limit = 33554432, tx_limit_update = 1559057922248143, r_rx = 0, r_tx_limit = 33554432, tx_wnd_update = 0, rx_wnd_update = 0, tx_blocked = 0, enq = 0, deq = 0",
+      "depth": 1
+    },
+    {
+      "item": "Do an ICMP Ping",
+      "depth": 1
+    },
+    {
+      "item": "Send an ICMP ping to the Public Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "App Connector ID Is Zero",
+      "depth": 0
+    },
+    {
+      "item": "You might see the App Connector ID as zero, if you are reviewing:",
+      "depth": 0
+    },
+    {
+      "item": "The diagnostic information about App Connectors in the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "The App Connectors’ log information in either the Live Logs on the Zscaler Admin Console or through the Log Streaming Service (LSS)",
+      "depth": 1
+    },
+    {
+      "item": "If the Central Authority cannot determine an application or resolve the connection to the App Connector for the user, it displays the App Connector ID as zero. This can occur for the following Private Access session status codes:",
+      "depth": 0
+    },
+    {
+      "item": "APP_NOT_REACHABLE.",
+      "depth": 1
+    },
+    {
+      "item": "INVALID_DOMAIN",
+      "depth": 1
+    },
+    {
+      "item": "NO_CONNECTOR_AVAILABLE",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Understanding Private Access Session Status Codes.",
+      "depth": 0
+    },
+    {
+      "item": "Larger Number of TCP Sockets in the System",
+      "depth": 0
+    },
+    {
+      "item": "This is expected behavior. Each application requires a TCP port and has its health monitored. Many of these ports can reside in a TIME_WAIT state. To learn more, see Monitoring App Connector Performance.",
+      "depth": 0
+    },
+    {
+      "item": "Too Many TCP Failures to the Server",
+      "depth": 0
+    },
+    {
+      "item": "These TCP failures are normal and are mostly due to the App Connector doing health monitoring of the application server. You can see a lot of TCP 3-way handshakes and/or RST packets if you get a pcap from the App Connector facing the application server.",
+      "depth": 0
+    },
+    {
+      "item": "Frequent Disconnections to the Private Access Cloud",
+      "depth": 0
+    },
+    {
+      "item": "If you see frequent disconnections between an App Connector to the Private Access cloud, the problem might come from a couple of areas.",
+      "depth": 0
+    },
+    {
+      "item": "Questions to address:",
+      "depth": 0
+    },
+    {
+      "item": "Is there an App Connector restart involved?",
+      "depth": 1
+    },
+    {
+      "item": "Is the disconnect only on the control or data connection?",
+      "depth": 1
+    },
+    {
+      "item": "Is there a pattern emerging out of the disconnection in data and control connection?",
+      "depth": 1
+    },
+    {
+      "item": "Could there be a routing issue? Is only a specific set of Public Service Edge IP addresses (with common prefix) having the problem?",
+      "depth": 1
+    },
+    {
+      "item": "Could the firewall have an out-of-memory state? If so, could the firewall do a TCP RST of the existing connection to claim more memory?",
+      "depth": 1
+    },
+    {
+      "item": "To find the Public Service Edge’s name and begin resolving the issue:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Logs > Insights > Diagnostics. For more information, see About App Connector Status Diagnostics.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          21
+        ],
+        [
+          24,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Under Log Type, choose App Connector Status.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          23,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Apply the Disconnected status filter:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Filters and select the Connection: Status Code filter from the drop-down menu.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          33,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Select the Equals Boolean operator from the drop-down menu.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Select the Disconnected status.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Apply.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Check the times in the Disconnect Time column to identify the correct App Connector.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          23,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Find the name in the Service Edge column to identify the Public Service Edge name or Private Service Edge for Private Access.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Repeat steps 4 and 5 if there are multiple times for the disconnection.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "App Connector Load Not Balanced",
+      "depth": 0
+    },
+    {
+      "item": "Sometimes the load (i.e., the interface stats) is not equally split between the App Connectors in the App Connector group. Private Access maintains App Connector affinity for an active user for 15 minutes following the user's last application request. If the same user accesses the same application again within the 15‑minute window, the system selects the same App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "The 15-minute timer starts at selection. If the user continues accessing the same application, the timer refreshes on each request, extending stickiness by another 15 minutes from the most recent request.",
+      "depth": 0
+    },
+    {
+      "item": "However, if an App Connector's load exceeds 70% and the load difference between App Connectors is greater than 20%, the system might reevaluate App Connector affinity and shift traffic to a different App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "You can check the Health Dashboard to help you address your questions about App Connector load balance and to see the application split between App Connectors in a given period of time.",
+      "depth": 0
+    },
+    {
+      "item": "App Connector Pause State",
+      "depth": 0
+    },
+    {
+      "item": "An App Connector can be in a paused state for one of the following reasons:",
+      "depth": 0
+    },
+    {
+      "item": "#define PAUSE_REASON_CERT_EXPIRY: Certificate expiry",
+      "depth": 1
+    },
+    {
+      "item": "#define PAUSE_REASON_UPGRADE: Software upgrade",
+      "depth": 1
+    },
+    {
+      "item": "#define PAUSE_REASON_ADMIN_PROBE_PROCESS_RESTART: Session process restart",
+      "depth": 1
+    },
+    {
+      "item": "#define PAUSE_REASON_ADMIN_PROBE_SYSTEM_RESTART: Session system restart",
+      "depth": 1
+    },
+    {
+      "item": "An App Connector provides the following log when it enters the pause state:",
+      "depth": 0
+    },
+    {
+      "item": "ASSISTANT_LOG(AL_INFO, \"Connector(ID = %\"PRId64\") (Name = %s) entering PAUSE mode because of - %s\", global_assistant.gid, assistant_state_get_configured_name(), assistant_state_get_pause_reason());",
+      "depth": 0
+    },
+    {
+      "item": "Check the journalctl logs for the reason the App Connector is in a pause state using the following command:",
+      "depth": 0
+    },
+    {
+      "item": "sudo journalctl | grep \"entering PAUSE mode because of\"",
+      "depth": 0
+    },
+    {
+      "item": "For remote troubleshooting, App Connectors might reject additional session commands when they are currently in a paused state. The following command is returned to the App Connector console when they are currently in a paused state and reject a session command:",
+      "depth": 0
+    },
+    {
+      "item": "ADMIN_PROBE_LOG(AL_NOTICE, \"entity is currently in paused mode, not taking any probe commands\");",
+      "depth": 0
+    },
+    {
+      "item": "App Connector Upgrade Failure",
+      "depth": 0
+    },
+    {
+      "item": "There are different possible reasons for App Connector upgrade failures:",
+      "depth": 0
+    },
+    {
+      "item": "Upgrade is in a failed state for more than 24-hours",
+      "depth": 1
+    },
+    {
+      "item": "Collect the outputs for the following:",
+      "depth": 1
+    },
+    {
+      "item": "sudo cat /opt/zscaler/var/version",
+      "depth": 2
+    },
+    {
+      "item": "sudo ls -lrta /opt/zscaler/var/version",
+      "depth": 2
+    },
+    {
+      "item": "sudo cat /opt/zscaler/var/updater.version",
+      "depth": 2
+    },
+    {
+      "item": "sudo /opt/zscaler/var/image.bin -version",
+      "depth": 2
+    },
+    {
+      "item": "sudo ls -lrta /opt/zscaler/var/image",
+      "depth": 2
+    },
+    {
+      "item": "Image cannot download since there is no disk space left",
+      "depth": 1
+    },
+    {
+      "item": "Check the disk space for the following directories:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo df -h /",
+      "depth": 3
+    },
+    {
+      "item": "sudo du -h /",
+      "depth": 3
+    },
+    {
+      "item": "sudo du -a/| -n -r | head -n",
+      "depth": 3
+    },
+    {
+      "item": "Delete any extra directories, except /opt/zscaler, to free up space. When disk space is available, the image downloads to opt/zscaler/var/image.bin.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Image cannot download due to inconsistent connection between the App Connector and co2br (App Connector to Public Service Edge endpoint)",
+      "depth": 1
+    },
+    {
+      "item": "Verify the App Connector has a stable connection to Public Service Edge.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "journalctl -n1000 | grep zscaler-update",
+      "depth": 2
+    },
+    {
+      "item": "The provisioning key was deleted in the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "Go to the App Connectors page and identify the App Connector’s group.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to the App Connector Provisioning key page and find the App Connector group. If the group is not listed in the App Connector group column, the key is no longer in the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Delete the App Connector and re-enroll it, which allows you to create a new provisioning key for the App Connector.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "If none of the above reasons are causing the upgrade failures, complete the following steps to try and resolve the upgrade failure:",
+      "depth": 0
+    },
+    {
+      "item": "Restart the App Connector. To learn more, see Start, Stop, or Restart an App Connector.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Stop the App Connector.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Verify that no processes are running.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[admin@localhost ~]$ sudo ps wU zscaler PID TTY STAT TIME COMMAND [admin@localhost ~]$",
+      "depth": 2
+    },
+    {
+      "item": "Start the App Connector.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Return to the App Connectors page to see if the Update Status changes from Failure to Success. If the status still says Failure, proceed to the next step.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          48,
+          61
+        ],
+        [
+          75,
+          82
+        ],
+        [
+          86,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "Check the logs and network connectivity by addressing any issues if identified.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Test connectivity to the upstream Public Service Edge by querying the DNS address co2br.prod.zpath.net from the server that is running the App Connector software.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "co2br is an endpoint for App Connectors to locate Public Service Edges.",
+      "depth": 0
+    },
+    {
+      "item": "Successful connectivity results in two IP addresses. For example:",
+      "depth": 0
+    },
+    {
+      "item": "[admin@localhost ~]$ dig +short co2br.prod.zpath.net 13.60.119.37 42.68.244.163 [admin@localhost ~]$",
+      "depth": 0
+    },
+    {
+      "item": "Check if the App Connector can start a TLS connection using the openssl command. You should receive a certificate subject string returned from the Public Service Edges. For example:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "[admin@localhost ~]$ openssl s_client -servername mockcompany.com.server1.net -connect 13.60.119.37:443 2>&1 | grep subject subject=/C=US/ST=California/L=San Jose/O=Zscaler/OU=Emerging Technologies/CN=broker1a.sjc8.prod.zpath.net [admin@localhost ~]$",
+      "depth": 1
+    },
+    {
+      "item": "If you receive a certificate subject, proceed to the next step.",
+      "depth": 0
+    },
+    {
+      "item": "If you do not receive a subject string, there is likely an error with TLS communication. Review the Private Access firewall policies and make any adjustments as needed: config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud).",
+      "depth": 0
+    },
+    {
+      "item": "Revert to the default App Connector version.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Stop the App Connector. To learn more, see Start, Stop, or Restart an App Connector.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Remove the App Connector binary image, the version identifier file, and the image metadata file.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo rm /opt/zscaler/var/image.bin [admin@zpa-connector ~]$ sudo rm /opt/zscaler/var/version [admin@zpa-connector ~]$ sudo rm /opt/zscaler/var/metadata",
+      "depth": 2
+    },
+    {
+      "item": "Start the App Connector. The App Connector reaches out to the Zscaler cloud and re-download the default App Connector software version. The App Connector attempts to upgrade at a later time.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Check the following logs to verify the software version downloaded:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo journalctl -u zpa-connector -f",
+      "depth": 2
+    },
+    {
+      "item": "If the software downloads, return to the App Connectors page to see if the Update Status changes from Failure to Scheduled.",
+      "depth": 0
+    },
+    {
+      "item": "If the software did not download or the App Connector still does not update, proceed to the next step.",
+      "depth": 0
+    },
+    {
+      "item": "Wipe and rebuild the App Connector configuration.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Before wiping and rebuilding the App Connector, you need to:",
+      "depth": 0
+    },
+    {
+      "item": "Identify the App Connector group for the App Connector.",
+      "depth": 1
+    },
+    {
+      "item": "Identify the provisioning key of the App Connector group.",
+      "depth": 1
+    },
+    {
+      "item": "On the App Connector Provisioning Keys page, verify that the number of provisioning keys in the # of Enrolled Connectors column is less than the number in the Maximum # of Connectors column for the provisioning key.",
+      "depth": 1,
+      "strong": [
+        [
+          96,
+          120
+        ],
+        [
+          159,
+          182
+        ]
+      ]
+    },
+    {
+      "item": "If needed, you can raise the maximum enrollment count. To learn more, see Editing App Connector Provisioning Keys.",
+      "depth": 0
+    },
+    {
+      "item": "Stop the App Connector. To learn more, see Start, Stop, or Restart an App Connector.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Wipe the configuration directory.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector]$ sudo su [sudo] password for admin: [root@zpa-connector admin]# rm -rf /opt/zscaler/var/*",
+      "depth": 1
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key [admin@zpa-connector ~]$ sudo chmod 644 /opt/zscaler/var/provision_key",
+      "depth": 1
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console and use an editor to paste it into the file. To learn more, see About the App Connector Provisioning Keys Page.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Save the provisioning key file.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Start the App Connector. The App Connector service should pick up the provisioning key and re-enroll the App Connector under the appropriate App Connector group.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Enrollment Failure",
+      "depth": 0
+    },
+    {
+      "item": "If there is a failure when bringing up a new App Connector, check the following:",
+      "depth": 0
+    },
+    {
+      "item": "The primary domain name length is less than 36 characters. Names greater than 36 characters can cause problems when forming a certificate.",
+      "depth": 1
+    },
+    {
+      "item": "The user account “zscaler” has read access to /etc/resolv.conf",
+      "depth": 1
+    },
+    {
+      "item": "The user account “zscaler” has write access to /opt/zscaler/var",
+      "depth": 1
+    },
+    {
+      "item": "Have Less Than 100 Active App Connectors, But Can’t Enroll More",
+      "depth": 0
+    },
+    {
+      "item": "You might experience issues where you cannot enroll a new App Connector in the Zscaler Admin Console, but you have less than 100 active App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "Within the Zscaler Admin Console, you can have up to 100 App Connectors. This total includes both App Connectors enrolled that are active and App Connectors that are disabled, but not deleted. If you need to add more App Connectors, delete the disabled App Connectors and try enrolling your new App Connectors. To learn more, see Configuring App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector was provisioned in an AWS IMDSv2 required environment with App Connector version 24.566.1 or earlier, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change. This is due to IMDSv2 support added on App Connector versions 24.650.1 and later. Zscaler recommends that you manually delete the original App Connector from the Zscaler Admin Console to avoid consuming provisioning keys.",
+      "depth": 0
+    },
+    {
+      "item": "If you require an increase in the number of App Connectors, contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "IMDSv2 Migrated App Connector Fails to Enroll to Private Access",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector was provisioned in an AWS IMDSv2 required environment with App Connector version 24.566.1 or earlier, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change. This is because IMDSv2 support was added on App Connector version 24.650.1 and later. Zscaler recommends that you manually delete the original App Connector from the Zscaler Admin Console to avoid consuming provisioning keys. You might experience issues where you cannot enroll a new App Connector with the AWS-related provisioning key because it has exceeded its maximum key usage.",
+      "depth": 0
+    },
+    {
+      "item": "This total includes both App Connectors enrolled that are active and App Connectors that are disabled, but not deleted. If you need to add more App Connectors or the IMDSv2 App Connector re-enrollment stalls, delete any disabled or disconnected App Connectors and try enrolling your new App Connectors again. To learn more, see Configuring App Connectors. Alternatively, you can increase the Maximum Reuse of Provisioning Key option. To learn more, see Editing App Connector Provisioning Keys.",
+      "depth": 0,
+      "strong": [
+        [
+          392,
+          425
+        ]
+      ]
+    },
+    {
+      "item": "If you require an increase in the number of App Connectors due to the tenant's maximum App Connector system limit being reached (100 by default), contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "Certificate Is Not Valid Yet",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector is not enrolling, you might see an error signifying that the certificate is not valid yet, similar to the following:",
+      "depth": 0
+    },
+    {
+      "item": "The domain (e.g., api.private.com) in the echo statement will depend on what Private Access cloud you are on.",
+      "depth": 0
+    },
+    {
+      "item": "Mar 02 11:49:56 zpa-connector zpa-connector-child[10500]: This provisioning key has already been enrolled. Attempting to re-enroll Mar 02 11:49:56 zpa-connector zpa-connector-child[10500]: Send CSR from api.private.zscaler.com/shift/api/v1/admin/assistant/onboard/csr failed: Expected HTTP 204, got HTTP 400 Mar 02 11:49:56 zpa-connector zpa-connector-child[10500]: Send CSR failed, but that may be because we posted it in the past, so it is ok. Mar 02 11:49:56 zpa-connector zpa-connector-child[10500]: Certificates retrieved do not successfully verify: depth 0:certificate is not yet valid, cert= -----BEGIN CERTIFICATE----- MIIDVTCCAj2gAwIBAgIRANb8NfIMTEiZ4WQxHGgSWSswDQYJKoZIhvcNAQELBQAw... Mar 02 11:49:56 zpa-connector zpa-connector-child[10500]: Certificate enrollment failed. Mar 02 11:49:57 zpa-connector zpa-connector[10437]: zscaler-update: zpa-connector-child exited too fast, was running for 2 s",
+      "depth": 0
+    },
+    {
+      "item": "The App Connector enrollment process involves the creation of certificates. If the App Connector’s timestamp does not match the timestamp on the Private Access back-end servers, there can be a delay before the certificate becomes valid and enrolls the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve this issue, verify that the time on the App Connector is properly set and maintained. To learn more, see Networking Deployed Software Components.",
+      "depth": 0
+    },
+    {
+      "item": "Disaster Recovery Configuration and Binary Snapshot Not Captured",
+      "depth": 0
+    },
+    {
+      "item": "If the disk space utilization of the App Connector exceeds 90%, the configuration and binary snapshots used for disaster recovery can no longer be captured until the low disk space condition is resolved.",
+      "depth": 0
+    },
+    {
+      "item": "Check the disk space in the following directories:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo df -h / sudo du -h / sudo du -a/| -n -r | head -n",
+      "depth": 0
+    },
+    {
+      "item": "Review and delete any extra directories, except /opt/zscaler, to free up space. After sufficient disk space is available, the snapshot creation resumes and the snapshots are sent to the following directories:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Configuration: /opt/zscaler/var/config_snapshots",
+      "depth": 1
+    },
+    {
+      "item": "Binary: /opt/zscaler/var/binary_snapshots",
+      "depth": 1
+    },
+    {
+      "item": "Disaster Recovery Debugging",
+      "depth": 0
+    },
+    {
+      "item": "When troubleshooting for disaster recovery, consider the following debug commands:",
+      "depth": 0
+    },
+    {
+      "item": "Dump the List of Applications Designated for Disaster Recovery",
+      "depth": 1
+    },
+    {
+      "item": "During a disaster scenario, it might be necessary to review the list of applications designated for disaster recovery. To dump the list of applications designated for disaster recovery, use the following curl command:",
+      "depth": 1
+    },
+    {
+      "item": "curl 'localhost:9000/assistant/zpn_dr/show_dr_apps'",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "% curl 'localhost:9000/assistant/zpn_dr/show_dr_apps' App#1 name: test1_dr_app_enabled app_gid: 145257608574402742 App#2 name: test2_app_segment app_gid: 145257608574402724 App#3 name: test3_dr_app app_gid: 145257608574402582 %",
+      "depth": 1
+    },
+    {
+      "item": "Dump the Stats of the Configuration JSON Files",
+      "depth": 1
+    },
+    {
+      "item": "Configuration and binary snapshots are copies of the disaster recovery configuration and binary files used for backup when App Connectors or Private Service Edges are designated for disaster recovery. To learn more, see Managing Disaster Recovery Configuration and Binary Snapshots.",
+      "depth": 1
+    },
+    {
+      "item": "To dump the stats of the configuration JSON files, use the following curl command:",
+      "depth": 1
+    },
+    {
+      "item": "curl 'localhost:9000/assistant/zpn_dr/config_json_stats'",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "% curl 'localhost:9000/assistant/zpn_dr/config_json_stats' Config file name :unknown, size :0 bytes, last_modified_time:Sep 30 22:36 2022 Config file name :customer_conf.json, size :17218 bytes, last_modified_time:Sep 30 22:36 2022 Config file name :application_conf.json, size :13336 bytes, last_modified_time:Sep 30 22:36 2022 Config file name :override_conf.json, size :83386 bytes, last_modified_time:Sep 30 22:36 2022 Config file name :other_conf.json, size :0 bytes, last_modified_time:Sep 30 22:36 2022",
+      "depth": 1
+    },
+    {
+      "item": "Resolve the Disaster Recovery DNS A and DNS TXT Records",
+      "depth": 1
+    },
+    {
+      "item": "During a disaster scenario, it might be necessary to update an incorrect DNS record domain name. To resolve the disaster recovery DNS A and DNS TXT records and display the output to standard output, use the following curl command:",
+      "depth": 1
+    },
+    {
+      "item": "curl 'localhost:9000/assistant/zpn_dr/resolve_dr_domain?record_type={argument}'",
+      "depth": 1
+    },
+    {
+      "item": "Provide one of the following expected values for the record_type argument:",
+      "depth": 1
+    },
+    {
+      "item": "A: Indicates a DNS A record.",
+      "depth": 2
+    },
+    {
+      "item": "TXT: Indicates a DNS TXT record.",
+      "depth": 2
+    },
+    {
+      "item": "The argument values are not case-sensitive, meaning the values a and txt are supported as well.",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "% curl 'localhost:9000/assistant/zpn_dr/resolve_dr_domain?record_type=a' Resolving DR domain:dr.zpa.drdemo.com record_type:A Synchronous. DNS A response addr1 : 192.168.76.18 %",
+      "depth": 1
+    },
+    {
+      "item": "Show the Critical Settings for Disaster Recovery",
+      "depth": 1
+    },
+    {
+      "item": "During a disaster scenario, it might be necessary to review the disaster recovery settings that were configured. To show the critical settings for disaster recovery, use the following curl command:",
+      "depth": 1
+    },
+    {
+      "item": "curl 'localhost:9000/assistant/zpn_dr/show_configuration'",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "% curl 'localhost:9000/assistant/zpn_dr/show_configuration' DR activation domain: dr.zpa.drdemo.com DR publickey uploaded: NO DR Max auth interval secs: 1209600 %",
+      "depth": 1
+    },
+    {
+      "item": "In Disaster Recovery Mode and Disaster Recovery Test Mode, all App Connectors in an App Connector group that are designated for disaster recovery restart their zpa-connector services, and all Private Service Edges in a Private Service Edge group that are designated for disaster recovery restart their zpa-service-edge services. When the services restart, existing user connections to the test App Connectors and Private Service Edges that are designated for disaster recovery are dropped. To learn more, see Configuring Disaster Recovery.",
+      "depth": 0
+    }
+  ]
+}

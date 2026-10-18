@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "API Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/api-authentication-1",
+    "node": "1409626",
+    "revision": "3160741",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/API%20Authentication_24.json?VersionId=AucIZWUnNkDvb5B4ptscgBuhHeVkLMDh"
+  },
+  "captured_at": "2026-10-18",
+  "spec": {
+    "openapi": "3.0.3",
+    "info": {
+      "title": "ZDX API",
+      "version": "0.1.0",
+      "description": "APIs for Zscaler Digital Experience (ZDX).\n"
+    },
+    "servers": [
+      {
+        "url": "https://api.zdxcloud.net/v1",
+        "description": "production"
+      },
+      {
+        "url": "https://dev.zdxapi.zscaler.net/v1",
+        "description": "dev"
+      },
+      {
+        "url": "http://localhost:8080/v1",
+        "description": "local"
+      }
+    ],
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "tags": {
+      "0": {
+        "name": "API Authentication"
+      }
+    },
+    "paths": {
+      "/oauth/token": {
+        "post": {
+          "description": "Authenticate using the API key_id and key_secret from the ZDX Admin Portal to access ZDX Public APIs. The response returns a token that must be used in subsequent requests.",
+          "tags": [
+            "API Authentication"
+          ],
+          "security": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key_id": {
+                      "type": "string",
+                      "description": "The Key ID from the ZDX Admin Portal."
+                    },
+                    "key_secret": {
+                      "type": "string",
+                      "description": "The Key Secret from the ZDX Admin Portal."
+                    }
+                  },
+                  "required": [
+                    "key_id",
+                    "key_secret"
+                  ],
+                  "example": {
+                    "key_id": "1&zj&7u0dihns4th3pt7&s1om2b6usl9",
+                    "key_secret": "p*99n!4b3jpnrs&&$61jxnx$je5j1ek0:1643829184"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Operation. The response contains the token and the token type. The token is valid for 3600 seconds.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string",
+                        "description": "Token"
+                      },
+                      "token_type": {
+                        "type": "string",
+                        "description": "Token Type",
+                        "default": "Bearer"
+                      },
+                      "expires_in": {
+                        "type": "integer",
+                        "default": 3600,
+                        "description": "The expiry time in seconds."
+                      }
+                    },
+                    "required": [
+                      "token",
+                      "token_type",
+                      "expires_in"
+                    ],
+                    "example": {
+                      "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik5qVkJSalk1TURsQ01VSXdOelU0UlRBMlF6WkZNRFE0UXpRMk1EQXlRalZETmprMVJUTTJRZyJ9.eyJzdWIiOiIxJnpqJjd1MGRpaG5zNHRoM3B0NyZzMW9tMmI2dXNsOSIsImF1ZCI6InpzY2FsZXJ0d28ubmV0LjEyMTk5MDAiLCJpYXQiOjE2NDM0MTU5NDMsImV4cCI6MTY0MzQxOTU0M30.OV7JDeqjYTolbsSB2JGbKtvq8tgnIxC9UNWRUliE2g6ST6olV-wxjAZ2iyjQP6DEJedgvZBLrbMfaLTcvUpcNZYXWIr_VlFjE3qxd50FSp0zPAWvB2QJahyYr40pL9WPMkxuCV_z-P7tnAYxaW8BaYC03s0HcEBgzh6GaMfH4pSXd7Cxh0vNAbNtPsfOpjifoOeTpbbwzyTGm6QXd0MuG7ttZgT9D1mVmurM5LHJF0YQXmZWGAu-dwKqcKWrCdHYdp4hfuMLFnSmEjYyKeglcYalxaQL4ZPxnGcOLPm4t7iRc2iYmU0FJjq1ZJpKHy04EyUnOvuPc8mCxV79HfVSUsB0SkIxoH2CoFAdrgwlqln-jaaDcy5M86soSdpUUKNj3tu2syf8Ch8ZT6TtpxjyQ5G_BsOl-up-JklsiRG2-Chftt2MT8NFZaRp0n8pH7J4Pl-hQbsQKtxOZvNRW2m7GZ8BOR7nWvXgMSzykiwXueHZRfTUHHOw-yxZtwcdwJRAPIml40FMub52ov7_ir866ro_ZggAcVkikdnQnKfmja-D1lIg2ZvP03MOfaPz9ww5ocfG3swylwqPPEK2FtRjMf4L1so2sJUsNqdU_10q7I5LvGh3yqCYaYSeU6fFNiopC0ntIbZ17OZDJjdjEOml_pT6GDvnI4T_H2rfze0c1Fk",
+                      "token_type": "Bearer",
+                      "expires_in": 3600
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/oauth/jwks": {
+        "get": {
+          "description": "Returns a JSON Web Key Set (JWKS) that contains the public keys that can be used to verify the JWT tokens.",
+          "tags": [
+            "API Authentication"
+          ],
+          "security": [],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "keys": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "alg": {
+                              "type": "string",
+                              "description": "The cryptographic algorithm used with the key.",
+                              "default": "RS256"
+                            },
+                            "kty": {
+                              "type": "string",
+                              "description": "The family of the cryptographic algorithms used with the key.",
+                              "default": "RSA"
+                            },
+                            "use": {
+                              "type": "string",
+                              "description": "How the key is meant to be used. The value sig represents signature.",
+                              "default": "sig"
+                            },
+                            "x5c": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "The x.509 certificate chain. The first entry in the array is the certificate used for token verification and the other certificates are used to verify the first certificate."
+                            },
+                            "kid": {
+                              "type": "string",
+                              "description": "The unique identifier of the key."
+                            },
+                            "x5t": {
+                              "type": "string",
+                              "description": "The thumbprint of the x.509 certeficate (SHA-1 thumbprint)."
+                            }
+                          },
+                          "required": [
+                            "kid",
+                            "x5c",
+                            "x5t"
+                          ],
+                          "example": {
+                            "alg": "RS256",
+                            "kty": "RSA",
+                            "use": "sig",
+                            "x5c": [
+                              "MIIC+DCCAeCgAwIBAgIJBIGjYW6hFpn2MA0GCSqGSIb3DQEBBQUAMCMxITAfBgNVBAMTGGN1c3RvbWVyLWRlbW9zLmF1dGgwLmNvbTAeFw0xNjExMjIyMjIyMDVaFw0zMDA4MDEyMjIyMDVaMCMxITAfBgNVBAMTGGN1c3RvbWVyLWRlbW9zLmF1dGgwLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMnjZc5bm/eGIHq09N9HKHahM7Y31P0ul+A2wwP4lSpIwFrWHzxw88/7Dwk9QMc+orGXX95R6av4GF+Es/nG3uK45ooMVMa/hYCh0Mtx3gnSuoTavQEkLzCvSwTqVwzZ+5noukWVqJuMKNwjL77GNcPLY7Xy2/skMCT5bR8UoWaufooQvYq6SyPcRAU4BtdquZRiBT4U5f+4pwNTxSvey7ki50yc1tG49Per/0zA4O6Tlpv8x7Red6m1bCNHt7+Z5nSl3RX/QYyAEUX1a28VcYmR41Osy+o2OUCXYdUAphDaHo4/8rbKTJhlu8jEcc1KoMXAKjgaVZtG/v5ltx6AXY0CAwEAAaMvMC0wDAYDVR0TBAUwAwEB/zAdBgNVHQ4EFgQUQxFG602h1cG+pnyvJoy9pGJJoCswDQYJKoZIhvcNAQEFBQADggEBAGvtCbzGNBUJPLICth3mLsX0Z4z8T8iu4tyoiuAshP/Ry/ZBnFnXmhD8vwgMZ2lTgUWwlrvlgN+fAtYKnwFO2G3BOCFw96Nm8So9sjTda9CCZ3dhoH57F/hVMBB0K6xhklAc0b5ZxUpCIN92v/w+xZoz1XQBHe8ZbRHaP1HpRM4M7DJk2G5cgUCyu3UBvYS41sHvzrxQ3z7vIePRA4WF4bEkfX12gvny0RsPkrbVMXX1Rj9t6V7QXrbPYBAO+43JvDGYawxYVvLhz+BJ45x50GFQmHszfY3BR9TPK8xmMmQwtIvLu1PMttNCs7niCYkSiUv2sc2mlq1i3IashGkkgmo="
+                            ],
+                            "kid": "NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg",
+                            "x5t": "NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/oauth/validate": {
+        "get": {
+          "description": "Checks if the JWT token is valid.",
+          "tags": [
+            "API Authentication"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation. The JWKS keys are valid.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "valid": {
+                        "type": "boolean",
+                        "description": "Indicates whether the JWT token is valid or not."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "responses": {
+        "UnauthorizedError": {
+          "description": "Unauthorized"
+        },
+        "Forbidden": {
+          "description": "Forbidden"
+        }
+      }
+    }
+  }
+}

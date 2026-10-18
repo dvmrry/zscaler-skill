@@ -24,7 +24,7 @@ Named SPL patterns scoped to this skill's question shapes. Answers cite a patter
 
 ## Field-name conventions
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -34,7 +34,7 @@ The patterns use **NSS-native field names** as documented in the Zscaler log sch
 
 ## Parameter conventions
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -60,7 +60,7 @@ If a pattern's correctness depends on a clarification still being open, prefer a
 
 ## Operating discipline
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -76,7 +76,7 @@ This catalog operates under the SIEM-generic emission discipline in [`siem-emiss
 
 ## Patterns
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -208,7 +208,7 @@ The `index` column tells you which side blocked.
 
 ## Tenant-portable index naming
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -439,7 +439,7 @@ index=$INDEX_ZPA_STATUS PosturesMiss!="" earliest=-24h
 
 ## Zscaler Technology Add-on for Splunk (TA)
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -482,7 +482,7 @@ For ZPA LSS logs, the TA does not define a default ZPA sourcetype — ZPA LSS ar
 
 ## Tenant-portable index naming (updated)
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/nss-dns-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/nss-feed-output-format-dns-logs.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -515,7 +515,7 @@ Per-field ambiguities affecting pattern semantics — high-impact ones for SPL a
 
 ## ZCC correlation patterns
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -587,7 +587,7 @@ index=$INDEX_ZIA_WEB earliest=-24h
 
 ## ZDX log patterns
 
-Source: `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`.
+Source: `vendor/zscaler-help/understanding-user-activity-log-fields.json`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/applications/applications.go`; `vendor/zscaler-sdk-go/zscaler/zdx/services/reports/devices/devices.go`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 
@@ -641,7 +641,7 @@ Interpretation: ZDX score drop coinciding with `ConnectionStatus!=Active` in ZPA
 
 ## Cross-stream user-session reconstruction
 
-Source: `vendor/zscaler-help/nss-web-logs.csv`; `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt`.
+Source: `vendor/zscaler-help/nss-feed-output-format-web-logs.json`; `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/understanding-user-activity-log-fields.json`.
 
 Splunk syntax reference: https://docs.splunk.com/Documentation/SplunkCloud/latest/SearchReference.
 

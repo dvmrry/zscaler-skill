@@ -15,11 +15,11 @@ verified-against:
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.json"
   - "vendor/zscaler-help/ai-guard-help-index.md"
-  - "vendor/zscaler-help/ai-guard-users-help-index.md"
+  - "vendor/zscaler-help/ai-guard-users-help-index.json"
   - "vendor/zscaler-help/ai-guard-configuring-custom-block-messages.json"
   - "vendor/zscaler-help/ai-guard-users-and-user-groups.json"
-  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json"
-  - "vendor/zscaler-help/ai-guard-release-update-2026-09-02.json"
+  - "vendor/zscaler-help/ai-guard-users-release-20260909.json"
+  - "vendor/zscaler-help/ai-guard-users-release-20260909.json"
   - "vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json"
   - "vendor/zscaler-help/ai-guard-apps-log-exports-20260909.json"
   - "vendor/zscaler-help/ai-guard-apps-release-20260909.json"
@@ -33,8 +33,8 @@ sources:
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-proxy-mode.md"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
   - "vendor/zscaler-help/ai-guard-dashboard.json"
-  - "vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.json"
-  - "vendor/zscaler-help/ai-guard-users-dashboard.json"
+  - "vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json"
+  - "vendor/zscaler-help/ai-guard-dashboard.json"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-insights.json"
   - "vendor/zscaler-help/ai-guard-about-ai-guard-usage.json"
   - "vendor/zscaler-help/ai-guard-managing-tenant-settings.json"
@@ -45,7 +45,7 @@ sources:
   - "vendor/zscaler-help/ai-guard-add-and-manage-ai-guard-policies.json"
   - "vendor/zscaler-help/ai-guard-managing-ai-guard-policy-control.json"
   - "vendor/zscaler-help/ai-guard-ai-guard-policy-testing.json"
-  - "vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.json"
+  - "vendor/zscaler-help/ai-guard-users-log-exports-20260909.json"
   - "vendor/zscaler-sdk-python/pyproject.toml"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
@@ -109,9 +109,9 @@ author-status: draft
 
 ## Certification scope
 
-Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guard-users-help-index.md`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.json`; `vendor/zscaler-help/ai-guard-users-and-user-groups.json`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.json`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.json`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.json`; `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json`; `vendor/zscaler-help/ai-guard-release-update-2026-09-02.json`; `vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.json`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-sdk-python/pyproject.toml`; `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/CHANGELOG.md`; `vendor/zguard-ai-integrations/AWS/README.md`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md`; `vendor/zguard-ai-integrations/Google/README.md`.
+Source: `vendor/zscaler-help/ai-guard-what-is.json`; `vendor/zscaler-help/ai-guard-users-help-index.json`; `vendor/zscaler-help/ai-guard-configuring-custom-block-messages.json`; `vendor/zscaler-help/ai-guard-users-and-user-groups.json`; `vendor/zscaler-help/ai-guard-step-step-configuration-guide-ai-guard.md`; `vendor/zscaler-help/ai-guard-managing-role-based-access-control-ai-guard.json`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.json`; `vendor/zscaler-help/ai-guard-configuring-zia-proxy-chain-ai-guard.json`; `vendor/zscaler-help/ai-guard-users-release-20260909.json`; `vendor/zscaler-help/ai-guard-users-release-20260909.json`; `vendor/zscaler-help/adding-ai-ml-applications-rule-cloud-app-control.json`; `vendor/zscaler-sdk-python/zscaler/aiguard/aiguard_service.py`; `vendor/zscaler-sdk-python/zscaler/aiguard/policy_detection.py`; `vendor/zscaler-sdk-python/pyproject.toml`; `vendor/zguard-ai-integrations/README.md`; `vendor/zguard-ai-integrations/CHANGELOG.md`; `vendor/zguard-ai-integrations/AWS/README.md`; `vendor/zguard-ai-integrations/OpenAI/codex-hooks/README.md`; `vendor/zguard-ai-integrations/Google/README.md`.
 
-The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with the Python SDK's 1.9.39-introduced OneAPI configuration and separately routed legacy policy-detection surfaces as retained in current v1.9.44 (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; `vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current public `/secure-ai-users` root contains 25 AI Guard for Users articles—six Getting Started, eight Configuration, two Best Practices, seven Monitoring, and two Troubleshooting (`vendor/zscaler-help/ai-guard-users-help-index.md:1-48`). The portal separates dashboard documentation into **AI Guard for Users** and **Apps & Infrastructure** surfaces (`vendor/zscaler-help/ai-guard-users-dashboard.json:8-16`; `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.json:8-16`); both dashboard bodies are captured, as are current custom-block-message and user/group-sync bodies (`vendor/zscaler-help/ai-guard-configuring-custom-block-messages.json:8-24`; `vendor/zscaler-help/ai-guard-users-and-user-groups.json:8-24`). The rest of the current tree remains only partially mined. Treat current Help coverage as indexed and partial rather than fully certified.
+The 2026-05-22 AI Guard Help tree is captured and mapped at article-body depth, along with the Python SDK's 1.9.39-introduced OneAPI configuration and separately routed legacy policy-detection surfaces as retained in current v1.9.44 (`vendor/zscaler-sdk-python/CHANGELOG.md:141-206`; `vendor/zscaler-sdk-python/pyproject.toml:1-4`; `vendor/zscaler-sdk-python/zscaler/oneapi_client.py:343-385`, `:671-712`) and public `zscaler/zguard-ai-integrations` examples. The current public `/secure-ai-users` root contains 25 AI Guard for Users articles—six Getting Started, eight Configuration, two Best Practices, seven Monitoring, and two Troubleshooting (`vendor/zscaler-help/ai-guard-users-help-index.json:1-48`). The portal separates dashboard documentation into **AI Guard for Users** and **Apps & Infrastructure** surfaces (`vendor/zscaler-help/ai-guard-dashboard.json:8-16`; `vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json:8-16`); both dashboard bodies are captured, as are current custom-block-message and user/group-sync bodies (`vendor/zscaler-help/ai-guard-configuring-custom-block-messages.json:8-24`; `vendor/zscaler-help/ai-guard-users-and-user-groups.json:8-24`). The rest of the current tree remains only partially mined. Treat current Help coverage as indexed and partial rather than fully certified.
 
 This certification does not assert private roadmap features, tenant-specific entitlements, commercial packaging, unpublished admin APIs, or portal behavior not present in the captured public sources. Those remain explicit open questions rather than hidden assumptions.
 
@@ -278,12 +278,12 @@ AI Guard RBAC supports custom roles for system users managed through ZIdentity o
 
 ## Observability
 
-Source: `vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.json`; `vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json`; `vendor/zscaler-help/ai-guard-users-dashboard.json`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.json`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.json`; `vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.json`; `vendor/zscaler-help/ai-guard-apps-log-exports-20260909.json`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.json`; `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json`; `vendor/zscaler-help/ai-guard-apps-release-20260909.json`; `vendor/zscaler-help/ai-guard-users-release-20260909.json`; `vendor/zscaler-help/ai-guard-release-update-2026-09-02.json`.
+Source: `vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json`; `vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json`; `vendor/zscaler-help/ai-guard-dashboard.json`; `vendor/zscaler-help/ai-guard-about-ai-guard-insights.json`; `vendor/zscaler-help/ai-guard-about-ai-guard-usage.json`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.json`; `vendor/zscaler-help/ai-guard-apps-log-exports-20260909.json`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.json`; `vendor/zscaler-help/ai-guard-users-release-20260909.json`; `vendor/zscaler-help/ai-guard-apps-release-20260909.json`; `vendor/zscaler-help/ai-guard-users-release-20260909.json`; `vendor/zscaler-help/ai-guard-users-release-20260909.json`.
 
 | Surface | Description |
 |---|---|
-| Dashboard — Users | The **Users** tab reports user, LLM, policy-detection, and transaction counts. Rows expose date/time, user, policy name, severity, prompt/response detections, LLM, and prompt/response actions; the article documents date ranges of up to 90 days (`vendor/zscaler-help/ai-guard-users-dashboard.json:11-28`). |
-| Dashboard — Apps & Infrastructure | The current rendered body reports application, LLM, policy-detection, and transaction counts and supports individual prompt transactions or connected multi-prompt conversation threads. **Conversations** shows a message icon indicating the transaction count and expandable transactions; selecting a conversation opens Transaction Details, and **Reveal Prompt** shows a full chat-style exchange. Conversation grouping respects existing session boundary logic. The 2026-09-09 body does not state Proxy, DAS, or API mode (`vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json:14-47`). The prior condensed capture dated **2026-08-04** said conversation-thread viewing was DAS/API-only and absent in Proxy, while the current Apps and Users release entries announce Proxy-mode multi-turn conversation viewing. Retain this as dated source-boundary evidence, not proof of tenant rollout or API coverage (`vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.json:4`, `:23-28`; `vendor/zscaler-help/ai-guard-apps-release-20260909.json:27-46`; `vendor/zscaler-help/ai-guard-users-release-20260909.json:38-57`; `vendor/zscaler-help/ai-guard-release-update-2026-09-02.json:25-30`). |
+| Dashboard — Users | The **Users** tab reports user, LLM, policy-detection, and transaction counts. Rows expose date/time, user, policy name, severity, prompt/response detections, LLM, and prompt/response actions; the article documents date ranges of up to 90 days (`vendor/zscaler-help/ai-guard-dashboard.json:11-28`). |
+| Dashboard — Apps & Infrastructure | The current rendered body reports application, LLM, policy-detection, and transaction counts and supports individual prompt transactions or connected multi-prompt conversation threads. **Conversations** shows a message icon indicating the transaction count and expandable transactions; selecting a conversation opens Transaction Details, and **Reveal Prompt** shows a full chat-style exchange. Conversation grouping respects existing session boundary logic. The 2026-09-09 body does not state Proxy, DAS, or API mode (`vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json:14-47`). The prior condensed capture dated **2026-08-04** said conversation-thread viewing was DAS/API-only and absent in Proxy, while the current Apps and Users release entries announce Proxy-mode multi-turn conversation viewing. Retain this as dated source-boundary evidence, not proof of tenant rollout or API coverage (`vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json:4`, `:23-28`; `vendor/zscaler-help/ai-guard-apps-release-20260909.json:27-46`; `vendor/zscaler-help/ai-guard-users-release-20260909.json:38-57`; `vendor/zscaler-help/ai-guard-users-release-20260909.json:25-30`). |
 | Insights | Executive overview of prompts, responses, active apps/LLMs, blocked counts, token counts, detection latency, trends over time, security posture, transactions by LLM/application, top detectors, and PII detections/categories. |
 | Usage | Usage view by AI application or user, including prompt/response content size, prompt tokens, and response tokens. |
 | Log Exports | Current Apps & Infrastructure and Users bodies document ADX Event Hub, **CRWD SIEM Direct Export**, **CRWD SIEM Export (via S3)**, AWS S3, and Splunk event exporting. The direct CrowdStrike path sends event metadata to CrowdStrike HEC; the via-S3 path sends metadata to HEC and event contents to AWS S3. The current integration forms expose prompt-action filters and an **Export Tools Field** control enabled by default, which can remove Tools from event-log metadata (`vendor/zscaler-help/ai-guard-apps-log-exports-20260909.json:15-123`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.json:14-124`). |
@@ -295,17 +295,17 @@ The supplemental release entry records three updates:
 
 - **Proxy-mode conversation view:** multi-turn conversation viewing in the AI
   Guard dashboard, so administrators can inspect a conversation thread instead
-  of reviewing each transaction separately (`vendor/zscaler-help/ai-guard-release-update-2026-09-02.json:7-11`).
+  of reviewing each transaction separately (`vendor/zscaler-help/ai-guard-users-release-20260909.json:7-11`).
 - **Anthropic webhook connection test:** administrators can test the AI Guard
   webhook connection from the Anthropic console; the entry links to *Managing
-  Tenant Settings* (`vendor/zscaler-help/ai-guard-release-update-2026-09-02.json:13-17`).
+  Tenant Settings* (`vendor/zscaler-help/ai-guard-users-release-20260909.json:13-17`).
 - **Dashboard enhancements:** the events view adds a **Policy Control Name**
   column identifying the policy control matched by an event, and dashboard
-  columns can be resized (`vendor/zscaler-help/ai-guard-release-update-2026-09-02.json:19-23`).
+  columns can be resized (`vendor/zscaler-help/ai-guard-users-release-20260909.json:19-23`).
 
 The September 2 release announcement differs from the **2026-08-04** Apps
 dashboard capture, which explicitly excluded Proxy-mode conversation viewing
-(`vendor/zscaler-help/ai-guard-apps-infrastructure-dashboard.json:4`, `:23-28`).
+(`vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json:4`, `:23-28`).
 That restriction is absent from the **2026-09-09** Apps body, so the older
 capture is historical evidence, not a current dashboard restriction
 (`vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json:37-47`). Neither the
@@ -314,12 +314,12 @@ API contract.
 
 The captured dashboard articles organize transaction details into Overview,
 Detection Summary, Performance & Network Stats, Custom Request Headers, and
-Prompt Details (`vendor/zscaler-help/ai-guard-users-dashboard.json:23-28`;
+Prompt Details (`vendor/zscaler-help/ai-guard-dashboard.json:23-28`;
 `vendor/zscaler-help/ai-guard-apps-dashboard-20260909.json:59-60`). The Users
 article was captured on **2026-08-04** and was not refreshed in this pass. That
 capture does not document the multi-prompt Conversations view; this does not
 establish current availability for user transactions
-(`vendor/zscaler-help/ai-guard-users-dashboard.json:4`, `:30-32`).
+(`vendor/zscaler-help/ai-guard-dashboard.json:4`, `:30-32`).
 
 The 2026-05-22 legacy log-export body preserves the earlier field-level split:
 ADX requires a metadata Event Hub and accepts an optional content Event Hub;
@@ -327,7 +327,7 @@ CrowdStrike sends metadata to HEC and content to an AWS S3 bucket; the S3
 integration uses separate metadata and content buckets; and Splunk requires a
 metadata HEC endpoint with an optional content HEC endpoint. Each integration
 offers allowed/detected-prompt and blocked-prompt export filters
-(`vendor/zscaler-help/ai-guard-managing-ai-guard-log-exports.json:15-99`). The
+(`vendor/zscaler-help/ai-guard-users-log-exports-20260909.json:15-99`). The
 current 2026-09-09 bodies now provide the corresponding field-level Help
 coverage: Apps & Infrastructure lists direct and via-S3 CrowdStrike fields,
 separate S3 metadata/content buckets with IAM role fields, and Splunk metadata/
@@ -342,7 +342,7 @@ dashboard event tables support CSV as well as PDF export (`vendor/zscaler-help/a
 
 The 2026-09-03 release/body comparison is now dated historical evidence: it
 reported that the then-observed Users and Apps & Infrastructure bodies omitted
-**Direct Export**, **SIEM**, and `zscaler-aiguard` (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json:79-96`). The current 2026-09-09 rendered bodies now explicitly include **CRWD SIEM Direct Export** and the default-enabled **Export Tools Field** control (`vendor/zscaler-help/ai-guard-apps-log-exports-20260909.json:35-56`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.json:34-55`). The August 26 release entries still name the CrowdStrike parser `zscaler-aiguard` (`vendor/zscaler-help/ai-guard-apps-release-20260909.json:47-60`; `vendor/zscaler-help/ai-guard-users-release-20260909.json:58-71`). No independent parser artifact or live connector acceptance is established by these Help captures, so parser availability remains release-noted rather than independently verified; do not infer entitlement or rollout.
+**Direct Export**, **SIEM**, and `zscaler-aiguard` (`vendor/zscaler-help/ai-guard-users-release-20260909.json:79-96`). The current 2026-09-09 rendered bodies now explicitly include **CRWD SIEM Direct Export** and the default-enabled **Export Tools Field** control (`vendor/zscaler-help/ai-guard-apps-log-exports-20260909.json:35-56`; `vendor/zscaler-help/ai-guard-users-log-exports-20260909.json:34-55`). The August 26 release entries still name the CrowdStrike parser `zscaler-aiguard` (`vendor/zscaler-help/ai-guard-apps-release-20260909.json:47-60`; `vendor/zscaler-help/ai-guard-users-release-20260909.json:58-71`). No independent parser artifact or live connector acceptance is established by these Help captures, so parser availability remains release-noted rather than independently verified; do not infer entitlement or rollout.
 The historical **2026-09-03** body metadata reported by that capture is:
 
 | Help body observed on 2026-09-03 | Status | Canonical route | Help node | Revision | Body length |
@@ -377,13 +377,13 @@ The callable OneAPI configuration inventory is:
 
 The eight Automate-documented operations outside that callable Python inventory are policy enable, disable, referential check, and summaries, plus referential checks for providers, provider credentials, applications, and application credentials. The current comparison lists eight colon-action route corrections; the 39 loose common method/path signatures in that report are a route-comparison result, not the Python SDK's 39 callable-method count (`vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:27-28`, `:47-48`, `:119-126`; current operations at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:477-489`, `:609-621`, `:1469-1481`, `:1954-1966`, `:3956-3968`, `:4021-4033`, `:5229-5241`, `:6142-6154`, `:7166-7178`). Four resource referential methods are commented out after an SDK-maintainer observation of HTTP 404 responses; this is an open live-acceptance discrepancy, not proof that those documented backend operations are universally absent (`vendor/zscaler-sdk-python/zscaler/aiguard/llm_providers.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_provider_credentials.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_applications.py:180-222`; `vendor/zscaler-sdk-python/zscaler/aiguard/llm_application_credentials.py:180-222`).
 
-The 2026 Help chronology adds an important second vocabulary layer: User-mode and application support includes labels such as GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io that are not all present in the admin-plane `type` enum (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json:14-50`). Do not assume that Help application/provider labels map one-to-one to customer-creatable LLM provider types; see [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
+The 2026 Help chronology adds an important second vocabulary layer: User-mode and application support includes labels such as GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io that are not all present in the admin-plane `type` enum (`vendor/zscaler-help/ai-guard-users-release-20260909.json:14-50`). Do not assume that Help application/provider labels map one-to-one to customer-creatable LLM provider types; see [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 
 Current release-backed additions also include CrowdStrike Direct Export and its
 named parser, Tools-field filtering, tenant restriction, Microsoft 365 Copilot
 streaming inspection, encrypted prompt allowlisting, custom RBAC, ADX/Splunk
 export, Codex request/response blocking, and default-provider auto-provisioning
-(`vendor/zscaler-help/ai-guard-apps-release-20260909.json:47-92`; `vendor/zscaler-help/ai-guard-users-release-20260909.json:58-129`; `vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json:100-145`).
+(`vendor/zscaler-help/ai-guard-apps-release-20260909.json:47-92`; `vendor/zscaler-help/ai-guard-users-release-20260909.json:58-129`; `vendor/zscaler-help/ai-guard-users-release-20260909.json:100-145`).
 These are dated Help claims; tenant entitlement and rollout state still require
 tenant-side confirmation. Current Help bodies verify the direct-export and
 Tools-field UI wording, while the named parser remains release-noted without an

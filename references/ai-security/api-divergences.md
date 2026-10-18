@@ -16,8 +16,8 @@ source-tier: mixed
 sources:
   - "vendor/zscaler-help/ai-guard-what-is.json"
   - "vendor/zscaler-help/ai-guard-test-llm-providers-ai-guard-dasapi-mode.md"
-  - "vendor/zscaler-help/ai-guard-users-help-index.md"
-  - "vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json"
+  - "vendor/zscaler-help/ai-guard-users-help-index.json"
+  - "vendor/zscaler-help/ai-guard-users-release-20260909.json"
   - "vendor/zscaler-sdk-python/README.md"
   - "vendor/zscaler-sdk-python/CHANGELOG.md"
   - "vendor/zscaler-sdk-python/pyproject.toml"
@@ -75,8 +75,8 @@ sources:
   - "vendor/zscaler-mcp-server/"
   - "vendor/zscaler-terraform-skills/"
   - "vendor/zscaler-api-specs/oneapi-postman-collection.json"
-  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
-  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
+  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.json"
+  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.json"
   - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json"
   - "vendor/zscaler-help/understanding-workflows-workflow-automation.json"
   - "vendor/zscaler-help/what-workflow-automation.json"
@@ -259,7 +259,7 @@ The current LLM Application create/update/read schemas do not expose `defaultPol
 
 ## Help provider labels vs Automate provider types
 
-The 2026 Help chronology names supported applications/providers that do not all appear in the current 23-value Automate `type` enum. Examples include GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io (`vendor/zscaler-help/ai-guard-release-upgrade-summary-2026.json:14-50`; current Automate enum at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). These may represent User-mode application labels, built-in providers that are not customer-created admin objects, or documentation/API timing differences. Static sources do not establish a one-to-one mapping; track the boundary under [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
+The 2026 Help chronology names supported applications/providers that do not all appear in the current 23-value Automate `type` enum. Examples include GitHub Copilot, ElevenLabs, Windsurf, Mistral Vibe, Gamma, and Builder.io (`vendor/zscaler-help/ai-guard-users-release-20260909.json:14-50`; current Automate enum at `vendor/zscaler-api-specs/automate-zscaler/aiguard-api-reference.json:7503-7533`). These may represent User-mode application labels, built-in providers that are not customer-created admin objects, or documentation/API timing differences. Static sources do not establish a one-to-one mapping; track the boundary under [clarification ai-security-07](../_meta/clarifications.md#ai-security-07-help-provider-labels-vs-automate-provider-types).
 
 ## Cross-links
 

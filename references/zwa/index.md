@@ -21,8 +21,8 @@ sources:
   - "vendor/zscaler-help/zwa-managing-incidents.json"
   - "vendor/zscaler-help/understanding-workflows-workflow-automation.json"
   - "vendor/zscaler-help/legacy-getting-started-workflow-automation-api.json"
-  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md"
-  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.md"
+  - "vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.json"
+  - "vendor/zscaler-help/dlp-incidents-workflow-automation-api.json"
   - "vendor/zscaler-sdk-python/zscaler/oneapi_client.py"
   - "vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py"
   - "vendor/zscaler-sdk-python/zscaler/zwa/legacy.py"
@@ -78,7 +78,7 @@ In scope:
 - Incident grouping, priority, DLP admin assignment, user notification, escalation, labeling, and closure actions from the captured help surface (`vendor/zscaler-help/zwa-managing-incidents.json:214-221`, `:267-285`, `:288-367`).
 - Python `client.zwa.dlp_incidents` and `client.zwa.audit_logs`, which are the only two current Python service properties under ZWA (`vendor/zscaler-sdk-python/zscaler/zwa/zwa_service.py:27-41`).
 - Go `zwa/services/dlp_incidents` and `zwa/services/customeraudit`, including the Go-only `DeleteDLPIncident` function that should not be projected onto Python (`vendor/zscaler-sdk-go/zscaler/zwa/services/dlp_incidents/dlp_incidents.go:256-270`).
-- Auth differences between Python current OneAPI client, Python `LegacyZWAClient`, Go ZWA API-key auth, and the legacy help captures (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:738-758`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.md:8-37`).
+- Auth differences between Python current OneAPI client, Python `LegacyZWAClient`, Go ZWA API-key auth, and the legacy help captures (`vendor/zscaler-sdk-python/zscaler/oneapi_client.py:173-184`, `:738-758`; `vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:245-327`; `vendor/zscaler-help/legacy-api-authentication-workflow-automation-api.json:8-37`).
 - Go v3.8.43 ZWA retry/error behavior, including its shared 5xx retry heuristic and the structured-error path that consumes the response body (`vendor/zscaler-sdk-go/zscaler/zwa/v2_client.go:107-129,222-237,495-515`; `vendor/zscaler-sdk-go/zscaler/errorx/errors.go:13-28,57-110,279-364`). Treat these as SDK mechanics, not ZWA backend error taxonomy.
 
 Not in scope or explicitly absent from this source pass:

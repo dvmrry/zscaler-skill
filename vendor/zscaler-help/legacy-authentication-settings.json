@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Authentication Settings",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/authentication-settings",
+    "node": "1510746",
+    "revision": "2942156",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Authentication%20Settings_2.json?VersionId=NHk54Rq2wHV0nleYczsXOdz.7yJNgvjq"
+  },
+  "captured_at": "2026-10-18",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Authentication Settings"
+      }
+    ],
+    "paths": {
+      "/authSettings": {
+        "get": {
+          "tags": [
+            "Authentication Settings"
+          ],
+          "description": "<p> Retrieves the organization's default authentication settings information, including authentication profile and Kerberos authentication information.</p>",
+          "operationId": "AuthSettingsResource_getAuthSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AuthSettings"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Authentication Settings"
+          ],
+          "description": "<p> Updates the organization's default authentication settings information.</p>",
+          "operationId": "AuthSettingsResource_updateAuthSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The default authentication settings information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/AuthSettings"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AuthSettings"
+              }
+            }
+          }
+        }
+      },
+      "/authSettings/lite": {
+        "get": {
+          "tags": [
+            "Authentication Settings"
+          ],
+          "description": "<p>Retrieves organization's default authentication settings information.",
+          "operationId": "AuthSettingsResource_getLiteAuthSettings",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AuthSettings"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "AuthSettings": {
+        "type": "object",
+        "description": "Organization's default authentication settings",
+        "required": [
+          "orgAuthType"
+        ],
+        "properties": {
+          "orgAuthType": {
+            "type": "string",
+            "description": "User authentication type. Setting it to an LDAP-based authentication requires a complete LdapProperties configuration.",
+            "enum": [
+              "ANY",
+              "NONE",
+              "SAFECHANNEL_DIR",
+              "MICROSOFT_ACTIVE_DIR",
+              "OPENLDAP_DIR",
+              "NOVELL_DIR",
+              "IBM_DOMINO_DIR",
+              "SUN_DIR",
+              "SMAUTH_ENTERPRISE_HOSTED"
+            ]
+          },
+          "oneTimeAuth": {
+            "type": "string",
+            "description": "When the orgAuthType is NONE, administrators must manually provide the password to new end users. For new users who have not yet authenticated, a one-time token or link with a temporary password is sent as an email by the security cloud. If SAML Single Sign-On is enabled, this one-time token is not applicable, and this field is ineffective.",
+            "enum": [
+              "OTP_DISABLED",
+              "OTP_TOKEN",
+              "OTP_LINK"
+            ]
+          },
+          "samlEnabled": {
+            "type": "boolean",
+            "description": "Whether or not to authenticate users using SAML Single Sign-On. Enabling SAML requires complete SamlSettings."
+          },
+          "kerberosEnabled": {
+            "type": "boolean",
+            "description": "Whether or not to authenticate users using Kerberos"
+          },
+          "kerberosPwd": {
+            "type": "string",
+            "description": "Read Only. Kerberos password can only be set through generateKerberosPassword api.",
+            "readOnly": true
+          },
+          "authFrequency": {
+            "type": "string",
+            "description": "How frequently the users are required to authenticate (i.e., cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API.",
+            "enum": [
+              "DAILY_COOKIE",
+              "PERMANENT_COOKIE",
+              "SESSION_COOKIE",
+              "CUSTOM_COOKIE"
+            ]
+          },
+          "authCustomFrequency": {
+            "type": "integer",
+            "format": "int32",
+            "description": "<p>How frequently the users are required to authenticate. This field is customized to set the value in days. Valid range is 1–180.</p><p>This field is not applicable to the Lite API.</p>"
+          },
+          "passwordStrength": {
+            "type": "string",
+            "description": "Password strength required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory).",
+            "enum": [
+              "NONE",
+              "MEDIUM",
+              "STRONG"
+            ]
+          },
+          "passwordExpiry": {
+            "type": "string",
+            "description": "Password expiration required for form-based authentication of hosted DB users. Not applicable for other authentication types (e.g. SAML SSO or Directory).",
+            "enum": [
+              "NEVER",
+              "ONE_MONTH",
+              "THREE_MONTHS",
+              "SIX_MONTHS"
+            ]
+          },
+          "lastSyncStartTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp (epoch time in seconds) corresponding to the start of the last LDAP sync. This is reset when the organization's authentication type is changed to a different directory authentication type. Applicable only for directory-based authentication. This field is not applicable to the Lite API."
+          },
+          "lastSyncEndTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp (epoch time in seconds) corresponding to the end of the last LDAP sync. This is reset when the organization's authentication type is changed to a different directory authentication type. Applicable only for directory-based authentication. This field is not applicable to the Lite API."
+          },
+          "mobileAdminSamlIdpEnabled": {
+            "type": "boolean",
+            "description": "Indicate the use of Mobile Admin as IdP"
+          },
+          "autoProvision": {
+            "type": "boolean",
+            "description": "Enable SAML Auto-Provisioning"
+          },
+          "directorySyncMigrateToScimEnabled": {
+            "type": "boolean",
+            "description": "Enable to disable directory synchronization for this user repository type so you can enable SCIM provisioning or SAML auto-provisioning. Use this setting to migrate from directory synchronization to SCIM provisioning."
+          }
+        }
+      }
+    }
+  }
+}

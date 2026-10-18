@@ -8,21 +8,21 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/about-app-connector-metrics-log-fields"
-  - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
+  - "vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json"
   - "https://help.zscaler.com/zpa/understanding-log-stream-content-format"
-  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
+  - "vendor/zscaler-help/understanding-log-stream-content-format.json"
 author-status: draft
 ---
 
 # ZPA App Connector Metrics log schema (LSS App Connector Metrics log fields)
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`.
 
 Authoritative field-level reference for ZPA App Connector Metrics logs — the LSS log type that records **per-connector resource utilization, connection counts, throughput, and file descriptor usage**. Derived directly from Zscaler's *Understanding App Connector Metrics Log Fields* article (vendored PDF).
 
 ## What App Connector Metrics logs capture
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`.
 
 App Connector Metrics logs are emitted by LSS on a regular cadence (approximately every 5 minutes) for each active App Connector. They are infrastructure telemetry, not user-access records. Each record captures the connector's current operational state:
 
@@ -40,7 +40,7 @@ App Connector Metrics logs are emitted by LSS on a regular cadence (approximatel
 
 ## Example log record
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`.
+Source: `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`.
 
 From *Understanding App Connector Metrics Log Fields*, p.1:
 
@@ -82,7 +82,7 @@ From *Understanding App Connector Metrics Log Fields*, p.1:
 
 ## Field inventory
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`.
 
 Per *Understanding App Connector Metrics Log Fields*, pp.1–6. All field names are **case-sensitive**.
 
@@ -173,7 +173,7 @@ Port and file descriptor exhaustion are common failure modes on overloaded conne
 
 ## Relationship to User Activity logs
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`.
 
 The `Connector` field in App Connector Metrics logs is the same value as the `Connector` field in User Activity logs — it is the connector's **display name** as configured in the ZPA admin portal.
 
@@ -198,7 +198,7 @@ Practical use: a user reporting intermittent ZPA access failures → look up the
 
 ## Splunk: identifying overloaded connectors
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`.
 
 ### `connector-cpu-high`
 
@@ -284,7 +284,7 @@ index=$INDEX_ZPA_METRICS TargetCount>0 earliest=-1h
 
 ## Open questions
 
-Source: `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`; `vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt`.
+Source: `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`; `vendor/zscaler-help/understanding-log-stream-content-format.json`.
 
 - Whether the metrics log interval is a fixed 5 minutes or configurable per LSS receiver — the PDF does not specify. Field cadence is consistent with a 5-minute polling model inferred from the ZDX metric interval.
 - Whether `AppConnectionsCreated` and `AppConnectionsCleared` are delta (since last record) or cumulative since connector start — the example record shows `300` / `300` with `AppConnectionsActive` = `0`, consistent with delta behavior.

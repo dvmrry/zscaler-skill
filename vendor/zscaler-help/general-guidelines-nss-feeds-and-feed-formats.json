@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "General Guidelines for NSS Feeds and Feed Formats",
+  "source": {
+    "url": "https://help.zscaler.com/zia/general-guidelines-nss-feeds-and-feed-formats",
+    "node": "1400786",
+    "revision": "3214424"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This article provides guidelines and information about the different feeds and fields that you can include in the NSS output for logs."
+    },
+    {
+      "text": "When configuring an NSS feed in the Zscaler Admin Console, enter the desired fields in the Feed Output Format text box.",
+      "strong": [
+        [
+          91,
+          109
+        ]
+      ]
+    },
+    {
+      "heading": "Guidelines",
+      "level": 1
+    },
+    {
+      "text": "The following guidelines are intended to help you create useful NSS outputs for your logs. These recommendations vary based on the capabilities of your security information and event management (SIEM) system."
+    },
+    {
+      "item": "It's recommended not to include more than 50 fields in the NSS feed to accommodate for syslog message size limits. However, if your SIEM is able to ingest larger message sizes, you can configure more than 50.",
+      "depth": 0
+    },
+    {
+      "item": "The fields must be in the order you want them to appear in the output. Consider using name-value pairs, if your SIEM can support it. Some SIEMs, such as Splunk, can automatically parse name-value formats and auto-detect field names, regardless of the order.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service hex encodes all non-printable ASCII characters that are in URLs when it sends logs to the NSS. Any URL character that is less than or equal to 0x20, or greater than or equal to 0x7F, is encoded as %HH. This ensures that your SIEM can parse the URLs that contain control characters. For example, a \\n character in a URL is encoded as %0A, and a space is encoded as %20.",
+      "depth": 0
+    },
+    {
+      "item": "Use tabs as field delimiters. Avoid using commas and spaces because they could be in some output values. For example, department names might contain spaces or URLs might contain commas. If you must use commas or other characters as delimiters, enter those characters in the Feed Escape Character field when you define an NSS feed. The service encodes the characters that you enter in this field. For example, if you enter a comma, the service encodes it as %2C.",
+      "depth": 0,
+      "strong": [
+        [
+          274,
+          295
+        ]
+      ]
+    },
+    {
+      "item": "The following special characters generate control outputs:",
+      "depth": 0
+    },
+    {
+      "item": "\\t = Tab",
+      "depth": 1
+    },
+    {
+      "item": "\\n = New line",
+      "depth": 1
+    },
+    {
+      "item": "\\r = Carriage return",
+      "depth": 1
+    },
+    {
+      "item": "You don't need to add \\n after the last field to indicate that it's the last entry. Zscaler automatically adds a blank line (line feed) after the last field.",
+      "depth": 0
+    },
+    {
+      "item": "The field names specified are substituted by the corresponding value when NSS sends logs to the SIEM.",
+      "depth": 0
+    },
+    {
+      "item": "%s{<fieldname>} displays the string name.",
+      "depth": 1
+    },
+    {
+      "item": "Example: %s{time}",
+      "depth": 1
+    },
+    {
+      "item": "%d{<fieldname>} prints a number in decimal format.",
+      "depth": 1
+    },
+    {
+      "item": "Example: %d{yyyy}",
+      "depth": 1
+    },
+    {
+      "item": "%x{<fieldname>} prints a number in hexadecimal (base-16) format.",
+      "depth": 1
+    },
+    {
+      "item": "Example: %x{recordid}",
+      "depth": 1
+    },
+    {
+      "item": "The following are examples:",
+      "depth": 1
+    },
+    {
+      "item": "\"%s{time}\",\"%s{login}\",\"%s{proto}\"\\n results in a log entry that looks like: \"Mon Sep 18 10:50:46 2023\",\"jdoe@example.com\", \"HTTP\"",
+      "depth": 2
+    },
+    {
+      "item": "%s{time}\\t%s{login}\\t%s{proto}\\n results in a log entry that looks like:",
+      "depth": 2
+    },
+    {
+      "item": "Mon Sep 18 10:50:46 2023jdoe@example.comHTTP",
+      "depth": 2
+    },
+    {
+      "item": "Field names are case-sensitive.",
+      "depth": 0
+    },
+    {
+      "item": "Special characters must be escaped with \\, {, } or %. For example: %s{login}: \\{%s{hostname}\\} generates a log entry similar to the following: user@example.com: {www.zscaler.com}",
+      "depth": 0
+    },
+    {
+      "text": "In Cloud NSS feeds, if you select JSON as the Feed Output Type, special characters such as \\ present in string fields might cause a parsing issue for your SIEM. To prevent the issue, enter a comma, backslash, and quotation marks (,\\\") as the Feed Escape Character and use hex-encoded fields (e.g., %s{elogin}instead of %s{login}) in the Feed Output Format.",
+      "strong": [
+        [
+          34,
+          38
+        ],
+        [
+          46,
+          62
+        ],
+        [
+          242,
+          263
+        ],
+        [
+          337,
+          355
+        ]
+      ]
+    },
+    {
+      "item": "You can optionally include static text strings in the output. For example: %s{time} GMT produces: Mon Sep 18 10:50:46 2023 GMT",
+      "depth": 0
+    },
+    {
+      "item": "You can also specify the padding if you want constant width strings. For example:",
+      "depth": 0
+    },
+    {
+      "item": "%d{hh}:%d{mm}:%d{ss} produces 21:5:0",
+      "depth": 1
+    },
+    {
+      "item": "%02d{hh}:%02d{mm}:%02d{ss} produces 21:05:00",
+      "depth": 1
+    },
+    {
+      "item": "You can use date and time format elements to form the date-time string per your downstream requirements. For example:",
+      "depth": 0
+    },
+    {
+      "item": "%d{yyyy}-%02d{mth}-%02d{dd} %02d{hh}:%02d{mm}:%02d{ss} produces: 2023-09-18 21:05:00",
+      "depth": 1
+    },
+    {
+      "item": "% must be escaped with another %",
+      "depth": 0
+    },
+    {
+      "item": "You can break up a long output format into multiple lines for readability. For example, the following format string:",
+      "depth": 0
+    },
+    {
+      "text": "%s{time}\\t%s{proto}\\t%s{url}\\t%s{login}\\t%s{dept}\\t%s{urlcat}\\t%s{urlsupercat}\\t%s{urlclass}\\t%s{location}\\t%s{ua}\\n"
+    },
+    {
+      "text": "can be specified as:"
+    },
+    {
+      "text": "%s{time}\\t%s{proto}\\t%s{url}\\t %s{login}\\t%s{dept}\\t %s{urlcat}\\t%s{urlsupercat}\\t%s{urlclass}\\t %s{location}\\t%s{ua}\\n"
+    },
+    {
+      "item": "NSS can buffer logs in the VM memory to increase its resilience to transient network issues. If the connection between the NSS and the SIEM is lost, the NSS replays the logs from the buffer and sends them to the SIEM after the connection is restored. There can be a difference between the time that the SIEM becomes unavailable and the time that the NSS detects that the SIEM is unavailable. When you configure an NSS feed, you can use the Duplicate Logs setting to specify when the NSS starts replaying logs from the buffer (e.g., 5 minutes before the lost SIEM connection is detected.)",
+      "depth": 0
+    },
+    {
+      "item": "See example.",
+      "depth": 0
+    },
+    {
+      "item": "The following is an example use case for the Duplicate Logs setting:",
+      "depth": 0
+    },
+    {
+      "item": "The SIEM goes offline at 6:29:00 PM.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "The NSS detects the lost connection at 6:30:00 PM.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "The connection is restored at 6:40:00 PM.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Based on the use case, the following results are possible:",
+      "depth": 0
+    },
+    {
+      "item": "If Duplicate Logs is set to 5 minutes: After the connection is restored, the NSS sends logs from 6:25:00 PM onwards. It sends 5 minutes of logs: It duplicates logs from 6:25:00 PM to 6:28:59 PM and recovers logs from 6:29:00 PM to 6:30:00 PM.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "If Duplicate Logs is disabled: After the connection is restored, the NSS sends logs from 6:30:00 PM onwards. It does not recover logs from 6:29:00 PM to 6:30:00 PM.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "If Duplicate Logs is set to 60 minutes: After the connection is restored, the NSS sends logs from 5:30:00 PM onwards. It sends one hour of logs: It duplicates logs from 5:30:00 PM to 6:28:59 PM and recovers logs from 6:29:00 PM to 6:30:00 PM. This setting is not recommended due to the high number of duplicates to be processed by the SIEM, introducing unnecessary delay.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "heading": "Feed Formats",
+      "level": 1
+    },
+    {
+      "text": "The following feed formats provide fields you can include in the NSS output:"
+    },
+    {
+      "item": "NSS Feed Output Format: Web Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: Firewall Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: DNS Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: Tunnel Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: SaaS Security Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: SaaS Security Activity Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: Admin Audit Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: Endpoint DLP Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: Email DLP Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: Sandbox Verdict Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: Authentication Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: SCIM Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: 3rd-Party App Governance Logs",
+      "depth": 0
+    },
+    {
+      "item": "NSS Feed Output Format: Posture Management Logs",
+      "depth": 0
+    }
+  ]
+}

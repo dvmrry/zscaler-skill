@@ -18,7 +18,7 @@ confidence: medium
 source-tier: doc
 sources:
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.json"
-  - "vendor/zscaler-help/zscaler-cellular-help-index.md"
+  - "vendor/zscaler-help/zscaler-cellular-help-index.json"
   - "vendor/zscaler-help/cellular-about-sims.json"
   - "vendor/zscaler-help/cellular-understanding-anomaly-detection.json"
   - "vendor/zscaler-help/cellular-configuring-deployment-credentials.json"
@@ -66,7 +66,7 @@ author-status: draft
 | Claim | Reference surface | Source line(s) |
 |---|---|---|
 | Zscaler Cellular is a zero trust connectivity solution for IoT/mobile devices and includes Zscaler SIM plus Zscaler Cellular Edge. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:8` |
-| The current public ZCell Help index exposes 21 articles; seven bodies are captured, so 14 remain a body-level coverage gap. | `index.md`, `overview.md` | `vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; What Is and Architecture capture at `vendor/zscaler-help/cellular-what-zscaler-cellular.json:1-67`; captured operational-body boundaries at `vendor/zscaler-help/cellular-about-sims.json:1-27`, `vendor/zscaler-help/cellular-understanding-anomaly-detection.json:1-19`, `vendor/zscaler-help/cellular-configuring-deployment-credentials.json:1-24`, `vendor/zscaler-help/cellular-about-network-events.json:1-25`, and `vendor/zscaler-help/cellular-about-audit-logs.json:1-24`; `ARTICLE-BODY GAP -> references/zscaler-cellular/index.md#scope-boundary` |
+| The current public ZCell Help index exposes 21 articles; seven bodies are captured, so 14 remain a body-level coverage gap. | `index.md`, `overview.md` | `vendor/zscaler-help/zscaler-cellular-help-index.json:8-47`; What Is and Architecture capture at `vendor/zscaler-help/cellular-what-zscaler-cellular.json:1-67`; captured operational-body boundaries at `vendor/zscaler-help/cellular-about-sims.json:1-27`, `vendor/zscaler-help/cellular-understanding-anomaly-detection.json:1-19`, `vendor/zscaler-help/cellular-configuring-deployment-credentials.json:1-24`, `vendor/zscaler-help/cellular-about-network-events.json:1-25`, and `vendor/zscaler-help/cellular-about-audit-logs.json:1-24`; `ARTICLE-BODY GAP -> references/zscaler-cellular/index.md#scope-boundary` |
 | Zscaler SIM devices connect to 4G/5G, traffic routes to Cellular Edge, and Cellular Edge forwards to ZTE for inspection and policy enforcement. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:10-15` |
 | Policy enforcement can use IP address, IMEI, or IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:26-29` |
 | Zscaler SIM is a data-only SIM for IoT devices where agents are not feasible, and can enforce policy via ZIA/ZPA based on IP/IMEI/IMSI. | `overview.md` | `vendor/zscaler-help/cellular-what-zscaler-cellular.json:45-53` |

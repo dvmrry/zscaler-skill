@@ -52,6 +52,43 @@
       },
       "additionalProperties": false
     },
+    "static-captures": {
+      "description": "Every file under vendor/zscaler-help that scripts/help_capture.py did not write, with why it cannot be refreshed and a pinned hash; kb.mjs validate rejects any other file there.",
+      "type": "object",
+      "required": ["schema_version", "files"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["class", "reason", "sha256"],
+            "properties": {
+              "class": { "enum": ["pdf", "text-capture", "unavailable", "marketing", "tool-output", "note", "retiring"] },
+              "reason": { "type": "string", "minLength": 1 },
+              "url": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "retired": {
+          "description": "Files removed from vendor/zscaler-help and the capture that replaced each, so a source pin recorded before the change still names what the doc was verified against.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["replaced_by", "reason", "on"],
+            "properties": {
+              "replaced_by": { "type": "string", "minLength": 1 },
+              "reason": { "type": "string", "minLength": 1 },
+              "on": { "$ref": "common.schema.json#/$defs/date" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "capture-manifest": {
       "type": "object",
       "required": ["schema_version", "files"],

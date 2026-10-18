@@ -1,0 +1,2544 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Cloud & Branch Connector Groups",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/cloud-branch-connector-groups",
+    "node": "1450256",
+    "revision": "3199476",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Cloud%20%26%20Branch%20Connector%20Groups_13.json?VersionId=AcpXRh4d1F6lve7tJzLeWXSMdGjnPHCW"
+  },
+  "captured_at": "2026-10-18",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Cloud & Branch Connector API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "v1.0"
+    },
+    "servers": [
+      {
+        "url": "https://{host}:{port}/wapi/v1",
+        "variables": {
+          "host": {
+            "description": "Private APIs Server IP/Domain name hosting Cloud Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      },
+      {
+        "url": "https://{host}:{port}/api/v1",
+        "variables": {
+          "host": {
+            "description": "Public APIs Server IP/Domain name hosting Cloud Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "Cloud & Branch Connector Groups"
+      }
+    ],
+    "paths": {
+      "/ecgroup": {
+        "get": {
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ],
+          "operationId": "EcGroupZResource_getEcGroups",
+          "description": "Lists Cloud & Branch Connector groups.",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "name": "pageSize",
+              "description": "Specifies the page size. The default size is 250.",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Default Response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcGroup"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ecgroup/lite": {
+        "get": {
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ],
+          "description": "Lists a subset of Cloud & Branch Connector group information.",
+          "operationId": "EcGroupZResource_getEcGroupsLite",
+          "parameters": [
+            {
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "name": "pageSize",
+              "description": "Specifies the page size. The default size is 20.",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 20
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Default Response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcGroup"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ecgroup/vmStatus": {
+        "put": {
+          "operationId": "EcGroupZResource_changeVmStatus",
+          "description": "Updates the status of Cloud Connector virtual machines (VMs) in bulk.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcVmStatusUpgradeReq"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcVmStatusSummary"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        }
+      },
+      "/ecgroup/releaseChannel": {
+        "put": {
+          "operationId": "EcGroupZResource_updateReleaseChannel",
+          "description": "Updates the release channels for Cloud Connector VMs in bulk.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcVmReleaseChannelReq"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        }
+      },
+      "/ecgroup/vmUpgradeMetrics": {
+        "get": {
+          "operationId": "EcGroupZResource_getVmUpgradeMetrics",
+          "description": "Retrieves the Cloud Connector VMs release channel and scheduled upgrade metrics.",
+          "parameters": [
+            {
+              "in": "query",
+              "name": "deployType",
+              "description": "Deployment type of the Cloud Connector group.",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "CLOUD"
+                ]
+              }
+            },
+            {
+              "in": "query",
+              "name": "autoScale",
+              "description": "Indicates whether auto scaling is enabled for the Cloud Connector group.",
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "in": "query",
+              "name": "zeroTrustGroup",
+              "description": "Indicates whether the Cloud Connector group is configured as a Zero Trust Gateway.",
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "in": "query",
+              "name": "platform",
+              "description": "Platform of the Cloud Connector group.",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "AWS",
+                    "AZURE",
+                    "GCP"
+                  ]
+                }
+              }
+            },
+            {
+              "in": "query",
+              "name": "releaseChannel",
+              "description": "The release channel type. ",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "STABLE",
+                    "LATEST",
+                    "BETA"
+                  ]
+                }
+              }
+            },
+            {
+              "in": "query",
+              "name": "locationId",
+              "description": "The location ID of the Cloud Connector group.",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            },
+            {
+              "in": "query",
+              "name": "name",
+              "description": "Name of Cloud Connector group.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "upgradeStatus",
+              "description": "The status of the scheduled upgrade.",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "SCHEDULED",
+                    "NO_PENDING_UPGRADE",
+                    "FAILED_OTHER",
+                    "BOOTSTRAPPING",
+                    "BLOCKED"
+                  ]
+                }
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/VmUpgradeMetrics"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        }
+      },
+      "/ecgroup/{ecgroupId}/vm/{vmId}": {
+        "get": {
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ],
+          "operationId": "EcGroupZResource_getEcVm",
+          "description": "Gets a VM by specified Cloud or Branch Connector group ID and VM ID",
+          "parameters": [
+            {
+              "name": "ecgroupId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "Cloud or Branch Connector group ID."
+            },
+            {
+              "name": "vmId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "VM ID."
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Default Response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcVM"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ],
+          "operationId": "EcGroupZResource_deleteEcVm",
+          "description": "Deletes a VM specified by Cloud or Branch Connector group ID and VM ID.",
+          "parameters": [
+            {
+              "name": "ecgroupId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "Cloud or Branch Connector group ID."
+            },
+            {
+              "name": "vmId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "description": "VM ID."
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Default Response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/ecgroup/{id}": {
+        "get": {
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ],
+          "operationId": "EcGroupZResource_getEcGroupById",
+          "description": "Gets Cloud or Branch Connector group by ID.",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "ID of Cloud or Branch Connector group.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 1
+              }
+            },
+            {
+              "name": "pageSize",
+              "description": "Specifies the page size. The default size is 250.",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 250
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Default Response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcGroup"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ecgroup/{ecgroupId}/vm/{vmId}/intf": {
+        "get": {
+          "operationId": "EcGroupZResource_getEcInterfaces",
+          "description": "Retrieves the list of interfaces associated with a specific VM in a Cloud or Branch Connector group.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Intrface"
+                    }
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        },
+        "post": {
+          "operationId": "EcGroupZResource_createInterface",
+          "description": "Creates an interface for a specific VM in a Cloud or Branch Connector group.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Intrface"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Intrface"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        }
+      },
+      "/ecgroup/{ecgroupId}/vm/{vmId}/intf/{intfId}": {
+        "get": {
+          "operationId": "EcGroupZResource_getEcInterfaceById",
+          "description": "Retrieves the Cloud or Branch Connector interface within a specific VM based on the provided interface ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "intfId",
+              "description": "The interface ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Intrface"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        },
+        "put": {
+          "operationId": "EcGroupZResource_updateEcVMInterface",
+          "description": "Updates the Cloud or Branch Connector interface within a specific VM based on the provided interface ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "intfId",
+              "description": "The interface ID",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Intrface"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Intrface"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        },
+        "delete": {
+          "operationId": "EcGroupZResource_deleteEcVMInterface",
+          "description": "Deletes a Cloud or Branch Connector interface within a specific VM based on the provided interface ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "intfId",
+              "description": "The interface ID",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        }
+      },
+      "/ecgroup/{ecgroupId}/vm/{vmId}/route": {
+        "get": {
+          "operationId": "EcGroupZResource_getEcRoute",
+          "description": "Retrieves the list of Cloud or Branch Connector routes for the specified VM in the group.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcRoute"
+                    }
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        },
+        "post": {
+          "operationId": "EcGroupZResource_createEcRoute",
+          "description": "Creates a Cloud or Branch Connector route within a specific VM in the group.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EcRoute"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcRoute"
+                    }
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        },
+        "delete": {
+          "operationId": "EcGroupZResource_deleteEcRouteByVm",
+          "description": "Deletes a specific Cloud or Branch Connector route associated with a VM in the group.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        }
+      },
+      "/ecgroup/{ecgroupId}/vm/{vmId}/route/{ecRouteId}": {
+        "get": {
+          "operationId": "EcGroupZResource_getEcRouteById",
+          "description": "Retrieves the details of the Cloud or Branch Connector route within a specific VM based on the provided route ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "ecRouteId",
+              "description": "The Cloud or Branch Connector route ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcRoute"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        },
+        "put": {
+          "operationId": "EcGroupZResource_updateEcRoute",
+          "description": "Updates the Cloud or Branch Connector route details within a specific VM based on the provided route ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "ecRouteId",
+              "description": "The Cloud or Branch Connector route ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcRoute"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcRoute"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        },
+        "delete": {
+          "operationId": "EcGroupZResource_deleteEcRoute",
+          "description": "Deletes a Cloud or Branch Connector route within a specific VM based on the provided route ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "ecgroupId",
+              "description": "The Cloud or Branch Connector group ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "vmId",
+              "description": "The ID of the VM.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "in": "path",
+              "name": "ecRouteId",
+              "description": "The Cloud or Branch Connector route ID.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        }
+      },
+      "/ecInstance/lite": {
+        "get": {
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ],
+          "operationId": "EcInstanceZResource_getEcVmList",
+          "description": "Lists a subset of Cloud & Branch Connector instance information.",
+          "responses": {
+            "default": {
+              "description": "Default Response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EntityReference"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ecVm/uuid/{vmInstanceId}": {
+        "get": {
+          "operationId": "EcVmZResource_getEcVMByInstanceId",
+          "description": "Retrieves details about a VM based on the provided Cloud or Branch Connector native public cloud instance ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "vmInstanceId",
+              "description": "The ID of the VM native public cloud instance.",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcVM"
+                  }
+                }
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        },
+        "delete": {
+          "operationId": "EcVmZResource_deleteEcVmByInstanceID",
+          "description": "Deletes a VM based on the provided Cloud or Branch Connector native public cloud instance ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "vmInstanceId",
+              "description": "The ID of the VM native public cloud instance.",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "Default response. To learn more, see <a href=\"/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes and Error Messages</a>."
+            }
+          },
+          "tags": [
+            "Cloud & Branch Connector Groups"
+          ]
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "EcGroup": {
+          "type": "object",
+          "description": "Cloud & Branch Connector group information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "ID of Cloud or Branch Connector group."
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of Cloud or Branch Connector group."
+            },
+            "desc": {
+              "type": "string",
+              "description": "Description of Cloud or Branch Connector group."
+            },
+            "deployType": {
+              "type": "string",
+              "description": "Deployment type of Cloud or Branch Connector group.",
+              "enum": [
+                "ONPREM",
+                "CLOUD",
+                "DISABLED",
+                "MON_DELETED",
+                "DELETING",
+                "DELETING_LAST",
+                "DELETED"
+              ]
+            },
+            "status": {
+              "type": "array",
+              "description": "Status of Cloud or Branch Connector group.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ONPREM",
+                  "CLOUD",
+                  "DISABLED",
+                  "MON_DELETED",
+                  "DELETING",
+                  "DELETING_LAST",
+                  "DELETED"
+                ]
+              }
+            },
+            "platform": {
+              "type": "string",
+              "description": "Platform of Cloud or Branch Connector group.",
+              "enum": [
+                "AWS",
+                "AZURE",
+                "CENTOS",
+                "REDHAT_LINUX",
+                "VMWARE_ESXI"
+              ]
+            },
+            "awsAvailabilityZone": {
+              "type": "string",
+              "description": "AWS availability zone of Cloud Connector group. This attribute is subject to change.",
+              "enum": [
+                "AF_SOUTH_1A",
+                "AF_SOUTH_1B",
+                "AF_SOUTH_1C",
+                "AP_EAST_1A",
+                "AP_EAST_1B",
+                "AP_EAST_1C",
+                "AP_NORTHEAST_1A",
+                "AP_NORTHEAST_1C",
+                "AP_NORTHEAST_1D",
+                "AP_NORTHEAST_1E",
+                "AP_NORTHEAST_2A",
+                "AP_NORTHEAST_2B",
+                "AP_NORTHEAST_2C",
+                "AP_NORTHEAST_2D",
+                "AP_NORTHEAST_3A",
+                "AP_NORTHEAST_3B",
+                "AP_NORTHEAST_3C",
+                "AP_SOUTHEAST_1A",
+                "AP_SOUTHEAST_1B",
+                "AP_SOUTHEAST_1C",
+                "AP_SOUTHEAST_2A",
+                "AP_SOUTHEAST_2B",
+                "AP_SOUTHEAST_2C",
+                "AP_SOUTHEAST_3A",
+                "AP_SOUTHEAST_3B",
+                "AP_SOUTHEAST_3C",
+                "AP_SOUTH_1A",
+                "AP_SOUTH_1B",
+                "AP_SOUTH_1C",
+                "CA_CENTRAL_1A",
+                "CA_CENTRAL_1B",
+                "CA_CENTRAL_1D",
+                "CN_NORTHWEST_1A",
+                "CN_NORTHWEST_1B",
+                "CN_NORTHWEST_1C",
+                "CN_NORTH_1A",
+                "CN_NORTH_1B",
+                "EU_CENTRAL_1A",
+                "EU_CENTRAL_1B",
+                "EU_CENTRAL_1C",
+                "EU_NORTH_1A",
+                "EU_NORTH_1B",
+                "EU_NORTH_1C",
+                "EU_SOUTH_1A",
+                "EU_SOUTH_1B",
+                "EU_SOUTH_1C",
+                "EU_WEST_1A",
+                "EU_WEST_1B",
+                "EU_WEST_1C",
+                "EU_WEST_2A",
+                "EU_WEST_2B",
+                "EU_WEST_2C",
+                "EU_WEST_3A",
+                "EU_WEST_3B",
+                "EU_WEST_3C",
+                "ME_SOUTH_1A",
+                "ME_SOUTH_1B",
+                "ME_SOUTH_1C",
+                "SA_EAST_1A",
+                "SA_EAST_1B",
+                "SA_EAST_1C",
+                "US_EAST_1A",
+                "US_EAST_1B",
+                "US_EAST_1C",
+                "US_EAST_1D",
+                "US_EAST_1E",
+                "US_EAST_1F",
+                "US_EAST_2A",
+                "US_EAST_2B",
+                "US_EAST_2C",
+                "US_GOV_EAST_1A",
+                "US_GOV_EAST_1B",
+                "US_GOV_EAST_1C",
+                "US_GOV_WEST_1A",
+                "US_GOV_WEST_1B",
+                "US_GOV_WEST_1C",
+                "US_WEST_1A",
+                "US_WEST_1B",
+                "US_WEST_1C",
+                "US_WEST_2A",
+                "US_WEST_2B",
+                "US_WEST_2C",
+                "US_WEST_2D"
+              ]
+            },
+            "azureAvailabilityZone": {
+              "type": "string",
+              "description": "Azure availability zone of Cloud Connector group. This attribute is subject to change.",
+              "enum": [
+                "ASIA_0",
+                "ASIA_1",
+                "ASIA_2",
+                "ASIA_3",
+                "ASIAPACIFIC_0",
+                "ASIAPACIFIC_1",
+                "ASIAPACIFIC_2",
+                "ASIAPACIFIC_3",
+                "AUSTRALIA_0",
+                "AUSTRALIA_1",
+                "AUSTRALIA_2",
+                "AUSTRALIA_3",
+                "AUSTRALIACENTRAL_0",
+                "AUSTRALIACENTRAL_1",
+                "AUSTRALIACENTRAL_2",
+                "AUSTRALIACENTRAL_3",
+                "AUSTRALIACENTRAL2_0",
+                "AUSTRALIACENTRAL2_1",
+                "AUSTRALIACENTRAL2_2",
+                "AUSTRALIACENTRAL2_3",
+                "AUSTRALIAEAST_0",
+                "AUSTRALIAEAST_1",
+                "AUSTRALIAEAST_2",
+                "AUSTRALIAEAST_3",
+                "AUSTRALIASOUTHEAST_0",
+                "AUSTRALIASOUTHEAST_1",
+                "AUSTRALIASOUTHEAST_2",
+                "AUSTRALIASOUTHEAST_3",
+                "BRAZIL_0",
+                "BRAZIL_1",
+                "BRAZIL_2",
+                "BRAZIL_3",
+                "BRAZILSOUTH_0",
+                "BRAZILSOUTH_1",
+                "BRAZILSOUTH_2",
+                "BRAZILSOUTH_3",
+                "BRAZILSOUTHEAST_0",
+                "BRAZILSOUTHEAST_1",
+                "BRAZILSOUTHEAST_2",
+                "BRAZILSOUTHEAST_3",
+                "CANADA_0",
+                "CANADA_1",
+                "CANADA_2",
+                "CANADA_3",
+                "CANADACENTRAL_0",
+                "CANADACENTRAL_1",
+                "CANADACENTRAL_2",
+                "CANADACENTRAL_3",
+                "CANADAEAST_0",
+                "CANADAEAST_1",
+                "CANADAEAST_2",
+                "CANADAEAST_3",
+                "CENTRALINDIA_0",
+                "CENTRALINDIA_1",
+                "CENTRALINDIA_2",
+                "CENTRALINDIA_3",
+                "CENTRALUS_0",
+                "CENTRALUS_1",
+                "CENTRALUS_2",
+                "CENTRALUS_3",
+                "CENTRALUSEUAP_0",
+                "CENTRALUSEUAP_1",
+                "CENTRALUSEUAP_2",
+                "CENTRALUSEUAP_3",
+                "CENTRALUSSTAGE_0",
+                "CENTRALUSSTAGE_1",
+                "CENTRALUSSTAGE_2",
+                "CENTRALUSSTAGE_3",
+                "EASTASIA_0",
+                "EASTASIA_1",
+                "EASTASIA_2",
+                "EASTASIA_3",
+                "EASTASIASTAGE_0",
+                "EASTASIASTAGE_1",
+                "EASTASIASTAGE_2",
+                "EASTASIASTAGE_3",
+                "EASTUS_0",
+                "EASTUS_1",
+                "EASTUS_2",
+                "EASTUS_3",
+                "EASTUS2_0",
+                "EASTUS2_1",
+                "EASTUS2_2",
+                "EASTUS2_3",
+                "EASTUS2EUAP_0",
+                "EASTUS2EUAP_1",
+                "EASTUS2EUAP_2",
+                "EASTUS2EUAP_3",
+                "EASTUS2STAGE_0",
+                "EASTUS2STAGE_1",
+                "EASTUS2STAGE_2",
+                "EASTUS2STAGE_3",
+                "EASTUSSTAGE_0",
+                "EASTUSSTAGE_1",
+                "EASTUSSTAGE_2",
+                "EASTUSSTAGE_3",
+                "EUROPE_0",
+                "EUROPE_1",
+                "EUROPE_2",
+                "EUROPE_3",
+                "FRANCE_0",
+                "FRANCE_1",
+                "FRANCE_2",
+                "FRANCE_3",
+                "FRANCECENTRAL_0",
+                "FRANCECENTRAL_1",
+                "FRANCECENTRAL_2",
+                "FRANCECENTRAL_3",
+                "FRANCESOUTH_0",
+                "FRANCESOUTH_1",
+                "FRANCESOUTH_2",
+                "FRANCESOUTH_3",
+                "GERMANY_0",
+                "GERMANY_1",
+                "GERMANY_2",
+                "GERMANY_3",
+                "GERMANYNORTH_0",
+                "GERMANYNORTH_1",
+                "GERMANYNORTH_2",
+                "GERMANYNORTH_3",
+                "GERMANYWESTCENTRAL_0",
+                "GERMANYWESTCENTRAL_1",
+                "GERMANYWESTCENTRAL_2",
+                "GERMANYWESTCENTRAL_3",
+                "GLOBAL_0",
+                "GLOBAL_1",
+                "GLOBAL_2",
+                "GLOBAL_3",
+                "INDIA_0",
+                "INDIA_1",
+                "INDIA_2",
+                "INDIA_3",
+                "JAPAN_0",
+                "JAPAN_1",
+                "JAPAN_2",
+                "JAPAN_3",
+                "JAPANEAST_0",
+                "JAPANEAST_1",
+                "JAPANEAST_2",
+                "JAPANEAST_3",
+                "JAPANWEST_0",
+                "JAPANWEST_1",
+                "JAPANWEST_2",
+                "JAPANWEST_3",
+                "JIOINDIACENTRAL_0",
+                "JIOINDIACENTRAL_1",
+                "JIOINDIACENTRAL_2",
+                "JIOINDIACENTRAL_3",
+                "JIOINDIAWEST_0",
+                "JIOINDIAWEST_1",
+                "JIOINDIAWEST_2",
+                "JIOINDIAWEST_3",
+                "KOREA_0",
+                "KOREA_1",
+                "KOREA_2",
+                "KOREA_3",
+                "KOREACENTRAL_0",
+                "KOREACENTRAL_1",
+                "KOREACENTRAL_2",
+                "KOREACENTRAL_3",
+                "KOREASOUTH_0",
+                "KOREASOUTH_1",
+                "KOREASOUTH_2",
+                "KOREASOUTH_3",
+                "NORTHCENTRALUS_0",
+                "NORTHCENTRALUS_1",
+                "NORTHCENTRALUS_2",
+                "NORTHCENTRALUS_3",
+                "NORTHCENTRALUSSTAGE_0",
+                "NORTHCENTRALUSSTAGE_1",
+                "NORTHCENTRALUSSTAGE_2",
+                "NORTHCENTRALUSSTAGE_3",
+                "NORTHEUROPE_0",
+                "NORTHEUROPE_1",
+                "NORTHEUROPE_2",
+                "NORTHEUROPE_3",
+                "NORWAY_0",
+                "NORWAY_1",
+                "NORWAY_2",
+                "NORWAY_3",
+                "NORWAYEAST_0",
+                "NORWAYEAST_1",
+                "NORWAYEAST_2",
+                "NORWAYEAST_3",
+                "NORWAYWEST_0",
+                "NORWAYWEST_1",
+                "NORWAYWEST_2",
+                "NORWAYWEST_3",
+                "SOUTHAFRICA_0",
+                "SOUTHAFRICA_1",
+                "SOUTHAFRICA_2",
+                "SOUTHAFRICA_3",
+                "SOUTHAFRICANORTH_0",
+                "SOUTHAFRICANORTH_1",
+                "SOUTHAFRICANORTH_2",
+                "SOUTHAFRICANORTH_3",
+                "SOUTHAFRICAWEST_0",
+                "SOUTHAFRICAWEST_1",
+                "SOUTHAFRICAWEST_2",
+                "SOUTHAFRICAWEST_3",
+                "SOUTHCENTRALUS_0",
+                "SOUTHCENTRALUS_1",
+                "SOUTHCENTRALUS_2",
+                "SOUTHCENTRALUS_3",
+                "SOUTHCENTRALUSSTAGE_0",
+                "SOUTHCENTRALUSSTAGE_1",
+                "SOUTHCENTRALUSSTAGE_2",
+                "SOUTHCENTRALUSSTAGE_3",
+                "SOUTHEASTASIA_0",
+                "SOUTHEASTASIA_1",
+                "SOUTHEASTASIA_2",
+                "SOUTHEASTASIA_3",
+                "SOUTHEASTASIASTAGE_0",
+                "SOUTHEASTASIASTAGE_1",
+                "SOUTHEASTASIASTAGE_2",
+                "SOUTHEASTASIASTAGE_3",
+                "SOUTHINDIA_0",
+                "SOUTHINDIA_1",
+                "SOUTHINDIA_2",
+                "SOUTHINDIA_3",
+                "SWEDENCENTRAL_0",
+                "SWEDENCENTRAL_1",
+                "SWEDENCENTRAL_2",
+                "SWEDENCENTRAL_3",
+                "SWITZERLAND_0",
+                "SWITZERLAND_1",
+                "SWITZERLAND_2",
+                "SWITZERLAND_3",
+                "SWITZERLANDNORTH_0",
+                "SWITZERLANDNORTH_1",
+                "SWITZERLANDNORTH_2",
+                "SWITZERLANDNORTH_3",
+                "SWITZERLANDWEST_0",
+                "SWITZERLANDWEST_1",
+                "SWITZERLANDWEST_2",
+                "SWITZERLANDWEST_3",
+                "UAE_0",
+                "UAE_1",
+                "UAE_2",
+                "UAE_3",
+                "UAECENTRAL_0",
+                "UAECENTRAL_1",
+                "UAECENTRAL_2",
+                "UAECENTRAL_3",
+                "UAENORTH_0",
+                "UAENORTH_1",
+                "UAENORTH_2",
+                "UAENORTH_3",
+                "UK_0",
+                "UK_1",
+                "UK_2",
+                "UK_3",
+                "UKSOUTH_0",
+                "UKSOUTH_1",
+                "UKSOUTH_2",
+                "UKSOUTH_3",
+                "UKWEST_0",
+                "UKWEST_1",
+                "UKWEST_2",
+                "UKWEST_3",
+                "UNITEDSTATES_0",
+                "UNITEDSTATES_1",
+                "UNITEDSTATES_2",
+                "UNITEDSTATES_3",
+                "UNITEDSTATESEUAP_0",
+                "UNITEDSTATESEUAP_1",
+                "UNITEDSTATESEUAP_2",
+                "UNITEDSTATESEUAP_3",
+                "WESTCENTRALUS_0",
+                "WESTCENTRALUS_1",
+                "WESTCENTRALUS_2",
+                "WESTCENTRALUS_3",
+                "WESTEUROPE_0",
+                "WESTEUROPE_1",
+                "WESTEUROPE_2",
+                "WESTEUROPE_3",
+                "WESTINDIA_0",
+                "WESTINDIA_1",
+                "WESTINDIA_2",
+                "WESTINDIA_3",
+                "WESTUS_0",
+                "WESTUS_1",
+                "WESTUS_2",
+                "WESTUS_3",
+                "WESTUS2_0",
+                "WESTUS2_1",
+                "WESTUS2_2",
+                "WESTUS2_3",
+                "WESTUS2STAGE_0",
+                "WESTUS2STAGE_1",
+                "WESTUS2STAGE_2",
+                "WESTUS2STAGE_3",
+                "WESTUS3_0",
+                "WESTUS3_1",
+                "WESTUS3_2",
+                "WESTUS3_3",
+                "WESTUSSTAGE_0",
+                "WESTUSSTAGE_1",
+                "WESTUSSTAGE_2",
+                "WESTUSSTAGE_3"
+              ]
+            },
+            "location": {
+              "description": "Location of Cloud or Branch Connector group.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "maxEcCount": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Maximum VM count for Cloud & Branch Connector group."
+            },
+            "provTemplate": {
+              "description": "Provisioning template of Cloud or Branch Connector group.",
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/EntityReference"
+                }
+              ]
+            },
+            "tunnelMode": {
+              "type": "string",
+              "description": "Encryption type used when forwarding traffic to ZIA.",
+              "enum": [
+                "UNENCRYPTED",
+                "DTLS"
+              ]
+            },
+            "ecVMs": {
+              "type": "array",
+              "description": "Virtual Machine (VM) information of Cloud or Branch Connector group.",
+              "items": {
+                "$ref": "#/components/schemas/EcVM"
+              }
+            }
+          }
+        },
+        "EcVmStatusUpgradeReq": {
+          "type": "object",
+          "description": "The Cloud Connector VMs status upgrade request information.",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "The status of the Cloud Connector VMs. The available values are <code>ENABLE</code> or <code>DISABLE</code>.",
+              "enum": [
+                "ENABLE",
+                "DISABLE"
+              ]
+            },
+            "vmGroupIds": {
+              "type": "array",
+              "description": "The list of Cloud Connector group IDs.",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "vmIds": {
+              "type": "array",
+              "description": "The list of Cloud Connector VM IDs.",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "EcVmStatusSummary": {
+          "type": "object",
+          "description": "The summary of Cloud Connector VMs status.",
+          "properties": {
+            "failedVms": {
+              "type": "object",
+              "description": "An object for storing the results of Cloud Connector VM status updates.",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "EcVmReleaseChannelReq": {
+          "type": "object",
+          "description": "Information about release channels.",
+          "properties": {
+            "releaseChannel": {
+              "type": "string",
+              "description": "The supported release channels for Cloud Connector VMs.",
+              "enum": [
+                "STABLE",
+                "LATEST",
+                "BETA"
+              ]
+            },
+            "vmGroupIds": {
+              "type": "array",
+              "description": "The list of Cloud Connector group IDs.",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "vmIds": {
+              "type": "array",
+              "description": "The list of Cloud Connector VM IDs.",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "VmUpgradeMetrics": {
+          "type": "object",
+          "description": "Information about the VM release channels and scheduled upgrade metrics.",
+          "properties": {
+            "releaseChannel": {
+              "$ref": "#/components/schemas/ReleaseChannel"
+            },
+            "totalDevices": {
+              "type": "integer",
+              "description": "The total number of VMs in the Cloud Connector group scheduled for upgrade.",
+              "format": "int32"
+            },
+            "upgradeStatus": {
+              "$ref": "#/components/schemas/UpgradeStatus"
+            }
+          }
+        },
+        "EcVM": {
+          "type": "object",
+          "description": "The virtual machine (VM) information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The ID of the VM."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the VM."
+            },
+            "status": {
+              "type": "array",
+              "description": "The status of the VM.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "DISABLED",
+                  "REGISTERED",
+                  "RESERVED1",
+                  "PKG_REPO_REGISTERED",
+                  "ENABLING",
+                  "DISABLING",
+                  "DELETING",
+                  "DELETING_LAST",
+                  "DELETED"
+                ]
+              }
+            },
+            "autoScale": {
+              "type": "boolean",
+              "description": "Indicates whether auto scaling is enabled for the VM."
+            },
+            "buildVersion": {
+              "type": "string",
+              "description": "The build version of the VM."
+            },
+            "ccRoleName": {
+              "type": "string",
+              "description": "The Cloud Connector provisioning role name assigned to the VM."
+            },
+            "failOpen": {
+              "type": "boolean",
+              "description": "Indicates whether automatic failover is enabled.",
+              "readOnly": true
+            },
+            "formFactor": {
+              "type": "string",
+              "description": "The form factor size of the VM. The supported values are <code>SAMLL</code>, <code>MEDIUM</code>, or <code>LARGE</code>.",
+              "enum": [
+                "SMALL",
+                "MEDIUM",
+                "LARGE"
+              ]
+            },
+            "managementNw": {
+              "$ref": "#/components/schemas/EcNetwork"
+            },
+            "ecInstances": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/EcInstance"
+              }
+            },
+            "cityGeoId": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The city geographic ID where the VM is deployed."
+            },
+            "deployAsGateway": {
+              "type": "boolean",
+              "description": "Indicates whether the VM is deployed as a gateway."
+            },
+            "dnsCache": {
+              "type": "boolean",
+              "readOnly": true,
+              "description": "Indicates whether auto populate DNS cache is enabled for the VM."
+            },
+            "haStatus": {
+              "type": "string",
+              "description": "Indicates the high availability (HA) status of the VM.",
+              "enum": [
+                "INIT",
+                "ACTIVE",
+                "STANDBY",
+                "DISABLED"
+              ]
+            },
+            "hardwareInfo": {
+              "$ref": "#/components/schemas/HardwareInfo"
+            },
+            "lanDns": {
+              "$ref": "#/components/schemas/EcDns"
+            },
+            "lastTemplateConfigPushFailed": {
+              "type": "boolean",
+              "description": "Indicates whether the last provisioning template configuration push failed."
+            },
+            "lastUpgradeTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The date and time when the VM was last upgraded."
+            },
+            "metaConfig": {
+              "$ref": "#/components/schemas/EcVmMetaConfig"
+            },
+            "natIp": {
+              "type": "string",
+              "description": "The NAT IP of the VM."
+            },
+            "operationalStatus": {
+              "type": "string",
+              "description": "Indicates the operational status of the VM."
+            },
+            "pkgRepoSerialNumber": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The package repository certificate serial number of the VM."
+            },
+            "provTemplate": {
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "provTemplateStatus": {
+              "type": "string",
+              "description": "The deployment status of the provisioning template.",
+              "enum": [
+                "STAGED",
+                "NOT_DEPLOYED",
+                "DEPLOYED",
+                "EDITABLE"
+              ]
+            },
+            "trafficDistribution": {
+              "type": "string",
+              "description": "The traffic distribution type across WANs.",
+              "enum": [
+                "BALANCED",
+                "BEST_LINK"
+              ]
+            },
+            "upgradeStatus": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The scheduled upgrade status of the VM."
+            },
+            "upgradeStartTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The start time of the VM upgrade."
+            },
+            "upgradeEndTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The end time of the VM upgrade."
+            },
+            "upgradeDayOfWeek": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The scheduled upgrade day of the week. By default, this is Sunday."
+            },
+            "useWanDns": {
+              "type": "boolean",
+              "description": "Indicates whether WAN DNS is used for name resolution."
+            },
+            "usedForZtp": {
+              "type": "boolean",
+              "description": "Indicates whether the VM is used for Zero Touch Provisioning (ZTP)."
+            },
+            "zeroTrustVm": {
+              "type": "boolean",
+              "description": "Indicates whether the VM is configured as a Zero Trust Gateway."
+            },
+            "ziaGateway": {
+              "type": "string",
+              "description": "The ZIA gateway of the VM."
+            },
+            "ziaGateways": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The list of ZIA gateways of the VM."
+            },
+            "zpaBroker": {
+              "type": "string",
+              "description": "The ZPA broker of the VM."
+            },
+            "zpaBrokers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The list of The ZPA brokers of the VM."
+            }
+          }
+        },
+        "Intrface": {
+          "type": "object",
+          "description": "Information about the interface.",
+          "properties": {
+            "carpHAEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether high availability (HA) via Common Address Redundancy Protocol (CARP) is enabled for the interface."
+            },
+            "carpHAPreferredOn": {
+              "type": "boolean",
+              "description": "Specifies whether the interface is marked as the preferred CARP interface for handling traffic when high availability is active."
+            },
+            "carpHAState": {
+              "type": "string",
+              "description": "Specifies the operational state of the CARP HA.",
+              "enum": [
+                "INIT",
+                "ACTIVE",
+                "STANDBY"
+              ]
+            },
+            "carpId": {
+              "type": "integer",
+              "description": "The ID of the HA pair device.",
+              "format": "int32"
+            },
+            "carpVip": {
+              "type": "string",
+              "description": "The virtual IP address of the interface."
+            },
+            "configuredUplinkState": {
+              "type": "string",
+              "description": "Specifies the uplink mode as set by the configuration.",
+              "enum": [
+                "INIT",
+                "ACTIVE",
+                "STANDBY"
+              ]
+            },
+            "currentUplinkState": {
+              "type": "string",
+              "description": "Specifies the current operational status of the uplink mode.",
+              "enum": [
+                "INIT",
+                "ACTIVE",
+                "STANDBY"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the CARP interface."
+            },
+            "dhcpEnabled": {
+              "type": "boolean",
+              "description": "Indicates whether dynamic host configuration protocol (DHCP) is enabled for the interface."
+            },
+            "dhcpServer": {
+              "$ref": "#/components/schemas/DhcpServer"
+            },
+            "ecVmId": {
+              "type": "integer",
+              "description": "The ID of the VM associated with the interface.",
+              "format": "int32"
+            },
+            "id": {
+              "type": "integer",
+              "description": "The interface ID.",
+              "format": "int32"
+            },
+            "interfaceType": {
+              "type": "string",
+              "description": "Specifies the type of network interface",
+              "enum": [
+                "INTF_TYPE_WAN",
+                "INTF_TYPE_LAN"
+              ]
+            },
+            "ipInfo": {
+              "$ref": "#/components/schemas/EcNetwork"
+            },
+            "linkScore": {
+              "type": "integer",
+              "description": "The quality link score of the uplink.",
+              "format": "int32"
+            },
+            "mtu": {
+              "type": "integer",
+              "description": "The permissible IP Maximum Transmission Units (MTU) of the parent interface.",
+              "format": "int32"
+            },
+            "portId": {
+              "type": "string",
+              "description": "The ID of the port.",
+              "enum": [
+                "GE1",
+                "GE2",
+                "GE3",
+                "GE4",
+                "GE5",
+                "GE6",
+                "GE7",
+                "GE8"
+              ]
+            },
+            "portStatusUp": {
+              "type": "boolean",
+              "description": "Indicates whether the physical port associated with the interface is operational."
+            },
+            "shutdownOn": {
+              "type": "boolean",
+              "description": "Indicates whether the interface is shut down."
+            },
+            "vlanId": {
+              "type": "integer",
+              "description": "The ID of the virtual local area network (VLAN).",
+              "format": "int32"
+            }
+          }
+        },
+        "EcRoute": {
+          "type": "object",
+          "description": "Information about the Cloud or Branch Connector route.",
+          "properties": {
+            "ecVmId": {
+              "type": "integer",
+              "description": "The VM ID of the Cloud or Branch Connector group.",
+              "format": "int32"
+            },
+            "id": {
+              "type": "integer",
+              "description": "The route ID.",
+              "format": "int32"
+            },
+            "meta": {
+              "$ref": "#/components/schemas/RouteMeta"
+            },
+            "modTime": {
+              "type": "integer",
+              "description": "The time when the route details were last modified.",
+              "format": "int64"
+            },
+            "modUid": {
+              "type": "integer",
+              "description": "ID of the user who created or last modified the route details.",
+              "format": "int32"
+            }
+          }
+        },
+        "EntityReference": {
+          "type": "object",
+          "description": "An immutable reference to an entity, which consists of ID, name, etc.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int64",
+              "description": "An ID that uniquely identifies an entity."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the entity."
+            },
+            "isNameL10nTag": {
+              "type": "boolean",
+              "description": "Indicates whether the entity is localized for internationalization."
+            },
+            "extensions": {
+              "type": "object",
+              "description": "An object for storing additional properties related to entity configuration.",
+              "additionalProperties": {
+                "type": "string",
+                "description": "Custom attributes within the extensions object."
+              }
+            },
+            "deleted": {
+              "type": "boolean",
+              "description": "Indicates the deletion status of the entity."
+            },
+            "externalId": {
+              "type": "string",
+              "description": "The external ID of the entity."
+            },
+            "associationTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The timestamp when the entity was linked or associated."
+            }
+          }
+        },
+        "EcNetwork": {
+          "type": "object",
+          "description": "Cloud or Branch Connector management network information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The ID of the Cloud or Branch Connector network."
+            },
+            "ipStart": {
+              "type": "string",
+              "description": "The start IP address of the Cloud or Branch Connector network."
+            },
+            "ipEnd": {
+              "type": "string",
+              "description": "The end IP address of the Cloud or Branch Connector network."
+            },
+            "admin": {
+              "type": "string",
+              "enum": [
+                "NOSHUTDOWN",
+                "SHUTDOWN"
+              ],
+              "description": "The administrative state of the Cloud or Branch Connector network. Indicates whether the network is operational or shut down."
+            },
+            "natIp": {
+              "type": "string",
+              "description": "The NAT IP of the Cloud or Branch Connector network."
+            },
+            "netmask": {
+              "type": "string",
+              "description": "The subnet mask of Cloud or Branch Connector network."
+            },
+            "defaultGateway": {
+              "type": "string",
+              "description": "The default gateway IP address of the Cloud or Branch Connector network."
+            },
+            "nwType": {
+              "type": "string",
+              "description": "The network configuration type (e.g., DHCP (Automatic) and Static (Manual)).",
+              "enum": [
+                "AUTOMATIC",
+                "MANUAL",
+                "DELETING",
+                "SHUTDOWN_ON",
+                "PORT_STATUS_UP",
+                "DELETED"
+              ]
+            },
+            "portStatusUp": {
+              "type": "boolean",
+              "description": "Indicates whether the physical port associated with the interface is operational."
+            },
+            "shutdownOn": {
+              "type": "boolean",
+              "description": "Indicates whether the interface is shut down."
+            },
+            "dns": {
+              "$ref": "#/components/schemas/EcDns"
+            }
+          }
+        },
+        "EcDns": {
+          "type": "object",
+          "description": "DNS of Cloud or Branch Connector network.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The DNS ID of the server that the Cloud or Branch Connector inherited."
+            },
+            "ips": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The DNS IP addresses of the Cloud or Branch Connector."
+            },
+            "dnsType": {
+              "type": "string",
+              "description": "The type of DNS (e.g., Automatic and Static)",
+              "enum": [
+                "AUTOMATIC",
+                "MANUAL",
+                "DELETING",
+                "DELETED"
+              ]
+            }
+          }
+        },
+        "EcInstance": {
+          "type": "object",
+          "description": "Cloud or Branch Connector instance information.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The ID of the Cloud or Branch Connector instance."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the Cloud or Branch Connector instance."
+            },
+            "ecInstanceType": {
+              "type": "string",
+              "description": "The type of the Cloud or Branch Connector instance. This attribute is subject to change.",
+              "enum": [
+                "ANY",
+                "NONE",
+                "ALERTEVAL",
+                "ALERTNOTIF",
+                "SMBA",
+                "SMBAG",
+                "SMBAC",
+                "SMESXI",
+                "SMBAS",
+                "SMPC",
+                "SMCA",
+                "SMCDS",
+                "SMDNSD",
+                "PAC",
+                "SMEZA",
+                "SMAA",
+                "H_MON",
+                "SMFCCLT",
+                "ZSCMCLT",
+                "SMCDS",
+                "SMCDSDLP",
+                "SMSCIM",
+                "ZSCMCDSSCLT",
+                "FALCONCA",
+                "LOAD_BALANCER",
+                "MADM_UI",
+                "MADM_BACKEND_WEBSVC",
+                "MADM_GROUP_SYNC_APP",
+                "MADM_ZAPP_DEVINFO_PUB",
+                "MADM_ZAPP_DEV_CLEANUP",
+                "MADM_LB",
+                "MADM_SQL",
+                "CQM",
+                "DATAKEEPER",
+                "LOCAL_MTS",
+                "SMSM",
+                "S_RELAY",
+                "M_RELAY",
+                "ZSQUERY",
+                "SMCASB",
+                "SMTP",
+                "SMQTN",
+                "SMUI",
+                "UIZ",
+                "UIAE",
+                "UISALES",
+                "SMBAUI",
+                "ZSAPI",
+                "SMFALCONUI",
+                "MOBILEAPP_REG",
+                "MOBILEAPP_NF",
+                "SMEDGEUI",
+                "SMPARTNERUI",
+                "ZSCALER_ANALYTICS_UI",
+                "VZEN",
+                "NSS",
+                "ZAB",
+                "ADP",
+                "ZIRSVR",
+                "SME",
+                "SMIKE",
+                "SMDLP",
+                "SVPN",
+                "SMRESTSVR",
+                "ZSCALER_ANALYTICS_SCHEDULER"
+              ]
+            },
+            "flags": {
+              "type": "string",
+              "description": "Indicates the status of the Cloud or Branch Connector instance.",
+              "enum": [
+                "DISABLED",
+                "MON_DELETED",
+                "REGISTERED",
+                "ACTIVE",
+                "DELETING",
+                "DELETED"
+              ]
+            },
+            "serviceNw": {
+              "$ref": "#/components/schemas/EcNetwork"
+            },
+            "virtualNw": {
+              "$ref": "#/components/schemas/EcNetwork"
+            },
+            "natIp": {
+              "type": "string",
+              "description": "The NAT IP address of the Cloud or Branch Connector instance."
+            },
+            "registerTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The time (in seconds) when the Cloud or Branch Connector instance was registered."
+            },
+            "dnsIp": {
+              "type": "array",
+              "description": "The DNS IP address of the Cloud or Branch Connector instance.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "zpaId": {
+              "type": "integer",
+              "description": "The ZPA ID associated with the Cloud or Branch Connector instance.",
+              "format": "int64"
+            }
+          }
+        },
+        "HardwareInfo": {
+          "description": "The hardware configuration of the VM.",
+          "type": "object",
+          "properties": {
+            "deviceName": {
+              "type": "string",
+              "description": "The device name of the VM hardware configuration."
+            },
+            "modelType": {
+              "type": "string",
+              "enum": [
+                "ZT600",
+                "ZT800",
+                "ZT400"
+              ],
+              "description": "The model type of the VM hardware configuration."
+            },
+            "serialNum": {
+              "type": "string",
+              "description": "A unique serial number assigned to the VM hardware configuration."
+            }
+          }
+        },
+        "EcVmMetaConfig": {
+          "type": "object",
+          "description": "Metadata related to the VM configuration.",
+          "properties": {
+            "hostName": {
+              "type": "string",
+              "description": "The hostname of the VM."
+            },
+            "nativeId": {
+              "type": "string",
+              "description": "The native public cloud instance ID of the VM."
+            },
+            "repoTag": {
+              "type": "string",
+              "description": "The URL of the package repository associated with the VM."
+            },
+            "uuid": {
+              "type": "string",
+              "description": "The universally unique identifier (UUID) assigned to the VM."
+            }
+          }
+        },
+        "ReleaseChannel": {
+          "type": "object",
+          "description": "The release channels metrics.",
+          "properties": {
+            "beta": {
+              "type": "integer",
+              "description": "The total number of VMs with beta release channel.",
+              "format": "int32"
+            },
+            "latest": {
+              "type": "integer",
+              "description": "The total number of VMs with latest release channel.",
+              "format": "int32"
+            },
+            "stable": {
+              "type": "integer",
+              "description": "The total number of VMs with stable release channel.",
+              "format": "int32"
+            }
+          }
+        },
+        "UpgradeStatus": {
+          "type": "object",
+          "description": "The scheduled upgrade status metrics.",
+          "properties": {
+            "blocked": {
+              "type": "integer",
+              "description": "The total number of VMs with blocked upgrade status.",
+              "format": "int32"
+            },
+            "bootStrapping": {
+              "type": "integer",
+              "description": "The total number of VMs with bootstarping upgrade status.",
+              "format": "int32"
+            },
+            "failed": {
+              "type": "integer",
+              "description": "The total number of VMs with failed upgrade status.",
+              "format": "int32"
+            },
+            "scheduled": {
+              "type": "integer",
+              "description": "The total number of VMs with scheduled upgrade status.",
+              "format": "int32"
+            },
+            "upToDate": {
+              "type": "integer",
+              "description": "The total number of VMs with up to date upgrade status.",
+              "format": "int32"
+            }
+          }
+        },
+        "DhcpServer": {
+          "type": "object",
+          "description": "Information about the DHCP server.",
+          "properties": {
+            "failoverPeer": {
+              "type": "string",
+              "description": "The IP address of the peer DHCP server on the corresponding interface of the other hardware device. When HA is enabled, you can configure this setting to synchronize DHCP leases."
+            },
+            "fixedHosts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/FixedHost"
+              }
+            },
+            "globals": {
+              "$ref": "#/components/schemas/Globals"
+            },
+            "options": {
+              "$ref": "#/components/schemas/Options"
+            },
+            "range": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Range"
+              }
+            }
+          }
+        },
+        "FixedHost": {
+          "type": "object",
+          "description": "The details of MAC address and IP address for DHCP.",
+          "properties": {
+            "fixedAddress": {
+              "type": "string",
+              "description": "The IP address of the host."
+            },
+            "host": {
+              "type": "string",
+              "description": "Identifies FixedHost for the subinterface."
+            },
+            "macAddress": {
+              "type": "string",
+              "description": "The MAC address."
+            }
+          }
+        },
+        "Globals": {
+          "type": "object",
+          "description": "Information about the default and maximum lease time.",
+          "properties": {
+            "defaultLeaseTime": {
+              "type": "string",
+              "description": "The default lease time."
+            },
+            "maxLeaseTime": {
+              "type": "string",
+              "description": "The maximum lease time."
+            }
+          }
+        },
+        "Options": {
+          "type": "object",
+          "description": "Information about custom options and domain names for the DHCP server. ",
+          "properties": {
+            "customOptions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CustomOptions"
+              }
+            },
+            "domainName": {
+              "type": "string",
+              "description": "The domain name."
+            },
+            "domainNameServers": {
+              "type": "string",
+              "description": "The domain name servers."
+            },
+            "domainNameServersList": {
+              "type": "array",
+              "description": "The list of domain name servers.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "domainSearch": {
+              "type": "array",
+              "description": "The domain name search string.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "routers": {
+              "type": "array",
+              "description": "The default gateway IP address.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "CustomOptions": {
+          "type": "object",
+          "description": "Information about DHCP server custom options.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "The code to identify a specific DHCP option."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the custom DHCP option."
+            },
+            "type": {
+              "type": "string",
+              "description": "The type of DHCP option.",
+              "enum": [
+                "STRING",
+                "IP"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "description": "The list of IP addresses, URLs, or domains.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "Range": {
+          "type": "object",
+          "description": "The IP address range for the device.",
+          "properties": {
+            "end": {
+              "type": "string",
+              "description": "The starting IP address of the range."
+            },
+            "start": {
+              "type": "string",
+              "description": "The ending IP address of the range."
+            }
+          }
+        },
+        "RouteMeta": {
+          "type": "object",
+          "description": "The route details.",
+          "properties": {
+            "gateway": {
+              "type": "string",
+              "description": "The gateway of the Cloud or Branch Connector group."
+            },
+            "route": {
+              "type": "string",
+              "description": "The route IP address details."
+            }
+          }
+        }
+      }
+    }
+  }
+}

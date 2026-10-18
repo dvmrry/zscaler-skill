@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import configparser
+import json
 import os
 import re
 import subprocess
@@ -454,16 +455,35 @@ def pin_location(pin: Pin, snapshot: ReferenceSnapshot) -> str:
     return f"{pin.file}:{pin.line}{label}"
 
 
-def migrated_help_capture(vendor_path: str) -> str | None:
-    """The Markdown capture a JSON help capture replaced, for pins recorded before the move.
+def _retired_by_replacement(root: Path) -> dict[str, list[str]]:
+    registry = root / "references" / "_meta" / "static-captures.json"
+    out: dict[str, list[str]] = {}
+    if registry.exists():
+        for old, entry in (json.loads(registry.read_text()).get("retired") or {}).items():
+            out.setdefault(entry["replaced_by"], []).append(old)
+    return out
+
+
+def predecessors(vendor_path: str, root: Path | None = None) -> list[str]:
+    """Files a help capture replaced, for source pins recorded before the change.
 
     `help_capture.py migrate` turned each `vendor/zscaler-help/X.md` into `X.json` with the same
-    anchoring text (it refuses a file whose text would change), so a pin at which `X.md` existed
-    still describes `X.json`.
+    anchoring text (it refuses a file whose text would change), so a pin at which `X.md` existed still
+    describes `X.json`. Files retired for a capture of the same page (a PDF export, a CSV export, a
+    duplicate) are listed under `retired` in references/_meta/static-captures.json; a pin at which one of
+    them existed records what the doc was verified against until the doc converts to the graph.
     """
-    if vendor_path.startswith("vendor/zscaler-help/") and vendor_path.endswith(".json"):
-        return vendor_path[: -len(".json")] + ".md"
-    return None
+    if not (vendor_path.startswith("vendor/zscaler-help/") and vendor_path.endswith(".json")):
+        return []
+    name = vendor_path[len("vendor/zscaler-help/"):]
+    olds = [name[: -len(".json")] + ".md", *(_retired_by_replacement(root).get(name, []) if root else [])]
+    return [f"vendor/zscaler-help/{o}" for o in olds]
+
+
+def migrated_help_capture(vendor_path: str) -> str | None:
+    """The Markdown capture a JSON help capture replaced (see predecessors)."""
+    found = predecessors(vendor_path)
+    return found[0] if found else None
 
 
 def validate_snapshot_source_paths(
@@ -505,9 +525,10 @@ def validate_snapshot_source_paths(
         key = (pin.sha, source.vendor_path)
         if key not in path_results:
             path_results[key] = git_object_type(root, f"{pin.sha}:{source.vendor_path}")
-            migrated = migrated_help_capture(source.vendor_path)
-            if path_results[key] is None and migrated:
-                path_results[key] = git_object_type(root, f"{pin.sha}:{migrated}")
+            for older in predecessors(source.vendor_path, root) if path_results[key] is None else []:
+                path_results[key] = git_object_type(root, f"{pin.sha}:{older}")
+                if path_results[key] is not None:
+                    break
         object_type = path_results[key]
         if object_type is None:
             errors.append(

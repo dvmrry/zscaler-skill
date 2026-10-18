@@ -8,9 +8,9 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/about-user-status-log-fields"
-  - "vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt"
+  - "vendor/zscaler-help/understanding-user-status-log-fields.json"
   - "https://help.zscaler.com/zpa/understanding-log-stream-content-format"
-  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
+  - "vendor/zscaler-help/understanding-log-stream-content-format.json"
 author-status: draft
 ---
 

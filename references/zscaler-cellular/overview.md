@@ -18,7 +18,7 @@ confidence: medium
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/cellular-what-zscaler-cellular.json"
-  - "vendor/zscaler-help/zscaler-cellular-help-index.md"
+  - "vendor/zscaler-help/zscaler-cellular-help-index.json"
   - "vendor/zscaler-help/cellular-about-sims.json"
   - "vendor/zscaler-help/cellular-understanding-anomaly-detection.json"
   - "vendor/zscaler-help/cellular-configuring-deployment-credentials.json"
@@ -55,7 +55,7 @@ This began as a thin Tier-C reference, but the current source set now includes a
 | Ansible | No Zscaler Cellular modules found in the audited ZIA or ZPA collections. |
 | MCP | v0.15 exposes 20 read-only tools across nine ZCell toolsets plus three guided prompts (`vendor/zscaler-mcp-server/tests/test_docgen.py:120-124`; `vendor/zscaler-mcp-server/docs/guides/toolsets.md:141-153`; prompt registrations at `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/investigate_sim.py:22-27`, `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/audit_data_usage.py:21-26`, and `vendor/zscaler-mcp-server/src/zscaler_mcp/prompts/catalog/zcell/review_anomaly_policies.py:22-27`; prompt coverage at `vendor/zscaler-mcp-server/tests/test_prompts.py:166-244`). |
 | Automate contract | 36 ZCell operations in the current comparison; the publication adds tower-location history and no longer lists audit metadata. The count is unchanged because one route was added while one was absent (`vendor/zscaler-api-specs/automate-zscaler/openapi-validation-report.md:16`; removal inventory at `vendor/zscaler-api-specs/automate-zscaler/docusaurus-snapshot-compare-summary.md:103-113`). The 2026-08-12 count is a historical baseline at commit `3174c9a`, not current evidence. |
-| Help | The live index exposes 21 articles. Seven bodies are captured: What Is, Architecture, About SIMs, deployment credentials, About Network Events, Understanding Anomaly Detection, and About Audit Logs. The other 14 titles establish a capture backlog, not article semantics (`vendor/zscaler-help/zscaler-cellular-help-index.md:8-47`; What Is and Architecture capture at `vendor/zscaler-help/cellular-what-zscaler-cellular.json:1-67`; new operational-body boundaries at `vendor/zscaler-help/cellular-about-sims.json:1-27`, `vendor/zscaler-help/cellular-understanding-anomaly-detection.json:1-19`, `vendor/zscaler-help/cellular-configuring-deployment-credentials.json:1-24`, `vendor/zscaler-help/cellular-about-network-events.json:1-25`, and `vendor/zscaler-help/cellular-about-audit-logs.json:1-24`). |
+| Help | The live index exposes 21 articles. Seven bodies are captured: What Is, Architecture, About SIMs, deployment credentials, About Network Events, Understanding Anomaly Detection, and About Audit Logs. The other 14 titles establish a capture backlog, not article semantics (`vendor/zscaler-help/zscaler-cellular-help-index.json:8-47`; What Is and Architecture capture at `vendor/zscaler-help/cellular-what-zscaler-cellular.json:1-67`; new operational-body boundaries at `vendor/zscaler-help/cellular-about-sims.json:1-27`, `vendor/zscaler-help/cellular-understanding-anomaly-detection.json:1-19`, `vendor/zscaler-help/cellular-configuring-deployment-credentials.json:1-24`, `vendor/zscaler-help/cellular-about-network-events.json:1-25`, and `vendor/zscaler-help/cellular-about-audit-logs.json:1-24`). |
 
 ## What it is
 
@@ -101,7 +101,7 @@ The current ZCell pages also add network-event response fields (`apnUsername`, `
 
 - `zscaler-cellular-01`: The contract, Python SDK, and MCP read layer resolve the broad surface question, but tenant entitlement, live backend acceptance, and exact ZIA/ZPA policy-object mapping for IP/IMEI/IMSI identifiers remain open. See [clarification `zscaler-cellular-01`](../_meta/clarifications.md#zscaler-cellular-01-zscaler-cellular-admin-and-api-surface).
 - MCP request/response divergences for anomaly violations, SIM pagination, and audit filters are tracked in [`./api.md`](./api.md#mcp-v015-divergences-and-test-boundary) and clarifications `zscaler-cellular-02`–`zscaler-cellular-04`.
-- Fourteen current Help article bodies remain uncaptured across the step-by-step setup guide, dashboards and Cellular Edge deployment, remaining SIM/eSIM lifecycle tasks, network-event detail, and anomaly/geofence management tasks (`vendor/zscaler-help/zscaler-cellular-help-index.md:10-47`).
+- Fourteen current Help article bodies remain uncaptured across the step-by-step setup guide, dashboards and Cellular Edge deployment, remaining SIM/eSIM lifecycle tasks, network-event detail, and anomaly/geofence management tasks (`vendor/zscaler-help/zscaler-cellular-help-index.json:10-47`).
 
 ## Cross-links
 

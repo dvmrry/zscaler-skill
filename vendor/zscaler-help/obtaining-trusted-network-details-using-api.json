@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Obtaining Trusted Network Details Using API",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/obtaining-trusted-network-details-using-api",
+    "node": "1484841",
+    "revision": "3160704"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) trusted network use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Getting Details for All Trusted Networks V2",
+      "level": 1
+    },
+    {
+      "text": "To get details for all the trusted networks:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the trusted-network-controller: /mgmtconfig/v2/admin/customers/{customerId}/network.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v2/admin/customers/217246660302995456/network.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"3\", \"list\": [ { \"id\": \"217246660303023500\", \"creationTime\": \"1568929136\", \"modifiedBy\": \"72057594037928107\", \"name\": \"example mac\", \"networkId\": \"1cd35d99-e509-49c6-a0fe-a1e1f754ac3e\", \"zscalerCloud\": \"zpadev\" }, { \"id\": \"217246660303023640\", \"creationTime\": \"1578427726\", \"modifiedBy\": \"72057594037959595\", \"name\": \"test1\", \"networkId\": \"f373dbe7-1a21-488e-bd2b-6557e702357c\", \"zscalerCloud\": \"zscalerone\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/network?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/network?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"3\", \"list\": [ { \"id\": \"217246660303023500\", \"creationTime\": \"1568929136\", \"modifiedBy\": \"72057594037928107\", \"name\": \"Test network\", \"networkId\": \"1cd35d99-e509-49c6-a0fe-a1e1f754ac3e\", \"zscalerCloud\": \"zpaTest\" }, { \"id\": \"217246660303023640\", \"creationTime\": \"1578427726\", \"modifiedBy\": \"72057594037959595\", \"name\": \"test1 (zscalerone.net)\", \"networkId\": \"f373dbe7-1a21-488e-bd2b-6557e702357c\", \"zscalerCloud\": \"zscalerone\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/network&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string enabled%20EQ%20true is supported for the Name filter, using the Contains (LIKE) operator, for the filter value test.",
+      "depth": 0,
+      "strong": [
+        [
+          267,
+          271
+        ],
+        [
+          290,
+          298
+        ]
+      ]
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/network&search=name%20LIKE%20test."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"2\", \"list\": [ { \"id\": \"72057594038041097\", \"creationTime\": \"1624340572\", \"modifiedBy\": \"72057594037987389\", \"name\": \"Test (cloud.net)\", \"networkId\": \"1\", \"zscalerCloud\": \"cloud\" }, { \"id\": \"72057594038041098\", \"creationTime\": \"1624340631\", \"modifiedBy\": \"72057594037987389\", \"name\": \"Test 20 (cloud.net)\", \"networkId\": \"2\", \"zscalerCloud\": \"cloud\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the ZPA API PortaI or the Reference Guide to make your API calls, the search field string does not require any characters. For example, name%20LIKE%20test is name LIKE test."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular Trusted Network",
+      "level": 1
+    },
+    {
+      "text": "To get details of a particular trusted network:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the trusted-network-controller: /mgmtconfig/v1/admin/customers/{customerId}/network/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "id: The ID of the desired trusted network.",
+      "depth": 0
+    },
+    {
+      "text": "For example:/mgmtconfig/v1/admin/customers/72057615512764416/network/72057615512764509."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"72057615512764509\", \"creationTime\": \"1571232759\", \"modifiedBy\": \"72057594037927995\", \"name\": \"Home\", \"networkId\": \"2b8a83bd-3fab-4961-b12c-e64553f15327\", \"zscalerCloud\": \"zscalerbeta\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

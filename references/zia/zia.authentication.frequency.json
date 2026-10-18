@@ -39,7 +39,7 @@
     },
     {
       "label": "Values.",
-      "text": "{{frequency-values}} The older legacy API page lists a different set {{divergence:frequency-vocabulary}}. How long each value lasts is open {{gap:value-meanings}}."
+      "text": "{{frequency-values}} How long each value lasts is open {{gap:value-meanings}}."
     },
     {
       "label": "Custom.",
@@ -56,10 +56,9 @@
   ],
   "checks": [
     {
-      "do": "The live value of authFrequency against the spec's value list, since the legacy page lists a different set.",
+      "do": "The live value of authFrequency against the spec's value list.",
       "uses": [
-        "frequency-values",
-        "frequency-vocabulary"
+        "frequency-values"
       ]
     },
     {
@@ -82,10 +81,11 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "legacy-authentication-settings.md",
-          "quotes": [
-            "How frequently the users are required to authenticate (i.e., cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API."
-          ]
+          "path": "legacy-authentication-settings.json",
+          "pointer": "/spec/definitions/AuthSettings/properties/authFrequency",
+          "expect": {
+            "description": "How frequently the users are required to authenticate (i.e., cookie expiration duration after a user is first authenticated). This field is not applicable to the Lite API."
+          }
         }
       ]
     },
@@ -110,7 +110,8 @@
       ],
       "gaps": [
         "value-meanings"
-      ]
+      ],
+      "conditions": "Until the 2026-10-18 recapture the legacy API reference page listed DAILY_COOKIE, WEEKLY_COOKIE, MONTHLY_COOKIE and SESSION_COOKIE; it now lists the same values as the OpenAPI document, so the divergence between them was removed."
     },
     "custom-range": {
       "statement": "A custom frequency is set in whole days in authCustomFrequency, valid range 1 to 180; the admin console field takes the same 1 to 180.",
@@ -191,45 +192,6 @@
         }
       ],
       "conditions": "The cookie-lifetime reading follows from the field description; no source states in one place that frequency has no effect on Kerberos or cookie-less traffic."
-    }
-  },
-  "divergences": {
-    "frequency-vocabulary": {
-      "summary": "The legacy API reference page and the OpenAPI document list different authFrequency values.",
-      "positions": [
-        {
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "legacy-authentication-settings.md",
-            "quotes": [
-              "Enum: [4 Items — DAILY_COOKIE, WEEKLY_COOKIE, MONTHLY_COOKIE, SESSION_COOKIE]"
-            ]
-          },
-          "says": "authFrequency is DAILY_COOKIE, WEEKLY_COOKIE, MONTHLY_COOKIE or SESSION_COOKIE."
-        },
-        {
-          "evidence": {
-            "source": "api-specs",
-            "path": "automate-zscaler/openapi/zia.openapi.json",
-            "pointer": "/paths/~1authSettings/get/responses/200/content/application~1json/schema/properties/authFrequency",
-            "expect": {
-              "type": "string",
-              "enum": [
-                "DAILY_COOKIE",
-                "PERMANENT_COOKIE",
-                "SESSION_COOKIE",
-                "CUSTOM_COOKIE"
-              ]
-            }
-          },
-          "says": "authFrequency is DAILY_COOKIE, PERMANENT_COOKIE, SESSION_COOKIE or CUSTOM_COOKIE."
-        }
-      ],
-      "impact": "WEEKLY_COOKIE and MONTHLY_COOKIE exist only on the older page and CUSTOM_COOKIE only in the spec; a write built from the wrong list can be rejected, and a custom frequency cannot be chosen by the older list's names.",
-      "resolution": {
-        "by": "frequency-values",
-        "rule": "source-rank"
-      }
     }
   },
   "gaps": {

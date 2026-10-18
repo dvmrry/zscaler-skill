@@ -59,9 +59,9 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
-            "Caution: Select to display an EUN that cautions users before allowing them access to the site."
+            "Select to display an EUN that cautions users before allowing them access to the site. When you select this value, the service can either display the default EUN or redirect users to an EUN that is hosted on the site you specify in the Redirect URL field."
           ]
         }
       ]
@@ -76,16 +76,18 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
-            "Isolate: Select to isolate all the traffic that matches the URL filtering rule through a remote browser.",
-            "This action is available only if Zero Trust Browser is enabled for your organization."
+            "Select to isolate all the traffic that matches the URL Filtering rule through a remote browser.",
+            "This action is available only if Zero Trust Browser is enabled for your organization.",
+            "You can choose the isolation profiles to which the rule applies."
           ]
         }
       ]
     },
     "conditional-prereqs": {
-      "statement": "Conditional enforces step-up authentication before access. It needs ZIdentity for end users and Client Connector forwarding; through Private or Virtual Service Edges the category is blocked instead, and it does not apply to isolation traffic.",
+      "statement": "Conditional enforces step-up authentication before access. It needs Authentication Service for end users and Client Connector forwarding; through Private or Virtual Service Edges the category is blocked instead, and it does not apply to isolation traffic.",
+      "conditions": "Statement word changed on recapture (2026-10-18): the capture now says \"Authentication Service\" where the statement said \"ZIdentity\".",
       "tier": "A",
       "binds": [
         "zia/url-filtering-rules#action"
@@ -93,10 +95,10 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
             "Conditional Access: Allows access to the selected URL categories by enforcing step-up authentication.",
-            "This option is available only if your organization is provisioned with ZIdentity for end users and the traffic forwarding method is Zscaler Client Connector.",
+            "This option is available only if your organization is provisioned with Authentication Service for end users and the traffic forwarding method is Zscaler Client Connector.",
             "conditional access is not supported and the user access to the URL category is blocked with a notification from the browser.",
             "Conditional access doesn't apply to isolation traffic."
           ]
@@ -132,7 +134,7 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
             "By default, traffic matching the Allow Override rule is permitted without any restrictions if SSL/TLS Inspection is disabled and the Show End User Notifications option is disabled in the SSL/TLS Inspection rule for the corresponding traffic."
           ]
@@ -165,7 +167,7 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
             "The HTTP custom header insertion works only for custom URL categories."
           ]
@@ -174,6 +176,7 @@
     },
     "quotas": {
       "statement": "Allow and Isolate rules can carry a daily bandwidth quota (10 to 100,000 MB) and a daily time quota (15 to 600 minutes), after which the sites are blocked.",
+      "conditions": "The Caution and Conditional sections of the same page label the time quota \"(MB)\", which looks garbled; the Allow and Isolate sections cited here say \"(min)\".",
       "tier": "A",
       "binds": [
         "zia/url-filtering-rules#sizeQuota",
@@ -182,12 +185,22 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "Configuring_the_URL_Filtering_Policy.txt",
-          "after": "Isolate: Select to isolate all the traffic that matches the URL filtering rule through a remote",
+          "path": "configuring-url-filtering-policy.json",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional) The daily bandwidth limit allowed for uploading or downloading data, or both, from the URL categories before the websites are blocked.",
+            "The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.",
+            "The minimum value you can enter is 15 minutes and the maximum value is 600 minutes."
+          ],
+          "after": "Select this to allow access to all sites in the selected URL categories."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-url-filtering-policy.json",
           "quotes": [
             "The minimum value you can enter is 10 MB and the maximum value is 100,000 MB.",
             "The minimum value you can enter is 15 minutes and the maximum value is 600 minutes."
-          ]
+          ],
+          "after": "Select to isolate all the traffic that matches the URL Filtering rule through a remote browser."
         }
       ]
     }

@@ -19,7 +19,7 @@ source-tier: mixed
 sources:
   - "vendor/zscaler-help/what-is-zscaler-deception.json"
   - "vendor/zscaler-help/about-deception-strategy.json"
-  - "vendor/zscaler-help/About_Access_Policy.txt"
+  - "vendor/zscaler-help/zpa-access-policy-20260909.json"
   - "vendor/zscaler-help/supported-mcp-server-decoy-applications-and-tools.json"
   - "vendor/zscaler-help/configuring-services-network-decoy.json"
   - "vendor/zscaler-help/deception-ranges-and-limitations.json"
@@ -63,7 +63,7 @@ The same capture lists network, threat-intelligence, Active Directory, endpoint,
 
 Deception Strategy is a configuration page for Network decoys, Threat Intelligence decoys, Active Directory decoys, and Landmine policies (`vendor/zscaler-help/about-deception-strategy.json:8`). The strategy model uses predefined personalities and can deploy using Internal or Zero Trust Network decoys (`vendor/zscaler-help/about-deception-strategy.json:10-16`).
 
-The Deception product can integrate with ZPA to deploy Zero Trust Network decoys without extra network components or network-configuration changes (`vendor/zscaler-help/what-is-zscaler-deception.json:45-47`). In the ZPA access-policy Help capture, Deception-configured access policy rule order is not supported for direct update, and regular rules must have a greater order than Deception rules when Deception is present (`vendor/zscaler-help/About_Access_Policy.txt:169-177`). The same capture says copy, edit, and delete options are unavailable for an access policy configured using Deception (`vendor/zscaler-help/About_Access_Policy.txt:185-190`).
+The Deception product can integrate with ZPA to deploy Zero Trust Network decoys without extra network components or network-configuration changes (`vendor/zscaler-help/what-is-zscaler-deception.json:45-47`). In the ZPA access-policy Help capture, Deception-configured access policy rule order is not supported for direct update, and regular rules must have a greater order than Deception rules when Deception is present (`vendor/zscaler-help/zpa-access-policy-20260909.json:169-177`). The same capture says copy, edit, and delete options are unavailable for an access policy configured using Deception (`vendor/zscaler-help/zpa-access-policy-20260909.json:185-190`).
 
 ## MCP server decoys (attacker-facing)
 

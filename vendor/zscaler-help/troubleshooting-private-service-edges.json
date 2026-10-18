@@ -1,0 +1,1100 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Troubleshooting Private Service Edges",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/troubleshooting-private-service-edges",
+    "node": "1485476",
+    "revision": "3233206"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "This article provides troubleshooting information and guidelines about Private Service Edges for Private Access (ZPA). To learn more about Private Service Edges, see About Private Service Edges. To configure Private Service Edges, see Configuring Private Service Edges."
+    },
+    {
+      "text": "When troubleshooting Private Service Edges, consider the following scenarios:"
+    },
+    {
+      "item": "Private Service Edges Not Connected to the Private Access Cloud",
+      "depth": 0
+    },
+    {
+      "item": "If the Private Service Edge was previously working and now shows an error about not being connected to the Private Access cloud, you might see an error similar to the following:",
+      "depth": 0
+    },
+    {
+      "item": "Apr 02 08:03:21 zpa-service-edge zpa-service-edge-child[1737]: [Received event from [13.170.52.111]:38864;broker2.sha1.prod.zpath.net:[56.109.210.189]:2010: BEV_EVENT_CONNECTED, sock=63 using ECDHE-RSA-AES128-GCM-SHA256 Apr 02 08:03:22 zpa-service-edge zpa-service-edge-child[1737]: [Received event from [13.170.52.111]:38864;broker2.sha1.prod.zpath.net:[56.109.210.189]:2010: BEV_EVENT_READING BEV_EVENT_ERROR, sock=63 Apr 02 08:03:22 zpa-connector zpa-connector-child[1737]: [*Connector not yet connected to cloud, please check connectivity, if this persists*",
+      "depth": 0
+    },
+    {
+      "item": "You might see this error if a Private Service Edge was deleted from the Zscaler Admin Console accidently. Private Access immediately recognizes that it should not communicate with the Private Service Edge, and it breaks the active connection. There is no way to recover the Private Service Edge.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve this issue:",
+      "depth": 0
+    },
+    {
+      "item": "Remove the Private Service Edge on the deployed platform.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Log in to the Private Service Edge console using your admin credentials.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command to stop the zpa-service-edge service:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo systemctl stop zpa-service-edge",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to switch to a root user:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo su",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to delete the Private Service Edge:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "[root@zpa-service-edge ~]$ rm -rf /opt/zscaler/var/*",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to switch back to a regular user:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "[root@zpa-service-edge admin]# exit",
+      "depth": 0
+    },
+    {
+      "item": "Restart the services.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo systemctl restart zpa-service-edge",
+      "depth": 0
+    },
+    {
+      "item": "If you attempt to delete the Private Service Edge and the Private Service Edge still reports an ID number, then the Private Service Edge was not fully deleted.",
+      "depth": 0
+    },
+    {
+      "item": "Restart the process for configuring a Private Service Edge and deploying on a platform.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Private Service Edges Connectivity to App Connectors",
+      "depth": 0
+    },
+    {
+      "item": "If the Private Service Edge does not have a direct connection to the App Connector that is providing access to the application, the Private Service Edge forwards traffic to the nearest Public Service Edge for Private Access. Traffic is not routed automatically to App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "If no App Connector for the requested application can establish a data connection to the required Private Service Edge where the user is connected, then the Private Service Edge relays the Zscaler Client Connector request to a Public Service Edge. The Public Service Edge then connects to the closest App Connector that it can reach for that application request and completes the application request via the Private Service Edge through an additional hop.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following command to confirm which App Connectors your Private Service Edges are connected to:",
+      "depth": 0
+    },
+    {
+      "item": "curl localhost:8500/fohh/servers?small",
+      "depth": 0
+    },
+    {
+      "item": "Provided is a sample output:",
+      "depth": 0
+    },
+    {
+      "item": "[eng@localhost.dev ~]$ curl localhost:8500/fohh/servers?small [ [\"[10.18.15.130]:443;145254333661845533.ast.prod.zpath.net:[10.18.6.255]:59948;0\", \"client\", \"fohh_connection_connected\", \"145254333661845533.145254333661845486.a2pb_ctl.prod.zpath.net\", \"145254333661845533.ast.prod.zpath.net\"], [\"[10.18.15.130]:443;145254333661845470.ast.prod.zpath.net:[10.18.11.183]:58956;1\", \"client\", \"fohh_connection_connected\", \"145254333661845470.145254333661845486.a2pb_ctl.prod.zpath.net\", \"145254333661845470.ast.prod.zpath.net\"], [\"[10.18.15.130]:443;145254333661845448.ast.prod.zpath.net:[10.18.15.180]:50074;3\", \"client\", \"fohh_connection_connected\", \"145254333661845448.145254333661845486.a2pb_ctl.prod.zpath.net\", \"145254333661845448.ast.prod.zpath.net\"] ]",
+      "depth": 0
+    },
+    {
+      "item": "DNS Failure, but Private Service Edges Successful",
+      "depth": 0
+    },
+    {
+      "item": "If you have a DNS failure and the Private Service Edge root process is successful, you might see an error similar to the following:",
+      "depth": 0
+    },
+    {
+      "item": "The domain (e.g., api.private.com) in the echo statement will depend on what Private Access cloud you are on.",
+      "depth": 0
+    },
+    {
+      "item": "May 25 14:32:53 ussy-nwopapp03 zpa-service-edge-child[2040]: Checking Enrollment May 25 14:32:53 ussy-nwopapp03 zpa-service-edge-child[2040]: Resolve read certificatefailed May 25 14:32:53 ussy-nwopapp03 zpa-service-edge-child[2040]: No valid certificate. Attempting to enroll May 25 14:32:53 ussy-nwopapp03 zpa-service-edge-child[2040]: Enroll: Connecting to api.private.zscaler.com via pb2br.prod.zpath.net. May 25 14:32:53 ussy-nwopapp03 zpa-service-edge-child[2040]: DNS resolution failed for api.private.zscaler.com May 25 14:32:53 ussy-nwopapp03 zpa-service-edge-child[2040]: Could not create HTTP client May 25 14:32:53 ussy-nwopapp03 zpa-service-edge-child[2040]: Certificate enrollment failed. May 25 14:32:55 ussy-nwopapp03 zpa-service-edge[3971]: zscaler-update: zpa-service-edge-child exited too fast, was running for 2 seconds May 25 14:32:55 ussy-nwopapp03 zpa-service-edge[3971]: zscaler-update: zpa-service-edge-child failed too many times in a row- reverting to default software",
+      "depth": 0
+    },
+    {
+      "item": "The DNS failure might be an issue with the permissions for the user account Zscaler. Typically, this means the root process is able to read /etc/resolv.conf, but the Zscaler user account cannot.",
+      "depth": 0
+    },
+    {
+      "item": "To resolve this issue, correct the file permission on /etc/resolv.conf for the Zscaler user account to allow it read access as well.",
+      "depth": 0
+    },
+    {
+      "item": "SSL Interceptions",
+      "depth": 0
+    },
+    {
+      "item": "If you have an error similar to the following, a device between the Private Service Edge and Private Access cloud service is attempting an SSL interception:",
+      "depth": 0
+    },
+    {
+      "item": "Jul 10 13:58:18 zpa-service-edge zpa-service-edge-child[992]: Received event from [uninitialized]:0;co2br.prod.zpath.net:[52.28.10.14]:443: BEV_EVENT_READING BEV_EVENT_ERROR, sock=54 self signed certificate in certificate chain /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com",
+      "depth": 0
+    },
+    {
+      "item": "Private Access does not support SSL interceptions. Private Access uses TLS connections and pinned certificates, so a device performing SSL interception causes the connection to fail between the Private Service Edge and the Zscaler cloud.",
+      "depth": 0
+    },
+    {
+      "item": "To make sure traffic is not SSL intercepted, you need to allowlist all the Private Access domains or IP addresses in the SSL interception device that are listed on config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). This ensures Private Service Edges and the Zscaler URLs (e.g., *.zpath.net, *.zscaler.com) are bypassed from a SSL inspection.",
+      "depth": 0
+    },
+    {
+      "item": "Memory Leaks or High Memory Usage",
+      "depth": 0
+    },
+    {
+      "item": "You should routinely monitor and address memory leaks or high memory usage in your Private Service Edges. For more information, see Monitoring Private Service Edge Performance.",
+      "depth": 0
+    },
+    {
+      "item": "If there is a need to contact Zscaler Support, be prepared to run the following script. It collects a memory report every minute. This might need to run for at least one hour or up to multiple days.",
+      "depth": 0
+    },
+    {
+      "item": "Script:",
+      "depth": 0
+    },
+    {
+      "item": "#!/bin/bash # trap ctrl-c and call ctrl_c() trap ctrl_c INT function ctrl_c() { echo \" Trapped CTRL-C\" exit } echo \"dumping memory report at $(date)\" uname -a >> memory_report.txt hostname >> memory_report.txt lscpu >> memory_report.txt while : do echo \"dumping memory report at $(date)\" date >> memory_report.txt echo \"ps aux --sort=-pmem | head -5\" >> memory_report.txt ps aux --sort=-pmem | head -5 >> memory_report.txt echo \"curl -s 127.0.0.1:9000/memory/status\" >> memory_report.txt curl -s 127.0.0.1:9000/memory/status >> memory_report.txt echo \"curl -s 127.0.0.1:9000/memory/argo\" >> memory_report.txt curl -s 127.0.0.1:9000/memory/argo >> memory_report.txt sleep 60 done",
+      "depth": 0,
+      "strong": [
+        [
+          86,
+          678
+        ]
+      ]
+    },
+    {
+      "item": "High CPU",
+      "depth": 0
+    },
+    {
+      "item": "You should routinely monitor and address high CPU for your Private Service Edges. For more information, see Monitoring Private Service Edge Performance.",
+      "depth": 0
+    },
+    {
+      "item": "If there is a need to contact Zscaler Support, be prepared to run the following script. It collects a CPU report. This might need to run for at least one hour or up to multiple days.",
+      "depth": 0
+    },
+    {
+      "item": "Script:",
+      "depth": 0
+    },
+    {
+      "item": "#!/bin/bash # trap ctrl-c and call ctrl_c() trap ctrl_c INT function ctrl_c() { echo \" Trapped CTRL-C\" exit } echo \"dumping cpu report at $(date)\" uname -a >> cpu_report.txt hostname >> cpu_report.txt lscpu >> cpu_report.txt while : do echo \"dumping cpu report at $(date)\" date >> cpu_report.txt echo \"ps aux --sort=-pcpu | head -5\" >> cpu_report.txt ps aux --sort=-pcpu | head -5 >> cpu_report.txt echo \"vmstat\" >> cpu_report.txt vmstat >> cpu_report.txt echo \"curl -s 127.0.0.1:9000/memory/status\" >> cpu_report.txt curl -s 127.0.0.1:9000/memory/status >> cpu_report.txt echo \"curl -s 127.0.0.1:9000/memory/argo\" >> cpu_report.txt curl -s 127.0.0.1:9000/memory/argo >> cpu_report.txt sleep 60 done",
+      "depth": 0,
+      "strong": [
+        [
+          86,
+          699
+        ]
+      ]
+    },
+    {
+      "item": "Unable to Connect to the Private Access Cloud",
+      "depth": 0
+    },
+    {
+      "item": "If you have issues with the Private Service Edge connecting to the Private Access cloud, the problem can come from one of a couple areas. There are a few things to check when narrowing down what is preventing the Private Service Edge to connect:",
+      "depth": 0
+    },
+    {
+      "item": "Check the IP ranges.",
+      "depth": 1
+    },
+    {
+      "item": "Make sure all the IP ranges allowed by the firewall match those in the Private Access firewall policies: refer to config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud).",
+      "depth": 1
+    },
+    {
+      "item": "Test the connectivity.",
+      "depth": 1
+    },
+    {
+      "item": "Test connectivity to the upstream Public Service Edge by querying the DNS address pb2br.prod.zpath.net from the server that is running the Private Service Edge software.",
+      "depth": 1
+    },
+    {
+      "item": "The endpoint for Private Service Edges to locate Public Service Edges is pb2br.",
+      "depth": 1
+    },
+    {
+      "item": "Successful connectivity results in two IPs. For example:",
+      "depth": 1
+    },
+    {
+      "item": "[admin@localhost ~]$ dig +short pb2br.prod.zpath.net 13.60.119.37 42.68.244.163 [admin@localhost ~]$",
+      "depth": 1
+    },
+    {
+      "item": "If you do not get two IPs, there is a DNS lookup issue that you need to investigate further.",
+      "depth": 1
+    },
+    {
+      "item": "Check for a TLS connection.",
+      "depth": 1
+    },
+    {
+      "item": "Test if the Private Service Edge can do a TLS connection to a Public Service Edge using the openssl command.",
+      "depth": 1
+    },
+    {
+      "item": "A successful TLS connection results in a certificate subject string returned from the Public Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "In the following example, repeat the test and replace the domain name safemarch.com highlighted in red with your own domain name:",
+      "depth": 1
+    },
+    {
+      "item": "[admin@localhost ~]$ openssl s_client -servername safemarch.com.c2.prod.zpath.net -connect pb2br.prod.zpath.net:443 2>&1 | grep subject subject=/C=US/ST=California/L=San Jose/O=Zscaler/OU=Emerging Technologies/CN=broker1.was1.prod.zpath.net",
+      "depth": 1
+    },
+    {
+      "item": "If the openssl command shows an error, an empty response, or no response, then there is a problem with your network. You can try running the openssl command in a loop to see if there is a regular pattern to the success or failure rate. For example, the firewall rule may not allow the Private Service Edge to open a connection to a Public Service Edge. Sometimes the TCP connection goes through, but TLS fails. This is a sign that the firewall is blocking the application layer, but it’s allowing the transport layer.",
+      "depth": 1
+    },
+    {
+      "item": "Get the tcpdump.",
+      "depth": 1
+    },
+    {
+      "item": "Get the tcpdump and see the delay between the packet sent and the TCP RST received. If the delay is too little (e.g., 1 or 2 milliseconds), then most likely the firewall in your organization's premise is sending the RST.",
+      "depth": 1
+    },
+    {
+      "item": "Verify the frequency of error occurrence.",
+      "depth": 1
+    },
+    {
+      "item": "This error sometimes occurs intermittently, which indicates a networking issue either in your organization’s environment or in the internet path from the Private Service Edge to the Public Service Edge. In those cases, perform the following actions:",
+      "depth": 1
+    },
+    {
+      "item": "Watch for messages similar to those in the example.",
+      "depth": 2
+    },
+    {
+      "item": "Check the output of journalctl -n10000 -u zpa-service-edge | grep fohh_connection_connected. These messages are printed every minute and tell you if the connection is always connected.",
+      "depth": 2
+    },
+    {
+      "item": "Review the rx and tx counters in the messages, which tell you how many bytes were transferred in this channel. Based on the state and the bytes counters, you can also see if the connection is inconsistent.",
+      "depth": 2
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "Aug 23 06:59:39 prod.zpath.net zpa-service-edge-child[7069]: Log(event_log) connection, state fohh_connection_connected, [10.204.5.5]:41131;broker1b.was2.prod.zpath.net:[52.4.154.137]:443;1 uptime , RTT (tcp|app): 0|0 us, tx_b 75698, rx_b 2480",
+      "depth": 1
+    },
+    {
+      "item": "Do an ICMP ping.",
+      "depth": 1
+    },
+    {
+      "item": "Do an ICMP ping to the Public Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Larger Number of TCP Sockets in the System",
+      "depth": 0
+    },
+    {
+      "item": "This is expected behavior. Each application requires a TCP port and has its health monitored. Many of these ports can reside in a TIME_WAIT state. To learn more, see Monitoring Private Service Edge Performance.",
+      "depth": 0
+    },
+    {
+      "item": "Frequent Disconnections from the Private Access Cloud",
+      "depth": 0
+    },
+    {
+      "item": "If you see frequent disconnections between a Private Service Edge to the Private Access cloud, the problem can come from one of a couple areas.",
+      "depth": 0
+    },
+    {
+      "item": "Questions to address:",
+      "depth": 0
+    },
+    {
+      "item": "Is there a Private Service Edge restart involved?",
+      "depth": 1
+    },
+    {
+      "item": "Is the disconnect only on the control or data connection?",
+      "depth": 1
+    },
+    {
+      "item": "Is there a pattern emerging out of the disconnection in data and control connection?",
+      "depth": 1
+    },
+    {
+      "item": "Could there be a routing issue? Is only a specific set of Public Service Edge IPs (with common prefix) having the problem?",
+      "depth": 1
+    },
+    {
+      "item": "Could the firewall have an out-of-memory state? If so, could the firewall do a TCP RST of the existing connection to claim more memory?",
+      "depth": 1
+    },
+    {
+      "item": "To find the Public Service Edge’s name and begin resolving the issue:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Analytics > Diagnostics. For more information, see About Private Service Edge Status Diagnostics.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          18,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Choose Private Service Edge Status under Log Type.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          34
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Apply the Disconnected status filter:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Filters and select the Connection: Status Code filter from the drop-down menu.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          33,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Select the Equals Boolean operator from the drop-down menu.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Select the Disconnected status.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Apply.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Check the times in the Disconnect Time column to identify the correct Private Service Edge.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          23,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Find the name in the Service Edge column to identify the Public Service Edge name or Private Service Edge.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Repeat steps 4 and 5 if there are multiple times for the disconnection.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Private Service Edges Load Not Balanced",
+      "depth": 0
+    },
+    {
+      "item": "Sometimes the load (i.e., the interface stats) is not equally split between the Private Service Edges in the Private Service Edge group. Each Private Service Edge shares its load utilization with the Zscaler cloud once per minute. The Public Service Edges redirect the load across different Private Service Edges in a group by accounting for the relative CPU and memory utilization of each Private Service Edge. This redirection steers new connections over a period of time towards less loaded Private Service Edges over Private Service Edges that are heavily loaded.",
+      "depth": 0
+    },
+    {
+      "item": "To address the load not balancing, Zscaler recommends that the CPU and memory utilization of your Private Service Edges do not exceed the threshold. To learn more, see Monitoring Private Service Edge Performance.",
+      "depth": 0
+    },
+    {
+      "item": "Private Service Edges Pause State",
+      "depth": 0
+    },
+    {
+      "item": "A Private Service Edge can be in a paused state for one of the following reasons:",
+      "depth": 0
+    },
+    {
+      "item": "#define PAUSE_REASON_CERT_EXPIRY: Certificate expiry",
+      "depth": 1
+    },
+    {
+      "item": "#define PAUSE_REASON_UPGRADE: Software upgrade",
+      "depth": 1
+    },
+    {
+      "item": "#define PAUSE_REASON_ADMIN_PROBE_PROCESS_RESTART: Session process restart",
+      "depth": 1
+    },
+    {
+      "item": "#define PAUSE_REASON_ADMIN_PROBE_SYSTEM_RESTART: Session system restart",
+      "depth": 1
+    },
+    {
+      "item": "A Private Service Edge provides the following log when it enters the pause state:",
+      "depth": 0
+    },
+    {
+      "item": "ZPN_LOG(AL_INFO, \"Private broker(ID = %\"PRId64\") (Name = %s) entering PAUSE mode because of - %s\", gs->private_broker_id, gs->cfg_name, private_broker_state_get_pause_reason(gs->pause_reason));",
+      "depth": 0
+    },
+    {
+      "item": "Check the journalctl logs for the reason the Private Service Edge is in a pause state using the following command:",
+      "depth": 0
+    },
+    {
+      "item": "sudo journalctl | grep \"entering PAUSE mode because of\"",
+      "depth": 0
+    },
+    {
+      "item": "For remote troubleshooting, Private Service Edges may reject additional session commands when they are currently in a paused state. The following command is returned to the Private Service Edge console when they are currently in a paused state and reject a session command:",
+      "depth": 0
+    },
+    {
+      "item": "ADMIN_PROBE_LOG(AL_NOTICE, \"entity is currently in paused mode, not taking any probe commands\");",
+      "depth": 0
+    },
+    {
+      "item": "Private Service Edges Upgrade Failure",
+      "depth": 0
+    },
+    {
+      "item": "There are different possible reasons for Private Service Edge upgrade failures:",
+      "depth": 0
+    },
+    {
+      "item": "Upgrade is in a failed state for more than 24 hours.",
+      "depth": 1
+    },
+    {
+      "item": "Collect the outputs for the following:",
+      "depth": 1
+    },
+    {
+      "item": "sudo cat /opt/zscaler/var/version",
+      "depth": 2
+    },
+    {
+      "item": "sudo ls -lrta /opt/zscaler/var/version",
+      "depth": 2
+    },
+    {
+      "item": "sudo cat /opt/zscaler/var/updater.version",
+      "depth": 2
+    },
+    {
+      "item": "sudo /opt/zscaler/var/image.bin -version",
+      "depth": 2
+    },
+    {
+      "item": "sudo ls -lrta /opt/zscaler/var/image",
+      "depth": 2
+    },
+    {
+      "item": "Private Service Edge cannot download the image since there is no disk space left.",
+      "depth": 1
+    },
+    {
+      "item": "Check the disk space for the following directories:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo df -h /",
+      "depth": 2
+    },
+    {
+      "item": "sudo du -h /",
+      "depth": 2
+    },
+    {
+      "item": "sudo du -a/| -n -r | head -n",
+      "depth": 2
+    },
+    {
+      "item": "Delete any extra directories, except /opt/zscaler, to free up space. After disk space is available, the image downloads to opt/zscaler/var/image.bin.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Private Service Edge cannot download the image due to inconsistent connection between the Private Service Edge and pb2br (Private Service Edge to Public Service Edge endpoint).",
+      "depth": 1
+    },
+    {
+      "item": "Verify the Private Service Edge has a stable connection to the Public Service Edge.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "journalctl -n1000 | grep zscaler-update",
+      "depth": 1
+    },
+    {
+      "item": "Provisioning Key was deleted in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Private Service Edge page and identify the Private Service Edge’s group.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the provisioning key page and find the Private Service Edge group. If the group is not listed in the Private Service Edge group column, the key is no longer in the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Delete the Private Service Edge and re-enroll it, which allows you to create a new provisioning key for the Private Service Edge.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "If none of the above reasons are causing the upgrade failures, complete the following steps to try and resolve the upgrade failure:",
+      "depth": 0
+    },
+    {
+      "item": "Restart the Private Service Edge. To learn more, see Start, Stop, or Restart a Private Service Edge.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Stop the Private Service Edge.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Verify no processes are running.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[admin@localhost ~]$ sudo ps wU zscaler PID TTY STAT TIME COMMAND [admin@localhost ~]$",
+      "depth": 0
+    },
+    {
+      "item": "Start the Private Service Edge.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Return to the Private Service Edges page to see if the Update Status changes from Failure to Success. If the status still says Failure, proceed to the next step.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          82,
+          89
+        ],
+        [
+          93,
+          100
+        ],
+        [
+          127,
+          134
+        ]
+      ]
+    },
+    {
+      "item": "Check the logs and network connectivity by addressing any issues if identified.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Test connectivity to the upstream Public Service Edge by querying the DNS address pb2br.prod.zpath.net from the server that is running the Private Service Edge software.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "The endpoint for Private Service Edge to locate Public Service Edges is pb2br.",
+      "depth": 0
+    },
+    {
+      "item": "Successful connectivity results in two IPs. For example: [admin@localhost ~]$ dig +short pb2br.prod.zpath.net 13.60.119.37 42.68.244.163 [admin@localhost ~]$",
+      "depth": 0
+    },
+    {
+      "item": "Check if the Private Service Edge can start a TLS connection using the openssl command. You should receive a certificate subject string returned from the Public Service Edges.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "In the following example, repeat the test and replace the domain name safemarch.com highlighted in red with your own domain name:",
+      "depth": 0
+    },
+    {
+      "item": "[admin@localhost ~]$ openssl s_client -servername safemarch.com.c2.prod.zpath.net -connect pb2br.prod.zpath.net:443 2>&1 | grep subject subject=/C=US/ST=California/L=San Jose/O=Zscaler/OU=Emerging Technologies/CN=broker1.was1.prod.zpath.net",
+      "depth": 0
+    },
+    {
+      "item": "If you receive a certificate subject, proceed to the next step.",
+      "depth": 0
+    },
+    {
+      "item": "If you do not receive a subject string, there is likely an error with TLS communication. Review the Private Access firewall policies and make any adjustments as needed: config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud).",
+      "depth": 0
+    },
+    {
+      "item": "Revert to the default Private Service Edge version.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Stop the Private Service Edge. To learn more, see Start, Stop, or Restart a Private Service Edge.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Remove the Private Service Edge binary image, the version identifier file, and the image metadata file.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo rm /opt/zscaler/var/image.bin [admin@zpa-service-edge ~]$ sudo rm /opt/zscaler/var/version [admin@zpa-service-edge ~]$ sudo rm /opt/zscaler/var/metadata",
+      "depth": 0
+    },
+    {
+      "item": "Start the Private Service Edge. The Private Service Edge reaches out to the Zscaler cloud and re-downloads the default Private Service Edge software version. The Private Service Edge attempts to upgrade at a later time.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Check the following logs to verify the software version downloaded:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo journalctl -u zpa-service-edge -f",
+      "depth": 0
+    },
+    {
+      "item": "If the software downloads, return to the Private Service Edges page to see if the Update Status changes from Failure to Scheduled.",
+      "depth": 0,
+      "strong": [
+        [
+          109,
+          116
+        ],
+        [
+          120,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "If the software did not download or the Private Service Edge still does not update, proceed to the next step.",
+      "depth": 0
+    },
+    {
+      "item": "Wipe and rebuild the Private Service Edge configuration.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Before you wipe and rebuild the Private Service Edge, you must:",
+      "depth": 0
+    },
+    {
+      "item": "Identify the Private Service Edge group for the Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Identify the Provisioning Key of the Private Service Edge group.",
+      "depth": 1
+    },
+    {
+      "item": "On the Service Edge Provisioning Key page, verify the number of provisioning keys in the # of Enrolled Service Edges column is less than the number in the Maximum # of Service Edges column for the provisioning key.",
+      "depth": 1,
+      "strong": [
+        [
+          89,
+          116
+        ],
+        [
+          155,
+          181
+        ]
+      ]
+    },
+    {
+      "item": "If needed, you can raise the maximum enrollment count. To learn more, see Editing Private Service Edge Provisioning Keys.",
+      "depth": 0
+    },
+    {
+      "item": "Stop the Private Service Edge. To learn more, see Start, Stop, or Restart a Private Service Edge.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Wipe the configuration directory.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-serivce-edge]$ sudo su [sudo] password for admin: [root@zpa-serivce-edge]# rm -rf /opt/zscaler/var/service-edge/*",
+      "depth": 1
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo touch /opt/zscaler/var/service-edge/provision_key [admin@zpa-service-edge ~]$ sudo chmod 644 /opt/zscaler/var/service-edge/provision_key",
+      "depth": 0
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console and use an editor to paste it into the file. To learn more, see About the Private Service Edge Provisioning Keys.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Save the provisioning key file.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Start the Private Service Edge. The Private Service Edge service should pick up the provisioning key and re-enroll the Private Service Edge under the appropriate Private Service Edge group.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Private Service Edges Upgrade Partial Failure",
+      "depth": 0
+    },
+    {
+      "item": "When one of the supporting files fails to upgrade, the Upgrade Status of the Private Service Edge results in a Partial Failure. There are different reasons why the Private Service Edge can fail to install the supporting file:",
+      "depth": 0
+    },
+    {
+      "item": "Private Service Edge is not connected to a Public Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "View the event logs to confirm the connection to the Public Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge does not have enough bandwidth.",
+      "depth": 1
+    },
+    {
+      "item": "Monitor and reduce the data throughput of the Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Private Service Edge does not have enough disk space.",
+      "depth": 1
+    },
+    {
+      "item": "Installing the supporting files requires 150 MB of disk space for the initial installation, and then an additional 150 MB for the upgrade. If there is not adequate disk space for the upgrade, reduce the disk space of the Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "If none of the above reasons are causing the Partial Failure, contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "Enrollment Failure",
+      "depth": 0
+    },
+    {
+      "item": "If there is a failure when bringing up a new Private Service Edge, check the following:",
+      "depth": 0
+    },
+    {
+      "item": "Primary domain name length is less than 36 characters. Names greater than 36 characters can cause problems when forming a certificate.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "The user account zscaler has read access to /etc/resolv.conf.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "The user account zscaler has write access to /opt/zscaler/var.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "If enrollment failure is still an issue, there are different possible reasons for Private Service Edge enrollment failures:",
+      "depth": 0
+    },
+    {
+      "item": "Have Less Than 100 Active Private Service Edges, But Can't Enroll More",
+      "depth": 1
+    },
+    {
+      "item": "You might experience issues where you cannot enroll a new Private Service Edge in the Zscaler Admin Console, but you have less than 100 active Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Within the Zscaler Admin Console, you can have up to 100 Private Service Edges. This total includes both Private Service Edges enrolled that are active and Private Service Edges that are disabled, but not deleted. If you need to add more Private Service Edges, delete the disabled Private Service Edges and try enrolling your new Private Service Edge. To learn more, see Configuring Private Service Edges.",
+      "depth": 1
+    },
+    {
+      "item": "Certificate Is Not Valid Yet",
+      "depth": 1
+    },
+    {
+      "item": "If a Private Service Edges is not enrolling, you might see an error signifying that the certificate is not valid yet, similar to the following:",
+      "depth": 1
+    },
+    {
+      "item": "Sep 19 14:12:40 localhost.prod.zpath.net zpa-service-edge-child[13303]: Fetch CSR Fields from api-f4.prod.zpath.nethttps://api-f4.prod.zpath.net/zpn/api/v2/admin/broker/onboard/details failed: Expected HTTP 200, got HTTP 400 Sep 19 14:12:40 localhost.prod.zpath.net zpa-service-edge-child[13303]: Could not fetch CSR fields Sep 19 14:12:40 localhost.prod.zpath.net zpa-service-edge-child[13303]: Fetch CSR Response - nonce(<2|api-f4.prod.zpath.net|Y7Pn1SF...>) fingerprint(<DzGT1uFr76...>) { \"reason\": \"nonce usage count reached the limit nonce.maxUsage\", \"id\": \"nonce.usage.exceeded\", \"params\": [ \"nonce.maxUsage\" ], \"hostname\": \"localhost\" } Sep 19 14:12:40 localhost.prod.zpath.net zpa-service-edge-child[13303]: Certificate enrollment failed. Sep 19 14:12:40 localhost.prod.zpath.net zpa-service-edge-child[13303]: Failed to enroll. Sep 19 14:12:40 localhost.prod.zpath.net zpa-service-edge-child[13303]: Error: ZPATH_RESULT_ERR, Could not enroll Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "The Private Service Edges enrollment process involves the creation of certificates. If the Private Service Edge’s timestamp does not match the timestamp on the Private Access back-end servers, there can be a delay before the certificate becomes valid and enrolls the Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "To resolve this issue, verify that the time on the Private Service Edges is properly set and maintained. To learn more, see Configure Network Time Protocol (NTP) Servers for a Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Configuration and Binary Snapshots Not Captured",
+      "depth": 0
+    },
+    {
+      "item": "If the disk space utilization of the Private Service Edge exceeds 90%, the configuration and binary snapshots used for disaster recovery can no longer be captured until the low disk space condition is resolved.",
+      "depth": 0
+    },
+    {
+      "item": "Check the disk space in the following directories:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo df -h / sudo du -h / sudo du -a/| -n -r | head -n",
+      "depth": 0
+    },
+    {
+      "item": "Review and delete any extra directories, except /opt/zscaler, to free up space. After sufficient disk space is available, the snapshot creation resumes and the snapshots are sent to the following directories:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Configuration: /opt/zscaler/var/service-edge/config_snapshots",
+      "depth": 1
+    },
+    {
+      "item": "Binary: /opt/zscaler/var/service-edge/binary_snapshots",
+      "depth": 1
+    },
+    {
+      "item": "Disaster Recovery Debugging",
+      "depth": 0
+    },
+    {
+      "item": "When troubleshooting for disaster recovery, consider the following debug commands:",
+      "depth": 0
+    },
+    {
+      "item": "Dump the List of Applications Designated for Disaster Recovery",
+      "depth": 1
+    },
+    {
+      "item": "During a disaster scenario, it might be necessary to review the list of applications designated for disaster recovery. To dump the list of applications designated for disaster recovery, use the following curl command:",
+      "depth": 1
+    },
+    {
+      "item": "curl 'localhost:8500/zpn/zpn_dr/show_dr_apps'",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "% curl 'localhost:8500/assistant/zpn_dr/show_dr_apps' App#1 name: test1_dr_app_enabled app_gid: 145257608574402742 App#2 name: test2_app_segment app_gid: 145257608574402724 App#3 name: test3_dr_app app_gid: 145257608574402582 %",
+      "depth": 1
+    },
+    {
+      "item": "Dump the Stats of the Configuration JSON Files",
+      "depth": 1
+    },
+    {
+      "item": "Configuration and binary snapshots are copies of the disaster recovery configuration and binary files used for backup when App Connectors or Private Service Edges are designated for disaster recovery. To learn more, see Managing Disaster Recovery Configuration and Binary Snapshots.",
+      "depth": 1
+    },
+    {
+      "item": "To dump the stats of the configuration JSON files, use the following curl command:",
+      "depth": 1
+    },
+    {
+      "item": "curl 'localhost:8500/zpn/zpn_dr/config_json_stats'",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "% curl 'localhost:9000/zpn/zpn_dr/config_json_stats' Config file name :unknown, size :0 bytes, last_modified_time:Sep 30 22:36 2022 Config file name :customer_conf.json, size :17218 bytes, last_modified_time:Sep 30 22:36 2022 Config file name :application_conf.json, size :13336 bytes, last_modified_time:Sep 30 22:36 2022 Config file name :override_conf.json, size :83386 bytes, last_modified_time:Sep 30 22:36 2022 Config file name :other_conf.json, size :0 bytes, last_modified_time:Sep 30 22:36 2022",
+      "depth": 1
+    },
+    {
+      "item": "Resolve the Disaster Recovery DNS A and DNS TXT Records",
+      "depth": 1
+    },
+    {
+      "item": "During a disaster scenario, it might be necessary to update an incorrect DNS record domain name. To resolve the disaster recovery DNS A and DNS TXT records and display the output to standard output, use the following curl command:",
+      "depth": 1
+    },
+    {
+      "item": "curl 'localhost:8500/zpn/zpn_dr/resolve_dr_domain?record_type={argument}'",
+      "depth": 1
+    },
+    {
+      "item": "Provide one of the following expected values for the record_type argument:",
+      "depth": 1
+    },
+    {
+      "item": "A: Indicates a DNS A record.",
+      "depth": 2
+    },
+    {
+      "item": "TXT: Indicates a DNS TXT record.",
+      "depth": 2
+    },
+    {
+      "item": "The argument values are not case sensitive, meaning the values a and txt are supported as well.",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "% curl 'localhost:8500/zpn/zpn_dr/resolve_dr_domain?record_type=a' Resolving DR domain:dr.zpa.drdemo.com record_type:A Synchronous. DNS A response addr1 : 192.168.76.18 %",
+      "depth": 1
+    },
+    {
+      "item": "Show the Critical Settings for Disaster Recovery",
+      "depth": 1
+    },
+    {
+      "item": "During a disaster scenario, it might be necessary to review the disaster recovery settings that were configured. To show the critical settings for disaster recovery, use the following curl command:",
+      "depth": 1
+    },
+    {
+      "item": "curl 'localhost:8500/zpn/zpn_dr/show_configuration'",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "% curl 'localhost:8500/zpn/zpn_dr/show_configuration' DR activation domain: dr.zpa.drdemo.com DR publickey uploaded: NO DR Max auth interval secs: 1209600 %",
+      "depth": 1
+    },
+    {
+      "item": "In Disaster Recovery Mode and Disaster Recovery Test Mode, all App Connectors in an App Connector group that are designated for disaster recovery restart their zpa-connector services, and all Private Service Edges in a Private Service Edge group that are designated for disaster recovery restart their zpa-service-edge services. When the services restart, existing user connections to the test App Connectors and Private Service Edges that are designated for disaster recovery are dropped. To learn more, see Configuring Disaster Recovery.",
+      "depth": 0
+    }
+  ]
+}

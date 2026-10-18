@@ -11,7 +11,7 @@ sources:
   - "vendor/zscaler-help/cbc-accessing-cloud-branch-connector-monitoring.json"
   - "vendor/zscaler-help/cbc-analyzing-branch-connector-details.json"
   - "vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json"
-  - "vendor/zscaler-help/nss-firewall-logs.csv"
+  - "vendor/zscaler-help/nss-feed-output-format-firewall-logs.json"
   - "vendor/zscaler-help/about-log-streaming-service.json"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/ecgroup/ecgroup.go"
   - "vendor/zscaler-sdk-go/zscaler/ztw/services/common/common.go"
@@ -52,7 +52,7 @@ Source: `vendor/zscaler-help/cbc-about-insights.json`; `vendor/zscaler-help/cbc-
 
 ## NSS for Firewall — session log fields
 
-Cloud Connector uses **NSS for Firewall** (not NSS for Web) as its SIEM streaming mechanism. NSS for Firewall must be subscribed separately for Cloud & Branch Connector, and only the NSS for Firewall configurations apply — the NSS for Web configurations are not applicable to CC (Tier C — `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json:18,24`). The NSS for Firewall field schema is the same schema used by ZIA's firewall log stream; every specifier below is drawn from the firewall log field reference (Tier C — `vendor/zscaler-help/nss-firewall-logs.csv`).
+Cloud Connector uses **NSS for Firewall** (not NSS for Web) as its SIEM streaming mechanism. NSS for Firewall must be subscribed separately for Cloud & Branch Connector, and only the NSS for Firewall configurations apply — the NSS for Web configurations are not applicable to CC (Tier C — `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json:18,24`). The NSS for Firewall field schema is the same schema used by ZIA's firewall log stream; every specifier below is drawn from the firewall log field reference (Tier C — `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`).
 
 CC session logs streamed via NSS for Firewall carry the standard ZIA firewall log fields. Key fields for CC context:
 
@@ -128,9 +128,9 @@ CC session logs streamed via NSS for Firewall carry the standard ZIA firewall lo
 
 For the full NSS firewall log schema (all fields), see [`zia.logs.firewall-records`](kb:zia.logs.firewall-records). The CC session logs use the same field set.
 
-Field specifiers, descriptions, and examples above are drawn from `vendor/zscaler-help/nss-firewall-logs.csv` (e.g., `ttype` → "L2 tunnel" at `nss-firewall-logs.csv:20`, `aggregate` → "Indicates whether the Firewall session is aggregated" at `nss-firewall-logs.csv:21`, `login` → "The user's login name in email address format" at `nss-firewall-logs.csv:61`). The CC subscription and Firewall-vs-Web applicability claims come from `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json:18,24`.
+Field specifiers, descriptions, and examples above are drawn from `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json` (e.g., `ttype` → "L2 tunnel" at `nss-firewall-logs.csv:20`, `aggregate` → "Indicates whether the Firewall session is aggregated" at `nss-firewall-logs.csv:21`, `login` → "The user's login name in email address format" at `nss-firewall-logs.csv:61`). The CC subscription and Firewall-vs-Web applicability claims come from `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json:18,24`.
 
-Source: `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json`.
+Source: `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/cbc-deploying-nss-virtual-appliances.json`.
 
 ---
 
@@ -300,9 +300,9 @@ If the Log & Control Forwarding gateway becomes unreachable, CC continues forwar
 
 ### Aggregated sessions lose per-connection detail
 
-The NSS firewall log aggregation behavior applies to CC session logs. When sessions are aggregated (`%s{aggregate} = Yes`), the client source IP/port, client destination IP/port, client tunnel IP, server destination IP/port, and server source IP/port all reflect only the **last session** in the aggregate (`vendor/zscaler-help/nss-firewall-logs.csv:13-16,18,37-40`). Per-session detail is lost. For investigations requiring per-connection granularity, use shorter time windows to reduce aggregation.
+The NSS firewall log aggregation behavior applies to CC session logs. When sessions are aggregated (`%s{aggregate} = Yes`), the client source IP/port, client destination IP/port, client tunnel IP, server destination IP/port, and server source IP/port all reflect only the **last session** in the aggregate (`vendor/zscaler-help/nss-feed-output-format-firewall-logs.json:13-16,18,37-40`). Per-session detail is lost. For investigations requiring per-connection granularity, use shorter time windows to reduce aggregation.
 
-Source: `vendor/zscaler-help/nss-firewall-logs.csv`; `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/cbc-about-insights.json`.
+Source: `vendor/zscaler-help/nss-feed-output-format-firewall-logs.json`; `vendor/zscaler-help/about-log-streaming-service.json`; `vendor/zscaler-help/cbc-about-insights.json`.
 
 ---
 

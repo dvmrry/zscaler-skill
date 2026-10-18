@@ -8,13 +8,13 @@ confidence: high
 source-tier: doc
 sources:
   - "https://help.zscaler.com/zpa/understanding-user-activity-log-fields"
-  - "vendor/zscaler-help/Understanding_User_Activity_Log_Fields.txt"
+  - "vendor/zscaler-help/understanding-user-activity-log-fields.json"
   - "https://help.zscaler.com/zpa/understanding-log-stream-content-format"
-  - "vendor/zscaler-help/Understanding_the_Log_Stream_Content_Format.txt"
+  - "vendor/zscaler-help/understanding-log-stream-content-format.json"
   - "https://help.zscaler.com/zpa/about-user-status-log-fields"
-  - "vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt"
+  - "vendor/zscaler-help/understanding-user-status-log-fields.json"
   - "https://help.zscaler.com/zpa/about-app-connector-metrics-log-fields"
-  - "vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt"
+  - "vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json"
 author-status: draft
 ---
 
@@ -204,8 +204,8 @@ The wording "since the last transaction log" on the delta byte counters (`ZENByt
 
 Separate schemas; each documented on its own help article. Vendored PDFs we have:
 
-- **User Status** — session authentication/enrollment events. See `vendor/zscaler-help/Understanding_User_Status_Log_Fields.txt` for field list. (Separate schema doc not authored yet.)
-- **App Connector Metrics** — per-connector telemetry. See `vendor/zscaler-help/Understanding_App_Connector_Metrics_Log_Fields.txt`. (Separate schema doc not authored yet.)
+- **User Status** — session authentication/enrollment events. See `vendor/zscaler-help/understanding-user-status-log-fields.json` for field list. (Separate schema doc not authored yet.)
+- **App Connector Metrics** — per-connector telemetry. See `vendor/zscaler-help/understanding-app-connector-metrics-log-fields.json`. (Separate schema doc not authored yet.)
 
 Not vendored: Audit Logs, App Connector Status, Browser Access, Microsegmentation Flow, Private Cloud Controller Metrics/Status, Private Service Edge Metrics/Status, Web Inspection field references.
 

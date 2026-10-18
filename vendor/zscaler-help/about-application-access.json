@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Application Access",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/about-application-access",
+    "node": "1483876",
+    "revision": "3213782"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "There are two ways to provide access to applications, through an application definition or by application discovery."
+    },
+    {
+      "heading": "About Application Definitions",
+      "level": 1
+    },
+    {
+      "text": "When configuring defined application segments, you can define individual applications to change their settings (e.g., Double Encryption, Health Reporting, etc.) or configure different access policies for them. For example, if you want to allow only specific users access to the application marketing.safemarch.com and allow another group of users to access sales.safemarch.com, you can explicitly define each application. You can then configure policies referencing those applications individually. When configuring two or more application segments, ensure that there is no conflict in destination ports."
+    },
+    {
+      "item": "Example of conflicting application segments",
+      "depth": 0
+    },
+    {
+      "item": "If two or more application segments cover the same destination address, Zscaler Client Connector attempts to match traffic to the more granular application segment. If there is no match in this application segment for the destination port, Zscaler Client Connector bypasses Private Access (ZPA) and sends traffic directly. Consider the following configuration as an example of two conflicting application segments:",
+      "depth": 0
+    },
+    {
+      "item": "Application Segment 1",
+      "depth": 1
+    },
+    {
+      "item": "FQDN: *.example.com",
+      "depth": 2
+    },
+    {
+      "item": "Ports: TCP 1-65535 UDP 1-65535",
+      "depth": 2
+    },
+    {
+      "item": "Application Segment 2",
+      "depth": 1
+    },
+    {
+      "item": "FQDN: www.example.com",
+      "depth": 2
+    },
+    {
+      "item": "Ports: TCP 8843",
+      "depth": 2
+    },
+    {
+      "item": "If a user navigates to www.example.com:80, the request resolves to the more specific FQDN in Application Segment 2, but fails at the closed port 80. Zscaler Client Connector does not forward traffic to Application Segment 1, and the client connection request is dropped by Private Access. This can be resolved by ensuring ports are properly configured to allow access. For example:",
+      "depth": 0
+    },
+    {
+      "item": "Application Segment 1",
+      "depth": 1
+    },
+    {
+      "item": "FQDN: *.example.com",
+      "depth": 2
+    },
+    {
+      "item": "Ports: TCP 1-65535 udp 1-65535",
+      "depth": 2
+    },
+    {
+      "item": "Application Segment 2",
+      "depth": 1
+    },
+    {
+      "item": "FQDN: www.example.com",
+      "depth": 2
+    },
+    {
+      "item": "Ports: TCP 80",
+      "depth": 2
+    },
+    {
+      "heading": "Defining an Application",
+      "level": 1
+    },
+    {
+      "text": "To define an application within an application segment, you must enter one or more of the following:"
+    },
+    {
+      "item": "FQDN (e.g., marketing.safemarch.com)",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Local domain name (e.g., directory.safemarch.local)",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "IP address (e.g., 10.66.67.142)",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Wildcard domain (e.g., *.safemarch.com)",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Wildcard only (e.g., *)",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Defining an application with a wildcard only requires approval from Zscaler, and it is not available for application discovery. Contact Zscaler Support for more information."
+    },
+    {
+      "text": "You can also configure FQDNs or domain names and IP subnets to enable application discovery."
+    },
+    {
+      "text": "For applications that users access using only the hostname (e.g., DFS), ensure that you configure DNS search domains so Private Access automatically adds the search domain to the hostname."
+    }
+  ]
+}

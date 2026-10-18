@@ -108,7 +108,8 @@
   ],
   "claims": {
     "two-names": {
-      "statement": "The DNS log CSV lists each field under an NSS format specifier and, where one exists, an Insights Logs column name, for example %s{time} as Logged Time and %s{req} as Requested Domain.",
+      "statement": "The DNS field table lists each field under an NSS format specifier and, where one exists, an Insights Logs column name, for example %s{time} as Logged Time and %s{req} as Requested Domain.",
+      "conditions": "Statement word changed on recapture (2026-10-18): the source is now the DNS field table in nss-feed-output-format-dns-logs.json, not the CSV.",
       "tier": "A",
       "binds": [
         "zia/dns-log#time",
@@ -117,10 +118,10 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "Table,Field,Description,Example,Insights Logs",
-            "%s{req},The Fully Qualified Domain Name (FQDN) in the DNS request,mail.safemarch.com,Requested Domain"
+            "| %s{time} | The time and date of the transaction. This excludes the time zone. | Mon Oct 16 22:55:48 2023 | Logged Time",
+            "| %s{req} | The Fully Qualified Domain Name (FQDN) in the DNS request | mail.safemarch.com | Requested Domain"
           ]
         }
       ]
@@ -137,11 +138,11 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "%d{recordid},The unique record identifier for each log,,This field is specific to NSS",
-            "%s{company},The company name,Zscaler,This field is specific to NSS",
-            "%s{cloudname},The Zscaler cloud name,zscaler.net,This field is specific to NSS"
+            "| %d{recordid} | The unique record identifier for each log | | This field is specific to NSS",
+            "| %s{company} | The company name | Zscaler | This field is specific to NSS",
+            "| %s{cloudname} | The Zscaler cloud name | zscaler.net | This field is specific to NSS"
           ]
         }
       ]
@@ -158,12 +159,12 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "%d{epochtime},The epoch time of the transaction,1578128400,",
-            "%s{tz},The time zone. This is the same as the time zone you specified when you configured the NSS feed.,GMT,",
-            "%s{datacentercity},The city where the data center is located,Sa,",
-            "%s{datacentercountry},The country where the data center is located,US,"
+            "| %d{epochtime} | The epoch time of the transaction | 1578128400 |",
+            "| %s{tz} | The time zone. This is the same as the time zone you specified when you configured the NSS feed. | GMT |",
+            "| %s{datacentercity} | The city where the data center is located | Sa |",
+            "| %s{datacentercountry} | The country where the data center is located | US |"
           ]
         }
       ]
@@ -185,10 +186,10 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "%02d{ss},Seconds (0–59),48,This field is derived from Logged Time",
-            "%s{time},The time and date of the transaction. This excludes the time zone."
+            "| %02d{ss} | Seconds (0–59) | 48 | This field is derived from Logged Time",
+            "| %s{time} | The time and date of the transaction. This excludes the time zone."
           ]
         }
       ]
@@ -202,9 +203,9 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "%s{tz},The time zone. This is the same as the time zone you specified when you configured the NSS feed."
+            "| %s{tz} | The time zone. This is the same as the time zone you specified when you configured the NSS feed."
           ]
         }
       ]
@@ -218,9 +219,9 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "%s{eedone},Indicates if the characters specified in the Feed Escape Character field of the NSS configuration page were hex encoded,Yes"
+            "| %s{eedone} | Indicates if the characters specified in the Feed Escape Character field of the NSS configuration page were hex encoded | Yes"
           ]
         }
       ]
@@ -234,10 +235,10 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "This can be the internal IP address if it is visible (e.g., traffic sent through a GRE tunnel or an internal IP address indicated using XFF).",
-            "Otherwise, it's the client's internet (NATed Public) IP address."
+            "traffic sent through a GRE tunnel or an internal IP address indicated using XFF).",
+            "it's the client's internet (NATed Public) IP address."
           ]
         }
       ]
@@ -251,11 +252,11 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
             "The PCAP ID has the following format: <Company ID>/<Directory>/<PCAP File Name>.",
             "The directory is the log type.",
-            "To download the PCAP file, go to the Capture column on the DNS Insights Logs page."
+            "go to the Capture column on the DNS Insights Logs page."
           ]
         }
       ]
@@ -271,11 +272,11 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
             "DoH (DNS over HTTP)",
-            "%s{http_code},The HTTP return code used in DNS over HTTPS sessions,100 - Continue,HTTP Status Code",
-            "%d{istcp},Indicates if the DNS transaction uses TCP"
+            "| %s{http_code} | The HTTP return code used in DNS over HTTPS sessions | 100 - Continue | HTTP Status Code",
+            "| %d{istcp} | Indicates if the DNS transaction uses TCP"
           ]
         }
       ]
@@ -290,11 +291,11 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "%s{devicetype},The type of device,\"Zscaler Client Connector",
+            "| %s{devicetype} | The type of device | Zscaler Client Connector",
             "Cloud Browser isolation",
-            "Zscaler Client Connector Device Information,%s{devicehostname}"
+            "| %s{devicehostname}"
           ]
         }
       ]
@@ -309,10 +310,10 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "%s{domcat},The category of the content of the DNS request,Professional Services,Request Categories",
-            "%s{respipcat},The category of the content of the DNS response,Adult Themes,Response Categories"
+            "| %s{domcat} | The category of the content of the DNS request | Professional Services | Request Categories",
+            "| %s{respipcat} | The category of the content of the DNS response | Adult Themes | Response Categories"
           ]
         }
       ]
@@ -327,9 +328,9 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "nss-dns-logs.csv",
+          "path": "nss-feed-output-format-dns-logs.json",
           "quotes": [
-            "%s{ecs_slot},The name of the EDNS Client Subnet (ECS) rule that was applied to the DNS transaction,ECS Slot #17,ECS Object Name",
+            "| %s{ecs_slot} | The name of the EDNS Client Subnet (ECS) rule that was applied to the DNS transaction | ECS Slot #17 | ECS Object Name",
             "This field displays a numeric string."
           ]
         }

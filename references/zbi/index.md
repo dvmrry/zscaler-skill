@@ -18,7 +18,7 @@ confidence: high
 source-tier: mixed
 sources:
   - "vendor/zscaler-help/what-is-zero-trust-browser.json"
-  - "vendor/zscaler-help/understanding-turbo-mode-isolation.json"
+  - "vendor/zscaler-help/ztb-turbo-mode-isolation.json"
   - "vendor/zscaler-help/configuring-smart-browser-isolation-policy.json"
   - "vendor/zscaler-help/zpa-about-isolation-policy.json"
   - "vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py"
@@ -44,7 +44,7 @@ author-status: draft
 
 # Zero Trust Browser / Cloud Browser Isolation (ZBI) reference hub
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `vendor/zscaler-help/zpa-about-isolation-policy.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/ztb-turbo-mode-isolation.json`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `vendor/zscaler-help/zpa-about-isolation-policy.json`.
 
 Entry point for browser-isolation questions. Zero Trust Browser renders web pages on an ephemeral **cloud-hosted browser** and streams the result to the user's native browser, so HTML/CSS/JS never reach the endpoint (`vendor/zscaler-help/what-is-zero-trust-browser.json:14`, `:18`). It is used for internet traffic routed through ZIA policies and private-app access routed through ZPA isolation policy (`vendor/zscaler-help/what-is-zero-trust-browser.json:22`, `vendor/zscaler-help/zpa-about-isolation-policy.json:16`).
 
@@ -63,7 +63,7 @@ Important namespace caveat: the current Python SDK's `client.zbi` service is exp
 
 ## Topics
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `vendor/zscaler-help/zpa-about-isolation-policy.json`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go`; `vendor/terraform-provider-zpa/zpa/provider.go`; `vendor/ziacloud-ansible/plugins/modules/zia_cloud_browser_isolation_profile_info.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/ztb-turbo-mode-isolation.json`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `vendor/zscaler-help/zpa-about-isolation-policy.json`; `vendor/zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py`; `vendor/zscaler-sdk-go/zscaler/zia/services/browser_isolation/browser_isolation_profile.go`; `vendor/zscaler-sdk-go/zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go`; `vendor/terraform-provider-zia/zia/data_source_zia_cloud_browser_isolation_profile.go`; `vendor/terraform-provider-zpa/zpa/provider.go`; `vendor/ziacloud-ansible/plugins/modules/zia_cloud_browser_isolation_profile_info.py`; `vendor/zpacloud-ansible/plugins/modules/zpa_policy_access_isolation_rule_v2.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/get_isolation_profile.py`; `vendor/zscaler-mcp-server/src/zscaler_mcp/tools/zpa/access_isolation_rules.py`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
 | Topic | File | Status |
 |---|---|---|
@@ -74,7 +74,7 @@ Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-h
 
 ## Scope
 
-Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/understanding-turbo-mode-isolation.json`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `vendor/zscaler-help/zpa-about-isolation-policy.json`.
+Source: `vendor/zscaler-help/what-is-zero-trust-browser.json`; `vendor/zscaler-help/ztb-turbo-mode-isolation.json`; `vendor/zscaler-help/configuring-smart-browser-isolation-policy.json`; `vendor/zscaler-help/zpa-about-isolation-policy.json`.
 
 In scope:
 

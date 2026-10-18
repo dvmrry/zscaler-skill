@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "User Authentication Settings",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/user-authentication-settings",
+    "node": "1402521",
+    "revision": "2761061",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/User%20Authentication%20Settings_1.json?VersionId=pFEhkcLlzlf0DFe0iQXIsDVh0to53_Hy"
+  },
+  "captured_at": "2026-10-18",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "User Authentication Settings"
+      }
+    ],
+    "paths": {
+      "/authSettings/exemptedUrls": {
+        "get": {
+          "tags": [
+            "User Authentication Settings"
+          ],
+          "description": "<p>Gets a list of URLs that were exempted from <a href=\"/zia/about-zscaler-cookies\" target=\"_blank\">cookie authentication</a>. To learn more, see <a href=\"/zia/url-format-guidelines\" target=\"_blank\">URL Format Guidelines</a>.</p> ",
+          "operationId": "getAuthExemptedUrls",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Urls"
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "User Authentication Settings"
+          ],
+          "description": "<p>Adds a URL to or removes a URL from the <a href=\"/zia/about-zscaler-cookies\" target=\"_blank\">cookie authentication</a> exempt list. To add a URL to the list, set the action parameter to <code>ADD_TO_LIST</code>. To remove a URL, set action to <code>REMOVE_FROM_LIST</code>.</p>",
+          "operationId": "updateAuthExemptedUrls",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "action",
+              "in": "query",
+              "description": "The action applied to the exempted URLs list (i.e., adding a URL or removing a URL).",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "ADD_TO_LIST",
+                "REMOVE_FROM_LIST"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Urls"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Urls": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "description": "Domains or URLs which are exempted from SSL Inspection",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
